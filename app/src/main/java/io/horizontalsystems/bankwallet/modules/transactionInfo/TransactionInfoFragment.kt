@@ -13,6 +13,7 @@ import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.transactionInfo.adapters.TransactionInfoAdapter
 import io.horizontalsystems.bankwallet.modules.transactionInfo.options.TransactionSpeedUpCancelFragment
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
@@ -104,15 +105,19 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
         }
     }
 
-    override fun onLockInfoClick(lockDate: Date) {
+    override fun onLockInfoClick(lockDate: Date,unlockedHeight:Long?) {
         context?.let {
             val title = it.getString(R.string.Info_LockTime_Title)
-            val description = it.getString(
+//            val description = it.getString(
+//                R.string.Info_LockTime_Description,
+//                DateHelper.getFullDate(lockDate)
+//            )
+            val description = Translator.getString(
                 R.string.Info_LockTime_Description,
-                DateHelper.getFullDate(lockDate)
+                unlockedHeight!!,
+                DateHelper.getFullDate(lockDate),
             )
             val infoParameters = InfoParameters(title, description)
-
             findNavController().navigate(R.id.infoFragment, InfoFragment.arguments(infoParameters))
         }
     }

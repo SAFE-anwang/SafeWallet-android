@@ -1,8 +1,6 @@
-package io.horizontalsystems.bankwallet.modules.send.bitcoin
+package io.horizontalsystems.bankwallet.modules.send.safe
 
 import io.horizontalsystems.bankwallet.core.AppLogger
-import io.horizontalsystems.bankwallet.core.NoFeeSendTransactionError
-import io.horizontalsystems.bankwallet.entities.FeeRateState
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
@@ -12,17 +10,14 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoModu
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
-import io.horizontalsystems.marketkit.models.CoinType
 import io.reactivex.Single
 import java.math.BigDecimal
 
-class SendBitcoinHandler(
-    private val interactor: SendModule.ISendBitcoinInteractor,
-    private val coinType: CoinType
-)
-    : SendModule.ISendHandler, SendModule.ISendBitcoinInteractorDelegate, SendAmountModule.IAmountModuleDelegate,
-    SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
-    SendHodlerModule.IHodlerModuleDelegate {
+class SendSafeHandler(
+        private val interactor: SendModule.ISendSafeInteractor)
+    : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate, SendAmountModule.IAmountModuleDelegate,
+      SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
+      SendHodlerModule.IHodlerModuleDelegate {
 
     private fun syncValidation() {
         var amountError: Throwable? = null
@@ -43,21 +38,17 @@ class SendBitcoinHandler(
         delegate.onChange(amountError == null && addressError == null && feeModule.isValid, amountError, addressError)
     }
 
+    private fun syncAvailableBalance() {
+        interactor.fetchAvailableBalance(addressModule.currentAddress?.hex)
+    }
+
+    private fun syncFee() {
+        interactor.fetchFee(amountModule.coinAmount.value, addressModule.currentAddress?.hex)
+    }
+
     private fun syncMinimumAmount() {
         amountModule.setMinimumAmount(interactor.fetchMinimumAmount(addressModule.currentAddress?.hex))
         syncValidation()
-    }
-
-    private fun syncMaximumAmount() {
-        hodlerModule?.let {
-            amountModule.setMaximumAmount(interactor.fetchMaximumAmount(it.pluginData()))
-            syncValidation()
-        }
-    }
-
-    private fun syncCurrencyAmount() {
-        feeModule.setAmountInfo(amountModule.sendAmountInfo)
-        syncState()
     }
 
     // SendModule.ISendHandler
@@ -69,62 +60,25 @@ class SendBitcoinHandler(
     override var hodlerModule: SendHodlerModule.IHodlerModule? = null
 
     override lateinit var delegate: SendModule.ISendHandlerDelegate
-
-    override fun sync() {
-        if (feeModule.feeRateState.isError) {
-
-            feeModule.fetchFeeRate()
-            syncState()
-            syncValidation()
-        }
-    }
-
-    private fun syncState() {
-        val loading = feeModule.feeRateState.isLoading
-
-        amountModule.setLoading(loading)
-        feeModule.setLoading(loading)
-
-        if (loading)
-            return
-
-        if (feeModule.feeRateState is FeeRateState.Error) {
-
-            feeModule.setFee(BigDecimal.ZERO)
-            feeModule.setError((feeModule.feeRateState as FeeRateState.Error).error)
-
-        } else if (feeModule.feeRateState is FeeRateState.Value) {
-
-            val feeRateValue = (feeModule.feeRateState as FeeRateState.Value).value
-            feeModule.setError(null)
-            interactor.fetchAvailableBalance(feeRateValue, addressModule.currentAddress?.hex, hodlerModule?.pluginData())
-            interactor.fetchFee(amountModule.currentAmount, feeRateValue, addressModule.currentAddress?.hex, hodlerModule?.pluginData())
-        }
-    }
+    override fun sync() {}
 
     override val inputItems: List<SendModule.Input> =
         mutableListOf<SendModule.Input>().apply {
             add(SendModule.Input.Amount)
             add(SendModule.Input.Address())
             add(SendModule.Input.Fee)
-//                if (coinType is CoinType.Bitcoin && interactor.isLockTimeEnabled)
-//                    add(SendModule.Input.Hodler)
+            add(SendModule.Input.Hodler)
             add(SendModule.Input.ProceedButton)
         }
 
     override fun onModulesDidLoad() {
-        feeModule.setBalance(interactor.balance)
-        feeModule.fetchFeeRate()
-
-        syncState()
+        syncAvailableBalance()
         syncMinimumAmount()
-        syncMaximumAmount()
     }
 
     override fun confirmationViewItems(): List<SendModule.SendConfirmationViewItem> {
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
-
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(SendModule.SendConfirmationAmountViewItem(
                 amountModule.coinValue(),
@@ -138,17 +92,20 @@ class SendBitcoinHandler(
                 add(SendModule.SendConfirmationLockTimeViewItem(it))
             }
         }
-
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        return when (val feeRate = feeModule.feeRate) {
-            null -> Single.error(NoFeeSendTransactionError())
-            else -> interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, feeRate, hodlerModule?.pluginData(), logger)
+        val hodlerData = hodlerModule?.pluginData()
+        if ( hodlerData != null && !hodlerData.isEmpty() ){
+            val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
+            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval)
         }
+        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null)
     }
 
     // SendModule.ISendBitcoinInteractorDelegate
+
+
 
     override fun didFetchAvailableBalance(availableBalance: BigDecimal) {
         amountModule.setAvailableBalance(availableBalance)
@@ -162,28 +119,24 @@ class SendBitcoinHandler(
     // SendAmountModule.ModuleDelegate
 
     override fun onChangeAmount() {
-        syncState()
+        syncFee()
         syncValidation()
-        syncCurrencyAmount()
     }
 
     override fun onChangeInputType(inputType: SendModule.InputType) {
         feeModule.setInputType(inputType)
     }
 
-    override fun onRateUpdated(rate: BigDecimal?) {
-        feeModule.setRate(rate)
-    }
-
     // SendAddressModule.ModuleDelegate
 
     override fun validate(address: String) {
-        interactor.validate(address, hodlerModule?.pluginData())
+        interactor.validate(address)
     }
 
     override fun onUpdateAddress() {
+        syncAvailableBalance()
+        syncFee()
         syncMinimumAmount()
-        syncState()
     }
 
     override fun onUpdateAmount(amount: BigDecimal) {
@@ -193,13 +146,11 @@ class SendBitcoinHandler(
     // SendFeeModule.IFeeModuleDelegate
 
     override fun onUpdateFeeRate() {
-        syncState()
     }
 
     override fun onUpdateLockTimeInterval(timeInterval: LockTimeInterval?) {
-        syncValidation()
-        syncMaximumAmount()
-
-        syncState()
+        syncAvailableBalance()
+        syncFee()
+        syncMinimumAmount()
     }
 }

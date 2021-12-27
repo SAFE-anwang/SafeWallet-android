@@ -15,6 +15,7 @@ class AccountCleaner(private val testMode: Boolean) : IAccountCleaner {
         BitcoinAdapter.clear(accountId, testMode)
         BitcoinCashAdapter.clear(accountId, testMode)
         DashAdapter.clear(accountId, testMode)
+        SafeAdapter.clear(accountId, testMode)
         EvmAdapter.clear(accountId, testMode)
         Eip20Adapter.clear(accountId, testMode)
         ZcashAdapter.clear(accountId, testMode)

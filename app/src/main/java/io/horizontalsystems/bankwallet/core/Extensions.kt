@@ -75,6 +75,9 @@ val CoinType.iconPlaceholder: Int
         is CoinType.Erc20 -> R.drawable.erc20
         is CoinType.Bep2 -> R.drawable.bep2
         is CoinType.Bep20 -> R.drawable.bep20
+
+        is CoinType.Safe -> R.drawable.logo_safe_24
+
         else -> R.drawable.coin_placeholder
     }
 
@@ -91,6 +94,7 @@ val CoinType.blockchainLogo: Int
         CoinType.Ethereum -> R.drawable.logo_ethereum_24
         CoinType.BitcoinCash -> R.drawable.logo_bitcoincash_24
         CoinType.Dash -> R.drawable.logo_dash_24
+        CoinType.Safe -> R.drawable.logo_safe_24
         CoinType.BinanceSmartChain -> R.drawable.logo_binancesmartchain_24
         is CoinType.Bep2 -> R.drawable.logo_bep2_24
         CoinType.Litecoin -> R.drawable.logo_litecoin_24
@@ -151,10 +155,11 @@ fun Intent.putParcelableExtra(key: String, value: Parcelable) {
 
 fun LockTimeInterval?.stringResId(): Int {
     return when (this) {
-        LockTimeInterval.hour -> R.string.Send_LockTime_Hour
-        LockTimeInterval.month -> R.string.Send_LockTime_Month
-        LockTimeInterval.halfYear -> R.string.Send_LockTime_HalfYear
-        LockTimeInterval.year -> R.string.Send_LockTime_Year
+        LockTimeInterval.month_1 -> R.string.Send_LockTime_Month_1
+        LockTimeInterval.month_3 -> R.string.Send_LockTime_Month_3
+        LockTimeInterval.month_6 -> R.string.Send_LockTime_Month_6
+        LockTimeInterval.year_1 -> R.string.Send_LockTime_Year
+        LockTimeInterval.year_3 -> R.string.Send_LockTime_Year_3
         null -> R.string.Send_LockTime_Off
     }
 }

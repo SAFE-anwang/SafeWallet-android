@@ -675,9 +675,9 @@ class TransactionInfoViewItemFactory(
             val date = DateHelper.getFullDate(it.date)
             val title = translator.getString(
                 if (it.locked) R.string.TransactionInfo_LockedUntil else R.string.TransactionInfo_UnlockedAt,
-                date
+                date + " 解锁高度:" + it.unlockedHeight
             )
-            LockState(title, leftIcon, it.date, it.locked)
+            LockState(title, leftIcon, it.date, it.locked,it.unlockedHeight)
         }
     }
 

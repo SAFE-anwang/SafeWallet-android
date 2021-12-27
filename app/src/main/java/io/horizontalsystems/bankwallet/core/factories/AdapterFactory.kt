@@ -51,6 +51,7 @@ class AdapterFactory(
             is CoinType.Litecoin -> LitecoinAdapter(wallet, syncMode, testMode, backgroundManager)
             is CoinType.BitcoinCash -> BitcoinCashAdapter(wallet, syncMode, testMode, backgroundManager)
             is CoinType.Dash -> DashAdapter(wallet, syncMode, testMode, backgroundManager)
+            is CoinType.Safe -> SafeAdapter(wallet, syncMode, testMode, backgroundManager)
             is CoinType.Bep2 -> {
                 coinManager.getPlatformCoin(CoinType.Bep2("BNB"))?.let { feePlatformCoin ->
                     BinanceAdapter(binanceKitManager.binanceKit(wallet), coinType.symbol, feePlatformCoin, wallet, testMode)

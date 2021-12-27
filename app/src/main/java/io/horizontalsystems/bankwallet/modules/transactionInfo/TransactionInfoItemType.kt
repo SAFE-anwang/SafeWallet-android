@@ -30,7 +30,8 @@ sealed class TransactionInfoItemType {
         val title: String,
         val leftIcon: Int,
         val date: Date,
-        val showLockInfo: Boolean
+        val showLockInfo: Boolean,
+        val unlockedHeight: Long ?  // 解锁高度
     ) : TransactionInfoItemType()
 
     class DoubleSpend(

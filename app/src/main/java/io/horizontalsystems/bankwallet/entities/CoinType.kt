@@ -39,6 +39,7 @@ val CoinType.title: String
             is CoinType.Litecoin -> "Litecoin"
             is CoinType.BitcoinCash -> "Bitcoin Cash"
             is CoinType.Dash -> "Dash"
+            is CoinType.Safe -> "Safe"
             else -> ""
         }
     }
@@ -82,6 +83,7 @@ val CoinType.isSupported: Boolean
         CoinType.BitcoinCash,
         CoinType.Litecoin,
         CoinType.Dash,
+        CoinType.Safe,
         CoinType.Zcash,
         CoinType.Ethereum,
         CoinType.BinanceSmartChain,

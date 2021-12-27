@@ -10,3 +10,16 @@ include ':components:chartview'
 include ':components:keystore'
 include ':components:pin'
 include ':components:seekbar'
+
+includeFlat 'bitcoin-kit-android'
+include 'bitcoin-kit-android:bitcoincore'     // Bitcoin Core
+include 'bitcoin-kit-android:bitcoinkit'      // Bitcoin kit
+include 'bitcoin-kit-android:dashkit'         // Dash kit
+include 'bitcoin-kit-android:bitcoincashkit'  // Bitcoin Cash kit
+include 'bitcoin-kit-android:litecoinkit'     // Litecoin kit
+include 'bitcoin-kit-android:hodler'          // Hodler
+include 'bitcoin-kit-android:tools'           // Checkpoint syncer
+include 'bitcoin-kit-android:safekit'
+
+includeFlat 'market-kit-android'
+include ':market-kit-android:marketkit'

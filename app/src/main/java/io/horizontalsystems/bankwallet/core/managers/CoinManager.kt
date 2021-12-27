@@ -4,10 +4,7 @@ import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ICustomTokenStorage
 import io.horizontalsystems.bankwallet.entities.CustomToken
 import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.CoinType
-import io.horizontalsystems.marketkit.models.FullCoin
-import io.horizontalsystems.marketkit.models.PlatformCoin
-import io.horizontalsystems.marketkit.models.PlatformType
+import io.horizontalsystems.marketkit.models.*
 
 class CoinManager(
     private val marketKit: MarketKit,
@@ -21,6 +18,7 @@ class CoinManager(
         "zcash",
         "binancecoin",
         "dash",
+        "safe-coin",
         "litecoin",
         "uniswap",
         "sushi",
@@ -47,13 +45,18 @@ class CoinManager(
     override fun featuredFullCoins(enabledPlatformCoins: List<PlatformCoin>): List<FullCoin> {
         val appFullCoins = customFullCoins(enabledPlatformCoins.map { it.coinType })
         val kitFullCoins = marketKit.fullCoins(featuredCoinUids + enabledPlatformCoins.map { it.coin.uid })
-
+//        val SAFE = FullCoin(
+//            Coin("safe-coin","Safe","safe",null,"safe-coin") ,
+//            mutableListOf( Platform( CoinType.Safe , 8 , "safe-coin") )
+//        )
         return appFullCoins + kitFullCoins
     }
 
     override fun fullCoins(filter: String, limit: Int): List<FullCoin> {
         val appFullCoins = customFullCoins(filter)
         val kitFullCoins = marketKit.fullCoins(filter, limit)
+
+
 
         return appFullCoins + kitFullCoins
     }

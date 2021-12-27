@@ -1,5 +1,5 @@
 <resources>
-    <string name="App_Name" translatable="false">Unstoppable</string>
+    <string name="App_Name" translatable="false">SafeWallet</string>
 
     <!--Common-->
 
@@ -8,8 +8,8 @@
     <string name="Alert_Close">Close</string>
     <string name="Alert_Loading">Loading...</string>
     <string name="Alert_Restart">Restart</string>
-    <string name="Alert_Skip" translatable="false">SKIP</string>
-    <string name="Alert_Select" translatable="false">SELECT</string>
+    <string name="Alert_Skip">SKIP</string>
+    <string name="Alert_Select">SELECT</string>
 
     <string name="Action_Undo">UNDO</string>
 
@@ -38,13 +38,13 @@
     <string name="NotAvailable">N/A</string>
     <string name="Any">Any</string>
 
-    <string name="FooterText" translatable="false">© Horizontal Systems 2021</string>
+    <string name="FooterText" translatable="false">© Horizontal Systems &amp; SAFE Foundation 2021</string>
 
     <string name="PercentTitle">Percent</string>
 
     <!--Intro-->
 
-    <string name="Intro_Wallet_Screen1Description">Be Unstoppable</string>
+    <string name="Intro_Wallet_Screen1Description">SafeWallet</string>
     <string name="Intro_Wallet_Screen2Title">Unchain Assets</string>
     <string name="Intro_Wallet_Screen2Description">Don\'t lock yourself in and don\'t let others do that to you.</string>
     <string name="Intro_Wallet_Screen3Title">Go Borderless</string>
@@ -74,7 +74,7 @@
 
     <!--Rate App-->
     <string name="RateApp_Title_Rate_This_App">Rate this App</string>
-    <string name="RateApp_Description_Rate_This_App">Enjoying Unstoppable Wallet? Please take a moment to rate this app</string>
+    <string name="RateApp_Description_Rate_This_App">Enjoying SafeWallet? Please take a moment to rate this app</string>
     <string name="RateApp_Button_RateIt">Rate It</string>
     <string name="RateApp_Button_NotNow">Not now</string>
 
@@ -128,7 +128,7 @@
     <string name="Market_Category_Rated">Rated</string>
     <string name="Market_Category_Rated_Description">Token ratings based on project security and market liquidity.</string>
     <string name="Market_Category_TopCoins">Top Coins</string>
-    <string name="Market_Category_TopCoins_Description">Top Coins by market cap rank</string>
+    <string name="Market_Category_TopCoins_Description">Top Coins Description</string>
     <string name="Market_Category_Blockchains">Blockchains</string>
     <string name="Market_Category_Blockchains_Description">Native cryptocurrencies on major blockchains. </string>
     <string name="Market_Category_Dexes">DEXes</string>
@@ -175,6 +175,8 @@
     <string name="Market_Category_Identity_Description">Decentralized identity.</string>
     <string name="Market_Category_YieldTokens">Yield Tokens</string>
     <string name="Market_Category_YieldTokens_Description">Interesting Bearing Tokens.</string>
+    <string name="Market_Category_ReserveCurrency">Reserve Currency</string>
+    <string name="Market_Category_ReserveCurrency_Description">Asset backed reserve currencies</string>
     <string name="Market_SyncError">Sync Error</string>
 
     <!--Market Global Metrics-->
@@ -336,7 +338,7 @@
     <string name="Send_Error_MinimumAmount">Min. amount %s</string>
     <string name="Send_Error_MaximumAmount">Max. amount %s</string>
     <string name="Send_Error_MinRequiredBalance">Min. required remainder %s</string>
-    <string name="Send_Error_TransparentAddress">Unstoppable doesn\'t support payments to a transparent address</string>
+    <string name="Send_Error_TransparentAddress">SafeWallet doesn\'t support payments to a transparent address</string>
     <string name="Send_Error_SendToSelf">Sending to yourself is not supported</string>
 
     <string name="Send_DialogAvailableBalance">Available Balance</string>
@@ -347,14 +349,19 @@
     <string name="Send_TxSpeed_Custom">Custom</string>
     <string name="Send_TxSpeed_CustomFeeHint">sat/byte</string>
     <string name="Send_DialogFee">Fee</string>
-    <string name="Send_DialogMemoHint" translatable="false">Memo</string>
+    <string name="Send_DialogMemoHint">Memo</string>
     <string name="Send_DialogProceed">Next</string>
-    <string name="Send_DialogLockTime" translatable="false">TimeLock</string>
+    <string name="Send_DialogLockTime">TimeLock</string>
     <string name="Send_LockTime_Off">Off</string>
+
     <string name="Send_LockTime_Hour">1 hour</string>
     <string name="Send_LockTime_Month">1 month</string>
+    <string name="Send_LockTime_Month_1">1 month</string>
+    <string name="Send_LockTime_Month_3">3 months</string>
+    <string name="Send_LockTime_Month_6">6 months</string>
     <string name="Send_LockTime_HalfYear">6 months</string>
     <string name="Send_LockTime_Year">1 year</string>
+    <string name="Send_LockTime_Year_3">3 years</string>
     <string name="Send_Sending">Sending</string>
 
     <string name="Send_Token_InsufficientFeeAlert">Transaction fees for %1$s (%2$s) paid in %3$s. You need %4$s.</string>
@@ -563,7 +570,12 @@
     <string name="StatusInfo_PendingDescription">The transaction has not been confirmed on the blockchain yet. Transactions sent with a recommended or higher fee setting are generally processed within 10 minutes. Transactions sent with a low fee may remain pending for a few hours or even days, and can even be rejected entirely.</string>
     <string name="StatusInfo_ProcessingDescription">The transaction has been already included in the blockchain but has not reached permanent finality. At this point, it\'s safe to consider the transaction as completed for smaller payments. For larger payments, it\'s recommended to wait until the transaction status changes to completed.</string>
     <string name="StatusInfo_ConfirmedDescription">Transaction is completed and considered permanent and irreversible.</string>
-    <string name="StatusInfo_FailedDescription">The transaction did not get processed and no value transfer took place. Transactions with a fail status are still written to the blockchain and consume transaction fees. The Unstoppable app is unable to show the fail reason for such transactions, but users are able to look it up themselves on a public block explorer i.e. etherscan.io.</string>
+    <string name="StatusInfo_FailedDescription">The transaction did not get processed and no value transfer took place. Transactions with a fail status are still written to the blockchain and consume transaction fees. The SafeWallet app is unable to show the fail reason for such transactions, but users are able to look it up themselves on a public block explorer i.e. etherscan.io.</string>
+
+    <!-- 交易类别TAB -->
+    <string name="TransactionInfo_Type_TabItem_Title_All">All</string>
+    <string name="TransactionInfo_Type_TabItem_Title_Incoming">Incoming</string>
+    <string name="TransactionInfo_Type_TabItem_Title_Outgoing">Outgoing</string>
 
     <!-- Transaction Info Options -->
 
@@ -598,7 +610,7 @@
     <string name="SettingsCurrency_Title">Base Currency</string>
     <string name="SettingsCurrency_Other">OTHER</string>
     <string name="SettingsCurrency_DisclaimerTitle">Disclaimer</string>
-    <string name="SettingsCurrency_DisclaimerText">The exchange rate data is provided by a third party service - Coingecko.com.\n\nThe Unstoppable wallet app doesn\'t guarantee these values are always correct and matches market data. The chance for inconsistency is higher if you select any base currency other than %s.</string>
+    <string name="SettingsCurrency_DisclaimerText">The exchange rate data is provided by a third party service - Coingecko.com.\n\nThe SafeWallet app doesn\'t guarantee these values are always correct and matches market data. The chance for inconsistency is higher if you select any base currency other than %s.</string>
     <string name="SettingsCurrency_Understand">I Understand</string>
 
     <!--Settings-->
@@ -612,9 +624,9 @@
     <string name="Settings_Theme">Theme</string>
     <string name="Settings_Terms">Terms</string>
     <string name="Settings_ShareThisWallet">Tell Friends</string>
-    <string name="Settings_InfoTitleWithVersion" translatable="false">Unstoppable %s</string>
+    <string name="Settings_InfoTitleWithVersion" translatable="false">SafeWallet %s</string>
     <string name="Settings_InfoSubtitle" translatable="false">decentralized app</string>
-    <string name="Settings_CompanyName" translatable="false">horizontal systems</string>
+    <string name="Settings_CompanyName" translatable="false">SAFE Foundation &amp; Horizontal systems</string>
     <string name="Settings_Faq">FAQ</string>
     <string name="Settings_AppStatus">App Status</string>
     <string name="Settings_WalletConnect">Wallet Connect</string>
@@ -638,15 +650,15 @@
     <string name="SettingsPrivacy_Info_BlockchainTx_Title">Blockchain Transactions</string>
     <string name="SettingsPrivacy_Info_BlockchainTx_Description">This setting controls the privacy level of user\'s transactions on Bitcoin, Bitcoin Cash and Litecoin blockchains.
         \n\nMost Bitcoin transactions generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party monitoring Bitcoin blockchain to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. The output returned to the sender can then be used in future transactions and further reveal the details to the monitoring party.
-        \n\nUnstoppable wallet implements measures to makes it significantly harder to figure out which output goes where. There are two options available to Unstoppable users:
+        \n\nSafeWallet implements measures to makes it significantly harder to figure out which output goes where. There are two options available to SafeWallet users:
         \n\n1. Shuffle : The order of transaction outputs are randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, than consider this a recommended option.
         \n\n2. Deterministic : There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open source wallets that standard ensures that wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether transaction was sent from the wallet that uses that standard or not.</string>
     <string name="SettingsPrivacy_Info_BlockchainConnection_Title">Blockchain Sync</string>
     <string name="SettingsPrivacy_Info_BlockchainConnection_Description">This setting controls how this app interacts with blockchains when sending or receiving transactions.
-        \n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.
+        \n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. SafeWallet pings many nodes and communicates with one of them. Each time the app connects to a different node.
         \n\nIn the case of Ethereum and Binance Smart Chain, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal Ethereum nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.</string>
     <string name="SettingsPrivacy_Info_BlockchainRestore_Title">Blockchain Restore</string>
-    <string name="SettingsPrivacy_Info_BlockchainRestore_Description">This setting is only relevant when restoring an existing wallet. It is a process of getting transactions history for a given coin so that the wallet app is able to display past transactions and calculate user\'s balance. This needs to happen only once, when user restores previously created wallet. At this point there are two potential ways for a mobile wallet like Unstoppable to do this:
+    <string name="SettingsPrivacy_Info_BlockchainRestore_Description">This setting is only relevant when restoring an existing wallet. It is a process of getting transactions history for a given coin so that the wallet app is able to display past transactions and calculate user\'s balance. This needs to happen only once, when user restores previously created wallet. At this point there are two potential ways for a mobile wallet like SafeWallet to do this:
         \n\n1. from API Server : There is a third-party predefined server which hosts the entire blockchain and has all the data processed and ready to provide it in a fast manner. This method is fast but can potentially keep track of the IP addresses and the data requested. This option is recommended due to its speed of getting data (5-10 minutes). The risks are minimal. If the user restoring from his own server then no privacy risks at all.
         \n\n2. from Blockchain : In this case the app tries to restore directly from a p2p network of the blockchain nodes. The app pings many of those nodes and requests data from them. Potentially these nodes can keep track of user\'s IP address and requests made however during restore the app can switch between nodes. There are close to 10,000 Bitcoin nodes on the network at any given time. This option is slow and can easily take 2-3 hours, app needs to be open while restore is happening...</string>
 
@@ -660,9 +672,9 @@
     <string name="SettingsSecurity_EnablePin">Passcode</string>
     <string name="SettingsSecurity_EditPin">Edit Passcode</string>
     <string name="SettingsSecurity_ManageKeys">Manage Wallets</string>
-    <string name="SettingsSecurity_AppRestartWarning">This action will restart Unstoppable Wallet.</string>
+    <string name="SettingsSecurity_AppRestartWarning">This action will restart SafeWallet.</string>
     <string name="SettingsSecurity_TorConnectionDescription">Fully anonymize your internet while using this app. Note, in some cases WalletConnect feature for DeFi apps may be very slow or not work at all.</string>
-    <string name="SettingsSecurity_NotificationsDisabledWarning">The notifications for the Unstoppable Wallet app are disabled. You need to turn on Notifications and allow background app refresh in order to be able to receive price change alerts.</string>
+    <string name="SettingsSecurity_NotificationsDisabledWarning">The notifications for the SafeWallet app are disabled. You need to turn on Notifications and allow background app refresh in order to be able to receive price change alerts.</string>
     <string name="SettingsSecurity_SortingShuffle">Shuffle</string>
     <string name="SettingsSecurity_SortingShuffleDescription">Random Indexing</string>
     <string name="SettingsSecurity_SortingBip69">Deterministic BIP69</string>
@@ -674,10 +686,10 @@
 
     <!--Setting_Terms-->
 
-    <string name="SettingsTerms_Text">The Unstoppable wallet is built for those looking to invest and store cryptocurrencies in a private and independent manner.
+    <string name="SettingsTerms_Text">The SafeWallet is built for those looking to invest and store cryptocurrencies in a private and independent manner.
 \n\nIt\'s a non-custodial, peer-to-peer wallet where only the user has control over the funds. It doesn\'t collect any data and keeps the user independent by not locking the user\'s funds to a specific wallet app.
-\n\nThe Unstoppable wallet is fully open-source and anyone can confirm the app works exactly as it claims to.
-\n\nWe built Unstoppable for ourselves as the other available solutions were not up to par. Both from an engineering and usability perspective, we believe this wallet to be significantly ahead of alternative products.</string>
+\n\nThe SafeWallet is fully open-source and anyone can confirm the app works exactly as it claims to.
+\n\nWe built SafeWallet for ourselves as the other available solutions were not up to par. Both from an engineering and usability perspective, we believe this wallet to be significantly ahead of alternative products.</string>
     <string name="SettingsTerms_TermAcademy">I went through the Academy section of this app and got familiar with the fundamental aspects of storing cryptocurrencies.</string>
     <string name="SettingsTerms_TermBackup">I have backed up the private key(s) for my wallets that were shown to me in a form of 12-24 words. I understand that these private keys are stored on my smartphone and not elsewhere.</string>
     <string name="SettingsTerms_TermOwner">I understand that passing my phone to untrusted entities and leaving the wallet app without a safe PIN lock may potentially endanger the safety of my funds.</string>
@@ -692,7 +704,7 @@
     <!--Setting_Tell Friends-->
 
     <string name="SettingsShare_Title">Share</string>
-    <string name="SettingsShare_Text">Be Unstoppable</string>
+    <string name="SettingsShare_Text">SafeWallet</string>
 
     <!--Setting_Contact-->
 
@@ -701,7 +713,7 @@
     <!--Setting_Notifications-->
 
     <string name="SettingsNotifications_Description">Set price change alerts for the coins you would like to watch.\n\nYou will be alerted when the change in price for the last 24 hours exceeds the selected threshold.\n\nPrice Trend Alert warns of a trend change for the short 1 week, for the long 6 month.</string>
-    <string name="SettingsNotifications_NotificationsDisabledWarning">The notifications for Unstoppable Wallet app are disabled. You need to turn them on in order to be able to receive price change alerts.</string>
+    <string name="SettingsNotifications_NotificationsDisabledWarning">The notifications for SafeWallet app are disabled. You need to turn them on in order to be able to receive price change alerts.</string>
     <string name="SettingsNotifications_TurnOn">Turn on in Settings</string>
     <string name="SettingsNotifications_Off">Off</string>
     <string name="SettingsNotifications_DeactivateAll">Reset All</string>
@@ -772,7 +784,7 @@
 
     <string name="BitcoinHodling_Title">TimeLock</string>
     <string name="BitcoinHodling_LockTime" translatable="false">Activate</string>
-    <string name="BitcoinHodling_Description">This enables you to send Bitcoins that cannot be spent until a specified date. \n\nThe receiver of such transactions should use the Unstoppable wallet app version 0.10 or newer, with the BIP44 address format for Bitcoin. \n\nOnly the Unstoppable wallet can correctly identify such transactions on the Bitcoin network, as well as enable the receiver to spend those Bitcoins after the lock period expires. \n\nIf you’re a HODLer, you may use this feature to force yourself into hodling your Bitcoins by sending such transactions to yourself. \n\nBeing an experimental feature, the maximum amount per transaction is limited to 0.5 BTC.</string>
+    <string name="BitcoinHodling_Description">This enables you to send Bitcoins that cannot be spent until a specified date. \n\nThe receiver of such transactions should use the SafeWallet app version 0.10 or newer, with the BIP44 address format for Bitcoin. \n\nOnly the SafeWallet can correctly identify such transactions on the Bitcoin network, as well as enable the receiver to spend those Bitcoins after the lock period expires. \n\nIf you’re a HODLer, you may use this feature to force yourself into hodling your Bitcoins by sending such transactions to yourself. \n\nBeing an experimental feature, the maximum amount per transaction is limited to 0.5 BTC.</string>
 
     <!--Manage Accounts-->
     <string name="ManageAccounts_Title">Manage Wallets</string>
@@ -800,8 +812,8 @@
 
     <!--Network Settings-->
     <string name="NetworkSettings_Title">Network Settings</string>
-    <string name="NetworkSettings_SwithesAutomatically">switches automatically</string>
-    <string name="NetworkSettings_SwithesAutomatically_Description">MainNet HTTP network uses the links listed below and switches automatically.</string>
+    <string name="NetworkSettings_SwithesAutomatically" translatable="false">switches automatically</string>
+    <string name="NetworkSettings_SwithesAutomatically_Description" translatable="false">MainNet HTTP network uses the links listed below and switches automatically.</string>
     <string name="NetworkSettings_TestNetDisclaimer">Please do not select Testnet options unless you understand what that is and how it works.\n\nTestnet is a parallel blockchain for testing purposes with its own currency. If someone sends a regular payment to your Testnet address, it will be lost.</string>
 
     <!-- Show Key -->
@@ -995,7 +1007,7 @@
     <string name="CoinPage_IndicatorEMA" translatable="false">EMA</string>
     <string name="CoinPage_IndicatorMACD" translatable="false">MACD</string>
     <string name="CoinPage_IndicatorRSI" translatable="false">RSI</string>
-    <string name="CoinPage_IndicatorDominace" translatable="false">BTC Dominance</string>
+    <string name="CoinPage_IndicatorDominace">BTC Dominance</string>
     <string name="CoinPage_MarketCap_Thousand">k</string>
     <string name="CoinPage_MarketCap_Million">M</string>
     <string name="CoinPage_MarketCap_Billion">B</string>

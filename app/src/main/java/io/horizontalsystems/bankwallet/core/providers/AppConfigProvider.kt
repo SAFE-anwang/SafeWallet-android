@@ -5,13 +5,20 @@ import io.horizontalsystems.core.entities.Currency
 
 class AppConfigProvider {
 
-     val companyWebPageLink: String = "https://horizontalsystems.io"
-     val appWebPageLink: String = "https://unstoppable.money"
-     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
-     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
-     val appTelegramLink: String = "https://t.me/unstoppable_announcements"
-     val appRedditLink: String = "https://www.reddit.com/r/UNSTOPPABLEWallet/"
-     val reportEmail = "support.unstoppable@protonmail.com"
+//     val companyWebPageLink: String = "https://horizontalsystems.io"
+     val companyWebPageLink: String = "https://www.anwang.com"
+//     val appWebPageLink: String = "https://unstoppable.money"
+     val appWebPageLink: String = "https://www.anwang.com"
+//     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
+     val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
+//     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
+     val appTwitterLink: String = "https://twitter.com/safe_2018"
+//     val appTelegramLink: String = "https://t.me/unstoppable_announcements"
+    val appTelegramLink: String = "https://t.me/safe_anwang"
+//     val appRedditLink: String = "https://www.reddit.com/r/UNSTOPPABLEWallet/"
+    val appRedditLink: String = "https://www.reddit.com/user/safe_2018"
+//     val reportEmail = "support.unstoppable@protonmail.com"
+    val reportEmail = "foundation@anwang.com"
      val btcCoreRpcUrl: String = "https://btc.horizontalsystems.xyz/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
 

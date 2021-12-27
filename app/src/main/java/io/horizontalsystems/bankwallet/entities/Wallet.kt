@@ -17,6 +17,7 @@ data class Wallet(
             CoinType.Bitcoin -> TransactionSource.Blockchain.Bitcoin
             CoinType.BitcoinCash -> TransactionSource.Blockchain.BitcoinCash
             CoinType.Dash -> TransactionSource.Blockchain.Dash
+            CoinType.Safe -> TransactionSource.Blockchain.Safe
             CoinType.Litecoin -> TransactionSource.Blockchain.Litecoin
             CoinType.Ethereum -> TransactionSource.Blockchain.Ethereum
             CoinType.BinanceSmartChain -> TransactionSource.Blockchain.BinanceSmartChain

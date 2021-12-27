@@ -66,7 +66,7 @@ class AboutFragment : BaseFragment() {
             }
         }
 
-        val shareAppItem = SettingsMenuItem(R.string.Settings_ShareThisWallet, R.drawable.ic_share_20, listPosition = ListPosition.Last) {
+        val shareAppItem = SettingsMenuItem(R.string.Settings_ShareThisWallet, R.drawable.ic_share_20, listPosition = ListPosition.Single) {
             viewModel.onTellFriendsTap()
         }
 
@@ -75,15 +75,15 @@ class AboutFragment : BaseFragment() {
         }
 
         val menuItemsAdapter = MainSettingsAdapter(listOf(
-                whatsNewItem,
+//                whatsNewItem,
                 null,
-                appStatusItem,
+//                appStatusItem,
                 termsItem,
                 null,
                 githubItem,
                 websiteItem,
                 null,
-                rateUsItem,
+//                rateUsItem,
                 shareAppItem,
                 null,
                 contactItem,

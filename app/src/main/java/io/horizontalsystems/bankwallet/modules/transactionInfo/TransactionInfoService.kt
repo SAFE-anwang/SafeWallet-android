@@ -203,6 +203,10 @@ class TransactionInfoService(
                 "dash.org",
                 if (testMode) null else "https://insight.dash.org/insight/tx/$hash"
             )
+            is TransactionSource.Blockchain.Safe -> TransactionInfoModule.ExplorerData(
+                "anwang.com",
+                if (testMode) null else "https://chain.anwang.com/tx/$hash"
+            )
             is TransactionSource.Blockchain.Ethereum -> {
                 val domain = when (ethereumNetworkType(account)) {
                     EthereumKit.NetworkType.EthMainNet -> "etherscan.io"

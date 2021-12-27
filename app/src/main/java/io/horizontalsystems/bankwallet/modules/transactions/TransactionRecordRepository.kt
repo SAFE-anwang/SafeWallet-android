@@ -49,6 +49,7 @@ class TransactionRecordRepository(
                 TransactionSource.Blockchain.BitcoinCash,
                 TransactionSource.Blockchain.Litecoin,
                 TransactionSource.Blockchain.Dash,
+                TransactionSource.Blockchain.Safe,
                 TransactionSource.Blockchain.Zcash,
                 is TransactionSource.Blockchain.Bep2 -> mergedWallets.add(wallet)
                 TransactionSource.Blockchain.Ethereum,

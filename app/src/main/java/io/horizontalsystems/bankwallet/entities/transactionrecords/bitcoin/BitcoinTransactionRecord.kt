@@ -46,7 +46,7 @@ abstract class BitcoinTransactionRecord(
             locked = it < lockInfo.lockedUntil.time / 1000
         }
 
-        return TransactionLockState(locked, lockInfo.lockedUntil)
+        return TransactionLockState(locked, lockInfo.lockedUntil , lockInfo.unlockedHeight!!);
     }
 
     private fun becomesUnlocked(oldTimestamp: Long?, newTimestamp: Long?): Boolean {
@@ -58,4 +58,5 @@ abstract class BitcoinTransactionRecord(
     }
 }
 
-data class TransactionLockState(val locked: Boolean, val date: Date)
+data class TransactionLockState(val locked: Boolean, val date: Date, val unlockedHeight: Long)
+

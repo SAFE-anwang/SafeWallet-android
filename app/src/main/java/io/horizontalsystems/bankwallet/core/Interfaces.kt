@@ -21,6 +21,7 @@ import io.horizontalsystems.core.entities.AppVersion
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.*
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -51,6 +52,7 @@ interface ILocalStorage {
     var baseLitecoinProvider: String?
     var baseEthereumProvider: String?
     var baseDashProvider: String?
+    var baseSafeProvider: String?
     var baseBinanceProvider: String?
     var baseZcashProvider: String?
     var syncMode: SyncMode?
@@ -257,6 +259,15 @@ interface ISendDashAdapter {
     fun validate(address: String)
     fun send(amount: BigDecimal, address: String, logger: AppLogger): Single<Unit>
 }
+
+interface ISendSafeAdapter {
+    fun availableBalance(address: String?): BigDecimal
+    fun minimumSendAmount(address: String?): BigDecimal
+    fun fee(amount: BigDecimal, address: String?): BigDecimal
+    fun validate(address: String)
+    fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ?= null ): Single<Unit>
+}
+
 
 interface ISendEthereumAdapter {
     val evmKit: EthereumKit

@@ -147,6 +147,7 @@ class BalanceViewModel(
         is CoinType.Bitcoin,
         is CoinType.BitcoinCash,
         is CoinType.Dash,
+        is CoinType.Safe,
         is CoinType.Litecoin,
         is CoinType.BinanceSmartChain,
         is CoinType.Bep20,
@@ -182,6 +183,7 @@ class BalanceViewModel(
         CoinType.Bitcoin,
         CoinType.BitcoinCash,
         CoinType.Dash,
+        CoinType.Safe,
         CoinType.Litecoin -> openPrivacySettingsLiveEvent.call()
         CoinType.Ethereum,
         is CoinType.Erc20 -> openEvmNetworkSettingsLiveEvent.postValue(

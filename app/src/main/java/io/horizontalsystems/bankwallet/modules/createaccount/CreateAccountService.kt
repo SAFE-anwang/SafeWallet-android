@@ -12,12 +12,12 @@ import io.horizontalsystems.marketkit.models.CoinType
 import io.reactivex.subjects.BehaviorSubject
 
 class CreateAccountService(
-        private val accountFactory: IAccountFactory,
-        private val wordsManager: WordsManager,
-        private val accountManager: IAccountManager,
-        private val walletManager: IWalletManager,
-        private val passphraseValidator: PassphraseValidator,
-        private val marketKit: MarketKit
+    private val accountFactory: IAccountFactory,
+    private val wordsManager: WordsManager,
+    private val accountManager: IAccountManager,
+    private val walletManager: IWalletManager,
+    private val passphraseValidator: PassphraseValidator,
+    private val marketKit: MarketKit
 ) : Clearable {
 
     val allKinds: Array<CreateAccountModule.Kind> = CreateAccountModule.Kind.values()
@@ -55,7 +55,7 @@ class CreateAccountService(
     }
 
     private fun activateDefaultWallets(account: Account) {
-        val defaultCoinTypes = listOf(CoinType.Bitcoin, CoinType.Ethereum, CoinType.BinanceSmartChain)
+        val defaultCoinTypes = listOf( CoinType.Safe, CoinType.Bitcoin, CoinType.Ethereum )
 
         val wallets = mutableListOf<Wallet>()
 
