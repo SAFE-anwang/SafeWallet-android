@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.navigation.navGraphViewModels
@@ -100,7 +101,13 @@ class TransactionsFragment : BaseFragment(R.layout.fragment_transactions) {
 
             filterTypes?.let {
                 val tabItems = it.map {
-                    TabItem(it.item.name, it.selected, it.item)
+                    val itemName = when ( it.item.name ) {
+                        "All" -> stringResource( R.string.TransactionInfo_Type_TabItem_Title_All )
+                        "Incoming" -> stringResource( R.string.TransactionInfo_Type_TabItem_Title_Incoming )
+                        "Outgoing" -> stringResource( R.string.TransactionInfo_Type_TabItem_Title_Outgoing )
+                        else -> it.item.name
+                    }
+                    TabItem(itemName, it.selected, it.item)
                 }
 
                 ComposeAppTheme {

@@ -391,13 +391,71 @@ fun DescriptionCard(title: String, description: String, image: ImageSource) {
                     .padding(start = 16.dp, top = 12.dp, end = 8.dp)
                     .weight(1f)
             ) {
+
+                var categoryName = title;
+                var desc = description;
+                categoryName = when( categoryName ){
+                    "Blockchains" -> stringResource(R.string.Market_Category_Blockchains)
+                    "DEXes" -> stringResource(R.string.Market_Category_Dexes)
+                    "Lending" -> stringResource(R.string.Market_Category_Lending)
+                    "Privacy" -> stringResource(R.string.Market_Category_Privacy)
+                    "Scaling" -> stringResource(R.string.Market_Category_Scaling)
+                    "Oracles" -> stringResource(R.string.Market_Category_Oracles)
+                    "Prediction" -> stringResource(R.string.Market_Category_Prediction)
+                    "Yield Aggregators" -> stringResource(R.string.Market_Category_YieldAggregators)
+                    "Stablecoins" -> stringResource(R.string.Market_Category_FiatStableCoins)
+                    "Tokenized Bitcoin" -> stringResource(R.string.Market_Category_TokenizedBitcoin)
+                    "Exchange Tokens" -> stringResource(R.string.Market_Category_ExchangeTokens)
+                    "Risk Management" -> stringResource(R.string.Market_Category_RiskManagement)
+                    "Wallets" -> stringResource(R.string.Market_Category_Wallets)
+                    "Synthetics" -> stringResource(R.string.Market_Category_Synthetics)
+                    "Index Funds" -> stringResource(R.string.Market_Category_IndexFunds)
+                    "NFT" -> stringResource(R.string.Market_Category_NFT)
+                    "Fundraising" -> stringResource(R.string.Market_Category_Fundraising)
+                    "Gaming" -> stringResource(R.string.Market_Category_Gaming)
+                    "Infrastructure" -> stringResource(R.string.Market_Category_Infrastructure)
+                    "Analytics" -> stringResource(R.string.Market_Category_Analytics)
+                    "Storage" -> stringResource(R.string.Market_Category_Storage)
+                    "Identity" -> stringResource(R.string.Market_Category_Identity)
+                    "Yield Tokens" -> stringResource(R.string.Market_Category_YieldTokens)
+                    "Reserve Currency" -> stringResource(R.string.Market_Category_ReserveCurrency)
+                    else -> categoryName
+                }
+                desc = when( title ){
+                    "Blockchains" -> stringResource(R.string.Market_Category_Blockchains_Description)
+                    "DEXes" -> stringResource(R.string.Market_Category_Dexes_Description)
+                    "Lending" -> stringResource(R.string.Market_Category_Lending_Description)
+                    "Privacy" -> stringResource(R.string.Market_Category_Privacy_Description)
+                    "Scaling" -> stringResource(R.string.Market_Category_Scaling_Description)
+                    "Oracles" -> stringResource(R.string.Market_Category_Oracles_Description)
+                    "Prediction" -> stringResource(R.string.Market_Category_Prediction_Description)
+                    "Yield Aggregators" -> stringResource(R.string.Market_Category_YieldAggregators_Description)
+                    "Stablecoins" -> stringResource(R.string.Market_Category_FiatStableCoins_Description)
+                    "Tokenized Bitcoin" -> stringResource(R.string.Market_Category_TokenizedBitcoin_Description)
+                    "Exchange Tokens" -> stringResource(R.string.Market_Category_ExchangeTokens_Description)
+                    "Risk Management" -> stringResource(R.string.Market_Category_RiskManagement_Description)
+                    "Wallets" -> stringResource(R.string.Market_Category_Wallets_Description)
+                    "Synthetics" -> stringResource(R.string.Market_Category_Synthetics_Description)
+                    "Index Funds" -> stringResource(R.string.Market_Category_IndexFunds_Description)
+                    "NFT" -> stringResource(R.string.Market_Category_NFT_Description)
+                    "Fundraising" -> stringResource(R.string.Market_Category_Fundraising_Description)
+                    "Gaming" -> stringResource(R.string.Market_Category_Gaming_Description)
+                    "Infrastructure" -> stringResource(R.string.Market_Category_Infrastructure_Description)
+                    "Analytics" -> stringResource(R.string.Market_Category_Analytics_Description)
+                    "Storage" -> stringResource(R.string.Market_Category_Storage_Description)
+                    "Identity" -> stringResource(R.string.Market_Category_Identity_Description)
+                    "Yield Tokens" -> stringResource(R.string.Market_Category_YieldTokens_Description)
+                    "Reserve Currency" -> stringResource(R.string.Market_Category_ReserveCurrency_Description)
+                    else -> desc
+                }
+
                 Text(
-                    text = title,
+                    text = categoryName,
                     style = ComposeAppTheme.typography.headline1,
                     color = ComposeAppTheme.colors.oz,
                 )
                 Text(
-                    text = description,
+                    text = desc,
                     modifier = Modifier.padding(top = 6.dp),
                     style = ComposeAppTheme.typography.subhead2,
                     color = ComposeAppTheme.colors.grey,
@@ -467,12 +525,42 @@ fun RowScope.CategoryCard(
                             .width(76.dp)
                             .align(Alignment.TopEnd),
                     )
+
+                    var categoryName = type.coinCategory.name;
+                    categoryName = when( categoryName ){
+                        "Blockchains" -> stringResource(R.string.Market_Category_Blockchains)
+                        "DEXes" -> stringResource(R.string.Market_Category_Dexes)
+                        "Lending" -> stringResource(R.string.Market_Category_Lending)
+                        "Privacy" -> stringResource(R.string.Market_Category_Privacy)
+                        "Scaling" -> stringResource(R.string.Market_Category_Scaling)
+                        "Oracles" -> stringResource(R.string.Market_Category_Oracles)
+                        "Prediction" -> stringResource(R.string.Market_Category_Prediction)
+                        "Yield Aggregators" -> stringResource(R.string.Market_Category_YieldAggregators)
+                        "Stablecoins" -> stringResource(R.string.Market_Category_FiatStableCoins)
+                        "Tokenized Bitcoin" -> stringResource(R.string.Market_Category_TokenizedBitcoin)
+                        "Exchange Tokens" -> stringResource(R.string.Market_Category_ExchangeTokens)
+                        "Risk Management" -> stringResource(R.string.Market_Category_RiskManagement)
+                        "Wallets" -> stringResource(R.string.Market_Category_Wallets)
+                        "Synthetics" -> stringResource(R.string.Market_Category_Synthetics)
+                        "Index Funds" -> stringResource(R.string.Market_Category_IndexFunds)
+                        "NFT" -> stringResource(R.string.Market_Category_NFT)
+                        "Fundraising" -> stringResource(R.string.Market_Category_Fundraising)
+                        "Gaming" -> stringResource(R.string.Market_Category_Gaming)
+                        "Infrastructure" -> stringResource(R.string.Market_Category_Infrastructure)
+                        "Analytics" -> stringResource(R.string.Market_Category_Analytics)
+                        "Storage" -> stringResource(R.string.Market_Category_Storage)
+                        "Identity" -> stringResource(R.string.Market_Category_Identity)
+                        "Yield Tokens" -> stringResource(R.string.Market_Category_YieldTokens)
+                        "Reserve Currency" -> stringResource(R.string.Market_Category_ReserveCurrency)
+                        else -> categoryName
+                    }
+
                     Column(
                         modifier = Modifier.padding(12.dp),
                     ) {
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            text = type.coinCategory.name,
+                            text = categoryName,
                             style = ComposeAppTheme.typography.subhead1,
                             color = ComposeAppTheme.colors.oz,
                             maxLines = 1

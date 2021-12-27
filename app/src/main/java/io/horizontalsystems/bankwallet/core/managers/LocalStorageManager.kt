@@ -36,6 +36,7 @@ class LocalStorageManager(private val preferences: SharedPreferences)
     private val BASE_LITECOIN_PROVIDER = "base_litecoin_provider"
     private val BASE_ETHEREUM_PROVIDER = "base_ethereum_provider"
     private val BASE_DASH_PROVIDER = "base_dash_provider"
+    private val BASE_SAFE_PROVIDER = "base_safe_provider"
     private val BASE_BINANCE_PROVIDER = "base_binance_provider"
     private val BASE_ZCASH_PROVIDER = "base_zcash_provider"
     private val SYNC_MODE = "sync_mode"
@@ -116,6 +117,12 @@ class LocalStorageManager(private val preferences: SharedPreferences)
         get() = preferences.getString(BASE_DASH_PROVIDER, null)
         set(value) {
             preferences.edit().putString(BASE_DASH_PROVIDER, value).apply()
+        }
+
+    override var baseSafeProvider: String?
+        get() = preferences.getString(BASE_SAFE_PROVIDER, null)
+        set(value) {
+            preferences.edit().putString(BASE_SAFE_PROVIDER, value).apply()
         }
 
     override var baseBinanceProvider: String?

@@ -79,13 +79,13 @@ class MainSettingsFragment : BaseFragment() {
                 baseCurrency,
                 language,
                 theme,
-                experimentalFeatures,
+//                experimentalFeatures,
                 null,
-                faq,
-                academy,
-                null,
+//                faq,
+//                academy,
+//                null,
                 aboutApp,
-                settingsBottom
+//                settingsBottom
         ))
 
         settingsRecyclerView.adapter = mainSettingsAdapter

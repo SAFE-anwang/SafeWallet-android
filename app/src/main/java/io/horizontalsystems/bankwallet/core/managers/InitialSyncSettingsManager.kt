@@ -14,6 +14,7 @@ class InitialSyncSettingsManager(
             SupportedCoinType(CoinType.Bitcoin, SyncMode.Fast, true),
             SupportedCoinType(CoinType.BitcoinCash, SyncMode.Fast, true),
             SupportedCoinType(CoinType.Dash, SyncMode.Fast, true),
+            SupportedCoinType(CoinType.Safe, SyncMode.Fast, true),
             SupportedCoinType(CoinType.Litecoin, SyncMode.Fast, true)
     )
 

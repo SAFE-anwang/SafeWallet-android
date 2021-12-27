@@ -11,6 +11,7 @@ class AddressParserFactory {
             is CoinType.Litecoin -> AddressParser("litecoin", true)
             is CoinType.BitcoinCash -> AddressParser("bitcoincash", false)
             is CoinType.Dash -> AddressParser("dash", true)
+            is CoinType.Safe -> AddressParser("safe", true)
             is CoinType.Ethereum -> AddressParser("ethereum", true)
             is CoinType.Erc20 -> AddressParser("", true)
             is CoinType.BinanceSmartChain -> AddressParser("", true)

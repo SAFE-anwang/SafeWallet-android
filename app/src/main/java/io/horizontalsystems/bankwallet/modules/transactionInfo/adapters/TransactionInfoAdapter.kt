@@ -36,7 +36,7 @@ class TransactionInfoAdapter(
         fun onUrlClick(url: String)
         fun closeClick()
         fun onClickStatusInfo()
-        fun onLockInfoClick(lockDate: Date)
+        fun onLockInfoClick(lockDate: Date,unlockedHeight:Long?)
         fun onDoubleSpendInfoClick(transactionHash: String, conflictingHash: String)
         fun onOptionButtonClick(optionType: TransactionInfoOption.Type)
     }
@@ -187,7 +187,7 @@ class TransactionInfoAdapter(
                     if (type.showLockInfo) {
                         rightInfoIcon.isVisible = true
                         containerView.setOnClickListener {
-                            listener.onLockInfoClick(type.date)
+                            listener.onLockInfoClick(type.date,type.unlockedHeight)
                         }
                     }
                 }

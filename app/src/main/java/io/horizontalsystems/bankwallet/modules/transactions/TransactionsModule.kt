@@ -32,7 +32,8 @@ object TransactionsModule {
 data class TransactionLockInfo(
     val lockedUntil: Date,
     val originalAddress: String,
-    val amount: BigDecimal?
+    val amount: BigDecimal?,
+    val unlockedHeight: Long?
 )
 
 sealed class TransactionStatus {
@@ -59,6 +60,7 @@ data class TransactionSource(
         object Litecoin : Blockchain()
         object BitcoinCash : Blockchain()
         object Dash : Blockchain()
+        object Safe : Blockchain()
         object Ethereum : Blockchain()
         object Zcash : Blockchain()
         object BinanceSmartChain : Blockchain()
@@ -80,6 +82,7 @@ data class TransactionSource(
                 Litecoin -> "Litecoin"
                 BitcoinCash -> "BitcoinCash"
                 Dash -> "Dash"
+                Safe -> "Safe"
                 Ethereum -> "Ethereum"
                 Zcash -> "Zcash"
                 BinanceSmartChain -> "Binance Smart Chain"

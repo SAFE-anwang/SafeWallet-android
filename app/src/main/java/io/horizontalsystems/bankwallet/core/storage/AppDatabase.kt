@@ -55,39 +55,39 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "dbBankWallet")
-                    .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
-                    .addMigrations(
-                            MIGRATION_8_9,
-                            MIGRATION_9_10,
-                            MIGRATION_10_11,
-                            renameCoinDaiToSai,
-                            moveCoinSettingsFromAccountToWallet,
-                            storeBipToPreferences,
-                            addBlockchainSettingsTable,
-                            addIndexToEnableWallet,
-                            updateBchSyncMode,
-                            addCoinRecordTable,
-                            removeRateStorageTable,
-                            addNotificationTables,
-                            addLogsTable,
-                            updateEthereumCommunicationMode,
-                            addBirthdayHeightToAccount,
-                            addBep2SymbolToRecord,
-                            MIGRATION_24_25,
-                            MIGRATION_25_26,
-                            MIGRATION_26_27,
-                            MIGRATION_27_28,
-                            MIGRATION_28_29,
-                            MIGRATION_29_30,
-                            MIGRATION_30_31,
-                            Migration_31_32,
-                            Migration_32_33,
-                            Migration_33_34,
-                            Migration_34_35,
-                            Migration_35_36
-                    )
-                    .build()
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .addMigrations(
+                    MIGRATION_8_9,
+                    MIGRATION_9_10,
+                    MIGRATION_10_11,
+                    renameCoinDaiToSai,
+                    moveCoinSettingsFromAccountToWallet,
+                    storeBipToPreferences,
+                    addBlockchainSettingsTable,
+                    addIndexToEnableWallet,
+                    updateBchSyncMode,
+                    addCoinRecordTable,
+                    removeRateStorageTable,
+                    addNotificationTables,
+                    addLogsTable,
+                    updateEthereumCommunicationMode,
+                    addBirthdayHeightToAccount,
+                    addBep2SymbolToRecord,
+                    MIGRATION_24_25,
+                    MIGRATION_25_26,
+                    MIGRATION_26_27,
+                    MIGRATION_27_28,
+                    MIGRATION_28_29,
+                    MIGRATION_29_30,
+                    MIGRATION_30_31,
+                    Migration_31_32,
+                    Migration_32_33,
+                    Migration_33_34,
+                    Migration_34_35,
+                    Migration_35_36
+                )
+                .build()
         }
 
         private val MIGRATION_8_9: Migration = object : Migration(8, 9) {
@@ -207,7 +207,7 @@ abstract class AppDatabase : RoomDatabase() {
                             )
                         }
 
-                        if (coinId == "BTC" || coinId == "BCH" || coinId == "DASH") {
+                        if (coinId == "BTC" || coinId == "BCH" || coinId == "DASH" || coinId == "SAFE") {
                             var newSyncMode = SyncMode.Fast
 
                             try {
@@ -292,7 +292,7 @@ abstract class AppDatabase : RoomDatabase() {
                             "BTC" -> {
                                 coinTypeStr = dbConverter.fromCoinType(CoinType.Bitcoin)
                                 derivationStr = (App.localStorage.bitcoinDerivation
-                                        ?: AccountType.Derivation.bip49).value
+                                    ?: AccountType.Derivation.bip49).value
 
                             }
                             "BCH" -> {
@@ -300,6 +300,9 @@ abstract class AppDatabase : RoomDatabase() {
                             }
                             "DASH" -> {
                                 coinTypeStr = dbConverter.fromCoinType(CoinType.Dash)
+                            }
+                            "SAFE" -> {
+                                coinTypeStr = dbConverter.fromCoinType(CoinType.Safe)
                             }
 
                             "ETH" -> {

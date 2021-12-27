@@ -16,6 +16,8 @@ import io.horizontalsystems.bankwallet.modules.send.dash.SendDashHandler
 import io.horizontalsystems.bankwallet.modules.send.dash.SendDashInteractor
 import io.horizontalsystems.bankwallet.modules.send.ethereum.SendEthereumHandler
 import io.horizontalsystems.bankwallet.modules.send.ethereum.SendEthereumInteractor
+import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeHandler
+import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeInteractor
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.CustomPriorityUnit
@@ -76,6 +78,20 @@ object SendModule {
         fun validate(address: String)
         fun send(amount: BigDecimal, address: String, logger: AppLogger): Single<Unit>
         fun clear()
+    }
+
+    interface ISendSafeInteractor {
+        fun fetchAvailableBalance(address: String?)
+        fun fetchMinimumAmount(address: String?): BigDecimal
+        fun fetchFee(amount: BigDecimal, address: String?)
+        fun validate(address: String)
+        fun send(amount: BigDecimal, address: String, logger: AppLogger, lockTimeInterval: LockTimeInterval ?): Single<Unit>
+        fun clear()
+    }
+
+    interface ISendSafeInteractorDelegate {
+        fun didFetchAvailableBalance(availableBalance: BigDecimal)
+        fun didFetchFee(fee: BigDecimal)
     }
 
     interface ISendDashInteractorDelegate {
@@ -169,8 +185,8 @@ object SendModule {
     ) : SendConfirmationViewItem()
 
     data class SendConfirmationTotalViewItem(
-            val primaryInfo: AmountInfo,
-            val secondaryInfo: AmountInfo?
+        val primaryInfo: AmountInfo,
+        val secondaryInfo: AmountInfo?
     ) : SendConfirmationViewItem()
 
     data class SendConfirmationMemoViewItem(val memo: String?) : SendConfirmationViewItem()
@@ -213,6 +229,23 @@ object SendModule {
 
                     handler
                 }
+
+                is ISendSafeAdapter -> {
+                    val safeInteractor = SendSafeInteractor(adapter)
+                    val handler = SendSafeHandler(safeInteractor)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+
+
                 is ISendEthereumAdapter -> {
                     val ethereumInteractor = SendEthereumInteractor(adapter)
                     val handler = SendEthereumHandler(ethereumInteractor)

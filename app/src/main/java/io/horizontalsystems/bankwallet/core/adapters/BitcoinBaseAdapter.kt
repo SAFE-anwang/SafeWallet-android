@@ -15,6 +15,7 @@ import io.horizontalsystems.bitcoincore.models.*
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.hodler.HodlerOutputData
 import io.horizontalsystems.hodler.HodlerPlugin
+import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -254,13 +255,20 @@ abstract class BitcoinBaseAdapter(
         }?.address
 
         var transactionLockInfo: TransactionLockInfo? = null
-        val lockedOutput = transaction.outputs.firstOrNull { it.pluginId == HodlerPlugin.id }
+        val lockedOutput = transaction.outputs.firstOrNull {
+//            it.pluginId == HodlerPlugin.id
+            it.unlockedHeight != null && it.unlockedHeight !! > 0
+        }
         if (lockedOutput != null) {
-            val hodlerOutputData = lockedOutput.pluginData as? HodlerOutputData
-            hodlerOutputData?.approxUnlockTime?.let { approxUnlockTime ->
-                val lockedValueBTC = satoshiToBTC(lockedOutput.value)
-                transactionLockInfo = TransactionLockInfo(Date(approxUnlockTime * 1000), hodlerOutputData.addressString, lockedValueBTC)
-            }
+            val unlockedHeight =  lockedOutput.unlockedHeight;
+            val hodlerOutputData = HodlerOutputData( LockTimeInterval.month_3 , lockedOutput.address !! )
+//            hodlerOutputData?.approxUnlockTime?.let { approxUnlockTime ->
+//                val lockedValueBTC = satoshiToBTC(lockedOutput.value)
+//                transactionLockInfo = TransactionLockInfo(Date(approxUnlockTime * 1000), hodlerOutputData.addressString, lockedValueBTC)
+//            }
+            val lockedValueBTC = satoshiToBTC(lockedOutput.value)
+            val approxUnlockTime = kit.lastBlockInfo!!.timestamp.plus( unlockedHeight!!.minus( kit.lastBlockInfo!!.height ) * 30 )
+            transactionLockInfo = TransactionLockInfo(Date(approxUnlockTime * 1000), hodlerOutputData.addressString, lockedValueBTC,unlockedHeight)
         }
 
         return when (transaction.type) {
