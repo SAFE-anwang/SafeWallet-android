@@ -12,7 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_back"
+        app:navigationIcon="@drawable/logo_safe_24"
         app:title="@string/SettingsAboutApp_Title"
         app:titleTextAppearance="@style/Title3" />
 
