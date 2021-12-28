@@ -80,6 +80,7 @@
     <string name="Market_Field_PriceDiff">价格</string>
     <string name="Market_Title">市场</string>
     <string name="Market_Search">查询</string>
+    <string name="Market_Filters">高级查询</string>
     <string name="Market_FilterSection_MarketParameters">市值参数</string>
     <string name="Market_FilterSection_PriceParameters">价格参数</string>
     <string name="Market_Field_HighestCap">市值由高到低</string>
