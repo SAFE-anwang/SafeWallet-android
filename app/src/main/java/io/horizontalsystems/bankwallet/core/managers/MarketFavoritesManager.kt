@@ -27,7 +27,7 @@ class MarketFavoritesManager(appDatabase: AppDatabase) {
     }
 
     fun getAll(): List<FavoriteCoin> {
-        return dao.getAll()
+        return dao.getAll() + FavoriteCoin("safe-coin")
     }
 
     fun isCoinInFavorites(coinUid: String): Boolean {

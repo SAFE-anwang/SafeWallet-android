@@ -219,7 +219,13 @@ dependencies {
     implementation project(':bitcoin-kit-android:litecoinkit')
     implementation project(':bitcoin-kit-android:safekit')
 
-    implementation 'com.github.horizontalsystems:ethereum-kit-android:5c0b4f3'
+//    implementation 'com.github.horizontalsystems:ethereum-kit-android:5c0b4f3'
+    implementation project(':ethereum-kit-android:ethereumkit')
+    implementation project(':ethereum-kit-android:erc20kit')
+    implementation project(':ethereum-kit-android:uniswapkit')
+    implementation project(':ethereum-kit-android:oneinchkit')
+
+
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:047596b'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:fe2a3be'
 

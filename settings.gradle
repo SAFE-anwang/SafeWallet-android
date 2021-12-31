@@ -23,3 +23,9 @@ include 'bitcoin-kit-android:safekit'
 
 includeFlat 'market-kit-android'
 include ':market-kit-android:marketkit'
+
+includeFlat 'ethereum-kit-android'
+include ':ethereum-kit-android:ethereumkit'
+include ':ethereum-kit-android:erc20kit'
+include ':ethereum-kit-android:uniswapkit'
+include ':ethereum-kit-android:oneinchkit'
