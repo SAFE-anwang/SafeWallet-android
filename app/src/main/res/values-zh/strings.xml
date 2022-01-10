@@ -311,9 +311,12 @@
     <string name="Send_LockTime_Month_1">1 个月</string>
     <string name="Send_LockTime_Month_3">3 个月</string>
     <string name="Send_LockTime_Month_6">6 个月</string>
+    <string name="Send_LockTime_Month_9">9 个月</string>
     <string name="Send_LockTime_HalfYear">6 个月</string>
     <string name="Send_LockTime_Year">1 年</string>
     <string name="Send_LockTime_Year_3">3 年</string>
+    <string name="Send_LockTime_Year_5">5 年</string>
+    <string name="Send_LockTime_Year_10">10 年</string>
     <string name="Send_Sending">正在发送</string>
     <string name="Send_Token_InsufficientFeeAlert">%s（%s）的交易费用以%s支付。您需要%s。</string>
     <string name="Send_Warning_LowFee">警告！有被骗的风险</string>
