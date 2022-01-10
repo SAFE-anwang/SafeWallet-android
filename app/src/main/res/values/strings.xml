@@ -359,9 +359,12 @@
     <string name="Send_LockTime_Month_1">1 month</string>
     <string name="Send_LockTime_Month_3">3 months</string>
     <string name="Send_LockTime_Month_6">6 months</string>
+    <string name="Send_LockTime_Month_9">9 months</string>
     <string name="Send_LockTime_HalfYear">6 months</string>
     <string name="Send_LockTime_Year">1 year</string>
     <string name="Send_LockTime_Year_3">3 years</string>
+    <string name="Send_LockTime_Year_5">5 years</string>
+    <string name="Send_LockTime_Year_10">10 years</string>
     <string name="Send_Sending">Sending</string>
 
     <string name="Send_Token_InsufficientFeeAlert">Transaction fees for %1$s (%2$s) paid in %3$s. You need %4$s.</string>

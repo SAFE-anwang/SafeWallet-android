@@ -158,8 +158,11 @@ fun LockTimeInterval?.stringResId(): Int {
         LockTimeInterval.month_1 -> R.string.Send_LockTime_Month_1
         LockTimeInterval.month_3 -> R.string.Send_LockTime_Month_3
         LockTimeInterval.month_6 -> R.string.Send_LockTime_Month_6
+        LockTimeInterval.month_9 -> R.string.Send_LockTime_Month_9
         LockTimeInterval.year_1 -> R.string.Send_LockTime_Year
         LockTimeInterval.year_3 -> R.string.Send_LockTime_Year_3
+        LockTimeInterval.year_5 -> R.string.Send_LockTime_Year_5
+        LockTimeInterval.year_10 -> R.string.Send_LockTime_Year_10
         null -> R.string.Send_LockTime_Off
     }
 }
