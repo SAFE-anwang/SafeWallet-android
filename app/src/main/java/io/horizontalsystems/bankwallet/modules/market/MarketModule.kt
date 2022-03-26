@@ -96,6 +96,8 @@ fun List<MarketItem>.sort(sortingField: SortingField) = when (sortingField) {
     SortingField.LowestCap -> sortedByNullLast { it.marketCap.value }
     SortingField.HighestVolume -> sortedByDescendingNullLast { it.volume.value }
     SortingField.LowestVolume -> sortedByNullLast { it.volume.value }
+    SortingField.HighestPrice -> sortedByDescendingNullLast { it.rate.value }
+    SortingField.LowestPrice -> sortedByNullLast { it.rate.value }
     SortingField.TopGainers -> sortedByDescendingNullLast { it.diff }
     SortingField.TopLosers -> sortedByNullLast { it.diff }
 }
@@ -104,6 +106,7 @@ fun List<MarketItem>.sort(sortingField: SortingField) = when (sortingField) {
 enum class SortingField(@StringRes val titleResId: Int) : WithTranslatableTitle, Parcelable {
     HighestCap(R.string.Market_Field_HighestCap), LowestCap(R.string.Market_Field_LowestCap),
     HighestVolume(R.string.Market_Field_HighestVolume), LowestVolume(R.string.Market_Field_LowestVolume),
+    HighestPrice(R.string.Market_Field_HighestPrice), LowestPrice(R.string.Market_Field_LowestPrice),
     TopGainers(R.string.RateList_TopGainers), TopLosers(R.string.RateList_TopLosers);
 
     override val title: TranslatableString

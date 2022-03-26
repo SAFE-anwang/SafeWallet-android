@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.core.factories.AccountFactory
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
@@ -48,6 +49,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var torKitManager: ITorManager
         lateinit var chartTypeStorage: IChartTypeStorage
         lateinit var restoreSettingsStorage: IRestoreSettingsStorage
+        lateinit var vpnServerStorage: VpnServerStorage
 
         lateinit var wordsManager: WordsManager
         lateinit var networkManager: INetworkManager
@@ -88,6 +90,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var restoreSettingsManager: RestoreSettingsManager
         lateinit var evmNetworkManager: EvmNetworkManager
         lateinit var accountSettingManager: AccountSettingManager
+        lateinit var binanceRefreshManager: BinanceRefreshManager
     }
 
     override val testMode = BuildConfig.testMode
@@ -103,6 +106,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             Log.w("RxJava ErrorHandler", e)
         }
+        MMKV.initialize(this)
 
         EthereumKit.init()
 
@@ -145,6 +149,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
             thirdKeyboardStorage = this
             marketStorage = this
         }
+        vpnServerStorage = VpnServerStorage(appDatabase)
 
         torKitManager = TorManager(instance, localStorage)
 
@@ -214,6 +219,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         activateCoinManager = ActivateCoinManager(marketKit, walletManager, accountManager)
 
         releaseNotesManager = ReleaseNotesManager(systemInfoManager, localStorage, appConfigProvider)
+
+        binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
 
         setAppTheme()
 

@@ -156,7 +156,8 @@ class MetricsPageViewModel(
 
     fun onSelectMarketField(marketField: MarketField) {
         this.marketField = marketField
-        syncMarketItems(marketItems)
+        service.marketField = this.marketField
+//        syncMarketItems(marketItems)
     }
 
     fun refresh() {

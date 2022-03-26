@@ -874,4 +874,6 @@
     <string name="BalanceSyncError_ButtonReport">Şikayet Et</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">Bizi Takip Et</string>
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>

@@ -139,6 +139,7 @@ class MetricsPageFragment : BaseFragment() {
                                         viewModel::onSelectMarketField
                                     )
                                 }
+                                var i = 1
                                 items(marketData.marketViewItems) { marketViewItem ->
                                     MarketCoin(
                                         marketViewItem.fullCoin.coin.name,
@@ -147,7 +148,7 @@ class MetricsPageFragment : BaseFragment() {
                                         marketViewItem.fullCoin.iconPlaceholder,
                                         marketViewItem.coinRate,
                                         marketViewItem.marketDataValue,
-                                        marketViewItem.rank,
+                                        "${i++}",
                                     ) { onCoinClick(marketViewItem.fullCoin.coin.uid) }
                                 }
                             }

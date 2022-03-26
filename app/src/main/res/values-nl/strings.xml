@@ -871,4 +871,6 @@
     <string name="BalanceSyncError_ButtonReport">Report</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">Follow Us</string>
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>

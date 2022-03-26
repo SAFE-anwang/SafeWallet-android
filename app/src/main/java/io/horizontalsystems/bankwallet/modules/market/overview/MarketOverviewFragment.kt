@@ -44,7 +44,7 @@ import io.horizontalsystems.core.findNavController
 
 class MarketOverviewFragment : BaseFragment() {
 
-    private val viewModel by viewModels<MarketOverviewViewModel> { MarketOverviewModule.Factory() }
+    val viewModel by viewModels<MarketOverviewViewModel> { MarketOverviewModule.Factory() }
 
     override fun onCreateView(
         inflater: LayoutInflater,

@@ -1059,4 +1059,6 @@
 
     <string name="ReleaseNotes_FollowUs">Follow Us</string>
 
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>

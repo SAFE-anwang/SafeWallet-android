@@ -66,6 +66,7 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/master/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         apptestnet {
@@ -81,7 +82,7 @@ android {
             applicationIdSuffix ".dev.appcenter"
             signingConfig signingConfigs.appCenter
             matchingFallbacks = ['debug']
-        }
+        } 
 
         release {
             debuggable false
@@ -103,6 +104,7 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/v0.21/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         appcenterrelease {
@@ -294,6 +296,9 @@ dependencies {
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:2.0.9"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:2.0.9"
     testRuntimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    // VPN
+    implementation project(':vpn')
 }
 
 configurations.all {

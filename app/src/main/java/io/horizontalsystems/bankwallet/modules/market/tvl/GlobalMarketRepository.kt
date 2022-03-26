@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.market.tvl
 
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.sort
@@ -69,6 +70,28 @@ class GlobalMarketRepository(
                 }
                 marketItems.sort(sortingField)
             }
+    }
+
+    fun getMarketItems(
+        currency: Currency,
+        sortDescending: Boolean,
+        metricsType: MetricsType,
+        marketField: MarketField
+    ): Single<List<MarketItem>> {
+        return marketKit.marketInfosSingle(250, currency.code, defi = metricsType == MetricsType.DefiCap)
+            .map { coinMarkets ->
+                val marketItems = coinMarkets.map { MarketItem.createFromCoinMarket(it, currency) }
+                val sortingField = getSortingField(marketField, sortDescending)
+                marketItems.sort(sortingField)
+            }
+    }
+
+    fun getSortingField(marketField: MarketField, sortDescending: Boolean): SortingField {
+        return when (marketField) {
+            MarketField.MarketCap -> if (sortDescending) SortingField.HighestCap else SortingField.LowestCap
+            MarketField.PriceDiff -> if (sortDescending) SortingField.HighestPrice else SortingField.LowestPrice
+            else -> if (sortDescending) SortingField.HighestVolume else SortingField.LowestVolume
+        }
     }
 
     fun getMarketTvlItems(

@@ -875,4 +875,7 @@ poner en peligro la seguridad de mis fondos.</string>
     <string name="BalanceSyncError_ButtonReport">Reportar</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">Síguenos</string>
+
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>
