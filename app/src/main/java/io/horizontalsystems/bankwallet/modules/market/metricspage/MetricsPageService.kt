@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.market.metricspage
 
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
+import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.tvl.GlobalMarketRepository
 import io.horizontalsystems.bankwallet.modules.metricchart.MetricChartModule
@@ -42,6 +43,13 @@ class MetricsPageService(
             syncMarketItems()
         }
 
+    // 设置MarketField 初始值, 查看24小时成交量时，默认值为MarketField.Volume
+    var marketField: MarketField = if (metricsType == MetricsType.Volume24h) MarketField.Volume else MarketField.MarketCap
+        set(value) {
+            field = value
+            syncMarketItems()
+        }
+
     private fun sync() {
         syncChartItems()
 
@@ -50,7 +58,7 @@ class MetricsPageService(
 
     private fun syncMarketItems() {
         marketDataDisposable?.dispose()
-        globalMarketRepository.getMarketItems(baseCurrency, sortDescending, metricsType)
+        globalMarketRepository.getMarketItems(baseCurrency, sortDescending, metricsType, marketField)
             .doOnSubscribe { marketItemsObservable.onNext(DataState.Loading) }
             .subscribeIO({
                 marketItemsObservable.onNext(DataState.Success(it))

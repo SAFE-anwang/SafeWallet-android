@@ -143,6 +143,8 @@ class TransactionsService(
                 val currencyValue = getCurrencyValue(record)
 
                 transactionItem = TransactionItem(record, currencyValue, lastBlockInfo)
+            } else {
+                transactionItem = transactionItem.copy(record = record)
             }
 
             tmpList.add(transactionItem)

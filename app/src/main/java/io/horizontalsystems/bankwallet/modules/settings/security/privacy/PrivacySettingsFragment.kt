@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ConcatAdapter
+import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -17,6 +18,7 @@ import io.horizontalsystems.bankwallet.entities.TransactionDataSortingType
 import io.horizontalsystems.bankwallet.entities.title
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
+import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorDialog
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorViewItem
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
@@ -27,11 +29,11 @@ import kotlin.system.exitProcess
 
 class PrivacySettingsFragment :
     BaseFragment(),
-    PrivacySettingsTorAdapter.Listener,
+    PrivacySettingsNetAdapter.Listener,
     PrivacySettingsTransactionsStructureAdapter.Listener {
 
     private lateinit var viewModel: PrivacySettingsViewModel
-    private lateinit var torControlAdapter: PrivacySettingsTorAdapter
+    private lateinit var torControlAdapter: PrivacySettingsNetAdapter
     private lateinit var walletRestoreSettingsAdapter: PrivacySettingsAdapter
 
     override fun onCreateView(
@@ -62,7 +64,7 @@ class PrivacySettingsFragment :
 
 
         val topDescriptionAdapter = PrivacySettingsHeaderAdapter()
-        torControlAdapter = PrivacySettingsTorAdapter(this)
+        torControlAdapter = PrivacySettingsNetAdapter(requireContext(), this)
         val transactionsStructureAdapter = PrivacySettingsTransactionsStructureAdapter(this)
         walletRestoreSettingsAdapter = PrivacySettingsAdapter(
             viewModel.delegate,
@@ -256,4 +258,14 @@ class PrivacySettingsFragment :
         }
     }
 
+    override fun onVpnSwitchChecked(checked: Boolean) {
+        context?.let {
+            if (checked) {
+                VpnConnectService.startVpn(requireActivity())
+            } else {
+                Utils.stopVService(it)
+            }
+        }
+
+    }
 }

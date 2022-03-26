@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.Bitco
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
+import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.core.ICurrencyManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
@@ -215,7 +216,7 @@ class TransactionInfoService(
             )
             is TransactionSource.Blockchain.Safe -> TransactionInfoModule.ExplorerData(
                 "anwang.com",
-                if (testMode) null else "https://chain.anwang.com/tx/$hash"
+                if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$hash"
             )
             is TransactionSource.Blockchain.Ethereum -> {
                 val domain = when (ethereumNetworkType(account)) {

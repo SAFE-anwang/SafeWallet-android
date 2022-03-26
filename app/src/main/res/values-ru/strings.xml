@@ -874,4 +874,6 @@
     <string name="BalanceSyncError_ButtonReport">Пожаловаться</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">Мы в соцсетях</string>
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>

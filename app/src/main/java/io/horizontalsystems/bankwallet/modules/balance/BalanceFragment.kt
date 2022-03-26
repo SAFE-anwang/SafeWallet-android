@@ -44,6 +44,7 @@ import androidx.fragment.app.viewModels
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.android.material.snackbar.Snackbar
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.setOnSingleClickListener
 import io.horizontalsystems.bankwallet.entities.Account
@@ -113,6 +114,8 @@ class BalanceFragment : BaseFragment(), BackupRequiredDialog.Listener {
         )
 
         setWallets()
+
+        App.binanceRefreshManager.startRefreshBinance()
     }
 
     override fun onAttachFragment(childFragment: Fragment) {

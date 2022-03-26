@@ -912,4 +912,7 @@
     <string name="BalanceSyncError_ButtonReport">报告</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">关注我们</string>
+
+    <!-- VPN -->
+    <string name="VPN_Title">VPN</string>
 </resources>
