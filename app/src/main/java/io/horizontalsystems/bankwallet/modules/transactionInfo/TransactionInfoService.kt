@@ -16,7 +16,7 @@ import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionTyp
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.core.ICurrencyManager
-import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.MarketKit
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -188,8 +188,8 @@ class TransactionInfoService(
         disposables.clear()
     }
 
-    private fun ethereumNetworkType(account: Account): EthereumKit.NetworkType {
-        return accountSettingManager.ethereumNetwork(account).networkType
+    private fun ethereumChain(account: Account): Chain {
+        return accountSettingManager.ethereumNetwork(account).chain
     }
 
     private fun getExplorerData(record: TransactionRecord): TransactionInfoModule.ExplorerData {
@@ -219,13 +219,13 @@ class TransactionInfoService(
                 if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$hash"
             )
             is TransactionSource.Blockchain.Ethereum -> {
-                val domain = when (ethereumNetworkType(account)) {
-                    EthereumKit.NetworkType.EthMainNet -> "etherscan.io"
-                    EthereumKit.NetworkType.EthRopsten -> "ropsten.etherscan.io"
-                    EthereumKit.NetworkType.EthKovan -> "kovan.etherscan.io"
-                    EthereumKit.NetworkType.EthRinkeby -> "rinkeby.etherscan.io"
-                    EthereumKit.NetworkType.EthGoerli -> "goerli.etherscan.io"
-                    EthereumKit.NetworkType.BscMainNet -> throw IllegalArgumentException("")
+                val domain = when (ethereumChain(account)) {
+                    Chain.Ethereum -> "etherscan.io"
+                    Chain.EthereumRopsten -> "ropsten.etherscan.io"
+                    Chain.EthereumKovan -> "kovan.etherscan.io"
+                    Chain.EthereumRinkeby -> "rinkeby.etherscan.io"
+                    Chain.EthereumGoerli -> "goerli.etherscan.io"
+                    else -> throw IllegalArgumentException("")
                 }
                 TransactionInfoModule.ExplorerData("etherscan.io", "https://$domain/tx/0x$hash")
             }

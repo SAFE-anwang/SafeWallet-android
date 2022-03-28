@@ -41,12 +41,12 @@ class SafeAdapter(
 
     // ITransactionsAdapter
 
-    override val explorerTitle: String = "anwang.com"
+/*    override val explorerTitle: String = "anwang.com"
 
     override fun explorerUrl(transactionHash: String): String? {
         Log.e("anwangTransaction", "chain.anwang.com ---1 https://chain.anwang.com/tx/$transactionHash")
         return if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
-    }
+    }*/
 
     //
     // DashKit Listener

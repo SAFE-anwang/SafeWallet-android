@@ -5,13 +5,13 @@ import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.sort
-import io.horizontalsystems.bankwallet.modules.metricchart.MetricChartModule
 import io.horizontalsystems.bankwallet.modules.metricchart.MetricsType
-import io.horizontalsystems.chartview.ChartView
+import io.horizontalsystems.chartview.Indicator
+import io.horizontalsystems.chartview.models.ChartPoint
 import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.DefiMarketInfo
-import io.horizontalsystems.marketkit.models.TimePeriod
+import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
 import java.math.BigDecimal
 
@@ -23,10 +23,10 @@ class GlobalMarketRepository(
 
     fun getGlobalMarketPoints(
         currencyCode: String,
-        chartType: ChartView.ChartType,
+        chartInterval: HsTimePeriod,
         metricsType: MetricsType
-    ): Single<List<MetricChartModule.Item>> {
-        return marketKit.globalMarketPointsSingle(currencyCode, getTimePeriod(chartType))
+    ): Single<List<ChartPoint>> {
+        return marketKit.globalMarketPointsSingle(currencyCode, chartInterval)
             .map { list ->
                 list.map { point ->
                     val value = when (metricsType) {
@@ -37,8 +37,8 @@ class GlobalMarketRepository(
                         MetricsType.TvlInDefi -> point.tvl
                     }
 
-                    val dominance = if (metricsType == MetricsType.TotalMarketCap) point.btcDominance else null
-                    MetricChartModule.Item(value, dominance, point.timestamp)
+                    val dominance = if (metricsType == MetricsType.TotalMarketCap) point.btcDominance.toFloat() else null
+                    ChartPoint(value = value.toFloat(), timestamp = point.timestamp, indicators = mapOf(Indicator.Dominance to dominance))
                 }
             }
     }
@@ -46,12 +46,12 @@ class GlobalMarketRepository(
     fun getTvlGlobalMarketPoints(
         chain: String,
         currencyCode: String,
-        chartType: ChartView.ChartType,
-    ): Single<List<MetricChartModule.Item>> {
-        return marketKit.marketInfoGlobalTvlSingle(chain, currencyCode, getTimePeriod(chartType))
+        chartInterval: HsTimePeriod,
+    ): Single<List<ChartPoint>> {
+        return marketKit.marketInfoGlobalTvlSingle(chain, currencyCode, chartInterval)
             .map { list ->
                 list.map { point ->
-                      MetricChartModule.Item(point.value, null, point.timestamp)
+                      ChartPoint(point.value.toFloat(), point.timestamp)
                 }
             }
     }
@@ -97,14 +97,14 @@ class GlobalMarketRepository(
     fun getMarketTvlItems(
         currency: Currency,
         chain: TvlModule.Chain,
-        chartType: ChartView.ChartType,
+        chartInterval: HsTimePeriod,
         sortDescending: Boolean,
         forceRefresh: Boolean
     ): Single<List<TvlModule.MarketTvlItem>> =
         Single.create { emitter ->
             try {
                 val defiMarketInfos = defiMarketInfos(currency.code, forceRefresh)
-                val marketTvlItems = getMarketTvlItems(defiMarketInfos, currency, chain, chartType, sortDescending)
+                val marketTvlItems = getMarketTvlItems(defiMarketInfos, currency, chain, chartInterval, sortDescending)
                 emitter.onSuccess(marketTvlItems)
             } catch (error: Throwable) {
                 emitter.onError(error)
@@ -126,19 +126,28 @@ class GlobalMarketRepository(
         defiMarketInfoList: List<DefiMarketInfo>,
         currency: Currency,
         chain: TvlModule.Chain,
-        chartType: ChartView.ChartType,
+        chartInterval: HsTimePeriod,
         sortDescending: Boolean
     ): List<TvlModule.MarketTvlItem> {
         val tvlItems = defiMarketInfoList.map { defiMarketInfo ->
-            val diffPercent: BigDecimal? = when (chartType) {
-                ChartView.ChartType.DAILY -> defiMarketInfo.tvlChange1D
-                ChartView.ChartType.WEEKLY -> defiMarketInfo.tvlChange7D
-                ChartView.ChartType.MONTHLY,
-                ChartView.ChartType.MONTHLY_BY_DAY -> defiMarketInfo.tvlChange30D
+            val diffPercent: BigDecimal? = when (chartInterval) {
+                HsTimePeriod.Day1 -> defiMarketInfo.tvlChange1D
+                HsTimePeriod.Week1 -> defiMarketInfo.tvlChange1W
+                HsTimePeriod.Week2 -> defiMarketInfo.tvlChange2W
+                HsTimePeriod.Month1 -> defiMarketInfo.tvlChange1M
+                HsTimePeriod.Month3 -> defiMarketInfo.tvlChange3M
+                HsTimePeriod.Month6 -> defiMarketInfo.tvlChange6M
+                HsTimePeriod.Year1 -> defiMarketInfo.tvlChange1Y
                 else -> null
             }
             val diff: CurrencyValue? = diffPercent?.let {
                 CurrencyValue(currency, defiMarketInfo.tvl * it.divide(BigDecimal(100)))
+            }
+
+            val tvl: BigDecimal = if (chain == TvlModule.Chain.All) {
+                defiMarketInfo.tvl
+            } else {
+                defiMarketInfo.chainTvls[chain.name] ?: BigDecimal.ZERO
             }
 
             TvlModule.MarketTvlItem(
@@ -146,7 +155,7 @@ class GlobalMarketRepository(
                 defiMarketInfo.name,
                 defiMarketInfo.chains,
                 defiMarketInfo.logoUrl,
-                CurrencyValue(currency, defiMarketInfo.tvl),
+                CurrencyValue(currency, tvl),
                 diff,
                 diffPercent,
                 defiMarketInfo.tvlRank.toString()
@@ -163,16 +172,6 @@ class GlobalMarketRepository(
             chainTvlItems.sortedByDescending { it.tvl.value }
         } else {
             chainTvlItems.sortedBy { it.tvl.value }
-        }
-    }
-
-    private fun getTimePeriod(chartType: ChartView.ChartType): TimePeriod {
-        return when (chartType) {
-            ChartView.ChartType.DAILY -> TimePeriod.Hour24
-            ChartView.ChartType.WEEKLY -> TimePeriod.Day7
-            ChartView.ChartType.MONTHLY,
-            ChartView.ChartType.MONTHLY_BY_DAY -> TimePeriod.Day30
-            else -> throw IllegalArgumentException("Wrong ChartType")
         }
     }
 
