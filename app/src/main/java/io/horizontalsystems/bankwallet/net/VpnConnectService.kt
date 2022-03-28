@@ -15,10 +15,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewFragment
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewViewModel
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.HashSet

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.settings.security.privacy
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -9,13 +10,10 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.TorStatus
-import io.horizontalsystems.core.helpers.LocaleHelper
-import io.horizontalsystems.views.inflate
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.view_holder_net_control.*
+import io.horizontalsystems.bankwallet.databinding.ViewHolderNetControlBinding
 
 
-class PrivacySettingsNetAdapter(val context: Context, private val listener: Listener) : RecyclerView.Adapter<PrivacySettingsNetAdapter.TorControlViewHolder>() {
+class PrivacySettingsNetAdapter(val context: Context, private val listener: Listener) : RecyclerView.Adapter<PrivacySettingsNetAdapter.NetControlViewHolder>() {
 
     interface Listener {
         fun onTorSwitchChecked(checked: Boolean)
@@ -31,33 +29,35 @@ class PrivacySettingsNetAdapter(val context: Context, private val listener: List
 
     override fun getItemCount() = 1
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TorControlViewHolder {
-        return TorControlViewHolder.create(parent, onTorSwitch = { isChecked ->
-            if (isChecked && vpnChecked) {
-                vpnChecked = false
-                saveVpnStatus()
-                listener.onVpnSwitchChecked(false)
-            }
-            listener.onTorSwitchChecked(isChecked)
-        },
-        onVpnSwitch = { isChecked ->
-            // 连接了TOR网络，连接VPN时，需要断开
-            if (isChecked && checked) {
-                listener.onTorSwitchChecked(false)
-                checked = false
-            }
-            vpnChecked = isChecked
-            saveVpnStatus()
-            listener.onVpnSwitchChecked(isChecked)
-            setTorSwitch(checked)
-        })
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NetControlViewHolder {
+        return NetControlViewHolder(
+            ViewHolderNetControlBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+                {  isChecked ->
+                    if (isChecked && vpnChecked) {
+                        vpnChecked = false
+                        saveVpnStatus()
+                        listener.onVpnSwitchChecked(false)
+                    }
+                    listener.onTorSwitchChecked(isChecked)
+                },
+                { isChecked ->
+                    // 连接了TOR网络，连接VPN时，需要断开
+                    if (isChecked && checked) {
+                        listener.onTorSwitchChecked(false)
+                        checked = false
+                    }
+                    vpnChecked = isChecked
+                    saveVpnStatus()
+                    listener.onVpnSwitchChecked(isChecked)
+                    setTorSwitch(checked)
+                })
     }
 
     private fun saveVpnStatus() {
         sp.edit().putBoolean("vpnOpen", vpnChecked).commit()
     }
 
-    override fun onBindViewHolder(holder: TorControlViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NetControlViewHolder, position: Int) {
         holder.bind(torStatus, checked, vpnChecked)
     }
 
@@ -71,80 +71,73 @@ class PrivacySettingsNetAdapter(val context: Context, private val listener: List
         notifyItemChanged(0)
     }
 
-    class TorControlViewHolder(
-            override val containerView: View,
-            private val onTorSwitch: (isChecked: Boolean) -> Unit,
-            private val vpnOnSwitch: (isChecked: Boolean) -> Unit
-    ) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    class NetControlViewHolder(
+        private val binding: ViewHolderNetControlBinding,
+        private val onTorSwitch: (isChecked: Boolean) -> Unit,
+        private val vpnOnSwitch: (isChecked: Boolean) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            torControlView.setOnClickListener {
-                torConnectionSwitch.isChecked = !torConnectionSwitch.isChecked
+            binding.torControlView.setOnClickListener {
+                binding.torConnectionSwitch.isChecked = !binding.torConnectionSwitch.isChecked
             }
-            vpnControlView.setOnClickListener {
-                vpnConnectionSwitch.isChecked = !vpnConnectionSwitch.isChecked
+            binding.vpnControlView.setOnClickListener {
+                binding.vpnConnectionSwitch.isChecked = !binding.vpnConnectionSwitch.isChecked
             }
         }
 
         fun bind(torStatus: TorStatus, checked: Boolean, vpnChecked: Boolean) {
 
-            torConnectionSwitch.setOnCheckedChangeListener(null)
-            torConnectionSwitch.isChecked = checked
+            binding.torConnectionSwitch.setOnCheckedChangeListener(null)
+            binding.torConnectionSwitch.isChecked = checked
 
-            vpnConnectionSwitch.setOnCheckedChangeListener(null)
-            vpnConnectionSwitch.isChecked = vpnChecked
+            binding.vpnConnectionSwitch.setOnCheckedChangeListener(null)
+            binding.vpnConnectionSwitch.isChecked = vpnChecked
 
 
-            torConnectionSwitch.setOnCheckedChangeListener { _, isChecked ->
+            binding.torConnectionSwitch.setOnCheckedChangeListener { _, isChecked ->
                 onTorSwitch.invoke(isChecked)
             }
-            vpnConnectionSwitch.setOnCheckedChangeListener { _, isChecked ->
+            binding.vpnConnectionSwitch.setOnCheckedChangeListener { _, isChecked ->
                 vpnOnSwitch.invoke(isChecked)
             }
 
             if (vpnChecked) {
-                vpnSubtitleText.text = containerView.context.getString(R.string.TorPage_Connected)
+                binding.vpnSubtitleText.text = binding.wrapper.context.getString(R.string.TorPage_Connected)
             } else {
-                vpnSubtitleText.text = containerView.context.getString(R.string.TorPage_ConnectionClosed)
+                binding.vpnSubtitleText.text = binding.wrapper.context.getString(R.string.TorPage_ConnectionClosed)
             }
 
             when (torStatus) {
                 TorStatus.Connecting -> {
-                    connectionSpinner.isVisible = true
-                    controlIcon.setImageDrawable(null)
-                    subtitleText.text = containerView.context.getString(R.string.TorPage_Connecting)
+                    binding.connectionSpinner.isVisible = true
+                    binding.controlIcon.setImageDrawable(null)
+                    binding.subtitleText.text = binding.wrapper.context.getString(R.string.TorPage_Connecting)
                 }
                 TorStatus.Connected -> {
-                    connectionSpinner.isVisible = false
-                    controlIcon.imageTintList = getTint(R.color.yellow_d)
-                    controlIcon.setImageResource(R.drawable.ic_tor_connection_success_24)
-                    subtitleText.text = containerView.context.getString(R.string.TorPage_Connected)
+                    binding.connectionSpinner.isVisible = false
+                    binding.controlIcon.imageTintList = getTint(R.color.yellow_d)
+                    binding.controlIcon.setImageResource(R.drawable.ic_tor_connection_success_24)
+                    binding.subtitleText.text = binding.wrapper.context.getString(R.string.TorPage_Connected)
                 }
                 TorStatus.Failed -> {
-                    connectionSpinner.isVisible = false
-                    controlIcon.imageTintList = getTint(R.color.yellow_d)
-                    controlIcon.setImageResource(R.drawable.ic_tor_connection_error_24)
-                    subtitleText.text = containerView.context.getString(R.string.TorPage_Failed)
+                    binding.connectionSpinner.isVisible = false
+                    binding.controlIcon.imageTintList = getTint(R.color.yellow_d)
+                    binding.controlIcon.setImageResource(R.drawable.ic_tor_connection_error_24)
+                    binding.subtitleText.text = binding.wrapper.context.getString(R.string.TorPage_Failed)
                 }
                 TorStatus.Closed -> {
-                    connectionSpinner.isVisible = false
-                    controlIcon.imageTintList = getTint(R.color.yellow_d)
-                    controlIcon.setImageResource(R.drawable.ic_tor_connection_24)
-                    subtitleText.text = containerView.context.getString(R.string.TorPage_ConnectionClosed)
+                    binding.connectionSpinner.isVisible = false
+                    binding.controlIcon.imageTintList = getTint(R.color.yellow_d)
+                    binding.controlIcon.setImageResource(R.drawable.ic_tor_connection_24)
+                    binding.subtitleText.text = binding.wrapper.context.getString(R.string.TorPage_ConnectionClosed)
                 }
             }
 
         }
 
-        private fun getTint(color: Int) = containerView.context?.let { ColorStateList.valueOf(ContextCompat.getColor(it, color)) }
-
-
-        companion object {
-            const val layout = R.layout.view_holder_net_control
-
-            fun create(parent: ViewGroup,
-                       onTorSwitch: (isChecked: Boolean) -> Unit,
-                       onVpnSwitch: (isChecked: Boolean) -> Unit) = TorControlViewHolder(inflate(parent, layout, false), onTorSwitch, onVpnSwitch)
+        private fun getTint(color: Int) = binding.wrapper.context?.let {
+            ColorStateList.valueOf(ContextCompat.getColor(it, color))
         }
 
     }

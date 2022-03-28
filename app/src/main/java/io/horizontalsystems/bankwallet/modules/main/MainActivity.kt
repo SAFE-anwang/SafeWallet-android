@@ -10,6 +10,8 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
+import androidx.activity.viewModels
+import com.walletconnect.walletconnectv2.client.WalletConnectClient
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -18,8 +20,17 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.send.SendActivity
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
+import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SendEthereumTransactionRequest
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SignMessageRequest
 
 class MainActivity : BaseActivity() {
+
+    val viewModel by viewModels<MainActivityViewModel>(){
+        MainModule.FactoryForActivityViewModel()
+    }
 
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -28,7 +39,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(null) // null prevents fragments restoration on theme switch
+        super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
 
@@ -40,6 +51,29 @@ class MainActivity : BaseActivity() {
         registerReceiver(mMsgReceiver, IntentFilter(AppConfig.BROADCAST_ACTION_ACTIVITY))
 
         startVpn()
+
+        viewModel.openWalletConnectRequestLiveEvent.observe(this) { wcRequest ->
+            when (wcRequest) {
+                is WC2SignMessageRequest -> {
+                    navHost.navController.slideFromBottom(
+                        R.id.wc2SignMessageRequestFragment,
+                        WC2SignMessageRequestFragment.prepareParams(wcRequest.id)
+                    )
+                }
+                is WC2SendEthereumTransactionRequest -> {
+                    navHost.navController.slideFromBottom(
+                        R.id.wc2SendEthereumTransactionRequestFragment,
+                        WC2SendEthereumTransactionRequestFragment.prepareParams(wcRequest.id)
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(mMsgReceiver)
+        WalletConnectClient.shutdown()
     }
 
     override fun onTrimMemory(level: Int) {
@@ -72,11 +106,6 @@ class MainActivity : BaseActivity() {
         startActivity(Intent(this, SendActivity::class.java).apply {
             putExtra(SendActivity.WALLET, wallet)
         })
-    }
-
-    override fun onDestroy() {
-        unregisterReceiver(mMsgReceiver)
-        super.onDestroy()
     }
 
     private fun startVpn() {

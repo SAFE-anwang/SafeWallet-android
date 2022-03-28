@@ -21,6 +21,10 @@ class AppConfigProvider {
     val reportEmail = "foundation@anwang.com"
      val btcCoreRpcUrl: String = "https://btc.horizontalsystems.xyz/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
+     val walletConnectUrl = "relay.walletconnect.com"
+     val walletConnectProjectId by lazy {
+         Translator.getString(R.string.walletConnectV2Key)
+     }
 
      val twitterBearerToken by lazy {
         Translator.getString(R.string.twitterBearerToken)

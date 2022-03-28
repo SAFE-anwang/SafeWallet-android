@@ -12,9 +12,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.storage.migrations.*
 import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.modules.nft.NftAssetRecord
+import io.horizontalsystems.bankwallet.modules.nft.NftCollectionRecord
+import io.horizontalsystems.bankwallet.modules.nft.NftDao
+import io.horizontalsystems.bankwallet.modules.walletconnect.entity.WalletConnectSession
+import io.horizontalsystems.bankwallet.modules.walletconnect.entity.WalletConnectV2Session
+import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionDao
+import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionDao
 import io.horizontalsystems.marketkit.models.CoinType
 
-@Database(version = 37, exportSchema = false, entities = [
+@Database(version = 40, exportSchema = false, entities = [
     EnabledWallet::class,
     EnabledWalletCache::class,
     AccountRecord::class,
@@ -22,10 +29,14 @@ import io.horizontalsystems.marketkit.models.CoinType
     LogEntry::class,
     FavoriteCoin::class,
     WalletConnectSession::class,
+    WalletConnectV2Session::class,
     RestoreSettingRecord::class,
     ActiveAccount::class,
     AccountSettingRecord::class,
     CustomToken::class,
+    EvmAccountState::class,
+    NftCollectionRecord::class,
+    NftAssetRecord::class,
     VpnServerInfo::class
 ])
 
@@ -39,9 +50,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun restoreSettingDao(): RestoreSettingDao
     abstract fun logsDao(): LogsDao
     abstract fun marketFavoritesDao(): MarketFavoritesDao
-    abstract fun walletConnectSessionDao(): WalletConnectSessionDao
+    abstract fun wc1SessionDao(): WC1SessionDao
+    abstract fun wc2SessionDao(): WC2SessionDao
     abstract fun accountSettingDao(): AccountSettingDao
     abstract fun customTokenDao(): CustomTokenDao
+    abstract fun evmAccountStateDao(): EvmAccountStateDao
+    abstract fun nftCollectionDao(): NftDao
     abstract fun vpnServerDao(): VpnServerInfoDao
 
     companion object {
@@ -57,40 +71,43 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "dbBankWallet")
-                .fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .addMigrations(
-                    MIGRATION_8_9,
-                    MIGRATION_9_10,
-                    MIGRATION_10_11,
-                    renameCoinDaiToSai,
-                    moveCoinSettingsFromAccountToWallet,
-                    storeBipToPreferences,
-                    addBlockchainSettingsTable,
-                    addIndexToEnableWallet,
-                    updateBchSyncMode,
-                    addCoinRecordTable,
-                    removeRateStorageTable,
-                    addNotificationTables,
-                    addLogsTable,
-                    updateEthereumCommunicationMode,
-                    addBirthdayHeightToAccount,
-                    addBep2SymbolToRecord,
-                    MIGRATION_24_25,
-                    MIGRATION_25_26,
-                    MIGRATION_26_27,
-                    MIGRATION_27_28,
-                    MIGRATION_28_29,
-                    MIGRATION_29_30,
-                    MIGRATION_30_31,
-                    Migration_31_32,
-                    Migration_32_33,
-                    Migration_33_34,
-                    Migration_34_35,
-                    Migration_35_36,
-                    Migration_36_37
-                )
-                .build()
+                    .fallbackToDestructiveMigration()
+                    .allowMainThreadQueries()
+                    .addMigrations(
+                            MIGRATION_8_9,
+                            MIGRATION_9_10,
+                            MIGRATION_10_11,
+                            renameCoinDaiToSai,
+                            moveCoinSettingsFromAccountToWallet,
+                            storeBipToPreferences,
+                            addBlockchainSettingsTable,
+                            addIndexToEnableWallet,
+                            updateBchSyncMode,
+                            addCoinRecordTable,
+                            removeRateStorageTable,
+                            addNotificationTables,
+                            addLogsTable,
+                            updateEthereumCommunicationMode,
+                            addBirthdayHeightToAccount,
+                            addBep2SymbolToRecord,
+                            MIGRATION_24_25,
+                            MIGRATION_25_26,
+                            MIGRATION_26_27,
+                            MIGRATION_27_28,
+                            MIGRATION_28_29,
+                            MIGRATION_29_30,
+                            MIGRATION_30_31,
+                            Migration_31_32,
+                            Migration_32_33,
+                            Migration_33_34,
+                            Migration_34_35,
+                            Migration_35_36,
+                            Migration_36_37,
+                            Migration_37_38,
+                            Migration_38_39,
+                            Migration_39_40
+                    )
+                    .build()
         }
 
         private val MIGRATION_8_9: Migration = object : Migration(8, 9) {
