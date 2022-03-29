@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Account
@@ -34,6 +35,8 @@ class BalanceAccountsViewModel(private val accountManager: IAccountManager) : Vi
                 is AccountType.Address -> account.type.address
                 else -> null
             }
+
+            App.binanceRefreshManager.startRefreshBinance()
 
             AccountViewItem(address, account.type !is AccountType.Address, account.type is AccountType.Address, account.name, account.id)
         }
