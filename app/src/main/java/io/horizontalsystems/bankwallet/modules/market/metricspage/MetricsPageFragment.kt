@@ -136,7 +136,7 @@ class MetricsPageFragment : BaseFragment() {
                                             marketViewItem.fullCoin.iconPlaceholder,
                                             marketViewItem.coinRate,
                                             marketViewItem.marketDataValue,
-                                            "${i++}",
+                                            marketViewItem.rank,
                                         ) { onCoinClick(marketViewItem.fullCoin.coin.uid) }
                                     }
                                 }

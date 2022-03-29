@@ -61,7 +61,7 @@ class MetricsPageViewModel(
 
     private fun marketData(marketItems: List<MarketItem>): MetricsPageModule.MarketData {
         val menu = MetricsPageModule.Menu(service.sortDescending, Select(marketField, marketFields))
-        val marketViewItems = marketItems.map { MarketViewItem.create(it, marketField) }
+        val marketViewItems = marketItems.mapIndexed { index, marketItem -> MarketViewItem.create(marketItem, marketField, rank = "${index + 1}") }
         return MetricsPageModule.MarketData(menu, marketViewItems)
     }
 

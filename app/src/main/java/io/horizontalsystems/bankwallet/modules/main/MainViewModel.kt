@@ -67,7 +67,7 @@ class MainViewModel(
             updateTransactionsTabEnabled()
         })
 
-        rateAppManager.showRateAppObservable
+        /*rateAppManager.showRateAppObservable
                 .subscribe {
                     showRateApp(it)
                 }
@@ -75,7 +75,7 @@ class MainViewModel(
                     disposables.add(it)
                 }
 
-        showWhatsNew()
+        showWhatsNew()*/
     }
 
     private fun getTabToOpen(): MainModule.MainTab {
