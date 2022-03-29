@@ -103,7 +103,7 @@ private fun SettingSections(viewModel: AboutViewModel, navController: NavControl
 
     val termsShowAlert by viewModel.termsShowAlertLiveData.observeAsState(false)
 
-    CellSingleLineLawrenceSection(
+    /*CellSingleLineLawrenceSection(
         listOf {
             HsSettingCell(
                 R.string.SettingsAboutApp_WhatsNew,
@@ -115,10 +115,10 @@ private fun SettingSections(viewModel: AboutViewModel, navController: NavControl
         }
     )
 
-    Spacer(Modifier.height(32.dp))
+    Spacer(Modifier.height(32.dp))*/
 
     CellSingleLineLawrenceSection(
-        listOf({
+        listOf(/*{
             HsSettingCell(
                 R.string.Settings_AppStatus,
                 R.drawable.ic_app_status,
@@ -126,7 +126,7 @@ private fun SettingSections(viewModel: AboutViewModel, navController: NavControl
                     navController.slideFromRight(R.id.aboutAppFragment_to_appStatusFragment)
                 }
             )
-        }, {
+        },*/ {
             HsSettingCell(
                 R.string.Settings_Terms,
                 R.drawable.ic_terms_20,
@@ -159,13 +159,13 @@ private fun SettingSections(viewModel: AboutViewModel, navController: NavControl
     Spacer(Modifier.height(32.dp))
 
     CellSingleLineLawrenceSection(
-        listOf({
+        listOf(/*{
             HsSettingCell(
                 R.string.Settings_RateUs,
                 R.drawable.ic_star_20,
                 onClick = { RateAppManager.openPlayMarket(context) }
             )
-        }, {
+        },*/ {
             HsSettingCell(
                 R.string.Settings_ShareThisWallet,
                 R.drawable.ic_share_20,
@@ -198,7 +198,7 @@ fun AboutHeader(appVersion: String) {
     ) {
         Image(
             modifier = Modifier.size(72.dp),
-            painter = painterResource(id = R.drawable.ic_app_logo_72),
+            painter = painterResource(id = R.mipmap.ic_app_color),
             contentDescription = null,
         )
         Column(

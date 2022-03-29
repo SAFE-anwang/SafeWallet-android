@@ -202,7 +202,8 @@ data class MarketViewItem(
         fun create(
             marketItem: MarketItem,
             marketField: MarketField,
-            favorited: Boolean = false
+            favorited: Boolean = false,
+            rank: String?
         ): MarketViewItem {
             val marketDataValue = when (marketField) {
                 MarketField.MarketCap -> {
@@ -244,9 +245,17 @@ data class MarketViewItem(
                     6
                 ),
                 marketDataValue,
-                marketItem.fullCoin.coin.marketCapRank?.toString(),
+                rank ?: marketItem.fullCoin.coin.marketCapRank?.toString(),
                 favorited
             )
+        }
+
+        fun create(
+            marketItem: MarketItem,
+            marketField: MarketField,
+            favorited: Boolean = false
+        ): MarketViewItem {
+            return create(marketItem = marketItem, marketField = marketField, favorited, null)
         }
     }
 }
