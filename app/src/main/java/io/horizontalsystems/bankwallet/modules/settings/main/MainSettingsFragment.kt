@@ -100,7 +100,7 @@ private fun SettingsScreen(
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.height(12.dp))
                 SettingSections(viewModel, navController)
-                SettingsFooter(viewModel.appVersion, viewModel.companyWebPage)
+//                SettingsFooter(viewModel.appVersion, viewModel.companyWebPage)
             }
         }
     }
@@ -211,7 +211,7 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.mainFragment_to_themeSwitchFragment)
                 }
             )
-        }, {
+        }/*, {
             HsSettingCell(
                 R.string.Settings_ExperimentalFeatures,
                 R.drawable.ic_experimental,
@@ -219,10 +219,10 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.mainFragment_to_experimentalFeaturesFragment)
                 }
             )
-        })
+        }*/)
     )
 
-    Spacer(Modifier.height(32.dp))
+    /*Spacer(Modifier.height(32.dp))
 
     CellSingleLineLawrenceSection(
         listOf({
@@ -242,7 +242,7 @@ private fun SettingSections(
                 }
             )
         })
-    )
+    )*/
 
     Spacer(Modifier.height(32.dp))
 

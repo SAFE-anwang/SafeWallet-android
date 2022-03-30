@@ -66,7 +66,7 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
                             tint = ComposeAppTheme.colors.grey
                         )
                     }
-                    Spacer(modifier = Modifier.weight(1f))
+                    /*Spacer(modifier = Modifier.weight(1f))
                     Icon(
                         modifier = Modifier
                             .clickable(
@@ -81,7 +81,7 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
                         painter = painterResource(id = R.drawable.ic_nft_24),
                         contentDescription = null,
                         tint = ComposeAppTheme.colors.jacob
-                    )
+                    )*/
                 }
             },
             backgroundColor = ComposeAppTheme.colors.tyler,

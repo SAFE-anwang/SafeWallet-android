@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
@@ -18,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -92,6 +96,15 @@ fun WatchAddressScreen(navController: NavController) {
                 coinType = CoinType.Ethereum,
                 coinCode = "ETH",
                 onValueChange = viewModel::onEnterAddress
+            )
+
+            Text(
+                text = "注意：支持导入ETH和BSC地址，显示ETH和BSC的链上资产",
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                style = ComposeAppTheme.typography.caption,
+                color = ComposeAppTheme.colors.oz,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
             SideEffect {
