@@ -23,6 +23,7 @@ import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.databinding.ActivityIntroBinding
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 
 class IntroActivity : BaseActivity() {
@@ -39,6 +40,7 @@ class IntroActivity : BaseActivity() {
         setContentView(view)
 
         val viewPagerAdapter = IntroViewPagerAdapter(supportFragmentManager)
+        val pagesCount = viewPagerAdapter.count
 
         binding.viewPager.adapter = viewPagerAdapter
 
@@ -70,6 +72,7 @@ class IntroActivity : BaseActivity() {
             override fun onPageSelected(position: Int) {
                 binding.title.setText(getString(textes[position].first))
                 binding.description.setText(getString(textes[position].second))
+                setNextButton(pagesCount, position == pagesCount - 1)
             }
         })
 
@@ -78,7 +81,8 @@ class IntroActivity : BaseActivity() {
 
         binding.circleIndicator.setViewPager(binding.viewPager)
 
-        binding.buttonNextCompose.setContent {
+        setNextButton(pagesCount)
+        /*binding.buttonNextCompose.setContent {
             ComposeAppTheme {
                 ButtonPrimaryYellow(
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp),
@@ -90,6 +94,41 @@ class IntroActivity : BaseActivity() {
                     }
                 )
             }
+        }*/
+    }
+
+    private fun setNextButton(pagesCount: Int, lastSlide: Boolean = false) {
+        val title = getString(if (lastSlide) R.string.Button_Start else R.string.Button_Next)
+        binding.buttonNextCompose.setContent {
+            ComposeAppTheme {
+                if (lastSlide) {
+                    ButtonPrimaryYellow(
+                        modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+                        title = title,
+                        onClick = {
+                            onButtonClick(pagesCount)
+                        }
+                    )
+                } else {
+                    ButtonPrimaryDefault(
+                        modifier = Modifier.padding(start = 24.dp, end = 24.dp),
+                        title = title,
+                        onClick = {
+                            onButtonClick(pagesCount)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun onButtonClick(pagesCount: Int) {
+        if (binding.viewPager.currentItem < pagesCount - 1) {
+            binding.viewPager.currentItem = binding.viewPager.currentItem + 1
+        } else {
+            viewModel.onStartClicked()
+            MainModule.start(this)
+            finish()
         }
     }
 

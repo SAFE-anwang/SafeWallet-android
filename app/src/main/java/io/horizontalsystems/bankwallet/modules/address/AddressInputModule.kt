@@ -19,6 +19,7 @@ object AddressInputModule {
                 CoinType.Litecoin,
                 CoinType.Dash,
                 CoinType.Zcash,
+                CoinType.Safe,
                 is CoinType.Bep2 -> {
                     addressViewModel.addAddressHandler(AddressHandlerPure())
                 }
