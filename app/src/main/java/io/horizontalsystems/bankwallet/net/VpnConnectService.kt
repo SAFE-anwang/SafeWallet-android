@@ -177,7 +177,7 @@ object VpnConnectService {
         val socksPort = 10808
         GlobalScope.launch(Dispatchers.IO) {
             delay(1000)
-            var result = Utils.testConnection(App.instance, socksPort)
+            var result = "Fail"
             var count = 0
             while (result == "Fail" && count < 3) {
                 result = Utils.testConnection(App.instance, socksPort)
