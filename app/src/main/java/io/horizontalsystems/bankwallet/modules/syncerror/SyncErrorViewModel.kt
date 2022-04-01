@@ -23,7 +23,7 @@ class SyncErrorViewModel(
         is CoinType.Erc20 -> SourceType.EvmNetworkSettings(EvmNetworkModule.Blockchain.Ethereum, wallet.account)
         CoinType.BinanceSmartChain,
         is CoinType.Bep20 -> SourceType.EvmNetworkSettings(EvmNetworkModule.Blockchain.BinanceSmartChain, wallet.account)
-        else -> throw IllegalStateException("Source is not changeable")
+        else -> "Source is not changeable"
     }
 
     fun retry() {
