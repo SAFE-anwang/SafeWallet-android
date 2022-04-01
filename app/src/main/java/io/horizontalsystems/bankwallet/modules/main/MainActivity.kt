@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
 import androidx.activity.viewModels
+import com.v2ray.ang.util.Utils
 import com.walletconnect.walletconnectv2.client.WalletConnectClient
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -74,6 +75,7 @@ class MainActivity : BaseActivity() {
         super.onDestroy()
         unregisterReceiver(mMsgReceiver)
         WalletConnectClient.shutdown()
+        Utils.stopVService(this)
     }
 
     override fun onTrimMemory(level: Int) {
@@ -93,6 +95,7 @@ class MainActivity : BaseActivity() {
                     val logger = AppLogger("low memory")
                     logger.info("Kill activity due to low memory, level: $level")
                     finishAffinity()
+                    Utils.stopVService(this)
                 }
             }
             else -> {  /*do nothing*/
