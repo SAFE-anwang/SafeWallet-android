@@ -11,7 +11,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         versionCode 59
-        versionName "0.24.1"
+        versionName "0.24.0.1.0402"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
