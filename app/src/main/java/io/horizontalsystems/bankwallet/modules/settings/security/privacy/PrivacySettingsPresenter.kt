@@ -39,7 +39,7 @@ class PrivacySettingsPresenter(
         view?.toggleTorEnabled(interactor.isTorEnabled)
         view?.setTransactionsOrdering(interactor.transactionsSortingType)
 
-        if (!isActiveAccountCreated)
+//        if (!isActiveAccountCreated)
             view?.setRestoreWalletSettingsViewItems(syncItems)
     }
 

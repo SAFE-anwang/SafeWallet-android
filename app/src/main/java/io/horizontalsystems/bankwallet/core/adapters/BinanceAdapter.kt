@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
@@ -12,10 +13,13 @@ import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.binancechainkit.core.api.BinanceError
 import io.horizontalsystems.binancechainkit.models.TransactionFilterType
 import io.horizontalsystems.binancechainkit.models.TransactionInfo
+import io.horizontalsystems.binancechainkit.storage.KitDatabase
+import io.horizontalsystems.binancechainkit.storage.Storage
 import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.math.BigDecimal
+import java.util.*
 
 class BinanceAdapter(
     private val binanceKit: BinanceChainKit,
@@ -28,10 +32,28 @@ class BinanceAdapter(
     private val asset = binanceKit.register(symbol)
     private val coin = wallet.platformCoin
 
+    val networkType = if (testMode)
+        BinanceChainKit.NetworkType.TestNet else
+        BinanceChainKit.NetworkType.MainNet
+
+    private val binanceLaunchTime: Long =
+        Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { set(2019, 0, 1, 0, 0, 0) }.time.time
+
+    private val storage = Storage(
+        KitDatabase.create(App.instance,
+        "Binance-$networkType-${wallet.account.id}"
+    ))
+
+    private fun getProgress(): Int {
+        val currentTime = Date().time - 60_000
+        val syncedTime = storage?.syncState?.transactionSyncedUntilTime ?: binanceLaunchTime
+        return (((syncedTime - binanceLaunchTime) * 1f / (currentTime - binanceLaunchTime)) * 100).toInt()
+    }
+
     private val syncState: AdapterState
         get() = when (val kitSyncState = binanceKit.syncState) {
             BinanceChainKit.SyncState.Synced -> AdapterState.Synced
-            BinanceChainKit.SyncState.Syncing -> AdapterState.Syncing()
+            BinanceChainKit.SyncState.Syncing -> AdapterState.Syncing(getProgress())
             is BinanceChainKit.SyncState.NotSynced -> AdapterState.NotSynced(kitSyncState.error)
         }
 
@@ -79,14 +101,6 @@ class BinanceAdapter(
 
     override val lastBlockUpdatedFlowable: Flowable<Unit>
         get() = binanceKit.latestBlockFlowable.map { }
-
-    override val explorerTitle: String = "binance.org"
-
-    override fun explorerUrl(transactionHash: String) = if (testMode) {
-        "https://testnet-explorer.binance.org/tx/$transactionHash"
-    } else {
-        "https://explorer.binance.org/tx/$transactionHash"
-    }
 
     override fun getTransactionRecordsFlowable(coin: PlatformCoin?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
         return try {
