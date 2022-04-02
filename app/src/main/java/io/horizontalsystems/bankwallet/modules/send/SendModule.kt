@@ -14,8 +14,6 @@ import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinHandler
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinInteractor
 import io.horizontalsystems.bankwallet.modules.send.dash.SendDashHandler
 import io.horizontalsystems.bankwallet.modules.send.dash.SendDashInteractor
-import io.horizontalsystems.bankwallet.modules.send.ethereum.SendEthereumHandler
-import io.horizontalsystems.bankwallet.modules.send.ethereum.SendEthereumInteractor
 import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeHandler
 import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeInteractor
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
@@ -229,7 +227,6 @@ object SendModule {
 
                     handler
                 }
-
                 is ISendSafeAdapter -> {
                     val safeInteractor = SendSafeInteractor(adapter)
                     val handler = SendSafeHandler(safeInteractor)
@@ -241,19 +238,6 @@ object SendModule {
                     presenter.feeModuleDelegate = handler
 
                     presenter.hodlerModuleDelegate = handler
-
-                    handler
-                }
-
-
-                is ISendEthereumAdapter -> {
-                    val ethereumInteractor = SendEthereumInteractor(adapter)
-                    val handler = SendEthereumHandler(ethereumInteractor)
-
-                    presenter.amountModuleDelegate = handler
-                    presenter.addressModuleDelegate = handler
-                    presenter.feeModuleDelegate = handler
-                    presenter.customPriorityUnit = CustomPriorityUnit.Gwei
 
                     handler
                 }
