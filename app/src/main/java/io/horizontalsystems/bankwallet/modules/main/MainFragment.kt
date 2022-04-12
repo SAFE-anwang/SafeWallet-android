@@ -70,8 +70,9 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
             when (it.itemId) {
                 R.id.navigation_market -> binding.viewPager.setCurrentItem(0, false)
                 R.id.navigation_balance -> binding.viewPager.setCurrentItem(1, false)
-                R.id.navigation_transactions -> binding.viewPager.setCurrentItem(2, false)
-                R.id.navigation_settings -> binding.viewPager.setCurrentItem(3, false)
+                R.id.navigation_safe4 -> binding.viewPager.setCurrentItem(2, false)
+                R.id.navigation_transactions -> binding.viewPager.setCurrentItem(3, false)
+                R.id.navigation_settings -> binding.viewPager.setCurrentItem(4, false)
             }
             true
         }
@@ -175,4 +176,5 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
         return bottomBadgeView
     }
+
 }

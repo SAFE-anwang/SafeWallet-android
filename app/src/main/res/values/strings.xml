@@ -1164,4 +1164,21 @@
 
     <!-- VPN -->
     <string name="VPN_Title">VPN</string>
+
+    <!-- SAFE4 -->
+    <string name="Safe4_Title">SAFE专区</string>
+    <string name="Safe4_Cross_Chain">跨链</string>
+    <string name="Safe4_Title_safe2wsafe">转到WSAFE</string>
+    <string name="Safe4_Title_wsafe2safe">转到SAFE</string>
+    <string name="Safe4_Locked">锁仓</string>
+    <string name="Safe4_Line_Locked">线性锁仓</string>
+    <string name="Safe4_node_Locked">节点锁仓</string>
+    <string name="Safe4_Defi">DEFI</string>
+    <string name="Safe4_Defi_uniswap">uniswap</string>
+    <string name="Safe4_Defi_1inch">1inch</string>
+
+    <string name="Safe4_WSAFE_Receive_Address">跨链接收人</string>
+    <string name="Send_Confirmation_Wsafe">跨链接收人</string>
+
+
 </resources>

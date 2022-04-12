@@ -270,8 +270,9 @@ interface ISendSafeAdapter {
     fun availableBalance(address: String?): BigDecimal
     fun minimumSendAmount(address: String?): BigDecimal
     fun fee(amount: BigDecimal, address: String?): BigDecimal
+    fun convertFee(amount: BigDecimal, address: String?): BigDecimal
     fun validate(address: String)
-    fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ?= null ): Single<Unit>
+    fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ? = null, reverseHex: String ?): Single<Unit>
 }
 
 

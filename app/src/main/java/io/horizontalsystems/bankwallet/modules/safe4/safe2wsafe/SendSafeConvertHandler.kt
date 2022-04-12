@@ -1,23 +1,27 @@
-package io.horizontalsystems.bankwallet.modules.send.safe
+package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 
 import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoModule
+import io.horizontalsystems.bitcoincore.utils.HashUtils
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import java.math.BigDecimal
 
-class SendSafeHandler(
+class SendSafeConvertHandler(
         private val interactor: SendModule.ISendSafeInteractor)
     : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate, SendAmountModule.IAmountModuleDelegate,
       SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
       SendHodlerModule.IHodlerModuleDelegate {
+
+    private val safeConvertAddress = "XmkTAzN38tsNjEdXwuHkRL75U3Q3uuwRey";
 
     private fun syncValidation() {
         var amountError: Throwable? = null
@@ -39,15 +43,15 @@ class SendSafeHandler(
     }
 
     private fun syncAvailableBalance() {
-        interactor.fetchAvailableBalance(addressModule.currentAddress?.hex)
+        interactor.fetchAvailableBalance(safeConvertAddress)
     }
 
     private fun syncFee() {
-        interactor.fetchFee(amountModule.coinAmount.value, addressModule.currentAddress?.hex)
+        interactor.fetchFee(amountModule.coinAmount.value, safeConvertAddress)
     }
 
     private fun syncMinimumAmount() {
-        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(addressModule.currentAddress?.hex))
+        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(safeConvertAddress))
         syncValidation()
     }
 
@@ -67,7 +71,6 @@ class SendSafeHandler(
             add(SendModule.Input.Amount)
             add(SendModule.Input.Address())
             add(SendModule.Input.Fee)
-            add(SendModule.Input.Hodler)
             add(SendModule.Input.ProceedButton)
         }
 
@@ -83,8 +86,9 @@ class SendSafeHandler(
             add(SendModule.SendConfirmationAmountViewItem(
                 amountModule.coinValue(),
                 amountModule.currencyValue(),
-                addressModule.validAddress(),
-                lockTimeInterval != null))
+                Address(safeConvertAddress),
+                lockTimeInterval != null,
+                addressModule.validAddress().hex))
 
             add(SendModule.SendConfirmationFeeViewItem(feeModule.coinValue, feeModule.currencyValue))
 
@@ -95,13 +99,18 @@ class SendSafeHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val hodlerData = hodlerModule?.pluginData()
-        if ( hodlerData != null && !hodlerData.isEmpty() ){
-            val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
-            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval, null)
-        }
-        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, null)
+        return interactor.send(amountModule.validAmount(), safeConvertAddress, logger , null, getReverseHex())
     }
+
+    fun getReverseHex(): String {
+        val safeRemarkPrex = "736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a020100122e"
+//        val wsafeAddress : String = "eth:" + App.ethereumKitManager.evmKitWrapper?.evmKit?.receiveAddress?.hex;
+//        val wsafeAddress =  "eth:0xf34e8B76d4238953181ed2DA586A07bD38454189"
+        val wsafeAddress = "eth:" + addressModule.validAddress().hex
+        val wsafeHex = HashUtils.toHexString(wsafeAddress.toByteArray())
+        return safeRemarkPrex + wsafeHex
+    }
+
 
     // SendModule.ISendBitcoinInteractorDelegate
 
@@ -128,7 +137,7 @@ class SendSafeHandler(
     // SendAddressModule.ModuleDelegate
 
     override fun validate(address: String) {
-        interactor.validate(address)
+//        interactor.validate(address)
     }
 
     override fun onUpdateAddress() {

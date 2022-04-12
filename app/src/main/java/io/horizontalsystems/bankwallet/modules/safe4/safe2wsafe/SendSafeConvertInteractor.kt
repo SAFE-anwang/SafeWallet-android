@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.send.safe
+package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
@@ -10,7 +10,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 
-class SendSafeInteractor(private val adapter: ISendSafeAdapter) : SendModule.ISendSafeInteractor {
+class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendModule.ISendSafeInteractor {
     private val disposables = CompositeDisposable()
 
     var delegate: SendModule.ISendSafeInteractorDelegate? = null
@@ -36,7 +36,7 @@ class SendSafeInteractor(private val adapter: ISendSafeAdapter) : SendModule.ISe
     }
 
     override fun fetchFee(amount: BigDecimal, address: String?) {
-        Single.just(adapter.convertFee(amount, address))
+        Single.just(adapter.fee(amount, address))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ fee ->
@@ -47,8 +47,8 @@ class SendSafeInteractor(private val adapter: ISendSafeAdapter) : SendModule.ISe
             .let { disposables.add(it) }
     }
 
-    override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockTimeInterval: LockTimeInterval ?, reverseHex: String ?): Single<Unit> {
-        return adapter.send( amount, address, logger , lockTimeInterval, reverseHex)
+    override fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ?, reverseHex: String ?): Single<Unit> {
+        return adapter.send(amount, address, logger , lockTimeInterval, reverseHex)
     }
 
     override fun clear() {
