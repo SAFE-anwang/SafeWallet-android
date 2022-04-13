@@ -36,7 +36,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
     }
 
     override fun fetchFee(amount: BigDecimal, address: String?) {
-        Single.just(adapter.fee(amount, address))
+        Single.just(adapter.convertFee(amount, address))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ fee ->

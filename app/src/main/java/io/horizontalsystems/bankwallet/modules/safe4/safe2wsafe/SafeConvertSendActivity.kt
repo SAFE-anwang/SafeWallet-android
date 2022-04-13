@@ -82,7 +82,7 @@ class SafeConvertSendActivity : BaseActivity() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Safe4_Title_safe2wsafe, fullCoin.coin.code),
+                    title = TranslatableString.ResString(R.string.Safe4_Title_safe2wsafe),
                     navigationIcon = {
                         CoinImage(
                             iconUrl = fullCoin.coin.iconUrl,

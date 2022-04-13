@@ -70,6 +70,9 @@
             android:id="@+id/mainFragment_to_sendEvmFragment"
             app:destination="@id/sendEvmFragment" />
         <action
+            android:id="@+id/mainFragment_to_sendWsafeFragment"
+            app:destination="@id/sendWsafeFragment" />
+        <action
             android:id="@+id/mainFragment_to_receiveFragment"
             app:destination="@id/receiveFragment" />
         <action
@@ -104,10 +107,21 @@
             app:destination="@id/sendEvmConfirmationFragment" />
     </fragment>
     <fragment
+        android:id="@+id/sendWsafeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeFragment"
+        tools:layout="@layout/fragment_send_evm">
+        <action
+            android:id="@+id/sendEvmFragment_to_sendWsafeConfirmationFragment"
+            app:destination="@id/sendWsafeConfirmationFragment" />
+    </fragment>
+    <fragment
         android:id="@+id/sendEvmConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.sendevm.confirmation.SendEvmConfirmationFragment"
         tools:layout="@layout/fragment_confirmation_send_evm" />
-
+    <fragment
+        android:id="@+id/sendWsafeConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.confirmation.SendWsafeConfirmationFragment"
+        tools:layout="@layout/fragment_confirmation_send_evm" />
     <fragment
         android:id="@+id/sendEvmFeeSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment" />

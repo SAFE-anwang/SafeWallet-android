@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -23,12 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
+import io.horizontalsystems.core.findNavController
 
 class Safe4Fragment : BaseFragment() {
 
@@ -45,7 +48,7 @@ class Safe4Fragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    Safe4Screen(viewModel, requireActivity())
+                    Safe4Screen(viewModel, requireActivity(), findNavController())
                 }
             }
         }
@@ -57,6 +60,7 @@ class Safe4Fragment : BaseFragment() {
 private fun Safe4Screen(
     viewModel: Safe4ViewModel,
     activity: Activity,
+    navController: NavController
 ) {
 
     Surface(color = ComposeAppTheme.colors.tyler) {
@@ -67,7 +71,7 @@ private fun Safe4Screen(
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Safe4Sections(viewModel, activity)
+                Safe4Sections(viewModel, activity, navController)
             }
         }
     }
@@ -77,6 +81,7 @@ private fun Safe4Screen(
 private fun Safe4Sections(
     viewModel: Safe4ViewModel,
     activity: Activity,
+    navController: NavController
 ) {
 
     Text(
@@ -92,7 +97,7 @@ private fun Safe4Sections(
     CellSingleLineLawrenceSection(
         listOf ({
             HsSettingCell(
-                R.string.Safe4_Title_wsafe2safe,
+                R.string.Safe4_Title_safe2wsafe,
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
@@ -101,11 +106,11 @@ private fun Safe4Sections(
             )
         },{
             HsSettingCell(
-                R.string.Safe4_Title_safe2wsafe,
+                R.string.Safe4_Title_wsafe2safe,
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    Safe4Module.startWsafe2Safe(activity, navController)
                 }
             )
         })
@@ -130,7 +135,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         },{
@@ -139,7 +144,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         })
@@ -164,7 +169,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         },{
@@ -173,7 +178,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         })

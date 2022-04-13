@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.entities.EvmNetwork
+import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.RpcSource
 
@@ -11,10 +12,10 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
         get() = listOfNotNull(
             defaultWebsocketNetwork("MainNet Websocket", Chain.Ethereum),
             defaultHttpNetwork("MainNet HTTP", Chain.Ethereum),
-//            defaultWebsocketNetwork("Ropsten", EthereumKit.NetworkType.EthRopsten),
-//            defaultWebsocketNetwork("Rinkeby", EthereumKit.NetworkType.EthRinkeby),
-//            defaultWebsocketNetwork("Kovan", EthereumKit.NetworkType.EthKovan),
-//            defaultWebsocketNetwork("Goerli", EthereumKit.NetworkType.EthGoerli)
+            defaultWebsocketNetwork("Ropsten", Chain.EthereumRopsten),
+//            defaultWebsocketNetwork("Rinkeby", Chain.EthereumRinkeby),
+//            defaultWebsocketNetwork("Kovan", Chain.EthereumKovan),
+//            defaultWebsocketNetwork("Goerli", Chain.EthereumGoerli)
         )
 
     val binanceSmartChainNetworks: List<EvmNetwork>
