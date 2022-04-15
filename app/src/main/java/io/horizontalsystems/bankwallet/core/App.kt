@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -44,6 +45,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
+import org.telegram.messenger.ApplicationLoader
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -275,6 +277,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         wc2Service = WC2Service()
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
+
+        ApplicationLoader.instance.init(this)
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {
@@ -343,6 +347,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(localeAwareContext(base))
+//        MultiDex.install(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

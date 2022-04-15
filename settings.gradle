@@ -31,3 +31,5 @@ include ':ethereum-kit-android:uniswapkit'
 include ':ethereum-kit-android:oneinchkit'
 
 include ':vpn'
+
+include 'telegram:TMessagesProj'

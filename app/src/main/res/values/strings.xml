@@ -1164,4 +1164,10 @@
 
     <!-- VPN -->
     <string name="VPN_Title">VPN</string>
+
+    <!-- Telegram -->
+    <string name="Join_Telegram_Title">加入TG群</string>
+    <string name="Join_Telegram_Group1">SAFE (anwang) Telegram group</string>
+    <string name="Join_Telegram_Group2">safewallet Telegram group</string>
+    <string name="Telegram_Join_Group">Join group</string>
 </resources>

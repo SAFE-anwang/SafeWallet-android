@@ -88,6 +88,7 @@ object VpnConnectService {
         apps.add("com.anwang.safewallet.dev.testnet")
         apps.add("com.anwang.safewallet.dev.appcenter")
         apps.add("com.anwang.safewallet.appcenter")
+        apps.add("org.telegram.messenger")
         MmkvManager.setProxyApps(apps)
     }
 

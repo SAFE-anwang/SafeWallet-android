@@ -38,6 +38,24 @@ fun ButtonPrimaryDefault(
 }
 
 @Composable
+fun ButtonPrimaryBlue(
+    modifier: Modifier = Modifier,
+    title: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
+    ButtonPrimary(
+        modifier = modifier,
+        onClick = onClick,
+        colors = ButtonDefaults.textButtonColors(
+            backgroundColor = ComposeAppTheme.colors.tgBlue,
+        ),
+        content = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, color = Color.White) },
+        enabled = enabled
+    )
+}
+
+@Composable
 fun ButtonPrimaryYellow(
     modifier: Modifier = Modifier,
     title: String,

@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.main
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,9 @@ import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceActivity
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetWalletSelectDialog
 import io.horizontalsystems.core.findNavController
+import org.telegram.ui.LaunchActivity
+
+//import org.drinkless.td.libcore.telegram.TdAuthManager
 
 class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
@@ -70,7 +74,7 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
             when (it.itemId) {
                 R.id.navigation_market -> binding.viewPager.setCurrentItem(0, false)
                 R.id.navigation_balance -> binding.viewPager.setCurrentItem(1, false)
-                R.id.navigation_transactions -> binding.viewPager.setCurrentItem(2, false)
+                R.id.navigation_join_tg -> binding.viewPager.setCurrentItem(2, false)
                 R.id.navigation_settings -> binding.viewPager.setCurrentItem(3, false)
             }
             true
@@ -129,7 +133,7 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         })
 
         viewModel.transactionTabEnabledLiveData.observe(viewLifecycleOwner, { enabled ->
-            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
+//            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
         })
 
     }
@@ -174,5 +178,48 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
             .inflate(R.layout.view_bottom_navigation_badge, bottomMenu, false)
 
         return bottomBadgeView
+    }
+
+    private fun login() {
+        val intent = Intent(context, LaunchActivity::class.java)
+        intent.action = Intent.ACTION_VIEW
+//        intent.action = "org.telegram.passport.AUTHORIZE"
+//        intent.data = Uri.parse("https://t.me/safeanwang")
+        intent.data = Uri.parse("tg://resolve?domain=safeanwang")
+        requireActivity().startActivity(intent)
+        /*GlobalScope.launch(Dispatchers.IO) {
+            TdAuthManager(requireContext()).create()
+        }*/
+
+        /*val req = TelegramPassport.AuthRequest()
+        req.botID = 443863171
+        req.publicKey= "-----BEGIN PUBLIC KEY-----\n"+
+                "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzmgKr0fPP4rB/TsNEweC\n"+
+                "hoG3ntUxuBTmHsFBW6CpABGdaTmKZSjAI/cTofhBgtRQIOdX0YRGHHHhwyLf49Wv\n"+
+                "9l+XexbJOa0lTsJSNMj8Y/9sZbqUl5ur8ZOTM0sxbXC0XKexu1tM9YavH+Lbrobk\n"+
+                "jt0+cmo/zEYZWNtLVihnR2IDv+7tSgiDoFWi/koAUdfJ1VMw+hReUaLg3vE9CmPK\n"+
+                "tQiTy+NvmrYaBPb75I0Jz3Lrz1+mZSjLKO25iT84RIsxarBDd8iYh2avWkCmvtiR\n"+
+                "Lcif8wLxi2QWC1rZoCA3Ip+Hg9J9vxHlzl6xT01WjUStMhfwrUW6QBpur7FJ+aKM\n"+
+                "oaMoHieFNCG4qIkWVEHHSsUpLum4SYuEnyNH3tkjbrdldZanCvanGq+TZyX0buRt\n"+
+                "4zk7FGcu8iulUkAP/o/WZM0HKinFN/vuzNVA8iqcO/BBhewhzpqmmTMnWmAO8WPP\n"+
+                "DJMABRtXJnVuPh1CI5pValzomLJM4/YvnJGppzI1QiHHNA9JtxVmj2xf8jaXa1LJ\n"+
+                "WUNJK+RvUWkRUxpWiKQQO9FAyTPLRtDQGN9eUeDR1U0jqRk/gNT8smHGN6I4H+NR\n"+
+                "3X3/1lMfcm1dvk654ql8mxjCA54IpTPr/icUMc7cSzyIiQ7Tp9PZTl1gHh281ZWf\n"+
+                "P7d2+fuJMlkjtM7oAwf+tI8CAwEAAQ==\n"+
+                "-----END PUBLIC KEY-----"
+        req.nonce= UUID.randomUUID().toString()
+        // Request either a passport or an ID card with selfie, a driver license, personal details with
+        // name as it appears in the documents, address with any address document, and a phone number.
+        // You could also pass a raw JSON object here if that's what works better for you
+        // (for example, if you already get it from your server in the correct format).
+        req.scope=  PassportScope(
+                 PassportScopeElementOneOfSeveral(PassportScope.PASSPORT, PassportScope.IDENTITY_CARD).withSelfie(),
+         PassportScopeElementOne(PassportScope.PERSONAL_DETAILS).withNativeNames(),
+        PassportScope.DRIVER_LICENSE,
+        PassportScope.ADDRESS,
+        PassportScope.ADDRESS_DOCUMENT,
+        PassportScope.PHONE_NUMBER
+        )
+        TelegramPassport.request(requireActivity(), req, 105)*/
     }
 }

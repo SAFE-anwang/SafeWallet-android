@@ -19,7 +19,10 @@
         android:roundIcon="@mipmap/ic_app_color"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppTheme.DayNight"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
+        android:allowAudioPlaybackCapture="true">
         <activity
             android:name=".modules.tor.TorConnectionActivity"
             android:launchMode="singleTask" />
@@ -73,6 +76,28 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove">
         </provider>
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
+        <provider
+            android:authorities="${applicationId}.notification_image_provider"
+            android:name="org.telegram.messenger.NotificationImageProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
+        <provider
+            android:authorities="${applicationId}.call_sound_provider"
+            android:name="org.telegram.messenger.voip.CallNotificationSoundProvider"
+            android:exported="true"/>
 
     </application>
 

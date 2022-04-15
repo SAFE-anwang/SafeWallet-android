@@ -89,8 +89,8 @@ android {
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAJgeNwEAAAAA6xVpR6xLKTrxIA3kkSyRA92LDpA%3Da6auybDwcymUyh2BcS6zZwicUdxGtrzJC0qvOSdRwKLeqBGhwB"
             resValue "string", "cryptoCompareApiKey", ""
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "5bf760228fcd47bb8d277dba49b7b369"
-            resValue "string", "infuraSecretKey", "7b81c992c98d4e60aaa8a0ef9acff2be"
+            resValue "string", "infuraProjectId", "99e0b89d9f3d45c98cc95c0a47aeb837"
+            resValue "string", "infuraSecretKey", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "TTH1114D5VD5ZMCJZ4B74SGIDRCGSKWGX9"
             resValue "string", "bscscanKey", "HBQQN4GTKCHYSRZCKFVQJ3FWGPY4T8237Y"
             resValue "string", "defiyieldProviderApiKey", "87e8671e-8267-427c-92c3-4627833445ae"
@@ -306,6 +306,10 @@ dependencies {
 
     // VPN
     implementation project(':vpn')
+    implementation project(':telegram:TMessagesProj')
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
 }
 
 configurations.all {

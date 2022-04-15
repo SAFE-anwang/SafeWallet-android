@@ -12,9 +12,9 @@
         android:title="@string/Balance_Title" />
 
     <item
-        android:id="@+id/navigation_transactions"
-        android:icon="@drawable/ic_transactions"
-        android:title="@string/Transactions_Title" />
+        android:id="@+id/navigation_join_tg"
+        android:icon="@drawable/ic_telegram_filled_24"
+        android:title="@string/Join_Telegram_Title" />
 
     <item
         android:id="@+id/navigation_settings"

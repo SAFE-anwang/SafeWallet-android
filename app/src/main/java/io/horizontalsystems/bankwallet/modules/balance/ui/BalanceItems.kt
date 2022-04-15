@@ -2,18 +2,23 @@ package io.horizontalsystems.bankwallet.modules.balance.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -109,7 +114,21 @@ fun BalanceItems(
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            ButtonSecondaryCircle(
+                icon = R.drawable.ic_transactions,
+                onClick = {
+                    navController.slideFromRight(
+                        R.id.transactionFragment
+                    )
+                }
+            )
+
             if (accountViewItem.manageCoinsAllowed) {
+                Spacer(modifier = Modifier.padding(start = 16.dp))
+
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
                     onClick = {

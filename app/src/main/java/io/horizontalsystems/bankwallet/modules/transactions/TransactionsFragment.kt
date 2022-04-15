@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -76,7 +78,18 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
         Column {
             AppBar(
                 TranslatableString.ResString(R.string.Transactions_Title),
-                showSpinner = syncing
+                showSpinner = syncing,
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_back),
+                            contentDescription = "back button",
+                            tint = ComposeAppTheme.colors.jacob
+                        )
+                    }
+                }
             )
             filterTypes?.let { filterTypes ->
                 FilterTypeTabs(
