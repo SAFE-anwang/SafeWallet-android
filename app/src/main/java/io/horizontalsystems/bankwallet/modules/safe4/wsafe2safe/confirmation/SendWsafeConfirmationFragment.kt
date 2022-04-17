@@ -112,7 +112,7 @@ class SendWsafeConfirmationFragment : BaseFragment() {
                 R.string.Hud_Text_Done
             )
             Handler(Looper.getMainLooper()).postDelayed({
-                findNavController().popBackStack(R.id.sendEvmFragment, true)
+                findNavController().popBackStack(R.id.sendWsafeFragment, true)
             }, 1200)
         }
 

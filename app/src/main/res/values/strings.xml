@@ -1168,8 +1168,8 @@
     <!-- SAFE4 -->
     <string name="Safe4_Title">SAFE专区</string>
     <string name="Safe4_Cross_Chain">跨链</string>
-    <string name="Safe4_Title_safe2wsafe">SAFE->WSAFE</string>
-    <string name="Safe4_Title_wsafe2safe">WSAFE->SAFE</string>
+    <string name="Safe4_Title_safe2wsafe">SAFE->SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe2safe">SAFE ERC20->SAFE</string>
     <string name="Safe4_Locked">锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>

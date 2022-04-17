@@ -9,18 +9,16 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmService
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.reactivex.disposables.CompositeDisposable
 
 class SendWsafeViewModel(
-    val service: SendEvmService,
+    val service: SendWsafeService,
     private val clearables: List<Clearable>
 ) : ViewModel() {
 
@@ -44,22 +42,22 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        (service.state as? SendEvmService.State.Ready)?.let { readyState ->
+        (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
             proceedLiveEvent.postValue(readyState.sendData)
         }
     }
 
-    private fun sync(state: SendEvmService.State) {
-        proceedEnabledLiveData.postValue(state is SendEvmService.State.Ready)
+    private fun sync(state: SendWsafeService.State) {
+        proceedEnabledLiveData.postValue(state is SendWsafeService.State.Ready)
     }
 
-    private fun sync(amountCaution: SendEvmService.AmountCaution) {
+    private fun sync(amountCaution: SendWsafeService.AmountCaution) {
         var caution: Caution? = null
         if (amountCaution.error?.convertedError != null) {
             val text =
                 amountCaution.error.localizedMessage ?: amountCaution.error.javaClass.simpleName
             caution = Caution(text, Caution.Type.Error)
-        } else if (amountCaution.amountWarning == SendEvmService.AmountWarning.CoinNeededForFee) {
+        } else if (amountCaution.amountWarning == SendWsafeService.AmountWarning.CoinNeededForFee) {
             caution = Caution(
                 Translator.getString(
                     R.string.EthereumTransaction_Warning_CoinNeededForFee, service.sendCoin.code
@@ -79,7 +77,7 @@ class SendWsafeViewModel(
     fun onEnterAddress(wallet: Wallet, address: Address?) {
         val ethAddr = App.ethereumKitManager.evmKitWrapper?.evmKit?.receiveAddress?.hex?.let { Address(it, null) }
         // 设置钱包的ETH地址为交易的接收地址
-        service.setRecipientAddress(ethAddr)
+        service.setRecipientAddress(ethAddr, address)
         // 验证地址是否Safe
         validateSafe(wallet, address)
     }

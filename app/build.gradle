@@ -229,7 +229,7 @@ dependencies {
     implementation project(':ethereum-kit-android:erc20kit')
     implementation project(':ethereum-kit-android:uniswapkit')
     implementation project(':ethereum-kit-android:oneinchkit')
-
+    implementation project(':ethereum-kit-android:wsafekit')
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:b4ebb16'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:fe2a3be'

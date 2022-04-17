@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -125,9 +126,10 @@ object SendEvmModule {
         }
     }
 
+
     class WsafeFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
         private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
-        private val service by lazy { SendEvmService(wallet.platformCoin, adapter) }
+        private val service by lazy { SendWsafeService(wallet.platformCoin, adapter) }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
