@@ -6177,7 +6177,9 @@ public class TLRPC {
                     result = new TL_auth_sentCodeTypeMissedCall();
                     break;
                 case 0xc000bba2:
-                    result = new TL_auth_sentCodeTypeSms();
+                    // 修改成APP验证码，第三方不能使用SMS验证码
+                    result = new TL_auth_sentCodeTypeApp();
+//                    result = new TL_auth_sentCodeTypeSms();
                     break;
             }
             if (result == null && exception) {
