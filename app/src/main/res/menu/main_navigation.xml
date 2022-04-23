@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/navigation_safe4"
-        android:icon="@drawable/ic_wallet_24"
+        android:icon="@mipmap/ic_app_color"
         android:title="@string/Safe4_Title" />
 
     <item

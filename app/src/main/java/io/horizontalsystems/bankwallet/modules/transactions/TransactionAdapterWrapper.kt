@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -65,7 +66,9 @@ class TransactionAdapterWrapper(
                 .map {
                     allLoaded = it.size < numberOfRecordsToRequest
                     transactionRecords.addAll(it)
-
+                    transactionRecords.stream().forEach {
+                        Log.i("safe4", "transactionRecord = $it")
+                    }
                     transactionRecords
                 }
         }
