@@ -22,10 +22,10 @@ import android.widget.TextView;
 
 import androidx.core.content.FileProvider;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.google.zxing1.BarcodeFormat;
+import com.google.zxing1.EncodeHintType;
+import com.google.zxing1.qrcode.QRCodeWriter;
+import com.google.zxing1.qrcode.decoder.ErrorCorrectionLevel;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;

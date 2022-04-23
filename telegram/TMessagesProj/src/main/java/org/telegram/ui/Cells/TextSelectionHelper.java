@@ -1,6 +1,6 @@
 package org.telegram.ui.Cells;
 
-import static com.google.zxing.common.detector.MathUtils.distance;
+import static com.google.zxing1.common.detector.MathUtils.distance;
 import static org.telegram.ui.ActionBar.FloatingToolbar.STYLE_THEME;
 import static org.telegram.ui.ActionBar.Theme.key_chat_inTextSelectionHighlight;
 

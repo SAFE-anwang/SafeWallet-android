@@ -53,9 +53,9 @@ import androidx.recyclerview.widget1.LinearLayoutManager;
 import androidx.recyclerview.widget1.LinearSmoothScroller;
 import androidx.recyclerview.widget1.RecyclerView;
 
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.google.zxing1.EncodeHintType;
+import com.google.zxing1.qrcode.QRCodeWriter;
+import com.google.zxing1.qrcode.decoder.ErrorCorrectionLevel;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
