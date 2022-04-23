@@ -59,7 +59,7 @@ object Safe4Module {
         for (it in walletList) {
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
-            } else if(it.coin.uid == "safe-erc20") {
+            } else if(it.coin.uid == "Safe erc20") {
                 wsafeWallet = it
             }
         }

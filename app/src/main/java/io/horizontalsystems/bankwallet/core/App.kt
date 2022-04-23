@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeCoinProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeRateProvider
 import io.horizontalsystems.bankwallet.core.storage.*
+import io.horizontalsystems.bankwallet.entities.CustomToken
 import io.horizontalsystems.bankwallet.modules.enablecoins.EnableCoinsEip20Provider
 import io.horizontalsystems.bankwallet.modules.hsnft.HsNftApiProvider
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
@@ -42,6 +43,7 @@ import io.horizontalsystems.core.security.EncryptionManager
 import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
+import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
 import java.util.logging.Level
@@ -158,6 +160,9 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         AppLog.logsDao = appDatabase.logsDao()
 
         coinManager = CoinManager(marketKit, CustomTokenStorage(appDatabase))
+        val tokenList = mutableListOf<CustomToken>()
+        tokenList.add(CustomToken("safe-erc20", "SAFE", CoinType.Erc20("0x874a3d9a9655f18afc59b0e75463ea29ee2043c0"), 18))
+        coinManager.save(tokenList)
 
         enabledWalletsStorage = EnabledWalletsStorage(appDatabase)
         blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
@@ -372,4 +377,5 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         }.start()
     }
+
 }

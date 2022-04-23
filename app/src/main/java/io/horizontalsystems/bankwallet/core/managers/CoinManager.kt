@@ -19,7 +19,7 @@ class CoinManager(
         "binancecoin",
         "dash",
         "safe-coin",
-        "safe-erc20",
+        "custom_safe-erc20-SAFE",
         "litecoin",
         "uniswap",
         "sushi",

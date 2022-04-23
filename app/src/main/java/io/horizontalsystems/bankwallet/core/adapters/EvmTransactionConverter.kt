@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
+import android.util.Log
+import cash.z.ecc.android.sdk.ext.toHex
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
@@ -34,10 +36,12 @@ class EvmTransactionConverter(
     fun transactionRecord(fullTransaction: FullTransaction): EvmTransactionRecord {
         val transaction = fullTransaction.transaction
 
+        Log.i("safe4", "tx: ${transaction.hash.toHex()} to: ${transaction.to.toString()}")
         val to =
             transaction.to ?: return ContractCreationTransactionRecord(fullTransaction, baseCoin, source)
 
         val methodDecoration = fullTransaction.mainDecoration
+        Log.i("safe4", "methodDecoration: $methodDecoration")
 
         val record: EvmTransactionRecord = if (methodDecoration != null) {
             when (fullTransaction.transaction.from) {
@@ -48,7 +52,7 @@ class EvmTransactionConverter(
             when {
                 transaction.from == evmKit.receiveAddress -> {
                     val amount = convertAmount(transaction.value, baseCoin.decimals, true)
-
+                    Log.i("safe4", "EvmOut: ${baseCoin.code} amount :$amount")
                     EvmOutgoingTransactionRecord(
                         fullTransaction = fullTransaction,
                         baseCoin = baseCoin,
@@ -60,7 +64,7 @@ class EvmTransactionConverter(
                 }
                 to == evmKit.receiveAddress -> {
                     val amount = convertAmount(transaction.value, baseCoin.decimals, false)
-
+                    Log.i("safe4", "EvmIn: ${baseCoin.code} amount :$amount")
                     EvmIncomingTransactionRecord(
                         fullTransaction = fullTransaction,
                         baseCoin = baseCoin,
@@ -96,7 +100,9 @@ class EvmTransactionConverter(
             else -> CoinType.Erc20(tokenAddress.hex)
         }
 
+        Log.i("safe4", "getEip20Value coinType: $coinType")
         val platformCoin = coinManager.getPlatformCoin(coinType)
+        Log.i("safe4", "getEip20Value platformCoin: $platformCoin")
 
         return if (platformCoin != null) {
             TransactionValue.CoinValue(platformCoin, convertAmount(amount, platformCoin.decimals, negative))
