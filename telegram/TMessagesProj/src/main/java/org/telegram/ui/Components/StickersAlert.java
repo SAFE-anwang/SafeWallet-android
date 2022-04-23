@@ -636,7 +636,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
         gridView.setPadding(AndroidUtilities.dp(10), 0, AndroidUtilities.dp(10), 0);
         gridView.setClipToPadding(false);
         gridView.setEnabled(true);
-//        gridView.setGlowColor(getThemedColor(Theme.key_dialogScrollGlow));
+        gridView.setGlowColor(getThemedColor(Theme.key_dialogScrollGlow));
         gridView.setOnTouchListener((v, event) -> ContentPreviewViewer.getInstance().onTouch(event, gridView, 0, stickersOnItemClickListener, previewDelegate, resourcesProvider));
         gridView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -1241,7 +1241,7 @@ public class StickersAlert extends BottomSheet implements NotificationCenter.Not
 
     private void setScrollOffsetY(int newOffset) {
         scrollOffsetY = newOffset;
-//        gridView.setTopGlowOffset(newOffset);
+        gridView.setTopGlowOffset(newOffset);
         if (stickerSetCovereds == null) {
             titleTextView.setTranslationY(newOffset);
             if (importingStickers == null) {
