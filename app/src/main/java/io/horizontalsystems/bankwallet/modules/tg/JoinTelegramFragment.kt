@@ -33,13 +33,14 @@ import org.telegram.ui.LaunchActivity
 
 class JoinTelegramFragment: BaseFragment() {
 
-    private var checkTelegramLoginState = false
+    private var startTelegramService: StartTelegramsService? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        startTelegramService = StartTelegramsService(requireActivity())
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -73,7 +74,7 @@ class JoinTelegramFragment: BaseFragment() {
                                 .padding(horizontal = 16.dp),
                             title = stringResource(R.string.Join_Telegram_Group1),
                             onClick = {
-                                join("https://t.me/safeanwang")
+                                startTelegramService?.join("https://t.me/safeanwang")
                             }
                         )
 
@@ -84,7 +85,7 @@ class JoinTelegramFragment: BaseFragment() {
                                 .padding(horizontal = 16.dp),
                             title = stringResource(R.string.Join_Telegram_Group2),
                             onClick = {
-                                join("https://t.me/safewallet2022")
+                                startTelegramService?.join("https://t.me/safewallet2022")
                             }
                         )
 
@@ -95,33 +96,14 @@ class JoinTelegramFragment: BaseFragment() {
         }
     }
 
-    private fun join(group: String) {
-        val intent = Intent(context, LaunchActivity::class.java)
-        intent.action = Intent.ACTION_VIEW
-        intent.data = Uri.parse(group)
-        requireActivity().startActivity(intent)
-        startCheckLoginState(group)
-    }
-
-    private fun startCheckLoginState(group: String) {
-        if (UserConfig.getActivatedAccountsCount() > 0) return
-        checkTelegramLoginState = true
-        GlobalScope.launch(Dispatchers.IO) {
-            while (checkTelegramLoginState) {
-                if (UserConfig.getActivatedAccountsCount() > 0) {
-                    checkTelegramLoginState = false
-                    withContext(Dispatchers.Main) {
-                        join(group)
-                    }
-                    break
-                }
-                delay(2000)
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        checkTelegramLoginState = false
+        startTelegramService?.stopCheckLoginStatus()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        startTelegramService?.stopCheckLoginStatus()
+        startTelegramService = null
     }
 }
