@@ -66,9 +66,9 @@ class TransactionAdapterWrapper(
                 .map {
                     allLoaded = it.size < numberOfRecordsToRequest
                     transactionRecords.addAll(it)
-                    transactionRecords.stream().forEach {
-                        Log.i("safe4", "transactionRecord = $it")
-                    }
+//                    transactionRecords.stream().forEach {
+//                        Log.i("safe4", "transactionRecord = $it")
+//                    }
                     transactionRecords
                 }
         }

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.managers.AccountSettingManager
@@ -106,6 +107,7 @@ class TransactionInfoService(
 
         fetchRates()
             .subscribeIO {
+                Log.i("safe4", "fetchRates: $it")
                 handleRates(it)
             }
             .let {
@@ -141,7 +143,12 @@ class TransactionInfoService(
         val coinUids = coinUidsForRates
         val timestamp = transactionInfoItem.record.timestamp
         val flowables: List<Single<Pair<String, CurrencyValue>>> = coinUids.map { coinUid ->
-            marketKit.coinHistoricalPriceSingle(coinUid, currencyManager.baseCurrency.code, timestamp)
+            Log.i("safe4", "coinUid:$coinUid")
+            var uid = coinUid
+            if (coinUid == "custom_safe-erc20-SAFE"){
+                uid = "safe-coin"
+            }
+            marketKit.coinHistoricalPriceSingle(uid, currencyManager.baseCurrency.code, timestamp)
                 .onErrorResumeNext(Single.just(BigDecimal.ZERO)) //provide default value on error
                 .map {
                     Pair(coinUid, CurrencyValue(currencyManager.baseCurrency, it))

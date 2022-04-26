@@ -19,7 +19,6 @@ import io.horizontalsystems.marketkit.models.CoinType
 object Safe4Module {
 
 
-
     class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -59,7 +58,7 @@ object Safe4Module {
         for (it in walletList) {
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
-            } else if(it.coin.uid == "Safe erc20") {
+            } else if(it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
             }
         }
