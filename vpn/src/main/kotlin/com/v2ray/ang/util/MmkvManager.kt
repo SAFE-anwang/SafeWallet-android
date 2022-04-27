@@ -153,9 +153,9 @@ object MmkvManager {
     }
 
     fun setProxyApps(apps: HashSet<String>) {
-        if (settingsStorage?.decodeBool(AppConfig.PREF_PER_APP_PROXY) == false) {
+//        if (settingsStorage?.decodeBool(AppConfig.PREF_PER_APP_PROXY) == false) {
             settingsStorage?.encode(AppConfig.PREF_PER_APP_PROXY, true)
             settingsStorage?.encode(AppConfig.PREF_PER_APP_PROXY_SET, apps)
-        }
+//        }
     }
 }
