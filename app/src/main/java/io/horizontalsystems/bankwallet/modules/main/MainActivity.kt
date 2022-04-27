@@ -112,6 +112,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun startVpn() {
+        if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
+            return
+        }
         val intent = VpnService.prepare(this)
         if (intent == null) {
             VpnConnectService.startVpn(this)

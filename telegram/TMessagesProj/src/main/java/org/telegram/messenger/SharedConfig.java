@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.AnWangUtils;
 import org.telegram.ui.Components.SwipeGestureSettingsView;
 
 import java.io.File;
@@ -400,10 +401,12 @@ public class SharedConfig {
 
             preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE);
             showNotificationsForAllAccounts = preferences.getBoolean("AllAccounts", true);
-
+            AnWangUtils.loadLastOpenChatId();
             configLoaded = true;
         }
     }
+
+
 
     public static void increaseBadPasscodeTries() {
         badPasscodeTries++;

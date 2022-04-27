@@ -88,8 +88,8 @@ object VpnConnectService {
         apps.add("com.anwang.safewallet.dev.testnet")
         apps.add("com.anwang.safewallet.dev.appcenter")
         apps.add("com.anwang.safewallet.appcenter")
-        apps.add("org.telegram.messenger")
         apps.add("org.telegram.messenger.web")
+        apps.add("org.telegram.messenger")
         MmkvManager.setProxyApps(apps)
     }
 
@@ -181,7 +181,7 @@ object VpnConnectService {
             delay(1000)
             var result = "Fail"
             var count = 0
-            while (result == "Fail" && count < 3) {
+            while (result == "Fail" && count < 2) {
                 result = Utils.testConnection(App.instance, socksPort)
                 count ++
             }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import kotlinx.coroutines.*
 import org.telegram.messenger.UserConfig
+import org.telegram.ui.AnWangUtils
 import org.telegram.ui.LaunchActivity
 
 class StartTelegramsService(
@@ -15,8 +16,17 @@ class StartTelegramsService(
 
     fun join(group: String) {
         val intent = Intent(activity, LaunchActivity::class.java)
-        intent.action = Intent.ACTION_VIEW
-        intent.data = Uri.parse(group)
+        // 未登录过，是首次打开tg，需要直接进群
+        if (UserConfig.getActivatedAccountsCount() <= 0 || AnWangUtils.isLeaveAnwangGroup) {
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse(group)
+        } else {
+            if (AnWangUtils.lastOpenGroupId != "") {
+                intent.action = Intent.ACTION_VIEW
+                intent.data = Uri.parse(AnWangUtils.lastOpenGroupId)
+            }
+            AnWangUtils.isCheckInAnwangGroup = false
+        }
         activity.startActivity(intent)
         startCheckLoginState(group)
     }

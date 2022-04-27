@@ -45,6 +45,7 @@ import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.AnWangUtils;
 import org.telegram.ui.Cells.ArchiveHintCell;
 import org.telegram.ui.Cells.DialogCell;
 import org.telegram.ui.Cells.DialogMeUrlCell;
@@ -175,6 +176,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter {
     public int getItemCount() {
         MessagesController messagesController = MessagesController.getInstance(currentAccount);
         ArrayList<TLRPC.Dialog> array = parentFragment.getDialogsArray(currentAccount, dialogsType, folderId, dialogsListFrozen);
+        AnWangUtils.checkIsInAnWangGroup(parentFragment.getParentActivity(), array);
         dialogsCount = array.size();
         if (!forceUpdatingContacts && !forceShowEmptyCell && dialogsType != 7 && dialogsType != 8 && dialogsType != 11 && dialogsCount == 0 && (folderId != 0 || messagesController.isLoadingDialogs(folderId) || !MessagesController.getInstance(currentAccount).isDialogsEndReached(folderId))) {
             onlineContacts = null;
@@ -304,6 +306,10 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter {
             return null;
         }
         return arrayList.get(i);
+    }
+
+    public void getPositionForChatId() {
+
     }
 
     public void sortOnlineContacts(boolean notify) {

@@ -2322,6 +2322,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                             getMessagesController().deleteDialog(dialog_id, 2, param);
                         } else {
                             if (id != clear_history) {
+                                AnWangUtils.leaveGroup(currentChat.username, currentChat.id);
+
                                 getNotificationCenter().removeObserver(ChatActivity.this, NotificationCenter.closeChats);
                                 getNotificationCenter().postNotificationName(NotificationCenter.closeChats);
                                 finishFragment();
@@ -18949,12 +18951,19 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         } else if (currentChat != null) {
             if (!isThreadChat()) {
                 if (ChatObject.isChannel(currentChat) && !(currentChat instanceof TLRPC.TL_channelForbidden)) {
+                    if (!TextUtils.isEmpty(currentChat.username)) {
+                        AnWangUtils.saveLastOpenChatId("https://t.me/" + currentChat.username);
+                        AnWangUtils.joinGroup(currentChat.username, currentChat.id);
+                    }
+
                     if (ChatObject.isNotInChat(currentChat)) {
                         if (getMessagesController().isJoiningChannel(currentChat.id)) {
                             showBottomOverlayProgress(true, false);
                         } else {
-                            bottomOverlayChatText.setText(LocaleController.getString("ChannelJoin", R.string.ChannelJoin));
-                            showBottomOverlayProgress(false, false);
+                            //自动入群
+                            bottomOverlayChatText.callOnClick();
+//                            bottomOverlayChatText.setText(LocaleController.getString("ChannelJoin", R.string.ChannelJoin));
+//                            showBottomOverlayProgress(false, false);
                         }
                     } else {
                         if (!getMessagesController().isDialogMuted(dialog_id)) {
@@ -20530,6 +20539,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         if (scrimPopupWindow != null) {
             scrimPopupWindow.setPauseNotifications(false);
             closeMenu();
+        }
+        if (currentChat != null) {
+            AnWangUtils.saveLastOpenChatId("");
         }
     }
 
@@ -23492,6 +23504,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         if (backToPreviousFragment != null) {
             parentLayout.fragmentsStack.add(parentLayout.fragmentsStack.size() - 1, backToPreviousFragment);
             backToPreviousFragment = null;
+        }
+        if (currentChat != null) {
+            AnWangUtils.saveLastOpenChatId("");
         }
         return true;
     }
