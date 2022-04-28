@@ -100,9 +100,8 @@ class EvmTransactionConverter(
             else -> CoinType.Erc20(tokenAddress.hex)
         }
 
-        Log.i("safe4", "getEip20Value coinType: $coinType")
         val platformCoin = coinManager.getPlatformCoin(coinType)
-        Log.i("safe4", "getEip20Value platformCoin: $platformCoin")
+        Log.i("safe4", "getEip20Value coinType: $coinType amount: $amount, platformCoin: $platformCoin")
 
         return if (platformCoin != null) {
             TransactionValue.CoinValue(platformCoin, convertAmount(amount, platformCoin.decimals, negative))

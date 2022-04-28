@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
+import com.anwang.safewallet.safekit.model.SafeNet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -51,13 +52,16 @@ class SendWsafeService(
         val amountError = this.amountCaution.error
         val evmAmount = this.evmAmount
         val addressData = this.addressData
-
         state = if (amountError == null && evmAmount != null && addressData != null) {
-            val wsafeKit = WsafeKit.getInstance()
-            var safeAddr = toSafeAddr!!.hex;
-            val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
-            val additionalInfo = AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
-            State.Ready(SendEvmData(transactionData, additionalInfo))
+            if(toSafeAddr != null){
+                val wsafeKit = WsafeKit.getInstance()
+                val safeAddr = toSafeAddr!!.hex
+                val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
+                val additionalInfo = AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
+                State.Ready(SendEvmData(transactionData, additionalInfo))
+            } else {
+                State.NotReady
+            }
         } else {
             State.NotReady
         }
@@ -154,5 +158,11 @@ class SendWsafeService(
     }
 
     data class AddressData(val evmAddress: EvmAddress, val domain: String?)
+
+    fun isSendMinAmount(safeNet: SafeNet): Boolean {
+        val minSafe = BigDecimal(safeNet.minamount).movePointRight(18)
+        val safeAmount = (evmAmount ?: 0) as BigInteger
+        return BigDecimal(safeAmount) >= minSafe
+    }
 
 }

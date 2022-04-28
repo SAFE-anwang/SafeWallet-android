@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -48,7 +48,7 @@ class Safe4Fragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    Safe4Screen(viewModel, requireActivity(), findNavController())
+                    Safe4Screen(viewModel, findNavController())
                 }
             }
         }
@@ -59,7 +59,6 @@ class Safe4Fragment : BaseFragment() {
 @Composable
 private fun Safe4Screen(
     viewModel: Safe4ViewModel,
-    activity: Activity,
     navController: NavController
 ) {
 
@@ -71,7 +70,7 @@ private fun Safe4Screen(
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Safe4Sections(viewModel, activity, navController)
+                Safe4Sections(viewModel, navController)
             }
         }
     }
@@ -80,7 +79,6 @@ private fun Safe4Screen(
 @Composable
 private fun Safe4Sections(
     viewModel: Safe4ViewModel,
-    activity: Activity,
     navController: NavController
 ) {
 
@@ -101,7 +99,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startSafe2wsafe(activity);
+                    viewModel.getSafeNet(true, navController)
                 }
             )
         },{
@@ -110,7 +108,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.startWsafe2Safe(activity, navController)
+                    viewModel.getSafeNet(false, navController)
                 }
             )
         })
@@ -135,7 +133,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(App.instance, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         },{
@@ -144,7 +142,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(App.instance, "敬请期待", Toast.LENGTH_SHORT).show()
                 }
             )
         })
@@ -152,7 +150,7 @@ private fun Safe4Sections(
 
     Spacer(Modifier.height(25.dp))
 
-    Text(
+    /*Text(
         text = stringResource(R.string.Safe4_Defi),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
@@ -184,7 +182,8 @@ private fun Safe4Sections(
         })
     )
 
-    Spacer(Modifier.height(25.dp))
+    Spacer(Modifier.height(25.dp))*/
+
 }
 
 @Composable

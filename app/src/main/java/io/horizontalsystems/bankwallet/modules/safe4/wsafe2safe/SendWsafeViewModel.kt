@@ -1,10 +1,13 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.anwang.safewallet.safekit.model.SafeNet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -15,7 +18,10 @@ import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import java.math.BigDecimal
 
 class SendWsafeViewModel(
     val service: SendWsafeService,
@@ -42,9 +48,8 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
-            proceedLiveEvent.postValue(readyState.sendData)
-        }
+        // 处理safe跨链逻辑
+        handlerSafeConvert()
     }
 
     private fun sync(state: SendWsafeService.State) {
@@ -100,4 +105,34 @@ class SendWsafeViewModel(
             }
         }
     }
+
+    private fun handlerSafeConvert() {
+        App.safeProvider.getSafeNet()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.i("safe4", "getSafeNet data: $it")
+                if (it == null || !it.eth.eth2safe) {
+                    Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
+                } else {
+                    validMinAmount(it)
+                }
+            }, {
+                Log.e("safe4", "getSafeNet error", it)
+            })
+            .let {
+                disposable.add(it)
+            }
+    }
+
+    private fun validMinAmount(safeNet: SafeNet) {
+        if (!service.isSendMinAmount(safeNet)){
+            Toast.makeText(App.instance, "跨链转账最小金额是${safeNet.minamount}SAFE", Toast.LENGTH_SHORT).show()
+        } else {
+            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
+                proceedLiveEvent.postValue(readyState.sendData)
+            }
+        }
+    }
+
 }

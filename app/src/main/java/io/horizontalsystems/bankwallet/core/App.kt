@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
 import com.walletconnect.walletconnectv2.client.WalletConnect
 import com.walletconnect.walletconnectv2.client.WalletConnectClient
@@ -108,6 +109,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var accountSettingManager: AccountSettingManager
         lateinit var binanceRefreshManager: BinanceRefreshManager
         lateinit var nftManager: NftManager
+        lateinit var safeProvider: SafeProvider
     }
 
     override val testMode = BuildConfig.testMode
@@ -280,6 +282,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         wc2Service = WC2Service()
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
+
+        safeProvider = SafeProvider("https://safewallet.anwang.com/")
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {

@@ -233,6 +233,7 @@ class SafeConvertSendActivity : BaseActivity() {
     companion object {
         const val WALLET_SAFE = "wallet_safe_key"
         const val WALLET_WSAFE = "wallet_wsafe_key"
+        const val SAFE_NET = "safe_net_key"
     }
 
 }

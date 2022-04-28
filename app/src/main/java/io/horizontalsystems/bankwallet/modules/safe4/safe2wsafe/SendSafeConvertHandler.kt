@@ -14,6 +14,7 @@ import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import java.math.BigDecimal
+import java.math.BigInteger
 
 class SendSafeConvertHandler(
         private val interactor: SendModule.ISendSafeInteractor)
@@ -104,8 +105,6 @@ class SendSafeConvertHandler(
 
     fun getReverseHex(): String {
         val safeRemarkPrex = "736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a020100122e"
-//        val wsafeAddress : String = "eth:" + App.ethereumKitManager.evmKitWrapper?.evmKit?.receiveAddress?.hex;
-//        val wsafeAddress =  "eth:0xf34e8B76d4238953181ed2DA586A07bD38454189"
         val wsafeAddress = "eth:" + addressModule.validAddress().hex
         val wsafeHex = HashUtils.toHexString(wsafeAddress.toByteArray())
         return safeRemarkPrex + wsafeHex
@@ -160,4 +159,5 @@ class SendSafeConvertHandler(
         syncFee()
         syncMinimumAmount()
     }
+
 }
