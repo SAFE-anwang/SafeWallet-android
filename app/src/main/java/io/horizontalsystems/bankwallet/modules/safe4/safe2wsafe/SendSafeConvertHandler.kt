@@ -14,7 +14,6 @@ import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import java.math.BigDecimal
-import java.math.BigInteger
 
 class SendSafeConvertHandler(
         private val interactor: SendModule.ISendSafeInteractor)

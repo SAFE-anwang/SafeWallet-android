@@ -18,19 +18,17 @@ import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
+import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SafeInfoPO
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
 import io.horizontalsystems.bankwallet.modules.send.SendRouter
 import io.horizontalsystems.bankwallet.modules.send.SendView
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
-import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.ConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeInfoFragment
-import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerFragment
-import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.sendbutton.ProceedButtonView
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -50,6 +48,8 @@ class SafeConvertSendActivity : BaseActivity() {
 
     var wsafeWallet: Wallet? = null
 
+    var safeInfoPO: SafeInfoPO? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // prevent fragment recreations by passing null to onCreate
         super.onCreate(null)
@@ -63,6 +63,8 @@ class SafeConvertSendActivity : BaseActivity() {
         val wallet: Wallet = intent.getParcelableExtra(WALLET_SAFE) ?: run { finish(); return }
 
         wsafeWallet = intent.getParcelableExtra(WALLET_WSAFE) ?: run { finish(); return }
+
+        safeInfoPO = intent.getParcelableExtra(SAFE_INFO) ?: run { finish(); return }
 
         setToolbar(wallet.platformCoin.fullCoin)
 
@@ -213,7 +215,7 @@ class SafeConvertSendActivity : BaseActivity() {
                 SendModule.Input.ProceedButton -> {
                     //add send button
                     proceedButtonView = ProceedButtonView(this)
-                    proceedButtonView?.bind { mainPresenter.onProceedClicked() }
+                    proceedButtonView?.bind { mainPresenter.onSafeConvertClicked(this) }
                     binding.sendLinearLayout.addView(proceedButtonView)
                 }
             }
@@ -233,7 +235,7 @@ class SafeConvertSendActivity : BaseActivity() {
     companion object {
         const val WALLET_SAFE = "wallet_safe_key"
         const val WALLET_WSAFE = "wallet_wsafe_key"
-        const val SAFE_NET = "safe_net_key"
+        const val SAFE_INFO = "safe_info_key"
     }
 
 }

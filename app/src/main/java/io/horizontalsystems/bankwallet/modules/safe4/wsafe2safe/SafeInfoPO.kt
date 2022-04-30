@@ -4,14 +4,14 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class SafeNetModel(
+data class SafeInfoPO(
     val safe_usdt: String,
     val minamount: String,
-    val chain: SafeChainModel,
+    val chainPO: ChainInfoPO,
 ) : Parcelable
 
 @Parcelize
-data class SafeChainModel(
+data class ChainInfoPO(
     val price: String,
     val gas_price_gwei: String,
     val safe_fee: String,
