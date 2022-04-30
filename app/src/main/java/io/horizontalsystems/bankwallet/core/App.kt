@@ -4,14 +4,11 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.PreferenceManager
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.anwang.safewallet.safekit.netwok.SafeProvider
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
 import com.walletconnect.walletconnectv2.client.WalletConnect
 import com.walletconnect.walletconnectv2.client.WalletConnectClient
@@ -49,8 +46,6 @@ import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.CoinType
-import io.horizontalsystems.pin.PinComponent
-import io.reactivex.plugins.RxJavaPlugins
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
 import org.telegram.messenger.ApplicationLoader
@@ -169,9 +164,6 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         AppLog.logsDao = appDatabase.logsDao()
 
         coinManager = CoinManager(marketKit, CustomTokenStorage(appDatabase))
-        val tokenList = mutableListOf<CustomToken>()
-        tokenList.add(CustomToken("safe-erc20", "SAFE", CoinType.Erc20("0x874a3d9a9655f18afc59b0e75463ea29ee2043c0"), 18))
-        coinManager.save(tokenList)
 
         enabledWalletsStorage = EnabledWalletsStorage(appDatabase)
         blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
@@ -227,14 +219,14 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         addressParserFactory = AddressParserFactory()
 
         pinComponent = PinComponent(
-                pinStorage = pinStorage,
-                encryptionManager = encryptionManager,
-                excludedActivityNames = listOf(
-                        KeyStoreActivity::class.java.name,
-                        LockScreenActivity::class.java.name,
-                        LauncherActivity::class.java.name,
-                        TorConnectionActivity::class.java.name
-                )
+            pinStorage = pinStorage,
+            encryptionManager = encryptionManager,
+            excludedActivityNames = listOf(
+                KeyStoreActivity::class.java.name,
+                LockScreenActivity::class.java.name,
+                LauncherActivity::class.java.name,
+                TorConnectionActivity::class.java.name
+            )
         )
 
         backgroundStateChangeListener = BackgroundStateChangeListener(systemInfoManager, keyStoreManager, pinComponent).apply {
@@ -290,8 +282,13 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         wc2Service = WC2Service()
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
 
-        safeProvider = SafeProvider("https://safewallet.anwang.com/")
         ApplicationLoader.instance.init(this)
+
+        val tokenList = mutableListOf<CustomToken>()
+        tokenList.add(CustomToken("safe-erc20", "SAFE", CoinType.Erc20("0x874a3d9a9655f18afc59b0e75463ea29ee2043c0"), 18))
+        coinManager.save(tokenList)
+
+        safeProvider = SafeProvider("https://safewallet.anwang.com/")
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {
@@ -390,5 +387,4 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         }.start()
     }
-
 }

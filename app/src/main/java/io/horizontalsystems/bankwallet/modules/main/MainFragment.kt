@@ -82,7 +82,7 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
                     /*joinTelegramGroup("https://t.me/safeanwang")
                     binding.bottomNavigation.menu.getItem(2).isChecked = false*/
                 }
-                R.id.navigation_settings -> binding.viewPager.setCurrentItem(3, false)
+                R.id.navigation_settings -> binding.viewPager.setCurrentItem(4, false)
             }
             true
         }
@@ -140,9 +140,6 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         })
 
         viewModel.transactionTabEnabledLiveData.observe(viewLifecycleOwner, { enabled ->
-            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
-        })
-
 //            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
         })
 

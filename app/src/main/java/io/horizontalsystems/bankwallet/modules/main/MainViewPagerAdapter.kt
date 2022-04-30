@@ -6,9 +6,7 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceFragment
 import io.horizontalsystems.bankwallet.modules.market.MarketFragment
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Fragment
 import io.horizontalsystems.bankwallet.modules.settings.main.MainSettingsFragment
-import io.horizontalsystems.bankwallet.modules.settings.main.MainSettingsFragment
 import io.horizontalsystems.bankwallet.modules.tg.JoinTelegramFragment
-import io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment
 
 class MainViewPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment.getChildFragmentManager(), fragment.viewLifecycleOwner.lifecycle) {
 
