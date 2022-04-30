@@ -46,6 +46,7 @@ class Colors(
     val elenaD = Color(0xFF6E7899)
     val red50 = Red50
     val red20 = Red20
+    val tgBlue = Color(0xFF28A7E7)
 
     //themed colors
     var jacob by mutableStateOf(jacob)

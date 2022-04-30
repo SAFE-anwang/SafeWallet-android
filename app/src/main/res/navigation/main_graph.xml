@@ -84,7 +84,13 @@
         <action
             android:id="@+id/mainFragment_to_wc2SignMessageRequestFragment"
             app:destination="@id/wc2SignMessageRequestFragment" />
+        <action
+            android:id="@+id/mainFragment_to_tg"
+            app:destination="@id/join_to_telegram" />
     </fragment>
+    <fragment
+        android:id="@+id/join_to_telegram"
+        android:name="io.horizontalsystems.bankwallet.modules.tg.JoinTelegramFragment" />
     <fragment
         android:id="@+id/wc2SignMessageRequestFragment"
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment">
@@ -122,6 +128,10 @@
         android:id="@+id/sendWsafeConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.confirmation.SendWsafeConfirmationFragment"
         tools:layout="@layout/fragment_confirmation_send_evm" />
+        android:id="@+id/sendEvmConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.sendevm.confirmation.SendEvmConfirmationFragment"
+        tools:layout="@layout/fragment_confirmation_send_evm" />
+
     <fragment
         android:id="@+id/sendEvmFeeSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment" />
@@ -488,6 +498,12 @@
     <fragment
         android:id="@+id/nftAssetFragment"
         android:name="io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetFragment" />
+
+
+    <fragment
+        android:id="@+id/transactionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" />
+
 
     <!--  Dialogs/BottomSheets  -->
     <!--    <dialog-->

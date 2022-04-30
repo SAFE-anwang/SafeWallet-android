@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "226841260816",
+    "project_id": "safewallet-69823",
+    "storage_bucket": "safewallet-69823.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226841260816:android:70d0322257b7e520da6b95",
+        "android_client_info": {
+          "package_name": "com.anwang.safewallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "226841260816-76t9krufdfks8h8oiebo1qa57avqbd6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDodIuJyDpa6SlFa8-JOgpGnpXe5g41RWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "226841260816-76t9krufdfks8h8oiebo1qa57avqbd6v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226841260816:android:1cf0fe1f5e9ae399da6b95",
+        "android_client_info": {
+          "package_name": "com.anwang.safewallet.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "226841260816-76t9krufdfks8h8oiebo1qa57avqbd6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDodIuJyDpa6SlFa8-JOgpGnpXe5g41RWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "226841260816-76t9krufdfks8h8oiebo1qa57avqbd6v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

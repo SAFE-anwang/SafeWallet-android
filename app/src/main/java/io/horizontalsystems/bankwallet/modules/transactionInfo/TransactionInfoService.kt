@@ -107,7 +107,6 @@ class TransactionInfoService(
 
         fetchRates()
             .subscribeIO {
-                Log.i("safe4", "fetchRates: $it")
                 handleRates(it)
             }
             .let {
@@ -143,7 +142,6 @@ class TransactionInfoService(
         val coinUids = coinUidsForRates
         val timestamp = transactionInfoItem.record.timestamp
         val flowables: List<Single<Pair<String, CurrencyValue>>> = coinUids.map { coinUid ->
-            Log.i("safe4", "coinUid:$coinUid")
             var uid = coinUid
             if (coinUid == "custom_safe-erc20-SAFE"){
                 uid = "safe-coin"

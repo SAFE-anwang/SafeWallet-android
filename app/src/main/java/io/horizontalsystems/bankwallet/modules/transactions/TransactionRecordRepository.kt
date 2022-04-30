@@ -116,7 +116,7 @@ class TransactionRecordRepository(
 
     override fun setSelectedWallet(transactionWallet: TransactionWallet?) {
         selectedWallet = transactionWallet
-        Log.i("safe4", "selectedWallet = $selectedWallet")
+
         unsubscribeFromUpdates()
         allLoaded.set(false)
         loadItems(1)

@@ -999,4 +999,9 @@
 
     <!-- VPN -->
     <string name="VPN_Title">VPN</string>
+
+    <string name="Join_Telegram_Title">加入TG群</string>
+    <string name="Join_Telegram_Group1">SAFE (安网) 电报群</string>
+    <string name="Join_Telegram_Group2">safewallet 电报群</string>
+    <string name="Telegram_Join_Group">加入群组</string>
 </resources>

@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.main
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,8 +22,12 @@ import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppDialogFragment
 import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceActivity
+import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetWalletSelectDialog
 import io.horizontalsystems.core.findNavController
+import org.telegram.ui.LaunchActivity
+
+//import org.drinkless.td.libcore.telegram.TdAuthManager
 
 class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
@@ -31,6 +36,8 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
+
+    private var startTelegramService: StartTelegramsService? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,8 +78,11 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
                 R.id.navigation_market -> binding.viewPager.setCurrentItem(0, false)
                 R.id.navigation_balance -> binding.viewPager.setCurrentItem(1, false)
                 R.id.navigation_safe4 -> binding.viewPager.setCurrentItem(2, false)
-                R.id.navigation_transactions -> binding.viewPager.setCurrentItem(3, false)
-                R.id.navigation_settings -> binding.viewPager.setCurrentItem(4, false)
+                R.id.navigation_join_tg -> {
+                    /*joinTelegramGroup("https://t.me/safeanwang")
+                    binding.bottomNavigation.menu.getItem(2).isChecked = false*/
+                }
+                R.id.navigation_settings -> binding.viewPager.setCurrentItem(3, false)
             }
             true
         }
@@ -133,6 +143,13 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
             binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
         })
 
+//            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
+        })
+
+        binding.bottomNavigation.findViewById<View>(R.id.navigation_join_tg)
+            ?.setOnClickListener {
+                joinTelegramGroup("https://t.me/safeanwang")
+            }
     }
 
     private fun openWalletSwitchDialog(
@@ -151,6 +168,7 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
+        startTelegramService?.stopCheckLoginStatus()
     }
 
     //  RateAppDialogFragment.Listener
@@ -177,4 +195,10 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         return bottomBadgeView
     }
 
+    private fun joinTelegramGroup(groupLink: String) {
+        if (startTelegramService == null) {
+            startTelegramService = StartTelegramsService(requireActivity())
+        }
+        startTelegramService?.join(groupLink)
+    }
 }

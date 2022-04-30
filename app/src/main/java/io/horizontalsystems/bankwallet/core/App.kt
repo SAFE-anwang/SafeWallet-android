@@ -8,6 +8,10 @@ import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
+import androidx.multidex.MultiDex
+import androidx.preference.PreferenceManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.tencent.mmkv.MMKV
 import com.walletconnect.walletconnectv2.client.WalletConnect
 import com.walletconnect.walletconnectv2.client.WalletConnectClient
@@ -47,6 +51,9 @@ import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
+import io.horizontalsystems.pin.PinComponent
+import io.reactivex.plugins.RxJavaPlugins
+import org.telegram.messenger.ApplicationLoader
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -284,6 +291,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
+        ApplicationLoader.instance.init(this)
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {
@@ -352,6 +360,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(localeAwareContext(base))
+//        MultiDex.install(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
