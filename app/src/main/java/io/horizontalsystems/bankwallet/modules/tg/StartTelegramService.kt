@@ -15,20 +15,25 @@ class StartTelegramsService(
     private var checkTelegramLoginState = false
 
     fun join(group: String) {
-        val intent = Intent(activity, LaunchActivity::class.java)
+        var uri = ""
         // 未登录过，是首次打开tg，需要直接进群
         if (UserConfig.getActivatedAccountsCount() <= 0 || AnWangUtils.isLeaveAnwangGroup) {
-            intent.action = Intent.ACTION_VIEW
-            intent.data = Uri.parse(group)
+            uri = group
         } else {
             if (AnWangUtils.lastOpenGroupId != "") {
-                intent.action = Intent.ACTION_VIEW
-                intent.data = Uri.parse(AnWangUtils.lastOpenGroupId)
+                uri = AnWangUtils.lastOpenGroupId
             }
             AnWangUtils.isCheckInAnwangGroup = false
         }
-        activity.startActivity(intent)
+        startTelegram(uri)
         startCheckLoginState(group)
+    }
+
+    private fun startTelegram(uri: String) {
+        val intent = Intent(activity, LaunchActivity::class.java)
+        intent.action = Intent.ACTION_VIEW
+        intent.data = Uri.parse(uri)
+        activity.startActivity(intent)
     }
 
     private fun startCheckLoginState(group: String) {
@@ -39,7 +44,7 @@ class StartTelegramsService(
                 if (UserConfig.getActivatedAccountsCount() > 0) {
                     checkTelegramLoginState = false
                     withContext(Dispatchers.Main) {
-                        join(group)
+                        startTelegram(group)
                     }
                     break
                 }

@@ -61,9 +61,6 @@
             android:id="@+id/mainFragment_to_walletConnect"
             app:destination="@id/wallet_connect_graph" />
         <action
-            android:id="@+id/mainFragment_to_transactionInfoFragment"
-            app:destination="@id/transactionInfoFragment" />
-        <action
             android:id="@+id/mainFragment_to_marketSearchFragment"
             app:destination="@id/marketSearchFragment" />
         <action
@@ -484,7 +481,11 @@
 
     <fragment
         android:id="@+id/transactionFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" />
+        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" >
+        <action
+            android:id="@+id/mainFragment_to_transactionInfoFragment"
+            app:destination="@id/transactionInfoFragment" />
+    </fragment>
 
 
     <!--  Dialogs/BottomSheets  -->
