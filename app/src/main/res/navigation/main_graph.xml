@@ -496,10 +496,14 @@
         android:id="@+id/nftAssetFragment"
         android:name="io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetFragment" />
 
-
     <fragment
         android:id="@+id/transactionFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" />
+        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" >
+        <action
+            android:id="@+id/mainFragment_to_transactionInfoFragment"
+            app:destination="@id/transactionInfoFragment" />
+    </fragment>
+
 
 
     <!--  Dialogs/BottomSheets  -->
