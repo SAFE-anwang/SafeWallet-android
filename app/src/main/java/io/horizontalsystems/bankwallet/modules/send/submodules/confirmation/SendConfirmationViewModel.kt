@@ -22,6 +22,7 @@ class SendConfirmationViewModel(
         var domain: String? = null
         var memo: String? = null
         var lockTimeInterval: LockTimeInterval? = null
+        var wsafeHex: String? = null
 
         confirmationViewItems?.forEach { item ->
             when (item) {
@@ -31,6 +32,7 @@ class SendConfirmationViewModel(
                     currencyAmount = item.currencyValue?.getFormatted() ?: ""
                     domain = item.receiver.domain
                     receiver = item.receiver.hex
+                    wsafeHex = item.wsafeHex
                 }
                 is SendModule.SendConfirmationFeeViewItem -> {
                     feeAmount = item.coinValue.getFormatted()
@@ -55,7 +57,8 @@ class SendConfirmationViewModel(
             domain = domain,
             memo = memo,
             lockTimeInterval = lockTimeInterval,
-            feeAmount = feeAmount
+            feeAmount = feeAmount,
+            wsafeHex = wsafeHex
         )
 
         viewDataLiveData.postValue(viewData)

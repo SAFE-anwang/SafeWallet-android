@@ -47,8 +47,8 @@ class SendSafeInteractor(private val adapter: ISendSafeAdapter) : SendModule.ISe
             .let { disposables.add(it) }
     }
 
-    override fun send(amount: BigDecimal, address: String, logger: AppLogger , lockedTimeInterval: LockTimeInterval ? ): Single<Unit> {
-        return adapter.send( amount, address, logger , lockedTimeInterval)
+    override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockTimeInterval: LockTimeInterval ?, reverseHex: String ?): Single<Unit> {
+        return adapter.send( amount, address, logger , lockTimeInterval, reverseHex)
     }
 
     override fun clear() {

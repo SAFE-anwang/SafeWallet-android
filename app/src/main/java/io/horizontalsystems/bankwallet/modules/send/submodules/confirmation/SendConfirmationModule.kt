@@ -17,6 +17,7 @@ object SendConfirmationModule {
         val memo: String?,
         val lockTimeInterval: LockTimeInterval?,
         val feeAmount: String,
+        val wsafeHex: String?
     )
 
     class SendButton(@StringRes val title: Int, val enabled: Boolean)

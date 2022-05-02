@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.SyncMode
@@ -15,7 +14,6 @@ import io.horizontalsystems.dashkit.models.DashTransactionInfo
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
-import io.horizontalsystems.bankwallet.net.SafeNetWork
 import java.math.BigDecimal
 
 class SafeAdapter(
@@ -92,11 +90,18 @@ class SafeAdapter(
         return fee(amount, feeRate, address, mapOf())
     }
 
+    override fun convertFee(amount: BigDecimal, address: String?): BigDecimal {
+        // 增加兑换WSAFE流量手续费
+        var convertFeeRate = feeRate;
+        convertFeeRate += 50;
+        return fee(amount, convertFeeRate, address, mapOf())
+    }
+
     override fun validate(address: String) {
         validate(address, mapOf())
     }
 
-    override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockedTimeInterval: LockTimeInterval? ): Single<Unit> {
+    override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockedTimeInterval: LockTimeInterval? , reverseHex: String ?): Single<Unit> {
         var unlockedHeight = 0L;
         if ( lockedTimeInterval != null ){
             val lockedMonth = lockedTimeInterval.value();
@@ -105,7 +110,12 @@ class SafeAdapter(
         }
         return Single.create { emitter ->
             try {
-                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, feeRate.toInt(), TransactionDataSortType.Shuffle, mapOf(),unlockedHeight )
+                // 增加兑换WSAFE流量手续费
+                var convertFeeRate = feeRate
+                if (reverseHex != null) {
+                    convertFeeRate += 50;
+                }
+                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, mapOf(), unlockedHeight, reverseHex)
                 emitter.onSuccess(Unit)
             } catch (ex: Exception) {
                 emitter.onError(ex)

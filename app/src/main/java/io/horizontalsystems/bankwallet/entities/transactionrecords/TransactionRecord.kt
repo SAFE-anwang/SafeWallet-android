@@ -59,4 +59,10 @@ abstract class TransactionRecord(
 
         return TransactionStatus.Pending
     }
+
+    override fun toString(): String {
+        return "TransactionRecord(uid='$uid', transactionHash='$transactionHash', mainValue=$mainValue)"
+    }
+
+
 }
