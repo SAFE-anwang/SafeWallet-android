@@ -20,6 +20,10 @@ class ContractCallTransactionRecord(
 
     val value = TransactionValue.CoinValue(baseCoin, value)
 
+    override fun toString(): String {
+        return "ContractCallTransactionRecord(contractAddress='$contractAddress', method=$method, incomingInternalETHs=$incomingInternalETHs, incomingEip20Events=$incomingEip20Events, outgoingEip20Events=$outgoingEip20Events, value=$value)"
+    }
+
 }
 
 data class AddressTransactionValue(val address: String, val value: TransactionValue)

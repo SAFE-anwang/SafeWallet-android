@@ -139,7 +139,7 @@ class BalanceService(
         isWatchAccount = accountManager.activeAccount?.isWatchAccount == true
 
         adapterRepository.setWallet(wallets)
-        xRateRepository.setCoinUids(wallets.mapNotNull { if (it.coin.isCustom) null else it.coin.uid })
+        xRateRepository.setCoinUids(wallets.mapNotNull { if (it.coin.isCustom && !hasSafe(it.coin.uid)) null else it.coin.uid })
         val latestRates = xRateRepository.getLatestRates()
 
         val balanceItems = wallets.map { wallet ->
@@ -156,6 +156,12 @@ class BalanceService(
         this.allBalanceItems.addAll(balanceItems)
 
         sortAndEmitItems()
+    }
+
+    fun hasSafe(uid: String): Boolean{
+        val safeList = mutableListOf<String>()
+        safeList.add("custom_safe-erc20-SAFE")
+        return safeList.contains(uid)
     }
 
     fun refresh() {

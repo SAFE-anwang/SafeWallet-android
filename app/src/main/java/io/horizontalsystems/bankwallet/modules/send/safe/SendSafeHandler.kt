@@ -98,14 +98,12 @@ class SendSafeHandler(
         val hodlerData = hodlerModule?.pluginData()
         if ( hodlerData != null && !hodlerData.isEmpty() ){
             val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
-            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval)
+            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval, null)
         }
-        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null)
+        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, null)
     }
 
     // SendModule.ISendBitcoinInteractorDelegate
-
-
 
     override fun didFetchAvailableBalance(availableBalance: BigDecimal) {
         amountModule.setAvailableBalance(availableBalance)

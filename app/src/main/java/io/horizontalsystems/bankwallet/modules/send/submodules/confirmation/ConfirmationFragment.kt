@@ -153,6 +153,15 @@ fun SendConfirmScreen(
                 )
             }
         }
+        data.wsafeHex?.let {
+            secondarySectionItems.add {
+                WsafeCell(
+                    stringResource(R.string.Send_Confirmation_Wsafe),
+                    data.wsafeHex,
+                    onClickCopy
+                )
+            }
+        }
     }
 
     Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
@@ -271,6 +280,30 @@ private fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, locked: B
                 contentDescription = "lock icon",
             )
         }
+    }
+}
+
+@Composable
+private fun WsafeCell(title :String, address: String, onClickCopy: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = ComposeAppTheme.typography.subhead2,
+            color = ComposeAppTheme.colors.grey
+        )
+        Spacer(Modifier.weight(1f))
+        ButtonSecondaryDefault(
+            modifier = Modifier
+                .padding(start = 8.dp),
+            title = address,
+            onClick = { onClickCopy.invoke(address) },
+            ellipsis = Ellipsis.Middle(10)
+        )
     }
 }
 

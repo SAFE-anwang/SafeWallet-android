@@ -800,7 +800,13 @@ class TransactionInfoViewItemFactory(
     ): List<TransactionInfoViewItem?> {
         val items = mutableListOf<TransactionInfoViewItem?>()
 
-        items.add(TransactionInfoViewItem(TransactionType(title, transactionValue.coinName), First))
+        var coinUid = transactionValue.coinName
+        //safe-erc20 特殊处理
+        if ("custom_safe-erc20-SAFE" == transactionValue.coinUid){
+            coinUid = transactionValue.coinName + " ERC20"
+        }
+
+        items.add(TransactionInfoViewItem(TransactionType(title, coinUid), First))
 
         items.add(TransactionInfoViewItem(getAmount(rate, transactionValue, incoming), Last))
 

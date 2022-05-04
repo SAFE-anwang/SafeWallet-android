@@ -52,6 +52,7 @@ object MainModule {
     enum class MainTab: Parcelable {
         Market,
         Balance,
+        Safe4,
         Transactions,
         Settings;
 

@@ -8,6 +8,8 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
+import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertInteractor
 import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceHandler
 import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceInteractor
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinHandler
@@ -83,7 +85,7 @@ object SendModule {
         fun fetchMinimumAmount(address: String?): BigDecimal
         fun fetchFee(amount: BigDecimal, address: String?)
         fun validate(address: String)
-        fun send(amount: BigDecimal, address: String, logger: AppLogger, lockTimeInterval: LockTimeInterval ?): Single<Unit>
+        fun send(amount: BigDecimal, address: String, logger: AppLogger, lockTimeInterval: LockTimeInterval ?, reverseHex: String ?): Single<Unit>
         fun clear()
     }
 
@@ -174,7 +176,8 @@ object SendModule {
         val coinValue: CoinValue,
         val currencyValue: CurrencyValue?,
         val receiver: Address,
-        val locked: Boolean = false
+        val locked: Boolean = false,
+        val wsafeHex: String = ""
     ) : SendConfirmationViewItem()
 
     data class SendConfirmationFeeViewItem(
@@ -258,6 +261,46 @@ object SendModule {
                     presenter.amountModuleDelegate = handler
                     presenter.addressModuleDelegate = handler
                     presenter.feeModuleDelegate = handler
+
+                    handler
+                }
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
+    class SafeConvertFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+                is ISendSafeAdapter -> {
+                    val safeInteractor = SendSafeConvertInteractor(adapter)
+                    val handler = SendSafeConvertHandler(safeInteractor)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
 
                     handler
                 }

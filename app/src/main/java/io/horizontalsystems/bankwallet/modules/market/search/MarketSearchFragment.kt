@@ -70,7 +70,11 @@ class MarketSearchFragment : BaseFragment() {
                         )
                     },
                     onCoinClick = { coin ->
-                        val arguments = CoinFragment.prepareParams(coin.uid)
+                        var uid = coin.uid
+                        if (coin.uid == "custom_safe-erc20-SAFE"){
+                            uid = "safe-coin"
+                        }
+                        val arguments = CoinFragment.prepareParams(uid)
                         findNavController().slideFromRight(R.id.coinFragment, arguments)
                     },
                     onCategoryClick = { viewItemType ->
@@ -90,7 +94,11 @@ class MarketSearchFragment : BaseFragment() {
                     },
                     onSearchQueryChange = { query -> viewModel.searchByQuery(query) },
                     onFavoriteClick = { favorited, coinUid ->
-                        viewModel.onFavoriteClick(favorited, coinUid)
+                        var uid = coinUid
+                        if (coinUid == "custom_safe-erc20-SAFE"){
+                            uid = "safe-coin"
+                        }
+                        viewModel.onFavoriteClick(favorited, uid)
                     }
                 )
             }

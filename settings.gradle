@@ -29,5 +29,8 @@ include ':ethereum-kit-android:ethereumkit'
 include ':ethereum-kit-android:erc20kit'
 include ':ethereum-kit-android:uniswapkit'
 include ':ethereum-kit-android:oneinchkit'
+include ':ethereum-kit-android:wsafekit'
 
 include ':vpn'
+
+include 'telegram:TMessagesProj'
