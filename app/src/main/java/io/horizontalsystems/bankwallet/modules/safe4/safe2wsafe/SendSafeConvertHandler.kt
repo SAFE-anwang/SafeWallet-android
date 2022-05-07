@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -12,6 +13,7 @@ import io.horizontalsystems.bitcoincore.utils.HashUtils
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
+import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.Single
 import java.math.BigDecimal
 
@@ -21,7 +23,8 @@ class SendSafeConvertHandler(
       SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
       SendHodlerModule.IHodlerModuleDelegate {
 
-    private val safeConvertAddress = "XmkTAzN38tsNjEdXwuHkRL75U3Q3uuwRey";
+    val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+    private val safeConvertAddress = WSafeManager(evmKit).getSafeConvertAddress()
 
     private fun syncValidation() {
         var amountError: Throwable? = null

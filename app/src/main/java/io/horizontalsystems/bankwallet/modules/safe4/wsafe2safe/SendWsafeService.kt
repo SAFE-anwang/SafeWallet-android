@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
 import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -54,7 +55,8 @@ class SendWsafeService(
         val addressData = this.addressData
         state = if (amountError == null && evmAmount != null && addressData != null) {
             if(toSafeAddr != null){
-                val wsafeKit = WsafeKit.getInstance()
+                val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+                val wsafeKit = WsafeKit.getInstance(evmKit)
                 val safeAddr = toSafeAddr!!.hex
                 val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
                 val additionalInfo = AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))

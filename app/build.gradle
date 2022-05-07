@@ -10,8 +10,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 59
-        versionName "0.24.0.2.0502"
+        versionCode 61
+        versionName "0.24.0.2.0506"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {

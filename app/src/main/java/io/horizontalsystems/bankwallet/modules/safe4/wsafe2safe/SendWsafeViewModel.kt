@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -106,7 +107,9 @@ class SendWsafeViewModel(
     }
 
     private fun handlerSafeConvert() {
-        App.safeProvider.getSafeInfo()
+        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+        val safeNetType = WSafeManager(evmKit).getSafeNetType()
+        App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmount
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.CustomPriorityUnit
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerModule
+import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -118,7 +119,9 @@ class SendPresenter(
     private val disposables = CompositeDisposable()
 
     private fun handlerSafeConvert(context: Context) {
-        App.safeProvider.getSafeInfo()
+        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+        val safeNetType = WSafeManager(evmKit).getSafeNetType()
+        App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

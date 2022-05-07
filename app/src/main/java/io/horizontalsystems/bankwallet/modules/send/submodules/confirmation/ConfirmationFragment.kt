@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.snackbar.CustomSnackbar
 import io.horizontalsystems.snackbar.SnackbarDuration
+import org.apache.commons.lang3.StringUtils
 import java.net.UnknownHostException
 
 class ConfirmationFragment(sendPresenter: SendPresenter) : BaseFragment() {
@@ -153,7 +154,7 @@ fun SendConfirmScreen(
                 )
             }
         }
-        data.wsafeHex?.let {
+        if(data.wsafeHex != null && StringUtils.isNotBlank(data.wsafeHex)){
             secondarySectionItems.add {
                 WsafeCell(
                     stringResource(R.string.Send_Confirmation_Wsafe),
