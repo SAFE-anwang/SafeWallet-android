@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -129,11 +131,18 @@ class SendEvmFragment : BaseFragment() {
                 AppBar(
                     title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
-                        CoinImage(
-                            iconUrl = fullCoin.coin.iconUrl,
-                            placeholder = fullCoin.iconPlaceholder,
-                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
-                        )
+                        if (fullCoin.coin.uid == "safe-coin" || fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                contentDescription = null,
+                                modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                            )
+                        } else {
+                            CoinImage(
+                                iconUrl = fullCoin.coin.iconUrl,
+                                placeholder = fullCoin.iconPlaceholder,
+                                modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                            )
+                        }
                     },
                     menuItems = listOf(
                         MenuItem(

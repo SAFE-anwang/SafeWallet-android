@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
@@ -55,9 +56,14 @@ class ManageWalletsViewModel(
             )
             is Unsupported -> CoinViewItemState.ToggleHidden
         }
+        val image = if (item.fullCoin.coin.uid == "safe-coin" || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
+        }
         return CoinViewItem(
             item.fullCoin.coin.uid,
-            ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder),
+            image,
             item.fullCoin.coin.name,
             item.fullCoin.coin.code,
             state,

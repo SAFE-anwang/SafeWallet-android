@@ -425,13 +425,21 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            CoinImage(
-                iconUrl = viewItem.coinIconUrl,
-                placeholder = viewItem.coinIconPlaceholder,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(24.dp)
-            )
+            if (viewItem.coinCode == "SAFE") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(24.dp))
+            } else {
+                CoinImage(
+                    iconUrl = viewItem.coinIconUrl,
+                    placeholder = viewItem.coinIconPlaceholder,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(24.dp)
+                )
+            }
         }
     }
 }
