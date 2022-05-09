@@ -7,6 +7,13 @@
 
 3.将交易记录移到钱包余额下显示。
 
+说明：跨链测试环境修改方法
+1、maket工程assets下面的initial_coins_list文件最后一行，0xee9c1ea4dcf0aaf4ff2d78b6ff83aa69797b65eb替换成0x32885f2faf83aeee39e2cfe7f302e3bb884869f4
+
+2、maket工程io.horizontalsystems.marketkit.storage.MarketDatabase类27行，数据库版本号修改一下
+
+3、app工程 io.horizontalsystems.bankwallet.core.managers.EvmNetworkManager类15行，Ropsten网络注释打开
+
 
 2022年3月31日版本号v0.24.0.1
 
