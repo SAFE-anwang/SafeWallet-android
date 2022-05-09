@@ -138,7 +138,7 @@ class SendSafeConvertHandler(
     // SendAddressModule.ModuleDelegate
 
     override fun validate(address: String) {
-//        interactor.validate(address)
+        interactor.validate(address)
     }
 
     override fun onUpdateAddress() {

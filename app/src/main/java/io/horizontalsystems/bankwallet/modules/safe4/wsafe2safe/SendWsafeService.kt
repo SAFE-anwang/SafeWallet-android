@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
 import com.anwang.safewallet.safekit.model.SafeInfo
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
@@ -53,6 +54,7 @@ class SendWsafeService(
         val amountError = this.amountCaution.error
         val evmAmount = this.evmAmount
         val addressData = this.addressData
+        Log.i("safe4", "addressData: $addressData")
         state = if (amountError == null && evmAmount != null && addressData != null) {
             if(toSafeAddr != null){
                 val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!

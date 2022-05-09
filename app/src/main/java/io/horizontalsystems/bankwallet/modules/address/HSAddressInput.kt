@@ -41,6 +41,10 @@ fun HSAddressInput(
         else -> addressStateMergedWithError
     }
 
+    if (initial != null) {
+        onValueChange?.invoke(initial)
+    }
+
     FormsInput(
         modifier = modifier,
         initial = initial?.title,

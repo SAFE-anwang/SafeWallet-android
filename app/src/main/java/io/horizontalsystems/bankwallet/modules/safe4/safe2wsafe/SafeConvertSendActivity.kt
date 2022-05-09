@@ -12,13 +12,14 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
-import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SafeInfoPO
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -46,9 +47,8 @@ class SafeConvertSendActivity : BaseActivity() {
 
     private var proceedButtonView: ProceedButtonView? = null
 
-    var wsafeWallet: Wallet? = null
-
-    var safeInfoPO: SafeInfoPO? = null
+    lateinit var safeWallet: Wallet
+    lateinit var wsafeWallet: Wallet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // prevent fragment recreations by passing null to onCreate
@@ -60,21 +60,22 @@ class SafeConvertSendActivity : BaseActivity() {
 
         overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
 
-        val wallet: Wallet = intent.getParcelableExtra(WALLET_SAFE) ?: run { finish(); return }
+        safeWallet = intent.getParcelableExtra(WALLET_SAFE) ?: run { finish(); return }
 
         wsafeWallet = intent.getParcelableExtra(WALLET_WSAFE) ?: run { finish(); return }
 
-        safeInfoPO = intent.getParcelableExtra(SAFE_INFO) ?: run { finish(); return }
-
-        setToolbar(wallet.platformCoin.fullCoin)
+        setToolbar(safeWallet.platformCoin.fullCoin)
 
         mainPresenter =
-            ViewModelProvider(this, SendModule.SafeConvertFactory(wallet)).get(SendPresenter::class.java)
+            ViewModelProvider(this, SendModule.SafeConvertFactory(safeWallet)).get(SendPresenter::class.java)
 
-        subscribeToViewEvents(mainPresenter.view as SendView, wallet)
+        subscribeToViewEvents(mainPresenter.view as SendView, safeWallet)
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
+
+        mainPresenter.getSafeInfo()
+
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
@@ -189,8 +190,9 @@ class SafeConvertSendActivity : BaseActivity() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
+                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
                         val wsafeAddressFragment =
-                            WsafeAddressFragment(wsafeWallet!!.platformCoin, it, mainPresenter.handler)
+                            WsafeAddressFragment(receiveAdapter.receiveAddress, wsafeWallet.platformCoin, it, mainPresenter.handler)
                         fragments.add(wsafeAddressFragment)
                         supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, wsafeAddressFragment)
@@ -215,7 +217,7 @@ class SafeConvertSendActivity : BaseActivity() {
                 SendModule.Input.ProceedButton -> {
                     //add send button
                     proceedButtonView = ProceedButtonView(this)
-                    proceedButtonView?.bind { mainPresenter.onSafeConvertClicked(this) }
+                    proceedButtonView?.bind { mainPresenter.validMinAmount() }
                     binding.sendLinearLayout.addView(proceedButtonView)
                 }
             }
@@ -235,7 +237,6 @@ class SafeConvertSendActivity : BaseActivity() {
     companion object {
         const val WALLET_SAFE = "wallet_safe_key"
         const val WALLET_WSAFE = "wallet_wsafe_key"
-        const val SAFE_INFO = "safe_info_key"
     }
 
 }

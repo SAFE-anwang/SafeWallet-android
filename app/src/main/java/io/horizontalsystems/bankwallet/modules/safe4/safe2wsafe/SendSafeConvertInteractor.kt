@@ -32,7 +32,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
     }
 
     override fun validate(address: String) {
-        adapter.validate(address)
+//        adapter.validate(address)
     }
 
     override fun fetchFee(amount: BigDecimal, address: String?) {

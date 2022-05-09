@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
@@ -25,6 +26,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.marketkit.models.PlatformCoin
 
 class WsafeAddressFragment(
+    private val wsafeAddress: String,
     private val platformCoin: PlatformCoin,
     private val addressModuleDelegate: SendAddressModule.IAddressModuleDelegate,
     private val sendHandler: SendModule.ISendHandler
@@ -55,12 +57,17 @@ class WsafeAddressFragment(
                         )
                         HSAddressInput(
                             modifier = Modifier.padding(top = 12.dp),
+                            initial = Address(wsafeAddress),
                             coinType = platformCoin.coinType,
                             coinCode = platformCoin.code,
-                            error = viewModel.error
-                        ) {
-                            viewModel.setAddress(it)
-                        }
+                            error = viewModel.error,
+                            onStateChange = {
+                                viewModel.setAddressWithError(it?.dataOrNull, it?.errorOrNull)
+                            },
+                            onValueChange = {
+                                viewModel.setAddress(it)
+                            }
+                        )
                     }
                 }
             }

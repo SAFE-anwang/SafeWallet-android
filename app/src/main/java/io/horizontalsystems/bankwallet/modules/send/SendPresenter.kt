@@ -1,7 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.send
 
-import android.app.AlertDialog
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 
@@ -35,10 +33,12 @@ class SendPresenter(
     override lateinit var view: SendModule.IView
     override lateinit var handler: SendModule.ISendHandler
 
+
     // SendModule.IViewDelegate
 
     override fun onViewDidLoad() {
         view.loadInputItems(handler.inputItems)
+
     }
 
     override fun onModulesDidLoad() {
@@ -47,11 +47,6 @@ class SendPresenter(
 
     override fun onProceedClicked() {
         view.showConfirmation(handler.confirmationViewItems())
-    }
-
-    fun onSafeConvertClicked(context: Context){
-        // 处理safe跨链逻辑
-        handlerSafeConvert(context)
     }
 
     override fun onSendConfirmed(logger: AppLogger) {
@@ -91,12 +86,16 @@ class SendPresenter(
         val actionState: ActionState
 
         if (isValid) {
+            Log.i("safe4", "actionState 1")
             actionState = ActionState.Enabled()
         } else if (amountError != null && !isEmptyAmountError(amountError)) {
+            Log.i("safe4", "actionState 2")
             actionState = ActionState.Disabled("Invalid Amount")
         } else if (addressError != null && !isEmptyAddressError(addressError)) {
+            Log.i("safe4", "actionState 3")
             actionState = ActionState.Disabled("Invalid Address")
         } else {
+            Log.i("safe4", "actionState 4")
             actionState = ActionState.Disabled(null)
         }
 
@@ -118,18 +117,16 @@ class SendPresenter(
 
     private val disposables = CompositeDisposable()
 
-    private fun handlerSafeConvert(context: Context) {
+    var safeInfo: SafeInfo? = null
+
+    fun getSafeInfo() {
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
         val safeNetType = WSafeManager(evmKit).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                if (it == null || !it.eth.eth2safe) {
-                    Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
-                } else {
-                    validMinAmount(it, context)
-                }
+                safeInfo = it
             }, {
                 Log.e("safe4", "getSafeInfo error", it)
             })
@@ -138,29 +135,17 @@ class SendPresenter(
             }
     }
 
-    private fun validMinAmount(safeInfo: SafeInfo, context: Context) {
-        val minSafe = BigDecimal(safeInfo.minamount)
+    fun validMinAmount() {
+        if (safeInfo == null || !safeInfo!!.eth.safe2eth) {
+            Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val minSafe = BigDecimal(safeInfo!!.minamount)
         if (handler.amountModule.coinAmount.value < minSafe) {
-            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo.minamount} SAFE", Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo!!.minamount} SAFE", Toast.LENGTH_SHORT).show()
+            return
         } else {
-            showAlertDialog(safeInfo, context)
-        }
-    }
-
-    private fun showAlertDialog(safeInfo: SafeInfo, context: Context){
-        val fee = handler.amountModule.coinAmount.value * BigDecimal(safeInfo.eth.safe_fee)
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("温馨提示")
-        builder.setMessage("跨链费用为: ${fee} SAFE，该费用仅为参考，以实际扣除为准，确认兑换？")
-        builder.setPositiveButton("确认"){ _, _ ->
-            view.showConfirmation(handler.confirmationViewItems())
-        }
-        builder.setNegativeButton("取消"){ _, _ ->
-
-        }
-        val dialog:AlertDialog = builder.create()
-        if (!dialog.isShowing) {
-            dialog.show()
+           onProceedClicked()
         }
     }
 
