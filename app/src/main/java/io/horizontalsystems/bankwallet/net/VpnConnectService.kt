@@ -56,7 +56,7 @@ object VpnConnectService {
             }
     }
 
-    fun connectVpn(activity: Activity) {
+    private fun connectVpn(activity: Activity) {
         if (setServerConfig()) {
             if (App.connectivityManager.isConnected) {
                 V2RayServiceManager.startV2Ray(activity)
@@ -181,10 +181,10 @@ object VpnConnectService {
             delay(1000)
             var result = "Fail"
             var count = 0
-            while (result == "Fail" && count < 2) {
+//            while (result == "Fail" && count < 2) {
                 result = Utils.testConnection(App.instance, socksPort)
                 count ++
-            }
+//            }
             Log.e("VpnConnectService", "connect result: $result")
             if (result == "Fail") {
                 stopConnect(activity)

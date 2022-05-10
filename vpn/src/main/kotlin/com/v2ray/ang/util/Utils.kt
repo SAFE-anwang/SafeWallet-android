@@ -340,8 +340,8 @@ object Utils {
             conn = url.openConnection(
                 Proxy(Proxy.Type.HTTP,
                 InetSocketAddress("127.0.0.1", port + 1))) as HttpURLConnection
-            conn.connectTimeout = 30000
-            conn.readTimeout = 30000
+            conn.connectTimeout = 10000
+            conn.readTimeout = 10000
             conn.setRequestProperty("Connection", "close")
             conn.instanceFollowRedirects = false
             conn.useCaches = false
