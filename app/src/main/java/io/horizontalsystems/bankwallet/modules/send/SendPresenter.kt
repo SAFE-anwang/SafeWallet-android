@@ -8,6 +8,7 @@ import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
+import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.CustomPriorityUnit
@@ -86,16 +87,12 @@ class SendPresenter(
         val actionState: ActionState
 
         if (isValid) {
-            Log.i("safe4", "actionState 1")
             actionState = ActionState.Enabled()
         } else if (amountError != null && !isEmptyAmountError(amountError)) {
-            Log.i("safe4", "actionState 2")
             actionState = ActionState.Disabled("Invalid Amount")
         } else if (addressError != null && !isEmptyAddressError(addressError)) {
-            Log.i("safe4", "actionState 3")
             actionState = ActionState.Disabled("Invalid Address")
         } else {
-            Log.i("safe4", "actionState 4")
             actionState = ActionState.Disabled(null)
         }
 
@@ -127,6 +124,7 @@ class SendPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 safeInfo = it
+                (handler as SendSafeConvertHandler).safeInfo = safeInfo
             }, {
                 Log.e("safe4", "getSafeInfo error", it)
             })
