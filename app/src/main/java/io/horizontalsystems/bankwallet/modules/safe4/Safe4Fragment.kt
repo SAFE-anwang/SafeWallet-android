@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -99,7 +100,9 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    viewModel.getSafeNet(true, navController)
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerSafe2eth()
+                    }
                 }
             )
         },{
@@ -108,7 +111,7 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    viewModel.getSafeNet(false, navController)
+                    Safe4Module.handlerEth2safe(navController)
                 }
             )
         })
@@ -133,7 +136,8 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(App.instance, "敬请期待", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(App.instance,
+                        Translator.getString(R.string.Safe4_Coming_Soon), Toast.LENGTH_SHORT).show()
                 }
             )
         },{
@@ -142,47 +146,14 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(App.instance, "敬请期待", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(App.instance,
+                        Translator.getString(R.string.Safe4_Coming_Soon), Toast.LENGTH_SHORT).show()
                 }
             )
         })
     )
 
     Spacer(Modifier.height(25.dp))
-
-    /*Text(
-        text = stringResource(R.string.Safe4_Defi),
-        style = ComposeAppTheme.typography.subhead1,
-        color = ComposeAppTheme.colors.leah,
-        maxLines = 1,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
-    Spacer(Modifier.height(10.dp))
-
-    CellSingleLineLawrenceSection(
-        listOf ({
-            HsSettingCell(
-                R.string.Safe4_Defi_uniswap,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
-                }
-            )
-        },{
-            HsSettingCell(
-                R.string.Safe4_Defi_1inch,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    Toast.makeText(activity, "敬请期待", Toast.LENGTH_SHORT).show()
-                }
-            )
-        })
-    )
-
-    Spacer(Modifier.height(25.dp))*/
 
 }
 

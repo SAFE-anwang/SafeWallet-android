@@ -16,13 +16,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.FragmentSendEvmBinding
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
@@ -126,6 +125,8 @@ class SendWsafeFragment : BaseFragment() {
         )
 
         setProceedButton(viewModel)
+
+        viewModel.getSafeInfo()
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
@@ -178,26 +179,28 @@ class SendWsafeFragment : BaseFragment() {
     }
 
     private fun setProceedButton(viewModel: SendWsafeViewModel) {
-        binding.buttonProceedCompose.setContent {
+       binding.buttonProceedCompose.setContent {
             ComposeAppTheme {
                 val proceedEnabled by viewModel.proceedEnabledLiveData.observeAsState(false)
-
+                val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(safeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
                 Column {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.Safe4_WSAFE_Receive_Address),
+                        text = stringResource(R.string.Safe4_Wsafe_Receive_Address),
                         style = ComposeAppTheme.typography.subhead1,
                         color = ComposeAppTheme.colors.leah,
                         maxLines = 1
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     HSAddressInput(
+                        initial = Address(receiveAdapter.receiveAddress),
                         coinType = safeWallet.coinType,
                         coinCode = safeWallet.coin.code,
-                        error = viewModel.error
-                    ) {
-                        viewModel.onEnterAddress(safeWallet, it)
-                    }
+                        error = viewModel.error,
+                        onValueChange = {
+                            viewModel.onEnterAddress(safeWallet, it)
+                        }
+                    )
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()

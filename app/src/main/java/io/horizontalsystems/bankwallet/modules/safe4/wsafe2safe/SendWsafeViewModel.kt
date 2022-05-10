@@ -48,8 +48,19 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        // 处理safe跨链逻辑
-        handlerSafeConvert()
+        if (safeInfo == null || !safeInfo!!.eth.eth2safe) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!service.isSendMinAmount(safeInfo!!)){
+
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
+            return
+        } else {
+            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
+                proceedLiveEvent.postValue(readyState.sendData)
+            }
+        }
     }
 
     private fun sync(state: SendWsafeService.State) {
@@ -106,34 +117,22 @@ class SendWsafeViewModel(
         }
     }
 
-    private fun handlerSafeConvert() {
+    var safeInfo: SafeInfo? = null
+
+    fun getSafeInfo() {
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
         val safeNetType = WSafeManager(evmKit).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                if (it == null || !it.eth.eth2safe) {
-                    Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
-                } else {
-                    validMinAmount(it)
-                }
+                safeInfo = it
             }, {
                 Log.e("safe4", "getSafeInfo error", it)
             })
             .let {
                 disposable.add(it)
             }
-    }
-
-    private fun validMinAmount(safeInfo: SafeInfo) {
-        if (!service.isSendMinAmount(safeInfo)){
-            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo.minamount} SAFE", Toast.LENGTH_SHORT).show()
-        } else {
-            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
-                proceedLiveEvent.postValue(readyState.sendData)
-            }
-        }
     }
 
 }
