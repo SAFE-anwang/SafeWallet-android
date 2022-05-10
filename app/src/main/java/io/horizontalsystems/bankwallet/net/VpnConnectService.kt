@@ -59,13 +59,7 @@ object VpnConnectService {
     private fun connectVpn(activity: Activity) {
         if (setServerConfig()) {
             if (App.connectivityManager.isConnected) {
-                // 启动后自动连接VPN，连接不会成功，延迟连接
-                GlobalScope.launch(Dispatchers.IO) {
-                    delay(2000)
-                    withContext(Dispatchers.Main) {
-                        V2RayServiceManager.startV2Ray(activity)
-                    }
-                }
+                V2RayServiceManager.startV2Ray(activity)
             }
         }
     }
