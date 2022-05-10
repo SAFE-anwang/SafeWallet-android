@@ -24,7 +24,7 @@ class SendSafeConvertHandler(
       SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
       SendHodlerModule.IHodlerModuleDelegate {
 
-    var safeInfo: SafeInfo? = null
+    lateinit var safeInfo: SafeInfo
     val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
     private val safeConvertAddress = WSafeManager(evmKit).getSafeConvertAddress()
 
@@ -123,10 +123,7 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        var newFee = fee
-        if (safeInfo != null){
-            newFee = fee + amountModule.coinAmount.value * BigDecimal(safeInfo!!.eth.safe_fee)
-        }
+        val newFee = fee + amountModule.coinAmount.value * BigDecimal(safeInfo.eth.safe_fee)
         feeModule.setFee(newFee)
     }
 

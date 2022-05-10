@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.anwang.safewallet.safekit.model.ChainInfo
 import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
@@ -17,6 +18,7 @@ import io.horizontalsystems.bankwallet.modules.address.AddressValidationExceptio
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -48,12 +50,11 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        if (safeInfo == null || !safeInfo!!.eth.eth2safe) {
+        if (!safeInfo.eth.eth2safe) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
-        if (!service.isSendMinAmount(safeInfo!!)){
-
+        if (!service.isSendMinAmount(safeInfo)) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
@@ -117,10 +118,30 @@ class SendWsafeViewModel(
         }
     }
 
-    var safeInfo: SafeInfo? = null
+    private lateinit var safeInfo: SafeInfo
+
+    private fun initSafeInfo(chain: Chain): SafeInfo {
+        val mainNet = SafeInfo(
+            "", "2",
+            ChainInfo("", "", "0.25", safe2eth = true, eth2safe = true),
+            ChainInfo("", "", "0.25", safe2eth = true, eth2safe = true)
+        )
+        val testNet = SafeInfo(
+            "", "0.01",
+            ChainInfo("", "", "0", safe2eth = true, eth2safe = true),
+            ChainInfo("", "", "0", safe2eth = true, eth2safe = true)
+        )
+        val safeInfo = when (chain) {
+            Chain.Ethereum -> mainNet
+            Chain.EthereumRopsten -> testNet
+            else -> throw WSafeManager.UnsupportedChainError.NoSafeNetType
+        }
+        return safeInfo
+    }
 
     fun getSafeInfo() {
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+        safeInfo = initSafeInfo(evmKit.chain)
         val safeNetType = WSafeManager(evmKit).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
