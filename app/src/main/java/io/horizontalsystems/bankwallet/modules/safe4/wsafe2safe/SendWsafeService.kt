@@ -54,7 +54,6 @@ class SendWsafeService(
         val amountError = this.amountCaution.error
         val evmAmount = this.evmAmount
         val addressData = this.addressData
-        Log.i("safe4", "addressData: $addressData")
         state = if (amountError == null && evmAmount != null && addressData != null) {
             if(toSafeAddr != null){
                 val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!

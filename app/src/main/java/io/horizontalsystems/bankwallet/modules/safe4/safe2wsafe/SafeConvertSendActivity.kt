@@ -20,6 +20,7 @@ import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
+import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.fee.WsafeFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -202,15 +203,15 @@ class SafeConvertSendActivity : BaseActivity() {
                 is SendModule.Input.Fee -> {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
-                        val sendFeeFragment = SendFeeFragment(
+                        val wsafeFeeFragment = WsafeFeeFragment(
                             wallet.platformCoin,
                             it,
                             mainPresenter.handler,
                             mainPresenter.customPriorityUnit
                         )
-                        fragments.add(sendFeeFragment)
+                        fragments.add(wsafeFeeFragment)
                         supportFragmentManager.beginTransaction()
-                            .add(R.id.sendLinearLayout, sendFeeFragment)
+                            .add(R.id.sendLinearLayout, wsafeFeeFragment)
                             .commitNow()
                     }
                 }

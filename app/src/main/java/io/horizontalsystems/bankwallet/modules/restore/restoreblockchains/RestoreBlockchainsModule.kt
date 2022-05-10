@@ -71,7 +71,7 @@ object RestoreBlockchainsModule {
     }
 
     enum class Blockchain {
-        Bitcoin, Ethereum, BinanceSmartChain, BitcoinCash, Zcash, Litecoin, Dash, BinanceChain,Safe;
+        Bitcoin, Ethereum, BinanceSmartChain, BitcoinCash, Zcash, Litecoin, Dash, BinanceChain, Safe;
 
         val title: String
             get() = when (this) {

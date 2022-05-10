@@ -1172,18 +1172,20 @@
     <string name="Telegram_Join_Group">Join group</string>
 
     <!-- SAFE4 -->
-    <string name="Safe4_Title">SAFE专区</string>
-    <string name="Safe4_Cross_Chain">跨链</string>
+    <string name="Safe4_Title">SAFE Zone</string>
+    <string name="Safe4_Cross_Chain">Cross Chain</string>
     <string name="Safe4_Title_safe2wsafe">SAFE->SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe">SAFE ERC20->SAFE</string>
-    <string name="Safe4_Locked">锁仓</string>
-    <string name="Safe4_Line_Locked">线性锁仓</string>
-    <string name="Safe4_node_Locked">节点锁仓</string>
-    <string name="Safe4_Defi">DEFI</string>
-    <string name="Safe4_Defi_uniswap">uniswap</string>
-    <string name="Safe4_Defi_1inch">1inch</string>
+    <string name="Safe4_Locked">Locked</string>
+    <string name="Safe4_Line_Locked">Linear Locked</string>
+    <string name="Safe4_node_Locked">Node Locked</string>
+    <string name="Safe4_Wsafe_Receive_Address">Receiver</string>
+    <string name="Safe4_Wallet_Tips">Please open it in wallet manager %s</string>
+    <string name="Safe4_Coming_Soon">Coming soon</string>
+    <string name="Safe4_Disabled">Cross chain transfer business is suspended. Please try again later</string>
+    <string name="Safe4_Min_Fee">The minimum amount of cross chain transfer is%s SAFE</string>
 
-    <string name="Safe4_WSAFE_Receive_Address">跨链接收人</string>
-    <string name="Send_Confirmation_Wsafe">跨链接收人</string>
+    <string name="Send_Confirmation_Wsafe">Receiver</string>
+    <string name="Send_Wsafe_Fee_Warn">This fee is for reference only. Please deduct it according to the actual amount</string>
 
 </resources>

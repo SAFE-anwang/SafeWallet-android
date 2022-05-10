@@ -5,8 +5,10 @@ import android.widget.Toast
 
 import androidx.lifecycle.ViewModel
 import com.anwang.safewallet.safekit.model.SafeInfo
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
@@ -135,12 +137,12 @@ class SendPresenter(
 
     fun validMinAmount() {
         if (safeInfo == null || !safeInfo!!.eth.safe2eth) {
-            Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
         val minSafe = BigDecimal(safeInfo!!.minamount)
         if (handler.amountModule.coinAmount.value < minSafe) {
-            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo!!.minamount} SAFE", Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
            onProceedClicked()

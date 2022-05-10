@@ -50,7 +50,7 @@ class WsafeAddressFragment(
                     Column {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = stringResource(R.string.Safe4_WSAFE_Receive_Address),
+                            text = stringResource(R.string.Safe4_Wsafe_Receive_Address),
                             style = ComposeAppTheme.typography.subhead1,
                             color = ComposeAppTheme.colors.leah,
                             maxLines = 1

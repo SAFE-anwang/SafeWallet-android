@@ -49,11 +49,12 @@ class SendWsafeViewModel(
 
     fun onClickProceed() {
         if (safeInfo == null || !safeInfo!!.eth.eth2safe) {
-            Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
         if (!service.isSendMinAmount(safeInfo!!)){
-            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo!!.minamount} SAFE", Toast.LENGTH_SHORT).show()
+
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
             (service.state as? SendWsafeService.State.Ready)?.let { readyState ->

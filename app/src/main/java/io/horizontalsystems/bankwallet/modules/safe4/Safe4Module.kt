@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stringResId
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.marketkit.models.CoinType
@@ -35,11 +37,11 @@ object Safe4Module {
             }
         }
         if (safeWallet == null) {
-            Toast.makeText(context, "请在钱包管理打开Safe", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
             return
         }
         if (wsafeWallet == null) {
-            Toast.makeText(context, "请在钱包管理打开Ethereum", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Ethereum"), Toast.LENGTH_SHORT).show()
             return
         }
         context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
@@ -62,11 +64,11 @@ object Safe4Module {
             }
         }
         if (safeWallet == null) {
-            Toast.makeText(context, "请在钱包管理打开SAFE", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
             return
         }
         if (wsafeWallet == null) {
-            Toast.makeText(context, "请在钱包管理打开SAFE ERC20", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
             return
         }
         val bundle = Bundle()

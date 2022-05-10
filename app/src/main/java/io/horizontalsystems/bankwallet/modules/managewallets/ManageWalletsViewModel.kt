@@ -41,7 +41,31 @@ class ManageWalletsViewModel(
 
     private fun sync(items: List<ManageWalletsService.Item>) {
         val viewItems = items.map { viewItem(it) }
+        //自定义排序
+        safeSort(viewItems as ArrayList)
         viewItemsLiveData.postValue(viewItems)
+    }
+
+
+    private fun safeSort(items: ArrayList<CoinViewItem>): List<CoinViewItem> {
+        var safe: CoinViewItem? = null
+        var safeErc20: CoinViewItem? = null
+        items.forEach {
+            if (it.uid == "safe-coin") {
+                safe = it
+            } else if (it.uid == "custom_safe-erc20-SAFE") {
+                safeErc20 = it
+            }
+        }
+        if (safeErc20 != null) {
+            items.remove(safeErc20)
+            items.add(0, safeErc20!!)
+        }
+        if (safe != null) {
+            items.remove(safe)
+            items.add(0, safe!!)
+        }
+        return items
     }
 
     private fun viewItem(
