@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -32,6 +33,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.setNavigationResult
 
 class LaunchPageFragment : BaseFragment() {
 
@@ -48,10 +50,17 @@ class LaunchPageFragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    LaunchScreen(viewModel) { findNavController().popBackStack() }
+                    LaunchScreen(viewModel) {
+                        setNavigationResult(LAUNCH_CHANGE, bundleOf())
+                        findNavController().popBackStack()
+                    }
                 }
             }
         }
+    }
+
+    companion object{
+        const val LAUNCH_CHANGE = "launch_change"
     }
 }
 

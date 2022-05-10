@@ -805,6 +805,7 @@
     <string name="SettingsLaunchScreen_Balance">Balance</string>
     <string name="SettingsLaunchScreen_MarketOverview">Market Overview</string>
     <string name="SettingsLaunchScreen_Watchlist">Watchlist</string>
+    <string name="SettingsLaunchScreen_Safe">SAFE</string>
 
     <!--Settings-->
 

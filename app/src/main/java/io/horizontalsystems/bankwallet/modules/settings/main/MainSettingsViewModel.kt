@@ -68,4 +68,7 @@ class MainSettingsViewModel(
         themeLiveData.postValue(service.themeName)
     }
 
+    fun onLaunchScreenChange() {
+        launchScreenLiveData.postValue(service.launchScreen)
+    }
 }
