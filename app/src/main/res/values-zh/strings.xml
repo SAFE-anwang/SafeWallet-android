@@ -1016,7 +1016,7 @@
     <string name="Safe4_Wallet_Tips">请在钱包管理打开%s</string>
     <string name="Safe4_Coming_Soon">敬请期待</string>
     <string name="Safe4_Disabled">跨链转账业务暂停使用，请稍后再试</string>
-    <string name="Safe4_Min_Fee">跨链转账最小金额是%s SAFE</string>
+    <string name="Safe4_Min_Fee">跨链转账最小金额是 %s SAFE</string>
 
     <string name="Send_Confirmation_Wsafe">跨链接收人</string>
     <string name="Send_Wsafe_Fee_Warn">该费用仅为参考，请以实际扣除为准</string>
