@@ -123,7 +123,7 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        val newFee = fee + amountModule.coinAmount.value * BigDecimal(safeInfo.eth.safe_fee)
+        val newFee = fee + BigDecimal(safeInfo.eth.safe_fee)
         feeModule.setFee(newFee)
     }
 
