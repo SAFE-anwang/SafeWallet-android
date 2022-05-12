@@ -284,11 +284,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         ApplicationLoader.instance.init(this)
 
-        val tokenList = mutableListOf<CustomToken>()
-        tokenList.add(CustomToken("safe-erc20", "SAFE", CoinType.Erc20("0x874a3d9a9655f18afc59b0e75463ea29ee2043c0"), 18))
-        coinManager.save(tokenList)
-
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
+
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {
