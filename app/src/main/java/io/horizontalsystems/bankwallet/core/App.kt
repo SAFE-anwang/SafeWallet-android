@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -21,13 +20,13 @@ import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeCoinProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeRateProvider
 import io.horizontalsystems.bankwallet.core.storage.*
-import io.horizontalsystems.bankwallet.entities.CustomToken
 import io.horizontalsystems.bankwallet.modules.enablecoins.EnableCoinsEip20Provider
 import io.horizontalsystems.bankwallet.modules.hsnft.HsNftApiProvider
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.launcher.LauncherActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.nft.NftManager
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.settings.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionStorage
@@ -45,7 +44,6 @@ import io.horizontalsystems.core.security.EncryptionManager
 import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
 import org.telegram.messenger.ApplicationLoader
@@ -285,6 +283,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         ApplicationLoader.instance.init(this)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
+        SafeInfoManager.startNet()
 
     }
 

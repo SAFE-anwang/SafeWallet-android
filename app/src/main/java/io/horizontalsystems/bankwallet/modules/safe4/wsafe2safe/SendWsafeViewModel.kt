@@ -1,29 +1,23 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.anwang.safewallet.safekit.model.ChainInfo
-import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
-import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.PlatformCoin
-import io.horizontalsystems.wsafekit.WSafeManager
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 class SendWsafeViewModel(
     val service: SendWsafeService,
@@ -50,12 +44,13 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        if (!safeInfo.eth.eth2safe) {
+        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        if (!safeInfoPO.eth.eth2safe) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
-        if (!service.isSendMinAmount(safeInfo)) {
-            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
+        if (!service.isSendMinAmount(safeInfoPO)) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
             (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
@@ -89,6 +84,7 @@ class SendWsafeViewModel(
     override fun onCleared() {
         clearables.forEach(Clearable::clear)
         disposable.clear()
+        SafeInfoManager.clear()
     }
 
     fun onEnterAddress(wallet: Wallet, address: Address?) {
@@ -99,8 +95,7 @@ class SendWsafeViewModel(
         validateSafe(wallet, address)
     }
 
-    fun validateSafe(wallet: Wallet, address: Address?){
-
+    fun validateSafe(wallet: Wallet, address: Address?) {
         val adapter = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
             is ISendSafeAdapter -> {
                 adapter
@@ -118,42 +113,5 @@ class SendWsafeViewModel(
         }
     }
 
-    private lateinit var safeInfo: SafeInfo
-
-    private fun initSafeInfo(chain: Chain): SafeInfo {
-        val mainNet = SafeInfo(
-            "", "2",
-            ChainInfo("", "", "0.25", safe2eth = true, eth2safe = true),
-            ChainInfo("", "", "0.25", safe2eth = true, eth2safe = true)
-        )
-        val testNet = SafeInfo(
-            "", "0.01",
-            ChainInfo("", "", "0", safe2eth = true, eth2safe = true),
-            ChainInfo("", "", "0", safe2eth = true, eth2safe = true)
-        )
-        val safeInfo = when (chain) {
-            Chain.Ethereum -> mainNet
-            Chain.EthereumRopsten -> testNet
-            else -> throw WSafeManager.UnsupportedChainError.NoSafeNetType
-        }
-        return safeInfo
-    }
-
-    fun getSafeInfo() {
-        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
-        safeInfo = initSafeInfo(evmKit.chain)
-        val safeNetType = WSafeManager(evmKit).getSafeNetType()
-        App.safeProvider.getSafeInfo(safeNetType)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                safeInfo = it
-            }, {
-                Log.e("safe4", "getSafeInfo error", it)
-            })
-            .let {
-                disposable.add(it)
-            }
-    }
 
 }

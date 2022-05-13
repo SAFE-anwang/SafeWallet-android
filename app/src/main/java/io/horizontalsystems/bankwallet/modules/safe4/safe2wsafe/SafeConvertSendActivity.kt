@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.fee.WsafeFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -75,7 +76,7 @@ class SafeConvertSendActivity : BaseActivity() {
 
         mainPresenter.onViewDidLoad()
 
-        mainPresenter.getSafeInfo()
+        SafeInfoManager.startNet()
 
     }
 
