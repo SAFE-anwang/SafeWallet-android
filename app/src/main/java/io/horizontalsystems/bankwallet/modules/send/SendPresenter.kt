@@ -1,27 +1,18 @@
 package io.horizontalsystems.bankwallet.modules.send
 
-import android.util.Log
 import android.widget.Toast
-
 import androidx.lifecycle.ViewModel
-import com.anwang.safewallet.safekit.model.ChainInfo
-import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.CustomPriorityUnit
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerModule
-import io.horizontalsystems.ethereumkit.models.Chain
-import io.horizontalsystems.wsafekit.WSafeManager
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 
 class SendPresenter(
@@ -68,7 +59,7 @@ class SendPresenter(
     override fun onCleared() {
         interactor.clear()
         handler.onClear()
-        disposables.clear()
+        SafeInfoManager.clear()
     }
 
     // SendModule.ISendInteractorDelegate
@@ -116,54 +107,15 @@ class SendPresenter(
         class Disabled(val title: String?) : ActionState()
     }
 
-    private val disposables = CompositeDisposable()
-
-    private lateinit var safeInfo: SafeInfo
-
-    private fun initSafeInfo(chain: Chain): SafeInfo {
-        val mainNet = SafeInfo("", "2",
-            ChainInfo("", "","0.25", safe2eth = true, eth2safe = true),
-            ChainInfo("", "","0.25", safe2eth = true, eth2safe = true)
-        )
-        val testNet = SafeInfo("", "0.01",
-            ChainInfo("", "","0", safe2eth = true, eth2safe = true),
-            ChainInfo("", "","0", safe2eth = true, eth2safe = true)
-        )
-        val safeInfo = when (chain) {
-            Chain.Ethereum -> mainNet
-            Chain.EthereumRopsten -> testNet
-            else -> throw WSafeManager.UnsupportedChainError.NoSafeNetType
-        }
-        return safeInfo
-    }
-
-    fun getSafeInfo() {
-        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
-        safeInfo = initSafeInfo(evmKit.chain)
-        (handler as SendSafeConvertHandler).safeInfo = safeInfo
-        val safeNetType = WSafeManager(evmKit).getSafeNetType()
-        App.safeProvider.getSafeInfo(safeNetType)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                safeInfo = it
-                (handler as SendSafeConvertHandler).safeInfo = safeInfo
-            }, {
-                Log.e("safe4", "getSafeInfo error", it)
-            })
-            .let {
-                disposables.add(it)
-            }
-    }
-
     fun validMinAmount() {
-        if (!safeInfo.eth.safe2eth) {
+        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        if (!safeInfoPO.eth.safe2eth) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
-        val minSafe = BigDecimal(safeInfo.minamount)
+        val minSafe = BigDecimal(safeInfoPO.minamount)
         if (handler.amountModule.coinAmount.value < minSafe) {
-            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfo!!.minamount), Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
            onProceedClicked()

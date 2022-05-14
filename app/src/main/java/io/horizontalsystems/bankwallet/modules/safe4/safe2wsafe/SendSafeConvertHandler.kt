@@ -4,6 +4,7 @@ import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
@@ -24,7 +25,6 @@ class SendSafeConvertHandler(
       SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
       SendHodlerModule.IHodlerModuleDelegate {
 
-    lateinit var safeInfo: SafeInfo
     val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
     private val safeConvertAddress = WSafeManager(evmKit).getSafeConvertAddress()
 
@@ -123,7 +123,8 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        val newFee = fee + BigDecimal(safeInfo.eth.safe_fee)
+        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val newFee = fee + BigDecimal(safeInfoPO.eth.safe_fee)
         feeModule.setFee(newFee)
     }
 

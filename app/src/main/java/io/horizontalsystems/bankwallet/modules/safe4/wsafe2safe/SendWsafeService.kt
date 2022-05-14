@@ -1,13 +1,13 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
-import com.anwang.safewallet.safekit.model.SafeInfo
-import com.google.android.exoplayer2.util.Log
+
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.sendevm.IAmountInputService
 import io.horizontalsystems.bankwallet.modules.sendevm.IAvailableBalanceService
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
@@ -162,8 +162,8 @@ class SendWsafeService(
 
     data class AddressData(val evmAddress: EvmAddress, val domain: String?)
 
-    fun isSendMinAmount(safeInfo: SafeInfo): Boolean {
-        val minSafe = BigDecimal(safeInfo.minamount).movePointRight(18)
+    fun isSendMinAmount(safeInfoPO: SafeInfoManager.SafeInfoPO): Boolean {
+        val minSafe = BigDecimal(safeInfoPO.minamount).movePointRight(18)
         val safeAmount = (evmAmount ?: 0) as BigInteger
         return BigDecimal(safeAmount) >= minSafe
     }

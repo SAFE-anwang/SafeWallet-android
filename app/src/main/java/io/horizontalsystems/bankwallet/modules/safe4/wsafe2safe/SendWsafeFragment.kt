@@ -22,6 +22,7 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
@@ -126,7 +127,7 @@ class SendWsafeFragment : BaseFragment() {
 
         setProceedButton(viewModel)
 
-        viewModel.getSafeInfo()
+        SafeInfoManager.startNet()
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
