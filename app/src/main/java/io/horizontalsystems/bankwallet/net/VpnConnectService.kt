@@ -27,7 +27,7 @@ object VpnConnectService {
 
     val connectNode = HashSet<String>()
     var startLoopCheckConnection = false
-    private var firstCheck = false
+    private var firstCheck = 0
     private var httpClient: OkHttpClient? = OkHttpClient()
 
     fun startVpn(activity: Activity) {
@@ -209,18 +209,19 @@ object VpnConnectService {
     fun lookCheckVpnConnection(activity: Activity) {
         if (startLoopCheckConnection) return
         startLoopCheckConnection = true
-        firstCheck = false
+        firstCheck = 0
         GlobalScope.launch(Dispatchers.IO) {
             Log.e("VpnConnectService", "start look check connection")
             delay(2000)
             while (startLoopCheckConnection) {
+                firstCheck ++
                 val result = connectionNetwork()
                 Log.e("VpnConnectService", "look check connection result: $result")
                 if (!result) {
                     withContext(Dispatchers.Main) {
                         stopConnect(activity)
                     }
-                    firstCheck = false
+                    firstCheck = 0
                     startLoopCheckConnection = false
                     delay(500)
                     withContext(Dispatchers.Main) {
@@ -229,8 +230,8 @@ object VpnConnectService {
                     break
                 } else {
                     delay(3000)
-                    if (!firstCheck) {
-                        firstCheck = true
+                    if (firstCheck % 5 == 0) {
+                        firstCheck = 1
                         withContext(Dispatchers.Main) {
                             refreshData(activity)
                         }
@@ -252,7 +253,7 @@ object VpnConnectService {
                 result = response.code in 200..399
             }
         } catch (e: IOException) {
-            Log.e("VpnConnectService", "google error: ${e.printStackTrace()}")
+            Log.e("VpnConnectService", "google error: ${e.message}")
         } finally {
 
         }
