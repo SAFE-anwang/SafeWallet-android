@@ -49,7 +49,10 @@ class MainActivity : BaseActivity() {
         navHost.navController.setGraph(R.navigation.main_graph, intent.extras)
         navHost.navController.addOnDestinationChangedListener(this)
 
-        registerReceiver(mMsgReceiver, IntentFilter(AppConfig.BROADCAST_ACTION_ACTIVITY))
+        val filter = IntentFilter()
+        filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
+        filter.addAction("com.anwang.safe.connect")
+        registerReceiver(mMsgReceiver, filter)
 
         startVpn()
 
@@ -76,6 +79,7 @@ class MainActivity : BaseActivity() {
         unregisterReceiver(mMsgReceiver)
         WalletConnectClient.shutdown()
         Utils.stopVService(this)
+        VpnConnectService.startLoopCheckConnection = false
     }
 
     override fun onTrimMemory(level: Int) {
@@ -125,6 +129,11 @@ class MainActivity : BaseActivity() {
 
     private val mMsgReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {
+            if (intent?.action == "com.anwang.safe.connect") {
+                Log.e("VpnConnectService", "connect node broadcast")
+                VpnConnectService.connectVpn(this@MainActivity)
+                return
+            }
             when (intent?.getIntExtra("key", 0)) {
                 AppConfig.MSG_STATE_RUNNING -> {
                     Log.e("VpnConnectService", "connect running")
@@ -133,9 +142,9 @@ class MainActivity : BaseActivity() {
                     Log.e("VpnConnectService", "connect not running")
                 }
                 AppConfig.MSG_STATE_START_SUCCESS -> {
-                    Log.e("VpnConnectService", "connect success")
+                    Log.e("VpnConnectService", "connect success-")
                     // 测试是否能范围外网
-                    VpnConnectService.testVpnConnect(this@MainActivity)
+                    VpnConnectService.lookCheckVpnConnection(this@MainActivity)
                     // 检查chain.anwang.com 是否可连接
                     SafeNetWork.testAnWangConnect()
                 }
@@ -144,6 +153,7 @@ class MainActivity : BaseActivity() {
                 }
                 AppConfig.MSG_STATE_STOP_SUCCESS -> {
                     Log.e("VpnConnectService", "stop success")
+                    VpnConnectService.startLoopCheckConnection = false
                 }
             }
         }
