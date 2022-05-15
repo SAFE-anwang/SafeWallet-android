@@ -23,6 +23,9 @@ object SafeInfoManager {
     private val disposables = CompositeDisposable()
 
     fun startNet() {
+        if (App.ethereumKitManager.evmKitWrapper == null){
+            return
+        }
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
         val safeNetType = WSafeManager(evmKit).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
