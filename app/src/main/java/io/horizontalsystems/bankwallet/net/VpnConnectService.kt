@@ -27,6 +27,7 @@ object VpnConnectService {
 
     val connectNode = HashSet<String>()
     var startLoopCheckConnection = false
+    var connecting = false
     private var firstCheck = 0
     private var httpClient: OkHttpClient? = OkHttpClient()
 
@@ -62,8 +63,22 @@ object VpnConnectService {
             }
     }
 
+    fun reConnectVpn(activity: Activity) {
+        if (connecting) return
+        startLoopCheckConnection = false
+        stopConnect(activity)
+        GlobalScope.launch {
+            delay(1000)
+            withContext(Dispatchers.Main) {
+                connectVpn(activity)
+            }
+        }
+    }
+
     fun connectVpn(activity: Activity) {
+        if (connecting) return
         if (setServerConfig()) {
+            connecting = true
             V2RayServiceManager.startV2Ray(activity)
         }
     }
@@ -217,6 +232,8 @@ object VpnConnectService {
                 firstCheck ++
                 val result = connectionNetwork()
                 Log.e("VpnConnectService", "look check connection result: $result")
+                if (!startLoopCheckConnection) break
+
                 if (!result) {
                     withContext(Dispatchers.Main) {
                         stopConnect(activity)
