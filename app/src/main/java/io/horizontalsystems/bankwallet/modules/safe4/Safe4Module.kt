@@ -24,7 +24,7 @@ object Safe4Module {
         }
     }
 
-    fun handlerSafe2eth() {
+    fun handlerSafe2eth(chainType: ChainType) {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
@@ -32,7 +32,9 @@ object Safe4Module {
         for (it in walletList) {
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
-            } else if(it.coinType == CoinType.Ethereum) {
+            } else if(chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
+                wsafeWallet = it
+            } else if(chainType == ChainType.BSV && it.coin.uid == "custom_safe-bep20-SAFE") {
                 wsafeWallet = it
             }
         }
@@ -41,7 +43,11 @@ object Safe4Module {
             return
         }
         if (wsafeWallet == null) {
-            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Ethereum"), Toast.LENGTH_SHORT).show()
+            if (chainType == ChainType.ETH) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
+            } else if(chainType == ChainType.BSV) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe DEP20"), Toast.LENGTH_SHORT).show()
+            }
             return
         }
         context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
@@ -51,7 +57,7 @@ object Safe4Module {
         })
     }
 
-    fun handlerEth2safe(navController: NavController) {
+    fun handlerEth2safe(chainType: ChainType, navController: NavController) {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
@@ -59,7 +65,9 @@ object Safe4Module {
         for (it in walletList) {
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
-            } else if(it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if(chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
+                wsafeWallet = it
+            } else if(chainType == ChainType.BSV && it.coin.uid == "custom_safe-bep20-SAFE") {
                 wsafeWallet = it
             }
         }
@@ -68,7 +76,11 @@ object Safe4Module {
             return
         }
         if (wsafeWallet == null) {
-            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
+            if (chainType == ChainType.ETH) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
+            } else if(chainType == ChainType.BSV) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe DEP20"), Toast.LENGTH_SHORT).show()
+            }
             return
         }
         val bundle = Bundle()
@@ -78,6 +90,10 @@ object Safe4Module {
             R.id.mainFragment_to_sendWsafeFragment,
             bundle
         )
+    }
+
+    enum class ChainType {
+        ETH, BSV
     }
 
 }

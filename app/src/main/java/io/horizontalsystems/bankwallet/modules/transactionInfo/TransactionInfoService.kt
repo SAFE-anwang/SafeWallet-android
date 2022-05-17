@@ -143,7 +143,8 @@ class TransactionInfoService(
         val timestamp = transactionInfoItem.record.timestamp
         val flowables: List<Single<Pair<String, CurrencyValue>>> = coinUids.map { coinUid ->
             var uid = coinUid
-            if (coinUid == "custom_safe-erc20-SAFE"){
+            if (coinUid == "custom_safe-erc20-SAFE"
+                || coinUid == "custom_safe-dep20-SAFE") {
                 uid = "safe-coin"
             }
             marketKit.coinHistoricalPriceSingle(uid, currencyManager.baseCurrency.code, timestamp)

@@ -161,6 +161,7 @@ class BalanceService(
     fun hasSafe(uid: String): Boolean{
         val safeList = mutableListOf<String>()
         safeList.add("custom_safe-erc20-SAFE")
+        safeList.add("custom_safe-dep20-SAFE")
         return safeList.contains(uid)
     }
 

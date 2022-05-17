@@ -23,7 +23,7 @@ object SafeInfoManager {
     private val disposables = CompositeDisposable()
 
     fun startNet() {
-        if (App.ethereumKitManager.evmKitWrapper == null){
+        if (App.ethereumKitManager.evmKitWrapper == null) {
             return
         }
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!

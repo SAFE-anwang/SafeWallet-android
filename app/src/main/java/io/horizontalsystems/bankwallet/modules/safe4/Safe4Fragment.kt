@@ -101,8 +101,17 @@ private fun Safe4Sections(
                 showAlert = false,
                 onClick = {
                     if (!RepeatClickUtils.isRepeat) {
-                        Safe4Module.handlerSafe2eth()
+                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.ETH)
                     }
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Title_safe2wsafe_bsc,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    Safe4Module.handlerSafe2eth(Safe4Module.ChainType.BSV)
                 }
             )
         },{
@@ -111,7 +120,16 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Safe4Module.handlerEth2safe(navController)
+                    Safe4Module.handlerEth2safe(Safe4Module.ChainType.ETH, navController)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Title_wsafe2safe_bsc,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    Safe4Module.handlerEth2safe(Safe4Module.ChainType.BSV, navController)
                 }
             )
         })
