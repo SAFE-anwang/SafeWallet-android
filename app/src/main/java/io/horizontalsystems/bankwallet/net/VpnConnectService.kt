@@ -22,14 +22,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 object VpnConnectService {
 
     val connectNode = HashSet<String>()
     var startLoopCheckConnection = false
     var connecting = false
-    private var firstCheck = 0
-    private var httpClient: OkHttpClient? = OkHttpClient()
+
+    private var isConnected = false
+
+    private var httpClient: OkHttpClient? = OkHttpClient().newBuilder()
+        .connectTimeout(5000, TimeUnit.MILLISECONDS)
+        .readTimeout(5000, TimeUnit.MILLISECONDS).build()
 
     fun startVpn(activity: Activity) {
         if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
@@ -110,6 +115,9 @@ object VpnConnectService {
         apps.add("org.telegram.messenger.web")
         apps.add("org.telegram.messenger")
         MmkvManager.setProxyApps(apps)
+
+//        MmkvManager.setRoutingDirect("120.78.227.96,114.215.31.37,47.96.254.235,106.14.66.206,47.52.9.168,47.75.17.223,47.88.247.232,47.89.208.160,47.74.13.245")
+//        MmkvManager.setRoutingDirect("")
     }
 
     private fun initOutbound(serverInfo: VpnServerInfo, config: ServerConfig) {
@@ -181,7 +189,7 @@ object VpnConnectService {
             return noteList[0]
         }
         if (connectNode.size == noteList.size) {
-            return null
+            connectNode.clear()
         }
         val random = Random()
         var index = 0
@@ -224,21 +232,20 @@ object VpnConnectService {
     fun lookCheckVpnConnection(activity: Activity) {
         if (startLoopCheckConnection) return
         startLoopCheckConnection = true
-        firstCheck = 0
+        isConnected = false
         GlobalScope.launch(Dispatchers.IO) {
             Log.e("VpnConnectService", "start look check connection")
             delay(2000)
             while (startLoopCheckConnection) {
-                firstCheck ++
                 val result = connectionNetwork()
-                Log.e("VpnConnectService", "look check connection result: $result")
+//                Log.e("VpnConnectService", "look check connection result: $result")
                 if (!startLoopCheckConnection) break
 
                 if (!result) {
+                    isConnected = false
                     withContext(Dispatchers.Main) {
                         stopConnect(activity)
                     }
-                    firstCheck = 0
                     startLoopCheckConnection = false
                     delay(500)
                     withContext(Dispatchers.Main) {
@@ -246,13 +253,14 @@ object VpnConnectService {
                     }
                     break
                 } else {
-                    delay(3000)
-                    if (firstCheck % 5 == 0) {
-                        firstCheck = 1
+                    if (!isConnected) {
                         withContext(Dispatchers.Main) {
                             refreshData(activity)
                         }
+                        isConnected = true
                     }
+                    delay(3000)
+
                 }
             }
         }
@@ -270,7 +278,7 @@ object VpnConnectService {
                 result = response.code in 200..399
             }
         } catch (e: IOException) {
-            Log.e("VpnConnectService", "google error: ${e.message}")
+//            Log.e("VpnConnectService", "google error: ${e.message}")
         } finally {
 
         }

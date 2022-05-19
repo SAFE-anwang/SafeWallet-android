@@ -36,7 +36,6 @@ class MainActivity : BaseActivity() {
 
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
-            ReConnectVpn.activity = this
             VpnConnectService.startVpn(this)
         }
     }
@@ -83,7 +82,6 @@ class MainActivity : BaseActivity() {
         WalletConnectClient.shutdown()
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
-        ReConnectVpn.activity = null
     }
 
     override fun onTrimMemory(level: Int) {
@@ -125,7 +123,6 @@ class MainActivity : BaseActivity() {
         }
         val intent = VpnService.prepare(this)
         if (intent == null) {
-            ReConnectVpn.activity = this
             VpnConnectService.startVpn(this)
         } else {
             requestVpnPermission.launch(intent)
