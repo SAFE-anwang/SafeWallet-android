@@ -64,7 +64,11 @@ class ConfirmationFragment(sendPresenter: SendPresenter) : BaseFragment() {
                     SendConfirmScreen(
                         viewModel,
                         { parentFragmentManager.popBackStack() },
-                        { requireActivity().finish() },
+                        {
+                            if (activity != null) {
+                                requireActivity().finish()
+                            }
+                        },
                         { onAddressCopy(it) },
                         { onSendClick() }
                     )

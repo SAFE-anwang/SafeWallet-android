@@ -7,16 +7,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
@@ -95,10 +94,10 @@ private fun Safe4Sections(
 
     CellSingleLineLawrenceSection(
         listOf ({
-            HsSettingCell(
-                R.string.Safe4_Title_safe2wsafe,
+            HsSettingCellForEth(
                 R.mipmap.ic_app_color,
-                showAlert = false,
+                "SAFE",
+                "ERC20",
                 onClick = {
                     if (!RepeatClickUtils.isRepeat) {
                         Safe4Module.handlerSafe2eth()
@@ -106,10 +105,10 @@ private fun Safe4Sections(
                 }
             )
         },{
-            HsSettingCell(
-                R.string.Safe4_Title_wsafe2safe,
+            HsSettingCellForSafe(
                 R.mipmap.ic_app_color,
-                showAlert = false,
+                "SAFE",
+                "ERC20",
                 onClick = {
                     Safe4Module.handlerEth2safe(navController)
                 }
@@ -209,5 +208,143 @@ fun HsSettingCell(
         )
     }
 
+}
+
+
+@Composable
+fun HsSettingCellForEth(
+    @DrawableRes icon: Int,
+    coinName: String,
+    chainName: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = { onClick.invoke() }),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = icon),
+            contentDescription = null,
+        )
+        Text(
+            text = coinName,
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Text(
+            text = "->",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        )
+        Text(
+            text = coinName,
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 2.dp)
+        )
+        Box(
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(ComposeAppTheme.colors.jeremy)
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    bottom = 1.dp
+                ),
+                text = chainName,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.microSB,
+                maxLines = 1,
+            )
+        }
+        Spacer(Modifier.weight(1f))
+
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = null,
+        )
+    }
+}
+
+
+@Composable
+fun HsSettingCellForSafe(
+    @DrawableRes icon: Int,
+    coinName: String,
+    chainName: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = { onClick.invoke() }),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = icon),
+            contentDescription = null,
+        )
+        Text(
+            text = coinName,
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Box(
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(ComposeAppTheme.colors.jeremy)
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    bottom = 1.dp
+                ),
+                text = chainName,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.microSB,
+                maxLines = 1,
+            )
+        }
+        Text(
+            text = "->",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        )
+        Text(
+            text = coinName,
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(end = 6.dp)
+        )
+        Spacer(Modifier.weight(1f))
+
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = null,
+        )
+    }
 }
 
