@@ -50,12 +50,19 @@ class ManageWalletsViewModel(
     private fun safeSort(items: ArrayList<CoinViewItem>): List<CoinViewItem> {
         var safe: CoinViewItem? = null
         var safeErc20: CoinViewItem? = null
+        var bsvErc20: CoinViewItem? = null
         items.forEach {
             if (it.uid == "safe-coin") {
                 safe = it
             } else if (it.uid == "custom_safe-erc20-SAFE") {
                 safeErc20 = it
+            } else if (it.uid == "custom_safe-dep20-SAFE") {
+                bsvErc20 = it
             }
+        }
+        if (bsvErc20 != null) {
+            items.remove(bsvErc20)
+            items.add(0, bsvErc20!!)
         }
         if (safeErc20 != null) {
             items.remove(safeErc20)

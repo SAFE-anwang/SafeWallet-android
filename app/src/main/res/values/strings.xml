@@ -1177,6 +1177,8 @@
     <string name="Safe4_Cross_Chain">Cross Chain</string>
     <string name="Safe4_Title_safe2wsafe">SAFE->SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe">SAFE ERC20->SAFE</string>
+    <string name="Safe4_Title_safe2wsafe_bsc">SAFE->SAFE DEP20</string>
+    <string name="Safe4_Title_wsafe2safe_bsc">SAFE DEP20->SAFE</string>
     <string name="Safe4_Locked">Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
