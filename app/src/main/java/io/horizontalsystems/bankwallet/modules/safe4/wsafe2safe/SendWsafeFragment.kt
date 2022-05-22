@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
@@ -139,9 +142,13 @@ class SendWsafeFragment : BaseFragment() {
                 AppBar(
                     title = TranslatableString.ResString(R.string.Safe4_Title_wsafe2safe),
                     navigationIcon = {
-                        CoinImage(
-                            iconUrl = fullCoin.coin.iconUrl,
-                            placeholder = fullCoin.iconPlaceholder,
+//                        CoinImage(
+//                            iconUrl = fullCoin.coin.iconUrl,
+//                            placeholder = fullCoin.iconPlaceholder,
+//                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+//                        )
+                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                            contentDescription = null,
                             modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                         )
                     },
