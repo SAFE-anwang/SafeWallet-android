@@ -112,6 +112,8 @@ class AdapterManager(
             var adapter = currentAdapters.remove(wallet)
             if (adapter == null) {
                 adapterFactory.adapter(wallet)?.let {
+                    // 切换钱包时，交易记录和同步会失败，先暂停再开始
+                    it.stop()
                     it.start()
 
                     adapter = it

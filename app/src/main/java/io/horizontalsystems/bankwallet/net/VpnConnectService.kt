@@ -235,7 +235,7 @@ object VpnConnectService {
         isConnected = false
         GlobalScope.launch(Dispatchers.IO) {
             Log.e("VpnConnectService", "start look check connection")
-            delay(2000)
+            delay(1000)
             while (startLoopCheckConnection) {
                 val result = connectionNetwork()
 //                Log.e("VpnConnectService", "look check connection result: $result")

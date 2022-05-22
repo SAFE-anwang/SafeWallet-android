@@ -215,6 +215,10 @@ public class ApplicationLoader {
         AndroidUtilities.runOnUIThread(ApplicationLoader::startPushService);
     }
 
+    public static void setLanguage(String language) {
+        MessagesController.getGlobalMainSettings().edit().putString("language", language).apply();
+    }
+
     public static void startPushService() {
         SharedPreferences preferences = MessagesController.getGlobalNotificationsSettings();
         boolean enabled;

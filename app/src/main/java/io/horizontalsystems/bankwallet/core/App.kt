@@ -281,6 +281,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
 
         ApplicationLoader.instance.init(this)
+        ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
         SafeInfoManager.startNet()
