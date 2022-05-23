@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -99,7 +100,7 @@ fun WatchAddressScreen(navController: NavController) {
             )
 
             Text(
-                text = "注意：支持导入ETH和BSC地址，显示ETH和BSC的链上资产",
+                text = Translator.getString(R.string.watch_address_hint),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 style = ComposeAppTheme.typography.caption,
                 color = ComposeAppTheme.colors.oz,
