@@ -5,7 +5,11 @@
 
 2.集成telegram客户端，无缝对接电服群。
 
-3.将交易记录移到钱包余额下显示。
+3.交易记录移到钱包余额下。
+
+4.中英文支持
+
+5.增加SAFE专区：跨链和锁仓（待开发）
 
 说明：跨链测试环境修改方法
 1、maket工程assets下面的initial_coins_list文件最后一行，0xee9c1ea4dcf0aaf4ff2d78b6ff83aa69797b65eb替换成0x32885f2faf83aeee39e2cfe7f302e3bb884869f4
