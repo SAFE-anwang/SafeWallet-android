@@ -82,6 +82,7 @@ class BitcoinAdapter(
             val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
 
             return BitcoinKit(context = App.instance,
+                    connectionManager = App.bitCoinConnectionManager,
                     words = accountType.words,
                     passphrase = accountType.passphrase,
                     walletId = account.id,
