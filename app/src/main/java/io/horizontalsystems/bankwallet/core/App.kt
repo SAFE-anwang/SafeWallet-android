@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.modules.nft.NftManager
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.settings.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
@@ -116,6 +117,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var nftManager: NftManager
         lateinit var safeProvider: SafeProvider
         lateinit var bitCoinConnectionManager: ConnectionManager
+
+        var tmpItemToShow: TransactionItem? = null
     }
 
     override val testMode = BuildConfig.testMode

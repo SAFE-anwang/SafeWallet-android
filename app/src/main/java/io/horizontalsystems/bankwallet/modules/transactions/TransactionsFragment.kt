@@ -30,10 +30,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -149,7 +146,8 @@ private fun onTransactionClick(
 ) {
     val transactionItem = viewModel.getTransactionItem(transactionViewItem) ?: return
 
-    viewModel.tmpItemToShow = transactionItem
+//    viewModel.tmpItemToShow = transactionItem
+    App.tmpItemToShow = transactionItem
 
     navController.slideFromBottom(R.id.mainFragment_to_transactionInfoFragment)
 }

@@ -1,8 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -93,6 +95,7 @@ class TransactionsViewModel(
     override fun onCleared() {
         service.clear()
         disposables.clear()
+        App.tmpItemToShow = null
     }
 
     fun getTransactionItem(viewItem: TransactionViewItem) = service.getTransactionItem(viewItem.uid)
