@@ -2,8 +2,10 @@ package io.horizontalsystems.bankwallet.modules.swap.coinselect
 
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.ViewHolderSwapCoinSelectBinding
+import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
 
 class SelectSwapCoinViewHolder(
@@ -26,10 +28,14 @@ class SelectSwapCoinViewHolder(
         binding.bottomShade.isVisible = showBottomBorder
 
         coinItem.apply {
-            binding.coinIcon.setRemoteImage(
-                platformCoin.coin.iconUrl,
-                platformCoin.coinType.iconPlaceholder
-            )
+            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE") {
+                binding.coinIcon.setImage(ImageSource.Local(R.drawable.logo_safe_24))
+            } else {
+                binding.coinIcon.setRemoteImage(
+                    platformCoin.coin.iconUrl,
+                    platformCoin.coinType.iconPlaceholder
+                )
+            }
             binding.coinTitle.text = platformCoin.name
             binding.coinSubtitle.text = platformCoin.code
 
