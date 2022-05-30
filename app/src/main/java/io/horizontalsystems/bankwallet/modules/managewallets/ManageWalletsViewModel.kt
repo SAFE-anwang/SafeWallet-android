@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
@@ -40,7 +41,31 @@ class ManageWalletsViewModel(
 
     private fun sync(items: List<ManageWalletsService.Item>) {
         val viewItems = items.map { viewItem(it) }
+        //自定义排序
+        safeSort(viewItems as ArrayList)
         viewItemsLiveData.postValue(viewItems)
+    }
+
+
+    private fun safeSort(items: ArrayList<CoinViewItem>): List<CoinViewItem> {
+        var safe: CoinViewItem? = null
+        var safeErc20: CoinViewItem? = null
+        items.forEach {
+            if (it.uid == "safe-coin") {
+                safe = it
+            } else if (it.uid == "custom_safe-erc20-SAFE") {
+                safeErc20 = it
+            }
+        }
+        if (safeErc20 != null) {
+            items.remove(safeErc20)
+            items.add(0, safeErc20!!)
+        }
+        if (safe != null) {
+            items.remove(safe)
+            items.add(0, safe!!)
+        }
+        return items
     }
 
     private fun viewItem(
@@ -55,9 +80,14 @@ class ManageWalletsViewModel(
             )
             is Unsupported -> CoinViewItemState.ToggleHidden
         }
+        val image = if (item.fullCoin.coin.uid == "safe-coin" || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
+        }
         return CoinViewItem(
             item.fullCoin.coin.uid,
-            ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder),
+            image,
             item.fullCoin.coin.name,
             item.fullCoin.coin.code,
             state,

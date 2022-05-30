@@ -60,9 +60,9 @@
         <action
             android:id="@+id/mainFragment_to_walletConnect"
             app:destination="@id/wallet_connect_graph" />
-        <action
+        <!--<action
             android:id="@+id/mainFragment_to_transactionInfoFragment"
-            app:destination="@id/transactionInfoFragment" />
+            app:destination="@id/transactionInfoFragment" />-->
         <action
             android:id="@+id/mainFragment_to_marketSearchFragment"
             app:destination="@id/marketSearchFragment" />

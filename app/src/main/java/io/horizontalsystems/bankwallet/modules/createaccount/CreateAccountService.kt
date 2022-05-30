@@ -1,9 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.createaccount
 
-import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.IAccountFactory
-import io.horizontalsystems.bankwallet.core.IAccountManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.PassphraseValidator
 import io.horizontalsystems.bankwallet.core.managers.WalletActivator
 import io.horizontalsystems.bankwallet.core.managers.WordsManager
@@ -12,6 +9,7 @@ import io.horizontalsystems.bankwallet.entities.AccountOrigin
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.CoinType
+import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.subjects.BehaviorSubject
 
 class CreateAccountService(
@@ -60,6 +58,11 @@ class CreateAccountService(
 
     private fun activateDefaultWallets(account: Account) {
         walletActivator.activateWallets(account, listOf(CoinType.Safe, CoinType.Bitcoin, CoinType.Ethereum))
+        App.ethereumKitManager.evmKitWrapper?.let {
+            val safeConvertAddress = WSafeManager(it.evmKit).getSafeConvertAddress()
+            val safeErc20 = CoinType.Erc20(safeConvertAddress)
+            walletActivator.activateWallets(account, listOf(safeErc20))
+        }
     }
 
     private fun resolveAccountType() = when (kind) {

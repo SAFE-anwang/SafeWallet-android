@@ -1,7 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 
+import com.anwang.safewallet.safekit.model.SafeInfo
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
@@ -12,6 +15,7 @@ import io.horizontalsystems.bitcoincore.utils.HashUtils
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
+import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.Single
 import java.math.BigDecimal
 
@@ -21,7 +25,8 @@ class SendSafeConvertHandler(
       SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
       SendHodlerModule.IHodlerModuleDelegate {
 
-    private val safeConvertAddress = "XmkTAzN38tsNjEdXwuHkRL75U3Q3uuwRey";
+    val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+    private val safeConvertAddress = WSafeManager(evmKit).getSafeConvertAddress()
 
     private fun syncValidation() {
         var amountError: Throwable? = null
@@ -118,7 +123,9 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        feeModule.setFee(fee)
+        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val newFee = fee + BigDecimal(safeInfoPO.eth.safe_fee)
+        feeModule.setFee(newFee)
     }
 
     // SendAmountModule.ModuleDelegate
@@ -135,7 +142,7 @@ class SendSafeConvertHandler(
     // SendAddressModule.ModuleDelegate
 
     override fun validate(address: String) {
-//        interactor.validate(address)
+        interactor.validate(address)
     }
 
     override fun onUpdateAddress() {

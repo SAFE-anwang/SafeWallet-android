@@ -1,26 +1,23 @@
 package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.anwang.safewallet.safekit.model.SafeInfo
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.models.PlatformCoin
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 class SendWsafeViewModel(
     val service: SendWsafeService,
@@ -47,8 +44,19 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        // 处理safe跨链逻辑
-        handlerSafeConvert()
+        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        if (!safeInfoPO.eth.eth2safe) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!service.isSendMinAmount(safeInfoPO)) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
+            return
+        } else {
+            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
+                proceedLiveEvent.postValue(readyState.sendData)
+            }
+        }
     }
 
     private fun sync(state: SendWsafeService.State) {
@@ -58,8 +66,11 @@ class SendWsafeViewModel(
     private fun sync(amountCaution: SendWsafeService.AmountCaution) {
         var caution: Caution? = null
         if (amountCaution.error?.convertedError != null) {
-            val text =
+            var text =
                 amountCaution.error.localizedMessage ?: amountCaution.error.javaClass.simpleName
+             if (text.startsWith("Read error:")){
+                text = "获取手续费异常，请稍等"
+            }
             caution = Caution(text, Caution.Type.Error)
         } else if (amountCaution.amountWarning == SendWsafeService.AmountWarning.CoinNeededForFee) {
             caution = Caution(
@@ -76,6 +87,7 @@ class SendWsafeViewModel(
     override fun onCleared() {
         clearables.forEach(Clearable::clear)
         disposable.clear()
+        SafeInfoManager.clear()
     }
 
     fun onEnterAddress(wallet: Wallet, address: Address?) {
@@ -86,8 +98,7 @@ class SendWsafeViewModel(
         validateSafe(wallet, address)
     }
 
-    fun validateSafe(wallet: Wallet, address: Address?){
-
+    fun validateSafe(wallet: Wallet, address: Address?) {
         val adapter = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
             is ISendSafeAdapter -> {
                 adapter
@@ -105,32 +116,5 @@ class SendWsafeViewModel(
         }
     }
 
-    private fun handlerSafeConvert() {
-        App.safeProvider.getSafeInfo()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                if (it == null || !it.eth.eth2safe) {
-                    Toast.makeText(App.instance, "跨链转账业务暂停使用，请稍后再试", Toast.LENGTH_SHORT).show()
-                } else {
-                    validMinAmount(it)
-                }
-            }, {
-                Log.e("safe4", "getSafeInfo error", it)
-            })
-            .let {
-                disposable.add(it)
-            }
-    }
-
-    private fun validMinAmount(safeInfo: SafeInfo) {
-        if (!service.isSendMinAmount(safeInfo)){
-            Toast.makeText(App.instance, "跨链转账最小金额是${safeInfo.minamount} SAFE", Toast.LENGTH_SHORT).show()
-        } else {
-            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
-                proceedLiveEvent.postValue(readyState.sendData)
-            }
-        }
-    }
 
 }

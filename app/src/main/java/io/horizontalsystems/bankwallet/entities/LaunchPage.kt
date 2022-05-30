@@ -11,6 +11,7 @@ enum class LaunchPage(@StringRes val titleRes: Int, @DrawableRes val iconRes: In
     Auto(R.string.SettingsLaunchScreen_Auto, R.drawable.ic_settings_20),
     Balance(R.string.SettingsLaunchScreen_Balance, R.drawable.ic_wallet_20),
     Market(R.string.SettingsLaunchScreen_MarketOverview, R.drawable.ic_market_20),
+    SAFE(R.string.SettingsLaunchScreen_Safe, R.drawable.ic_safe_20),
     Watchlist(R.string.SettingsLaunchScreen_Watchlist, R.drawable.ic_star_20);
 
     override val title: TranslatableString

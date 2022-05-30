@@ -8,11 +8,9 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.setRemoteImage
-import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.ViewCardSwapBinding
+import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinDialogFragment
 import io.horizontalsystems.core.findNavController
@@ -132,10 +130,15 @@ class SwapCoinCardView @JvmOverloads constructor(
 
     private fun setCoin(platformCoin: PlatformCoin?) {
         if (platformCoin != null) {
-            binding.iconCoin.setRemoteImage(
-                platformCoin.coin.iconUrl,
-                platformCoin.coinType.iconPlaceholder
-            )
+            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE") {
+                binding.iconCoin.setImage(ImageSource.Local(R.drawable.logo_safe_24))
+            } else {
+                binding.iconCoin.setRemoteImage(
+                    platformCoin.coin.iconUrl,
+                    platformCoin.coinType.iconPlaceholder
+                )
+            }
+
             binding.selectedToken.text = platformCoin.code
             binding.selectedToken.setTextColor(context.getColor(R.color.leah))
         } else {

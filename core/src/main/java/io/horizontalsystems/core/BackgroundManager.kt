@@ -3,6 +3,7 @@ package io.horizontalsystems.core
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import java.util.concurrent.CopyOnWriteArrayList
 
 class BackgroundManager(application: Application) : Application.ActivityLifecycleCallbacks {
 
@@ -37,7 +38,9 @@ class BackgroundManager(application: Application) : Application.ActivityLifecycl
 
     override fun onActivityStarted(activity: Activity) {
         if (refs == 0) {
-            listeners.forEach { listener ->
+            // 调用unregisterListener时遍历List，会闪退，Copy然后再遍历
+            val copyListeners = CopyOnWriteArrayList(listeners)
+            copyListeners.forEach { listener ->
                 listener.willEnterForeground(activity)
                 listener.willEnterForeground()
             }

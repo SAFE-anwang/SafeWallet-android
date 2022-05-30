@@ -99,6 +99,7 @@ class AdapterManager(
 
         ethereumKitManager.evmKitWrapper?.evmKit?.refresh()
         binanceSmartChainKitManager.evmKitWrapper?.evmKit?.refresh()
+        binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         binanceKitManager.binanceKit?.refresh()
     }
 

@@ -87,6 +87,7 @@ class MainViewModel(
             LaunchPage.Market,
             LaunchPage.Watchlist -> MainModule.MainTab.Market
             LaunchPage.Balance -> MainModule.MainTab.Balance
+            LaunchPage.SAFE -> MainModule.MainTab.Safe4
             LaunchPage.Auto -> service.currentMainTab ?: MainModule.MainTab.Market
         }
     }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -21,15 +20,16 @@ import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeCoinProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeRateProvider
 import io.horizontalsystems.bankwallet.core.storage.*
-import io.horizontalsystems.bankwallet.entities.CustomToken
 import io.horizontalsystems.bankwallet.modules.enablecoins.EnableCoinsEip20Provider
 import io.horizontalsystems.bankwallet.modules.hsnft.HsNftApiProvider
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.launcher.LauncherActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.nft.NftManager
+import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.settings.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Session
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SessionManager
+import io.horizontalsystems.bitcoincore.managers.ConnectionManager
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.ICoreApp
@@ -45,10 +46,13 @@ import io.horizontalsystems.core.security.EncryptionManager
 import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.schedulers.Schedulers
 import org.telegram.messenger.ApplicationLoader
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -112,6 +116,9 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var binanceRefreshManager: BinanceRefreshManager
         lateinit var nftManager: NftManager
         lateinit var safeProvider: SafeProvider
+        lateinit var bitCoinConnectionManager: ConnectionManager
+
+        var tmpItemToShow: TransactionItem? = null
     }
 
     override val testMode = BuildConfig.testMode
@@ -123,7 +130,11 @@ class App : CoreApp(), WorkConfiguration.Provider  {
             //Disable logging for lower levels in Release build
             Logger.getLogger("").level = Level.SEVERE
         }
-
+        Schedulers.from(
+            ThreadPoolExecutor(200, 200,
+            60L, TimeUnit.MILLISECONDS,
+            LinkedBlockingQueue<Runnable>())
+        )
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             Log.w("RxJava ErrorHandler", e)
         }
@@ -132,6 +143,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         EthereumKit.init()
 
         instance = this
+        bitCoinConnectionManager = ConnectionManager(this)
+
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
         val appConfig = AppConfigProvider()
@@ -283,12 +296,11 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         wc2SessionManager = WC2SessionManager(accountManager, WC2SessionStorage(appDatabase), wc2Service, wc2Manager)
 
         ApplicationLoader.instance.init(this)
-
-        val tokenList = mutableListOf<CustomToken>()
-        tokenList.add(CustomToken("safe-erc20", "SAFE", CoinType.Erc20("0x874a3d9a9655f18afc59b0e75463ea29ee2043c0"), 18))
-        coinManager.save(tokenList)
+        ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
+        SafeInfoManager.startNet()
+
     }
 
     private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {

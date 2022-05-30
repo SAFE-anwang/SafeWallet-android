@@ -158,4 +158,11 @@ object MmkvManager {
             settingsStorage?.encode(AppConfig.PREF_PER_APP_PROXY_SET, apps)
 //        }
     }
+
+    fun setRoutingBlocked(ips: String) {
+        settingsStorage?.encode(AppConfig.PREF_V2RAY_ROUTING_BLOCKED, ips)
+    }
+    fun setRoutingDirect(ips: String) {
+        settingsStorage?.encode(AppConfig.PREF_V2RAY_ROUTING_DIRECT, ips)
+    }
 }
