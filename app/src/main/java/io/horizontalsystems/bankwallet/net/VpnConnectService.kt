@@ -33,8 +33,8 @@ object VpnConnectService {
     private var isConnected = false
 
     private var httpClient: OkHttpClient? = OkHttpClient().newBuilder()
-        .connectTimeout(5000, TimeUnit.MILLISECONDS)
-        .readTimeout(5000, TimeUnit.MILLISECONDS).build()
+        .connectTimeout(10000, TimeUnit.MILLISECONDS)
+        .readTimeout(10000, TimeUnit.MILLISECONDS).build()
 
     fun startVpn(activity: Activity) {
         if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
