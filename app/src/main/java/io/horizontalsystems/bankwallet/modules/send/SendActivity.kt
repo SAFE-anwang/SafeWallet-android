@@ -80,7 +80,7 @@ class SendActivity : BaseActivity() {
                     navigationIcon = {
                         if (fullCoin.coin.uid == "safe-coin"
                             || fullCoin.coin.uid == "custom_safe-erc20-SAFE"
-                            || fullCoin.coin.uid == "custom_safe-dep20-SAFE") {
+                            || fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

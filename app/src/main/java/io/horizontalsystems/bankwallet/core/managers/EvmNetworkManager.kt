@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.entities.EvmNetwork
-import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.RpcSource
 
@@ -22,6 +21,7 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
         get() = listOfNotNull(
             defaultHttpNetwork("MainNet HTTP", Chain.BinanceSmartChain),
             defaultWebsocketNetwork("MainNet Websocket", Chain.BinanceSmartChain),
+            defaultHttpNetwork("TestNet HTTP", Chain.BinanceSmartTestChain),
         )
 
     private fun defaultHttpSyncSource(chain: Chain): RpcSource? =
@@ -32,6 +32,7 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
             Chain.EthereumRinkeby -> RpcSource.rinkebyInfuraHttp(appConfigProvider.infuraProjectId, appConfigProvider.infuraProjectSecret)
             Chain.EthereumGoerli -> RpcSource.goerliInfuraHttp(appConfigProvider.infuraProjectId, appConfigProvider.infuraProjectSecret)
             Chain.BinanceSmartChain -> RpcSource.binanceSmartChainHttp()
+            Chain.BinanceSmartTestChain -> RpcSource.binanceSmartTestChainHttp()
             Chain.Polygon -> RpcSource.polygonRpcHttp()
             else -> null
         }

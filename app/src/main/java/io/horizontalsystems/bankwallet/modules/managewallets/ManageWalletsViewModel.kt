@@ -56,7 +56,7 @@ class ManageWalletsViewModel(
                 safe = it
             } else if (it.uid == "custom_safe-erc20-SAFE") {
                 safeErc20 = it
-            } else if (it.uid == "custom_safe-dep20-SAFE") {
+            } else if (it.uid == "custom_safe-bep20-SAFE") {
                 bsvErc20 = it
             }
         }
@@ -87,7 +87,9 @@ class ManageWalletsViewModel(
             )
             is Unsupported -> CoinViewItemState.ToggleHidden
         }
-        val image = if (item.fullCoin.coin.uid == "safe-coin" || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+        val image = if (item.fullCoin.coin.uid == "safe-coin"
+            || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE"
+            || item.fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
             ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)

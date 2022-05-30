@@ -83,7 +83,7 @@ private fun Safe4Sections(
 ) {
 
     Text(
-        text = stringResource(R.string.Safe4_Cross_Chain),
+        text = stringResource(R.string.Safe4_Cross_Chain_erc20),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
@@ -93,27 +93,67 @@ private fun Safe4Sections(
     Spacer(Modifier.height(10.dp))
 
     CellSingleLineLawrenceSection(
-        listOf ({
-            HsSettingCellForEth(
-                R.mipmap.ic_app_color,
-                "SAFE",
-                "ERC20",
-                onClick = {
-                    if (!RepeatClickUtils.isRepeat) {
-                        Safe4Module.handlerSafe2eth()
+        listOf (
+            {
+                HsSettingCellForEth(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "ERC20",
+                    onClick = {
+                        if (!RepeatClickUtils.isRepeat) {
+                            Safe4Module.handlerSafe2eth(Safe4Module.ChainType.ETH)
+                        }
                     }
-                }
-            )
-        },{
-            HsSettingCellForSafe(
-                R.mipmap.ic_app_color,
-                "SAFE",
-                "ERC20",
-                onClick = {
-                    Safe4Module.handlerEth2safe(navController)
-                }
-            )
-        })
+                )
+            },
+            {
+                HsSettingCellForSafe(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "ERC20",
+                    onClick = {
+                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.ETH, navController)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
+        text = stringResource(R.string.Safe4_Cross_Chain_dep20),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForEth(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "BEP20",
+                    onClick = {
+                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.BSC)
+                    }
+                )
+            },
+            {
+                HsSettingCellForSafe(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "BEP20",
+                    onClick = {
+                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.BSC, navController)
+                    }
+                )
+            }
+        )
     )
 
     Spacer(Modifier.height(25.dp))

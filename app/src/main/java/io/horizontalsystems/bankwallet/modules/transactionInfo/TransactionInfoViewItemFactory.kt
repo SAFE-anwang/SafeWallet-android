@@ -806,7 +806,7 @@ class TransactionInfoViewItemFactory(
             coinUid = transactionValue.coinName + " ERC20"
         }
         //safe-dep20 特殊处理
-        if ("custom_safe-dep20-SAFE" == transactionValue.coinUid) {
+        if ("custom_safe-bep20-SAFE" == transactionValue.coinUid) {
             coinUid = transactionValue.coinName + " DEP20"
         }
 

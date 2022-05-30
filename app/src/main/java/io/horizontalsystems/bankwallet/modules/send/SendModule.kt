@@ -280,7 +280,7 @@ object SendModule {
         }
     }
 
-    class SafeConvertFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
+    class SafeConvertFactory(private val wallet: Wallet, private val ethAdapter: ISendEthereumAdapter) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -292,7 +292,7 @@ object SendModule {
             val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
                 is ISendSafeAdapter -> {
                     val safeInteractor = SendSafeConvertInteractor(adapter)
-                    val handler = SendSafeConvertHandler(safeInteractor)
+                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
 
                     safeInteractor.delegate = handler
 
