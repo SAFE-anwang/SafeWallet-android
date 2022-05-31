@@ -205,6 +205,8 @@ object VpnConnectService {
     fun refreshData(activity: Activity) {
         // 连接成功后，刷新钱包，连接VPN过程中有可能导致同步失败
         App.adapterManager.refresh()
+        // 刷新Bitcoin系列
+        App.bitCoinConnectionManager.onEnterForeground()
         val mainActivity = activity as MainActivity
         try {
             getMarketOverviewFragment(mainActivity.supportFragmentManager.fragments) { fragment ->
