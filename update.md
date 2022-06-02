@@ -3,24 +3,20 @@
 
 1.safe跨链功能：safe<->eth间跨链互转。
 
-2.集成telegram客户端，无缝对接电服群。
+2.safe erc20 uniswap互兑
 
-3.交易记录移到钱包余额下。
+3.集成telegram客户端，无缝对接电服群。
 
-4.中英文支持
+4.交易记录移到钱包余额下。
 
-5.增加SAFE专区：跨链和锁仓（待开发）
+5.中英文支持
 
-6.解决多子钱包切换时无法同步问题
+6.增加SAFE专区：跨链和锁仓（待开发）
 
-7.解决多子钱包切换时交易记录混淆问题
+7.解决多子钱包切换时无法同步问题
 
-说明：跨链测试环境修改方法
-1、maket工程assets下面的initial_coins_list文件最后一行，0xee9c1ea4dcf0aaf4ff2d78b6ff83aa69797b65eb替换成0x32885f2faf83aeee39e2cfe7f302e3bb884869f4
+8.解决多子钱包切换时交易记录混淆问题
 
-2、maket工程io.horizontalsystems.marketkit.storage.MarketDatabase类27行，数据库版本号修改一下
-
-3、app工程 io.horizontalsystems.bankwallet.core.managers.EvmNetworkManager类15行，Ropsten网络注释打开
 
 
 2022年3月31日版本号v0.24.0.1
