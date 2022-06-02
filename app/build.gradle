@@ -63,7 +63,7 @@ android {
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
-            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
         }
 
         apptestnet {

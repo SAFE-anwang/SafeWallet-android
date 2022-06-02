@@ -10,9 +10,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import android.util.Log
 import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.AppConfig.ANG_PACKAGE
@@ -20,7 +20,6 @@ import com.v2ray.ang.AppConfig.TAG_DIRECT
 import com.v2ray.ang.R
 import com.v2ray.ang.dto.ServerConfig
 import com.v2ray.ang.extension.toSpeedString
-import com.v2ray.ang.extension.toast
 import com.v2ray.ang.ui.MainActivity
 import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.MmkvManager
@@ -36,7 +35,6 @@ import libv2ray.V2RayVPNServiceSupportsSet
 import rx.Observable
 import rx.Subscription
 import java.lang.ref.SoftReference
-import java.util.*
 import kotlin.math.min
 
 object V2RayServiceManager {
@@ -237,12 +235,36 @@ object V2RayServiceManager {
         }
     }
 
+    fun getActivityFlag(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+    }
+
+    fun getServiceFlag(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_ONE_SHOT
+        }
+    }
+
+    fun getBroadcastFlag(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+    }
+
     private fun showNotification() {
         val service = serviceControl?.get()?.getService() ?: return
         val startMainIntent = Intent(service, MainActivity::class.java)
         val contentPendingIntent = PendingIntent.getActivity(service,
                 NOTIFICATION_PENDING_INTENT_CONTENT, startMainIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT)
+            getActivityFlag())
 
         val stopV2RayIntent = Intent(AppConfig.BROADCAST_ACTION_SERVICE)
 //        stopV2RayIntent.`package` = ANG_PACKAGE
@@ -251,7 +273,7 @@ object V2RayServiceManager {
 
         val stopV2RayPendingIntent = PendingIntent.getBroadcast(service,
                 NOTIFICATION_PENDING_INTENT_STOP_V2RAY, stopV2RayIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT)
+            getBroadcastFlag())
 
         val channelId =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
