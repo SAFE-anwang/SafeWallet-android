@@ -50,7 +50,7 @@ object Safe4Module {
             if (chainType == ChainType.ETH) {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.BSC) {
-                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe DEP20"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
             }
             return
         }
@@ -93,7 +93,7 @@ object Safe4Module {
             if (chainType == ChainType.ETH) {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.BSC) {
-                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe DEP20"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
             }
             return
         }

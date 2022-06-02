@@ -122,7 +122,7 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
 
     Text(
-        text = stringResource(R.string.Safe4_Cross_Chain_dep20),
+        text = stringResource(R.string.Safe4_Cross_Chain_bep20),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,

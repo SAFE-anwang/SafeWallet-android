@@ -1175,11 +1175,11 @@
     <!-- SAFE4 -->
     <string name="Safe4_Title">SAFE Zone</string>
     <string name="Safe4_Cross_Chain_erc20">Cross Chain(ETH)</string>
-    <string name="Safe4_Cross_Chain_dep20">Cross Chain(BSC)</string>
-    <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>ERC20</string>
-    <string name="Safe4_Title_wsafe2safe_erc20">ERC20=>SAFE</string>
-    <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>BEP20</string>
-    <string name="Safe4_Title_wsafe2safe_bep20">BEP20=>SAFE</string>
+    <string name="Safe4_Cross_Chain_bep20">Cross Chain(BSC)</string>
+    <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
+    <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Locked">Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
