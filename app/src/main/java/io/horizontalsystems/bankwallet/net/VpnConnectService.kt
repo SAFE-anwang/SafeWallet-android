@@ -207,6 +207,7 @@ object VpnConnectService {
         App.adapterManager.refresh()
         // 刷新Bitcoin系列
         App.bitCoinConnectionManager.onEnterForeground()
+        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         val mainActivity = activity as MainActivity
         try {
