@@ -278,7 +278,7 @@ fun HsSettingCellForEth(
             modifier = Modifier.padding(start = 16.dp)
         )
         Text(
-            text = "->",
+            text = "=>",
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
@@ -365,7 +365,7 @@ fun HsSettingCellForSafe(
             )
         }
         Text(
-            text = "->",
+            text = "=>",
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,

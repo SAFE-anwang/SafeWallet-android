@@ -148,8 +148,6 @@ abstract class BitcoinBaseAdapter(
 
     override fun refresh() {
         kit.refresh()
-        // 调用此方法，重新检查网络状态
-        kit.onEnterForeground()
     }
 
     override fun getTransactionsAsync(

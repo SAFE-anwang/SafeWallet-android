@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.modules.nft.NftManager
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.settings.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionStorage
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
@@ -37,6 +38,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Session
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SessionManager
+import io.horizontalsystems.bitcoincore.managers.ConnectionManager
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.ICoreApp
@@ -46,7 +48,11 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.schedulers.Schedulers
 import org.telegram.messenger.ApplicationLoader
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -110,6 +116,9 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         lateinit var binanceRefreshManager: BinanceRefreshManager
         lateinit var nftManager: NftManager
         lateinit var safeProvider: SafeProvider
+        lateinit var bitCoinConnectionManager: ConnectionManager
+
+        var tmpItemToShow: TransactionItem? = null
     }
 
     override val testMode = BuildConfig.testMode
@@ -121,7 +130,11 @@ class App : CoreApp(), WorkConfiguration.Provider  {
             //Disable logging for lower levels in Release build
             Logger.getLogger("").level = Level.SEVERE
         }
-
+        Schedulers.from(
+            ThreadPoolExecutor(200, 200,
+            60L, TimeUnit.MILLISECONDS,
+            LinkedBlockingQueue<Runnable>())
+        )
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             Log.w("RxJava ErrorHandler", e)
         }
@@ -130,6 +143,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         EthereumKit.init()
 
         instance = this
+        bitCoinConnectionManager = ConnectionManager(this)
+
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
         val appConfig = AppConfigProvider()

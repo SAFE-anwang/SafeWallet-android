@@ -24,11 +24,11 @@ class ManageAccountsService(
 
     init {
         accountManager.accountsFlowable
-                .subscribeIO { syncItems() }
+                .subscribe { syncItems() }
                 .let { disposable.add(it) }
 
         accountManager.activeAccountObservable
-                .subscribeIO { syncItems() }
+                .subscribe { syncItems() }
                 .let { disposable.add(it) }
 
         syncItems()

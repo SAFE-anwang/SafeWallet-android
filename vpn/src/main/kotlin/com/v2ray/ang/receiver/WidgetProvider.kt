@@ -25,7 +25,7 @@ class WidgetProvider : AppWidgetProvider() {
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_switch)
         val intent = Intent(context, WidgetProvider::class.java)
         intent.action = AppConfig.BROADCAST_ACTION_WIDGET_CLICK
-        val pendingIntent = PendingIntent.getBroadcast(context, R.id.layout_switch, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(context, R.id.layout_switch, intent, V2RayServiceManager.getBroadcastFlag())
         remoteViews.setOnClickPendingIntent(R.id.layout_switch, pendingIntent)
         if (isRunning) {
             remoteViews.setInt(R.id.layout_switch, "setBackgroundResource", R.drawable.ic_rounded_corner_theme)

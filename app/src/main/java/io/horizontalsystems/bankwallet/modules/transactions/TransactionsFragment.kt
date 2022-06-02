@@ -26,13 +26,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -44,13 +42,14 @@ import kotlinx.coroutines.launch
 
 class TransactionsFragment : BaseFragment() {
 
-    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -147,7 +146,8 @@ private fun onTransactionClick(
 ) {
     val transactionItem = viewModel.getTransactionItem(transactionViewItem) ?: return
 
-    viewModel.tmpItemToShow = transactionItem
+//    viewModel.tmpItemToShow = transactionItem
+    App.tmpItemToShow = transactionItem
 
     navController.slideFromBottom(R.id.mainFragment_to_transactionInfoFragment)
 }

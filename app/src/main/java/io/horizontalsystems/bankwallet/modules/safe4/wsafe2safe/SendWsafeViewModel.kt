@@ -66,8 +66,11 @@ class SendWsafeViewModel(
     private fun sync(amountCaution: SendWsafeService.AmountCaution) {
         var caution: Caution? = null
         if (amountCaution.error?.convertedError != null) {
-            val text =
+            var text =
                 amountCaution.error.localizedMessage ?: amountCaution.error.javaClass.simpleName
+             if (text.startsWith("Read error:")){
+                text = "获取手续费异常，请稍等"
+            }
             caution = Caution(text, Caution.Type.Error)
         } else if (amountCaution.amountWarning == SendWsafeService.AmountWarning.CoinNeededForFee) {
             caution = Caution(

@@ -10,8 +10,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 61
-        versionName "0.24.0.2.0506"
+        versionCode 62
+        versionName "0.24.0.2.0601"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -63,7 +63,7 @@ android {
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
-            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
         }
 
         apptestnet {

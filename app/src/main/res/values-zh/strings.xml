@@ -1024,6 +1024,7 @@
 
     <string name="Send_Confirmation_Wsafe">跨链接收人</string>
     <string name="Send_Wsafe_Fee_Warn">该费用仅为参考，请以实际扣除为准</string>
+    <string name="watch_address_hint">注意：支持导入ETH和BSC地址，显示ETH和BSC的链上资产</string>
 
 
 </resources>

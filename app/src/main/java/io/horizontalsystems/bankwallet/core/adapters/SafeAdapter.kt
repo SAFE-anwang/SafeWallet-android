@@ -135,6 +135,7 @@ class SafeAdapter(
             val accountType = account.type
             if (accountType is AccountType.Mnemonic) {
                 return SafeKit(context = App.instance,
+                        connectionManager = App.bitCoinConnectionManager,
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,

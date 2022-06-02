@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -32,13 +31,11 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.multidex.MultiDex;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.Components.ForegroundDetector;
@@ -236,9 +233,18 @@ public class ApplicationLoader {
         } else {
             applicationContext.stopService(new Intent(applicationContext, NotificationsService.class));
 
-            PendingIntent pintent = PendingIntent.getService(applicationContext, 0, new Intent(applicationContext, NotificationsService.class), 0);
+            PendingIntent pintent = PendingIntent.getService(applicationContext, 0, new Intent(applicationContext, NotificationsService.class), getPendingFlag(0));
+
             AlarmManager alarm = (AlarmManager)applicationContext.getSystemService(Context.ALARM_SERVICE);
             alarm.cancel(pintent);
+        }
+    }
+
+    public static int getPendingFlag(int flag){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return PendingIntent.FLAG_IMMUTABLE;
+        } else {
+            return flag;
         }
     }
 

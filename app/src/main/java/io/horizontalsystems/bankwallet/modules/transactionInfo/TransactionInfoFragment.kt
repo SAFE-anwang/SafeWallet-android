@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.viewModels
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -32,11 +34,14 @@ import java.util.*
 
 class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener {
 
-    private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) {
+    /*private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) {
         TransactionsModule.Factory()
     }
     private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
         TransactionInfoModule.Factory(viewModelTxs.tmpItemToShow)
+    } */
+    private val viewModel by viewModels<TransactionInfoViewModel> {
+        TransactionInfoModule.Factory(App.tmpItemToShow!!)
     }
 
     private var _binding: FragmentTransactionInfoBinding? = null

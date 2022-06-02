@@ -86,6 +86,7 @@ class BitcoinCashAdapter(
             }
 
             return BitcoinCashKit(context = App.instance,
+                    connectionManager = App.bitCoinConnectionManager,
                     words = accountType.words,
                     passphrase = accountType.passphrase,
                     walletId = account.id,
