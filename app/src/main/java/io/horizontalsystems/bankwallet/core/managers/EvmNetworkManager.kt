@@ -20,8 +20,7 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
     val binanceSmartChainNetworks: List<EvmNetwork>
         get() = listOfNotNull(
             defaultHttpNetwork("MainNet HTTP", Chain.BinanceSmartChain),
-            defaultWebsocketNetwork("MainNet Websocket", Chain.BinanceSmartChain),
-            defaultHttpNetwork("TestNet HTTP", Chain.BinanceSmartTestChain),
+            defaultWebsocketNetwork("MainNet Websocket", Chain.BinanceSmartChain)
         )
 
     private fun defaultHttpSyncSource(chain: Chain): RpcSource? =
@@ -32,7 +31,6 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
             Chain.EthereumRinkeby -> RpcSource.rinkebyInfuraHttp(appConfigProvider.infuraProjectId, appConfigProvider.infuraProjectSecret)
             Chain.EthereumGoerli -> RpcSource.goerliInfuraHttp(appConfigProvider.infuraProjectId, appConfigProvider.infuraProjectSecret)
             Chain.BinanceSmartChain -> RpcSource.binanceSmartChainHttp()
-            Chain.BinanceSmartTestChain -> RpcSource.binanceSmartTestChainHttp()
             Chain.Polygon -> RpcSource.polygonRpcHttp()
             else -> null
         }

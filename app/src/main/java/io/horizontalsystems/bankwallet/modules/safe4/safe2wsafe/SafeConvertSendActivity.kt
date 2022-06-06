@@ -84,9 +84,9 @@ class SafeConvertSendActivity : BaseActivity() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
         binding.toolbarCompose.setContent {
-            var titleRes = R.string.Safe4_Title_wsafe2safe_erc20
+            var titleRes = R.string.Safe4_Title_safe2wsafe_erc20
             if ("custom_safe-bep20-SAFE" == wsafeWallet.coin.uid) {
-                titleRes = R.string.Safe4_Title_wsafe2safe_bep20
+                titleRes = R.string.Safe4_Title_safe2wsafe_bep20
             }
             ComposeAppTheme {
                 AppBar(

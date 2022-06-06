@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -159,6 +160,7 @@ class BalanceService(
     }
 
     fun hasSafe(uid: String): Boolean{
+        Log.i("safe4", "---uid = $uid")
         val safeList = mutableListOf<String>()
         safeList.add("custom_safe-erc20-SAFE")
         safeList.add("custom_safe-bep20-SAFE")
