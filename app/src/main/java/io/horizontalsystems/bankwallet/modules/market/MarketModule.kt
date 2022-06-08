@@ -39,7 +39,8 @@ object MarketModule {
     enum class Tab(@StringRes val titleResId: Int) {
         Overview(R.string.Market_Tab_Overview),
         Posts(R.string.Market_Tab_Posts),
-        Watchlist(R.string.Market_Tab_Watchlist);
+        Watchlist(R.string.Market_Tab_Watchlist),
+        Tweets(R.string.Coin_Tab_Tweets);
 
         companion object {
             private val map = values().associateBy(Tab::name)

@@ -17,6 +17,24 @@ object CoinTweetsModule {
             return CoinTweetsViewModel(service, Extractor()) as T
         }
     }
+
+    class Factory2(private val coinUid: String) : ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val service =
+                CoinTweetsService(
+                    coinUid,
+                    TweetsProvider(App.appConfigProvider.twitterBearerToken),
+                    App.marketKit
+                )
+
+            return CoinTweetsViewModel(
+                service,
+                Extractor()
+            ) as T
+        }
+    }
 }
 
 data class TweetViewItem(

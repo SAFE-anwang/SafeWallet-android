@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.coin.tweets
 
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.marketkit.MarketKit
@@ -41,10 +42,11 @@ class CoinTweetsService(
         val twitterUserSingle = if (tmpUser != null) {
             Single.just(tmpUser)
         } else {
+            val tmpCoinUid = if (coinUid == "custom_safe-erc20-SAFE") "safe-coin" else coinUid
             marketKit
-                .marketInfoOverviewSingle(coinUid, "USD", "en")
+                .marketInfoOverviewSingle(tmpCoinUid, "USD", "en")
                 .flatMap {
-                    val username = it.links[LinkType.Twitter]
+                    val username = if (coinUid == "safe-coin" || coinUid == "custom_safe-erc20-SAFE") App.appConfigProvider.safeTwitterUser else it.links[LinkType.Twitter]
 
                     if (username.isNullOrBlank()) {
                         Single.error(TweetsProvider.UserNotFound())
