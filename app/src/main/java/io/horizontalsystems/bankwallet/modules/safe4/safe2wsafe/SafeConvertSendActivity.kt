@@ -12,10 +12,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.BaseActivity
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
@@ -68,8 +65,10 @@ class SafeConvertSendActivity : BaseActivity() {
 
         setToolbar(safeWallet.platformCoin.fullCoin)
 
+        val adapter by lazy { App.adapterManager.getAdapterForWallet(wsafeWallet) as ISendEthereumAdapter }
+
         mainPresenter =
-            ViewModelProvider(this, SendModule.SafeConvertFactory(safeWallet)).get(SendPresenter::class.java)
+            ViewModelProvider(this, SendModule.SafeConvertFactory(safeWallet, adapter)).get(SendPresenter::class.java)
 
         subscribeToViewEvents(mainPresenter.view as SendView, safeWallet)
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
@@ -85,9 +84,13 @@ class SafeConvertSendActivity : BaseActivity() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
         binding.toolbarCompose.setContent {
+            var titleRes = R.string.Safe4_Title_safe2wsafe_erc20
+            if ("custom_safe-bep20-SAFE" == wsafeWallet.coin.uid) {
+                titleRes = R.string.Safe4_Title_safe2wsafe_bep20
+            }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Safe4_Title_safe2wsafe),
+                    title = TranslatableString.ResString(titleRes),
                     navigationIcon = {
                         CoinImage(
                             iconUrl = fullCoin.coin.iconUrl,

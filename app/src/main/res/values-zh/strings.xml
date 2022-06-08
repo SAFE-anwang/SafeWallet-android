@@ -1007,9 +1007,12 @@
     <string name="Telegram_Join_Group">加入群组</string>
 
     <string name="Safe4_Title">SAFE专区</string>
-    <string name="Safe4_Cross_Chain">跨链</string>
-    <string name="Safe4_Title_safe2wsafe">SAFE->SAFE ERC20</string>
-    <string name="Safe4_Title_wsafe2safe">SAFE ERC20->SAFE</string>
+    <string name="Safe4_Cross_Chain_erc20">跨链(ETH)</string>
+    <string name="Safe4_Cross_Chain_bep20">跨链(BSC)</string>
+    <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
+    <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Locked">锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>

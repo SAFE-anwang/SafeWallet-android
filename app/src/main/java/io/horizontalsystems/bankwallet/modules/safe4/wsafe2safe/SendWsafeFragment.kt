@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
@@ -36,7 +35,6 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.marketkit.models.FullCoin
@@ -138,15 +136,14 @@ class SendWsafeFragment : BaseFragment() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
         binding.toolbarCompose.setContent {
+            var titleRes = R.string.Safe4_Title_wsafe2safe_erc20
+            if ("custom_safe-bep20-SAFE" == wsafeWallet.coin.uid) {
+                titleRes = R.string.Safe4_Title_wsafe2safe_bep20
+            }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Safe4_Title_wsafe2safe),
+                    title = TranslatableString.ResString(titleRes),
                     navigationIcon = {
-//                        CoinImage(
-//                            iconUrl = fullCoin.coin.iconUrl,
-//                            placeholder = fullCoin.iconPlaceholder,
-//                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
-//                        )
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
                             modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

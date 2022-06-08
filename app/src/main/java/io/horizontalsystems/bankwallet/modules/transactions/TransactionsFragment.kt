@@ -333,7 +333,9 @@ private fun FilterCoinTabs(
 ) {
     val tabItems = filterCoins.mapNotNull {
         it.item.platformCoin?.let { platformCoin ->
-            val image = if (platformCoin.coin.uid == "safe-coin" || platformCoin.coin.uid == "custom_safe-erc20-SAFE") {
+            val image = if (platformCoin.coin.uid == "safe-coin"
+                || platformCoin.coin.uid == "custom_safe-erc20-SAFE"
+                || platformCoin.coin.uid == "custom_safe-bep20-SAFE") {
                 ImageSource.Local(R.drawable.logo_safe_24)
             } else {
                 ImageSource.Remote(platformCoin.coin.iconUrl, platformCoin.coinType.iconPlaceholder)

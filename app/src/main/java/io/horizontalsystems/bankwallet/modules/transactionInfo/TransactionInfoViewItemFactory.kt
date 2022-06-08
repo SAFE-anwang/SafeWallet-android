@@ -802,8 +802,12 @@ class TransactionInfoViewItemFactory(
 
         var coinUid = transactionValue.coinName
         //safe-erc20 特殊处理
-        if ("custom_safe-erc20-SAFE" == transactionValue.coinUid){
+        if ("custom_safe-erc20-SAFE" == transactionValue.coinUid) {
             coinUid = transactionValue.coinName + " ERC20"
+        }
+        //safe-bep20 特殊处理
+        if ("custom_safe-bep20-SAFE" == transactionValue.coinUid) {
+            coinUid = transactionValue.coinName + " BEP20"
         }
 
         items.add(TransactionInfoViewItem(TransactionType(title, coinUid), First))

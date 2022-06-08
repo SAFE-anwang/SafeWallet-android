@@ -71,7 +71,8 @@ class MarketSearchFragment : BaseFragment() {
                     },
                     onCoinClick = { coin ->
                         var uid = coin.uid
-                        if (coin.uid == "custom_safe-erc20-SAFE"){
+                        if (coin.uid == "custom_safe-erc20-SAFE"
+                            || coin.uid == "custom_safe-bep20-SAFE") {
                             uid = "safe-coin"
                         }
                         val arguments = CoinFragment.prepareParams(uid)
@@ -95,7 +96,7 @@ class MarketSearchFragment : BaseFragment() {
                     onSearchQueryChange = { query -> viewModel.searchByQuery(query) },
                     onFavoriteClick = { favorited, coinUid ->
                         var uid = coinUid
-                        if (coinUid == "custom_safe-erc20-SAFE"){
+                        if (coinUid == "custom_safe-erc20-SAFE" || coinUid == "custom_safe-bep20-SAFE"){
                             uid = "safe-coin"
                         }
                         viewModel.onFavoriteClick(favorited, uid)

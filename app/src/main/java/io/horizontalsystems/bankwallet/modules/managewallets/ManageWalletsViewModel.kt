@@ -50,12 +50,19 @@ class ManageWalletsViewModel(
     private fun safeSort(items: ArrayList<CoinViewItem>): List<CoinViewItem> {
         var safe: CoinViewItem? = null
         var safeErc20: CoinViewItem? = null
+        var bsvErc20: CoinViewItem? = null
         items.forEach {
             if (it.uid == "safe-coin") {
                 safe = it
             } else if (it.uid == "custom_safe-erc20-SAFE") {
                 safeErc20 = it
+            } else if (it.uid == "custom_safe-bep20-SAFE") {
+                bsvErc20 = it
             }
+        }
+        if (bsvErc20 != null) {
+            items.remove(bsvErc20)
+            items.add(0, bsvErc20!!)
         }
         if (safeErc20 != null) {
             items.remove(safeErc20)
@@ -80,7 +87,9 @@ class ManageWalletsViewModel(
             )
             is Unsupported -> CoinViewItemState.ToggleHidden
         }
-        val image = if (item.fullCoin.coin.uid == "safe-coin" || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+        val image = if (item.fullCoin.coin.uid == "safe-coin"
+            || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE"
+            || item.fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
             ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
