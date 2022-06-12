@@ -36,10 +36,10 @@ object Safe4Module {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
-                Log.i("safe4", "---erc20---")
+//                Log.i("safe4", "---erc20---")
             } else if (chainType == ChainType.BSC && it.coin.uid == "custom_safe-bep20-SAFE") {
                 wsafeWallet = it
-                Log.i("safe4", "---bep20---")
+//                Log.i("safe4", "---bep20---")
             }
         }
         if (safeWallet == null) {
@@ -79,10 +79,10 @@ object Safe4Module {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
-                Log.i("safe4", "---erc20---")
+//                Log.i("safe4", "---erc20---")
             } else if (chainType == ChainType.BSC && it.coin.uid == "custom_safe-bep20-SAFE") {
                 wsafeWallet = it
-                Log.i("safe4", "---bep20---")
+//                Log.i("safe4", "---bep20---")
             }
         }
         if (safeWallet == null) {
