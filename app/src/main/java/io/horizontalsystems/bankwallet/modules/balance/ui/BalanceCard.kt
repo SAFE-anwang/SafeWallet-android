@@ -330,7 +330,8 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
         ButtonPrimaryCircle(
             icon = R.drawable.ic_chart_24,
             onClick = {
-                val coinUid = if (viewItem.wallet.coin.uid == "custom_safe-erc20-SAFE") "safe-coin" else viewItem.wallet.coin.uid
+                val coinUid = if (viewItem.wallet.coin.uid == "custom_safe-erc20-SAFE"
+                    || viewItem.wallet.coin.uid == "custom_safe-bep20-SAFE") "safe-coin" else viewItem.wallet.coin.uid
                 val arguments = CoinFragment.prepareParams(coinUid)
 
                 navController.slideFromRight(R.id.mainFragment_to_coinFragment, arguments)
