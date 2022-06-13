@@ -11,7 +11,7 @@ class EvmNetworkManager(private val appConfigProvider: AppConfigProvider) {
         get() = listOfNotNull(
             defaultWebsocketNetwork("MainNet Websocket", Chain.Ethereum),
             defaultHttpNetwork("MainNet HTTP", Chain.Ethereum),
-            defaultWebsocketNetwork("Ropsten", Chain.EthereumRopsten),
+//            defaultWebsocketNetwork("Ropsten", Chain.EthereumRopsten),
 //            defaultWebsocketNetwork("Rinkeby", Chain.EthereumRinkeby),
 //            defaultWebsocketNetwork("Kovan", Chain.EthereumKovan),
 //            defaultWebsocketNetwork("Goerli", Chain.EthereumGoerli)
