@@ -318,7 +318,14 @@
     <string name="Send_LockTime_Hour">1 小时</string>
     <string name="Send_LockTime_Month">1月</string>
     <string name="Send_LockTime_HalfYear">6月</string>
+    <string name="Send_LockTime_Month_1">1月</string>
+    <string name="Send_LockTime_Month_3">3月</string>
+    <string name="Send_LockTime_Month_6">6月</string>
+    <string name="Send_LockTime_Month_9">9月</string>
     <string name="Send_LockTime_Year">1年</string>
+    <string name="Send_LockTime_Year_3">3年</string>
+    <string name="Send_LockTime_Year_5">5年</string>
+    <string name="Send_LockTime_Year_10">10年</string>
     <string name="Send_Sending">正在发送</string>
     <string name="Send_Token_InsufficientFeeAlert">%1$s（%2$s）的交易费用以%3$s支付。您需要%4$s。</string>
     <string name="Send_Warning_LowFee">警告！有被骗的风险</string>
