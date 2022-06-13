@@ -36,13 +36,13 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
 
     /*private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) {
         TransactionsModule.Factory()
-    }
+    }*/
     private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
-        TransactionInfoModule.Factory(viewModelTxs.tmpItemToShow)
-    } */
-    private val viewModel by viewModels<TransactionInfoViewModel> {
         TransactionInfoModule.Factory(App.tmpItemToShow!!)
     }
+    /*private val viewModel by viewModels<TransactionInfoViewModel> {
+        TransactionInfoModule.Factory(App.tmpItemToShow!!)
+    }*/
 
     private var _binding: FragmentTransactionInfoBinding? = null
     private val binding get() = _binding!!
