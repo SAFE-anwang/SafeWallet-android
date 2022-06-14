@@ -148,8 +148,9 @@ private fun onTransactionClick(
 
 //    viewModel.tmpItemToShow = transactionItem
     App.tmpItemToShow = transactionItem
-
-    navController.slideFromBottom(R.id.mainFragment_to_transactionInfoFragment)
+    App.tmpItemToShow?.let {
+        navController.slideFromBottom(R.id.mainFragment_to_transactionInfoFragment)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

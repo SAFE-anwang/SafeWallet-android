@@ -39,13 +39,19 @@ class OneInchKitHelper(
         toCoin: PlatformCoin,
         fromAmount: BigDecimal
     ): Single<Quote> {
-        return oneInchKit.getQuoteAsync(
-            fromToken = getCoinAddress(fromCoin),
-            toToken = getCoinAddress(toCoin),
-            amount = fromAmount.scaleUp(fromCoin.decimals)
-        ).onErrorResumeNext {
-            Single.error(it.convertedError)
+        val e: Exception
+        try {
+            return oneInchKit.getQuoteAsync(
+                fromToken = getCoinAddress(fromCoin),
+                toToken = getCoinAddress(toCoin),
+                amount = fromAmount.scaleUp(fromCoin.decimals)
+            ).onErrorResumeNext {
+                Single.error(it.convertedError)
+            }
+        } catch (ex: Exception) {
+            e = ex
         }
+        return Single.error(e)
     }
 
     fun getSwapAsync(
