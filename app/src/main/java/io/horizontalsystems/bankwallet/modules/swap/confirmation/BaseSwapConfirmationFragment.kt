@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -89,9 +90,12 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
                 requireActivity().findViewById(android.R.id.content),
                 R.string.Hud_Text_Done
             )
-            Handler(Looper.getMainLooper()).postDelayed({
+            lifecycleScope.launchWhenResumed {
                 findNavController().popBackStack(R.id.swapFragment, true)
-            }, 1200)
+            }
+            /*Handler(Looper.getMainLooper()).postDelayed({
+                findNavController().popBackStack(R.id.swapFragment, true)
+            }, 1200)*/
         }
 
         sendEvmTransactionViewModel.sendFailedLiveData.observe(viewLifecycleOwner) {
