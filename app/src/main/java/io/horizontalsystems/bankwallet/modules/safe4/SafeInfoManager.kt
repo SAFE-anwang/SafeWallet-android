@@ -6,6 +6,8 @@ import com.anwang.safewallet.safekit.model.SafeInfo
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.entities.EvmBlockchain
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,10 +25,11 @@ object SafeInfoManager {
     private val disposables = CompositeDisposable()
 
     fun startNet() {
-        if (App.ethereumKitManager.evmKitWrapper == null){
+        if (App.evmBlockchainManager.getEvmKitManager(EvmBlockchain.Ethereum).evmKitWrapper == null){
             return
         }
-        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+        /*val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!*/
+        val evmKit = App.evmBlockchainManager.getEvmKitManager(EvmBlockchain.Ethereum).evmKitWrapper?.evmKit!!
         val safeNetType = WSafeManager(evmKit).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
@@ -51,7 +54,7 @@ object SafeInfoManager {
     fun getSafeInfo(): SafeInfoPO {
         var safeInfoPO = safeStorage?.decodeParcelable(KEY_SAFE_INFO, SafeInfoPO::class.java)
         if(safeInfoPO == null){
-            val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
+            val evmKit = App.evmBlockchainManager.getEvmKitManager(EvmBlockchain.Ethereum).evmKitWrapper?.evmKit!!
             safeInfoPO = defaultSafeInfo(evmKit.chain)
         }
         return safeInfoPO

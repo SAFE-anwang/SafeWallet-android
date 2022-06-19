@@ -4,13 +4,14 @@ import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
 import io.horizontalsystems.bankwallet.entities.*
 import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
+import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
 class ManageWalletsService(
-    private val coinManager: ICoinManager,
+    private val marketKit: MarketKit,
     private val walletManager: IWalletManager,
     accountManager: IAccountManager,
     private val enableCoinService: EnableCoinService
@@ -25,7 +26,7 @@ class ManageWalletsService(
 
     val cancelEnableCoinObservable = PublishSubject.create<Coin>()
 
-    private val account: Account = accountManager.activeAccount!!
+    private val account: Account? = accountManager.activeAccount
     private var wallets = setOf<Wallet>()
     private var fullCoins = listOf<FullCoin>()
 
@@ -69,11 +70,20 @@ class ManageWalletsService(
         wallets = walletList.toSet()
     }
 
-    private fun fetchFullCoins(): MutableList<FullCoin> {
+    private fun fetchFullCoins(): List<FullCoin> {
         return if (filter.isBlank()) {
-            coinManager.featuredFullCoins(wallets.map { it.platformCoin }).toMutableList()
+            val featuredFullCoins =
+                marketKit.fullCoins("", 100).toMutableList().filter { it.supportedPlatforms.isNotEmpty() }
+
+            val featuredCoins = featuredFullCoins.map { it.coin }
+            val enabledFullCoins = marketKit.fullCoins(
+                coinUids = wallets.filter { !featuredCoins.contains(it.coin) }.map { it.coin.uid }
+            )
+            val customFullCoins = wallets.filter { it.platformCoin.isCustom }.map { it.platformCoin.fullCoin }
+
+            featuredFullCoins + enabledFullCoins + customFullCoins
         } else {
-            coinManager.fullCoins(filter, 20).toMutableList()
+            marketKit.fullCoins(filter, 20).toMutableList()
         }
     }
 
@@ -134,6 +144,7 @@ class ManageWalletsService(
     private fun handleEnableCoin(
         configuredPlatformCoins: List<ConfiguredPlatformCoin>, restoreSettings: RestoreSettings
     ) {
+        val account = this.account ?: return
         val coin = configuredPlatformCoins.firstOrNull()?.platformCoin?.coin ?: return
 
         if (restoreSettings.isNotEmpty() && configuredPlatformCoins.size == 1) {

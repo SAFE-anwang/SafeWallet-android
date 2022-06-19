@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.adapters
 
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.SyncMode
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bitcoincore.BitcoinCore
@@ -14,17 +13,19 @@ import io.horizontalsystems.dashkit.models.DashTransactionInfo
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
+import io.horizontalsystems.bankwallet.entities.BtcBlockchain
+import io.horizontalsystems.bankwallet.net.SafeNetWork
 import java.math.BigDecimal
 
 class SafeAdapter(
-        override val kit: SafeKit,
-        syncMode: SyncMode?,
-        backgroundManager: BackgroundManager,
-        wallet: Wallet,
-        testMode: Boolean
-) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, testMode), SafeKit.Listener, ISendSafeAdapter {
+    override val kit: SafeKit,
+    syncMode: BitcoinCore.SyncMode,
+    backgroundManager: BackgroundManager,
+    wallet: Wallet,
+    testMode: Boolean
+) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, testMode), SafeKit.Listener, ISendBitcoinAdapter {
 
-    constructor(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean, backgroundManager: BackgroundManager) :
+    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean, backgroundManager: BackgroundManager) :
             this(createKit(wallet, syncMode, testMode), syncMode, backgroundManager, wallet, testMode)
 
     init {
@@ -39,12 +40,12 @@ class SafeAdapter(
 
     // ITransactionsAdapter
 
-/*    override val explorerTitle: String = "anwang.com"
+    override val explorerTitle: String = "anwang.com"
 
-    override fun explorerUrl(transactionHash: String): String? {
-        Log.e("anwangTransaction", "chain.anwang.com ---1 https://chain.anwang.com/tx/$transactionHash")
+    override fun getTransactionUrl(transactionHash: String): String? {
+//        Log.e("anwangTransaction", "chain.anwang.com ---1 https://chain.anwang.com/tx/$transactionHash")
         return if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
-    }*/
+    }
 
     //
     // DashKit Listener
@@ -80,9 +81,11 @@ class SafeAdapter(
         // ignored for now
     }
 
+    override val blockchain: BtcBlockchain = BtcBlockchain.Safe
+
     // ISendDashAdapter
 
-    override fun availableBalance(address: String?): BigDecimal {
+    /*override fun availableBalance(address: String?): BigDecimal {
         return availableBalance(feeRate, address, mapOf())
     }
 
@@ -121,7 +124,7 @@ class SafeAdapter(
                 emitter.onError(ex)
             }
         }
-    }
+    }*/
 
     companion object {
 
@@ -130,7 +133,7 @@ class SafeAdapter(
         private fun getNetworkType(testMode: Boolean) =
                 if (testMode) SafeKit.NetworkType.TestNet else SafeKit.NetworkType.MainNet
 
-        private fun createKit(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean): SafeKit {
+        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean): SafeKit {
             val account = wallet.account
             val accountType = account.type
             if (accountType is AccountType.Mnemonic) {
@@ -139,7 +142,7 @@ class SafeAdapter(
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,
-                        syncMode = getSyncMode(syncMode),
+                        syncMode = syncMode,
                         networkType = getNetworkType(testMode),
                         confirmationsThreshold = confirmationsThreshold)
             }

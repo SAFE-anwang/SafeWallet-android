@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Common-->
+    <string name="LargeNumberFormat">%s%s</string>
     <string name="Alert_Cancel">取消</string>
     <string name="Alert_Copy">复制</string>
     <string name="Alert_Close">关闭</string>
@@ -33,6 +34,7 @@
     <string name="Button_Understand">我理解</string>
     <string name="Button_Switch">切换</string>
     <string name="Button_Remove">移除</string>
+    <string name="Button_Save">保存</string>
     <string name="Error">出错</string>
     <string name="NotAvailable">不可用</string>
     <string name="Any">任何</string>
@@ -75,6 +77,8 @@
     <string name="Restore_InvalidChecksum">校验和无效</string>
     <string name="Restore_PassphraseDescription">输入您在创建此助记词时使用的密码.</string>
     <string name="Restore_Title">选择区块链</string>
+    <string name="Restore_Name">名称 (可选)</string>
+    <string name="Restore_Key">密钥</string>
     <string name="Select_Coins">选择货币</string>
     <string name="Restore_ZCash_BirthdayHeight">生日高度</string>
     <string name="Restore_ZCash_BirthdayHeight_Hint">如果您知道您Zcash钱包生成时的区块高度，请将其添加至下方以加速同步过程。</string>
@@ -102,6 +106,7 @@
     <string name="Market_TvlDeFi">DeFi锁定</string>
     <string name="Market_DeFiCap">DeFi市值</string>
     <string name="Market_SeeAll">更多</string>
+    <string name="Market_PoweredByHorizontalApi">Powered By Horizontal API</string>
     <string name="Market_Tab_Overview">行情</string>
     <string name="Market_Category_Rated">评估</string>
     <string name="Market_Category_Rated_Description">币种基于项目安全性和市场流动性的评估</string>
@@ -158,8 +163,15 @@
     <string name="Market_Tab_Posts">发现</string>
     <string name="Market_Tab_Watchlist">关注</string>
     <string name="Market_Tab_Watchlist_EmptyList">您的观察列表为空。</string>
-    <string name="Market_Category_TopCoins">Top Coins</string>
+    <string name="Market_Category_TopCoins">前列代币</string>
     <string name="Market_Category_TopCoins_Description">币种排名描述</string>
+    <!--Market Overview-->
+    <string name="Market_Overview_TopSectors">前列行业</string>
+    <!--Market Top Platforms-->
+    <string name="MarketTopPlatforms_Title">前列平台</string>
+    <string name="MarketTopPlatforms_PlatofrmsRank">顶级区块链平台</string>
+    <string name="MarketTopPlatforms_Description">通过建立在顶部的项目的累积市场来领导区块链平台。</string>
+    <string name="MarketTopPlatforms_Protocols">協議: %s</string>
     <!--Market Global Metrics-->
     <string name="MarketGlobalMetrics_Chart">图表</string>
     <string name="MarketGlobalMetrics_TotalMarketCap">总市值</string>
@@ -320,8 +332,11 @@
     <string name="Send_LockTime_HalfYear">6月</string>
     <string name="Send_LockTime_Year">1年</string>
     <string name="Send_Sending">正在发送</string>
+    <string name="Send_FeeRate">费率</string>
     <string name="Send_Token_InsufficientFeeAlert">%1$s（%2$s）的交易费用以%3$s支付。您需要%4$s。</string>
     <string name="Send_Warning_LowFee">警告！有被骗的风险</string>
+    <string name="Send_Warning_LowFee_Description">交易可能被卡或失败</string>
+    <string name="Send_Error_FetchFeeRateFailed">获取收费率时出错</string>
     <!-- Fee Settings -->
     <string name="FeeSettings_Title">费用设置</string>
     <string name="FeeSettings_Reset">重置</string>
@@ -389,6 +404,9 @@
     <string name="WalletConnect_Input">输入</string>
     <string name="WalletConnect_Version1">版本 1.0</string>
     <string name="WalletConnect_Version2">版本 2.0</string>
+    <string name="WalletConnect_I_Trust">我信赖的</string>
+    <string name="WalletConnect_Note">备注</string>
+    <string name="WalletConnect_LegacySignWarning">签名此消息可能是危险的。 此签名可能代表您的帐户执行任何操作。 包括让您的帐户及其所有资产完全控制到请求站点。 只有当您知道正在做什么或完全信任请求站点时，才能签署此消息。</string>
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">警告</string>
     <string name="EthereumTransaction_Error_Title">出错</string>
@@ -470,18 +488,18 @@
     <string name="SwapInfo_Description">此兑换服务由基于%s区块链的去中心化代币兑换协议%s提供。\n\n%s不存在任何欺诈手段、以可靠方式推动代币兑换的智能合约来实现完全自动化管理。</string>
     <string name="SwapInfo_DexRelated">%s相关</string>
     <string name="SwapInfo_AllowanceTitle">补贴</string>
-    <string name="SwapInfo_AllowanceDescription">执行代币互兑时，该服务可以代表您支出的某种货币的金额。执行互兑操作之前要求具备足够的批准限额。</string>
+    <string name="SwapInfo_AllowanceDescription">不可阻止的令牌交换通过分散的令牌交换，即Uniswap，1inch，PancakeSwap，Quickswap，等等。 这些服务是完全自动化的，并在没有任何欺骗手段的情况下以可靠的方式便利象征性的交换。 \n\n津贴指的是外汇服务有权为用户花费的代币金额。 通常情况下，备抵金额是在交易之前使用“审批”交易设定的。在进行交换行动之前需要足够的备抵。</string>
     <string name="SwapInfo_PriceImpactTitle">价格影响</string>
-    <string name="SwapInfo_PriceImpactDescription">预期价格和显示价格的偏差通常会增加互兑金额。</string>
+    <string name="SwapInfo_PriceImpactDescription">与现货价格的预期价格偏差越高，这种偏差就越大。</string>
     <string name="SwapInfo_SwapFeeTitle">互兑交易费用</string>
-    <string name="SwapInfo_SwapFeeDescription">以用户出售货币显示的去中心化代币兑换平台上互兑操作的服务费。对于大部分订单，这应为0.3%或0.6%。</string>
+    <string name="SwapInfo_SwapFeeDescription">以用户出售货币显示的 平台上互兑操作的服务费。对于大部分订单，这应为0.3%或0.6%。</string>
     <string name="SwapInfo_GuaranteedAmountTitle">保证金额</string>
-    <string name="SwapInfo_GuaranteedAmountDescription">用户因互兑操作将收到的最小金额。</string>
+    <string name="SwapInfo_GuaranteedAmountDescription">由于交换动作，用户交换令牌将收到的最低金额。</string>
     <string name="SwapInfo_MaxSpendTitle">最大支出</string>
-    <string name="SwapInfo_MaxSpendDescription">用户因互兑操作将收到的最大金额。</string>
+    <string name="SwapInfo_MaxSpendDescription">由于交换动作，用户交换令牌的最大支出额。</string>
     <string name="SwapInfo_Other">其他</string>
     <string name="SwapInfo_TransactionFeeTitle">交易费用</string>
-    <string name="SwapInfo_TransactionFeeDescription">%s区块链上给定交易的预计处理成本。%s相关交易的成本通常会高于通用代币转账交易。</string>
+    <string name="SwapInfo_TransactionFeeDescription">在区块链上执行交易的最大成本。 请注意， 交易费是在区块链上执行交易的成本，不包括由分散的令牌交易协议收取的服务费。 \n\n分散式令牌交换协议通常收取相当于0的交换费。 交易金额的% (或0.6%)。这笔费用是在交换订单中应用的。</string>
     <string name="SwapInfo_TransactionSpeedTitle">交易速度</string>
     <string name="SwapInfo_TransactionSpeedDescription">交易费用较高的交易会实现更快的处理速度。反之亦然。</string>
     <string name="SwapInfo_Site">%s 站点</string>
@@ -503,6 +521,7 @@
     <string name="Transactions_Swap">互兑交易</string>
     <string name="Transactions_Failed">失败</string>
     <string name="Transactions_ContractCall">合约调用</string>
+    <string name="Transactions_ExternalContractCall">外部呼叫</string>
     <string name="Transactions_ContractCreation">合约创建</string>
     <string name="Transactions_To">接收人%s</string>
     <string name="Transactions_From">发送人%s</string>
@@ -512,6 +531,9 @@
     <string name="Transactions_Outgoing">已发送</string>
     <string name="Transactions_Swaps">掉期交易</string>
     <string name="Transactions_Approvals">批准</string>
+    <string name="Transactions_Unknown">未知交易</string>
+    <string name="Transactions_Unknown_Description">无法解析交易</string>
+    <string name="Transactions_Multiple">多种</string>
     <!--Transaction Info-->
     <string name="TransactionInfo_Transaction">交易</string>
     <string name="TransactionInfo_Title">交易信息</string>
@@ -524,6 +546,7 @@
     <string name="TransactionInfo_RawTransaction">原始交易</string>
     <string name="TransactionInfo_To">接收人</string>
     <string name="TransactionInfo_From">发送人</string>
+    <string name="TransactionInfo_Spender">消费人</string>
     <string name="TransactionInfo_LockedUntil">锁定至 %s</string>
     <string name="TransactionInfo_UnlockedAt">在 %s 解锁了</string>
     <string name="TransactionInfo_RecipientHash">收款人</string>
@@ -632,6 +655,27 @@
 
 \n\n2 来自区块链：在这种情况下，应用程序尝试直接从区块链节点的p2p网络恢复。本钱包连接这些节点中并向它们请求数据。这些节点可能会跟踪用户的IP地址和请求，但在恢复过程中，应用程序可以在节点之间切换。在任何给定时间，网络上都有近10000个比特币节点。此选项速度较慢，可能需要2-3小时，需要在恢复过程中一直打开本钱包...</string>
     <!--Settings-->
+    <!-- Security Center -->
+    <string name="SecurityCenter_BlockchainSettings">黑色设置</string>
+    <string name="SecurityCenter_Internet">网络</string>
+    <string name="SecurityCenter_BlockchainSettingsFooterDescription">选择恢复和同步钱包的数据源</string>
+    <!--Evm Network-->
+    <string name="EvmNetwork_SyncMode">同步模式</string>
+    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
+    <!--Btc Blockchain Settings -->
+    <string name="BtcBlockchainSettings_RestoreSourceChangeWarning">更改恢复源后，钱包必须将自身与 Bitcoin 区块链重新同步。</string>
+    <string name="BtcBlockchainSettings_RestoreSource">恢复参数</string>
+    <string name="BtcBlockchainSettings_RestoreSourceSettingsDescription">通过交易为恢复钱包选择数据源。</string>
+    <string name="BtcBlockchainSettings_RestoreSourceDescription">This setting is only relevant when restoring an existing wallet. It is a process of getting transaction history for a given cryptocurrency so the wallet app is able to display past transactions and calculate the user\'s balance. This needs to happen only once when the user restores previously created wallets.\n\nAt this point, there are two potential ways for a mobile wallet like Unstoppable to do this:\n\n1. from the API Server: There is a third-party predefined server that hosts the entire blockchain and has all the data processed and optimized to provide that data in a fast manner. This method is fast but potentially (not necessarily) less private. It\'s also a centralized method to restore a wallet as it depends on the availability of a 3rd party server. This option is recommended due to its speed of getting data (5-10 minutes).\n\n2. from Blockchain: The app tries to restore directly from a network of the blockchain nodes. This is a decentralized way to restore wallet balance and past transactions. The app pings many of the network nodes and requests data from them without addressing some nodes specifically. This option is slow and can easily take 2-3 hours, the app needs to be open while restoring is happening. This restore method doesn\'t depend on any entity and should work in all conditions.</string>
+    <string name="BtcBlockchainSettings_TransactionInputsOutputs">Transaction Inputs / Outputs</string>
+    <string name="BtcBlockchainSettings_TransactionInputsOutputsSettingsDescription">Make your BTC, LTC, BCH transactions harder to trace by changing the way transactions are structured.</string>
+    <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.
+\n\nThe SafeWallet implements measures to make it harder for someone to figure out which output goes where.
+\n\nThere are two options available to Unstoppable users:
+\n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.
+\n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
+    <!--Info screen-->
+    <string name="Info_Title">信息</string>
     <!--Setting_Security-->
     <string name="SettingsSecurity_Privacy">隐私保护</string>
     <string name="SettingsSecurity_Biometric_Authentication">生物认证</string>
@@ -752,7 +796,7 @@
     <string name="ManageAccount_NWordsWithPassphrase">%s 个单词的密码</string>
     <string name="ManageAccount_SwitchWallet_Title">切换钱包</string>
     <string name="ManageAccount_SwitchWallet_Subtitle">选择钱包以快速切换</string>
-    <string name="ManageAccount_DeleteWarning">您确定要删除此钱包吗？</string>
+    <string name="ManageAccount_DeleteWarning">您要停止监视这个钱包地址吗？</string>
     <!--Network Settings-->
     <string name="NetworkSettings_Title">网络设置</string>
     <string name="NetworkSettings_SwithesAutomatically">自动切换</string>
@@ -785,6 +829,7 @@
     <string name="ManageKeys_Delete_Title">删除钱包</string>
     <string name="ManageKeys_Delete_ConfirmationRemove">该操作将从此设备删除%s 钱包。</string>
     <string name="ManageKeys_Delete_FromPhone">从电话删除</string>
+    <string name="ManageKeys_StopWatching">停止监视</string>
     <!-- Manage Keys Alert -->
     <string name="AddCoin_Description">您必须创建%1$s钱包才能对%2$s进行转账或收款。\n\n使用下方的“创建”（Create）按钮建立一个新的%3$s钱包，或者使用“恢复”（Restore）按钮导入现有钱包。\n\n您可以对此钱包使用：%4$s。</string>
     <string name="AddCoin_CreateKey">创建</string>
@@ -860,6 +905,7 @@
     <string name="CoinPage_Markets">市场</string>
     <string name="CoinPage_TradingVolume">成交量</string>
     <string name="CoinPage_MajorHolders">主要持有者</string>
+    <string name="CoinPage_MajorHolders_InfoDescription">前10个钱包持有的代币数量。优质项目通常具有广泛分布的代币。</string>
     <string name="CoinPage_Audits">审计</string>
     <string name="CoinPage_Audits_Empty">没有审计报告</string>
     <string name="CoinPage_Audits_PoweredBy">由 Defiyield.app 提供支持</string>
@@ -871,10 +917,13 @@
     <string name="CoinPage_Reports">报告</string>
     <string name="CoinPage_FundsInvested">已投资金</string>
     <string name="CoinPage_TokenDistribution">代币分布</string>
+    <string name="CoinPage_TokenDistribution_Description">链上代币参数。通常，健康的项目都具有活跃的链上用户基础以及分布良好的代币。</string>
     <string name="CoinPage_TokenLiquidity">代币流动性</string>
+    <string name="CoinPage_TokenLiquidity_Description">去中心化交易市场上特定资产的流动资金状况。</string>
     <string name="CoinPage_TotalVolume">成交量</string>
     <string name="CoinPage_DetailsTvl">锁仓量</string>
     <string name="CoinPage_TokenTvl">代币锁仓量</string>
+    <string name="CoinPage_TokenTvl_Description">锁定总值 (TVL) 是一种尺度，它表示由为特定协议提供支持的智能合同自动管理下的加密资产的总值。</string>
     <string name="CoinPage_SecurityParams">安全参数</string>
     <string name="CoinPage_SecurityParams_Privacy">隐私</string>
     <string name="CoinPage_SecurityParams_Low">低</string>
@@ -888,15 +937,15 @@
     <string name="CoinPage_SecurityParams_Audits">审计</string>
     <string name="CoinPage_SecurityParams_Yes">是</string>
     <string name="CoinPage_SecurityParams_No">否</string>
-    <string name="CoinPage_SecurityParams_Privacy_Low">使用此代币的交易是完全公开的，允许第三方服务将不同的交易链接到同一实体，请参阅交易金额和查看用户余额。</string>
-    <string name="CoinPage_SecurityParams_Privacy_Medium">使用此代币的交易是半匿名的。第三方服务能够查看交易金额，并将不同的交易部分链接到同一实体。</string>
-    <string name="CoinPage_SecurityParams_Privacy_High">默认情况下，使用此代币的交易是匿名的，或者提供此类功能。任何实体都无法将不同的交易链接到同一个人或查看交易金额.</string>
-    <string name="CoinPage_SecurityParams_Issuance_Centralized">流通中的代币数量可以由一个中心化的实体随意增加或减少。</string>
-    <string name="CoinPage_SecurityParams_Issuance_Decentralized">流通中的代币数量由算法控制，以确定的方式工作，不受中心化机构影响。</string>
-    <string name="CoinPage_SecurityParams_ConfiscationResistance_Yes">代币存放在非保管钱包内时不得没收。</string>
-    <string name="CoinPage_SecurityParams_ConfiscationResistance_No">代币可以被发行实体没收或篡改。</string>
-    <string name="CoinPage_SecurityParams_CensorshipResistance_Yes">无法对代币持有人进行交易审查。</string>
-    <string name="CoinPage_SecurityParams_CensorshipResistance_No">可以禁止代币持有者进行交易。</string>
+    <string name="CoinPage_SecurityParams_Privacy_Low">低的:\n使用此代币的交易是完全公开的，允许第三方服务将不同的交易链接到同一实体，请参阅交易金额和查看用户余额。</string>
+    <string name="CoinPage_SecurityParams_Privacy_Medium">中等的:\n使用此代币的交易是半匿名的。第三方服务能够查看交易金额，并将不同的交易部分链接到同一实体。</string>
+    <string name="CoinPage_SecurityParams_Privacy_High">高的:\n默认情况下，使用此代币的交易是匿名的，或者提供此类功能。任何实体都无法将不同的交易链接到同一个人或查看交易金额.</string>
+    <string name="CoinPage_SecurityParams_Issuance_Centralized">集中:\n流通中的代币数量可以由一个中心化的实体随意增加或减少。</string>
+    <string name="CoinPage_SecurityParams_Issuance_Decentralized">去中心化:\n流通中的代币数量由算法控制，以确定的方式工作，不受中心化机构影响。</string>
+    <string name="CoinPage_SecurityParams_ConfiscationResistance_Yes">是的:\n代币存放在非保管钱包内时不得没收。</string>
+    <string name="CoinPage_SecurityParams_ConfiscationResistance_No">不:\n代币可以被发行实体没收或篡改。</string>
+    <string name="CoinPage_SecurityParams_CensorshipResistance_Yes">是的:\n无法对代币持有人进行交易审查。</string>
+    <string name="CoinPage_SecurityParams_CensorshipResistance_No">不:\n可以禁止代币持有者进行交易。</string>
     <string name="CoinPage_SecurityParams_Audited_Yes">该项目的代码由外部实体全部或部分审核。审计的存在并不意味着项目是无风险的，或不存在任何利用风险。</string>
     <string name="CoinPage_SecurityParams_Audited_No">该项目的代码未经外部实体全部或部分审核。</string>
     <string name="CoinPage_SecurityParams_Info">信息</string>
@@ -928,6 +977,9 @@
     <string name="CoinPage_MarketCap_Million">百万</string>
     <string name="CoinPage_MarketCap_Billion">十亿</string>
     <string name="CoinPage_MarketCap_Trillion">万亿</string>
+    <string name="CoinPage_MarketCap_Quadrillion">拍</string>
+    <string name="CoinPage_MarketCap_TvlRation">稀释市值/锁定 比例</string>
+    <string name="CoinPage_MarketCap_TvlRation_Description">项目代币的市场价值与其TVL的比率。</string>
     <string name="CoinPage_Volume">成交量</string>
     <string name="CoinPage_NoData">无数据</string>
     <string name="CoinPage_NoDataAvailable">没有可用数据</string>
@@ -942,7 +994,9 @@
     <string name="CoinPage_LaunchDate">起始日期</string>
     <string name="CoinPage_Tvl">总锁定</string>
     <string name="CoinPage_TvlRank">锁仓排名</string>
+    <string name="CoinPage_TvlRank_Description">其他协议中的排名是以美元计算的TVL值为基础。</string>
     <string name="CoinPage_TvlMCapRatio">稀释市值/锁定 比例</string>
+    <string name="CoinPage_TvlMCapRatio_Description">项目代币的市场价值与其TVL的比率。</string>
     <string name="CoinPage_TvlDescription">以贷款抵押品或流动性池的形式存入平台的资本。</string>
     <string name="CoinPage_Contract">%s 合约</string>
     <string name="CoinPage_Bep2Symbol">BEP2 符号</string>
@@ -951,9 +1005,18 @@
     <string name="CoinPage_MajorHolders_InTopWallets">前10名地址</string>
     <string name="CoinPage_CoinInvestments_Lead">领导</string>
     <!--Rate list-->
-    <string name="RateList_TopGainers">涨幅榜</string>
-    <string name="RateList_TopLosers">跌幅榜</string>
-    <string name="RateList_Posts">新闻</string>
+    <string name="CoinPage_DetailsDexVolume">DEX交易量</string>
+    <string name="CoinPage_DetailsDexVolume_Description">去中心化交易所的代币交易量。</string>
+    <string name="CoinPage_DetailsDexLiquidity">DEX流动性</string>
+    <string name="CoinPage_DetailsDexLiquidity_Description">去中心化交易所的可用流动资金总额。</string>
+    <string name="CoinPage_DetailsTxCount">Tx计数</string>
+    <string name="CoinPage_DetailsTxCount_Description">在不同时期的链上记录的代币交易数量。</string>
+    <string name="CoinPage_DetailsTxVolume">Tx交易量</string>
+    <string name="CoinPage_DetailsTxVolume_Description">总代币交易量记录在链上。交易量是以实际代币（而非美元）进行度量。</string>
+    <string name="CoinPage_DetailsActiveAddresses">活跃地址</string>
+    <string name="CoinPage_DetailsActiveAddresses_Description">不同时期交易中唯一钱包地址的数量。</string>
+    <string name="CoinPage_NftBannerTitle">Unstoppable NFT</string>
+    <string name="CoinPage_NftBannerDescription">通过持有不可阻挡的 NFT 获取高级钱包功能。</string>
     <string name="Nfts_Title">NFT</string>
     <string name="Nfts_PriceType_Days_7">平均7天</string>
     <string name="Nfts_PriceType_Days_30">平均30天</string>
@@ -986,6 +1049,36 @@
     <string name="NftAsset_Links_Discord">Discord</string>
     <string name="NftAsset_Links_Twitter">Twitter</string>
     <string name="PoweredBy_OpenSeaAPI">由 OpenSea API 提供支持</string>
+    <string name="Nft_TopCollections">前列 NFT 收藏</string>
+    <string name="Nft_TopCollections_Description">按交易量排列的主要NFT收藏。</string>
+    <!-- NFT Collection -->
+    <string name="NftCollection_Overview">行情</string>
+    <string name="NftCollection_Items">项目</string>
+    <string name="NftCollection_Activity">活动</string>
+    <string name="NftCollection_Owners">所有者</string>
+    <string name="NftCollection_AveragePrice">全部时间平均值</string>
+    <string name="NftCollection_ItemsCount">%d条新闻</string>
+    <string name="NftCollection_TodaysSales">今天的卖家</string>
+    <string name="NftCollection_AveragePriceDescription">~%s / 物品</string>
+    <!-- NFT Collection Events -->
+    <string name="NftCollection_EventType_SelectorTitle">选择事件类型</string>
+    <string name="NftCollection_EventType_All">所有</string>
+    <string name="NftCollection_EventType_List">列表</string>
+    <string name="NftCollection_EventType_Sale">出售</string>
+    <string name="NftCollection_EventType_Cancelled">取消</string>
+    <string name="NftCollection_EventType_BidEntered">已输入出价</string>
+    <string name="NftCollection_EventType_BidWithdrawn">已撤回出价</string>
+    <string name="NftCollection_EventType_Transfer">转帐</string>
+    <string name="NftCollection_EventType_OfferEntered">已输入报价</string>
+    <string name="NftCollection_EventType_Approve">批准</string>
+    <string name="NftCollection_EventType_Custom">自定义</string>
+    <string name="NftCollection_EventType_Payout">支出</string>
+    <string name="NftCollection_EventType_BulkCancel">批量取消</string>
+    <string name="NftCollection_EventType_Unknown">未知</string>
+    <!--Rate list-->
+    <string name="RateList_TopGainers">涨幅榜</string>
+    <string name="RateList_TopLosers">跌幅榜</string>
+    <string name="RateList_Posts">发现</string>
     <string name="Market_DaysAgo">%d天前</string>
     <string name="Market_HoursAgo">%d小时前</string>
     <string name="Market_MinutesAgo">%d分钟前</string>
@@ -997,6 +1090,20 @@
     <string name="BalanceSyncError_ReportButtonExplanation">如果您决定报告错误文本，将复制到剪贴板。</string>
     <!--Release notes-->
     <string name="ReleaseNotes_FollowUs">关注我们</string>
+    <string name="CoinPage_Chart_Locked">锁住</string>
+    <string name="ProUsersInfo_Title">专业用户</string>
+    <string name="ProUsersInfo_SubTitle">附加令牌信息</string>
+    <string name="ProUsersInfo_Description">若要启用此数据，您应该获得精灵等级的 UW NFTs “Coin Info+”\n\n也可以访问下面的数据：</string>
+    <string name="ProUsersInfo_Features_DexVolume">DEX 音量和等级</string>
+    <string name="ProUsersInfo_Features_DesLiquidity">DEX 流动性和等级</string>
+    <string name="ProUsersInfo_Features_ActiveAddresses">活跃地址</string>
+    <string name="ProUsersInfo_Features_TxCount">交易数</string>
+    <string name="ProUsersInfo_Features_TxVolume">交易量</string>
+    <string name="ProUsersInfo_Features_Authenticating">正在验证身份...</string>
+    <string name="Hud_Text_LearnMore">马上就来了</string>
+    <string name="Hud_Text_Activate">激活</string>
+    <string name="ProUsersActivate_Title">激活Pass</string>
+    <string name="ProUsersActivate_Description">Mountain Yak - 不受边界限制。 将为您提供重要的市场数据、分析工具、基于链式数据的有用图表，有助您清晰了解项目</string>
 
     <!-- VPN -->
     <string name="VPN_Title">VPN</string>

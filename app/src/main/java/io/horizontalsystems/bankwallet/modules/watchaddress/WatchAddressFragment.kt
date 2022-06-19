@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
@@ -21,6 +24,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,13 +36,19 @@ import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.marketkit.models.CoinType
 
 class WatchAddressFragment : BaseFragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -65,7 +75,7 @@ fun WatchAddressScreen(navController: NavController) {
             AppBar(
                 title = TranslatableString.ResString(R.string.Watch_Address_Title),
                 navigationIcon = {
-                    IconButton(
+                    HsIconButton(
                         onClick = {
                             navController.popBackStack()
                         }
@@ -90,14 +100,46 @@ fun WatchAddressScreen(navController: NavController) {
 
             val focusRequester = remember { FocusRequester() }
 
-            HSAddressInput(
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .focusRequester(focusRequester),
-                coinType = CoinType.Ethereum,
-                coinCode = "ETH",
-                onValueChange = viewModel::onEnterAddress
-            )
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    text = stringResource(R.string.Restore_Name),
+                    style = ComposeAppTheme.typography.subhead1,
+                    color = ComposeAppTheme.colors.grey,
+                )
+
+                FormsInput(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    initial = viewModel.nameState,
+                    hint = viewModel.defaultName,
+                    pasteEnabled = false,
+                    onValueChange = {
+                        viewModel.onNameChange(it)
+                    }
+                )
+
+                Spacer(Modifier.height(44.dp))
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = stringResource(R.string.Watch_Address_Title),
+                    style = ComposeAppTheme.typography.subhead1,
+                    color = ComposeAppTheme.colors.grey,
+                )
+
+                HSAddressInput(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .focusRequester(focusRequester),
+                    coinType = CoinType.Ethereum,
+                    coinCode = "ETH",
+                    onValueChange = viewModel::onEnterAddress
+                )
+            }
 
             Text(
                 text = Translator.getString(R.string.watch_address_hint),

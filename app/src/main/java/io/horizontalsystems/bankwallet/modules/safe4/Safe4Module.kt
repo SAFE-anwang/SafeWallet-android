@@ -86,7 +86,7 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             navController.slideFromBottom(
-                R.id.mainFragment_to_sendWsafeFragment,
+                R.id.sendWsafeFragment,
                 bundle
             )
         } else {

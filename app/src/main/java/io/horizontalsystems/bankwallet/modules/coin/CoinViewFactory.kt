@@ -38,28 +38,17 @@ data class MarketTickerViewItem(
     val pair: String,
     val rate: String,
     val volume: String,
-) {
-    fun areItemsTheSame(other: MarketTickerViewItem): Boolean {
-        return market == other.market && pair == other.pair
-    }
-
-    fun areContentsTheSame(other: MarketTickerViewItem): Boolean {
-        return rate == other.rate && volume == other.volume && marketImageUrl == other.marketImageUrl
-    }
-}
+)
 
 sealed class RoiViewItem {
-    abstract var listPosition: ListPosition?
     class HeaderRowViewItem(
         val title: String,
         val periods: List<HsTimePeriod>,
-        override var listPosition: ListPosition? = null
     ) : RoiViewItem()
 
     class RowViewItem(
         val title: String,
         val values: List<BigDecimal?>,
-        override var listPosition: ListPosition? = null
     ) : RoiViewItem()
 }
 open class ContractInfo(
@@ -97,16 +86,12 @@ sealed class InvestorItem {
     ) : InvestorItem()
 }
 
-sealed class MajorHolderItem {
-    object Header : MajorHolderItem()
-
-    class Item(
-        val index: Int,
-        val address: String,
-        val share: BigDecimal,
-        val sharePercent: String
-    ) : MajorHolderItem()
-}
+class MajorHolderItem(
+    val index: Int,
+    val address: String,
+    val share: BigDecimal,
+    val sharePercent: String
+)
 
 data class CoinLink(
     val url: String,
@@ -131,14 +116,13 @@ class CoinViewFactory(
         val rows = mutableListOf<RoiViewItem>()
 
         val timePeriods = performance.map { it.value.keys }.flatten().distinct()
-        rows.add(RoiViewItem.HeaderRowViewItem("ROI", timePeriods, ListPosition.First))
+        rows.add(RoiViewItem.HeaderRowViewItem("ROI", timePeriods))
         performance.forEach { (vsCurrency, performanceVsCurrency) ->
             if (performanceVsCurrency.isNotEmpty()) {
                 val values = timePeriods.map { performanceVsCurrency[it] }
-                rows.add(RoiViewItem.RowViewItem("vs ${vsCurrency.uppercase()}", values, ListPosition.Middle))
+                rows.add(RoiViewItem.RowViewItem("vs ${vsCurrency.uppercase()}", values))
             }
         }
-        rows.lastOrNull()?.listPosition = ListPosition.Last
 
         return rows
     }
@@ -162,13 +146,12 @@ class CoinViewFactory(
             return list
         }
 
-        list.add(MajorHolderItem.Header)
         topTokenHolders
             .sortedByDescending { it.share }
             .forEachIndexed { index, holder ->
                 val shareFormatted = numberFormatter.format(holder.share, 0, 2, suffix = "%")
                 list.add(
-                    MajorHolderItem.Item(
+                    MajorHolderItem(
                         index + 1,
                         holder.address,
                         holder.share,
@@ -211,19 +194,17 @@ class CoinViewFactory(
         }
 
         overview.totalSupply?.let {
-            val totalSupplyString = numberFormatter.formatCoin(it,
+            val totalSupplyString = numberFormatter.formatCoinShort(it,
                 item.coinCode,
-                0,
-                numberFormatter.getSignificantDecimalCoin(it))
+                8)
             items.add(CoinDataItem(Translator.getString(R.string.CoinPage_TotalSupply),
                 totalSupplyString))
         }
 
         overview.circulatingSupply?.let {
-            val supplyString = numberFormatter.formatCoin(it,
+            val supplyString = numberFormatter.formatCoinShort(it,
                 item.coinCode,
-                0,
-                numberFormatter.getSignificantDecimalCoin(it))
+                8)
             items.add(CoinDataItem(Translator.getString(R.string.CoinPage_inCirculation),
                 supplyString))
         }
@@ -328,13 +309,7 @@ class CoinViewFactory(
     }
 
     private fun formatFiatShortened(value: BigDecimal, symbol: String): String {
-        val shortCapValue = numberFormatter.shortenValue(value)
-        return numberFormatter.formatFiat(
-            shortCapValue.first,
-            symbol,
-            0,
-            2
-        ) + " " + shortCapValue.second
+        return numberFormatter.formatFiatShort(value, symbol, 2)
     }
 
 }

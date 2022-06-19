@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,7 @@ import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.setNavigationResult
 
@@ -76,7 +76,7 @@ fun LaunchScreen(
             AppBar(
                 TranslatableString.ResString(R.string.Settings_LaunchScreen),
                 navigationIcon = {
-                    IconButton(onCloseButtonClick) {
+                    HsIconButton(onCloseButtonClick) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_back),
                             contentDescription = "back button",

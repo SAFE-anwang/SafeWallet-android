@@ -13,6 +13,7 @@ import com.v2ray.ang.service.V2RayServiceManager
 import com.v2ray.ang.util.MmkvManager
 import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.entities.EvmBlockchain
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewFragment
@@ -207,8 +208,8 @@ object VpnConnectService {
         App.adapterManager.refresh()
         // 刷新Bitcoin系列
         App.bitCoinConnectionManager.onEnterForeground()
-        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
-        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
+        /*App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
+        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()*/
         val mainActivity = activity as MainActivity
         try {
             getMarketOverviewFragment(mainActivity.supportFragmentManager.fragments) { fragment ->

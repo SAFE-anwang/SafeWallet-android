@@ -37,12 +37,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".modules.main.MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter android:label="@string/App_Name">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -53,9 +47,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".modules.send.SendActivity"
+            android:name=".modules.main.MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+        </activity>
         <activity
             android:name=".modules.safe4.safe2wsafe.SafeConvertSendActivity"
             android:screenOrientation="portrait"

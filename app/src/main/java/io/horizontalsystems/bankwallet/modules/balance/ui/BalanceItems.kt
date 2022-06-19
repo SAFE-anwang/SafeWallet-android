@@ -20,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -31,18 +30,17 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.*
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.helpers.HudHelper
 
 @Composable
 fun BalanceItems(
-    headerViewItem: BalanceHeaderViewItem,
     balanceViewItems: List<BalanceViewItem>,
     viewModel: BalanceViewModel,
     accountViewItem: AccountViewItem,
-    navController: NavController
+    navController: NavController,
+    uiState: BalanceUiState
 ) {
     val rateAppViewModel = viewModel<RateAppViewModel>(factory = RateAppModule.Factory())
     DisposableEffect(true) {
@@ -54,25 +52,37 @@ fun BalanceItems(
 
     Column {
         val context = LocalContext.current
-        TabBalance(
-            modifier = Modifier
-                .clickable {
-                    viewModel.onBalanceClick()
-                    HudHelper.vibrate(context)
-                }
-        ) {
-            val color = if (headerViewItem.upToDate) {
-                ComposeAppTheme.colors.jacob
-            } else {
-                ComposeAppTheme.colors.yellow50
+
+        when (val totalState = uiState.totalState) {
+            TotalUIState.Hidden -> {
+                DoubleText(
+                    title = "*****",
+                    body = "*****",
+                    dimmed = false,
+                    onClickTitle = {
+                        viewModel.onBalanceClick()
+                        HudHelper.vibrate(context)
+                    },
+                    onClickBody = {
+
+                    }
+                )
             }
-            Text(
-                text = headerViewItem.xBalanceText,
-                style = ComposeAppTheme.typography.headline1,
-                color = color,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            is TotalUIState.Visible -> {
+                DoubleText(
+                    title = totalState.currencyValueStr,
+                    body = totalState.coinValueStr,
+                    dimmed = totalState.dimmed,
+                    onClickTitle = {
+                        viewModel.onBalanceClick()
+                        HudHelper.vibrate(context)
+                    },
+                    onClickBody = {
+                        viewModel.toggleTotalType()
+                        HudHelper.vibrate(context)
+                    }
+                )
+            }
         }
 
         Header(borderTop = true) {
@@ -132,9 +142,7 @@ fun BalanceItems(
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
                     onClick = {
-                        navController.slideFromRight(
-                            R.id.mainFragment_to_manageWalletsFragment
-                        )
+                        navController.slideFromRight(R.id.manageWalletsFragment)
                     }
                 )
             }
@@ -142,7 +150,7 @@ fun BalanceItems(
             Spacer(modifier = Modifier.width(16.dp))
         }
 
-        Wallets(balanceViewItems, viewModel, navController, accountViewItem.id, viewModel.sortType)
+        Wallets(balanceViewItems, viewModel, navController, accountViewItem.id, viewModel.sortType, uiState)
     }
 }
 
@@ -154,7 +162,8 @@ fun Wallets(
     viewModel: BalanceViewModel,
     navController: NavController,
     accountId: String,
-    sortType: BalanceSortType
+    sortType: BalanceSortType,
+    uiState: BalanceUiState
 ) {
     var revealedCardId by remember { mutableStateOf<Int?>(null) }
 
@@ -167,7 +176,7 @@ fun Wallets(
     }
 
     HSSwipeRefresh(
-        state = rememberSwipeRefreshState(viewModel.isRefreshing),
+        state = rememberSwipeRefreshState(uiState.isRefreshing),
         onRefresh = {
             viewModel.onRefresh()
         }
