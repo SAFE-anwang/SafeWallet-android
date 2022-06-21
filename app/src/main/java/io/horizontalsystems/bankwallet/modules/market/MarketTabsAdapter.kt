@@ -7,17 +7,19 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesFragment
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewFragment
 import io.horizontalsystems.bankwallet.modules.market.posts.MarketPostsFragment
+import io.horizontalsystems.bankwallet.modules.market.safetweets.SafeCoinTweetsFragment
 
 class MarketTabsAdapter(fm: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fm, lifecycle) {
 
-    override fun getItemCount() = 3
+    override fun getItemCount() = 4
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> MarketOverviewFragment()
             1 -> MarketPostsFragment()
             2 -> MarketFavoritesFragment()
+            3 -> SafeCoinTweetsFragment()
             else -> throw IllegalStateException()
         }
     }

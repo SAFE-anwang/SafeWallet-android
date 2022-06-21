@@ -21,7 +21,7 @@ class TransactionsViewModel(
     private val transactionViewItem2Factory: TransactionViewItemFactory
 ) : ViewModel() {
 
-    lateinit var tmpItemToShow: TransactionItem
+//    lateinit var tmpItemToShow: TransactionItem
 
     val syncingLiveData = MutableLiveData<Boolean>()
     val filterCoinsLiveData = MutableLiveData<List<Filter<TransactionWallet>>>()

@@ -104,6 +104,7 @@ class BinanceAdapter(
 
     override fun getTransactionRecordsFlowable(coin: PlatformCoin?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
         return try {
+//            Log.i("safe4", "---platformCoin = $coin")
             val filter = getBinanceTransactionTypeFilter(transactionType)
             asset.getTransactionsFlowable(filter).map { it.map { transactionRecord(it) } }
         } catch (e: UnsupportedFilterException) {

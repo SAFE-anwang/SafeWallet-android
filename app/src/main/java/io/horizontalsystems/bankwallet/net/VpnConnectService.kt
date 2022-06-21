@@ -16,6 +16,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewFragment
+import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -204,6 +205,8 @@ object VpnConnectService {
 
     fun refreshData(activity: Activity) {
         // 连接成功后，刷新钱包，连接VPN过程中有可能导致同步失败
+        // 先修改同步状态，再刷新，不然会出现刷新不成功的情况
+        App.binanceKitManager.binanceKit?.syncState = BinanceChainKit.SyncState.NotSynced(Throwable("Initial State"))
         App.adapterManager.refresh()
         // 刷新Bitcoin系列
         App.bitCoinConnectionManager.onEnterForeground()

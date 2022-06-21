@@ -318,7 +318,14 @@
     <string name="Send_LockTime_Hour">1 小时</string>
     <string name="Send_LockTime_Month">1月</string>
     <string name="Send_LockTime_HalfYear">6月</string>
+    <string name="Send_LockTime_Month_1">1月</string>
+    <string name="Send_LockTime_Month_3">3月</string>
+    <string name="Send_LockTime_Month_6">6月</string>
+    <string name="Send_LockTime_Month_9">9月</string>
     <string name="Send_LockTime_Year">1年</string>
+    <string name="Send_LockTime_Year_3">3年</string>
+    <string name="Send_LockTime_Year_5">5年</string>
+    <string name="Send_LockTime_Year_10">10年</string>
     <string name="Send_Sending">正在发送</string>
     <string name="Send_Token_InsufficientFeeAlert">%1$s（%2$s）的交易费用以%3$s支付。您需要%4$s。</string>
     <string name="Send_Warning_LowFee">警告！有被骗的风险</string>
@@ -1007,9 +1014,12 @@
     <string name="Telegram_Join_Group">加入群组</string>
 
     <string name="Safe4_Title">SAFE专区</string>
-    <string name="Safe4_Cross_Chain">跨链</string>
-    <string name="Safe4_Title_safe2wsafe">SAFE->SAFE ERC20</string>
-    <string name="Safe4_Title_wsafe2safe">SAFE ERC20->SAFE</string>
+    <string name="Safe4_Cross_Chain_erc20">跨链(ETH)</string>
+    <string name="Safe4_Cross_Chain_bep20">跨链(BSC)</string>
+    <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
+    <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Locked">锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>

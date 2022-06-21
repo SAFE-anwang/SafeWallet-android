@@ -23,11 +23,11 @@ object SafeInfoManager {
     private val disposables = CompositeDisposable()
 
     fun startNet() {
-        if (App.ethereumKitManager.evmKitWrapper == null){
+        if (App.ethereumKitManager.evmKitWrapper == null) {
             return
         }
         val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
-        val safeNetType = WSafeManager(evmKit).getSafeNetType()
+        val safeNetType = WSafeManager(evmKit.chain).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

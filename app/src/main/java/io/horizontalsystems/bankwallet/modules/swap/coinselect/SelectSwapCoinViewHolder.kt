@@ -28,7 +28,8 @@ class SelectSwapCoinViewHolder(
         binding.bottomShade.isVisible = showBottomBorder
 
         coinItem.apply {
-            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE") {
+            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE"
+                || platformCoin.coin.uid == "custom_safe-bep20-SAFE") {
                 binding.coinIcon.setImage(ImageSource.Local(R.drawable.logo_safe_24))
             } else {
                 binding.coinIcon.setRemoteImage(

@@ -57,9 +57,9 @@ class CreateAccountService(
     }
 
     private fun activateDefaultWallets(account: Account) {
-        walletActivator.activateWallets(account, listOf(CoinType.Safe, CoinType.Bitcoin, CoinType.Ethereum))
+        walletActivator.activateWallets(account, listOf(CoinType.Safe, CoinType.Bitcoin, CoinType.Ethereum, CoinType.BinanceSmartChain))
         App.ethereumKitManager.evmKitWrapper?.let {
-            val safeConvertAddress = WSafeManager(it.evmKit).getSafeConvertAddress()
+            val safeConvertAddress = WSafeManager(it.evmKit.chain).getSafeConvertAddress()
             val safeErc20 = CoinType.Erc20(safeConvertAddress)
             walletActivator.activateWallets(account, listOf(safeErc20))
         }

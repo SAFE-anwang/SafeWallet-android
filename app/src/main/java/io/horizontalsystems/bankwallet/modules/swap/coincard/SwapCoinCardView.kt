@@ -130,7 +130,8 @@ class SwapCoinCardView @JvmOverloads constructor(
 
     private fun setCoin(platformCoin: PlatformCoin?) {
         if (platformCoin != null) {
-            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE") {
+            if (platformCoin.coin.uid == "custom_safe-erc20-SAFE"
+                || platformCoin.coin.uid == "custom_safe-bep20-SAFE") {
                 binding.iconCoin.setImage(ImageSource.Local(R.drawable.logo_safe_24))
             } else {
                 binding.iconCoin.setRemoteImage(

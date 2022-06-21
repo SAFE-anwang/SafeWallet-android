@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
@@ -71,7 +72,8 @@ class MarketSearchFragment : BaseFragment() {
                     },
                     onCoinClick = { coin ->
                         var uid = coin.uid
-                        if (coin.uid == "custom_safe-erc20-SAFE"){
+                        if (coin.uid == "custom_safe-erc20-SAFE"
+                            || coin.uid == "custom_safe-bep20-SAFE") {
                             uid = "safe-coin"
                         }
                         val arguments = CoinFragment.prepareParams(uid)
@@ -95,7 +97,7 @@ class MarketSearchFragment : BaseFragment() {
                     onSearchQueryChange = { query -> viewModel.searchByQuery(query) },
                     onFavoriteClick = { favorited, coinUid ->
                         var uid = coinUid
-                        if (coinUid == "custom_safe-erc20-SAFE"){
+                        if (coinUid == "custom_safe-erc20-SAFE" || coinUid == "custom_safe-bep20-SAFE"){
                             uid = "safe-coin"
                         }
                         viewModel.onFavoriteClick(favorited, uid)
@@ -166,11 +168,19 @@ fun MarketSearchResults(
             )
         }
         items(coinResult) { coinViewItem ->
+            // 替换safe-erc20和safe-bep20图片
+            var iconUrl = coinViewItem.fullCoin.coin.iconUrl
+            var iconPlaceholder = coinViewItem.fullCoin.iconPlaceholder
+            if (coinViewItem.fullCoin.coin.uid.startsWith("custom_safe-erc20-SAFE")
+                || coinViewItem.fullCoin.coin.uid.startsWith("custom_safe-bep20-SAFE")) {
+                iconUrl = "https://markets.nyc3.digitaloceanspaces.com/coin-icons/safe-coin@3x.png"
+                iconPlaceholder = 2131231657
+            }
             MarketCoin(
                 coinViewItem.fullCoin.coin.name,
                 coinViewItem.fullCoin.coin.code,
-                coinViewItem.fullCoin.coin.iconUrl,
-                coinViewItem.fullCoin.iconPlaceholder,
+                iconUrl,
+                iconPlaceholder,
                 favorited = coinViewItem.favourited,
                 label = coinViewItem.fullCoin.typeLabel,
                 onClick = { onCoinClick(coinViewItem.fullCoin.coin) },

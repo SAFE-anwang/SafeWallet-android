@@ -12,9 +12,9 @@ class AppConfigProvider {
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
 //     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
-     val appTwitterLink: String = "https://twitter.com/safe_2018"
+     val appTwitterLink: String = "https://twitter.com/safeanwang"
 //     val appTelegramLink: String = "https://t.me/unstoppable_announcements"
-    val appTelegramLink: String = "https://t.me/safe_anwang"
+    val appTelegramLink: String = "https://t.me/safeanwang"
 //     val appRedditLink: String = "https://www.reddit.com/r/UNSTOPPABLEWallet/"
     val appRedditLink: String = "https://www.reddit.com/user/safe_2018"
 //     val reportEmail = "support.unstoppable@protonmail.com"
@@ -88,4 +88,5 @@ class AppConfigProvider {
             Currency("USD", "$", 2),
     )
 
+    val safeTwitterUser = "safeanwang"
 }
