@@ -1,5 +1,6 @@
 2022年6月30日版本号V0.24.0.2.0622
 新增功能如下：
+
 1.SAFE跨链功能：safe<->bsc间跨链互转
 
 2.SAFE bep DEFI支持：1inch和pancakeswap上兑换
