@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
+package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
 import android.os.Bundle
 import android.os.Handler
@@ -14,42 +14,37 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.fee.WsafeFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
 import io.horizontalsystems.bankwallet.modules.send.SendRouter
 import io.horizontalsystems.bankwallet.modules.send.SendView
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
+import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.ConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeInfoFragment
+import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerFragment
+import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.sendbutton.ProceedButtonView
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.snackbar.SnackbarDuration
 
-class SafeConvertSendActivity : BaseActivity() {
+class LineLockSendActivity : BaseActivity() {
 
     private lateinit var mainPresenter: SendPresenter
     private lateinit var binding: ActivitySendBinding
 
     private var proceedButtonView: ProceedButtonView? = null
-
-    lateinit var safeWallet: Wallet
-    lateinit var wsafeWallet: Wallet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // prevent fragment recreations by passing null to onCreate
@@ -61,24 +56,17 @@ class SafeConvertSendActivity : BaseActivity() {
 
         overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
 
-        safeWallet = intent.getParcelableExtra(WALLET_SAFE) ?: run { finish(); return }
+        val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
 
-        wsafeWallet = intent.getParcelableExtra(WALLET_WSAFE) ?: run { finish(); return }
-
-        setToolbar(safeWallet.platformCoin.fullCoin)
-
-        val adapter by lazy { App.adapterManager.getAdapterForWallet(wsafeWallet) as ISendEthereumAdapter }
+        setToolbar(wallet.platformCoin.fullCoin)
 
         mainPresenter =
-            ViewModelProvider(this, SendModule.SafeConvertFactory(safeWallet, adapter)).get(SendPresenter::class.java)
+            ViewModelProvider(this, SendModule.LineLockFactory(wallet)).get(SendPresenter::class.java)
 
-        subscribeToViewEvents(mainPresenter.view as SendView, safeWallet)
+        subscribeToViewEvents(mainPresenter.view as SendView, wallet)
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
-
-        SafeInfoManager.startNet()
-
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
@@ -86,13 +74,9 @@ class SafeConvertSendActivity : BaseActivity() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
         binding.toolbarCompose.setContent {
-            var titleRes = R.string.Safe4_Title_safe2wsafe_erc20
-            if ("custom_safe-bep20-SAFE" == wsafeWallet.coin.uid) {
-                titleRes = R.string.Safe4_Title_safe2wsafe_bep20
-            }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(titleRes),
+                    title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
@@ -196,34 +180,50 @@ class SafeConvertSendActivity : BaseActivity() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
-                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
-                        val wsafeAddressFragment =
-                            WsafeAddressFragment(receiveAdapter.receiveAddress, wsafeWallet.platformCoin, it, mainPresenter.handler)
-                        fragments.add(wsafeAddressFragment)
+                        val sendAddressFragment =
+                            SendAddressFragment(wallet.platformCoin, it, mainPresenter.handler)
+                        fragments.add(sendAddressFragment)
                         supportFragmentManager.beginTransaction()
-                            .add(R.id.sendLinearLayout, wsafeAddressFragment)
+                            .add(R.id.sendLinearLayout, sendAddressFragment)
+                            .commitNow()
+                    }
+                }
+                SendModule.Input.Hodler -> {
+                    mainPresenter.hodlerModuleDelegate?.let {
+                        val sendAddressFragment = SendHodlerFragment(it, mainPresenter.handler)
+                        fragments.add(sendAddressFragment)
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.sendLinearLayout, sendAddressFragment)
                             .commitNow()
                     }
                 }
                 is SendModule.Input.Fee -> {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
-                        val wsafeFeeFragment = WsafeFeeFragment(
+                        val sendFeeFragment = SendFeeFragment(
                             wallet.platformCoin,
                             it,
                             mainPresenter.handler,
                             mainPresenter.customPriorityUnit
                         )
-                        fragments.add(wsafeFeeFragment)
+                        fragments.add(sendFeeFragment)
                         supportFragmentManager.beginTransaction()
-                            .add(R.id.sendLinearLayout, wsafeFeeFragment)
+                            .add(R.id.sendLinearLayout, sendFeeFragment)
                             .commitNow()
                     }
+                }
+                is SendModule.Input.Memo -> {
+                    //add memo view
+                    val sendMemoFragment =
+                        SendMemoFragment(input.maxLength, input.hidden, mainPresenter.handler)
+                    fragments.add(sendMemoFragment)
+                    supportFragmentManager.beginTransaction()
+                        .add(R.id.sendLinearLayout, sendMemoFragment).commitNow()
                 }
                 SendModule.Input.ProceedButton -> {
                     //add send button
                     proceedButtonView = ProceedButtonView(this)
-                    proceedButtonView?.bind { mainPresenter.validMinAmount() }
+                    proceedButtonView?.bind { mainPresenter.onProceedClicked() }
                     binding.sendLinearLayout.addView(proceedButtonView)
                 }
             }
@@ -241,8 +241,7 @@ class SafeConvertSendActivity : BaseActivity() {
     }
 
     companion object {
-        const val WALLET_SAFE = "wallet_safe_key"
-        const val WALLET_WSAFE = "wallet_wsafe_key"
+        const val WALLET = "wallet_key"
     }
 
 }

@@ -175,8 +175,9 @@ private fun Safe4Sections(
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(App.instance,
-                        Translator.getString(R.string.Safe4_Coming_Soon), Toast.LENGTH_SHORT).show()
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerLineLock()
+                    }
                 }
             )
         },{

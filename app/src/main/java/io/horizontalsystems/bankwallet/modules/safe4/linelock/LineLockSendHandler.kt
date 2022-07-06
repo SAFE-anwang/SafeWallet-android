@@ -1,34 +1,23 @@
-package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
+package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
 import io.horizontalsystems.bankwallet.core.AppLogger
-import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
-import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoModule
-import io.horizontalsystems.bitcoincore.utils.HashUtils
-import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
-import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.Single
 import java.math.BigDecimal
 
-class SendSafeConvertHandler(
-    private val interactor: SendModule.ISendSafeInteractor,
-    private val ethAdapter: ISendEthereumAdapter
-) : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate,
-    SendAmountModule.IAmountModuleDelegate,
-    SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
-    SendHodlerModule.IHodlerModuleDelegate {
-
-    private val safeConvertAddress =
-        WSafeManager(ethAdapter.evmKitWrapper.evmKit.chain).getSafeConvertAddress()
+class LineLockSendHandler(
+        private val interactor: SendModule.ISendSafeInteractor)
+    : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate, SendAmountModule.IAmountModuleDelegate,
+      SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
+      SendHodlerModule.IHodlerModuleDelegate {
 
     private fun syncValidation() {
         var amountError: Throwable? = null
@@ -46,23 +35,19 @@ class SendSafeConvertHandler(
             addressError = e
         }
 
-        delegate.onChange(
-            amountError == null && addressError == null && feeModule.isValid,
-            amountError,
-            addressError
-        )
+        delegate.onChange(amountError == null && addressError == null && feeModule.isValid, amountError, addressError)
     }
 
     private fun syncAvailableBalance() {
-        interactor.fetchAvailableBalance(safeConvertAddress)
+        interactor.fetchAvailableBalance(addressModule.currentAddress?.hex)
     }
 
     private fun syncFee() {
-        interactor.fetchFee(amountModule.coinAmount.value, safeConvertAddress)
+        interactor.fetchFee(amountModule.coinAmount.value, addressModule.currentAddress?.hex)
     }
 
     private fun syncMinimumAmount() {
-        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(safeConvertAddress))
+        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(addressModule.currentAddress?.hex))
         syncValidation()
     }
 
@@ -82,6 +67,7 @@ class SendSafeConvertHandler(
             add(SendModule.Input.Amount)
             add(SendModule.Input.Address())
             add(SendModule.Input.Fee)
+            add(SendModule.Input.Hodler)
             add(SendModule.Input.ProceedButton)
         }
 
@@ -94,22 +80,13 @@ class SendSafeConvertHandler(
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
-            add(
-                SendModule.SendConfirmationAmountViewItem(
-                    amountModule.coinValue(),
-                    amountModule.currencyValue(),
-                    Address(safeConvertAddress),
-                    lockTimeInterval != null,
-                    addressModule.validAddress().hex
-                )
-            )
+            add(SendModule.SendConfirmationAmountViewItem(
+                amountModule.coinValue(),
+                amountModule.currencyValue(),
+                addressModule.validAddress(),
+                lockTimeInterval != null))
 
-            add(
-                SendModule.SendConfirmationFeeViewItem(
-                    feeModule.coinValue,
-                    feeModule.currencyValue
-                )
-            )
+            add(SendModule.SendConfirmationFeeViewItem(feeModule.coinValue, feeModule.currencyValue))
 
             lockTimeInterval?.let {
                 add(SendModule.SendConfirmationLockTimeViewItem(it))
@@ -118,27 +95,13 @@ class SendSafeConvertHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        return interactor.send(
-            amountModule.validAmount(),
-            safeConvertAddress,
-            logger,
-            null,
-            getReverseHex()
-        )
-    }
-
-    fun getReverseHex(): String {
-        val wsafeAddress: String
-        val safeRemarkPrex = "736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a020100122e"
-        if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.BinanceSmartChain) {
-            wsafeAddress = "bsc:" + addressModule.validAddress().hex
-        } else {
-            wsafeAddress = "eth:" + addressModule.validAddress().hex
+        val hodlerData = hodlerModule?.pluginData()
+        if ( hodlerData != null && !hodlerData.isEmpty() ){
+            val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
+            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval, null)
         }
-        val wsafeHex = HashUtils.toHexString(wsafeAddress.toByteArray())
-        return safeRemarkPrex + wsafeHex
+        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, null)
     }
-
 
     // SendModule.ISendBitcoinInteractorDelegate
 
@@ -148,12 +111,7 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
-        var newFee = fee + BigDecimal(safeInfoPO.eth.safe_fee)
-        if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.BinanceSmartChain) {
-             newFee = fee + BigDecimal(safeInfoPO.bsc.safe_fee)
-        }
-        feeModule.setFee(newFee)
+        feeModule.setFee(fee)
     }
 
     // SendAmountModule.ModuleDelegate
@@ -193,5 +151,4 @@ class SendSafeConvertHandler(
         syncFee()
         syncMinimumAmount()
     }
-
 }
