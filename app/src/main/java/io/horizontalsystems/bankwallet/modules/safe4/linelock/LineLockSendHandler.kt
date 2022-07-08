@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmount
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoModule
+import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
@@ -95,12 +96,8 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val hodlerData = hodlerModule?.pluginData()
-        if ( hodlerData != null && !hodlerData.isEmpty() ){
-            val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
-            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval, null)
-        }
-        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, null)
+        val reverseHex = JsonUtils.objToString(JsonUtils.LineLock(0, 1000000, 2, 1, 2))
+        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, reverseHex)
     }
 
     // SendModule.ISendBitcoinInteractorDelegate

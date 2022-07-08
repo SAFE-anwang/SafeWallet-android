@@ -118,7 +118,6 @@ object Safe4Module {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
-        var wsafeWallet: Wallet? = null
         for (it in walletList) {
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
