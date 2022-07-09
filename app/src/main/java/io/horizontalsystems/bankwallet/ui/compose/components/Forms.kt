@@ -113,6 +113,10 @@ fun FormsInput(
                 }
             )
 
+            if (initial != null) {
+                onValueChange.invoke(initial)
+            }
+
             when (state) {
                 is DataState.Loading -> {
                     // Todo: Need to find better solution

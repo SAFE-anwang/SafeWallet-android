@@ -68,7 +68,7 @@ class SendWsafeViewModel(
         if (amountCaution.error?.convertedError != null) {
             var text =
                 amountCaution.error.localizedMessage ?: amountCaution.error.javaClass.simpleName
-             if (text.startsWith("Read error:")){
+            if (text.startsWith("Read error:")){
                 text = "获取手续费异常，请稍等"
             }
             caution = Caution(text, Caution.Type.Error)
