@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -76,7 +77,7 @@ class LineLockSendActivity : BaseActivity() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
+                    title = TranslatableString.ResString(R.string.Safe4_Line_Locked),
                     navigationIcon = {
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
@@ -200,7 +201,7 @@ class LineLockSendActivity : BaseActivity() {
                 is SendModule.Input.Fee -> {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
-                        val sendFeeFragment = SendFeeFragment(
+                        val sendFeeFragment = LineLockFeeFragment(
                             wallet.platformCoin,
                             it,
                             mainPresenter.handler,
@@ -223,7 +224,11 @@ class LineLockSendActivity : BaseActivity() {
                 SendModule.Input.ProceedButton -> {
                     //add send button
                     proceedButtonView = ProceedButtonView(this)
-                    proceedButtonView?.bind { mainPresenter.onProceedClicked() }
+                    proceedButtonView?.bind {
+                        if ((mainPresenter.handler as LineLockSendHandler).checkLineLock()){
+                            mainPresenter.onProceedClicked()
+                        }
+                    }
                     binding.sendLinearLayout.addView(proceedButtonView)
                 }
             }

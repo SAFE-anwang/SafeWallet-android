@@ -1033,5 +1033,13 @@
     <string name="Send_Wsafe_Fee_Warn">该费用仅为参考，请以实际扣除为准</string>
     <string name="watch_address_hint">注意：支持导入ETH和BSC地址，显示ETH和BSC的链上资产</string>
 
+    <string name="Safe4_Every_Time_Lock_Amount">每次锁仓金额</string>
+    <string name="Safe4_Starting_Month">起始月份</string>
+    <string name="Safe4_Interval_Month">间隔月份</string>
+
+    <string name="Safe4_Line_Lock_Tips">从第%s个月开始，每隔%s个月解锁%s个SAFE，总使用%s个SAFE</string>
+    <string name="Safe4_Locked_Value_Error">请检查每次锁仓金额</string>
+    <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
+    <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
 
 </resources>

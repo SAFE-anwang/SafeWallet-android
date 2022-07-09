@@ -36,6 +36,7 @@ object SendFeeModule {
         fun setFee(fee: AmountInfo, convertedFee: AmountInfo?)
         fun setError(error: Exception?)
         fun showLowFeeWarning(show: Boolean)
+        fun setLineLockTips(value: String)
 
     }
 
@@ -76,6 +77,7 @@ object SendFeeModule {
         fun setBalance(balance: BigDecimal)
         fun setRate(rate: BigDecimal?)
         fun setAmountInfo(sendAmountInfo: SendAmountInfo)
+        fun setLineLockTips(value: String)
     }
 
     interface IFeeModuleDelegate {

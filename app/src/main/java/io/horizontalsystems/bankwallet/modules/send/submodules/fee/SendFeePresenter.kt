@@ -183,6 +183,10 @@ class SendFeePresenter(
         feeRateAdjustmentInfo.amountInfo = sendAmountInfo
     }
 
+    override fun setLineLockTips(value: String) {
+        view.setLineLockTips(value)
+    }
+
     // SendFeeModule.IViewDelegate
 
     override fun onViewDidLoad() {

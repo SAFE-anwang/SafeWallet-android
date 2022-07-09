@@ -202,4 +202,12 @@ class SendBitcoinHandler(
 
         syncState()
     }
+
+    override fun onUpdateLineLock(
+        lockedValue: String?,
+        startMonth: String?,
+        intervalMonth: String?
+    ) {
+
+    }
 }

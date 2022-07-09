@@ -18,6 +18,7 @@ class SendFeeView : SendFeeModule.IView {
     val setLoading = MutableLiveData<Boolean>()
     val setError = MutableLiveData<Exception>()
     val showLowFeeWarningLiveData = MutableLiveData<Boolean>()
+    val lineLockTips = SingleLiveEvent<String>()
 
     override fun setAdjustableFeeVisible(visible: Boolean) {
         showAdjustableFeeMenu.postValue(visible)
@@ -65,5 +66,10 @@ class SendFeeView : SendFeeModule.IView {
     override fun showLowFeeWarning(show: Boolean) {
         showLowFeeWarningLiveData.postValue(show)
     }
+
+    override fun setLineLockTips(value: String) {
+        lineLockTips.postValue(value)
+    }
+
 
 }

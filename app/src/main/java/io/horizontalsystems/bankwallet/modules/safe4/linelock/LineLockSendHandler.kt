@@ -1,6 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
+import android.widget.Toast
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
@@ -25,7 +29,8 @@ class LineLockSendHandler(
         var addressError: Throwable? = null
 
         try {
-            amountModule.validAmount()
+            val value = amountModule.validAmount()
+            hodlerModule?.setAmount(value)
         } catch (e: Exception) {
             amountError = e
         }
@@ -59,6 +64,9 @@ class LineLockSendHandler(
     override lateinit var feeModule: SendFeeModule.IFeeModule
     override lateinit var memoModule: SendMemoModule.IMemoModule
     override var hodlerModule: SendHodlerModule.IHodlerModule? = null
+    private var lockedValue: String? = null
+    private var startMonth: String? = null
+    private var intervalMonth: String? = null
 
     override lateinit var delegate: SendModule.ISendHandlerDelegate
     override fun sync() {}
@@ -67,8 +75,8 @@ class LineLockSendHandler(
         mutableListOf<SendModule.Input>().apply {
             add(SendModule.Input.Amount)
             add(SendModule.Input.Address())
-            add(SendModule.Input.Fee)
             add(SendModule.Input.Hodler)
+            add(SendModule.Input.Fee)
             add(SendModule.Input.ProceedButton)
         }
 
@@ -96,8 +104,10 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val reverseHex = JsonUtils.objToString(JsonUtils.LineLock(0, 1000000, 2, 1, 2))
-        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, reverseHex)
+        val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
+        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+        val reverseHex = JsonUtils.objToString(JsonUtils.LineLock(0, lockedValue.toString(), startMonth!!.toInt(), intervalMonth!!.toInt(), outputSize))
+        return interactor.send(totalAmount, addressModule.validAddress().hex, logger , null, reverseHex)
     }
 
     // SendModule.ISendBitcoinInteractorDelegate
@@ -148,4 +158,44 @@ class LineLockSendHandler(
         syncFee()
         syncMinimumAmount()
     }
+
+    fun checkLineLock(): Boolean {
+        val amount = amountModule.validAmount()
+        val outputSize = (amount / BigDecimal(lockedValue)).toInt()
+        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+        if (BigDecimal(lockedValue) > amount || totalAmount > amount) {
+            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (BigDecimal(startMonth) <= BigDecimal.ZERO) {
+            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
+            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    override fun onUpdateLineLock(
+        lockedValue: String?,
+        startMonth: String?,
+        intervalMonth: String?
+    ) {
+        this.lockedValue = lockedValue
+        this.startMonth = startMonth
+        this.intervalMonth = intervalMonth
+        if (startMonth != null
+            && intervalMonth != null
+            && lockedValue != null
+            && amountModule.validAmount() > BigDecimal.ZERO
+            && BigDecimal(lockedValue) > BigDecimal.ZERO) {
+            val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
+            val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+            val lineLockStr = Translator.getString(R.string.Safe4_Line_Lock_Tips, startMonth, intervalMonth, lockedValue, totalAmount)
+            this.feeModule.setLineLockTips(lineLockStr)
+        }
+    }
+
 }

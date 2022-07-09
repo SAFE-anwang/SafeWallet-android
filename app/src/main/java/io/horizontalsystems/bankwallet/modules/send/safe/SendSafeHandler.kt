@@ -151,4 +151,12 @@ class SendSafeHandler(
         syncFee()
         syncMinimumAmount()
     }
+
+    override fun onUpdateLineLock(
+        lockedValue: String?,
+        startMonth: String?,
+        intervalMonth: String?
+    ) {
+
+    }
 }
