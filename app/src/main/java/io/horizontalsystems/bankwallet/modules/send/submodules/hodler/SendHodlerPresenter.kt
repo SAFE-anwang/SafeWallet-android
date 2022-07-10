@@ -70,13 +70,13 @@ class SendHodlerPresenter(
         val intervalMonth: String
         val outputSize: Int
         if (amount < BigDecimal(1)) { // 小于1 SAFE
-            lockedValue = amount.toPlainString()
             outputSize = 1
+            lockedValue = amount.toPlainString()
             startMonth = "1"
             intervalMonth = "1"
         } else if (amount >= BigDecimal(1) &&amount < BigDecimal(120)) { // 1-120 SAFE
+            outputSize = (amount / BigDecimal(1)).toInt()
             lockedValue = "1"
-            outputSize = 1
             startMonth = "1"
             intervalMonth = "1"
         } else if (amount >= BigDecimal(120) && amount < BigDecimal(1000)) { // 120-1000 SAFE
