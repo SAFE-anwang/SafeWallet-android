@@ -69,8 +69,13 @@ class SendHodlerPresenter(
         val startMonth: String
         val intervalMonth: String
         val outputSize: Int
-        if (amount < BigDecimal(120)) {
+        if (amount < BigDecimal(1)) {
             lockedValue = amount.toPlainString()
+            outputSize = 1
+            startMonth = "1"
+            intervalMonth = "1"
+        } else if (amount >= BigDecimal(1) &&amount < BigDecimal(120)) {
+            lockedValue = "1"
             outputSize = 1
             startMonth = "1"
             intervalMonth = "1"

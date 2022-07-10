@@ -16,6 +16,7 @@ import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
+import org.apache.commons.lang3.StringUtils
 import java.math.BigDecimal
 
 class LineLockSendHandler(
@@ -160,6 +161,10 @@ class LineLockSendHandler(
     }
 
     fun checkLineLock(): Boolean {
+        if (StringUtils.isBlank(lockedValue)) {
+            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT).show()
+            return false
+        }
         val amount = amountModule.validAmount()
         val outputSize = (amount / BigDecimal(lockedValue)).toInt()
         val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
@@ -167,11 +172,11 @@ class LineLockSendHandler(
             Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT).show()
             return false
         }
-        if (BigDecimal(startMonth) <= BigDecimal.ZERO) {
+        if (StringUtils.isBlank(startMonth) || BigDecimal(startMonth) <= BigDecimal.ZERO) {
             Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT).show()
             return false
         }
-        if (BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
+        if (StringUtils.isBlank(intervalMonth) || BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
             Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT).show()
             return false
         }
@@ -189,6 +194,7 @@ class LineLockSendHandler(
         if (startMonth != null
             && intervalMonth != null
             && lockedValue != null
+            && StringUtils.isNotBlank(lockedValue)
             && amountModule.validAmount() > BigDecimal.ZERO
             && BigDecimal(lockedValue) > BigDecimal.ZERO) {
             val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()

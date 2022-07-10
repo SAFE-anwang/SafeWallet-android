@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.DataState
@@ -41,6 +42,12 @@ fun HSAddressInput(
         else -> addressStateMergedWithError
     }
 
+    if (initial != null) {
+        Log.i("safe4",  "initial 1: ${addressState?.dataOrNull}")
+        onValueChange?.invoke(addressState?.dataOrNull)
+        onStateChange?.invoke(addressState)
+    }
+
     FormsInput(
         modifier = modifier,
         initial = initial?.title,
@@ -51,10 +58,11 @@ fun HSAddressInput(
             isFocused = it
         }
     ) {
+//        Log.i("safe4",  "it: $it")
         parseAddressJob?.cancel()
         parseAddressJob = scope.launch {
             addressState = DataState.Loading
-
+//            Log.i("safe4",  "initial 2: ${addressState?.dataOrNull}")
             val state = try {
                 DataState.Success(viewModel.parseAddress(it))
             } catch (e: AddressValidationException.Blank) {
@@ -65,6 +73,7 @@ fun HSAddressInput(
 
             ensureActive()
             addressState = state
+//            Log.i("safe4",  "initial 3: ${addressState?.dataOrNull}")
             onValueChange?.invoke(addressState?.dataOrNull)
             onStateChange?.invoke(addressState)
         }
