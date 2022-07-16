@@ -16,7 +16,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
-import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.databinding.ActivityLockInfoBinding
 import io.horizontalsystems.bankwallet.databinding.ViewHolderLockItemBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -57,7 +57,7 @@ class LockInfoActivity : BaseActivity() {
         setToolbar()
 
         val totalAmount = balanceData.locked.movePointLeft(8).stripTrailingZeros()
-        binding.totalAmountText.text = Translator.getString(R.string.Safe4_Lock_Total_Amount, totalAmount)
+        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, totalAmount)
         syncItems(lockUxto)
     }
 
@@ -140,9 +140,9 @@ class LockInfoActivity : BaseActivity() {
 
         fun bind(item: ViewItem) {
             this.item = item
-            binding.lockAmountText.text = Translator.getString(R.string.Safe4_Lock_Amount, item.lockAmount)
+            binding.lockAmountText.text = getString(R.string.Safe4_Lock_Amount, item.lockAmount)
             binding.addressText.text = item.address
-            binding.monthText.text = Translator.getString(R.string.Safe4_Lock_Month, item.month)
+            binding.monthText.text = getString(R.string.Safe4_Lock_Month, item.month)
         }
     }
 
