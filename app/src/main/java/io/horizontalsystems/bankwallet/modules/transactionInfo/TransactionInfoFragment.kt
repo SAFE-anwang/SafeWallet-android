@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentTransactionInfoBinding
+import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.transactionInfo.adapters.TransactionInfoAdapter
 import io.horizontalsystems.bankwallet.modules.transactionInfo.options.TransactionSpeedUpCancelFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -35,9 +36,6 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
         TransactionsModule.Factory()
     }*/
     private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
-        if (App.tmpItemToShow == null) { //处理null指针
-            activity?.finish()
-        }
         TransactionInfoModule.Factory(App.tmpItemToShow!!)
     }
     /*private val viewModel by viewModels<TransactionInfoViewModel> {
