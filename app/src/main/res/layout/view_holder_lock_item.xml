@@ -17,8 +17,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:drawablePadding="6dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:drawableStart="@drawable/ic_lock_20"
             android:text="0.2 SAFE"
             android:textColor="@color/oz" />
 
@@ -27,11 +29,10 @@
             style="@style/Subhead2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_lock_20"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:text="1个月"
-            android:textColor="@color/oz" />
+            android:textColor="@color/jacob" />
 
     </LinearLayout>
 
