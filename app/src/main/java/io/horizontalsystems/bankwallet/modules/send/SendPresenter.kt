@@ -114,12 +114,12 @@ class SendPresenter(
             return
         }
         val minSafe = BigDecimal(safeInfoPO.minamount)
-        if (handler.amountModule.coinAmount.value < minSafe) {
-            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
-            return
-        } else {
+//        if (handler.amountModule.coinAmount.value < minSafe) {
+//            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
+//            return
+//        } else {
            onProceedClicked()
-        }
+//        }
     }
 
 }

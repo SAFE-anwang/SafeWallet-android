@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
@@ -24,9 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -182,12 +179,13 @@ private fun Safe4Sections(
             )
         },{
             HsSettingCell(
-                R.string.Safe4_node_Locked,
+                R.string.Safe4_Lock_Info,
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
-                    Toast.makeText(App.instance,
-                        Translator.getString(R.string.Safe4_Coming_Soon), Toast.LENGTH_SHORT).show()
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerLineInfo()
+                    }
                 }
             )
         })

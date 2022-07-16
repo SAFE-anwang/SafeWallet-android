@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.viewModels
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import io.horizontalsystems.bankwallet.R
@@ -21,8 +20,6 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentTransactionInfoBinding
 import io.horizontalsystems.bankwallet.modules.transactionInfo.adapters.TransactionInfoAdapter
 import io.horizontalsystems.bankwallet.modules.transactionInfo.options.TransactionSpeedUpCancelFragment
-import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
-import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
@@ -38,6 +35,9 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
         TransactionsModule.Factory()
     }*/
     private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
+        if (App.tmpItemToShow == null) { //处理null指针
+            activity?.finish()
+        }
         TransactionInfoModule.Factory(App.tmpItemToShow!!)
     }
     /*private val viewModel by viewModels<TransactionInfoViewModel> {
@@ -129,7 +129,7 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
         }
     }
 
-    override fun onLockInfoClick(lockDate: Date,unlockedHeight:Long?) {
+    override fun onLockInfoClick(lockDate: Date, unlockedHeight: Long?) {
         context?.let {
             val title = it.getString(R.string.Info_LockTime_Title)
 //            val description = it.getString(
@@ -143,7 +143,10 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
             )
             val infoParameters = InfoParameters(title, description)
 
-            findNavController().slideFromBottom(R.id.infoFragment, InfoFragment.prepareParams(infoParameters))
+            findNavController().slideFromBottom(
+                R.id.infoFragment,
+                InfoFragment.prepareParams(infoParameters)
+            )
         }
     }
 
@@ -154,7 +157,10 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
             val infoParameters =
                 InfoParameters(title, description, transactionHash, conflictingHash)
 
-            findNavController().slideFromBottom(R.id.infoFragment, InfoFragment.prepareParams(infoParameters))
+            findNavController().slideFromBottom(
+                R.id.infoFragment,
+                InfoFragment.prepareParams(infoParameters)
+            )
         }
     }
 

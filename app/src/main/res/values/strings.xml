@@ -1202,4 +1202,9 @@
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
 
+    <string name="Safe4_Lock_Info">Lock up record</string>
+    <string name="Safe4_Lock_Amount">% SAFE</string>
+    <string name="Safe4_Lock_Month">%s months</string>
+    <string name="Safe4_Lock_Total_Amount">%s SAFE locked in total</string>
+
 </resources>

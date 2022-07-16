@@ -1042,4 +1042,9 @@
     <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
     <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
 
+    <string name="Safe4_Lock_Info">锁仓记录</string>
+    <string name="Safe4_Lock_Amount">% SAFE</string>
+    <string name="Safe4_Lock_Month">%s个月</string>
+    <string name="Safe4_Lock_Total_Amount">总锁定：%s SAFE</string>
+
 </resources>
