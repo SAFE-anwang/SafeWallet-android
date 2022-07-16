@@ -55,7 +55,7 @@ class LockInfoActivity : BaseActivity() {
             Log.i("safe4", "---lockUxto: $lockMonth ${it.output.value} ${it.output.unlockedHeight}")
         }
         setToolbar()
-        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, balanceData.locked)
+        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, balanceData.locked.stripTrailingZeros())
         syncItems(lockUxto)
     }
 
