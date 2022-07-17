@@ -21,6 +21,7 @@ import io.horizontalsystems.bankwallet.databinding.FragmentTransactionInfoBindin
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.transactionInfo.adapters.TransactionInfoAdapter
 import io.horizontalsystems.bankwallet.modules.transactionInfo.options.TransactionSpeedUpCancelFragment
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
@@ -36,7 +37,9 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
         TransactionsModule.Factory()
     }*/
     private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
-        TransactionInfoModule.Factory(App.tmpItemToShow!!)
+        val newItem = TransactionItem(App.tmpItemToShow!!.record,  App.tmpItemToShow!!.currencyValue?.copy(), App.tmpItemToShow!!.lastBlockInfo?.copy())
+        App.tmpItemToShow = null // 提前清空临时对象
+        TransactionInfoModule.Factory(newItem)
     }
     /*private val viewModel by viewModels<TransactionInfoViewModel> {
         TransactionInfoModule.Factory(App.tmpItemToShow!!)
