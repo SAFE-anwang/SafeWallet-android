@@ -33,6 +33,8 @@ class LockInfoActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLockInfoBinding
 
+    var lastHeight: Int  = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(null)
@@ -49,11 +51,12 @@ class LockInfoActivity : BaseActivity() {
         Log.i("safe4", "---balanceData: ${balanceData.locked}")
 
         val adapter = App.adapterManager.getAdapterForWallet(wallet) as SafeAdapter
+        lastHeight = adapter.lastBlockInfo?.height!!
         val lockUxto = adapter.kit.getConfirmedUnlockedUnspentOutputProvider().getLockUxto()
-        lockUxto.forEach {
-            val lockMonth = (BigDecimal(it.output.unlockedHeight!!) - BigDecimal(it.block!!.height)) / BigDecimal(86400)
-            Log.i("safe4", "---lockUxto: $lockMonth ${it.output.value} ${it.output.unlockedHeight}")
-        }
+//        lockUxto.forEach {
+//            val lockMonth = (BigDecimal(it.output.unlockedHeight!!) - BigDecimal(it.block!!.height)) / BigDecimal(86400)
+//            Log.i("safe4", "---lockUxto: $lockMonth ${it.output.value} ${it.output.unlockedHeight}")
+//        }
         setToolbar()
         binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, balanceData.locked.stripTrailingZeros())
         syncItems(lockUxto)
@@ -98,12 +101,21 @@ class LockInfoActivity : BaseActivity() {
 
     private fun syncItems(items: List<UnspentOutput>) {
         val viewItems = items.map { item ->
-            val lockMonth = (BigDecimal(item.output.unlockedHeight!!) - BigDecimal(item.block!!.height)) / BigDecimal(86400)
+            val lockMonth: String
+            if (item.block != null && item.block?.height != null) {
+                lockMonth = ((BigDecimal(item.output.unlockedHeight!!) - BigDecimal(item.block!!.height)) / BigDecimal(86400)).toPlainString()
+            } else {
+                if (lastHeight > 0) {
+                    lockMonth = ((BigDecimal(item.output.unlockedHeight!!) - BigDecimal(lastHeight)) / BigDecimal(86400)).toPlainString()
+                } else {
+                    lockMonth = getString(R.string.Safe4_Lock_Sending)
+                }
+            }
             val lockAmount = BigDecimal(item.output.value).movePointLeft(8).stripTrailingZeros()
             ViewItem(
                 lockAmount.toPlainString(),
                 item.output.address.toString(),
-                lockMonth.toPlainString()
+                lockMonth
             )
         }
         binding.rvItems.adapter = Adapter(viewItems)
