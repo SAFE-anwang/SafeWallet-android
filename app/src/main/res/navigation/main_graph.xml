@@ -87,6 +87,12 @@
         <action
             android:id="@+id/mainFragment_to_tg"
             app:destination="@id/join_to_telegram" />
+        <action
+            android:id="@+id/dapp_to_search"
+            app:destination="@id/dappFragmentSearch" />
+        <action
+            android:id="@+id/dapp_to_all"
+            app:destination="@id/dappFragmentAll" />
     </fragment>
     <fragment
         android:id="@+id/join_to_telegram"
@@ -504,7 +510,17 @@
             app:destination="@id/transactionInfoFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/dappFragmentSearch"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppSearchFragment" />
 
+    <fragment
+        android:id="@+id/dappFragmentAll"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppAllFragment" />
+
+    <fragment
+        android:id="@+id/dappBrowseFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseActivity" />
 
     <!--  Dialogs/BottomSheets  -->
     <!--    <dialog-->

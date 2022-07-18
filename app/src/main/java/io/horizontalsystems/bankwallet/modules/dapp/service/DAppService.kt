@@ -1,0 +1,94 @@
+package io.horizontalsystems.bankwallet.modules.dapp.service
+
+import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.entities.DataState
+import io.horizontalsystems.bankwallet.modules.dapp.DAppItem
+import io.horizontalsystems.bankwallet.modules.dapp.FilterDAppType
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
+
+class DAppService(
+    val service: DAppApiService
+): Clearable {
+
+    val allDAppList: ArrayList<DAppItem> = ArrayList()
+    val dAppItemsObservable: BehaviorSubject<DataState<List<DAppItem>>> =
+        BehaviorSubject.create()
+    val recommendsItemsObservable: BehaviorSubject<DataState<List<DAppItem>>> =
+        BehaviorSubject.create()
+    val searchItemsObservable: BehaviorSubject<DataState<List<DAppItem>>> =
+        BehaviorSubject.create()
+
+    private var dAppDataDisposable: Disposable? = null
+    private var recommendsDisposable: Disposable? = null
+
+    private var filterDAppType = FilterDAppType.ETH
+
+    init {
+        syncData()
+    }
+
+    private fun syncData() {
+        dAppDataDisposable?.dispose()
+        service.getAllList()
+            .doOnSubscribe { dAppItemsObservable.onNext(DataState.Loading) }
+            .subscribeIO({
+                allDAppList.clear()
+                allDAppList.addAll(it)
+                setFilterType(filterDAppType)
+            }, {
+                dAppItemsObservable.onNext(DataState.Error(it))
+            })
+            .let {
+                dAppDataDisposable = it
+            }
+        service.getRecommends()
+            .subscribeIO({
+                recommendsItemsObservable.onNext(DataState.Success(it))
+            }, {
+                recommendsItemsObservable.onNext(DataState.Error(it))
+            })
+            .let {
+                recommendsDisposable = it
+            }
+    }
+
+    private fun getFilterString(): String {
+        return when(filterDAppType) {
+            FilterDAppType.ETH -> "ETH"
+            FilterDAppType.EOS -> "EOS"
+            FilterDAppType.SAFE -> "SAFE"
+            FilterDAppType.Recommend -> "Recommend"
+        }
+    }
+
+    fun setFilterType(f: FilterDAppType) {
+        filterDAppType = f
+
+        dAppItemsObservable.onNext(DataState.Success(allDAppList.filter {
+            it.type == getFilterString()
+        }))
+    }
+
+    override fun clear() {
+        dAppDataDisposable?.dispose()
+    }
+
+    fun search(name: String) {
+        service.getListByName(name)
+            .doOnSubscribe { searchItemsObservable.onNext(DataState.Loading) }
+            .subscribeIO({
+                searchItemsObservable.onNext(DataState.Success(it))
+            }, {
+                searchItemsObservable.onNext(DataState.Error(it))
+            })
+            .let {
+
+            }
+    }
+
+    fun refresh() {
+        syncData()
+    }
+}
