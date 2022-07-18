@@ -26,7 +26,9 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
+import io.horizontalsystems.core.helpers.HudHelper
 import java.math.BigDecimal
 
 class LockInfoActivity : BaseActivity() {
@@ -152,7 +154,15 @@ class LockInfoActivity : BaseActivity() {
             this.item = item
             binding.lockAmountText.text = getString(R.string.Safe4_Lock_Amount, item.lockAmount)
             binding.addressText.text = item.address
+            binding.addressText.setOnClickListener {
+                this.copyText(item.address)
+            }
             binding.monthText.text = getString(R.string.Safe4_Lock_Month, item.month)
+        }
+
+        private fun copyText(address: String) {
+            TextHelper.copyText(address)
+            HudHelper.showSuccessMessage(binding.root, R.string.Hud_Text_Copied)
         }
     }
 
