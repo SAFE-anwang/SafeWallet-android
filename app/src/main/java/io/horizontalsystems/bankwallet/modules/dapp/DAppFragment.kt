@@ -155,28 +155,6 @@ private fun DAppScreen(viewModel: DAppViewModel, navController: NavController) {
                     {  }
                 )
             }
-
-            Crossfade(viewState) { viewState ->
-                when (viewState) {
-                    ViewState.Success -> {
-                        dAppItems?.let { transactionItems ->
-                            if (transactionItems.isEmpty()) {
-                                if (syncing) {
-                                    ListEmptyView(
-                                        text = stringResource(R.string.Transactions_WaitForSync),
-                                        icon = R.drawable.ic_clock
-                                    )
-                                } else {
-                                    ListEmptyView(
-                                        text = stringResource(R.string.Transactions_EmptyList),
-                                        icon = R.drawable.ic_outgoingraw
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
