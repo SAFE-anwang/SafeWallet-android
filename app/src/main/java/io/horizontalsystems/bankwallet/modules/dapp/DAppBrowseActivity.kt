@@ -54,8 +54,12 @@ class DAppBrowseActivity: BaseActivity(){
     private fun setting() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                Log.e("longwen", "shouldOverrideUrlLoading: $url")
+                if (url?.startsWith("wc:") == true) {
+                    return true
+                }
                 url?.let {
-                    view?.loadUrl(it)
+                    view?.loadUrl(url)
                 }
                 return true
             }

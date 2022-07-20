@@ -1,18 +1,15 @@
 package io.horizontalsystems.bankwallet.modules.dapp
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.ImageLoader
-import coil.ImageLoaderFactory
 import coil.load
+import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.setOnSingleClickListener
-import io.horizontalsystems.bankwallet.databinding.ViewDappItemBinding
 import io.horizontalsystems.bankwallet.databinding.ViewDappSubItemBinding
-import java.util.HashMap
 
 
 class DAppItemAdapter(
@@ -52,9 +49,47 @@ class DAppItemAdapter(
             binding.txtAppName.text = item.name
             binding.txtDescription.text = if (App.languageManager.currentLanguageName.contains("zh"))
                 item.desc else item.descEN
+            /*val request = ImageRequest.Builder(binding.appIconView.context)
+                .data(item.icon)
+                .crossfade(true)
+                .target(binding.appIconView)
+                .addHeader("Content-Type", "image/png")
+                .listener(object : ImageRequest.Listener {
+                    override fun onError(request: ImageRequest, throwable: Throwable) {
+                        super.onError(request, throwable)
+                        Log.e("DAppApiService", "error: $throwable")
+                    }
+                })
+                .build()
+            binding.appIconView.context.imageLoader.enqueue(request)*/
             binding.appIconView.load(item.icon) {
                 placeholder(R.drawable.ic_image_photo)
                 transformations(CircleCropTransformation())
+                listener(
+                    object : ImageRequest.Listener {
+                        override fun onError(request: ImageRequest, throwable: Throwable) {
+                            super.onError(request, throwable)
+                            Log.e("DAppApiService", "error: $throwable")
+                            val resId = when(item.name.lowercase()) {
+                                "uniswap" -> {
+                                    R.drawable.ic_uniswap
+                                }
+                                "sushi" -> {
+                                    R.drawable.sushi
+                                }
+                                "safeswap" -> {
+                                    R.drawable.safe
+                                }
+                                else -> 0
+                            }
+                            if (resId != 0) {
+                                binding.appIconView.load(resId) {
+                                    transformations(CircleCropTransformation())
+                                }
+                            }
+                        }
+                    }
+                )
             }
         }
     }
