@@ -298,7 +298,8 @@ class App : CoreApp(), WorkConfiguration.Provider  {
         ApplicationLoader.instance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
-        safeProvider = SafeProvider("https://safewallet.anwang.com/")
+//        safeProvider = SafeProvider("https://safewallet.anwang.com/")
+        safeProvider = SafeProvider("https://139.162.75.142/")
         SafeInfoManager.startNet()
 
     }

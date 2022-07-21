@@ -40,7 +40,8 @@ object MarketModule {
         Overview(R.string.Market_Tab_Overview),
         Posts(R.string.Market_Tab_Posts),
         Watchlist(R.string.Market_Tab_Watchlist),
-        Tweets(R.string.Coin_Tab_Tweets);
+        Tweets(R.string.Coin_Tab_Tweets),
+        DApp(R.string.DApp_Tab_Name);
 
         companion object {
             private val map = values().associateBy(Tab::name)

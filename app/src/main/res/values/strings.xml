@@ -1208,4 +1208,14 @@
     <string name="Safe4_Lock_Total_Amount">%s locked in total</string>
     <string name="Safe4_Lock_Sending">Sending</string>
 
+    <string name="DApp_Tab_Name">Dapp</string>
+    <string name="DApp_Title">DApp</string>
+    <string name="DApp_ETH">ETH</string>
+    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_Recommended">Recommended</string>
+    <string name="DApp_Search">Search</string>
+    <string name="DApp_Searching">Searching。。。</string>
+    <string name="DApp_Search_no_data">Can\'t find apps</string>
+    <string name="DApp_Search_error">Search error, please try again</string>
 </resources>

@@ -1048,4 +1048,13 @@
     <string name="Safe4_Lock_Total_Amount">总锁定：%s</string>
     <string name="Safe4_Lock_Sending">发送中</string>
 
+    <string name="DApp_Tab_Name">Dapp</string>
+    <string name="DApp_ETH">ETH</string>
+    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_Recommended">推荐</string>
+    <string name="DApp_Search">搜索</string>
+    <string name="DApp_Searching">正在搜索。。。</string>
+    <string name="DApp_Search_no_data">搜索不到应用</string>
+    <string name="DApp_Search_error">搜索出错，请重试</string>
 </resources>
