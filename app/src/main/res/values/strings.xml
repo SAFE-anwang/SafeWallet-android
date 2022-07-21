@@ -1201,11 +1201,11 @@
     <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
+    <string name="Safe4_Locked_Month_Error">The number of locked cannot be greater than 120</string>
 
     <string name="Safe4_Lock_Info">Lock up record</string>
-    <string name="Safe4_Lock_Amount">%s SAFE</string>
     <string name="Safe4_Lock_Month">%s months</string>
-    <string name="Safe4_Lock_Total_Amount">%s SAFE locked in total</string>
+    <string name="Safe4_Lock_Total_Amount">%s locked in total</string>
     <string name="Safe4_Lock_Sending">Sending</string>
 
 </resources>

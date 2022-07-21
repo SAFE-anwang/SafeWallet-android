@@ -30,6 +30,7 @@ import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.core.helpers.HudHelper
 import java.math.BigDecimal
+import java.util.*
 
 class LockInfoActivity : BaseActivity() {
 
@@ -51,17 +52,18 @@ class LockInfoActivity : BaseActivity() {
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val balanceData =  balanceAdapterRepository.balanceData(wallet)
         Log.i("safe4", "---balanceData: ${balanceData.locked}")
-
         val adapter = App.adapterManager.getAdapterForWallet(wallet) as SafeAdapter
         lastHeight = adapter.lastBlockInfo?.height!!
-        val lockUxto = adapter.kit.getConfirmedUnlockedUnspentOutputProvider().getLockUxto()
-//        lockUxto.forEach {
-//            val lockMonth = (BigDecimal(it.output.unlockedHeight!!) - BigDecimal(it.block!!.height)) / BigDecimal(86400)
-//            Log.i("safe4", "---lockUxto: $lockMonth ${it.output.value} ${it.output.unlockedHeight}")
-//        }
         setToolbar()
-        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, balanceData.locked.stripTrailingZeros())
+        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, getAmount(balanceData.locked))
+        val lockUxto = adapter.kit.getConfirmedUnlockedUnspentOutputProvider().getLockUxto()
         syncItems(lockUxto)
+
+    }
+
+    private fun getAmount(amount: BigDecimal) : String {
+        val significantDecimal = App.numberFormatter.getSignificantDecimalCoin(amount)
+        return App.numberFormatter.formatCoin(amount, "SAFE", 0, significantDecimal)
     }
 
     private fun setToolbar() {
@@ -103,31 +105,45 @@ class LockInfoActivity : BaseActivity() {
 
     private fun syncItems(items: List<UnspentOutput>) {
         val viewItems = items.map { item ->
-            val lockMonth: String
+            val height: Int
             if (item.block != null && item.block?.height != null) {
-                lockMonth = ((BigDecimal(item.output.unlockedHeight!!) - BigDecimal(item.block!!.height)) / BigDecimal(86400)).toPlainString()
+                height = item.block?.height!!
             } else {
-                if (lastHeight > 0) {
-                    lockMonth = ((BigDecimal(item.output.unlockedHeight!!) - BigDecimal(lastHeight)) / BigDecimal(86400)).toPlainString()
-                } else {
-                    lockMonth = getString(R.string.Safe4_Lock_Sending)
-                }
+                height = lastHeight
             }
-            val lockAmount = BigDecimal(item.output.value).movePointLeft(8).stripTrailingZeros()
+            val lockMonth = ((BigDecimal(item.output.unlockedHeight!!) - BigDecimal(height)) / BigDecimal(86400)).toInt()
+            val lockAmount = BigDecimal(item.output.value).movePointLeft(8)
+            val isLocked = lastHeight <= item.output.unlockedHeight!!
             ViewItem(
-                lockAmount.toPlainString(),
+                height,
+                getAmount(lockAmount),
                 item.output.address.toString(),
-                lockMonth
+                lockMonth,
+                isLocked
             )
         }
+        Collections.sort(viewItems)
         binding.rvItems.adapter = Adapter(viewItems)
     }
 
     data class ViewItem(
+        val height: Int,
         val lockAmount: String,
         val address: String,
-        val month: String
-    )
+        val month: Int,
+        val isLocked: Boolean
+    ) : Comparable<ViewItem> {
+
+        override fun compareTo(other: ViewItem): Int {
+            //降序
+            var result = -height.compareTo(other.height)
+            if(result == 0) {
+                //升序
+                result = month.compareTo(other.month)
+            }
+            return result
+        }
+    }
 
     class Adapter(
         private val items: List<ViewItem>
@@ -152,12 +168,17 @@ class LockInfoActivity : BaseActivity() {
 
         fun bind(item: ViewItem) {
             this.item = item
-            binding.lockAmountText.text = getString(R.string.Safe4_Lock_Amount, item.lockAmount)
+            binding.lockAmountText.text = item.lockAmount
             binding.addressText.text = item.address
             binding.addressText.setOnClickListener {
                 this.copyText(item.address)
             }
             binding.monthText.text = getString(R.string.Safe4_Lock_Month, item.month)
+            if (item.isLocked) {
+                binding.isLocked.setImageResource(R.drawable.ic_lock_20);
+            } else {
+                binding.isLocked.setImageResource(R.drawable.ic_unlock_20);
+            }
         }
 
         private fun copyText(address: String) {
