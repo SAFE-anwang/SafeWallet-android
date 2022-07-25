@@ -18,6 +18,7 @@ import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import org.apache.commons.lang3.StringUtils
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 class LineLockSendHandler(
     private val interactor: SendModule.ISendSafeInteractor
@@ -94,11 +95,13 @@ class LineLockSendHandler(
     override fun confirmationViewItems(): List<SendModule.SendConfirmationViewItem> {
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
+        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        val totalAmount = BigDecimal(lockedValue) * outputSize
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(
                 SendModule.SendConfirmationAmountViewItem(
                     amountModule.coinValue(),
-                    amountModule.currencyValue(),
+                    amountModule.getLockedAmount(totalAmount),
                     addressModule.validAddress(),
                     lockTimeInterval != null
                 )
@@ -118,15 +121,15 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
-        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        val totalAmount = BigDecimal(lockedValue) * outputSize
         val reverseHex = JsonUtils.objToString(
             JsonUtils.LineLock(
                 0,
                 lockedValue.toString(),
                 startMonth!!.toInt(),
                 intervalMonth!!.toInt(),
-                outputSize
+                outputSize.toInt()
             )
         )
         return interactor.send(
@@ -194,9 +197,9 @@ class LineLockSendHandler(
             return false
         }
         val amount = amountModule.validAmount()
-        val outputSize = (amount / BigDecimal(lockedValue)).toInt()
-        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
-        if (BigDecimal(lockedValue) > amount || totalAmount > amount) {
+        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        val totalAmount = BigDecimal(lockedValue) * outputSize
+        if (totalAmount > amount) {
             Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
                 .show()
             return false
@@ -211,7 +214,7 @@ class LineLockSendHandler(
                 .show()
             return false
         }
-        if (BigDecimal(outputSize) > BigDecimal(120)) {
+        if (outputSize > BigDecimal(120)) {
             Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
                 .show()
             return false
@@ -236,8 +239,8 @@ class LineLockSendHandler(
             && BigDecimal(intervalMonth) > BigDecimal.ZERO
             && amountModule.currentAmount > BigDecimal.ZERO
         ) {
-            val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
-            val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+            val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+            val totalAmount = BigDecimal(lockedValue) * outputSize
             val lineLockStr = Translator.getString(
                 R.string.Safe4_Line_Lock_Tips,
                 startMonth!!,

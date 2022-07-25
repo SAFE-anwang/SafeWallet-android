@@ -64,6 +64,12 @@ class SendAmountPresenter(
                 } ?: throw Exception("Invalid state")
     }
 
+    override fun getLockedAmount(lockedAmount: BigDecimal): CurrencyValue? {
+        return this.xRate?.let { xRate ->
+            CurrencyValue(baseCurrency, lockedAmount * xRate)
+        } ?: throw Exception("Invalid state")
+    }
+
     override fun secondaryAmountInfo(): SendModule.AmountInfo? {
         return when (inputType.reversed()) {
             SendModule.InputType.COIN -> CoinValueInfo(CoinValue(CoinValue.Kind.PlatformCoin(coin), validAmount()))

@@ -88,6 +88,10 @@ class SendAmountFragment(
         })
     }
 
+    fun setLockedTitle() {
+        binding.lockedTitle.visibility = View.VISIBLE
+    }
+
     override fun init() {
         presenter.onViewDidLoad()
     }
