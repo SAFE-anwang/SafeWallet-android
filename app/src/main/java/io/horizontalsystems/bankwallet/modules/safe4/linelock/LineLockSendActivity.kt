@@ -27,10 +27,8 @@ import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
 import io.horizontalsystems.bankwallet.modules.send.SendRouter
 import io.horizontalsystems.bankwallet.modules.send.SendView
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
-import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.ConfirmationFragment
-import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeInfoFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.hodler.SendHodlerFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.memo.SendMemoFragment
@@ -71,6 +69,7 @@ class LineLockSendActivity : BaseActivity() {
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
+
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
@@ -84,7 +83,9 @@ class LineLockSendActivity : BaseActivity() {
                     navigationIcon = {
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
-                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .size(24.dp)
                         )
                     },
                     menuItems = listOf(
@@ -179,6 +180,7 @@ class LineLockSendActivity : BaseActivity() {
                         fragments.add(sendAmountFragment)
                         supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAmountFragment).commitNow()
+                        sendAmountFragment.setLockedTitle()
                     }
                 }
                 is SendModule.Input.Address -> {

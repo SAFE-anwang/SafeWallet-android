@@ -17,6 +17,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/lockedTitle"
+        style="@style/Subhead2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/Safe4_Total_Locked"
+        android:visibility="gone"
+        android:textColor="@color/grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/availableBalanceTitle" />
+
+    <TextView
         android:id="@+id/availableBalanceValue"
         style="@style/Subhead2"
         android:layout_width="wrap_content"
@@ -50,7 +62,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/availableBalanceTitle"
+        app:layout_constraintTop_toBottomOf="@+id/lockedTitle"
         app:layout_constraintVertical_bias="0.0" />
 
     <io.horizontalsystems.bankwallet.ui.extensions.AmountInputView

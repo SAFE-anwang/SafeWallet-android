@@ -1198,15 +1198,16 @@
     <string name="Safe4_Interval_Month">Interval Month</string>
 
     <string name="Safe4_Line_Lock_Tips">From starting month %s, unlock %s safe every %s months, and use %s safe in total</string>
-    <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid</string>
+    <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
+    <string name="Safe4_Locked_Month_Error">The number of locked cannot be greater than 120</string>
 
     <string name="Safe4_Lock_Info">Lock up record</string>
-    <string name="Safe4_Lock_Amount">%s SAFE</string>
     <string name="Safe4_Lock_Month">%s months</string>
-    <string name="Safe4_Lock_Total_Amount">%s SAFE locked in total</string>
+    <string name="Safe4_Lock_Total_Amount">%s locked in total</string>
     <string name="Safe4_Lock_Sending">Sending</string>
+    <string name="Safe4_Total_Locked">Total amount to be locked</string>
 
     <string name="DApp_Tab_Name">Dapp</string>
     <string name="DApp_Title">DApp</string>

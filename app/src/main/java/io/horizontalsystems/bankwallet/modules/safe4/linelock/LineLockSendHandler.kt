@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
 import android.widget.Toast
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -18,12 +19,14 @@ import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import org.apache.commons.lang3.StringUtils
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 class LineLockSendHandler(
-        private val interactor: SendModule.ISendSafeInteractor)
-    : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate, SendAmountModule.IAmountModuleDelegate,
-      SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
-      SendHodlerModule.IHodlerModuleDelegate {
+    private val interactor: SendModule.ISendSafeInteractor
+) : SendModule.ISendHandler, SendModule.ISendSafeInteractorDelegate,
+    SendAmountModule.IAmountModuleDelegate,
+    SendAddressModule.IAddressModuleDelegate, SendFeeModule.IFeeModuleDelegate,
+    SendHodlerModule.IHodlerModuleDelegate {
 
     private fun syncValidation() {
         var amountError: Throwable? = null
@@ -42,7 +45,11 @@ class LineLockSendHandler(
             addressError = e
         }
 
-        delegate.onChange(amountError == null && addressError == null && feeModule.isValid, amountError, addressError)
+        delegate.onChange(
+            amountError == null && addressError == null && feeModule.isValid,
+            amountError,
+            addressError
+        )
     }
 
     private fun syncAvailableBalance() {
@@ -89,14 +96,25 @@ class LineLockSendHandler(
     override fun confirmationViewItems(): List<SendModule.SendConfirmationViewItem> {
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
-        return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
-            add(SendModule.SendConfirmationAmountViewItem(
-                amountModule.coinValue(),
-                amountModule.currencyValue(),
-                addressModule.validAddress(),
-                lockTimeInterval != null))
+        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        val lockedValue = BigDecimal(lockedValue) * outputSize
 
-            add(SendModule.SendConfirmationFeeViewItem(feeModule.coinValue, feeModule.currencyValue))
+        return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
+            add(
+                SendModule.SendConfirmationAmountViewItem(
+                    amountModule.getLockedCoinValue(lockedValue),
+                    amountModule.getLockedCurrencyValue(lockedValue),
+                    addressModule.validAddress(),
+                    true
+                )
+            )
+
+            add(
+                SendModule.SendConfirmationFeeViewItem(
+                    feeModule.coinValue,
+                    feeModule.currencyValue
+                )
+            )
 
             lockTimeInterval?.let {
                 add(SendModule.SendConfirmationLockTimeViewItem(it))
@@ -105,10 +123,24 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
-        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
-        val reverseHex = JsonUtils.objToString(JsonUtils.LineLock(0, lockedValue.toString(), startMonth!!.toInt(), intervalMonth!!.toInt(), outputSize))
-        return interactor.send(totalAmount, addressModule.validAddress().hex, logger , null, reverseHex)
+        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        val totalAmount = BigDecimal(lockedValue) * outputSize
+        val reverseHex = JsonUtils.objToString(
+            JsonUtils.LineLock(
+                0,
+                lockedValue.toString(),
+                startMonth!!.toInt(),
+                intervalMonth!!.toInt(),
+                outputSize.toInt()
+            )
+        )
+        return interactor.send(
+            totalAmount,
+            addressModule.validAddress().hex,
+            logger,
+            null,
+            reverseHex
+        )
     }
 
     // SendModule.ISendBitcoinInteractorDelegate
@@ -162,22 +194,30 @@ class LineLockSendHandler(
 
     fun checkLineLock(): Boolean {
         if (StringUtils.isBlank(lockedValue)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         val amount = amountModule.validAmount()
-        val outputSize = (amount / BigDecimal(lockedValue)).toInt()
-        val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
-        if (BigDecimal(lockedValue) > amount || totalAmount > amount) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT).show()
+        if (BigDecimal(lockedValue) > amount) {
+            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (StringUtils.isBlank(startMonth) || BigDecimal(startMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (StringUtils.isBlank(intervalMonth) || BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT)
+                .show()
+            return false
+        }
+        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        if (outputSize > BigDecimal(120)) {
+            Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         return true
@@ -191,16 +231,28 @@ class LineLockSendHandler(
         this.lockedValue = lockedValue
         this.startMonth = startMonth
         this.intervalMonth = intervalMonth
-        if (startMonth != null
-            && intervalMonth != null
-            && lockedValue != null
-            && StringUtils.isNotBlank(lockedValue)
-            && amountModule.validAmount() > BigDecimal.ZERO
-            && BigDecimal(lockedValue) > BigDecimal.ZERO) {
-            val outputSize = (amountModule.validAmount() / BigDecimal(lockedValue)).toInt()
-            val totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
-            val lineLockStr = Translator.getString(R.string.Safe4_Line_Lock_Tips, startMonth, intervalMonth, lockedValue, totalAmount)
-            this.feeModule.setLineLockTips(lineLockStr)
+
+        try {
+            if (StringUtils.isNotBlank(lockedValue)
+                && StringUtils.isNotBlank(startMonth)
+                && StringUtils.isNotBlank(intervalMonth)
+                && BigDecimal(lockedValue) > BigDecimal.ZERO
+                && BigDecimal(startMonth) > BigDecimal.ZERO
+                && BigDecimal(intervalMonth) > BigDecimal.ZERO
+                && amountModule.currentAmount > BigDecimal.ZERO
+            ) {
+                val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+                val totalAmount = BigDecimal(lockedValue) * outputSize
+                val lineLockStr = Translator.getString(
+                    R.string.Safe4_Line_Lock_Tips,
+                    startMonth!!,
+                    intervalMonth!!,
+                    lockedValue!!,
+                    totalAmount
+                )
+                this.feeModule.setLineLockTips(lineLockStr)
+            }
+        } catch (e: Exception) {
         }
     }
 
