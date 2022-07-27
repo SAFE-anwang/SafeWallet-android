@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.send.submodules.hodler
 
 import android.os.Bundle
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,8 +64,8 @@ class SendHodlerFragment(
             presenter.onClickLockTimeInterval()
         }
 
+        binding.lockedValue.editText?.filters = arrayOf<InputFilter>(PointInputFilter())
         binding.lockedValue.editText?.addTextChangedListener(afterTextChanged = {
-
             presenter.onTextChangeLockedValue(it.toString())
         })
 

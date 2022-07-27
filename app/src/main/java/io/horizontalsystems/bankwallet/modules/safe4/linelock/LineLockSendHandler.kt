@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
 import android.widget.Toast
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -96,14 +97,15 @@ class LineLockSendHandler(
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
         val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
-        val totalAmount = BigDecimal(lockedValue) * outputSize
+        val lockedValue = BigDecimal(lockedValue) * outputSize
+
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(
                 SendModule.SendConfirmationAmountViewItem(
-                    amountModule.coinValue(),
-                    amountModule.getLockedAmount(totalAmount),
+                    amountModule.getLockedCoinValue(lockedValue),
+                    amountModule.getLockedCurrencyValue(lockedValue),
                     addressModule.validAddress(),
-                    lockTimeInterval != null
+                    true
                 )
             )
 
@@ -197,9 +199,7 @@ class LineLockSendHandler(
             return false
         }
         val amount = amountModule.validAmount()
-        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
-        val totalAmount = BigDecimal(lockedValue) * outputSize
-        if (totalAmount > amount) {
+        if (BigDecimal(lockedValue) > amount) {
             Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
                 .show()
             return false
@@ -214,6 +214,7 @@ class LineLockSendHandler(
                 .show()
             return false
         }
+        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
         if (outputSize > BigDecimal(120)) {
             Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
                 .show()
@@ -231,24 +232,27 @@ class LineLockSendHandler(
         this.startMonth = startMonth
         this.intervalMonth = intervalMonth
 
-        if (StringUtils.isNotBlank(lockedValue)
-            && StringUtils.isNotBlank(startMonth)
-            && StringUtils.isNotBlank(intervalMonth)
-            && BigDecimal(lockedValue) > BigDecimal.ZERO
-            && BigDecimal(startMonth) > BigDecimal.ZERO
-            && BigDecimal(intervalMonth) > BigDecimal.ZERO
-            && amountModule.currentAmount > BigDecimal.ZERO
-        ) {
-            val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
-            val totalAmount = BigDecimal(lockedValue) * outputSize
-            val lineLockStr = Translator.getString(
-                R.string.Safe4_Line_Lock_Tips,
-                startMonth!!,
-                intervalMonth!!,
-                lockedValue!!,
-                totalAmount
-            )
-            this.feeModule.setLineLockTips(lineLockStr)
+        try {
+            if (StringUtils.isNotBlank(lockedValue)
+                && StringUtils.isNotBlank(startMonth)
+                && StringUtils.isNotBlank(intervalMonth)
+                && BigDecimal(lockedValue) > BigDecimal.ZERO
+                && BigDecimal(startMonth) > BigDecimal.ZERO
+                && BigDecimal(intervalMonth) > BigDecimal.ZERO
+                && amountModule.currentAmount > BigDecimal.ZERO
+            ) {
+                val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+                val totalAmount = BigDecimal(lockedValue) * outputSize
+                val lineLockStr = Translator.getString(
+                    R.string.Safe4_Line_Lock_Tips,
+                    startMonth!!,
+                    intervalMonth!!,
+                    lockedValue!!,
+                    totalAmount
+                )
+                this.feeModule.setLineLockTips(lineLockStr)
+            }
+        } catch (e: Exception) {
         }
     }
 

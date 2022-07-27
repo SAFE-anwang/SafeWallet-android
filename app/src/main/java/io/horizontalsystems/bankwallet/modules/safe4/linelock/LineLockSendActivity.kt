@@ -69,6 +69,7 @@ class LineLockSendActivity : BaseActivity() {
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
+
     }
 
     private fun setToolbar(fullCoin: FullCoin) {
@@ -82,7 +83,9 @@ class LineLockSendActivity : BaseActivity() {
                     navigationIcon = {
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
-                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .size(24.dp)
                         )
                     },
                     menuItems = listOf(

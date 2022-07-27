@@ -55,11 +55,13 @@ object SendAmountModule {
 
         fun coinValue(): CoinValue
 
+        fun getLockedCoinValue(lockedValue: BigDecimal): CoinValue
+
         @Throws
         fun currencyValue(): CurrencyValue?
 
         @Throws
-        fun getLockedAmount(lockedAmount: BigDecimal): CurrencyValue?
+        fun getLockedCurrencyValue(lockedValue: BigDecimal): CurrencyValue?
 
         @Throws
         fun secondaryAmountInfo(): AmountInfo?
