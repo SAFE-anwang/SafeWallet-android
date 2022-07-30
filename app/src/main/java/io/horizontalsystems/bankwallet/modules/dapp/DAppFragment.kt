@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
@@ -53,7 +54,7 @@ import java.util.HashMap
 
 class DAppFragment: BaseFragment() {
 
-    private val viewModel by navGraphViewModels<DAppViewModel>(R.id.mainFragment) { DAppModule.Factory() }
+    private val viewModel by viewModels<DAppViewModel> { DAppModule.Factory() }
     private lateinit var recommendAdapter: DAppAdapter
     private lateinit var classifyAdapter: DAppAdapter
 
@@ -94,18 +95,25 @@ class DAppFragment: BaseFragment() {
             viewModel.refresh()
         }
         binding.dappSearch.setOnSingleClickListener {
-            findNavController().slideFromRight(R.id.dapp_to_search)
+            findNavController().slideFromRight(R.id.dappFragmentSearch)
         }
         val listener = object : DAppAdapter.Listener {
             override fun onAllDApp(type: String) {
-                findNavController().slideFromRight(R.id.dapp_to_all)
+                findNavController().slideFromRight(R.id.dappFragmentAll)
             }
 
             override fun onClick(dappItem: DAppItem) {
-                startActivity(Intent(requireActivity(), DAppBrowseActivity::class.java).apply {
+                /*findNavController().slideFromBottom(
+                    R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
+                )*/
+                val bundle = Bundle()
+                bundle.putString("url", dappItem.dlink)
+                bundle.putString("name", dappItem.name)
+                findNavController().slideFromRight(R.id.mainFragment_to_dappBrowseFragment, bundle)
+                /*startActivity(Intent(requireActivity(), DAppBrowseActivity::class.java).apply {
                     putExtra("url", dappItem.dlink)
                     putExtra("name", dappItem.name)
-                })
+                })*/
             }
 
         }

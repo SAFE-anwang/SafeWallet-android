@@ -1,78 +1,162 @@
 package io.horizontalsystems.bankwallet.modules.dapp
 
 import android.os.Bundle
-import android.os.Message
 import android.util.Base64
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
+import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
-import androidx.room.util.StringUtil
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
+import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v1.WCSessionModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
+import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Request
+import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SendEthereumTransactionRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
+import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SignMessageRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Request
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SendEthereumTransactionRequest
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SignMessageRequest
+import io.horizontalsystems.core.SingleLiveEvent
+import io.horizontalsystems.core.findNavController
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import java.net.URLDecoder
-import java.net.URLEncoder
 
-class DAppBrowseActivity: BaseActivity(){
+class DAppBrowseFragment: BaseFragment(){
+
+//    private lateinit  var baseViewModel : WalletConnectViewModel
+
+    private var _binding: FragmentDappBrowseBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var webView: WebView
-    private lateinit var toolbar: Toolbar
+    /*private lateinit var toolbar: Toolbar
     private lateinit var progressBar: ProgressBar
-    private lateinit var webRootView: LinearLayout
+    private lateinit var webRootView: LinearLayout*/
     private lateinit var urlString: String
 
     private var wc1Service: WC1Service? = null
     private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
+    private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
+    val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
 
     private var autoConnect = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dapp_browse)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentDappBrowseBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initUI()
     }
 
     private fun initUI() {
-        toolbar = findViewById(R.id.dappToolbar)
+        /*toolbar = findViewById(R.id.dappToolbar)
         progressBar = findViewById(R.id.progressBar)
-        webRootView = findViewById(R.id.webRootView)
-        toolbar.setNavigationOnClickListener {
-            finish()
+        webRootView = findViewById(R.id.webRootView)*/
+        binding.dappToolbar.setNavigationOnClickListener {
+            findNavController().popBackStack()
         }
-        val url = intent?.extras?.getString("url")
-        val name = intent?.extras?.getString("name")
-        toolbar.title = name
-        progressBar.progress = 0
+        val url = arguments?.getString("url")
+        val name = arguments?.getString("name")
+        binding.dappToolbar.title = name
+        binding.progressBar.progress = 0
         addWebView()
         url?.let {
             urlString = it
             webView.loadUrl(url)
         }
+
+        //监听返回键
+        var callback = object: OnBackPressedCallback(
+            true // default to enabled
+        ) {
+            override fun handleOnBackPressed() {
+                if (webView.canGoBack()) {
+                    webView.goBack()
+                } else {
+                    findNavController().popBackStack()
+                }
+            }
+
+        }
+        //获取Activity的返回键分发器添加回调
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            callback)
+        openRequestLiveEvent.observe(viewLifecycleOwner, Observer {
+            val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
+                WalletConnectModule.Factory2(
+                    wc1Service!!
+                )
+            }
+            when (it) {
+                is WC1SendEthereumTransactionRequest -> {
+                    Log.e("connectWallet", "navigation transaction 1")
+                    baseViewModel.sharedSendEthereumTransactionRequest = it
+
+                    Log.e("connectWallet", "navigation transaction 2")
+                    findNavController().slideFromRight(
+                        R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
+                    )
+                    Log.e("connectWallet", "navigation transaction")
+                }
+                is WC1SignMessageRequest -> {
+                    Log.e("connectWallet", "navigation sign message")
+                    baseViewModel.sharedSignMessageRequest = it
+
+                    findNavController().slideFromRight(
+                        R.id.mainFragment_to_wcSignMessageRequestFragment
+                    )
+                }
+            }
+        })
+        openWalletConnectRequestLiveEvent.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is WC2SignMessageRequest -> {
+                    findNavController().slideFromBottom(
+                        R.id.wc2SignMessageRequestFragment,
+                        WC2SignMessageRequestFragment.prepareParams(it.id)
+                    )
+                }
+                is WC2SendEthereumTransactionRequest -> {
+                    findNavController().slideFromBottom(
+                        R.id.wc2SendEthereumTransactionRequestFragment,
+                        WC2SendEthereumTransactionRequestFragment.prepareParams(it.id)
+                    )
+                }
+            }
+        })
     }
 
     private fun addWebView() {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        webView = WebView(applicationContext)
-        webRootView.addView(webView, layoutParams)
+        webView = WebView(requireActivity().applicationContext)
+        binding.webRootView.addView(webView, layoutParams)
         setting()
     }
 
@@ -93,7 +177,7 @@ class DAppBrowseActivity: BaseActivity(){
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 Log.e("connectWallet", "progress: $newProgress")
-                progressBar.progress = newProgress
+                binding.progressBar.progress = newProgress
                 super.onProgressChanged(view, newProgress)
                 if (newProgress == 100 && autoConnect) {
                     autoConnect = false
@@ -110,16 +194,16 @@ class DAppBrowseActivity: BaseActivity(){
     private fun getSession() {
         val accountId = App.accountManager.activeAccount?.id ?: return
         val cacheConnectLink = App.preferences.getString(getKey(urlString), null) ?: return
-
+        Log.e("connectWallet", "auto connect $cacheConnectLink")
         App.wc1SessionManager.sessions.forEach {
             if (it.accountId == accountId && cacheConnectLink == it.session.toUri()) {
-                Log.e("connectWallet", "auto connect")
+                Log.e("connectWallet", "auto connect v1 $cacheConnectLink")
                 wc1Connect(it.remotePeerId, null)
             }
         }
         App.wc2SessionManager.sessions.forEach {
             if (it.accounts.contains(accountId) && cacheConnectLink == it.peerAppMetaData?.url) {
-                Log.e("connectWallet", "auto connect")
+                Log.e("connectWallet", "auto connect v2")
                 wc2Connect(it.topic, null)
             }
         }
@@ -130,6 +214,7 @@ class DAppBrowseActivity: BaseActivity(){
     }
 
     private fun connectWallet(connectionLink: String) {
+        if (connectionLink.endsWith("@1") || connectionLink.endsWith("@2")) return
         when {
             connectionLink.contains("@1?") -> wc1Connect(null, connectionLink)
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
@@ -137,6 +222,7 @@ class DAppBrowseActivity: BaseActivity(){
     }
 
     private fun wc1Connect(remotePeerId: String?, connectionLink: String?) {
+        Log.e("connectWallet", "v1 connect")
         wc1Service = WC1Service(
             remotePeerId,
             connectionLink,
@@ -145,10 +231,12 @@ class DAppBrowseActivity: BaseActivity(){
             App.wc1RequestManager,
             App.connectivityManager
         )
+
         wc1Service!!.connectionStateObservable
             .subscribe {
-                Log.e("connectWallet", "connect state: $it")
-                if (it == WalletConnectInteractor.State.Connected) {
+                Log.e("connectWallet", "connect state: $it, ${wc1Service?.state}")
+                if (it is WalletConnectInteractor.State.Disconnected) {
+                    wc1Service?.reconnect()
                 }
             }
             .let {
@@ -172,7 +260,8 @@ class DAppBrowseActivity: BaseActivity(){
             }
         wc1Service!!.requestObservable
             .subscribe {
-
+                Log.e("connectWallet", "requestObservable: $it, ${Thread.currentThread().name}")
+                openRequestLiveEvent.postValue(it)
             }
             .let {
                 disposables.add(it)
@@ -194,7 +283,8 @@ class DAppBrowseActivity: BaseActivity(){
         wc2Service!!.connectionStateObservable
             .subscribe {
                 Log.e("connectWallet", "connect state: $it")
-                if (it == WC2PingService.State.Connected) {
+                if (it is WC2PingService.State.Disconnected) {
+                    wc2Service?.reconnect()
                 }
             }
             .let {
@@ -210,15 +300,13 @@ class DAppBrowseActivity: BaseActivity(){
             .let {
                 disposables.add(it)
             }
+        App.wc2SessionManager.pendingRequestObservable
+            .subscribe{
+                openWalletConnectRequestLiveEvent.postValue(it)
+            }.let {
+                disposables.add(it)
+            }
         wc2Service?.start()
-    }
-
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-            return
-        }
-        super.onBackPressed()
     }
 
     override fun onDestroy() {
@@ -227,6 +315,8 @@ class DAppBrowseActivity: BaseActivity(){
             it.destroy()
         }
         disposables.dispose()
+        wc1Service?.stop()
+        wc2Service?.disconnect()
         super.onDestroy()
     }
 

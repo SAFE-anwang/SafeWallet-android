@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentDappSearchBinding
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
@@ -68,10 +69,10 @@ class DAppSearchFragment: BaseFragment() {
             }
 
             override fun onClick(dappItem: DAppItem) {
-                startActivity(Intent(requireActivity(), DAppBrowseActivity::class.java).apply {
-                    putExtra("url", dappItem.dlink)
-                    putExtra("name", dappItem.name)
-                })
+                val bundle = Bundle()
+                bundle.putString("url", dappItem.dlink)
+                bundle.putString("name", dappItem.name)
+                findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
             }
 
         })

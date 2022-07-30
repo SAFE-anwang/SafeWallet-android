@@ -26,6 +26,15 @@ object WalletConnectModule {
         }
     }
 
+    class Factory2(
+        private val service : WC1Service
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return WalletConnectViewModel(service, listOf(service)) as T
+        }
+    }
+
 }
 
 enum class RequestType(val value: String) {
