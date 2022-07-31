@@ -12,6 +12,7 @@ import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.SafeWalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestViewModel
@@ -20,7 +21,7 @@ import io.horizontalsystems.core.findNavController
 
 class SafeWCSignMessageRequestFragment : BaseFragment() {
 
-    private val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment)
+    private val baseViewModel by navGraphViewModels<SafeWalletConnectViewModel>(R.id.mainFragment)
     val vmFactory by lazy {
         WCSignMessageRequestModule.Factory(
             baseViewModel.sharedSignMessageRequest!!,

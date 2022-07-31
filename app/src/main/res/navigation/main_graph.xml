@@ -89,10 +89,10 @@
             app:destination="@id/join_to_telegram" />
         <!--<action
             android:id="@+id/dapp_to_search"
-            app:destination="@id/dappFragmentSearch" />
+            app:destination="@id/dappFragmentSearch" />-->
         <action
             android:id="@+id/dapp_to_all"
-            app:destination="@id/dappFragmentAll" />-->
+            app:destination="@id/dappFragmentAll" />
 
         <action
             android:id="@+id/mainFragment_to_dappBrowseFragment"

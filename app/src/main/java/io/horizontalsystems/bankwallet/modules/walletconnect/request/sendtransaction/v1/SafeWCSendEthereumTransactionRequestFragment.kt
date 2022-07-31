@@ -16,6 +16,7 @@ import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
+import io.horizontalsystems.bankwallet.modules.walletconnect.SafeWalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCSendEthereumTransactionRequestViewModel
@@ -25,7 +26,7 @@ import io.horizontalsystems.core.helpers.HudHelper
 
 class SafeWCSendEthereumTransactionRequestFragment : BaseFragment() {
     private val logger = AppLogger("wallet-connect")
-    private val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment)
+    private val baseViewModel by navGraphViewModels<SafeWalletConnectViewModel>(R.id.mainFragment)
     val vmFactory by lazy {
         WCRequestModule.Factory(
             baseViewModel.sharedSendEthereumTransactionRequest!!, baseViewModel.service

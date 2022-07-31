@@ -16,11 +16,10 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
 import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
+import io.horizontalsystems.bankwallet.modules.walletconnect.SafeWalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v1.WCSessionModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Request
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SendEthereumTransactionRequest
@@ -110,14 +109,14 @@ class DAppBrowseFragment: BaseFragment(){
             viewLifecycleOwner,
             callback)
         openRequestLiveEvent.observe(viewLifecycleOwner, Observer {
-            val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
+            /*val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
                 WalletConnectModule.Factory2(
                     wc1Service!!
                 )
-            }
+            }*/
             when (it) {
                 is WC1SendEthereumTransactionRequest -> {
-                    baseViewModel.sharedSendEthereumTransactionRequest = it
+//                    baseViewModel.sharedSendEthereumTransactionRequest = it
 
                     findNavController().slideFromRight(
                         R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
@@ -125,7 +124,7 @@ class DAppBrowseFragment: BaseFragment(){
                 }
                 is WC1SignMessageRequest -> {
                     Log.e("connectWallet", "navigation sign message")
-                    baseViewModel.sharedSignMessageRequest = it
+//                    baseViewModel.sharedSignMessageRequest = it
 
                     findNavController().slideFromRight(
                         R.id.mainFragment_to_wcSignMessageRequestFragment
@@ -241,6 +240,12 @@ class DAppBrowseFragment: BaseFragment(){
             App.wc1RequestManager,
             App.connectivityManager
         )
+        val baseViewModel by navGraphViewModels<SafeWalletConnectViewModel>(R.id.mainFragment) {
+            WalletConnectModule.Factory2(
+                wc1Service!!
+            )
+        }
+        baseViewModel.service = wc1Service!!
 
         wc1Service!!.connectionStateObservable
             .subscribe {
@@ -270,7 +275,7 @@ class DAppBrowseFragment: BaseFragment(){
                     is WC1Service.State.Invalid,
                     WC1Service.State.Killed -> {
                         wc1Service?.stop()
-                        wc1Service = null
+                        disposables.clear()
                     }
                 }
             }
@@ -280,6 +285,16 @@ class DAppBrowseFragment: BaseFragment(){
         wc1Service!!.requestObservable
             .subscribe {
                 Log.e("connectWallet", "requestObservable: $it, ${Thread.currentThread().name}")
+
+                when (it) {
+                    is WC1SendEthereumTransactionRequest -> {
+                        baseViewModel.sharedSendEthereumTransactionRequest = it
+                    }
+                    is WC1SignMessageRequest -> {
+                        Log.e("connectWallet", "navigation sign message")
+                        baseViewModel.sharedSignMessageRequest = it
+                    }
+                }
                 openRequestLiveEvent.postValue(it)
             }
             .let {
@@ -350,6 +365,8 @@ class DAppBrowseFragment: BaseFragment(){
         disposables.dispose()
         wc1Service?.stop()
         wc2Service?.disconnect()
+        wc1Service = null
+        wc2Service = null
         super.onDestroy()
     }
 

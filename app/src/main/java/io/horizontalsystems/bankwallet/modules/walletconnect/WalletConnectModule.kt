@@ -31,7 +31,7 @@ object WalletConnectModule {
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return WalletConnectViewModel(service, listOf(service)) as T
+            return SafeWalletConnectViewModel(service, listOf(service)) as T
         }
     }
 

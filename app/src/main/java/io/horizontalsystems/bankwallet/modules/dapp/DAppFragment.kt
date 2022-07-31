@@ -54,7 +54,7 @@ import java.util.HashMap
 
 class DAppFragment: BaseFragment() {
 
-    private val viewModel by viewModels<DAppViewModel> { DAppModule.Factory() }
+    private val viewModel by navGraphViewModels<DAppViewModel>(R.id.mainFragment) { DAppModule.Factory() }
     private lateinit var recommendAdapter: DAppAdapter
     private lateinit var classifyAdapter: DAppAdapter
 
@@ -99,7 +99,7 @@ class DAppFragment: BaseFragment() {
         }
         val listener = object : DAppAdapter.Listener {
             override fun onAllDApp(type: String) {
-                findNavController().slideFromRight(R.id.dappFragmentAll)
+                findNavController().slideFromRight(R.id.dapp_to_all)
             }
 
             override fun onClick(dappItem: DAppItem) {
