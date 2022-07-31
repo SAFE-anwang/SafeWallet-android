@@ -58,6 +58,7 @@ class DAppBrowseFragment: BaseFragment(){
     val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
 
     private var autoConnect = true
+    private var isConnecting = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -116,14 +117,11 @@ class DAppBrowseFragment: BaseFragment(){
             }
             when (it) {
                 is WC1SendEthereumTransactionRequest -> {
-                    Log.e("connectWallet", "navigation transaction 1")
                     baseViewModel.sharedSendEthereumTransactionRequest = it
 
-                    Log.e("connectWallet", "navigation transaction 2")
                     findNavController().slideFromRight(
                         R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
                     )
-                    Log.e("connectWallet", "navigation transaction")
                 }
                 is WC1SignMessageRequest -> {
                     Log.e("connectWallet", "navigation sign message")
@@ -198,13 +196,13 @@ class DAppBrowseFragment: BaseFragment(){
         App.wc1SessionManager.sessions.forEach {
             if (it.accountId == accountId && cacheConnectLink == it.session.toUri()) {
                 Log.e("connectWallet", "auto connect v1 $cacheConnectLink")
-                wc1Connect(it.remotePeerId, null)
+                connectSession(it.remotePeerId, true)
             }
         }
         App.wc2SessionManager.sessions.forEach {
             if (it.accounts.contains(accountId) && cacheConnectLink == it.peerAppMetaData?.url) {
                 Log.e("connectWallet", "auto connect v2")
-                wc2Connect(it.topic, null)
+                connectSession(it.topic, false)
             }
         }
     }
@@ -215,9 +213,21 @@ class DAppBrowseFragment: BaseFragment(){
 
     private fun connectWallet(connectionLink: String) {
         if (connectionLink.endsWith("@1") || connectionLink.endsWith("@2")) return
+        if (isConnecting) return
+        isConnecting = true
         when {
             connectionLink.contains("@1?") -> wc1Connect(null, connectionLink)
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
+        }
+    }
+
+    private fun connectSession(session: String, isV1: Boolean) {
+        if (isConnecting) return
+        isConnecting = true
+        if (isV1) {
+            wc1Connect(session, null)
+        } else {
+            wc2Connect(session, null)
         }
     }
 
@@ -245,13 +255,22 @@ class DAppBrowseFragment: BaseFragment(){
         wc1Service!!.stateObservable
             .subscribe {
                 Log.e("connectWallet", "service state: $it")
-                if (it == WC1Service.State.WaitingForApproveSession) {
-                    wc1Service?.approveSession()
-                    // 保存连接钱包链接， 下次进入时自动连接
-                    connectionLink?.let {
-                        val decodeUrl = URLDecoder.decode(connectionLink)
-                        Log.e("connectWallet", "decode: $decodeUrl")
-                        App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
+                isConnecting = false
+
+                when(it) {
+                    WC1Service.State.WaitingForApproveSession -> {
+                        wc1Service?.approveSession()
+                        // 保存连接钱包链接， 下次进入时自动连接
+                        connectionLink?.let {
+                            val decodeUrl = URLDecoder.decode(connectionLink)
+                            Log.e("connectWallet", "decode: $decodeUrl")
+                            App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
+                        }
+                    }
+                    is WC1Service.State.Invalid,
+                    WC1Service.State.Killed -> {
+                        wc1Service?.stop()
+                        wc1Service = null
                     }
                 }
             }
@@ -293,8 +312,22 @@ class DAppBrowseFragment: BaseFragment(){
         wc2Service!!.stateObservable
             .subscribe {
                 Log.e("connectWallet", "service state: $it")
-                if (it == WC2SessionService.State.WaitingForApproveSession) {
-                    wc2Service?.approve()
+                isConnecting = false
+                when(it) {
+                    WC2SessionService.State.WaitingForApproveSession -> {
+                        wc2Service?.approve()
+                        // 保存连接钱包链接， 下次进入时自动连接
+                        connectionLink?.let {
+                            val decodeUrl = URLDecoder.decode(connectionLink)
+                            Log.e("connectWallet", "decode: $decodeUrl")
+                            App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
+                        }
+                    }
+                    is WC2SessionService.State.Invalid,
+                    WC2SessionService.State.Killed -> {
+                        wc2Service?.stop()
+                        wc2Service = null
+                    }
                 }
             }
             .let {
