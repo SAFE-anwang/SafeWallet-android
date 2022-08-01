@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.modules.safe4
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +12,8 @@ import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
 import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
+import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.marketkit.models.CoinType
 
@@ -31,7 +32,7 @@ object Safe4Module {
         var safeWallet: Wallet? = null
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
-            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType=$chainType")
+//            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType=$chainType")
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
@@ -65,7 +66,6 @@ object Safe4Module {
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
-
     }
 
     fun handlerEth2safe(chainType: ChainType, navController: NavController) {
@@ -74,7 +74,7 @@ object Safe4Module {
         var safeWallet: Wallet? = null
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
-            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
+//            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
             if (it.coinType == CoinType.Safe) {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
@@ -108,6 +108,57 @@ object Safe4Module {
                 R.id.mainFragment_to_sendWsafeFragment,
                 bundle
             )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    fun handlerLineLock() {
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.coinType == CoinType.Safe) {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            context.startActivity(Intent(context, LineLockSendActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                putExtra(LineLockSendActivity.WALLET, safeWallet)
+            })
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun handlerLineInfo() {
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.coinType == CoinType.Safe) {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            context.startActivity(Intent(context, LockInfoActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                putExtra(LockInfoActivity.WALLET, safeWallet)
+            })
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }

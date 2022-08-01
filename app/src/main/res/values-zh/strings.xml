@@ -1033,5 +1033,29 @@
     <string name="Send_Wsafe_Fee_Warn">该费用仅为参考，请以实际扣除为准</string>
     <string name="watch_address_hint">注意：支持导入ETH和BSC地址，显示ETH和BSC的链上资产</string>
 
+    <string name="Safe4_Every_Time_Lock_Amount">每次锁仓金额</string>
+    <string name="Safe4_Starting_Month">起始月份</string>
+    <string name="Safe4_Interval_Month">间隔月份</string>
 
+    <string name="Safe4_Line_Lock_Tips">从第%s个月开始，每隔%s个月解锁%s个SAFE，总共使用%s个SAFE</string>
+    <string name="Safe4_Locked_Value_Error">请检查每次锁仓金额，不能大于待锁仓总金额</string>
+    <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
+    <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
+    <string name="Safe4_Locked_Month_Error">锁定的数量不能大于120</string>
+
+    <string name="Safe4_Lock_Info">锁仓记录</string>
+    <string name="Safe4_Lock_Month">%s个月</string>
+    <string name="Safe4_Lock_Total_Amount">总锁定：%s</string>
+    <string name="Safe4_Lock_Sending">发送中</string>
+    <string name="Safe4_Total_Locked">待锁仓总金额</string>
+
+    <string name="DApp_Tab_Name">Dapp</string>
+    <string name="DApp_ETH">ETH</string>
+    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_Recommended">推荐</string>
+    <string name="DApp_Search">搜索</string>
+    <string name="DApp_Searching">正在搜索。。。</string>
+    <string name="DApp_Search_no_data">搜索不到应用</string>
+    <string name="DApp_Search_error">搜索出错，请重试</string>
 </resources>

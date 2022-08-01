@@ -3,10 +3,12 @@ package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
@@ -92,9 +94,8 @@ class SafeConvertSendActivity : BaseActivity() {
                 AppBar(
                     title = TranslatableString.ResString(titleRes),
                     navigationIcon = {
-                        CoinImage(
-                            iconUrl = fullCoin.coin.iconUrl,
-                            placeholder = fullCoin.iconPlaceholder,
+                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                            contentDescription = null,
                             modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                         )
                     },

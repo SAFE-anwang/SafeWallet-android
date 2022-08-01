@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.modules.market.tvl.TvlModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
@@ -193,6 +192,14 @@ class SendSafeConvertHandler(
         syncAvailableBalance()
         syncFee()
         syncMinimumAmount()
+    }
+
+    override fun onUpdateLineLock(
+        lockedValue: String?,
+        startMonth: String?,
+        intervalMonth: String?
+    ) {
+
     }
 
 }

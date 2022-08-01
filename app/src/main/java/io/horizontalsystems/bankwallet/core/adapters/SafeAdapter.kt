@@ -14,6 +14,8 @@ import io.horizontalsystems.dashkit.models.DashTransactionInfo
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
+import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import java.math.BigDecimal
 
 class SafeAdapter(
@@ -92,8 +94,8 @@ class SafeAdapter(
 
     override fun convertFee(amount: BigDecimal, address: String?): BigDecimal {
         // 增加兑换WSAFE流量手续费
-        var convertFeeRate = feeRate;
-        convertFeeRate += 50;
+        var convertFeeRate = feeRate
+        convertFeeRate += 50
         return fee(amount, convertFeeRate, address, mapOf())
     }
 
@@ -102,22 +104,31 @@ class SafeAdapter(
     }
 
     override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockedTimeInterval: LockTimeInterval? , reverseHex: String ?): Single<Unit> {
-        var unlockedHeight = 0L;
+        var unlockedHeight = 0L
         if ( lockedTimeInterval != null ){
             val lockedMonth = lockedTimeInterval.value();
-            val step = 86400 * lockedMonth;
-            unlockedHeight = (kit.lastBlockInfo !! .height.toLong()).plus( step );
+            val step = 86400 * lockedMonth
+            unlockedHeight = (kit.lastBlockInfo !! .height.toLong()).plus( step )
         }
         return Single.create { emitter ->
             try {
                 // 增加兑换WSAFE流量手续费
                 var convertFeeRate = feeRate
-                if (reverseHex != null) {
-                    convertFeeRate += 50;
+                var newReverseHex = reverseHex
+                if (reverseHex != null && reverseHex.startsWith("73616665")) {
+                    convertFeeRate += 50
+                } else if(reverseHex != null && !reverseHex.startsWith("73616665")) {
+                    val lineLock = JsonUtils.stringToObj(reverseHex)
+                    // 设置最新区块高度
+                    lineLock.lastHeight = kit.lastBlockInfo !! .height.toLong()
+                    lineLock.lockedValue = (BigDecimal(lineLock.lockedValue) * satoshisInBitcoin).toLong().toString()
+                    newReverseHex = JsonUtils.objToString(lineLock)
+                    Log.i("safe4", "---线性锁仓信息: $lineLock")
                 }
-                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, mapOf(), unlockedHeight, reverseHex)
+                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, mapOf(), unlockedHeight, newReverseHex)
                 emitter.onSuccess(Unit)
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 emitter.onError(ex)
             }
         }

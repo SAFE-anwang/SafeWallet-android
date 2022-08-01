@@ -87,6 +87,16 @@
         <action
             android:id="@+id/mainFragment_to_tg"
             app:destination="@id/join_to_telegram" />
+        <!--<action
+            android:id="@+id/dapp_to_search"
+            app:destination="@id/dappFragmentSearch" />-->
+        <action
+            android:id="@+id/dapp_to_all"
+            app:destination="@id/dappFragmentAll" />
+
+        <action
+            android:id="@+id/mainFragment_to_dappBrowseFragment"
+            app:destination="@id/dappBrowseFragment" />
     </fragment>
     <fragment
         android:id="@+id/join_to_telegram"
@@ -504,7 +514,36 @@
             app:destination="@id/transactionInfoFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/dappFragmentSearch"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppSearchFragment" />
 
+    <fragment
+        android:id="@+id/dappFragmentAll"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppAllFragment" />
+
+    <fragment
+        android:id="@+id/dappBrowseFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment" >
+        <action
+            android:id="@+id/mainFragment_to_wcSendEthereumTransactionRequestFragment"
+            app:destination="@id/mainWcSendEthereumTransactionRequestFragment" />
+        <action
+            android:id="@+id/mainFragment_to_wcSignMessageRequestFragment"
+            app:destination="@id/mainWCSignMessageRequestFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mainWcSendEthereumTransactionRequestFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v1.SafeWCSendEthereumTransactionRequestFragment">
+    </fragment>
+    <fragment
+        android:id="@+id/mainWCSignMessageRequestFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v1.SafeWCSignMessageRequestFragment">
+        <action
+            android:id="@+id/wcSignMessageRequestFragment_to_wcDisplayTypedMessageFragment"
+            app:destination="@id/wcDisplayTypedMessageFragment" />
+    </fragment>
 
     <!--  Dialogs/BottomSheets  -->
     <!--    <dialog-->

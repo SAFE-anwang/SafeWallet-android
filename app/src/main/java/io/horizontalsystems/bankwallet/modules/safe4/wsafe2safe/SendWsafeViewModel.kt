@@ -6,12 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
@@ -68,7 +70,7 @@ class SendWsafeViewModel(
         if (amountCaution.error?.convertedError != null) {
             var text =
                 amountCaution.error.localizedMessage ?: amountCaution.error.javaClass.simpleName
-             if (text.startsWith("Read error:")){
+            if (text.startsWith("Read error:")){
                 text = "获取手续费异常，请稍等"
             }
             caution = Caution(text, Caution.Type.Error)
@@ -90,12 +92,14 @@ class SendWsafeViewModel(
         SafeInfoManager.clear()
     }
 
-    fun onEnterAddress(wallet: Wallet, address: Address?) {
-        val ethAddr = App.ethereumKitManager.evmKitWrapper?.evmKit?.receiveAddress?.hex?.let { Address(it, null) }
+    fun onEnterAddress(wsafeWallet: Wallet, safeWallet: Wallet, address: Address?) {
+        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
+        Log.i("safe4", "---receiveAdapter = ${receiveAdapter.receiveAddress}")
+        val ethAddr = Address(receiveAdapter.receiveAddress, null)
         // 设置钱包的ETH地址为交易的接收地址
         service.setRecipientAddress(ethAddr, address)
         // 验证地址是否Safe
-        validateSafe(wallet, address)
+        validateSafe(safeWallet, address)
     }
 
     fun validateSafe(wallet: Wallet, address: Address?) {

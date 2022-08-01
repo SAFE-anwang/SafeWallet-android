@@ -1,42 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="44dp"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/lockTimeMenuTitle"
-        style="@style/Subhead1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+    <LinearLayout
+        android:id="@+id/lineLockLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:includeFontPadding="false"
-        android:text="@string/Send_DialogLockTime"
-        android:textColor="@color/grey" />
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
 
-    <TextView
-        android:id="@+id/lockTimeMenu"
-        style="@style/Subhead1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/lockTimeMenuArrow"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lockedValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/Safe4_Every_Time_Lock_Amount">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:imeOptions="actionNext"
+                android:inputType="numberDecimal"
+                android:padding="8dp"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/startMonth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/Safe4_Starting_Month">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:imeOptions="actionNext"
+                android:inputType="numberSigned"
+                android:padding="8dp"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/intervalMonth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/Safe4_Interval_Month">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:imeOptions="actionDone"
+                android:inputType="numberSigned"
+                android:padding="8dp"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lockLayout"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Off"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:includeFontPadding="false"
-        android:textColor="@color/leah" />
+        android:layout_marginTop="10dp"
+        android:visibility="visible">
 
-    <ImageView
-        android:id="@+id/lockTimeMenuArrow"
-        app:layout_constraintBottom_toBottomOf="@+id/lockTimeMenu"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/lockTimeMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_down_arrow_20"/>
+        <TextView
+            android:id="@+id/lockTimeMenuTitle"
+            style="@style/Subhead1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Send_DialogLockTime"
+            android:textColor="@color/grey"/>
+
+        <TextView
+            android:id="@+id/lockTimeMenu"
+            style="@style/Subhead1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:includeFontPadding="false"
+            android:textColor="@color/leah"
+            tools:text="Off" />
+
+        <ImageView
+            android:id="@+id/lockTimeMenuArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_down_arrow_20" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1193,4 +1193,30 @@
     <string name="Send_Wsafe_Fee_Warn">This fee is for reference only. Please deduct it according to the actual amount</string>
     <string name="watch_address_hint">Note: Supports importing ETH and BSC addresses, displaying on-chain assets of ETH and BSC</string>
 
+    <string name="Safe4_Every_Time_Lock_Amount">Every time lock amount</string>
+    <string name="Safe4_Starting_Month">Starting month</string>
+    <string name="Safe4_Interval_Month">Interval Month</string>
+
+    <string name="Safe4_Line_Lock_Tips">From starting month %s, unlock %s safe every %s months, and use %s safe in total</string>
+    <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
+    <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
+    <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
+    <string name="Safe4_Locked_Month_Error">The number of locked cannot be greater than 120</string>
+
+    <string name="Safe4_Lock_Info">Lock up record</string>
+    <string name="Safe4_Lock_Month">%s months</string>
+    <string name="Safe4_Lock_Total_Amount">%s locked in total</string>
+    <string name="Safe4_Lock_Sending">Sending</string>
+    <string name="Safe4_Total_Locked">Total amount to be locked</string>
+
+    <string name="DApp_Tab_Name">Dapp</string>
+    <string name="DApp_Title">DApp</string>
+    <string name="DApp_ETH">ETH</string>
+    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_Recommended">Recommended</string>
+    <string name="DApp_Search">Search</string>
+    <string name="DApp_Searching">Searching。。。</string>
+    <string name="DApp_Search_no_data">Can\'t find apps</string>
+    <string name="DApp_Search_error">Search error, please try again</string>
 </resources>

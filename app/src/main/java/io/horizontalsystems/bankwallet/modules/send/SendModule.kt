@@ -8,6 +8,8 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandler
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendInteractor
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertInteractor
 import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceHandler
@@ -293,6 +295,46 @@ object SendModule {
                 is ISendSafeAdapter -> {
                     val safeInteractor = SendSafeConvertInteractor(adapter)
                     val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
+    class LineLockFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+                is ISendSafeAdapter -> {
+                    val safeInteractor = LineLockSendInteractor(adapter)
+                    val handler = LineLockSendHandler(safeInteractor)
 
                     safeInteractor.delegate = handler
 

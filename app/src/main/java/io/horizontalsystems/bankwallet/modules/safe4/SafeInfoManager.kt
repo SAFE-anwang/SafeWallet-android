@@ -23,11 +23,17 @@ object SafeInfoManager {
     private val disposables = CompositeDisposable()
 
     fun startNet() {
-        if (App.ethereumKitManager.evmKitWrapper == null) {
-            return
+        val chain: Chain
+        if (App.ethereumKitManager.evmKitWrapper != null) {
+            if (App.ethereumKitManager.evmKitWrapper?.evmKit != null) {
+                chain = App.ethereumKitManager.evmKitWrapper?.evmKit!!.chain
+            } else {
+                chain = Chain.Ethereum
+            }
+        } else {
+            chain = Chain.Ethereum
         }
-        val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
-        val safeNetType = WSafeManager(evmKit.chain).getSafeNetType()
+        val safeNetType = WSafeManager(chain).getSafeNetType()
         App.safeProvider.getSafeInfo(safeNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -51,8 +57,17 @@ object SafeInfoManager {
     fun getSafeInfo(): SafeInfoPO {
         var safeInfoPO = safeStorage?.decodeParcelable(KEY_SAFE_INFO, SafeInfoPO::class.java)
         if(safeInfoPO == null){
-            val evmKit = App.ethereumKitManager.evmKitWrapper?.evmKit!!
-            safeInfoPO = defaultSafeInfo(evmKit.chain)
+            val chain: Chain
+            if (App.ethereumKitManager.evmKitWrapper != null) {
+                if (App.ethereumKitManager.evmKitWrapper?.evmKit != null) {
+                    chain = App.ethereumKitManager.evmKitWrapper?.evmKit!!.chain
+                } else {
+                    chain = Chain.Ethereum
+                }
+            } else {
+                chain = Chain.Ethereum
+            }
+            safeInfoPO = defaultSafeInfo(chain)
         }
         return safeInfoPO
     }

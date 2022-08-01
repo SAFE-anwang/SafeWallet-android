@@ -203,7 +203,7 @@ class SendWsafeFragment : BaseFragment() {
                         coinCode = safeWallet.coin.code,
                         error = viewModel.error,
                         onValueChange = {
-                            viewModel.onEnterAddress(safeWallet, it)
+                            viewModel.onEnterAddress(wsafeWallet, safeWallet, it)
                         }
                     )
                     ButtonPrimaryYellow(
