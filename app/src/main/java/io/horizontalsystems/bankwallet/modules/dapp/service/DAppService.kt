@@ -28,7 +28,7 @@ class DAppService(
     private var dAppDataDisposable: Disposable? = null
     private var recommendsDisposable: Disposable? = null
 
-    private var filterDAppType = FilterDAppType.ETH
+    private var filterDAppType = FilterDAppType.ALL
 
     init {
         syncData()
@@ -48,7 +48,7 @@ class DAppService(
             .let {
                 dAppDataDisposable = it
             }
-        service.getRecommends()
+        /*service.getRecommends()
             .subscribeIO({
                 recommendsItemsObservable.onNext(DataState.Success(it))
             }, {
@@ -58,7 +58,7 @@ class DAppService(
             })
             .let {
                 recommendsDisposable = it
-            }
+            }*/
     }
 
     private fun getDefaultRecommends(): List<DAppItem> {

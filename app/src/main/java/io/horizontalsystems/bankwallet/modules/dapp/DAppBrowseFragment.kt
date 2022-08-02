@@ -363,7 +363,7 @@ class DAppBrowseFragment: BaseFragment(){
             it.destroy()
         }
         disposables.dispose()
-        wc1Service?.stop()
+        wc1Service?.clear()
         wc2Service?.disconnect()
         wc1Service = null
         wc2Service = null
