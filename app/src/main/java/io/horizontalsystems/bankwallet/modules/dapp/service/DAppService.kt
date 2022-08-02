@@ -77,17 +77,20 @@ class DAppService(
     private fun getFilterString(): String {
         return when(filterDAppType) {
             FilterDAppType.ETH -> "ETH"
-            FilterDAppType.EOS -> "EOS"
+            FilterDAppType.BSC -> "BSC"
             FilterDAppType.SAFE -> "SAFE"
-            FilterDAppType.Recommend -> "Recommend"
+            FilterDAppType.ALL -> "ALL"
         }
     }
 
     fun setFilterType(f: FilterDAppType) {
         filterDAppType = f
-
+        val typeString = getFilterString()
         dAppItemsObservable.onNext(DataState.Success(allDAppList.filter {
-            it.type == getFilterString()
+            if (typeString == "ALL")
+                true
+            else
+                it.type == typeString
         }))
     }
 

@@ -47,7 +47,8 @@ class DAppItemAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: DAppItem) {
             binding.txtAppName.text = item.name
-            binding.txtDescription.text = if (App.languageManager.currentLanguageName.contains("zh"))
+            Log.e("connectWallet", "languageName: ${App.languageManager.currentLanguageName}")
+            binding.txtDescription.text = if (App.languageManager.currentLanguageName.contains("中文"))
                 item.desc else item.descEN
             /*val request = ImageRequest.Builder(binding.appIconView.context)
                 .data(item.icon)

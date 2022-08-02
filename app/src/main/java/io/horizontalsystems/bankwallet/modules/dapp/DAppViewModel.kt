@@ -36,7 +36,7 @@ class DAppViewModel(
             .let {
                 disposables.add(it)
             }
-        service.recommendsItemsObservable
+        /*service.recommendsItemsObservable
             .subscribeIO { dAppItemDataState ->
                 dAppItemDataState.viewState?.let {
                     viewState.postValue(it)
@@ -50,10 +50,11 @@ class DAppViewModel(
             }
             .let {
                 disposables.add(it)
-            }
+            }*/
         filterTypesLiveData.postValue(listOf(
-            Filter(FilterDAppType.ETH, true),
-            Filter(FilterDAppType.EOS, false),
+            Filter(FilterDAppType.ALL, true),
+            Filter(FilterDAppType.ETH, false),
+            Filter(FilterDAppType.BSC, false),
             Filter(FilterDAppType.SAFE, false),
         ))
     }
@@ -103,22 +104,22 @@ data class DAppItem(
 }
 
 enum class FilterDAppType {
-    ETH, EOS, SAFE, Recommend;
+    ALL, ETH, BSC, SAFE;
 
     val title: Int
         get() = when (this) {
             ETH -> R.string.DApp_ETH
-            EOS -> R.string.DApp_EOS
+            BSC -> R.string.DApp_EOS
             SAFE -> R.string.DApp_SAFE
-            Recommend -> R.string.DApp_Recommended
+            ALL -> R.string.DApp_ALL
         }
 
     val type: String
         get() = when (this) {
             ETH -> "ETH"
-            EOS -> "EOS"
+            BSC -> "EOS"
             SAFE -> "SAFE"
-            else -> "ETF"
+            else -> "ALL"
         }
 }
 

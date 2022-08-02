@@ -1051,8 +1051,9 @@
 
     <string name="DApp_Tab_Name">Dapp</string>
     <string name="DApp_ETH">ETH</string>
-    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_EOS">BSC</string>
     <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_ALL">全部</string>
     <string name="DApp_Recommended">推荐</string>
     <string name="DApp_Search">搜索</string>
     <string name="DApp_Searching">正在搜索。。。</string>
