@@ -256,7 +256,7 @@ class DAppBrowseFragment: BaseFragment(){
             .subscribe {
                 Log.e("connectWallet", "connect state: $it, ${wc1Service?.state}")
                 if (it is WalletConnectInteractor.State.Disconnected) {
-                    wc1Service?.reconnect()
+//                    wc1Service?.reconnect()
                 }
             }
             .let {
@@ -329,7 +329,7 @@ class DAppBrowseFragment: BaseFragment(){
             .subscribe {
                 Log.e("connectWallet", "connect state: $it")
                 if (it is WC2PingService.State.Disconnected) {
-                    wc2Service?.reconnect()
+//                    wc2Service?.reconnect()
                 }
             }
             .let {
