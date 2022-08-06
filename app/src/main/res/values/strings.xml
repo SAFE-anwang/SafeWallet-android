@@ -1212,8 +1212,9 @@
     <string name="DApp_Tab_Name">Dapp</string>
     <string name="DApp_Title">DApp</string>
     <string name="DApp_ETH">ETH</string>
-    <string name="DApp_EOS">EOS</string>
+    <string name="DApp_EOS">BSC</string>
     <string name="DApp_SAFE">SAFE</string>
+    <string name="DApp_ALL">ALL</string>
     <string name="DApp_Recommended">Recommended</string>
     <string name="DApp_Search">Search</string>
     <string name="DApp_Searching">Searching。。。</string>

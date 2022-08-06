@@ -55,7 +55,7 @@ import java.util.HashMap
 class DAppFragment: BaseFragment() {
 
     private val viewModel by navGraphViewModels<DAppViewModel>(R.id.mainFragment) { DAppModule.Factory() }
-    private lateinit var recommendAdapter: DAppAdapter
+//    private lateinit var recommendAdapter: DAppAdapter
     private lateinit var classifyAdapter: DAppAdapter
 
     private var _binding: FragmentDappBinding? = null
@@ -117,15 +117,15 @@ class DAppFragment: BaseFragment() {
             }
 
         }
-        recommendAdapter = DAppAdapter(viewModel, listener)
+//        recommendAdapter = DAppAdapter(viewModel, listener)
         classifyAdapter = DAppAdapter(viewModel, listener)
         setAdapter()
 
-        viewModel.recommendsAppList.observe(viewLifecycleOwner) {
+        /*viewModel.recommendsAppList.observe(viewLifecycleOwner) {
             recommendAdapter.items = it as HashMap<String, List<DAppItem>>
             recommendAdapter.notifyDataSetChanged()
 
-        }
+        }*/
         viewModel.dAppList.observe(viewLifecycleOwner) {
             classifyAdapter.items = it as HashMap<String, List<DAppItem>>
             classifyAdapter.notifyDataSetChanged()
@@ -138,7 +138,7 @@ class DAppFragment: BaseFragment() {
     }
 
     private fun setAdapter() {
-        val concatAdapter = ConcatAdapter(recommendAdapter, classifyAdapter)
+        val concatAdapter = ConcatAdapter(/*recommendAdapter,*/ classifyAdapter)
         binding.rvItems.adapter = concatAdapter
     }
 
@@ -178,7 +178,7 @@ private fun FilterTypeTabs(
         TabItem(stringResource(it.item.title), it.selected, it.item)
     }
 
-    ScrollableTabs(tabItems) { dAppType ->
+    Tabs(tabItems) { dAppType ->
         onDAppTypeClick.invoke(dAppType)
         scrollToTopAfterUpdate.invoke()
     }

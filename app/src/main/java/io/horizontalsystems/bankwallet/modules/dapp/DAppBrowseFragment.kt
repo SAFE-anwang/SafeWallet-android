@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
@@ -54,7 +55,8 @@ class DAppBrowseFragment: BaseFragment(){
 
     private val disposables = CompositeDisposable()
     private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
-    val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
+    private val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
+    private val errorLiveEvent = SingleLiveEvent<String>()
 
     private var autoConnect = true
     private var isConnecting = false
@@ -147,6 +149,9 @@ class DAppBrowseFragment: BaseFragment(){
                     )
                 }
             }
+        })
+        errorLiveEvent.observe(viewLifecycleOwner, Observer {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -251,7 +256,7 @@ class DAppBrowseFragment: BaseFragment(){
             .subscribe {
                 Log.e("connectWallet", "connect state: $it, ${wc1Service?.state}")
                 if (it is WalletConnectInteractor.State.Disconnected) {
-                    wc1Service?.reconnect()
+//                    wc1Service?.reconnect()
                 }
             }
             .let {
@@ -272,10 +277,16 @@ class DAppBrowseFragment: BaseFragment(){
                             App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
                         }
                     }
-                    is WC1Service.State.Invalid,
-                    WC1Service.State.Killed -> {
-                        wc1Service?.stop()
+                    is WC1Service.State.Invalid -> {
+                        errorLiveEvent.postValue(it.error.message)
                         disposables.clear()
+                        wc1Service?.clear()
+                        wc1Service = null
+                    }
+                    WC1Service.State.Killed -> {
+                        disposables.clear()
+                        wc1Service?.clear()
+                        wc1Service = null
                     }
                 }
             }
@@ -318,7 +329,7 @@ class DAppBrowseFragment: BaseFragment(){
             .subscribe {
                 Log.e("connectWallet", "connect state: $it")
                 if (it is WC2PingService.State.Disconnected) {
-                    wc2Service?.reconnect()
+//                    wc2Service?.reconnect()
                 }
             }
             .let {
@@ -338,7 +349,12 @@ class DAppBrowseFragment: BaseFragment(){
                             App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
                         }
                     }
-                    is WC2SessionService.State.Invalid,
+                    is WC2SessionService.State.Invalid -> {
+                        errorLiveEvent.postValue(it.error.message)
+                        disposables.clear()
+                        wc2Service?.stop()
+                        wc2Service = null
+                    }
                     WC2SessionService.State.Killed -> {
                         wc2Service?.stop()
                         wc2Service = null
@@ -363,7 +379,7 @@ class DAppBrowseFragment: BaseFragment(){
             it.destroy()
         }
         disposables.dispose()
-        wc1Service?.stop()
+        wc1Service?.clear()
         wc2Service?.disconnect()
         wc1Service = null
         wc2Service = null

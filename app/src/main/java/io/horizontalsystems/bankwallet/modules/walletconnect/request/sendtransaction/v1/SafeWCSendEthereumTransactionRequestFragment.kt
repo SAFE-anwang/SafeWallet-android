@@ -41,7 +41,6 @@ class SafeWCSendEthereumTransactionRequestFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e("connectWallet", "start wc send transaction")
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -82,8 +81,11 @@ class SafeWCSendEthereumTransactionRequestFragment : BaseFragment() {
     }
 
     private fun close() {
-        baseViewModel.sharedSendEthereumTransactionRequest = null
         findNavController().popBackStack()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        baseViewModel.sharedSendEthereumTransactionRequest = null
+    }
 }
