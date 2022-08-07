@@ -1059,4 +1059,29 @@
     <string name="DApp_Searching">正在搜索。。。</string>
     <string name="DApp_Search_no_data">搜索不到应用</string>
     <string name="DApp_Search_error">搜索出错，请重试</string>
+
+
+    <string name="Restore_Select_Wallet">请选择网络</string>
+    <string name="Restore_HD_Wallet">身份钱包(HD)</string>
+    <string name="Restore_Safe_Wallet">SafeWallet</string>
+    <string name="Restore_SafeGem_Wallet">安宝</string>
+    <string name="Restore_ImToken_Wallet">ImToken</string>
+    <string name="Restore_BitPie_Wallet">比特派</string>
+    <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
+    <string name="Restore_Select_Import_Way">导入方式</string>
+    <string name="Restore_Import_Private_Key">私钥导入</string>
+    <string name="Restore_Import_Private_Key_Desc">通过输入明文私钥或扫描二维码进行导入</string>
+    <string name="Restore_Import_Recovery_Phrase">助记词导入</string>
+    <string name="Restore_Import_Recovery_Phrase_Desc">通过输入助记词或扫描二维码进行导入</string>
+    <string name="Restore_Import_Recovery_Phrase_Launage">助记词语言</string>
+    <string name="Restore_Import_Launage_EN">英文</string>
+    <string name="Restore_Import_Launage_ZH">简体中文</string>
+    <string name="Restore_Import_Launage_TW">繁體中文</string>
+    <string name="Restore_Import_Launage_JP">日本语</string>
+    <string name="Restore_Import_Launage_SP">西班牙语</string>
+    <string name="Restore_Import_Launage_KO">韩语</string>
+    <string name="Restore_Import_Launage_FR">法语</string>
+    <string name="Restore_Import_Launage_IT">意大利语</string>
+    <string name="Restore_Import_Wallet">导入钱包</string>
+    <string name="Restore_Import_Wallet_Private_Key_Hint">输入明文私钥或扫描二维码，注意大小写</string>
 </resources>

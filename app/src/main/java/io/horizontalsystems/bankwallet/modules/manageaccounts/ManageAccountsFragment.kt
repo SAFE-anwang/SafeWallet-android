@@ -116,7 +116,7 @@ fun ManageAccountsScreen(navController: NavController, mode: ManageAccountsModul
                             navController.slideFromRight(R.id.manageAccountsFragment_to_createAccountFragment)
                         },
                         ActionViewItem(R.drawable.ic_download_20, R.string.ManageAccounts_ImportWallet) {
-                            navController.slideFromRight(R.id.manageAccountsFragment_to_restoreMnemonicFragment)
+                            navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment)
                         },
                         ActionViewItem(R.drawable.ic_eye_2_20, R.string.ManageAccounts_WatchAddress) {
                             navController.slideFromRight(R.id.watchAddressFragment)

@@ -176,6 +176,9 @@
             android:id="@+id/manageAccountsFragment_to_restoreMnemonicFragment"
             app:destination="@id/restoreMnemonicFragment" />
         <action
+            android:id="@+id/manageAccountsFragment_to_restoreSelectWalletFragment"
+            app:destination="@id/restoreSelectWalletFragment" />
+        <action
             android:id="@+id/manageAccountsFragment_to_manageAccount"
             app:destination="@id/manageAccountFragment" />
     </fragment>
@@ -544,6 +547,26 @@
             android:id="@+id/wcSignMessageRequestFragment_to_wcDisplayTypedMessageFragment"
             app:destination="@id/wcDisplayTypedMessageFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/restoreSelectWalletFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectWalletTypeFragment"
+        tools:layout="@layout/fragment_select_wallet_type" />
+
+    <fragment
+        android:id="@+id/restoreSelectImportWayFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectImportWayFragment"
+        tools:layout="@layout/fragment_select_wallet_type" />
+
+    <fragment
+        android:id="@+id/restorePrivateKeyImportFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.PrivateKeyImportFragment"
+        tools:layout="@layout/fragment_select_wallet_type" />
+
+    <fragment
+        android:id="@+id/restorePhraseImportFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.PhraseImportFragment"
+        tools:layout="@layout/fragment_select_wallet_type" />
 
     <!--  Dialogs/BottomSheets  -->
     <!--    <dialog-->

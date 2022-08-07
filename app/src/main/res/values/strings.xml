@@ -1220,4 +1220,29 @@
     <string name="DApp_Searching">Searching。。。</string>
     <string name="DApp_Search_no_data">Can\'t find apps</string>
     <string name="DApp_Search_error">Search error, please try again</string>
+
+
+    <string name="Restore_Select_Wallet">Please select a network</string>
+    <string name="Restore_HD_Wallet">HD Wallet</string>
+    <string name="Restore_Safe_Wallet">SafeWallet</string>
+    <string name="Restore_SafeGem_Wallet">SafeGem</string>
+    <string name="Restore_ImToken_Wallet">ImToken</string>
+    <string name="Restore_BitPie_Wallet">Bit Pie</string>
+    <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
+    <string name="Restore_Select_Import_Way">Import way</string>
+    <string name="Restore_Import_Private_Key">Private Key</string>
+    <string name="Restore_Import_Private_Key_Desc">Import the account with the private key</string>
+    <string name="Restore_Import_Recovery_Phrase">Recovery Phrase import</string>
+    <string name="Restore_Import_Recovery_Phrase_Desc">Import by entering recovery phrases(mnemonics) or scanning a QR code</string>
+    <string name="Restore_Import_Recovery_Phrase_Launage">Secret Recovery Phrase Type</string>
+    <string name="Restore_Import_Launage_EN">English</string>
+    <string name="Restore_Import_Launage_ZH">简体中文</string>
+    <string name="Restore_Import_Launage_TW">繁體中文</string>
+    <string name="Restore_Import_Launage_JP">日本语</string>
+    <string name="Restore_Import_Launage_SP">Español</string>
+    <string name="Restore_Import_Launage_KO">한국인</string>
+    <string name="Restore_Import_Launage_FR">Français</string>
+    <string name="Restore_Import_Launage_IT">Italian</string>
+    <string name="Restore_Import_Wallet">Import Wallet</string>
+    <string name="Restore_Import_Wallet_Private_Key_Hint">Enter the plaintext private key or scan the QR code, please note the case</string>
 </resources>

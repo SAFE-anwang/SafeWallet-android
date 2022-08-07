@@ -55,7 +55,7 @@ fun BalanceNoAccount(navController: NavController) {
                     .padding(horizontal = 16.dp),
                 title = stringResource(R.string.Button_Restore),
                 onClick = {
-                    navController.slideFromRight(R.id.restoreMnemonicFragment)
+                    navController.slideFromRight(R.id.restoreSelectWalletFragment/*R.id.restoreMnemonicFragment*/)
                 }
             )
             Spacer(modifier = Modifier.height(16.dp))
