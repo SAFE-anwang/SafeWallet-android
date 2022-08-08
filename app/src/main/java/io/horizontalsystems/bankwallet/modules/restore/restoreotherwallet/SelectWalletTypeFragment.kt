@@ -43,7 +43,7 @@ class SelectWalletTypeFragment: BaseFragment() {
                 else -> {
                     val bundle = Bundle()
                     bundle.putParcelable("walletType", it)
-                    findNavController().slideFromRight(R.id.restoreSelectImportWayFragment, bundle)
+                    findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
                 }
             }
         }

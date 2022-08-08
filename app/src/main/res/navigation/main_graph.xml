@@ -177,7 +177,7 @@
             app:destination="@id/restoreMnemonicFragment" />
         <action
             android:id="@+id/manageAccountsFragment_to_restoreSelectWalletFragment"
-            app:destination="@id/restoreSelectWalletFragment" />
+            app:destination="@id/restoreSelectImportWayFragment" />
         <action
             android:id="@+id/manageAccountsFragment_to_manageAccount"
             app:destination="@id/manageAccountFragment" />

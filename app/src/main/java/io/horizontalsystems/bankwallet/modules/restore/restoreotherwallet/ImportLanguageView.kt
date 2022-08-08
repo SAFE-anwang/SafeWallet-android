@@ -36,13 +36,13 @@ class ImportLanguageView @JvmOverloads constructor(
     private fun getLanguageList(): List<LanguageType> {
         return mutableListOf(
             LanguageType.English,
-            LanguageType.Chinese,
+            LanguageType.Chinese/*,
             LanguageType.TraditionalChinese,
             LanguageType.Japan,
             LanguageType.Spanish,
             LanguageType.Korean,
             LanguageType.French,
-            LanguageType.Italian
+            LanguageType.Italian*/
         )
     }
 
