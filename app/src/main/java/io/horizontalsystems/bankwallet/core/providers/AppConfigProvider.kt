@@ -6,11 +6,9 @@ import io.horizontalsystems.core.entities.Currency
 class AppConfigProvider {
 
 //     val companyWebPageLink: String = "https://horizontalsystems.io"
-//     val companyWebPageLink: String = "https://www.anwang.com"
-     val companyWebPageLink: String = "https://47.88.216.172"
+     val companyWebPageLink: String = "https://www.anwang.com"
 //     val appWebPageLink: String = "https://unstoppable.money"
-//     val appWebPageLink: String = "https://www.anwang.com"
-     val appWebPageLink: String = "https://47.88.216.172"
+     val appWebPageLink: String = "https://www.anwang.com"
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
 //     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"

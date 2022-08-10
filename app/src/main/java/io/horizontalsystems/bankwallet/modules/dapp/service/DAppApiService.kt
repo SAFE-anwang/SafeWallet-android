@@ -23,8 +23,7 @@ class DAppApiService() {
     private val service: DAppServiceApi
     private val gson: Gson
 
-//    private val url: String = "https://safewallet.anwang.com/"
-    private val url: String = "https://139.162.75.142/"
+    private val url: String = "https://safewallet.anwang.com/"
 
     init {
         val loggingInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
