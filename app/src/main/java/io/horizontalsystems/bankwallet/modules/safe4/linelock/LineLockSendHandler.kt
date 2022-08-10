@@ -221,12 +221,13 @@ class LineLockSendHandler(
                 .show()
             return false
         }
-        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
-        if (outputSize > BigDecimal(120)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
-                .show()
-            return false
-        }
+//        var outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+//        outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
+//        if (outputSize > BigDecimal(120)) {
+//            Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
+//                .show()
+//            return false
+//        }
         return true
     }
 
