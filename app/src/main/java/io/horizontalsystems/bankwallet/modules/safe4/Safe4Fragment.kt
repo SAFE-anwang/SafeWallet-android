@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,16 +25,23 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
+import io.horizontalsystems.bankwallet.modules.main.WebViewActivity
+import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
+import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
 
 class Safe4Fragment : BaseFragment() {
 
     private val viewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
+
+    private var startTelegramService: StartTelegramsService? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,18 +54,54 @@ class Safe4Fragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    Safe4Screen(viewModel, findNavController())
+                    Safe4Screen(viewModel, findNavController()) {
+                        openLink(it)
+                    }
                 }
             }
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        startTelegramService?.stopCheckLoginStatus()
+    }
+
+    private fun openLink(url: String) {
+        context?.let {
+            when(url) {
+                App.appConfigProvider.appTelegramLink -> {
+                    joinTelegramGroup(url)
+                }
+                App.appConfigProvider.supportEmail -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(url)
+                    requireActivity().startActivity(intent)
+                }
+                else -> {
+                    startActivity(Intent(requireActivity(), WebViewActivity::class.java).apply {
+                        putExtra("url", url)
+                        putExtra("name", url.subSequence(8, url.length))
+                    })
+                }
+            }
+        }
+
+    }
+
+    private fun joinTelegramGroup(groupLink: String) {
+        if (startTelegramService == null) {
+            startTelegramService = StartTelegramsService(requireActivity())
+        }
+        startTelegramService?.join(groupLink)
+    }
 }
 
 @Composable
 private fun Safe4Screen(
     viewModel: Safe4ViewModel,
-    navController: NavController
+    navController: NavController,
+    onClick: (String) -> Unit
 ) {
 
     Surface(color = ComposeAppTheme.colors.tyler) {
@@ -67,7 +112,7 @@ private fun Safe4Screen(
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Safe4Sections(viewModel, navController)
+                Safe4Sections(viewModel, navController, onClick)
             }
         }
     }
@@ -76,7 +121,8 @@ private fun Safe4Screen(
 @Composable
 private fun Safe4Sections(
     viewModel: Safe4ViewModel,
-    navController: NavController
+    navController: NavController,
+    onClick: (String) -> Unit
 ) {
 
     Text(
@@ -193,6 +239,106 @@ private fun Safe4Sections(
 
     Spacer(Modifier.height(25.dp))
 
+    Text(
+        text = stringResource(R.string.Safe4_Safe_Basic_Info),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf ({
+            HsSettingCell(
+                R.string.Safe4_Safe_Homepage,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.appWebPageLink)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_Block_Explorer,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safeBlockExplorer)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_Across_Chain_Explorer,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safeAcrossChainExplorer)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_Coingecko,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safeCoinGecko)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_BEP20_Coingecko,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safeSafeBEP20)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_coinmarketcap,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safeCoinMarketCap)
+                }
+            )
+        })
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf ({
+            HsSettingCell(
+                R.string.Safe4_Safe_Twitter,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.appTwitterLink)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_Telegram,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.appTelegramLink)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe_Email,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.supportEmail)
+                }
+            )
+        })
+    )
 }
 
 @Composable

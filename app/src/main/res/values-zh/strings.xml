@@ -1059,4 +1059,15 @@
     <string name="DApp_Searching">正在搜索。。。</string>
     <string name="DApp_Search_no_data">搜索不到应用</string>
     <string name="DApp_Search_error">搜索出错，请重试</string>
+
+    <string name="Safe4_Safe_Basic_Info">基本信息</string>
+    <string name="Safe4_Safe_Homepage">SAFE官网</string>
+    <string name="Safe4_Safe_Block_Explorer">区块浏览器</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">跨链浏览器</string>
+    <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
+    <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@coingecko</string>
+    <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
+    <string name="Safe4_Safe_Twitter">Twitter</string>
+    <string name="Safe4_Safe_Telegram">Telegram</string>
+    <string name="Safe4_Safe_Email">Email</string>
 </resources>

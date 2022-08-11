@@ -50,6 +50,7 @@ import io.horizontalsystems.pin.PinComponent
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.telegram.messenger.ApplicationLoader
+import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -147,7 +148,7 @@ class App : CoreApp(), WorkConfiguration.Provider  {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
-        val appConfig = AppConfigProvider()
+        val appConfig = AppConfigProvider(Random().nextInt(3))
         appConfigProvider = appConfig
 
         marketKit = MarketKit.getInstance(
