@@ -23,6 +23,7 @@ class DAppViewModel(
     lateinit var tempListApp: List<DAppItem>
 
     init {
+        groupDAppData(service.getDefaultRecommends())
         service.dAppItemsObservable
             .subscribeIO { dAppItemDataState ->
                 dAppItemDataState.viewState?.let {
