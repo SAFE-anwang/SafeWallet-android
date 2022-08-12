@@ -158,6 +158,26 @@ private fun Safe4Sections(
                         Safe4Module.handlerEth2safe(Safe4Module.ChainType.ETH, navController)
                     }
                 )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_ETH_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeEthContract)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_ETH_Uniswap,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeEthUniswap)
+                    }
+                )
             }
         )
     )
@@ -193,6 +213,26 @@ private fun Safe4Sections(
                     "BEP20",
                     onClick = {
                         Safe4Module.handlerEth2safe(Safe4Module.ChainType.BSC, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_BSC_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeBSCContract)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_BSC_Pancakeswap,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeBSCPancakeswap)
                     }
                 )
             }
@@ -307,38 +347,8 @@ private fun Safe4Sections(
         })
     )
 
-    Spacer(Modifier.height(25.dp))
+    Spacer(Modifier.height(32.dp))
 
-    CellSingleLineLawrenceSection(
-        listOf ({
-            HsSettingCell(
-                R.string.Safe4_Safe_Twitter,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    onClick(App.appConfigProvider.appTwitterLink)
-                }
-            )
-        },{
-            HsSettingCell(
-                R.string.Safe4_Safe_Telegram,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    onClick(App.appConfigProvider.appTelegramLink)
-                }
-            )
-        },{
-            HsSettingCell(
-                R.string.Safe4_Safe_Email,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    onClick(App.appConfigProvider.supportEmail)
-                }
-            )
-        })
-    )
 }
 
 @Composable

@@ -32,6 +32,10 @@ class AppConfigProvider(val index: Int) {
     val safeSafeBEP20 = "https://www.coingecko.com/en/coins/safe-anwang"
     val safeCoinMarketCap = "https://coinmarketcap.com/currencies/safe"
     val supportEmail = "mailto:support@anwang.com"
+    val safeEthContract = "https://etherscan.io/token/0xEE9c1Ea4DCF0AAf4Ff2D78B6fF83AA69797B65Eb"
+    val safeEthUniswap = "https://v2.info.uniswap.org/pair/0x8b04fdc8e8d7ac6400b395eb3f8569af1496ee33"
+    val safeBSCContract = "https://bscscan.com/token/0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1"
+    val safeBSCPancakeswap = "https://pancakeswap.finance/info/pool/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
 
      val walletConnectProjectId by lazy {
          Translator.getString(R.string.walletConnectV2Key)

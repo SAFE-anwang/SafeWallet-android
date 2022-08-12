@@ -207,7 +207,7 @@ object VpnConnectService {
             connectNodeIndex = index
         } else {
             connectNodeIndex ++
-            if (connectNodeIndex == noteList.size - 1) {
+            if (connectNodeIndex >= noteList.size) {
                 connectNodeIndex = 0
             }
             index = connectNodeIndex
