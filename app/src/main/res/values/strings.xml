@@ -1233,8 +1233,8 @@
     <string name="Safe4_Safe_Telegram">Telegram</string>
     <string name="Safe4_Safe_Email">Email</string>
 
-    <string name="Safe4_Safe_ETH_Contract">SAFE合约(SAFE contract)</string>
+    <string name="Safe4_Safe_ETH_Contract">SAFE contract</string>
     <string name="Safe4_Safe_ETH_Uniswap">SAFE@uniswapv2</string>
-    <string name="Safe4_Safe_BSC_Contract">SAFE合约(SAFE contract)</string>
+    <string name="Safe4_Safe_BSC_Contract">SAFE contract</string>
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 </resources>

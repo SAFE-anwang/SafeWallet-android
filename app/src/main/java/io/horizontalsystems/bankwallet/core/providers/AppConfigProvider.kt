@@ -28,8 +28,8 @@ class AppConfigProvider(val index: Int) {
 
     val safeBlockExplorer = "https://chain.anwang.com"
     val safeAcrossChainExplorer = "https://anwang.com/assetgate.html"
-    val safeCoinGecko = "https://www.coingecko.com/en/coins/safe"
-    val safeSafeBEP20 = "https://www.coingecko.com/en/coins/safe-anwang"
+    val safeCoinGecko = "https://www.coingecko.com/en/coins/safe-anwang"
+    val safeSafeBEP20 = "https://coinmarketcap.com/currencies/safe-anwang"
     val safeCoinMarketCap = "https://coinmarketcap.com/currencies/safe"
     val supportEmail = "mailto:support@anwang.com"
     val safeEthContract = "https://etherscan.io/token/0xEE9c1Ea4DCF0AAf4Ff2D78B6fF83AA69797B65Eb"
