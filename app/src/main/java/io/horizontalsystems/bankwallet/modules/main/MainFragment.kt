@@ -14,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -145,7 +146,7 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
 
         binding.bottomNavigation.findViewById<View>(R.id.navigation_join_tg)
             ?.setOnClickListener {
-                joinTelegramGroup("https://t.me/safeanwang")
+                joinTelegramGroup(App.appConfigProvider.appTelegramLink)
             }
     }
 

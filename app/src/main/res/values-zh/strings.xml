@@ -1041,6 +1041,8 @@
     <string name="Safe4_Locked_Value_Error">请检查每次锁仓金额，不能大于待锁仓总金额</string>
     <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
     <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
+    <string name="Safe4_Starting_Month_Max">起始月份不能超过120个月</string>
+    <string name="Safe4_Interval_Month_Max">间隔月份不能超过120个月</string>
     <string name="Safe4_Locked_Month_Error">锁定的数量不能大于120</string>
 
     <string name="Safe4_Lock_Info">锁仓记录</string>
@@ -1059,4 +1061,20 @@
     <string name="DApp_Searching">正在搜索。。。</string>
     <string name="DApp_Search_no_data">搜索不到应用</string>
     <string name="DApp_Search_error">搜索出错，请重试</string>
+
+    <string name="Safe4_Safe_Basic_Info">基本信息</string>
+    <string name="Safe4_Safe_Homepage">SAFE官网</string>
+    <string name="Safe4_Safe_Block_Explorer">区块浏览器</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">跨链浏览器</string>
+    <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
+    <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
+    <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@CMC</string>
+    <string name="Safe4_Safe_Twitter">Twitter</string>
+    <string name="Safe4_Safe_Telegram">Telegram</string>
+    <string name="Safe4_Safe_Email">Email</string>
+
+    <string name="Safe4_Safe_ETH_Contract">SAFE合约</string>
+    <string name="Safe4_Safe_ETH_Uniswap">SAFE@uniswapv2</string>
+    <string name="Safe4_Safe_BSC_Contract">SAFE合约</string>
+    <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 </resources>

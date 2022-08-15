@@ -17,8 +17,7 @@ object SafeNetWork {
             delay(1000)
             try {
                 val httpClient = NetworkUtils.getUnsafeOkHttpClient()
-//                val request = Request.Builder().get().url("https://chain.anwang.com").build()
-                val request = Request.Builder().get().url("https://47.88.254.135").build()
+                val request = Request.Builder().get().url("https://chain.anwang.com").build()
                 val code = httpClient.newCall(request).execute().code
                 val isReachable = code >= 200 && code < 400
                 withContext(Dispatchers.Main) {
@@ -35,8 +34,7 @@ object SafeNetWork {
 
     fun getSafeDomainName(): String {
         return if (isSafeNetConnectEnable) {
-//            "chain.anwang.com"
-            "47.88.254.135"
+            "chain.anwang.com"
         } else {
             getIp()
         }
@@ -59,9 +57,9 @@ object SafeNetWork {
         val noteList = mutableListOf<VpnServerInfo>()
         noteList.add(
             VpnServerInfo(
-            "47.241.42.222",
-            61488,
-            "1709aedc-7e67-4542-906d-d7eedfe18de7",
+            "192.46.228.81",
+            52369,
+            "b8e23012-d6ea-42a2-8864-d8065527f06c",
             "0",
             "ws",
             "none"
@@ -86,9 +84,9 @@ object SafeNetWork {
         ))
         noteList.add(
             VpnServerInfo(
-            "194.195.123.129",
-                48224,
-            "0e3c4b33-2a67-4136-b4cb-d35e5aba15fb",
+            "172.104.115.92",
+                    411674,
+            "b90ab1f5-f57d-47a5-b448-6c8f310114b1",
             "0",
             "ws",
             "none"

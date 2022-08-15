@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelock
 
 import android.widget.Toast
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -96,7 +95,8 @@ class LineLockSendHandler(
     override fun confirmationViewItems(): List<SendModule.SendConfirmationViewItem> {
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
-        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
         val lockedValue = BigDecimal(lockedValue) * outputSize
 
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
@@ -123,8 +123,10 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
         val totalAmount = BigDecimal(lockedValue) * outputSize
+
         val reverseHex = JsonUtils.objToString(
             JsonUtils.LineLock(
                 0,
@@ -194,32 +196,43 @@ class LineLockSendHandler(
 
     fun checkLineLock(): Boolean {
         if (StringUtils.isBlank(lockedValue)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         val amount = amountModule.validAmount()
         if (BigDecimal(lockedValue) > amount) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         if (StringUtils.isBlank(startMonth) || BigDecimal(startMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         if (StringUtils.isBlank(intervalMonth) || BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Interval_Month_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
-        val outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
-        if (outputSize > BigDecimal(120)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
+        if (BigDecimal(startMonth) > BigDecimal(120)) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
+        if (BigDecimal(intervalMonth) > BigDecimal(120)) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Interval_Month_Max), Toast.LENGTH_SHORT)
+                .show()
+            return false
+        }
+//        var outputSize = amount.divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+//        outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
+//        if (outputSize > BigDecimal(120)) {
+//            Toast.makeText(App.instance, R.string.Safe4_Locked_Month_Error, Toast.LENGTH_SHORT)
+//                .show()
+//            return false
+//        }
         return true
     }
 
@@ -241,12 +254,13 @@ class LineLockSendHandler(
                 && BigDecimal(intervalMonth) > BigDecimal.ZERO
                 && amountModule.currentAmount > BigDecimal.ZERO
             ) {
-                val outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+                var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+                outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
                 val totalAmount = BigDecimal(lockedValue) * outputSize
                 val lineLockStr = Translator.getString(
                     R.string.Safe4_Line_Lock_Tips,
-                    startMonth!!,
-                    intervalMonth!!,
+                    startMonth,
+                    intervalMonth,
                     lockedValue!!,
                     totalAmount
                 )
@@ -254,6 +268,19 @@ class LineLockSendHandler(
             }
         } catch (e: Exception) {
         }
+    }
+
+    fun checkMaxInterval(outputSize: BigDecimal, startMonth: BigDecimal, intervalMonth: BigDecimal) : BigDecimal {
+        var maxOutputSize = outputSize.toInt()
+        val maxMonth = BigDecimal(120)
+        for (index in 0 .. outputSize.toLong()) {
+            maxOutputSize = index.toInt()
+            val nextMonth = startMonth + intervalMonth * BigDecimal(index)
+            if (nextMonth > maxMonth) {
+                break
+            }
+        }
+        return BigDecimal(maxOutputSize)
     }
 
 }
