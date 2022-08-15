@@ -82,7 +82,7 @@ class PrivateKeyImportFragment: BaseFragment() {
             }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Restore_Import_Recovery_Phrase),
+                    title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
                     navigationIcon = {
                         IconButton(onClick = { findNavController().popBackStack() }) {
                             Image(painter = painterResource(id = R.drawable.ic_back),
