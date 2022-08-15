@@ -328,20 +328,20 @@ private fun Safe4Sections(
             )
         },{
             HsSettingCell(
+                    R.string.Safe4_Safe_coinmarketcap,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeCoinMarketCap)
+                    }
+            )
+        },{
+            HsSettingCell(
                 R.string.Safe4_Safe_BEP20_Coingecko,
                 R.mipmap.ic_app_color,
                 showAlert = false,
                 onClick = {
                     onClick(App.appConfigProvider.safeSafeBEP20)
-                }
-            )
-        },{
-            HsSettingCell(
-                R.string.Safe4_Safe_coinmarketcap,
-                R.mipmap.ic_app_color,
-                showAlert = false,
-                onClick = {
-                    onClick(App.appConfigProvider.safeCoinMarketCap)
                 }
             )
         })
