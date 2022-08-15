@@ -196,7 +196,7 @@ class LineLockSendHandler(
 
     fun checkLineLock(): Boolean {
         if (StringUtils.isBlank(lockedValue)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
@@ -217,7 +217,7 @@ class LineLockSendHandler(
             return false
         }
         if (BigDecimal(startMonth) > BigDecimal(120)) {
-            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Max, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
