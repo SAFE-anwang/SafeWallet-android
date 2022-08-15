@@ -57,9 +57,9 @@ object SafeNetWork {
         val noteList = mutableListOf<VpnServerInfo>()
         noteList.add(
             VpnServerInfo(
-            "47.241.42.222",
-            61488,
-            "1709aedc-7e67-4542-906d-d7eedfe18de7",
+            "192.46.228.81",
+            52369,
+            "b8e23012-d6ea-42a2-8864-d8065527f06c",
             "0",
             "ws",
             "none"
@@ -84,9 +84,9 @@ object SafeNetWork {
         ))
         noteList.add(
             VpnServerInfo(
-            "194.195.123.129",
-                48224,
-            "0e3c4b33-2a67-4136-b4cb-d35e5aba15fb",
+            "172.104.115.92",
+                    411674,
+            "b90ab1f5-f57d-47a5-b448-6c8f310114b1",
             "0",
             "ws",
             "none"
