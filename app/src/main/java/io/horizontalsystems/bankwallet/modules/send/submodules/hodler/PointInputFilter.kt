@@ -18,8 +18,8 @@ class PointInputFilter: InputFilter {
         if ("" == source.toString()) {
             return null
         }
-        val dValue = dest.toString()
-        val splitArray = dValue.split("\\.").toTypedArray()
+        val value = dest.toString()
+        val splitArray = value.split("\\.").toTypedArray()
         if (splitArray.size > 1) {
             val dotValue = splitArray[1]
             val diff = dotValue.length + 1 - DECIMAL_DIGITS
