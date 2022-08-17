@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -93,6 +94,7 @@ fun CoinList(
                         revealedCardId = null
                     },
                     content = {
+                        Log.e("longwen", "market: ${item.coinRate}, ${item.marketDataValue}")
                         MarketCoin(
                             item.fullCoin.coin.name,
                             item.fullCoin.coin.code,
