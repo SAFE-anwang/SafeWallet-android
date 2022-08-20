@@ -1,0 +1,761 @@
+{
+    "hardware": [
+        {
+            "name": "AirGap Vault",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "Arculus",
+            "wallet": 1,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "BitBox01",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "BitBox02",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "CoboVault",
+            "wallet": 1,
+            "bip32path": [
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "CoboVault with BTC only firmware",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/48'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "ColdCard Mk1",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/48'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "ColdCard Mk2",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/48'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "ColdCard Mk3",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/48'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "ColdCard Mk4",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/48'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "CoolWalletS",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Ledger NanoS",
+            "wallet": 1,
+            "bip32path": [
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Ledger NanoX",
+            "wallet": 1,
+            "bip32path": [
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Passport",
+            "wallet": 1,
+            "bip32path": [
+                "m/84'/0'/0'",
+                "m/48'/0'/0'/2'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "SeedSigner",
+            "wallet": 1,
+            "bip32path": [
+                "m/84'/0'/0'",
+                "m/48'/0'/0'/2'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Trezor One",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Trezor ModelT",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "KeepKey",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "KoinKeep",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/1'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Prokey Optimum",
+            "wallet": 1,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        }
+    ],
+    "software": [
+        {
+            "name": "AirGap Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": true,
+            "needpassword": 1
+        },
+        {
+            "name": "Atomic Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'/0/0"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Bitcoin Core",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Bitcoin Wallet app",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Bisq",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/44'/0'/1'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Bither",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Blockchain.com",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/n'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Blockstream Green (GreenAddress)",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "BlueWallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "BRD (Bread Wallet)",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "BTC.com app",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Casa",
+            "wallet": 0,
+            "bip32path": [
+                "m/49/0/X"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Coin Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Coinomi",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "Copay",
+            "wallet": 0,
+            "bip32path": [
+                "m/44/0'/X'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "DropBit",
+            "wallet": 0,
+            "bip32path": [
+                "m/84/0'/0'",
+                "m/44/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Edge Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Electrum",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Exodus",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "FullyNoded",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "Hodl Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Jaxx Liberty",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "JoinMarket",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/n'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "JoinMarket (legacy)",
+            "wallet": 0,
+            "bip32path": [
+                "m/0"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Ledger Live",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Luxstack",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "KeepKey Client",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "KoinKeep",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/44'/n'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Multibit HD",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Mycelium for Android",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/n'",
+                "m/49'/0'/n'",
+                "m/84'/0'/n'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Mycelium for iPhone",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/n'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "NthKey",
+            "wallet": 0,
+            "bip32path": [
+                "m/48'/0'/0'/2'/{0-1}/*"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "OpenBazaar",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/44'/1'/0'",
+                "m/44'/133'/0'",
+                "m/44'/145'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Pine",
+            "wallet": 0,
+            "bip32path": [
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Relai",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'/0/0",
+                "m/49'/0'/0'/0/0",
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 0
+        },
+        {
+            "name": "Rise Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Samourai",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'",
+                "m/47'/0'/0'",
+                "m/84'/0'/2147483644'",
+                "m/84'/0'/2147483645'",
+                "m/84'/0'/2147483646'",
+                "m/44'/0'/2147483647'",
+                "m/49'/0'/2147483647'",
+                "m/84'/0'/2147483647'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "Specter Desktop",
+            "wallet": 0,
+            "bip32path": [
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Trezor Web Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Trust Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'/0/0"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "Unchained Capital",
+            "wallet": 0,
+            "bip32path": [
+                "m/45'/0'/0'/0/0"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Unstoppable Wallet",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 2
+        },
+        {
+            "name": "Wasabi",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "BLW (Bitcoin Lightning Wallet)",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "SBW (Simple Bitcoin Wallet)",
+            "wallet": 0,
+            "bip32path": [
+                "m/0'",
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "C-Lightning",
+            "wallet": 0,
+            "bip32path": [
+                "m/84'/0'/0'",
+                "m/141'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        },
+        {
+            "name": "Eclair Mobil",
+            "wallet": 0,
+            "bip32path": [
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Stakenet DEX Open Beta",
+            "wallet": 0,
+            "bip32path": [
+                "m/44'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": -1
+        }
+    ],
+    "both": [
+        {
+            "name": "BTCPay Server (Coldcard)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Electrum (CoboVault)",
+            "wallet": 2,
+            "bip32path": [
+                "m/49'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Electrum (Coldcard)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Electrum (Ledger S/Nano)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Electrum (KeepKey)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Electrum (Trezor One / Model T)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        },
+        {
+            "name": "Wasabi (Coldcard)",
+            "wallet": 2,
+            "bip32path": [
+                "m/44'/0'/0'",
+                "m/49'/0'/0'",
+                "m/84'/0'/0'"
+            ],
+            "custompath": false,
+            "needpassword": 1
+        }
+    ]
+}

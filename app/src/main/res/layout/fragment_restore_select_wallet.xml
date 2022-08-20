@@ -63,8 +63,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 app:icon="@drawable/ic_key_phrase_20"
-                app:title="@string/Passphrase"
-                android:visibility="gone"/>
+                app:title="@string/Passphrase" />
 
             <io.horizontalsystems.bankwallet.ui.extensions.InputView
                 android:id="@+id/passphrase"
@@ -87,27 +86,25 @@
 
             <TextView
                 android:id="@+id/walletName"
-                style="@style/Subhead1"
+                style="@style/Subhead2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Restore_Import_Wallet_Name"
                 android:textColor="@color/grey"
-                android:drawableRight="@drawable/ic_arrow_right"
-                android:visibility="gone"/>
+                android:drawableRight="@drawable/ic_arrow_right"/>
 
             <io.horizontalsystems.bankwallet.ui.extensions.InputView
                 android:id="@+id/inputWalleName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
+                android:layout_marginHorizontal="10dp"
                 android:layout_marginTop="10dp"
                 android:hint="@string/Restore_Import_Wallet_Name_Hint"
-                android:inputType="text"
-                android:visibility="gone"/>
+                android:inputType="text"/>
 
 
             <TextView
@@ -116,23 +113,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Restore_Import_Wallet_Path"
-                android:textColor="@color/grey"
-                android:visibility="gone"/>
+                android:textColor="@color/grey"/>
 
             <LinearLayout
-                android:id="@+id/pathSelect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginHorizontal="16dp"
-                android:background="@drawable/rounded_lawrence_background_single"
-                android:visibility="gone">
+                android:background="@drawable/rounded_lawrence_background_single">
                 <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/inputWalletPath"
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
+                    android:layout_height="35dp"
                     android:layout_marginHorizontal="10dp"
                     android:hint="@string/Restore_Import_Custom_Path"
                     android:inputType="text"/>
@@ -143,16 +137,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:hint="@string/Restore_Import_Custom_Path"
                 android:inputType="text"
-                android:visibility="gone" />
+                android:visibility="visible"/>
 
             <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/importButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="8dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

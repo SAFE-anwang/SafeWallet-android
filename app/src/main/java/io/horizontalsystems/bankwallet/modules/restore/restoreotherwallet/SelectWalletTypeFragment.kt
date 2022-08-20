@@ -55,12 +55,12 @@ class SelectWalletTypeFragment: BaseFragment() {
 
     private fun getWalletTypeList(): List<WalletType> {
         val list = mutableListOf<WalletType>()
-        list.add(WalletType.HD)
         list.add(WalletType.SafeWallet)
         list.add(WalletType.SafeGem)
         list.add(WalletType.ImToken)
         list.add(WalletType.BitPie)
         list.add(WalletType.TokenPocket)
+        list.add(WalletType.HD)
         return list
     }
 

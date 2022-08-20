@@ -1246,4 +1246,14 @@
     <string name="Restore_Import_Launage_IT">Italian</string>
     <string name="Restore_Import_Wallet">Import Wallet</string>
     <string name="Restore_Import_Wallet_Private_Key_Hint">Enter the plaintext private key or scan the QR code, please note the case</string>
+    <string name="Restore_Import_Choose_Wallet">Wallet</string>
+    <string name="Restore_Import_Wallet_Name">Wallet Name</string>
+    <string name="Restore_Import_Wallet_Name_Hint">Please input wallet Name</string>
+    <string name="Restore_Import_Wallet_Path">Path</string>
+    <string name="Restore_Import_Custom_Path">Custom path</string>
+    <string name="Restore_Import_Wallet_Type_Hardware">Hardware</string>
+    <string name="Restore_Import_Wallet_Type_Software">Software</string>
+    <string name="Restore_Import_Wallet_Type_Both">Hardware or Software</string>
+    <string name="Restore_Import_Wallet_Type_Unkonwn">Unkonwn</string>
+
 </resources>

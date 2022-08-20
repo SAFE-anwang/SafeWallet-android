@@ -32,6 +32,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:src="@drawable/ic_key"
             android:layout_marginStart="10dp"/>
 
         <LinearLayout
@@ -77,6 +78,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:src="@drawable/ic_phrase"
             android:layout_marginStart="10dp"/>
 
         <LinearLayout
