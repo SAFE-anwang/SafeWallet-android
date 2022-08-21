@@ -216,12 +216,12 @@ class LineLockSendHandler(
                 .show()
             return false
         }
-        if (BigDecimal(startMonth) > BigDecimal(120)) {
+        if (BigDecimal(startMonth) >= BigDecimal(120)) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
-        if (BigDecimal(intervalMonth) > BigDecimal(120)) {
+        if (BigDecimal(intervalMonth) >= BigDecimal(120)) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Interval_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false

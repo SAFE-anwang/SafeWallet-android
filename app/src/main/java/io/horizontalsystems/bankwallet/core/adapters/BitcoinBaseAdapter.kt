@@ -255,13 +255,18 @@ abstract class BitcoinBaseAdapter(
         }?.address
 
         var transactionLockInfo: TransactionLockInfo? = null
+
+        val comparator = Comparator { o1: TransactionOutputInfo, o2: TransactionOutputInfo ->
+            return@Comparator -o1.unlockedHeight!!.compareTo(o2.unlockedHeight!!)
+        }
+        Collections.sort(transaction.outputs, comparator)
         val lockedOutput = transaction.outputs.firstOrNull {
 //            it.pluginId == HodlerPlugin.id
             it.unlockedHeight != null && it.unlockedHeight !! > 0
         }
         if (lockedOutput != null) {
             val unlockedHeight =  lockedOutput.unlockedHeight;
-            val hodlerOutputData = HodlerOutputData( LockTimeInterval.month_3 , lockedOutput.address !! )
+            val hodlerOutputData = HodlerOutputData( LockTimeInterval.month_3 , lockedOutput.address!! )
 //            hodlerOutputData?.approxUnlockTime?.let { approxUnlockTime ->
 //                val lockedValueBTC = satoshiToBTC(lockedOutput.value)
 //                transactionLockInfo = TransactionLockInfo(Date(approxUnlockTime * 1000), hodlerOutputData.addressString, lockedValueBTC)
