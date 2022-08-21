@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -36,11 +37,11 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
     /*private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) {
         TransactionsModule.Factory()
     }*/
-    private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
+    /*private val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
         val newItem = TransactionItem(App.tmpItemToShow!!.record,  App.tmpItemToShow!!.currencyValue?.copy(), App.tmpItemToShow!!.lastBlockInfo?.copy())
         App.tmpItemToShow = null // 提前清空临时对象
         TransactionInfoModule.Factory(newItem)
-    }
+    }*/
     /*private val viewModel by viewModels<TransactionInfoViewModel> {
         TransactionInfoModule.Factory(App.tmpItemToShow!!)
     }*/
@@ -74,7 +75,14 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
                 else -> false
             }
         }
-
+        if (App.tmpItemToShow == null) {
+            findNavController().popBackStack()
+            return
+        }
+        val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
+            val newItem = TransactionItem(App.tmpItemToShow!!.record,  App.tmpItemToShow!!.currencyValue?.copy(), App.tmpItemToShow!!.lastBlockInfo?.copy())
+            TransactionInfoModule.Factory(newItem)
+        }
         val itemsAdapter =
             TransactionInfoAdapter(viewModel.viewItemsLiveData, viewLifecycleOwner, this)
         binding.recyclerView.adapter = ConcatAdapter(itemsAdapter)
@@ -121,6 +129,14 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
     }
 
     override fun onActionButtonClick(actionButton: TransactionInfoActionButton) {
+        if (App.tmpItemToShow == null) {
+            findNavController().popBackStack()
+            return
+        }
+        val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
+            val newItem = TransactionItem(App.tmpItemToShow!!.record,  App.tmpItemToShow!!.currencyValue?.copy(), App.tmpItemToShow!!.lastBlockInfo?.copy())
+            TransactionInfoModule.Factory(newItem)
+        }
         viewModel.onActionButtonClick(actionButton)
     }
 
@@ -174,6 +190,14 @@ class TransactionInfoFragment : BaseFragment(), TransactionInfoAdapter.Listener 
     }
 
     override fun onOptionButtonClick(optionType: TransactionInfoOption.Type) {
+        if (App.tmpItemToShow == null) {
+            findNavController().popBackStack()
+            return
+        }
+        val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
+            val newItem = TransactionItem(App.tmpItemToShow!!.record,  App.tmpItemToShow!!.currencyValue?.copy(), App.tmpItemToShow!!.lastBlockInfo?.copy())
+            TransactionInfoModule.Factory(newItem)
+        }
         viewModel.onOptionButtonClick(optionType)
     }
 
