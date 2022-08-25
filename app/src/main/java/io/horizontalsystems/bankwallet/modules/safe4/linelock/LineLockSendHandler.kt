@@ -276,7 +276,7 @@ class LineLockSendHandler(
         for (index in 0 .. outputSize.toLong()) {
             maxOutputSize = index.toInt()
             val nextMonth = startMonth + intervalMonth * BigDecimal(index)
-            if (nextMonth >= maxMonth) {
+            if (nextMonth > maxMonth) {
                 break
             }
         }
