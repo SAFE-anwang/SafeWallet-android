@@ -16,6 +16,7 @@ import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.hodler.HodlerOutputData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
+import io.horizontalsystems.marketkit.models.Auditor
 import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -256,13 +257,19 @@ abstract class BitcoinBaseAdapter(
 
         var transactionLockInfo: TransactionLockInfo? = null
 
-        val comparator = Comparator { o1: TransactionOutputInfo, o2: TransactionOutputInfo ->
-            return@Comparator -o1.unlockedHeight!!.compareTo(o2.unlockedHeight!!)
-        }
-        Collections.sort(transaction.outputs, comparator)
-        val lockedOutput = transaction.outputs.firstOrNull {
-//            it.pluginId == HodlerPlugin.id
-            it.unlockedHeight != null && it.unlockedHeight !! > 0
+        var lockedOutput: TransactionOutputInfo? = null
+        try {
+            val sortOutputs = mutableListOf<TransactionOutputInfo>()
+            sortOutputs.addAll(transaction.outputs)
+            val comparator = Comparator { o1: TransactionOutputInfo, o2: TransactionOutputInfo ->
+                return@Comparator -o1.unlockedHeight!!.compareTo(o2.unlockedHeight!!)
+            }
+            Collections.sort(sortOutputs, comparator)
+            lockedOutput = sortOutputs.firstOrNull {
+//                it.pluginId == HodlerPlugin.id
+                it.unlockedHeight != null && it.unlockedHeight !! > 0
+            }
+        } catch (e: Exception){
         }
         if (lockedOutput != null) {
             val unlockedHeight =  lockedOutput.unlockedHeight;
