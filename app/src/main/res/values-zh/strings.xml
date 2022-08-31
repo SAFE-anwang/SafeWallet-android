@@ -1041,8 +1041,8 @@
     <string name="Safe4_Locked_Value_Error">请检查每次锁仓金额，不能大于待锁仓总金额</string>
     <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
     <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
-    <string name="Safe4_Starting_Month_Max">起始月份不能超过120个月</string>
-    <string name="Safe4_Interval_Month_Max">间隔月份不能超过120个月</string>
+    <string name="Safe4_Starting_Month_Max">起始月份不能大于120个月</string>
+    <string name="Safe4_Interval_Month_Max">间隔月份不能大于120个月</string>
     <string name="Safe4_Locked_Month_Error">锁定的数量不能大于120</string>
 
     <string name="Safe4_Lock_Info">锁仓记录</string>

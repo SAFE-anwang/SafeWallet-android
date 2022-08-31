@@ -5856,7 +5856,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         showDialog(builder.create());
                     } else {
                         AlertsCreator.createClearOrDeleteDialogAlert(DialogsActivity.this, action == clear, chat, user, DialogObject.isEncryptedDialog(dialog.id), action == delete, (param) -> {
-                            AnWangUtils.leaveGroup(chat.username, chat.id);
+                            if (ChatObject.isChannel(chat)) {
+                                AnWangUtils.leaveGroup(chat.username, chat.id);
+                            }
                             hideActionMode(false);
                             if (action == clear && ChatObject.isChannel(chat) && (!chat.megagroup || !TextUtils.isEmpty(chat.username))) {
                                 getMessagesController().deleteDialog(selectedDialog, 2, param);

@@ -118,6 +118,7 @@ class SafeAdapter(
                 if (reverseHex != null && reverseHex.startsWith("73616665")) {
                     convertFeeRate += 50
                 } else if(reverseHex != null && !reverseHex.startsWith("73616665")) {
+                    convertFeeRate += 50
                     val lineLock = JsonUtils.stringToObj(reverseHex)
                     // 设置最新区块高度
                     lineLock.lastHeight = kit.lastBlockInfo !! .height.toLong()

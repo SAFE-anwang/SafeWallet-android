@@ -1201,8 +1201,8 @@
     <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
-    <string name="Safe4_Starting_Month_Max">The starting month cannot exceed 120 months</string>
-    <string name="Safe4_Interval_Month_Max">The interval month cannot exceed 120 months</string>
+    <string name="Safe4_Starting_Month_Max">The starting month cannot be greater than 120 months</string>
+    <string name="Safe4_Interval_Month_Max">The interval month cannot be greater than 120 months</string>
     <string name="Safe4_Locked_Month_Error">The number of locked cannot be greater than 120</string>
 
     <string name="Safe4_Lock_Info">Lock up record</string>
