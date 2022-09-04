@@ -88,6 +88,10 @@
             android:name=".modules.dapp.DAppBrowseActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".modules.main.WebViewActivity"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

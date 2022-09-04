@@ -196,28 +196,33 @@ class LineLockSendHandler(
 
     fun checkLineLock(): Boolean {
         if (StringUtils.isBlank(lockedValue)) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         val amount = amountModule.validAmount()
         if (BigDecimal(lockedValue) > amount) {
-            Toast.makeText(App.instance, R.string.Safe4_Locked_Value_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         if (StringUtils.isBlank(startMonth) || BigDecimal(startMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Starting_Month_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Error), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         if (StringUtils.isBlank(intervalMonth) || BigDecimal(intervalMonth) <= BigDecimal.ZERO) {
-            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Error, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Interval_Month_Error), Toast.LENGTH_SHORT)
+                .show()
+            return false
+        }
+        if (BigDecimal(startMonth) > BigDecimal(120)) {
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Starting_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false
         }
         if (BigDecimal(intervalMonth) > BigDecimal(120)) {
-            Toast.makeText(App.instance, R.string.Safe4_Interval_Month_Max, Toast.LENGTH_SHORT)
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Interval_Month_Max), Toast.LENGTH_SHORT)
                 .show()
             return false
         }

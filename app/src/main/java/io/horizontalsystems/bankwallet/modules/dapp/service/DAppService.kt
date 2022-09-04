@@ -43,7 +43,7 @@ class DAppService(
                 allDAppList.addAll(it)
                 setFilterType(filterDAppType)
             }, {
-                dAppItemsObservable.onNext(DataState.Error(it))
+                dAppItemsObservable.onNext(DataState.Success(getDefaultRecommends()))
             })
             .let {
                 dAppDataDisposable = it
@@ -61,7 +61,7 @@ class DAppService(
             }*/
     }
 
-    private fun getDefaultRecommends(): List<DAppItem> {
+    fun getDefaultRecommends(): List<DAppItem> {
         try {
             val gson = Gson()
             val inputStream = App.instance.assets.open("dapp_default_list")

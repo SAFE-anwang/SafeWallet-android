@@ -1201,7 +1201,8 @@
     <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
-    <string name="Safe4_Interval_Month_Max">The interval month cannot exceed 120 months</string>
+    <string name="Safe4_Starting_Month_Max">The starting month cannot be greater than 120 months</string>
+    <string name="Safe4_Interval_Month_Max">The interval month cannot be greater than 120 months</string>
     <string name="Safe4_Locked_Month_Error">The number of locked cannot be greater than 120</string>
 
     <string name="Safe4_Lock_Info">Lock up record</string>
@@ -1221,6 +1222,22 @@
     <string name="DApp_Searching">Searching。。。</string>
     <string name="DApp_Search_no_data">Can\'t find apps</string>
     <string name="DApp_Search_error">Search error, please try again</string>
+
+    <string name="Safe4_Safe_Basic_Info">Basic Information</string>
+    <string name="Safe4_Safe_Homepage">SAFE Homepage</string>
+    <string name="Safe4_Safe_Block_Explorer">BlockExplorer</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">Across Chain Explorer</string>
+    <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
+    <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
+    <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@CMC</string>
+    <string name="Safe4_Safe_Twitter">Twitter</string>
+    <string name="Safe4_Safe_Telegram">Telegram</string>
+    <string name="Safe4_Safe_Email">Email</string>
+
+    <string name="Safe4_Safe_ETH_Contract">SAFE contract</string>
+    <string name="Safe4_Safe_ETH_Uniswap">SAFE@uniswapv2</string>
+    <string name="Safe4_Safe_BSC_Contract">SAFE contract</string>
+    <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 
 
     <string name="Restore_Select_Wallet">Please select a network</string>

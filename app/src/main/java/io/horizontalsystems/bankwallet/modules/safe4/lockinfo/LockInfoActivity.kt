@@ -139,6 +139,10 @@ class LockInfoActivity : BaseActivity() {
             var result = -height.compareTo(other.height)
             if(result == 0) {
                 //升序
+                result = address.compareTo(other.address)
+            }
+            if(result == 0) {
+                //升序
                 result = month.compareTo(other.month)
             }
             return result

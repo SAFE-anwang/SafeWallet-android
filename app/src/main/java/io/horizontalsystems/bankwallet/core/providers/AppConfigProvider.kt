@@ -1,16 +1,16 @@
 package io.horizontalsystems.bankwallet.core.providers
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.core.entities.Currency
+import java.util.*
 
-class AppConfigProvider {
+class AppConfigProvider(val index: Int) {
 
 //     val companyWebPageLink: String = "https://horizontalsystems.io"
-//     val companyWebPageLink: String = "https://www.anwang.com"
-     val companyWebPageLink: String = "https://47.88.216.172"
+     val companyWebPageLink: String = "https://www.anwang.com"
 //     val appWebPageLink: String = "https://unstoppable.money"
-//     val appWebPageLink: String = "https://www.anwang.com"
-     val appWebPageLink: String = "https://47.88.216.172"
+     val appWebPageLink: String = "https://www.anwang.com"
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
 //     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
@@ -24,6 +24,19 @@ class AppConfigProvider {
      val btcCoreRpcUrl: String = "https://btc.horizontalsystems.xyz/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
      val walletConnectUrl = "relay.walletconnect.com"
+
+
+    val safeBlockExplorer = "https://chain.anwang.com"
+    val safeAcrossChainExplorer = "https://anwang.com/assetgate.html"
+    val safeCoinGecko = "https://www.coingecko.com/en/coins/safe-anwang"
+    val safeSafeBEP20 = "https://coinmarketcap.com/currencies/safe-anwang"
+    val safeCoinMarketCap = "https://coinmarketcap.com/currencies/safe"
+    val supportEmail = "mailto:support@anwang.com"
+    val safeEthContract = "https://etherscan.io/token/0xEE9c1Ea4DCF0AAf4Ff2D78B6fF83AA69797B65Eb"
+    val safeEthUniswap = "https://v2.info.uniswap.org/pair/0x8b04fdc8e8d7ac6400b395eb3f8569af1496ee33"
+    val safeBSCContract = "https://bscscan.com/token/0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1"
+    val safeBSCPancakeswap = "https://pancakeswap.finance/info/pool/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
+
      val walletConnectProjectId by lazy {
          Translator.getString(R.string.walletConnectV2Key)
      }
@@ -38,11 +51,36 @@ class AppConfigProvider {
         Translator.getString(R.string.defiyieldProviderApiKey)
     }
      val infuraProjectId by lazy {
-        Translator.getString(R.string.infuraProjectId)
+         val projectId = when(index) {
+             0 -> Translator.getString(R.string.infuraProjectId)
+             1 -> infuraProjectId2
+             else -> infuraProjectId3
+         }
+        projectId
     }
      val infuraProjectSecret by lazy {
-        Translator.getString(R.string.infuraSecretKey)
+         val projectKey = when(index) {
+             0 -> Translator.getString(R.string.infuraSecretKey)
+             1 -> infuraProjectSecret2
+             else -> infuraProjectSecret3
+         }
+         projectKey
     }
+
+    val infuraProjectId2 by lazy {
+        Translator.getString(R.string.infuraProjectId2)
+    }
+    val infuraProjectSecret2 by lazy {
+        Translator.getString(R.string.infuraSecretKey2)
+    }
+
+    val infuraProjectId3 by lazy {
+        Translator.getString(R.string.infuraProjectId3)
+    }
+    val infuraProjectSecret3 by lazy {
+        Translator.getString(R.string.infuraSecretKey3)
+    }
+
      val etherscanApiKey by lazy {
         Translator.getString(R.string.etherscanKey)
     }
@@ -74,20 +112,20 @@ class AppConfigProvider {
      val maxDecimal: Int = 8
      val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
 
-     val currencies: List<Currency> = listOf(
-            Currency("AUD", "A$", 2),
-            Currency("BRL", "R$", 2),
-            Currency("CAD", "C$", 2),
-            Currency("CHF", "₣", 2),
-            Currency("CNY", "¥", 2),
-            Currency("EUR", "€", 2),
-            Currency("GBP", "£", 2),
-            Currency("HKD", "HK$", 2),
-            Currency("ILS", "₪", 2),
-            Currency("JPY", "¥", 2),
-            Currency("RUB", "₽", 2),
-            Currency("SGD", "S$", 2),
-            Currency("USD", "$", 2),
+    val currencies: List<Currency> = listOf(
+        Currency("AUD", "A$", 2),
+        Currency("BRL", "R$", 2),
+        Currency("CAD", "C$", 2),
+        Currency("CHF", "₣", 2),
+        Currency("CNY", "¥", 2),
+        Currency("EUR", "€", 2),
+        Currency("GBP", "£", 2),
+        Currency("HKD", "HK$", 2),
+        Currency("ILS", "₪", 2),
+        Currency("JPY", "¥", 2),
+        Currency("RUB", "₽", 2),
+        Currency("SGD", "S$", 2),
+        Currency("USD", "$", 2),
     )
 
     val safeTwitterUser = "safeanwang"

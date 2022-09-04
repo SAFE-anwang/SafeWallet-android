@@ -33,6 +33,8 @@ object VpnConnectService {
 
     private var isConnected = false
 
+    private var connectNodeIndex = -1
+
     private var httpClient: OkHttpClient? = OkHttpClient().newBuilder()
         .connectTimeout(5000, TimeUnit.MILLISECONDS)
         .readTimeout(5000, TimeUnit.MILLISECONDS).build()
@@ -192,14 +194,25 @@ object VpnConnectService {
         if (connectNode.size == noteList.size) {
             connectNode.clear()
         }
-        val random = Random()
         var index = 0
-        while(true) {
-            index = random.nextInt(noteList.size)
-            if (!connectNode.contains(noteList[index].address)) {
-                break
+        // 第一次随机取， 重连时，按顺序取
+        if (connectNodeIndex == -1) {
+            val random = Random()
+            while (true) {
+                index = random.nextInt(noteList.size)
+                if (!connectNode.contains(noteList[index].address)) {
+                    break
+                }
             }
+            connectNodeIndex = index
+        } else {
+            connectNodeIndex ++
+            if (connectNodeIndex >= noteList.size) {
+                connectNodeIndex = 0
+            }
+            index = connectNodeIndex
         }
+        Log.e("longwen", "next node: $index")
         return noteList[index]
     }
 

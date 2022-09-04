@@ -174,7 +174,7 @@ fun MarketSearchResults(
             if (coinViewItem.fullCoin.coin.uid.startsWith("custom_safe-erc20-SAFE")
                 || coinViewItem.fullCoin.coin.uid.startsWith("custom_safe-bep20-SAFE")) {
                 iconUrl = "https://markets.nyc3.digitaloceanspaces.com/coin-icons/safe-coin@3x.png"
-                iconPlaceholder = 2131231657
+                iconPlaceholder = R.drawable.logo_safe_24
             }
             MarketCoin(
                 coinViewItem.fullCoin.coin.name,
