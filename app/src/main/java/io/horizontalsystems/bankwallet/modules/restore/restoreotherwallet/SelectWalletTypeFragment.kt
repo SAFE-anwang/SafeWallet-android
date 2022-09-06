@@ -33,16 +33,17 @@ class SelectWalletTypeFragment: BaseFragment() {
             findNavController().popBackStack()
         }
         val adapter = SelectWalletTypeAdapter(getWalletTypeList()) {
+            val bundle = Bundle()
+            bundle.putParcelable("walletType", it)
             when(it) {
-                WalletType.SafeWallet -> findNavController().slideFromRight(R.id.restoreMnemonicFragment)
+                WalletType.ImToken,
+                WalletType.SafeWallet -> {
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragment, bundle)
+                }
                 WalletType.HD -> {
-                    val bundle = Bundle()
-                    bundle.putParcelable("walletType", it)
                     findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
                 }
                 else -> {
-                    val bundle = Bundle()
-                    bundle.putParcelable("walletType", it)
                     findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
                 }
             }

@@ -21,6 +21,7 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicBinding
 import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
@@ -76,6 +77,14 @@ class RestoreMnemonicFragment : BaseFragment() {
                 }
                 else -> false
             }
+        }
+
+        // IM Token的钱包，不需要输入密码
+        val walletType = arguments?.getParcelable("walletType") as? WalletType
+        if (walletType is WalletType.ImToken) {
+            binding.passphraseToggle.visibility = View.GONE
+            binding.passphrase.visibility = View.GONE
+            binding.passphraseDescription.visibility = View.GONE
         }
 
         bindListeners()
