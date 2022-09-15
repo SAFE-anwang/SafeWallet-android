@@ -28,6 +28,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.main.WebViewActivity
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -77,6 +78,13 @@ class Safe4Fragment : BaseFragment() {
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.data = Uri.parse(url)
                     requireActivity().startActivity(intent)
+                }
+                App.appConfigProvider.safeBSCPancakeswap,
+                App.appConfigProvider.safeEthUniswap -> {
+                    val bundle = Bundle()
+                    bundle.putString("url", url)
+                    bundle.putString("name", url.subSequence(8, url.length).toString())
+                    findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
                 }
                 else -> {
                     startActivity(Intent(requireActivity(), WebViewActivity::class.java).apply {

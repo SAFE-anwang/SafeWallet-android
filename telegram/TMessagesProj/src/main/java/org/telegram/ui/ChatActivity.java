@@ -2322,7 +2322,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                             getMessagesController().deleteDialog(dialog_id, 2, param);
                         } else {
                             if (id != clear_history) {
-                                AnWangUtils.leaveGroup(currentChat.username, currentChat.id);
+                                if (ChatObject.isChannel(currentChat)) {
+                                    AnWangUtils.leaveGroup(currentChat.username, currentChat.id);
+                                }
 
                                 getNotificationCenter().removeObserver(ChatActivity.this, NotificationCenter.closeChats);
                                 getNotificationCenter().postNotificationName(NotificationCenter.closeChats);
