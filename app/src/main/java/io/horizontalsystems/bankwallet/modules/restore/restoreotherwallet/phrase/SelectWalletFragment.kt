@@ -69,7 +69,7 @@ class SelectWalletFragment: BaseFragment() {
     }
 
     private fun select(name: String) {
-        setNavigationResult("name", bundleOf("name" to name))
+        setNavigationResult("walletName", bundleOf("name" to name))
         findNavController().popBackStack()
     }
 }

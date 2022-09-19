@@ -75,7 +75,7 @@ class EnableCoinService(
         cancelEnableCoinObservable.onNext(platformCoin.fullCoin)
     }
 
-    fun enable(fullCoin: FullCoin, account: Account? = null) {
+    fun enable(fullCoin: FullCoin, account: Account? = null, purpose: Int? = null) {
         val supportedPlatforms = fullCoin.supportedPlatforms
         if (supportedPlatforms.size == 1) {
             val platformCoin = PlatformCoin(supportedPlatforms.first(), fullCoin.coin)
@@ -84,7 +84,8 @@ class EnableCoinService(
                     restoreSettingsService.approveSettings(platformCoin, account)
                 }
                 platformCoin.coinType.coinSettingTypes.isNotEmpty() -> {
-                    coinSettingsService.approveSettings(platformCoin, platformCoin.coinType.defaultSettingsArray)
+                    val coinSetting = getCoinSetting(platformCoin.coinType, purpose)
+                    coinSettingsService.approveSettings(platformCoin, coinSetting /*platformCoin.coinType.defaultSettingsArray*/)
                 }
                 else -> {
                     enableCoinObservable.onNext(Pair(listOf(ConfiguredPlatformCoin(platformCoin)), RestoreSettings()))
@@ -93,6 +94,23 @@ class EnableCoinService(
         } else {
             coinPlatformsService.approvePlatforms(fullCoin)
         }
+    }
+
+    private fun getCoinSetting(coinType: CoinType, purpose: Int?): List<CoinSettings> {
+        if (purpose != null && coinType is CoinType.Bitcoin) {
+            return listOf(
+                CoinSettings(
+                    mapOf(
+                        CoinSettingType.derivation to when (purpose) {
+                            44 -> AccountType.Derivation.bip44.value
+                            84 -> AccountType.Derivation.bip84.value
+                            else -> AccountType.Derivation.bip49.value
+                        }
+                    )
+                )
+            )
+        }
+        return coinType.defaultSettingsArray
     }
 
     fun configure(fullCoin: FullCoin, configuredPlatformCoins: List<ConfiguredPlatformCoin>) {

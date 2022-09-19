@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinPlatformsViewModel
@@ -38,12 +39,15 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultipleDialog
 import io.horizontalsystems.bankwallet.ui.extensions.ZcashBirthdayHeightDialog
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.hdwalletkit.HDWallet
 
 class RestoreBlockchainsFragment : BaseFragment() {
 
     val vmFactory by lazy {
         RestoreBlockchainsModule.Factory(arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!)
     }
+
+    var purpose: Int? = null
 
     private val viewModel by viewModels<RestoreBlockchainsViewModel> { vmFactory }
     private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
@@ -72,6 +76,11 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         observe()
+        purpose = arguments?.getInt(PURPOSE_TYPE_KEY)
+        Log.e("longwen", "purpose: $purpose")
+        purpose?.let {
+            viewModel.enable("Bitcoin", it)
+        }
     }
 
     private fun observe() {
@@ -132,6 +141,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     companion object {
         const val ACCOUNT_TYPE_KEY = "account_type_key"
+        const val PURPOSE_TYPE_KEY = "purpose_type_key"
     }
 }
 

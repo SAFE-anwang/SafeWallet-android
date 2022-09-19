@@ -101,10 +101,9 @@ class RestoreMnemonicViewModel(private val service: RestoreMnemonicService, priv
 
         try {
             val accountType = service.accountType(state.allItems.map { it.word })
-
             proceedLiveEvent.postValue(accountType)
         } catch (t: RestoreMnemonicService.RestoreError.EmptyPassphrase) {
-            passphraseCautionLiveData.postValue(Caution(Translator.getString(R.string.Restore_Error_EmptyPassphrase), Caution.Type.Error))
+            passphraseCautionLiveData.postValue(Caution(Translator.getString(R.string.Restore_Error_EmptyPassphrase_Password), Caution.Type.Error))
         } catch (error: Throwable) {
             errorLiveData.postValue(error)
         }

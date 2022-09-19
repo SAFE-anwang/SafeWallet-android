@@ -160,7 +160,7 @@ class PhraseImportFragment: BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        getNavigationResult("name")?.let {
+        getNavigationResult("walletName")?.let {
             val name = it.getString("name")
             updateWalletPath(name)
         }

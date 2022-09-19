@@ -72,6 +72,7 @@
     <string name="Restore_ValidationFailed">错误密钥</string>
     <string name="Restore_Error_MnemonicWordCount">个数有误。必须为12到24个单词。您输入了：%d</string>
     <string name="Restore_Error_EmptyPassphrase">助记词不能为空</string>
+    <string name="Restore_Error_EmptyPassphrase_Password">密码不能为空</string>
     <string name="Restore_InvalidChecksum">校验和无效</string>
     <string name="Restore_PassphraseDescription">输入您在创建此助记词时使用的密码.</string>
     <string name="Restore_Title">选择区块链</string>

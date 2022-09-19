@@ -36,12 +36,12 @@ class SelectWalletTypeFragment: BaseFragment() {
             val bundle = Bundle()
             bundle.putParcelable("walletType", it)
             when(it) {
-                WalletType.ImToken,
                 WalletType.SafeWallet -> {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragment, bundle)
                 }
+                WalletType.ImToken,
                 WalletType.HD -> {
-                    findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, bundle)
                 }
                 else -> {
                     findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)

@@ -11,15 +11,6 @@
             "needpassword": 1
         },
         {
-            "name": "Arculus",
-            "wallet": 1,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": 1
-        },
-        {
             "name": "BitBox01",
             "wallet": 1,
             "bip32path": [
@@ -55,7 +46,6 @@
             "wallet": 1,
             "bip32path": [
                 "m/44'/0'/0'",
-                "m/48'/0'/0'",
                 "m/84'/0'/0'"
             ],
             "custompath": false,
@@ -66,7 +56,6 @@
             "wallet": 1,
             "bip32path": [
                 "m/44'/0'/0'",
-                "m/48'/0'/0'",
                 "m/49'/0'/0'",
                 "m/84'/0'/0'"
             ],
@@ -78,7 +67,6 @@
             "wallet": 1,
             "bip32path": [
                 "m/44'/0'/0'",
-                "m/48'/0'/0'",
                 "m/84'/0'/0'"
             ],
             "custompath": true,
@@ -89,7 +77,6 @@
             "wallet": 1,
             "bip32path": [
                 "m/44'/0'/0'",
-                "m/48'/0'/0'",
                 "m/84'/0'/0'"
             ],
             "custompath": true,
@@ -100,7 +87,6 @@
             "wallet": 1,
             "bip32path": [
                 "m/44'/0'/0'",
-                "m/48'/0'/0'",
                 "m/84'/0'/0'"
             ],
             "custompath": true,
@@ -139,8 +125,7 @@
             "name": "Passport",
             "wallet": 1,
             "bip32path": [
-                "m/84'/0'/0'",
-                "m/48'/0'/0'/2'"
+                "m/84'/0'/0'"
             ],
             "custompath": false,
             "needpassword": 1
@@ -149,8 +134,7 @@
             "name": "SeedSigner",
             "wallet": 1,
             "bip32path": [
-                "m/84'/0'/0'",
-                "m/48'/0'/0'/2'"
+                "m/84'/0'/0'"
             ],
             "custompath": false,
             "needpassword": 1
@@ -228,15 +212,6 @@
             "needpassword": 0
         },
         {
-            "name": "Bitcoin Core",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
             "name": "Bitcoin Wallet app",
             "wallet": 0,
             "bip32path": [
@@ -249,8 +224,7 @@
             "name": "Bisq",
             "wallet": 0,
             "bip32path": [
-                "m/44'/0'/0'",
-                "m/44'/0'/1'"
+                "m/44'/0'/0'"
             ],
             "custompath": false,
             "needpassword": -1
@@ -261,15 +235,6 @@
             "bip32path": [
                 "m/44'/0'/0'",
                 "m/49'/0'/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "Blockchain.com",
-            "wallet": 0,
-            "bip32path": [
-                "m/44'/0'/n'"
             ],
             "custompath": false,
             "needpassword": -1
@@ -297,42 +262,6 @@
             "needpassword": -1
         },
         {
-            "name": "BRD (Bread Wallet)",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "BTC.com app",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "Casa",
-            "wallet": 0,
-            "bip32path": [
-                "m/49/0/X"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "Coin Wallet",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
             "name": "Coinomi",
             "wallet": 0,
             "bip32path": [
@@ -342,15 +271,6 @@
             ],
             "custompath": false,
             "needpassword": 2
-        },
-        {
-            "name": "Copay",
-            "wallet": 0,
-            "bip32path": [
-                "m/44/0'/X'"
-            ],
-            "custompath": false,
-            "needpassword": 1
         },
         {
             "name": "DropBit",
@@ -403,15 +323,6 @@
             "needpassword": 2
         },
         {
-            "name": "Hodl Wallet",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
             "name": "Jaxx Liberty",
             "wallet": 0,
             "bip32path": [
@@ -421,38 +332,11 @@
             "needpassword": -1
         },
         {
-            "name": "JoinMarket",
-            "wallet": 0,
-            "bip32path": [
-                "m/84'/0'/n'"
-            ],
-            "custompath": false,
-            "needpassword": 1
-        },
-        {
-            "name": "JoinMarket (legacy)",
-            "wallet": 0,
-            "bip32path": [
-                "m/0"
-            ],
-            "custompath": false,
-            "needpassword": 0
-        },
-        {
             "name": "Ledger Live",
             "wallet": 0,
             "bip32path": [
                 "m/44'/0'/0'",
                 "m/49'/0'/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "Luxstack",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
             ],
             "custompath": false,
             "needpassword": -1
@@ -470,46 +354,7 @@
             "name": "KoinKeep",
             "wallet": 0,
             "bip32path": [
-                "m/44'/0'/0'",
-                "m/44'/n'/0'"
-            ],
-            "custompath": false,
-            "needpassword": 0
-        },
-        {
-            "name": "Multibit HD",
-            "wallet": 0,
-            "bip32path": [
-                "m/0'"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
-            "name": "Mycelium for Android",
-            "wallet": 0,
-            "bip32path": [
-                "m/44'/0'/n'",
-                "m/49'/0'/n'",
-                "m/84'/0'/n'"
-            ],
-            "custompath": false,
-            "needpassword": 1
-        },
-        {
-            "name": "Mycelium for iPhone",
-            "wallet": 0,
-            "bip32path": [
-                "m/44'/0'/n'"
-            ],
-            "custompath": false,
-            "needpassword": 1
-        },
-        {
-            "name": "NthKey",
-            "wallet": 0,
-            "bip32path": [
-                "m/48'/0'/0'/2'/{0-1}/*"
+                "m/44'/0'/0'"
             ],
             "custompath": false,
             "needpassword": 0
@@ -518,10 +363,7 @@
             "name": "OpenBazaar",
             "wallet": 0,
             "bip32path": [
-                "m/44'/0'/0'",
-                "m/44'/1'/0'",
-                "m/44'/133'/0'",
-                "m/44'/145'/0'"
+                "m/44'/0'/0'"
             ],
             "custompath": false,
             "needpassword": -1
@@ -561,14 +403,7 @@
             "bip32path": [
                 "m/44'/0'/0'",
                 "m/49'/0'/0'",
-                "m/84'/0'/0'",
-                "m/47'/0'/0'",
-                "m/84'/0'/2147483644'",
-                "m/84'/0'/2147483645'",
-                "m/84'/0'/2147483646'",
-                "m/44'/0'/2147483647'",
-                "m/49'/0'/2147483647'",
-                "m/84'/0'/2147483647'"
+                "m/84'/0'/0'"
             ],
             "custompath": false,
             "needpassword": 2
@@ -603,15 +438,6 @@
             "needpassword": 2
         },
         {
-            "name": "Unchained Capital",
-            "wallet": 0,
-            "bip32path": [
-                "m/45'/0'/0'/0/0"
-            ],
-            "custompath": false,
-            "needpassword": -1
-        },
-        {
             "name": "Unstoppable Wallet",
             "wallet": 0,
             "bip32path": [
@@ -644,7 +470,6 @@
             "name": "SBW (Simple Bitcoin Wallet)",
             "wallet": 0,
             "bip32path": [
-                "m/0'",
                 "m/44'/0'/0'",
                 "m/49'/0'/0'",
                 "m/84'/0'/0'"
@@ -656,8 +481,7 @@
             "name": "C-Lightning",
             "wallet": 0,
             "bip32path": [
-                "m/84'/0'/0'",
-                "m/141'/0'/0'"
+                "m/84'/0'/0'"
             ],
             "custompath": false,
             "needpassword": -1

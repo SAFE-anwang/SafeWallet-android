@@ -64,9 +64,9 @@ class RestoreBlockchainsViewModel(
         )
     }
 
-    fun enable(uid: String) {
+    fun enable(uid: String, purpose: Int? = null) {
         val blockchain = RestoreBlockchainsModule.Blockchain.valueOf(uid)
-        service.enable(blockchain)
+        service.enable(blockchain, purpose)
     }
 
     fun disable(uid: String) {

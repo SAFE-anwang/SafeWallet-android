@@ -123,10 +123,10 @@ class RestoreBlockchainsService(
         canRestore.onNext(enabledCoins.isNotEmpty() && !enableCoinServiceIsBusy)
     }
 
-    fun enable(blockchain: Blockchain) {
+    fun enable(blockchain: Blockchain, purpose: Int? = null) {
         val internalItem = internalItems.firstOrNull { it.blockchain == blockchain } ?: return
 
-        enableCoinService.enable(internalItem.platformCoin.fullCoin)
+        enableCoinService.enable(internalItem.platformCoin.fullCoin, purpose = purpose)
     }
 
     fun disable(blockchain: Blockchain) {

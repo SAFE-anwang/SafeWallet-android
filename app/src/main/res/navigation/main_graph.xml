@@ -573,6 +573,10 @@
         android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletFragment"
         tools:layout="@layout/fragment_select_wallet_type" />
 
+    <fragment
+        android:id="@+id/restoreMnemonicFragmentHd"
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMnemonicFragmentHD"
+        tools:layout="@layout/fragment_restore_mnemonic" />
     <!--  Dialogs/BottomSheets  -->
     <!--    <dialog-->
     <!--        android:id="@+id/transactionInfoDialog"-->

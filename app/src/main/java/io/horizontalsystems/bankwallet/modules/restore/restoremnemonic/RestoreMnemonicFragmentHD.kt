@@ -11,24 +11,36 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.Utils
-import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicBinding
+import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicHdBinding
 import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
+import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsFragment.Companion.PURPOSE_TYPE_KEY
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletViewModel
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.WalletInfo
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.core.helpers.KeyboardHelper
+import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.hdwalletkit.Mnemonic
 
-class RestoreMnemonicFragment : BaseFragment() {
+class RestoreMnemonicFragmentHD : BaseFragment() {
     private val viewModel by viewModels<RestoreMnemonicViewModel> { RestoreMnemonicModule.Factory() }
+
+    private val selectWalletViewModel = SelectWalletViewModel()
+    private var purpose = HDWallet.Purpose.BIP44
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
@@ -45,7 +57,7 @@ class RestoreMnemonicFragment : BaseFragment() {
         }
     }
 
-    private var _binding: FragmentRestoreMnemonicBinding? = null
+    private var _binding: FragmentRestoreMnemonicHdBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -53,7 +65,7 @@ class RestoreMnemonicFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRestoreMnemonicBinding.inflate(inflater, container, false)
+        _binding = FragmentRestoreMnemonicHdBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
     }
@@ -71,10 +83,36 @@ class RestoreMnemonicFragment : BaseFragment() {
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.next -> {
+
                     viewModel.onProceed()
                     true
                 }
                 else -> false
+            }
+        }
+
+        // IM Token的钱包，不需要输入密码
+        val walletType = arguments?.getParcelable("walletType") as? WalletType
+        if (walletType is WalletType.ImToken) {
+            binding.passphraseToggle.visibility = View.GONE
+            binding.passphrase.visibility = View.GONE
+            binding.passphraseDescription.visibility = View.GONE
+        }
+
+        binding.walletName.setOnClickListener {
+            findNavController().navigate(R.id.restoreSelectWalletNameFragment)
+        }
+        binding.inputWalleName.onTextChange { prevText, newText ->
+            if (prevText != newText) updateWalletPath(newText)
+        }
+        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+
+        // HD钱包，有输入钱包名称功能
+        walletType?.let {
+            if (it is WalletType.HD) {
+                binding.walletName.visibility = View.VISIBLE
+                binding.inputWalleName.visibility = View.VISIBLE
+                binding.pathSelect.visibility = View.VISIBLE
             }
         }
 
@@ -84,12 +122,21 @@ class RestoreMnemonicFragment : BaseFragment() {
         KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
     }
 
+    override fun onResume() {
+        super.onResume()
+        getNavigationResult("walletName")?.let {
+            val name = it.getString("name")
+            binding.inputWalleName.setText(name)
+            updateWalletPath(name)
+        }
+    }
+
     private fun observeEvents() {
         viewModel.proceedLiveEvent.observe(viewLifecycleOwner, Observer { accountType ->
             hideKeyboard()
             findNavController().slideFromRight(
                 R.id.restoreSelectCoinsFragment,
-                bundleOf(ACCOUNT_TYPE_KEY to accountType)
+                bundleOf(ACCOUNT_TYPE_KEY to accountType, PURPOSE_TYPE_KEY to purpose.value)
             )
         })
 
@@ -182,5 +229,63 @@ class RestoreMnemonicFragment : BaseFragment() {
         }
 
         return true
+    }
+
+
+    private fun updateWalletPath(name: String?) {
+        android.util.Log.e("longwen", "input name: $name")
+        if (name.isNullOrBlank()) {
+            viewModel.onTogglePassphrase(false)
+            binding.passphraseToggle.visibility = View.VISIBLE
+            setWalletPath(null)
+            return
+        }
+        selectWalletViewModel.getWalletForName(name)?.let {
+            setWalletPath(it)
+        }
+
+    }
+
+    private fun setWalletPath(walletInfo: WalletInfo?) {
+        if (walletInfo == null) {
+//            binding.customPath.visibility = View.GONE
+            binding.inputWalletPath.adapter = null
+            return
+        }
+        binding.inputWalletPath.adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_expandable_list_item_1, walletInfo.bip32path)
+        binding.inputWalletPath.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                Log.e("longwen", "select path: ${walletInfo.bip32path[position]}")
+                val path = walletInfo.bip32path[position]
+                val splits = path.split("/")
+                purpose = when(splits[1]) {
+                    "44'" -> HDWallet.Purpose.BIP44
+                    "49'" -> HDWallet.Purpose.BIP49
+                    "84'" -> HDWallet.Purpose.BIP84
+                    else -> HDWallet.Purpose.BIP44
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+        /*if (walletInfo.custompath) {
+            binding.customPath.visibility = View.VISIBLE
+        }*/
+        // 是否需要密码
+        // 必要
+        if (walletInfo.needpassword == 1) {
+//            viewModel.onTogglePassphrase(true)
+            binding.passphraseToggle.visibility = View.GONE
+        } else { // 可有可无
+            viewModel.onTogglePassphrase(false)
+            binding.passphraseToggle.visibility = View.VISIBLE
+        }
     }
 }
