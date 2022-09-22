@@ -85,7 +85,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            findNavController().popBackStack(R.id.restoreMnemonicFragment, true)
+            findNavController().popBackStack(R.id.restoreSelectImportWayFragment, true)
         }
 
         coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->

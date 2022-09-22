@@ -93,10 +93,17 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
         // IM Token的钱包，不需要输入密码
         val walletType = arguments?.getParcelable("walletType") as? WalletType
-        if (walletType is WalletType.ImToken) {
-            binding.passphraseToggle.visibility = View.GONE
-            binding.passphrase.visibility = View.GONE
-            binding.passphraseDescription.visibility = View.GONE
+        when (walletType) {
+            is WalletType.ImToken,
+            is WalletType.Bither -> {
+                binding.passphraseToggle.visibility = View.GONE
+                binding.passphrase.visibility = View.GONE
+                binding.passphraseDescription.visibility = View.GONE
+                binding.walletName.visibility = View.GONE
+                binding.inputWalleName.visibility = View.GONE
+                binding.walletPath.visibility = View.GONE
+                binding.pathSelect.visibility = View.GONE
+            }
         }
 
         binding.walletName.setOnClickListener {

@@ -19,7 +19,7 @@ sealed class WalletType: Parcelable {
     object ImToken: WalletType()
 
     @Parcelize
-    object BitPie: WalletType()
+    object Bither: WalletType()
 
     @Parcelize
     object TokenPocket: WalletType()
@@ -32,7 +32,7 @@ val WalletType.name: Int
         WalletType.SafeWallet -> R.string.Restore_Safe_Wallet
         WalletType.SafeGem -> R.string.Restore_SafeGem_Wallet
         WalletType.ImToken -> R.string.Restore_ImToken_Wallet
-        WalletType.BitPie -> R.string.Restore_BitPie_Wallet
+        WalletType.Bither -> R.string.Restore_BitPie_Wallet
         WalletType.TokenPocket -> R.string.Restore_Token_Pocket_Wallet
     }
 
@@ -43,6 +43,6 @@ val WalletType.icon: Int
         WalletType.SafeWallet -> R.drawable.logo_safe_24
         WalletType.SafeGem -> R.drawable.logo_safe_24
         WalletType.ImToken -> R.drawable.logo_safe_24
-        WalletType.BitPie -> R.drawable.logo_safe_24
+        WalletType.Bither -> R.drawable.logo_safe_24
         WalletType.TokenPocket -> R.drawable.logo_safe_24
     }

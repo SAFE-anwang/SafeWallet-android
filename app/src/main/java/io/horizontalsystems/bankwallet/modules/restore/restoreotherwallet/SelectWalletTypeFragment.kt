@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -39,6 +38,7 @@ class SelectWalletTypeFragment: BaseFragment() {
                 WalletType.SafeWallet -> {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragment, bundle)
                 }
+                WalletType.Bither,
                 WalletType.ImToken,
                 WalletType.HD -> {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, bundle)
@@ -59,7 +59,7 @@ class SelectWalletTypeFragment: BaseFragment() {
         list.add(WalletType.SafeWallet)
         list.add(WalletType.SafeGem)
         list.add(WalletType.ImToken)
-        list.add(WalletType.BitPie)
+        list.add(WalletType.Bither)
         list.add(WalletType.TokenPocket)
         list.add(WalletType.HD)
         return list
