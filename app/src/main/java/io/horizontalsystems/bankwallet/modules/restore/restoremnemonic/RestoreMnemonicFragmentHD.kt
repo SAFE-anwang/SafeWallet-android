@@ -40,7 +40,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private val viewModel by viewModels<RestoreMnemonicViewModel> { RestoreMnemonicModule.Factory() }
 
     private val selectWalletViewModel = SelectWalletViewModel()
-    private var purpose = HDWallet.Purpose.BIP44
+    private var purpose = HDWallet.Purpose.BIP49
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
@@ -120,6 +120,9 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.walletName.visibility = View.VISIBLE
                 binding.inputWalleName.visibility = View.VISIBLE
                 binding.pathSelect.visibility = View.VISIBLE
+            }
+            if (it is WalletType.Bither) {
+                purpose = HDWallet.Purpose.BIP44
             }
         }
 
