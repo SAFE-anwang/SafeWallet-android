@@ -4124,7 +4124,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
     private void leaveChatPressed() {
         AlertsCreator.createClearOrDeleteDialogAlert(ProfileActivity.this, false, currentChat, null, false, true, (param) -> {
-            AnWangUtils.leaveGroup(currentChat.username, currentChat.id);
+            if (ChatObject.isChannel(currentChat)) {
+                AnWangUtils.leaveGroup(currentChat.username, currentChat.id);
+            }
 
             playProfileAnimation = 0;
             getNotificationCenter().removeObserver(ProfileActivity.this, NotificationCenter.closeChats);
