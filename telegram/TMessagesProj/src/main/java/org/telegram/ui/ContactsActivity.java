@@ -786,7 +786,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
             Activity activity = getParentActivity();
             if (activity != null) {
                 checkPermission = false;
-                if (activity.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                /*if (activity.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                     if (activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
                         AlertDialog.Builder builder = AlertsCreator.createContactsPermissionDialog(activity, param -> {
                             askAboutContacts = param != 0;
@@ -799,7 +799,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
                     } else {
                         askForPermissons(true);
                     }
-                }
+                }*/
             }
         }
     }
@@ -835,7 +835,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
 
     @TargetApi(Build.VERSION_CODES.M)
     private void askForPermissons(boolean alert) {
-        Activity activity = getParentActivity();
+        /*Activity activity = getParentActivity();
         if (activity == null || !UserConfig.getInstance(currentAccount).syncContacts || activity.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -860,7 +860,7 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
             activity.requestPermissions(items, 1);
         } catch (Exception e) {
             FileLog.e(e);
-        }
+        }*/
     }
 
     @Override
