@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.restore.restoremnemonic
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.text.Editable
 import android.text.Spannable
@@ -13,6 +14,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.IconButton
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -21,6 +33,7 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicHdBinding
 import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
@@ -28,6 +41,10 @@ import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.Restor
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletViewModel
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.WalletInfo
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
@@ -77,9 +94,10 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.setNavigationOnClickListener {
+        /*binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+        binding.toolbar.menu
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.next -> {
@@ -89,10 +107,46 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 }
                 else -> false
             }
-        }
+        }*/
 
         // IM Token的钱包，不需要输入密码
         val walletType = arguments?.getParcelable("walletType") as? WalletType
+        binding.toolbarCompose.setViewCompositionStrategy(
+            ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
+        )
+        val menus = if (walletType !is WalletType.SafeGem && walletType !is WalletType.TokenPocket) {
+            listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Button_Next),
+                    onClick = {
+                        viewModel.onProceed()
+                    }
+                )
+            )
+        } else {
+            listOf()
+        }
+        binding.toolbarCompose.setContent {
+            ComposeAppTheme {
+                AppBar(
+                    title = TranslatableString.ResString(R.string.Restore_Enter_Key_Title),
+                    navigationIcon = {
+                        IconButton(onClick = { findNavController().popBackStack() }) {
+                            Image(painter = painterResource(id = R.drawable.ic_back),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .size(24.dp)
+                            )
+                        }
+
+                    },
+                    menuItems = menus
+                )
+            }
+        }
+
+
         when (walletType) {
             is WalletType.ImToken,
             is WalletType.Bither -> {

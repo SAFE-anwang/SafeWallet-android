@@ -6,7 +6,7 @@
     android:background="?android:windowBackground"
     android:clickable="true">
 
-    <androidx.appcompat.widget.Toolbar
+    <!--<androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -14,7 +14,12 @@
         app:menu="@menu/restore_mnemonic_menu"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/Restore_Enter_Key_Title"
-        app:titleTextAppearance="@style/Title3" />
+        app:titleTextAppearance="@style/Title3" />-->
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/toolbarCompose"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

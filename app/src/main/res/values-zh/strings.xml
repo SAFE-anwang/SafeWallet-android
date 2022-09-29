@@ -1091,7 +1091,7 @@
     <string name="Restore_Import_Private_Key">私钥导入</string>
     <string name="Restore_Import_Private_Key_Desc">通过输入明文私钥或扫描二维码进行导入</string>
     <string name="Restore_Import_Recovery_Phrase">助记词导入</string>
-    <string name="Restore_Import_Recovery_Phrase_Desc">通过输入助记词或扫描二维码进行导入</string>
+    <string name="Restore_Import_Recovery_Phrase_Desc">通过输入助记词进行导入</string>
     <string name="Restore_Import_Recovery_Phrase_Launage">助记词语言</string>
     <string name="Restore_Import_Launage_EN">英文</string>
     <string name="Restore_Import_Launage_ZH">简体中文</string>
