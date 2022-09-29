@@ -111,4 +111,19 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <LinearLayout
+        android:id="@+id/ll_not_implemented"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:windowBackground"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Restore_Import_Wallet_not_implemented"/>
+
+    </LinearLayout>
+
 </FrameLayout>

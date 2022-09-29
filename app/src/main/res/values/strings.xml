@@ -1241,12 +1241,12 @@
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 
 
-    <string name="Restore_Select_Wallet">Please select a network</string>
+    <string name="Restore_Select_Wallet">Please select wallet</string>
     <string name="Restore_HD_Wallet">HD Wallet</string>
     <string name="Restore_Safe_Wallet">SafeWallet</string>
     <string name="Restore_SafeGem_Wallet">SafeGem</string>
     <string name="Restore_ImToken_Wallet">ImToken</string>
-    <string name="Restore_BitPie_Wallet">Bither</string>
+    <string name="Restore_BitPie_Wallet">Bitpie</string>
     <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
     <string name="Restore_Select_Import_Way">Import way</string>
     <string name="Restore_Import_Private_Key">Private Key</string>
@@ -1273,5 +1273,6 @@
     <string name="Restore_Import_Wallet_Type_Software">Software</string>
     <string name="Restore_Import_Wallet_Type_Both">Hardware or Software</string>
     <string name="Restore_Import_Wallet_Type_Unkonwn">Unkonwn</string>
+    <string name="Restore_Import_Wallet_not_implemented">To be updated, please wait</string>
 
 </resources>

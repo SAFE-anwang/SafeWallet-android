@@ -1080,7 +1080,7 @@
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 
 
-    <string name="Restore_Select_Wallet">请选择网络</string>
+    <string name="Restore_Select_Wallet">请选择钱包</string>
     <string name="Restore_HD_Wallet">身份钱包(HD)</string>
     <string name="Restore_Safe_Wallet">SafeWallet</string>
     <string name="Restore_SafeGem_Wallet">安宝</string>
@@ -1112,4 +1112,5 @@
     <string name="Restore_Import_Wallet_Type_Software">软件钱包</string>
     <string name="Restore_Import_Wallet_Type_Both">硬件/软件钱包</string>
     <string name="Restore_Import_Wallet_Type_Unkonwn">未知类型</string>
+    <string name="Restore_Import_Wallet_not_implemented">待更新，敬请等待</string>
 </resources>

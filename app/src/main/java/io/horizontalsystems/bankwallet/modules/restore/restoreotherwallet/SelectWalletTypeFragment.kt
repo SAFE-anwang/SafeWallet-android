@@ -38,6 +38,8 @@ class SelectWalletTypeFragment: BaseFragment() {
                 WalletType.SafeWallet -> {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragment, bundle)
                 }
+                WalletType.TokenPocket,
+                WalletType.SafeGem,
                 WalletType.Bither,
                 WalletType.ImToken,
                 WalletType.HD -> {
@@ -56,12 +58,12 @@ class SelectWalletTypeFragment: BaseFragment() {
 
     private fun getWalletTypeList(): List<WalletType> {
         val list = mutableListOf<WalletType>()
+        list.add(WalletType.HD)
         list.add(WalletType.SafeWallet)
-        list.add(WalletType.SafeGem)
         list.add(WalletType.ImToken)
         list.add(WalletType.Bither)
+        list.add(WalletType.SafeGem)
         list.add(WalletType.TokenPocket)
-        list.add(WalletType.HD)
         return list
     }
 

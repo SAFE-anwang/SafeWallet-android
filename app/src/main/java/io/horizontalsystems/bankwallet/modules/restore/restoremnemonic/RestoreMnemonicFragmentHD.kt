@@ -104,6 +104,10 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.walletPath.visibility = View.GONE
                 binding.pathSelect.visibility = View.GONE
             }
+            is WalletType.SafeGem,
+            is WalletType.TokenPocket -> {
+                binding.llNotImplemented.visibility = View.VISIBLE
+            }
         }
 
         binding.walletName.setOnClickListener {
@@ -112,7 +116,6 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         binding.inputWalleName.onTextChange { prevText, newText ->
             if (prevText != newText) updateWalletPath(newText)
         }
-        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
 
         // HD钱包，有输入钱包名称功能
         walletType?.let {
@@ -128,8 +131,9 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
         bindListeners()
         observeEvents()
-
-        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+        if (walletType !is WalletType.SafeGem && walletType !is WalletType.TokenPocket) {
+            KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+        }
     }
 
     override fun onResume() {

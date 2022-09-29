@@ -93,7 +93,7 @@ class PrivateKeyImportFragment: BaseFragment() {
                             )
                         }
 
-                    },
+                    }/*,
                     menuItems = listOf(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
@@ -102,7 +102,7 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(requireContext()))
                             }
                         )
-                    )
+                    )*/
                 )
             }
         }
@@ -124,7 +124,7 @@ class PrivateKeyImportFragment: BaseFragment() {
         }
 
         binding.wordsInput.addTextChangedListener(textWatcher)
-        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+//        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
     }
 
     private fun isUsingNativeKeyboard(): Boolean {
