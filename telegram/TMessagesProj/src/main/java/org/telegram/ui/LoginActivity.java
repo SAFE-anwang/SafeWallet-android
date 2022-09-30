@@ -2240,7 +2240,7 @@ public class LoginActivity extends BaseFragment {
                             boolean allowReadPhoneNumbers = Build.VERSION.SDK_INT < Build.VERSION_CODES.O || getParentActivity().checkSelfPermission(Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED;;
                             if (checkPermissions) {
                                 permissionsItems.clear();
-                                if (!allowCall) {
+                                /*if (!allowCall) {
                                     permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
                                 }
                                 if (!allowCancelCall) {
@@ -2251,7 +2251,7 @@ public class LoginActivity extends BaseFragment {
                                 }
                                 if (!allowReadPhoneNumbers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                     permissionsItems.add(Manifest.permission.READ_PHONE_NUMBERS);
-                                }
+                                }*/
                                 if (!permissionsItems.isEmpty()) {
                                     SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                                     if (preferences.getBoolean("firstlogin", true) || getParentActivity().shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE) || getParentActivity().shouldShowRequestPermissionRationale(Manifest.permission.READ_CALL_LOG)) {
@@ -2317,7 +2317,7 @@ public class LoginActivity extends BaseFragment {
                 }
                 if (checkPermissions) {
                     permissionsItems.clear();
-                    if (!allowCall) {
+                    /*if (!allowCall) {
                         permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
                     }
                     if (!allowCancelCall) {
@@ -2328,7 +2328,7 @@ public class LoginActivity extends BaseFragment {
                     }
                     if (!allowReadPhoneNumbers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         permissionsItems.add(Manifest.permission.READ_PHONE_NUMBERS);
-                    }
+                    }*/
                     if (!permissionsItems.isEmpty()) {
                         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                         if (preferences.getBoolean("firstlogin", true) || getParentActivity().shouldShowRequestPermissionRationale(Manifest.permission.READ_PHONE_STATE) || getParentActivity().shouldShowRequestPermissionRationale(Manifest.permission.READ_CALL_LOG)) {
@@ -2533,12 +2533,12 @@ public class LoginActivity extends BaseFragment {
                         }
                         if (checkShowPermissions && (!allowCall || !allowReadPhoneNumbers)) {
                             permissionsShowItems.clear();
-                            if (!allowCall) {
+                            /*if (!allowCall) {
                                 permissionsShowItems.add(Manifest.permission.READ_PHONE_STATE);
                             }
                             if (!allowReadPhoneNumbers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 permissionsShowItems.add(Manifest.permission.READ_PHONE_NUMBERS);
-                            }
+                            }*/
                             if (!permissionsShowItems.isEmpty()) {
                                 List<String> callbackPermissionItems = new ArrayList<>(permissionsShowItems);
                                 Runnable r = () -> {
