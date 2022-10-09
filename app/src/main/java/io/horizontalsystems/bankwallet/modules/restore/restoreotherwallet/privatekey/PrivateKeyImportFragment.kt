@@ -20,14 +20,16 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestorePrivateKeyImportBinding
+import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
-import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
+import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -39,14 +41,19 @@ import io.horizontalsystems.core.helpers.KeyboardHelper
 
 class PrivateKeyImportFragment: BaseFragment() {
 
+    val vmFactory by lazy {
+        RestoreBlockchainsModule.Factory2()
+    }
+
+    private val viewModel by viewModels<PrivateKeyImportViewModel> { vmFactory }
+    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
+
     private var _binding: FragmentRestorePrivateKeyImportBinding? = null
     private val binding get() = _binding!!
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
-            if (s.isNotEmpty()) {
-
-            }
+            binding.importButton.isEnabled = s.length == 64
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -93,7 +100,7 @@ class PrivateKeyImportFragment: BaseFragment() {
                             )
                         }
 
-                    }/*,
+                    },
                     menuItems = listOf(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
@@ -102,7 +109,7 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(requireContext()))
                             }
                         )
-                    )*/
+                    )
                 )
             }
         }
@@ -117,14 +124,34 @@ class PrivateKeyImportFragment: BaseFragment() {
                         .padding(horizontal = 16.dp),
                     title = stringResource(R.string.Restore_Import_Wallet),
                     onClick = {
-
+                        viewModel.onRestore(binding.wordsInput.text.toString())
                     }
                 )
             }
         }
 
         binding.wordsInput.addTextChangedListener(textWatcher)
-//        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+        KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
+
+        viewModel.enable(getSelectCoin())
+        observer()
+    }
+
+    private fun observer() {
+        coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
+            coinSettingsViewModel.onSelect(listOf(0, 1, 2))
+        }
+        viewModel.successLiveEvent.observe(viewLifecycleOwner) {
+            findNavController().popBackStack(R.id.restoreSelectImportWayFragment, true)
+        }
+        viewModel.restoreEnabledLiveData.observe(viewLifecycleOwner) {
+            binding.importButton.isEnabled = it
+        }
+        binding.rgCoin.setOnCheckedChangeListener { group, checkedId ->
+            viewModel.disable(getDisableCoin())
+            val selectCoin = getSelectCoin()
+            viewModel.enable(selectCoin)
+        }
     }
 
     private fun isUsingNativeKeyboard(): Boolean {
@@ -134,5 +161,21 @@ class PrivateKeyImportFragment: BaseFragment() {
         }
 
         return true
+    }
+
+    private fun getDisableCoin(): String {
+        return when {
+            !binding.rbBtc.isChecked -> "BTC"
+            !binding.rbEth.isChecked -> "ETH"
+            else -> "ETH"
+        }
+    }
+
+    private fun getSelectCoin(): String {
+        return when {
+            binding.rbBtc.isChecked -> "BTC"
+            binding.rbEth.isChecked -> "ETH"
+            else -> "ETH"
+        }
     }
 }

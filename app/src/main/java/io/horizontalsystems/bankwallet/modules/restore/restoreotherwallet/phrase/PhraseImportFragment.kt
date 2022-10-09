@@ -200,7 +200,6 @@ class PhraseImportFragment: BaseFragment() {
                 position: Int,
                 id: Long
             ) {
-                Log.e("longwen", "select path: ${walletInfo.bip32path[position]}")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

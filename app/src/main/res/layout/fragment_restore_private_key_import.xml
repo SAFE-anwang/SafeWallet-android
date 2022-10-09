@@ -52,6 +52,7 @@
                 android:textColor="@color/grey" />
 
             <RadioGroup
+                android:id="@+id/rgCoin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -64,7 +65,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:checked="true"
                     android:text="BTC"/>
 
                 <RadioButton
@@ -72,6 +72,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:checked="true"
                     android:text="ETH"/>
 
             </RadioGroup>
@@ -110,20 +111,5 @@
                 android:layout_marginTop="8dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <LinearLayout
-        android:id="@+id/ll_not_implemented"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?android:windowBackground"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/Restore_Import_Wallet_not_implemented"/>
-
-    </LinearLayout>
 
 </FrameLayout>

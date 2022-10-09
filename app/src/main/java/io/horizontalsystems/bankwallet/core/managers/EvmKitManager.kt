@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -117,6 +118,9 @@ class EvmKitManager(
                 is AccountType.Address -> {
                     createKitInstance(accountType, account)
                 }
+                is AccountType.PrivateKey -> {
+                    createKitInstance(accountType, account)
+                }
                 else -> throw UnsupportedAccountException()
             }
             useCount = 0
@@ -175,6 +179,39 @@ class EvmKitManager(
     ): EvmKitWrapper {
         val evmNetwork = evmNetworkProvider.getEvmNetwork(account)
         val address = accountType.address
+
+        val kit = EthereumKit.getInstance(
+            App.instance,
+            Address(address),
+            evmNetwork.chain,
+            evmNetwork.rpcSource,
+            transactionSource(evmNetwork.chain, etherscanApiKey),
+            account.id
+        )
+
+        Erc20Kit.addTransactionSyncer(kit)
+        Erc20Kit.addDecorator(kit)
+
+        UniswapKit.addDecorator(kit)
+        UniswapKit.addTransactionWatcher(kit)
+
+        OneInchKit.addDecorator(kit)
+        OneInchKit.addTransactionWatcher(kit)
+
+        kit.start()
+
+        val wrapper = EvmKitWrapper(kit, null)
+
+        return wrapper
+    }
+
+    private fun createKitInstance(
+        accountType: AccountType.PrivateKey,
+        account: Account
+    ): EvmKitWrapper {
+        val evmNetwork = evmNetworkProvider.getEvmNetwork(account)
+        val address = accountType.getAddress("ETH")
+        Log.e("longwen", "eth address: $address")
 
         val kit = EthereumKit.getInstance(
             App.instance,

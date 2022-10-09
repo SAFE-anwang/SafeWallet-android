@@ -301,7 +301,6 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
 
     private fun updateWalletPath(name: String?) {
-        android.util.Log.e("longwen", "input name: $name")
         if (name.isNullOrBlank()) {
             viewModel.onTogglePassphrase(false)
             binding.passphraseToggle.visibility = View.VISIBLE
@@ -328,7 +327,6 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 position: Int,
                 id: Long
             ) {
-                Log.e("longwen", "select path: ${walletInfo.bip32path[position]}")
                 val path = walletInfo.bip32path[position]
                 val splits = path.split("/")
                 purpose = when(splits[1]) {

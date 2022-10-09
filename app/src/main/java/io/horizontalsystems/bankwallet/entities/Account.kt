@@ -7,6 +7,8 @@ import io.horizontalsystems.bankwallet.core.shortenedAddress
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import org.consenlabs.tokencore.wallet.WalletManager
+import org.consenlabs.tokencore.wallet.model.Metadata
 
 @Parcelize
 data class Account(
@@ -62,6 +64,18 @@ open class AccountType : Parcelable {
 
         override fun hashCode(): Int {
             return key.contentHashCode()
+        }
+
+        fun getAddress(coinType: String): String {
+            val mateType = when(coinType) {
+                "BTC" -> "BITCOIN"
+                "ETH" -> "ETHEREUM"
+                else -> "ETHEREUM"
+            }
+            val meta = Metadata(mateType, "MAINNET", "", "")
+            val privateKey = String(key)
+            return WalletManager.getAddressFromPrivateKey(meta,
+                privateKey, "")
         }
     }
 

@@ -13,6 +13,8 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSetti
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.PrivateKeyImportViewModel
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.RestorePrivateKeyService
 import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.marketkit.models.PlatformCoin
 
@@ -60,6 +62,56 @@ object RestoreBlockchainsModule {
                     RestoreBlockchainsViewModel(
                         restoreSelectCoinsService,
                         listOf(restoreSelectCoinsService)
+                    ) as T
+                }
+                CoinPlatformsViewModel::class.java -> {
+                    CoinPlatformsViewModel(coinPlatformsService) as T
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+    }
+
+    class Factory2() : ViewModelProvider.Factory {
+
+        private val restoreSettingsService by lazy {
+            RestoreSettingsService(App.restoreSettingsManager)
+        }
+        private val coinSettingsService by lazy {
+            CoinSettingsService()
+        }
+        private val coinPlatformsService by lazy {
+            CoinPlatformsService()
+        }
+        private val enableCoinService by lazy {
+            EnableCoinService(coinPlatformsService, restoreSettingsService, coinSettingsService)
+        }
+
+        private val restoreSelectCoinsService by lazy {
+            RestorePrivateKeyService(
+                App.accountFactory,
+                App.accountManager,
+                App.walletManager,
+                App.coinManager,
+                enableCoinService
+            )
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return when (modelClass) {
+                RestoreSettingsViewModel::class.java -> {
+                    RestoreSettingsViewModel(
+                        restoreSettingsService,
+                        listOf(restoreSettingsService)
+                    ) as T
+                }
+                CoinSettingsViewModel::class.java -> {
+                    CoinSettingsViewModel(coinSettingsService, listOf(coinSettingsService)) as T
+                }
+                PrivateKeyImportViewModel::class.java -> {
+                    PrivateKeyImportViewModel(
+                        restoreSelectCoinsService
                     ) as T
                 }
                 CoinPlatformsViewModel::class.java -> {
