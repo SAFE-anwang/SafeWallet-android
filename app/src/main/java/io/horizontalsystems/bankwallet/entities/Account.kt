@@ -104,6 +104,7 @@ open class AccountType : Parcelable {
                 }
             }
             is Address -> this.address.shortenedAddress()
+            is PrivateKey -> Translator.getString(R.string.ManageAccount_Private_Key)
             else -> ""
         }
 }

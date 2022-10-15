@@ -114,7 +114,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         binding.toolbarCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
-        val menus = if (walletType !is WalletType.SafeGem && walletType !is WalletType.TokenPocket) {
+        val menus = if (walletType !is WalletType.SafeGem) {
             listOf(
                 MenuItem(
                     title = TranslatableString.ResString(R.string.Button_Next),
@@ -148,6 +148,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
 
         when (walletType) {
+            is WalletType.TokenPocket,
             is WalletType.ImToken,
             is WalletType.Bither -> {
                 binding.passphraseToggle.visibility = View.GONE
@@ -158,8 +159,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.walletPath.visibility = View.GONE
                 binding.pathSelect.visibility = View.GONE
             }
-            is WalletType.SafeGem,
-            is WalletType.TokenPocket -> {
+            is WalletType.SafeGem -> {
                 binding.llNotImplemented.visibility = View.VISIBLE
             }
         }
@@ -178,14 +178,14 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.inputWalleName.visibility = View.VISIBLE
                 binding.pathSelect.visibility = View.VISIBLE
             }
-            if (it is WalletType.Bither) {
+            if (it is WalletType.Bither || it is WalletType.SafeGem) {
                 purpose = HDWallet.Purpose.BIP44
             }
         }
 
         bindListeners()
         observeEvents()
-        if (walletType !is WalletType.SafeGem && walletType !is WalletType.TokenPocket) {
+        if (walletType !is WalletType.SafeGem) {
             KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
         }
     }

@@ -1113,4 +1113,5 @@
     <string name="Restore_Import_Wallet_Type_Both">硬件/软件钱包</string>
     <string name="Restore_Import_Wallet_Type_Unkonwn">未知类型</string>
     <string name="Restore_Import_Wallet_not_implemented">待更新，敬请等待</string>
+    <string name="ManageAccount_Private_Key">私钥</string>
 </resources>

@@ -1274,5 +1274,6 @@
     <string name="Restore_Import_Wallet_Type_Both">Hardware or Software</string>
     <string name="Restore_Import_Wallet_Type_Unkonwn">Unkonwn</string>
     <string name="Restore_Import_Wallet_not_implemented">To be updated, please wait</string>
+    <string name="ManageAccount_Private_Key">Private Key</string>
 
 </resources>
