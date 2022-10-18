@@ -32,7 +32,7 @@
                 android:autofillHints=""
                 android:background="@drawable/input_background_themed"
                 android:gravity="top"
-                android:inputType="textMultiLine|textVisiblePassword"
+                android:inputType="textMultiLine"
                 android:maxLines="6"
                 android:minHeight="88dp"
                 android:paddingStart="12dp"
@@ -108,7 +108,8 @@
                 android:id="@+id/importButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

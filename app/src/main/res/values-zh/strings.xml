@@ -1114,4 +1114,6 @@
     <string name="Restore_Import_Wallet_Type_Unkonwn">未知类型</string>
     <string name="Restore_Import_Wallet_not_implemented">待更新，敬请等待</string>
     <string name="ManageAccount_Private_Key">私钥</string>
+    <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">私钥不能为空</string>
+    <string name="ManageAccount_Private_Key_Not_Support">暂不支持比特币恢复</string>
 </resources>

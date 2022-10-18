@@ -29,17 +29,30 @@ class ShowKeyService(
         get() = pinComponent.isPinSet
 
     val ethereumPrivateKey: String
-        get() = Signer.privateKey(
-            words,
-            passphrase,
-            accountSettingManager.ethereumNetwork(account).chain
-        ).toByteArray().toHexString()
+        get() {
+            return if (account.type is AccountType.PrivateKey) {
+                "0x" + String(account.type.key)
+            } else {
+                Signer.privateKey(
+                    words,
+                    passphrase,
+                    accountSettingManager.ethereumNetwork(account).chain
+                ).toByteArray().toHexString()
+            }
+        }
+
 
     val binanceSmartChainPrivateKey: String
-        get() = Signer.privateKey(
-            words,
-            passphrase,
-            accountSettingManager.binanceSmartChainNetwork(account).chain
-        ).toByteArray().toHexString()
+        get() {
+            return if (account.type is AccountType.PrivateKey) {
+                "0x" + String(account.type.key)
+            } else {
+                Signer.privateKey(
+                    words,
+                    passphrase,
+                    accountSettingManager.binanceSmartChainNetwork(account).chain
+                ).toByteArray().toHexString()
+            }
+        }
 
 }

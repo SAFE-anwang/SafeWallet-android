@@ -4802,12 +4802,12 @@
   <string name="formatterMonth">yyyy年M月</string>
   <string name="formatterYear">相册</string>
   <string name="formatterYearMax">前往地址管理</string>
-  <string name="chatDate">MM月dd日</string>
-  <string name="chatFullDate">yyyy年MM月dd日</string>
+  <string name="chatDate">MMMM d</string>
+  <string name="chatFullDate">MMMM d, yyyy</string>
   <string name="formatterWeek">yyyy年MM月dd日</string>
   <string name="formatterWeekLong">yyyy年M月dd日</string>
-  <string name="formatterDay24H">LLLL</string>
-  <string name="formatterDay12H">M月d日</string>
+  <string name="formatterDay24H">HH:mm</string>
+  <string name="formatterDay12H">h:mm a</string>
   <string name="formatDateAtTime">yyyy年MMMd日</string>
   <string name="formatDateSchedule">yyyy年M月d日 ah:mm</string>
   <string name="formatDateScheduleYear">yyyy年M月d日 HH:mm</string>

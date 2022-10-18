@@ -1275,5 +1275,7 @@
     <string name="Restore_Import_Wallet_Type_Unkonwn">Unkonwn</string>
     <string name="Restore_Import_Wallet_not_implemented">To be updated, please wait</string>
     <string name="ManageAccount_Private_Key">Private Key</string>
+    <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">Private key cannot be empty</string>
+    <string name="ManageAccount_Private_Key_Not_Support">Bitcoin recovery is not supported temporarily</string>
 
 </resources>

@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
@@ -116,6 +118,7 @@ class PrivateKeyImportFragment: BaseFragment() {
         binding.importButton.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
+        binding.importButton.isEnabled = false
         binding.importButton.setContent {
             ComposeAppTheme {
                 ButtonPrimaryYellow(
@@ -124,7 +127,24 @@ class PrivateKeyImportFragment: BaseFragment() {
                         .padding(horizontal = 16.dp),
                     title = stringResource(R.string.Restore_Import_Wallet),
                     onClick = {
-                        viewModel.onRestore(binding.wordsInput.text.toString())
+                        val text = binding.wordsInput.text.toString()
+                        if (text.isNullOrBlank()) {
+                            Toast.makeText(
+                                context,
+                                Translator.getString(R.string.Restore_Import_Wallet_Error_EmptyPrivateKey),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@ButtonPrimaryYellow
+                        }
+                        if (binding.rbBtc.isChecked) {
+                            Toast.makeText(
+                                context,
+                                Translator.getString(R.string.ManageAccount_Private_Key_Not_Support),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.onRestore(binding.wordsInput.text.toString())
+                        }
                     }
                 )
             }
@@ -147,10 +167,24 @@ class PrivateKeyImportFragment: BaseFragment() {
         viewModel.restoreEnabledLiveData.observe(viewLifecycleOwner) {
             binding.importButton.isEnabled = it
         }
-        binding.rgCoin.setOnCheckedChangeListener { group, checkedId ->
-            viewModel.disable(getDisableCoin())
+        binding.rbBtc.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked) {
+                Toast.makeText(
+                    context,
+                    Translator.getString(R.string.ManageAccount_Private_Key_Not_Support),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        binding.rbEth.setOnCheckedChangeListener { buttonView, isChecked ->
             val selectCoin = getSelectCoin()
+            viewModel.disable(getDisableCoin())
             viewModel.enable(selectCoin)
+        }
+        binding.rgCoin.setOnCheckedChangeListener { group, checkedId ->
+            /*val selectCoin = getSelectCoin()
+            viewModel.disable(getDisableCoin())
+            viewModel.enable(selectCoin)*/
         }
     }
 
