@@ -149,7 +149,8 @@
                 android:layout_marginEnd="24dp"
                 android:layout_marginTop="6dp"
                 android:text="@string/Restore_Import_Wallet_Path_Des"
-                android:textColor="@color/grey" />
+                android:textColor="@color/grey"
+                android:visibility="gone"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

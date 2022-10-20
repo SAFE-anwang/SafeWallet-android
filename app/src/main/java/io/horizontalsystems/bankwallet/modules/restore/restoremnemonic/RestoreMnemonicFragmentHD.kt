@@ -165,6 +165,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.walletName.visibility = View.VISIBLE
                 binding.inputWalleName.visibility = View.VISIBLE
                 binding.pathSelect.visibility = View.VISIBLE
+                binding.pathDescription.visibility = View.VISIBLE
                 binding.inputWalleName.setEditable(false)
 
                 initBip32Path(bip32Path)
