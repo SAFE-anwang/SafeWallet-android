@@ -65,7 +65,7 @@
                 android:id="@+id/passphraseToggle"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="12dp"
                 app:icon="@drawable/ic_key_phrase_20"
                 app:title="@string/Passphrase" />
 
@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/EnterPassphrase"
                 android:inputType="textPassword" />
 
@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="36dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/Restore_PassphraseDescription"
                 android:textColor="@color/grey" />
 
@@ -96,7 +96,7 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Restore_Import_Wallet_Name"
                 android:textColor="@color/grey"
                 android:drawableRight="@drawable/ic_arrow_right"
@@ -108,9 +108,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="10dp"
-                android:hint="@string/Restore_Import_Wallet_Name_Hint"
                 android:inputType="text"
-                android:visibility="visible"/>
+                android:visibility="gone"/>
 
 
             <TextView
@@ -119,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/Restore_Import_Wallet_Path"
                 android:textColor="@color/grey"
                 android:visibility="visible"/>
@@ -128,7 +127,7 @@
                 android:id="@+id/pathSelect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginHorizontal="16dp"
                 android:background="@drawable/rounded_lawrence_background_single"
                 android:visibility="visible">
@@ -141,6 +140,16 @@
                     android:inputType="text"/>
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/pathDescription"
+                style="@style/Subhead2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginTop="6dp"
+                android:text="@string/Restore_Import_Wallet_Path_Des"
+                android:textColor="@color/grey" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

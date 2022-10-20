@@ -1241,18 +1241,19 @@
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
 
 
-    <string name="Restore_Select_Wallet">Please select wallet</string>
+    <string name="Restore_Select_Wallet">Select wallet</string>
+    <string name="Restore_Enter_Key_Title_HD">Enter mnemonic</string>
     <string name="Restore_HD_Wallet">HD Wallet</string>
     <string name="Restore_Safe_Wallet">SafeWallet</string>
     <string name="Restore_SafeGem_Wallet">SafeGem</string>
     <string name="Restore_ImToken_Wallet">ImToken</string>
     <string name="Restore_BitPie_Wallet">Bitpie</string>
     <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
-    <string name="Restore_Select_Import_Way">Import way</string>
-    <string name="Restore_Import_Private_Key">Private Key</string>
-    <string name="Restore_Import_Private_Key_Desc">Import the account with the private key</string>
-    <string name="Restore_Import_Recovery_Phrase">Recovery Phrase import</string>
-    <string name="Restore_Import_Recovery_Phrase_Desc">Import by entering recovery phrases(mnemonics)</string>
+    <string name="Restore_Select_Import_Way">Restore Wallet</string>
+    <string name="Restore_Import_Private_Key">from Private key</string>
+    <string name="Restore_Import_Private_Key_Desc">Restore wallet from private key</string>
+    <string name="Restore_Import_Recovery_Phrase">from Mnemonic</string>
+    <string name="Restore_Import_Recovery_Phrase_Desc">Restore wallet from mnemonic</string>
     <string name="Restore_Import_Recovery_Phrase_Launage">Secret Recovery Phrase Type</string>
     <string name="Restore_Import_Launage_EN">English</string>
     <string name="Restore_Import_Launage_ZH">简体中文</string>
@@ -1263,11 +1264,11 @@
     <string name="Restore_Import_Launage_FR">Français</string>
     <string name="Restore_Import_Launage_IT">Italian</string>
     <string name="Restore_Import_Wallet">Import Wallet</string>
-    <string name="Restore_Import_Wallet_Private_Key_Hint">Enter the plaintext private key or scan the QR code, please note the case</string>
+    <string name="Restore_Import_Wallet_Private_Key_Hint">Enter the plaintext private key or scan QR code represented by a hexadecimal string, regardless of case.</string>
     <string name="Restore_Import_Choose_Wallet">Wallet</string>
     <string name="Restore_Import_Wallet_Name">Wallet Name</string>
-    <string name="Restore_Import_Wallet_Name_Hint">Please input wallet Name</string>
-    <string name="Restore_Import_Wallet_Path">Path</string>
+    <string name="Restore_Import_Wallet_Name_Hint">Please input wallet name</string>
+    <string name="Restore_Import_Wallet_Path">BIP32 Path</string>
     <string name="Restore_Import_Custom_Path">Custom path</string>
     <string name="Restore_Import_Wallet_Type_Hardware">Hardware</string>
     <string name="Restore_Import_Wallet_Type_Software">Software</string>
@@ -1277,5 +1278,6 @@
     <string name="ManageAccount_Private_Key">Private Key</string>
     <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">Private key cannot be empty</string>
     <string name="ManageAccount_Private_Key_Not_Support">Bitcoin recovery is not supported temporarily</string>
-
+    <string name="Restore_Import_Wallet_Path_Des">The BIP32 path is an important factor in wallet recovery. Please contact your wallet supplier to find out the BIP32 path of the wallet. An incorrect BIP32 path will result in incorrect addresses.</string>
+    <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of ETH could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
 </resources>

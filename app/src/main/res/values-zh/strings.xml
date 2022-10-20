@@ -1081,6 +1081,7 @@
 
 
     <string name="Restore_Select_Wallet">请选择钱包</string>
+    <string name="Restore_Enter_Key_Title_HD">输入密钥</string>
     <string name="Restore_HD_Wallet">身份钱包(HD)</string>
     <string name="Restore_Safe_Wallet">SafeWallet</string>
     <string name="Restore_SafeGem_Wallet">安宝</string>
@@ -1102,11 +1103,11 @@
     <string name="Restore_Import_Launage_FR">法语</string>
     <string name="Restore_Import_Launage_IT">意大利语</string>
     <string name="Restore_Import_Wallet">导入钱包</string>
-    <string name="Restore_Import_Wallet_Private_Key_Hint">输入明文私钥或扫描二维码，注意大小写</string>
+    <string name="Restore_Import_Wallet_Private_Key_Hint">输入以16进制字符串表示的明文私钥或扫描二维码，大小写无关。</string>
     <string name="Restore_Import_Choose_Wallet">选择钱包</string>
     <string name="Restore_Import_Wallet_Name">钱包名称</string>
     <string name="Restore_Import_Wallet_Name_Hint">请输入钱包名称</string>
-    <string name="Restore_Import_Wallet_Path">路径</string>
+    <string name="Restore_Import_Wallet_Path">BIP32路径</string>
     <string name="Restore_Import_Custom_Path">自定义路径</string>
     <string name="Restore_Import_Wallet_Type_Hardware">硬件钱包</string>
     <string name="Restore_Import_Wallet_Type_Software">软件钱包</string>
@@ -1116,4 +1117,6 @@
     <string name="ManageAccount_Private_Key">私钥</string>
     <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">私钥不能为空</string>
     <string name="ManageAccount_Private_Key_Not_Support">暂不支持比特币恢复</string>
+    <string name="Restore_Import_Wallet_Path_Des">BIP32路径是恢复钱包的重要因素，请联系钱包供应商，搞清楚钱包BIP32路径，错误的BIP32路径将导致生成错误地址。</string>
+    <string name="Restore_Private_Key_Des">  注意：\n（1）目前仅支持ETH的私钥导入\n（2）以私钥导入的钱包不能生成新地址</string>
 </resources>

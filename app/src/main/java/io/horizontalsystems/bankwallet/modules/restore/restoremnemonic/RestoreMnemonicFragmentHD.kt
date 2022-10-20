@@ -59,6 +59,8 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private val selectWalletViewModel = SelectWalletViewModel()
     private var purpose = HDWallet.Purpose.BIP49
 
+    val bip32Path = listOf<String>("m/44'/0'/0'", "m/49'/0'/0'", "m/84'/0'/0'")
+
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
             if (s.isNotEmpty()) {
@@ -94,20 +96,6 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*binding.toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
-        binding.toolbar.menu
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.next -> {
-
-                    viewModel.onProceed()
-                    true
-                }
-                else -> false
-            }
-        }*/
 
         // IM Token的钱包，不需要输入密码
         val walletType = arguments?.getParcelable("walletType") as? WalletType
@@ -129,7 +117,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Restore_Enter_Key_Title),
+                    title = TranslatableString.ResString(R.string.Restore_Enter_Key_Title_HD),
                     navigationIcon = {
                         IconButton(onClick = { findNavController().popBackStack() }) {
                             Image(painter = painterResource(id = R.drawable.ic_back),
@@ -177,6 +165,9 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 binding.walletName.visibility = View.VISIBLE
                 binding.inputWalleName.visibility = View.VISIBLE
                 binding.pathSelect.visibility = View.VISIBLE
+                binding.inputWalleName.setEditable(false)
+
+                initBip32Path(bip32Path)
             }
             if (it is WalletType.Bither || it is WalletType.SafeGem) {
                 purpose = HDWallet.Purpose.BIP44
@@ -195,6 +186,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         getNavigationResult("walletName")?.let {
             val name = it.getString("name")
             binding.inputWalleName.setText(name)
+//            binding.walletName.setText(name)
             updateWalletPath(name)
         }
     }
@@ -319,7 +311,23 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             binding.inputWalletPath.adapter = null
             return
         }
-        binding.inputWalletPath.adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_expandable_list_item_1, walletInfo.bip32path)
+        initBip32Path(walletInfo.bip32path)
+        /*if (walletInfo.custompath) {
+            binding.customPath.visibility = View.VISIBLE
+        }*/
+        // 是否需要密码
+        // 必要
+        if (walletInfo.needpassword == 1) {
+//            viewModel.onTogglePassphrase(true)
+            binding.passphraseToggle.visibility = View.GONE
+        } else { // 可有可无
+            viewModel.onTogglePassphrase(false)
+            binding.passphraseToggle.visibility = View.VISIBLE
+        }
+    }
+
+    private fun initBip32Path(pathList: List<String>) {
+        binding.inputWalletPath.adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_expandable_list_item_1, pathList)
         binding.inputWalletPath.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -327,7 +335,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
                 position: Int,
                 id: Long
             ) {
-                val path = walletInfo.bip32path[position]
+                val path = pathList[position]
                 val splits = path.split("/")
                 purpose = when(splits[1]) {
                     "44'" -> HDWallet.Purpose.BIP44
@@ -340,18 +348,6 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
-        }
-        /*if (walletInfo.custompath) {
-            binding.customPath.visibility = View.VISIBLE
-        }*/
-        // 是否需要密码
-        // 必要
-        if (walletInfo.needpassword == 1) {
-//            viewModel.onTogglePassphrase(true)
-            binding.passphraseToggle.visibility = View.GONE
-        } else { // 可有可无
-            viewModel.onTogglePassphrase(false)
-            binding.passphraseToggle.visibility = View.VISIBLE
         }
     }
 }

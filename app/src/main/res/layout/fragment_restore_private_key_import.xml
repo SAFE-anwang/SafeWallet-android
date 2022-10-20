@@ -58,7 +58,8 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp">
+                android:layout_marginStart="16dp"
+                android:visibility="gone">
 
                 <RadioButton
                     android:id="@+id/rb_btc"
@@ -77,31 +78,14 @@
 
             </RadioGroup>
 
-            <io.horizontalsystems.views.SettingsViewSwitch
-                android:id="@+id/passphraseToggle"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                app:icon="@drawable/ic_key_phrase_20"
-                app:title="@string/Passphrase" />
-
-            <io.horizontalsystems.bankwallet.ui.extensions.InputView
-                android:id="@+id/passphrase"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                android:hint="@string/EnterPassphrase"
-                android:inputType="textPassword" />
-
             <TextView
                 android:id="@+id/passphraseDescription"
                 style="@style/Subhead2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="36dp"
-                android:text="@string/Restore_PassphraseDescription"
+                android:layout_marginTop="16dp"
+                android:text="@string/Restore_Private_Key_Des"
                 android:textColor="@color/grey" />
 
             <androidx.compose.ui.platform.ComposeView
