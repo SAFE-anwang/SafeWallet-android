@@ -308,7 +308,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private fun setWalletPath(walletInfo: WalletInfo?) {
         if (walletInfo == null) {
 //            binding.customPath.visibility = View.GONE
-            binding.inputWalletPath.adapter = null
+            initBip32Path(bip32Path)
             return
         }
         initBip32Path(walletInfo.bip32path)
