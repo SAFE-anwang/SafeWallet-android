@@ -18,6 +18,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,11 +34,7 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsViewModel
-import io.horizontalsystems.bankwallet.modules.market.ImageSource
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItem
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.transactions.Filter
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -82,6 +81,8 @@ private fun WalletsScreen(
     onSelect: (String) -> Unit
 ) {
     val walletItems by viewModel.walletItemsLiveData.observeAsState()
+    val filterTypes by viewModel.filterTypesLiveData.observeAsState()
+    var scrollToTopAfterUpdate by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
@@ -94,6 +95,12 @@ private fun WalletsScreen(
                 viewModel.updateFilter(text)
             }
         )
+        filterTypes?.let { filterTypes ->
+            FilterTypeTabs(
+                filterTypes,
+                { viewModel.setFilterWalletType(it) },
+                { scrollToTopAfterUpdate = true })
+        }
 
         walletItems?.let {
             if (it.isEmpty()) {
@@ -162,5 +169,21 @@ private fun CoinCell(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FilterTypeTabs(
+    filterTypes: List<Filter<FilterWalletType>>,
+    onWalletTypeClick: (FilterWalletType) -> Unit,
+    scrollToTopAfterUpdate: () -> Unit
+) {
+    val tabItems = filterTypes.map {
+        TabItem(stringResource(it.item.title), it.selected, it.item)
+    }
+
+    ScrollableTabs(tabItems) { walletType ->
+        onWalletTypeClick.invoke(walletType)
+        scrollToTopAfterUpdate.invoke()
     }
 }
