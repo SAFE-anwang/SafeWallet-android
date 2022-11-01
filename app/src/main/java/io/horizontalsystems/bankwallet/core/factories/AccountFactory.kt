@@ -32,7 +32,7 @@ class AccountFactory(val accountManager: IAccountManager) : IAccountFactory {
         )
     }
 
-    private fun getNextWatchAccountName(): String {
+    override fun getNextWatchAccountName(): String {
         val watchAccountsCount = accountManager.accounts.count {
             it.type is AccountType.Address
         }
@@ -40,7 +40,7 @@ class AccountFactory(val accountManager: IAccountManager) : IAccountFactory {
         return "Watch Wallet ${watchAccountsCount + 1}"
     }
 
-    private fun getNextAccountName(): String {
+    override fun getNextAccountName(): String {
         val nonWatchAccountsCount = accountManager.accounts.count {
             it.type !is AccountType.Address
         }

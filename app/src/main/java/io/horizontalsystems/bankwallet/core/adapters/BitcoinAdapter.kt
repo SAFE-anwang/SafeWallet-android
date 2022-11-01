@@ -89,7 +89,7 @@ class BitcoinAdapter(
                     syncMode = getSyncMode(syncMode),
                     networkType = getNetworkType(testMode),
                     confirmationsThreshold = confirmationsThreshold,
-                    bip = getBip(derivation))
+                    purpose = getBip(derivation))
         }
 
         fun clear(walletId: String, testMode: Boolean) {

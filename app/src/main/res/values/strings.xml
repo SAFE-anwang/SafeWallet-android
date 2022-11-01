@@ -1280,4 +1280,6 @@
     <string name="ManageAccount_Private_Key_Not_Support">Bitcoin recovery is not supported temporarily</string>
     <string name="Restore_Import_Wallet_Path_Des">The BIP32 path is an important factor in wallet recovery. Please contact your wallet supplier to find out the BIP32 path of the wallet. An incorrect BIP32 path will result in incorrect addresses.</string>
     <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of ETH could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
+
+    <string name="Restore_PrivateKey_InvalidKey">Invalid Key</string>
 </resources>

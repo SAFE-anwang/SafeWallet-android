@@ -76,6 +76,14 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+        val meta = Metadata("ETHEREUM", "MAINNET", "", "")
+        val address = WalletManager.getAddressFromPrivateKey(meta,
+        "4d5c3b9a3fcb2586351633eba281581e21e8d5f5f56d989b4f2eeba18486e01a", "")
+        Log.e("longwen", "privete key: ${address}")
+        val bitmeta = Metadata("BITCOIN", "MAINNET", "", "")
+        val bitAddress = WalletManager.getAddressFromPrivateKey(bitmeta,
+        "L2TZt98GNHP3Vpz5i6W2w2sTP46p2NUxZqGBJEi9j4iuPRSp16i9", "")
+        Log.e("longwen", "bit privete key: ${bitAddress}")
     }
 
     override fun onDestroy() {

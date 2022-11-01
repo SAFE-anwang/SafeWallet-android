@@ -9,10 +9,10 @@ import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionTyp
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionLockInfo
 import io.horizontalsystems.bitcoincore.AbstractKit
 import io.horizontalsystems.bitcoincore.BitcoinCore
-import io.horizontalsystems.bitcoincore.core.Bip
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.bitcoincore.models.*
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.hodler.HodlerOutputData
 import io.horizontalsystems.hodler.HodlerPlugin
 import io.horizontalsystems.hodler.LockTimeInterval
@@ -367,10 +367,10 @@ abstract class BitcoinBaseAdapter(
             else -> TransactionDataSortType.Shuffle
         }
 
-        fun getBip(derivation: AccountType.Derivation): Bip = when (derivation) {
-            AccountType.Derivation.bip44 -> Bip.BIP44
-            AccountType.Derivation.bip49 -> Bip.BIP49
-            AccountType.Derivation.bip84 -> Bip.BIP84
+        fun getBip(derivation: AccountType.Derivation): HDWallet.Purpose = when (derivation) {
+            AccountType.Derivation.bip44 -> HDWallet.Purpose.BIP44
+            AccountType.Derivation.bip49 -> HDWallet.Purpose.BIP49
+            AccountType.Derivation.bip84 -> HDWallet.Purpose.BIP84
         }
 
         fun getSyncMode(mode: SyncMode?): BitcoinCore.SyncMode {
