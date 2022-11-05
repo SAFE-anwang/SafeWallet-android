@@ -92,6 +92,10 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 passphrase = SecretString(account.type.passphrase)
                 accountType = MNEMONIC
             }
+            is AccountType.EvmPrivateKey -> {
+                key = SecretString(account.type.key.toString())
+                accountType = PRIVATE_KEY
+            }
             is AccountType.PrivateKey -> {
                 key = SecretString(account.type.key.toRawHexString())
                 accountType = PRIVATE_KEY

@@ -12,6 +12,7 @@ import io.horizontalsystems.erc20kit.core.Erc20Kit
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.signer.Signer
 import io.horizontalsystems.ethereumkit.models.*
+import io.horizontalsystems.ethereumkit.spv.core.toBigInteger
 import io.horizontalsystems.oneinchkit.OneInchKit
 import io.horizontalsystems.uniswapkit.UniswapKit
 import io.reactivex.Observable
@@ -118,6 +119,9 @@ class EvmKitManager(
                 is AccountType.Address -> {
                     createKitInstance(accountType, account)
                 }
+                is AccountType.EvmPrivateKey -> {
+                    createKitInstance(accountType, account)
+                }
                 is AccountType.PrivateKey -> {
                     createKitInstance(accountType, account)
                 }
@@ -206,10 +210,46 @@ class EvmKitManager(
     }
 
     private fun createKitInstance(
-        accountType: AccountType.PrivateKey,
+        accountType: AccountType.EvmPrivateKey,
         account: Account
     ): EvmKitWrapper {
         val evmNetwork = evmNetworkProvider.getEvmNetwork(account)
+
+        val address = Signer.address(accountType.key)
+        val signer = Signer.getInstance(accountType.key, evmNetwork.chain)
+
+        val kit = EthereumKit.getInstance(
+            App.instance,
+            address,
+            evmNetwork.chain,
+            evmNetwork.rpcSource,
+            transactionSource(evmNetwork.chain, etherscanApiKey),
+            account.id
+        )
+
+        Erc20Kit.addTransactionSyncer(kit)
+        Erc20Kit.addDecorator(kit)
+
+        UniswapKit.addDecorator(kit)
+        UniswapKit.addTransactionWatcher(kit)
+
+        OneInchKit.addDecorator(kit)
+        OneInchKit.addTransactionWatcher(kit)
+
+        kit.start()
+
+        val wrapper = EvmKitWrapper(kit, signer)
+
+        return wrapper
+    }
+
+    private fun createKitInstance(
+        accountType: AccountType.PrivateKey,
+        account: Account
+    ): EvmKitWrapper {
+        val type = AccountType.EvmPrivateKey(accountType.key.toBigInteger())
+        return createKitInstance(type, account)
+        /*val evmNetwork = evmNetworkProvider.getEvmNetwork(account)
         val address = accountType.getAddress("ETH")
         Log.e("longwen", "eth address: $address")
 
@@ -235,7 +275,7 @@ class EvmKitManager(
 
         val wrapper = EvmKitWrapper(kit, null)
 
-        return wrapper
+        return wrapper*/
     }
 
     @Synchronized

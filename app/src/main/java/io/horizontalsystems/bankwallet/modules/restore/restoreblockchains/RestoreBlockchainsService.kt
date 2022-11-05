@@ -57,7 +57,8 @@ class RestoreBlockchainsService(
     }
 
     private fun syncInternalItems() {
-        val platformCoins = coinManager.getPlatformCoins(Blockchain.values().map { it.coinType })
+        val coinTypes = Blockchain.values().map { it.coinType }
+        val platformCoins = coinManager.getPlatformCoins(coinTypes.filter { it.supports(accountType) })
         internalItems = Blockchain.values().mapNotNull { blockchain ->
             platformCoins.firstOrNull { it.coinType == blockchain.coinType }?.let { platformCoin ->
                 InternalItem(blockchain, platformCoin)

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -30,7 +31,9 @@ import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestorePrivateKeyImportBinding
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
+import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
 import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.RestoreBlockchainsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -143,7 +146,14 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            viewModel.onRestore(binding.wordsInput.text.toString())
+                            viewModel.resolveAccountType(binding.wordsInput.text.toString())?.let { accountType ->
+                                findNavController().slideFromRight(
+                                    R.id.restoreSelectCoinsFragment,
+                                    bundleOf(
+                                        ACCOUNT_TYPE_KEY to accountType
+                                    )
+                                )
+                            }
                         }
                     }
                 )
@@ -153,7 +163,7 @@ class PrivateKeyImportFragment: BaseFragment() {
         binding.wordsInput.addTextChangedListener(textWatcher)
         KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
 
-        viewModel.enable(getSelectCoin())
+//        viewModel.enable(getSelectCoin())
         observer()
     }
 
@@ -177,14 +187,17 @@ class PrivateKeyImportFragment: BaseFragment() {
             }
         }
         binding.rbEth.setOnCheckedChangeListener { buttonView, isChecked ->
-            val selectCoin = getSelectCoin()
-            viewModel.disable(getDisableCoin())
-            viewModel.enable(selectCoin)
+//            val selectCoin = getSelectCoin()
+//            viewModel.disable(getDisableCoin())
+//            viewModel.enable(selectCoin)
         }
         binding.rgCoin.setOnCheckedChangeListener { group, checkedId ->
             /*val selectCoin = getSelectCoin()
             viewModel.disable(getDisableCoin())
             viewModel.enable(selectCoin)*/
+        }
+        viewModel.keyInvalidState.observe(viewLifecycleOwner) {
+            binding.errorHint.text = it
         }
     }
 

@@ -39,7 +39,16 @@
                 android:paddingTop="11dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="11dp" />
-
+            <TextView
+                android:id="@+id/errorHint"
+                style="@style/Subhead2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="24dp"
+                android:text=""
+                android:textColor="@color/red_50" />
             <TextView
                 android:id="@+id/description"
                 style="@style/Subhead2"

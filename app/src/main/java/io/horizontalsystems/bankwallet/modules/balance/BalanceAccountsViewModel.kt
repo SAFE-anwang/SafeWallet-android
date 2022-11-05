@@ -37,7 +37,7 @@ class BalanceAccountsViewModel(private val accountManager: IAccountManager) : Vi
             }
 
             App.binanceRefreshManager.startRefreshBinance()
-            val manageCoinsAllowed = account.type !is AccountType.Address && account.type !is AccountType.PrivateKey
+            val manageCoinsAllowed = account.type !is AccountType.Address/* && account.type !is AccountType.PrivateKey*/
             AccountViewItem(address, manageCoinsAllowed, account.type is AccountType.Address, account.name, account.id)
         }
     }

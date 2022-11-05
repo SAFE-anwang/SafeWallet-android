@@ -1,10 +1,12 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
 import io.horizontalsystems.bankwallet.entities.*
 import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
 import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
@@ -70,10 +72,41 @@ class ManageWalletsService(
     }
 
     private fun fetchFullCoins(): MutableList<FullCoin> {
-        return if (filter.isBlank()) {
+        val fillCoins = if (filter.isBlank()) {
             coinManager.featuredFullCoins(wallets.map { it.platformCoin }).toMutableList()
         } else {
             coinManager.fullCoins(filter, 20).toMutableList()
+        }
+        return fillCoins.filter {
+            coinFilter(it)
+        }.toMutableList()
+    }
+
+    private fun coinFilter(fullCoin: FullCoin):Boolean {
+        return if (account.type is AccountType.Mnemonic) {
+            true
+        } else {
+            if (account.type is AccountType.HdExtendedKey) {
+                fullCoin.platforms.filter {
+                    isBtc(it.coinType)
+                }.isNotEmpty()
+            } else {
+                fullCoin.platforms.filter {
+                    !isBtc(it.coinType)
+                }.isNotEmpty()
+            }
+        }
+    }
+
+    private fun isBtc(coinType: CoinType): Boolean {
+        return when(coinType) {
+            CoinType.Bitcoin,
+            CoinType.Litecoin,
+            CoinType.Safe,
+            CoinType.Dash -> {
+                true
+            }
+            else -> false
         }
     }
 

@@ -15,6 +15,8 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.Restor
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.PrivateKeyImportViewModel
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.RestorePrivateKeyService
+import io.horizontalsystems.hdwalletkit.ExtendedKeyCoinType
+import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.marketkit.models.CoinType
 import io.horizontalsystems.marketkit.models.PlatformCoin
 
@@ -183,4 +185,29 @@ data class CoinViewItem(
 sealed class CoinViewItemState {
     data class ToggleVisible(val enabled: Boolean, val hasSettings: Boolean) : CoinViewItemState()
     object ToggleHidden : CoinViewItemState()
+}
+
+fun CoinType.supports(accountType: AccountType): Boolean {
+    return when (accountType) {
+        is AccountType.Mnemonic -> true
+        is AccountType.HdExtendedKey -> {
+            val info = accountType.hdExtendedKey.info
+            when (this) {
+                CoinType.Bitcoin -> info.coinType == ExtendedKeyCoinType.Bitcoin
+                CoinType.Litecoin -> info.coinType == ExtendedKeyCoinType.Litecoin && (info.purpose == HDWallet.Purpose.BIP44 || info.purpose == HDWallet.Purpose.BIP49)
+                        || info.coinType == ExtendedKeyCoinType.Bitcoin && (info.purpose == HDWallet.Purpose.BIP44 || info.purpose == HDWallet.Purpose.BIP49 || info.purpose == HDWallet.Purpose.BIP84)
+                CoinType.BitcoinCash -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
+                CoinType.Dash -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
+                CoinType.Safe -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
+                else -> false
+            }
+        }
+        is AccountType.Address,
+        is AccountType.EvmPrivateKey -> {
+            this == CoinType.Ethereum
+                    || this == CoinType.BinanceSmartChain
+                    || this == CoinType.Polygon
+        }
+        else -> false
+    }
 }

@@ -10,6 +10,7 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.consenlabs.tokencore.wallet.WalletManager
 import org.consenlabs.tokencore.wallet.model.Metadata
+import java.math.BigInteger
 
 @Parcelize
 data class Account(
