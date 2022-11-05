@@ -4,6 +4,7 @@ import android.os.Parcelable
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.shortenedAddress
+import io.horizontalsystems.hdwalletkit.HDExtendedKey
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -57,6 +58,17 @@ open class AccountType : Parcelable {
     }
 
     @Parcelize
+    data class EvmPrivateKey(val key: BigInteger) : AccountType() {
+        override fun equals(other: Any?): Boolean {
+            return other is EvmPrivateKey && key == other.key
+        }
+
+        override fun hashCode(): Int {
+            return key.hashCode()
+        }
+    }
+
+    @Parcelize
     data class PrivateKey(val key: ByteArray) : AccountType() {
         override fun equals(other: Any?): Boolean {
             return other is PrivateKey && key.contentEquals(other.key)
@@ -78,6 +90,21 @@ open class AccountType : Parcelable {
                 privateKey, "")
         }
     }
+
+    @Parcelize
+    data class HdExtendedKey(val keySerialized: String) : AccountType() {
+        val hdExtendedKey: HDExtendedKey
+            get() = HDExtendedKey(keySerialized)
+
+        override fun equals(other: Any?): Boolean {
+            return other is HdExtendedKey && keySerialized.contentEquals(other.keySerialized)
+        }
+
+        override fun hashCode(): Int {
+            return keySerialized.hashCode()
+        }
+    }
+
 
     @Parcelize
     enum class Derivation(val value: String) : Parcelable {

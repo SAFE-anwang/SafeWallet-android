@@ -242,7 +242,7 @@ dependencies {
 
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:b4ebb16'
-    implementation 'com.github.horizontalsystems:binance-chain-kit-android:fe2a3be'
+    implementation 'com.github.horizontalsystems:binance-chain-kit-android:fa4df60'
 
 //    implementation 'com.github.horizontalsystems:market-kit-android:62afe190'
     implementation project(':market-kit-android:marketkit')
