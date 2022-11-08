@@ -44,7 +44,7 @@ class WalletConnectInteractor(
 
     constructor(uri: String) : this(WCSession.from(uri) ?: throw SessionError.InvalidUri)
 
-    private val clientMeta = WCPeerMeta("Unstoppable Wallet", "https://unstoppable.money")
+    private val clientMeta = WCPeerMeta("SafeWallet", "https://www.anwang.com")
     var delegate: Delegate? = null
 
     private val client = WCClient(GsonBuilder(), OkHttpClient.Builder().build())
