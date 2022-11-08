@@ -48,7 +48,7 @@ class PrivateKeyImportViewModel(
             throw RestorePrivateKeyModule.RestoreError.EmptyText
         }
 
-        try {
+        /*try {
             val extendedKey = HDExtendedKey(textCleaned)
             if (!extendedKey.info.isPublic) {
                 when (extendedKey.derivedType) {
@@ -63,7 +63,7 @@ class PrivateKeyImportViewModel(
             }
         } catch (e: Throwable) {
             //do nothing
-        }
+        }*/
 
         try {
             val privateKey = Signer.privateKey(text)

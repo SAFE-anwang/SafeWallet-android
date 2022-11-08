@@ -1119,4 +1119,5 @@
     <string name="ManageAccount_Private_Key_Not_Support">暂不支持比特币恢复</string>
     <string name="Restore_Import_Wallet_Path_Des">BIP32路径是恢复钱包的重要因素，请联系钱包供应商，搞清楚钱包BIP32路径，错误的BIP32路径将导致生成错误地址。</string>
     <string name="Restore_Private_Key_Des">  注意：\n（1）目前仅支持ETH的私钥导入\n（2）以私钥导入的钱包不能生成新地址</string>
+    <string name="Restore_PrivateKey_InvalidKey">错误密钥</string>
 </resources>

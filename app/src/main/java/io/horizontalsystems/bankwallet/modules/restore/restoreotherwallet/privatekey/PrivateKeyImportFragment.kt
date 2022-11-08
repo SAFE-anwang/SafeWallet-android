@@ -131,14 +131,14 @@ class PrivateKeyImportFragment: BaseFragment() {
                     title = stringResource(R.string.Restore_Import_Wallet),
                     onClick = {
                         val text = binding.wordsInput.text.toString()
-                        if (text.isNullOrBlank()) {
+                        /*if (text.isNullOrBlank()) {
                             Toast.makeText(
                                 context,
                                 Translator.getString(R.string.Restore_Import_Wallet_Error_EmptyPrivateKey),
                                 Toast.LENGTH_SHORT
                             ).show()
                             return@ButtonPrimaryYellow
-                        }
+                        }*/
                         if (binding.rbBtc.isChecked) {
                             Toast.makeText(
                                 context,

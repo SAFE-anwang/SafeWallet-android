@@ -19,7 +19,9 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         // account type codes stored in db
         private const val MNEMONIC = "mnemonic"
         private const val PRIVATE_KEY = "private_key"
+        private const val EVM_PRIVATE_KEY = "evm_private_key"
         private const val ADDRESS = "address"
+        private const val HD_EXTENDED_LEY = "hd_extended_key"
     }
 
     override var activeAccountId: String?
@@ -42,7 +44,9 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                         val accountType = when (record.type) {
                             MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "")
                             PRIVATE_KEY -> AccountType.PrivateKey(record.key!!.value.hexToByteArray())
+                            EVM_PRIVATE_KEY -> AccountType.EvmPrivateKey(record.key!!.value.toBigInteger())
                             ADDRESS -> AccountType.Address(record.key!!.value)
+                            HD_EXTENDED_LEY -> AccountType.HdExtendedKey(record.key!!.value)
                             else -> null
                         }
                         Account(record.id, record.name, accountType!!, AccountOrigin.valueOf(record.origin), record.isBackedUp)
@@ -94,7 +98,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             }
             is AccountType.EvmPrivateKey -> {
                 key = SecretString(account.type.key.toString())
-                accountType = PRIVATE_KEY
+                accountType = EVM_PRIVATE_KEY
             }
             is AccountType.PrivateKey -> {
                 key = SecretString(account.type.key.toRawHexString())
@@ -103,6 +107,10 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             is AccountType.Address -> {
                 key = SecretString(account.type.address)
                 accountType = ADDRESS
+            }
+            is AccountType.HdExtendedKey -> {
+                key = SecretString(account.type.keySerialized)
+                accountType = HD_EXTENDED_LEY
             }
             else -> throw Exception("Unsupported AccountType: ${account.type}")
         }
