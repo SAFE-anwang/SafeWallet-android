@@ -64,6 +64,21 @@ object SwapMainModule {
     }
 
     @Parcelize
+    object SafeSwapProvider : ISwapProvider {
+        override val id = "safe"
+        override val title = "SafeSwap"
+        override val url = "https://safecoreswap.com/"
+        override val fragment: SwapBaseFragment
+            get() = UniswapFragment()
+        override val settingsFragment: SwapSettingsBaseFragment
+            get() = UniswapSettingsFragment()
+
+        override fun supports(blockchain: Blockchain): Boolean {
+            return  blockchain.mainNet && (blockchain == Blockchain.Ethereum || blockchain == Blockchain.BinanceSmartChain)
+        }
+    }
+
+    @Parcelize
     object PancakeSwapProvider : ISwapProvider {
         override val id = "pancake"
         override val title = "PancakeSwap"
@@ -189,7 +204,7 @@ object SwapMainModule {
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
         private val coinFrom: PlatformCoin? = arguments.getParcelable(coinFromKey)
         private val swapProviders: List<ISwapProvider> =
-            listOf(UniswapProvider, PancakeSwapProvider, OneInchProvider)
+            listOf(UniswapProvider, PancakeSwapProvider, OneInchProvider, SafeSwapProvider)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -1,5 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.swap
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -66,6 +70,10 @@ class SwapMainFragment : BaseFragment() {
         binding.topMenuCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
         )
+
+        val filter = IntentFilter()
+        filter.addAction("com.anwang.safe.switchSwap")
+        requireActivity()?.registerReceiver(receiver, filter)
     }
 
     private fun setProviderView(provider: ISwapProvider) {
@@ -116,4 +124,14 @@ class SwapMainFragment : BaseFragment() {
         dialog.show(childFragmentManager, "selector_dialog")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        requireActivity()?.unregisterReceiver(receiver)
+    }
+
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            setProviderView(SwapMainModule.OneInchProvider)
+        }
+    }
 }

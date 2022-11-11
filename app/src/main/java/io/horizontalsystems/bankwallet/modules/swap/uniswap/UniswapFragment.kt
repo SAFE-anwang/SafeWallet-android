@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.swap.uniswap
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.navGraphViewModels
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentUniswapBinding
@@ -137,8 +141,13 @@ class UniswapFragment : SwapBaseFragment() {
         })
 
         uniswapViewModel.swapErrorLiveData().observe(viewLifecycleOwner, { error ->
-            binding.commonError.text = error
-            binding.commonError.isVisible = error != null
+            if (error == Translator.getString(R.string.Swap_ErrorNoLiquidity) && dex.provider.id == "safe") {
+                val intent = Intent("com.anwang.safe.switchSwap")
+                requireActivity()?.sendBroadcast(intent)
+            } else {
+                binding.commonError.text = error
+                binding.commonError.isVisible = error != null
+            }
         })
 
         uniswapViewModel.tradeViewItemLiveData().observe(viewLifecycleOwner, { tradeViewItem ->

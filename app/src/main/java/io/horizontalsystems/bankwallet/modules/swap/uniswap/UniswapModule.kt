@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.swap.uniswap
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
@@ -12,6 +13,7 @@ import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewM
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.providers.UniswapProvider
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.UniswapKit
 import kotlinx.parcelize.Parcelize
 
@@ -46,7 +48,7 @@ object UniswapModule {
     }
 
     class Factory(
-        dex: SwapMainModule.Dex
+        val dex: SwapMainModule.Dex
     ) : ViewModelProvider.Factory {
 
         private val evmKit: EthereumKit by lazy { dex.blockchain.evmKitWrapper?.evmKit!! }
@@ -83,7 +85,7 @@ object UniswapModule {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
+            Extensions.isSafeSwap = dex.provider.id == "safe"
             return when (modelClass) {
                 UniswapViewModel::class.java -> {
                     UniswapViewModel(service, tradeService, pendingAllowanceService, formatter) as T

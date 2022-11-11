@@ -2,8 +2,11 @@ package io.horizontalsystems.bankwallet.modules.swap
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ISwapProvider
+import io.horizontalsystems.uniswapkit.Extensions
+import io.horizontalsystems.uniswapkit.UniswapKit
 import io.reactivex.disposables.Disposable
 
 class SwapMainViewModel(
@@ -40,6 +43,7 @@ class SwapMainViewModel(
 
     fun setProvider(provider: ISwapProvider) {
         service.setProvider(provider)
+        Extensions.isSafeSwap = provider.id == "safe"
     }
 
     override fun onCleared() {

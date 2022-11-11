@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.swap.uniswap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.Warning
@@ -168,6 +169,7 @@ class UniswapViewModel(
                 convertedError.error.message
             }
             is TradeError.TradeNotFound -> {
+                Log.e("longwen", "error: $error")
                 Translator.getString(R.string.Swap_ErrorNoLiquidity)
             }
             else -> {
