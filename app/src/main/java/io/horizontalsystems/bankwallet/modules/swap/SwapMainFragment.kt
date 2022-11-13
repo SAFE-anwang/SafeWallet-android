@@ -131,7 +131,10 @@ class SwapMainFragment : BaseFragment() {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            setProviderView(SwapMainModule.OneInchProvider)
+            childFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_placeholder, SwapMainModule.OneInchProvider.fragment)
+                .commitNow()
         }
     }
 }
