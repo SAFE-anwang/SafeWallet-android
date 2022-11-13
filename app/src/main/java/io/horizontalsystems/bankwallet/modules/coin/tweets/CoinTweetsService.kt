@@ -43,20 +43,34 @@ class CoinTweetsService(
             Single.just(tmpUser)
         } else {
             val tmpCoinUid = if (coinUid == "custom_safe-erc20-SAFE") "safe-coin" else coinUid
-            marketKit
-                .marketInfoOverviewSingle(tmpCoinUid, "USD", "en")
-                .flatMap {
-                    val username = if (coinUid == "safe-coin" || coinUid == "custom_safe-erc20-SAFE") App.appConfigProvider.safeTwitterUser else it.links[LinkType.Twitter]
+            if (tmpCoinUid == "safe-coin") {
+                val username = App.appConfigProvider.safeTwitterUser
 
-                    if (username.isNullOrBlank()) {
-                        Single.error(TweetsProvider.UserNotFound())
-                    } else {
-                        twitterProvider.userRequestSingle(username)
+                if (username.isNullOrBlank()) {
+                    Single.error(TweetsProvider.UserNotFound())
+                } else {
+                    twitterProvider.userRequestSingle(username)
+                        .doOnSuccess {
+                            user = it
+                        }
+                }
+            } else {
+                marketKit
+                    .marketInfoOverviewSingle(tmpCoinUid, "USD", "en")
+                    .flatMap {
+                        val username =
+                            if (coinUid == "safe-coin" || coinUid == "custom_safe-erc20-SAFE") App.appConfigProvider.safeTwitterUser else it.links[LinkType.Twitter]
+
+                        if (username.isNullOrBlank()) {
+                            Single.error(TweetsProvider.UserNotFound())
+                        } else {
+                            twitterProvider.userRequestSingle(username)
+                        }
                     }
-                }
-                .doOnSuccess {
-                    user = it
-                }
+                    .doOnSuccess {
+                        user = it
+                    }
+            }
         }
 
         twitterUserSingle
