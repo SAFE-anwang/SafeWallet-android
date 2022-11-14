@@ -40,6 +40,7 @@ class UniswapViewModel(
     private val approveStepLiveData = MutableLiveData(ApproveStep.NA)
     private val openApproveLiveEvent = SingleLiveEvent<SwapAllowanceService.ApproveData>()
     private val openConfirmationLiveEvent = SingleLiveEvent<SendEvmData>()
+    val priceImpactLiveEvent = SingleLiveEvent<Boolean>()
 
     init {
         subscribeToServices()
@@ -186,6 +187,7 @@ class UniswapViewModel(
     private fun sync(tradeServiceState: UniswapTradeService.State) {
         when (tradeServiceState) {
             is UniswapTradeService.State.Ready -> {
+                checkPriceImpact(tradeServiceState.trade)
                 tradeViewItemLiveData.postValue(tradeViewItem(tradeServiceState.trade))
             }
             else -> {
@@ -193,6 +195,13 @@ class UniswapViewModel(
             }
         }
         syncState()
+    }
+
+    private fun checkPriceImpact(trade: UniswapTradeService.Trade) {
+        trade.tradeData.priceImpact?.let {
+            val intValue = it.toInt()
+            priceImpactLiveEvent.postValue(intValue > 5 || intValue < -5)
+        }
     }
 
     private fun syncState() {

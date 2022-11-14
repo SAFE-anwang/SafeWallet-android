@@ -142,8 +142,7 @@ class UniswapFragment : SwapBaseFragment() {
 
         uniswapViewModel.swapErrorLiveData().observe(viewLifecycleOwner, { error ->
             if (error == Translator.getString(R.string.Swap_ErrorNoLiquidity) && dex.provider.id == "safe") {
-                val intent = Intent("com.anwang.safe.switchSwap")
-                requireActivity()?.sendBroadcast(intent)
+                switch1InchSwap()
             } else {
                 binding.commonError.text = error
                 binding.commonError.isVisible = error != null
@@ -185,6 +184,16 @@ class UniswapFragment : SwapBaseFragment() {
                 }
             }
         })
+        uniswapViewModel.priceImpactLiveEvent.observe(viewLifecycleOwner, {
+            if (dex.provider.id == "safe" && it) {
+                switch1InchSwap()
+            }
+        })
+    }
+
+    private fun switch1InchSwap() {
+        val intent = Intent("com.anwang.safe.switchSwap")
+        requireActivity()?.sendBroadcast(intent)
     }
 
     private fun setButtons(buttons: UniswapViewModel.Buttons) {
@@ -240,6 +249,12 @@ class UniswapFragment : SwapBaseFragment() {
     }
 
     private fun setTradeViewItem(tradeViewItem: UniswapViewModel.TradeViewItem?) {
+        if (dex.provider.id == "safe" && tradeViewItem != null) {
+            tradeViewItem.priceImpact?.value?.let {
+
+            }
+
+        }
         if (tradeViewItem?.buyPrice != null && tradeViewItem.sellPrice != null) {
             binding.priceViews.isVisible = true
             binding.buyPriceValue.text = tradeViewItem.buyPrice
