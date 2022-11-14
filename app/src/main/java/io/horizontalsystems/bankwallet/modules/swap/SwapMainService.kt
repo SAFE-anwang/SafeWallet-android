@@ -34,6 +34,13 @@ class SwapMainService(
         }
     }
 
+    fun autoSetProvider1Inch(provider: SwapMainModule.ISwapProvider) {
+        if (dex.provider.id != provider.id) {
+            dex = SwapMainModule.Dex(dex.blockchain, provider)
+            providerObservable.onNext(provider)
+        }
+    }
+
     private fun getDex(coinFrom: PlatformCoin?): SwapMainModule.Dex {
         val blockchain = getBlockchainForCoin(coinFrom)
         val provider = getSwapProvider(blockchain)

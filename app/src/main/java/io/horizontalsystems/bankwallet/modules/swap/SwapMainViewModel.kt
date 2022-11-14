@@ -46,6 +46,10 @@ class SwapMainViewModel(
         Extensions.isSafeSwap = provider.id == "safe"
     }
 
+    fun autoSetProvider1Inch() {
+        service.autoSetProvider1Inch(SwapMainModule.OneInchProvider)
+    }
+
     override fun onCleared() {
         disposable.dispose()
     }

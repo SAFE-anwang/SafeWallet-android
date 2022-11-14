@@ -42,6 +42,8 @@ class UniswapViewModel(
     private val openConfirmationLiveEvent = SingleLiveEvent<SendEvmData>()
     val priceImpactLiveEvent = SingleLiveEvent<Boolean>()
 
+    var isSwitch1Inch = false
+
     init {
         subscribeToServices()
 

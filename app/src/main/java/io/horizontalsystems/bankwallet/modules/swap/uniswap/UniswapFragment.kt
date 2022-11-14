@@ -71,6 +71,7 @@ class UniswapFragment : SwapBaseFragment() {
     ): View {
         _binding = FragmentUniswapBinding.inflate(inflater, container, false)
         val view = binding.root
+        uniswapViewModel.isSwitch1Inch = false
         return view
     }
 
@@ -185,7 +186,8 @@ class UniswapFragment : SwapBaseFragment() {
             }
         })
         uniswapViewModel.priceImpactLiveEvent.observe(viewLifecycleOwner, {
-            if (dex.provider.id == "safe" && it) {
+            if (dex.provider.id == "safe" && it && !uniswapViewModel.isSwitch1Inch) {
+                uniswapViewModel.isSwitch1Inch = true
                 switch1InchSwap()
             }
         })
@@ -212,6 +214,8 @@ class UniswapFragment : SwapBaseFragment() {
                                 .padding(end = 4.dp),
                             title = getTitle(buttons.approve),
                             onClick = {
+                                if (dex.provider.id == "safe") uniswapViewModel.isSwitch1Inch = true
+
                                 uniswapViewModel.onTapApprove()
                             },
                             enabled = buttons.approve is UniswapViewModel.ActionState.Enabled
