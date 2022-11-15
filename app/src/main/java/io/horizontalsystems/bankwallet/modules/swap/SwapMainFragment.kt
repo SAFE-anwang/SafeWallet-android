@@ -33,6 +33,8 @@ class SwapMainFragment : BaseFragment() {
     private var _binding: FragmentSwapBinding? = null
     private val binding get() = _binding!!
 
+    private var isAutoSetProvider1Inch = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -77,7 +79,9 @@ class SwapMainFragment : BaseFragment() {
     }
 
     private fun setProviderView(provider: ISwapProvider) {
-        setTopMenu(provider)
+        if (!isAutoSetProvider1Inch) {
+            setTopMenu(provider)
+        }
 
         childFragmentManager
             .beginTransaction()
@@ -119,7 +123,10 @@ class SwapMainFragment : BaseFragment() {
         dialog.subtitle = mainViewModel.blockchainTitle
         dialog.items = mainViewModel.providerItems
         dialog.selectedItem = mainViewModel.selectedProviderItem
-        dialog.onSelectListener = { mainViewModel.setProvider(it) }
+        dialog.onSelectListener = {
+            isAutoSetProvider1Inch = false
+            mainViewModel.setProvider(it)
+        }
 
         dialog.show(childFragmentManager, "selector_dialog")
     }
@@ -131,6 +138,7 @@ class SwapMainFragment : BaseFragment() {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            isAutoSetProvider1Inch = true
             mainViewModel.autoSetProvider1Inch()
         }
     }
