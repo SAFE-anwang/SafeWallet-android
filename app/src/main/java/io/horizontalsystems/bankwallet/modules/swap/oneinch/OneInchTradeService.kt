@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.oneinch
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.AmountType
@@ -30,6 +31,8 @@ class OneInchTradeService(
     private val amountToSubject = PublishSubject.create<Optional<BigDecimal>>()
     private val stateSubject = PublishSubject.create<State>()
     //endregion
+
+    private var lastUpdateTime = 0L
 
     //region outputs
     override var coinFrom: PlatformCoin? = null
@@ -166,7 +169,10 @@ class OneInchTradeService(
         lastBlockDisposable = evmKit.lastBlockHeightFlowable
             .subscribeOn(Schedulers.io())
             .subscribe {
-                syncQuote()
+                if (System.currentTimeMillis() - lastUpdateTime > 5000) {
+                    lastUpdateTime = System.currentTimeMillis()
+                    syncQuote()
+                }
             }
     }
 
