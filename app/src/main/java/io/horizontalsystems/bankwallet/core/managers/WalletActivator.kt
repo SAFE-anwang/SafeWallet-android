@@ -1,34 +1,33 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.IWalletManager
-import io.horizontalsystems.bankwallet.core.IWalletStorage
-import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.entities.ConfiguredPlatformCoin
-import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.entities.defaultSettingsArray
-import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.CoinType
+import io.horizontalsystems.bankwallet.core.coinSettingType
+import io.horizontalsystems.bankwallet.core.defaultSettingsArray
+import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.marketkit.models.TokenQuery
 
 class WalletActivator(
     private val walletManager: IWalletManager,
-    private val marketKit: MarketKit,
-    private val walletStorage: IWalletStorage,
+    private val marketKit: MarketKitWrapper,
 ) {
 
-    fun activateWallets(account: Account, coinTypes: List<CoinType>) {
+    fun activateWallets(account: Account, tokenQueries: List<TokenQuery>) {
         val wallets = mutableListOf<Wallet>()
 
-        for (coinType in coinTypes) {
-            val platformCoin = marketKit.platformCoin(coinType) ?: continue
+        for (tokenQuery in tokenQueries) {
+            Log.e("longwen", "token: ${tokenQuery.id}")
+            val token = marketKit.token(tokenQuery) ?: continue
+            Log.e("longwen", "query token; $token")
 
-            val defaultSettingsArray = coinType.defaultSettingsArray
+            val defaultSettingsArray = token.blockchainType.defaultSettingsArray(account.type)
 
             if (defaultSettingsArray.isEmpty()) {
-                wallets.add(Wallet(platformCoin, account))
+                wallets.add(Wallet(token, account))
             } else {
                 defaultSettingsArray.forEach { coinSettings ->
-                    val configuredPlatformCoin = ConfiguredPlatformCoin(platformCoin, coinSettings)
-                    wallets.add(Wallet(configuredPlatformCoin, account))
+                    val configuredToken = ConfiguredToken(token, coinSettings)
+                    wallets.add(Wallet(configuredToken, account))
                 }
             }
         }
@@ -36,6 +35,33 @@ class WalletActivator(
         walletManager.save(wallets)
     }
 
-    fun isEnabled(account: Account, coinType: CoinType) = walletStorage.isEnabled(account.id, coinType.id)
+    fun activateBtcWallets(mnemonicDerivation: AccountType.Derivation, account: Account, tokenQueries: List<TokenQuery>) {
+        val wallets = mutableListOf<Wallet>()
+
+        for (tokenQuery in tokenQueries) {
+            val token = marketKit.token(tokenQuery) ?: continue
+
+            when (tokenQuery.blockchainType.coinSettingType) {
+                CoinSettingType.derivation -> {
+                    val configuredToken = ConfiguredToken(token,
+                        CoinSettings(mapOf(CoinSettingType.derivation to mnemonicDerivation.value)))
+                    val wallet = Wallet(configuredToken, account)
+                    wallets.add(wallet)
+                }
+                CoinSettingType.bitcoinCashCoinType -> {
+                    val cashWallets = BitcoinCashCoinType.values().map { coinType ->
+                        val configuredToken = ConfiguredToken(token, CoinSettings(mapOf(CoinSettingType.bitcoinCashCoinType to coinType.value)))
+                        Wallet(configuredToken, account)
+                    }
+                    wallets.addAll(cashWallets)
+                }
+                else -> {
+                    wallets.add(Wallet(token, account))
+                }
+            }
+        }
+
+        walletManager.save(wallets)
+    }
 
 }

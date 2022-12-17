@@ -15,7 +15,6 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
-import io.horizontalsystems.marketkit.models.CoinType
 
 object Safe4Module {
 
@@ -33,7 +32,7 @@ object Safe4Module {
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
 //            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType=$chainType")
-            if (it.coinType == CoinType.Safe) {
+            if (it.coin.uid == "safe-coin") {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
@@ -75,7 +74,7 @@ object Safe4Module {
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
 //            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
-            if (it.coinType == CoinType.Safe) {
+            if (it.coin.uid == "safe-coin") {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
@@ -105,7 +104,7 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             navController.slideFromBottom(
-                R.id.mainFragment_to_sendWsafeFragment,
+                R.id.sendWsafeFragment,
                 bundle
             )
         } else {
@@ -119,7 +118,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.coinType == CoinType.Safe) {
+            if (it.coin.uid == "safe-coin") {
                 safeWallet = it
             }
         }
@@ -144,7 +143,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.coinType == CoinType.Safe) {
+            if (it.coin.uid == "safe-coin") {
                 safeWallet = it
             }
         }

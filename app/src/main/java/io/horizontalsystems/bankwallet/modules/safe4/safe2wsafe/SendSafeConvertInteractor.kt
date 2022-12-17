@@ -27,7 +27,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
             .let { disposables.add(it) }
     }
 
-    override fun fetchMinimumAmount(address: String?): BigDecimal {
+    override fun fetchMinimumAmount(address: String?): BigDecimal? {
         return adapter.minimumSendAmount(address)
     }
 
@@ -40,7 +40,9 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ fee ->
-                delegate?.didFetchFee(fee)
+                if (fee != null) {
+                    delegate?.didFetchFee(fee)
+                }
             }, {
 
             })

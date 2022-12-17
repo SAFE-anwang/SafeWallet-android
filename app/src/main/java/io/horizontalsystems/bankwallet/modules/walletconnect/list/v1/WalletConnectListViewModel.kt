@@ -17,6 +17,7 @@ import java.net.UnknownHostException
 class WalletConnectListViewModel(
     private val service: WalletConnectListService
 ) : ViewModel() {
+    var initialConnectionPrompted = false
 
     private val disposables = CompositeDisposable()
     var sectionItem by mutableStateOf<Section?>(null)
@@ -75,7 +76,7 @@ class WalletConnectListViewModel(
                 WalletConnectListModule.SessionViewItem(
                     sessionId = session.remotePeerId,
                     title = session.remotePeerMeta.name,
-                    subtitle = item.chain.title,
+                    subtitle = item.chain,
                     url = session.remotePeerMeta.url,
                     imageUrl = getSuitableIcon(session.remotePeerMeta.icons),
                 )

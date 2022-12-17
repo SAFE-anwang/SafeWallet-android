@@ -1,10 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.market.safetweets
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,18 +11,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.viewModels
-import androidx.navigation.navGraphViewModels
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.CoinViewModel
 import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
 import io.horizontalsystems.bankwallet.modules.coin.tweets.CoinTweetsModule
 import io.horizontalsystems.bankwallet.modules.coin.tweets.CoinTweetsViewModel
@@ -39,28 +31,11 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 
-class SafeCoinTweetsFragment : BaseFragment() {
-    private val vmFactory by lazy { CoinTweetsModule.Factory2("safe-coin") }
-    private val viewModel by viewModels<CoinTweetsViewModel> { vmFactory }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                ComposeAppTheme {
-                    CoinTweetsScreen(viewModel)
-                }
-            }
-        }
-    }
-}
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CoinTweetsScreen(viewModel: CoinTweetsViewModel) {
+fun CoinTweetsScreen(
+    viewModel: CoinTweetsViewModel = viewModel(factory = CoinTweetsModule.Factory2("safe-coin"))) {
     val items by viewModel.itemsLiveData.observeAsState(listOf())
     val isRefreshing by viewModel.isRefreshingLiveData.observeAsState(false)
     val viewState by viewModel.viewStateLiveData.observeAsState()
@@ -124,6 +99,7 @@ fun CoinTweetsScreen(viewModel: CoinTweetsViewModel) {
                         ListErrorView(stringResource(R.string.SyncError), viewModel::refresh)
                     }
                 }
+                else -> {}
             }
         }
     }

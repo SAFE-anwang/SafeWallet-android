@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule
@@ -60,7 +61,8 @@ class LineLockSendHandler(
     }
 
     private fun syncMinimumAmount() {
-        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(addressModule.currentAddress?.hex))
+        interactor.fetchMinimumAmount(addressModule.currentAddress?.hex)
+            ?.let { amountModule.setMinimumAmount(it) }
         syncValidation()
     }
 
@@ -163,7 +165,7 @@ class LineLockSendHandler(
         syncValidation()
     }
 
-    override fun onChangeInputType(inputType: SendModule.InputType) {
+    override fun onChangeInputType(inputType: AmountInputType) {
         feeModule.setInputType(inputType)
     }
 

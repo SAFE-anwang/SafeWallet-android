@@ -1,13 +1,18 @@
 package io.horizontalsystems.bankwallet.modules.balance
 
 import android.util.Log
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
+import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.math.BigDecimal
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -15,7 +20,6 @@ class BalanceService(
     private val activeWalletRepository: BalanceActiveWalletRepository,
     private val xRateRepository: BalanceXRateRepository,
     private val adapterRepository: BalanceAdapterRepository,
-    private val networkTypeChecker: NetworkTypeChecker,
     private val localStorage: ILocalStorage,
     private val connectivityManager: ConnectivityManager,
     private val balanceSorter: BalanceSorter,
@@ -24,7 +28,6 @@ class BalanceService(
 
     val networkAvailable by connectivityManager::isConnected
     val baseCurrency by xRateRepository::baseCurrency
-    var balanceHidden by localStorage::balanceHidden
 
     var sortType: BalanceSortType
         get() = localStorage.sortType
@@ -36,17 +39,19 @@ class BalanceService(
 
     var isWatchAccount = false
         private set
+    private var hideZeroBalances = false
 
     private val allBalanceItems = CopyOnWriteArrayList<BalanceModule.BalanceItem>()
-    val balanceItems: List<BalanceModule.BalanceItem>
-        get() = if (isWatchAccount) {
-            allBalanceItems.filter { it.balanceData.total > BigDecimal.ZERO }
-        } else {
-            allBalanceItems
-        }
 
-    private val balanceItemsSubject = PublishSubject.create<Unit>()
-    val balanceItemsObservable: Observable<Unit> get() = balanceItemsSubject
+    /* getBalanceItems should return new immutable list */
+    private fun getBalanceItems(): List<BalanceModule.BalanceItem> = if (hideZeroBalances) {
+        allBalanceItems.filter { it.balanceData.total > BigDecimal.ZERO }
+    } else {
+        allBalanceItems.toList()
+    }
+
+    private val _balanceItemsFlow = MutableStateFlow<List<BalanceModule.BalanceItem>?>(null)
+    val balanceItemsFlow = _balanceItemsFlow.asStateFlow()
 
     private val disposables = CompositeDisposable()
 
@@ -85,12 +90,13 @@ class BalanceService(
 
     }
 
+    @Synchronized
     private fun sortAndEmitItems() {
         val sorted = balanceSorter.sort(allBalanceItems, sortType)
         allBalanceItems.clear()
         allBalanceItems.addAll(sorted)
 
-        balanceItemsSubject.onNext(Unit)
+        _balanceItemsFlow.update { getBalanceItems() }
     }
 
     @Synchronized
@@ -138,15 +144,16 @@ class BalanceService(
     @Synchronized
     private fun handleWalletsUpdate(wallets: List<Wallet>) {
         isWatchAccount = accountManager.activeAccount?.isWatchAccount == true
+        hideZeroBalances = accountManager.activeAccount?.type?.hideZeroBalances == true
 
         adapterRepository.setWallet(wallets)
-        xRateRepository.setCoinUids(wallets.mapNotNull { if (it.coin.isCustom && !hasSafe(it.coin.uid)) null else it.coin.uid })
+        xRateRepository.setCoinUids(wallets.mapNotNull { if (/*it.coin.isCustom &&*/ !hasSafe(it.coin.uid)) null else it.coin.uid })
         val latestRates = xRateRepository.getLatestRates()
 
         val balanceItems = wallets.map { wallet ->
             BalanceModule.BalanceItem(
                 wallet,
-                networkTypeChecker.isMainNet(wallet),
+                adapterRepository.isMainNet(wallet),
                 adapterRepository.balanceData(wallet),
                 adapterRepository.state(wallet),
                 latestRates[wallet.coin.uid]

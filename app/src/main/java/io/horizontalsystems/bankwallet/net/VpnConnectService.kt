@@ -15,8 +15,8 @@ import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewFragment
 import io.horizontalsystems.binancechainkit.BinanceChainKit
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -223,14 +223,16 @@ object VpnConnectService {
         App.adapterManager.refresh()
         // 刷新Bitcoin系列
         App.bitCoinConnectionManager.onEnterForeground()
-        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
-        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
+        App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit?.refresh()
+        App.binanceKitManager.binanceKit?.refresh()
+//        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
+//        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         val mainActivity = activity as MainActivity
         try {
             getMarketOverviewFragment(mainActivity.supportFragmentManager.fragments) { fragment ->
-                if (fragment is MarketOverviewFragment) {
+                /*if (fragment is MarketOverviewFragment) {
                     fragment.viewModel.refresh()
-                }
+                }*/
             }
 
         }catch (e: Exception) {
@@ -238,15 +240,14 @@ object VpnConnectService {
     }
 
     private fun getMarketOverviewFragment(fragments: List<Fragment>, callback: (Fragment) -> Unit) {
-        fragments.forEach {
+        /*fragments.forEach {
             if (it is MarketOverviewFragment) {
                 callback.invoke(it)
                 return
             }
             val childFragment = it.childFragmentManager.fragments
             getMarketOverviewFragment(childFragment, callback)
-        }
-        return
+        }*/
     }
 
     fun lookCheckVpnConnection(activity: Activity) {

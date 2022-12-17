@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
@@ -62,7 +63,7 @@ class SendSafeConvertHandler(
     }
 
     private fun syncMinimumAmount() {
-        amountModule.setMinimumAmount(interactor.fetchMinimumAmount(safeConvertAddress))
+        interactor.fetchMinimumAmount(safeConvertAddress)?.let { amountModule.setMinimumAmount(it) }
         syncValidation()
     }
 
@@ -163,7 +164,7 @@ class SendSafeConvertHandler(
         syncValidation()
     }
 
-    override fun onChangeInputType(inputType: SendModule.InputType) {
+    override fun onChangeInputType(inputType: AmountInputType) {
         feeModule.setInputType(inputType)
     }
 

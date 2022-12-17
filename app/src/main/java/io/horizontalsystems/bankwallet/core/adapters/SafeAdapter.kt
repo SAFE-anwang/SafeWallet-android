@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.adapters
 
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.SyncMode
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bitcoincore.BitcoinCore
@@ -15,18 +14,21 @@ import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
 import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 class SafeAdapter(
-        override val kit: SafeKit,
-        syncMode: SyncMode?,
-        backgroundManager: BackgroundManager,
-        wallet: Wallet,
-        testMode: Boolean
+    override val kit: SafeKit,
+    syncMode: BitcoinCore.SyncMode,
+    backgroundManager: BackgroundManager,
+    wallet: Wallet,
+    testMode: Boolean
 ) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, testMode), SafeKit.Listener, ISendSafeAdapter {
 
-    constructor(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean, backgroundManager: BackgroundManager) :
+    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean, backgroundManager: BackgroundManager) :
             this(createKit(wallet, syncMode, testMode), syncMode, backgroundManager, wallet, testMode)
 
     init {
@@ -41,12 +43,11 @@ class SafeAdapter(
 
     // ITransactionsAdapter
 
-/*    override val explorerTitle: String = "anwang.com"
+    override val explorerTitle: String
+        get() = "anwang.com"
 
-    override fun explorerUrl(transactionHash: String): String? {
-        Log.e("anwangTransaction", "chain.anwang.com ---1 https://chain.anwang.com/tx/$transactionHash")
-        return if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
-    }*/
+    override fun getTransactionUrl(transactionHash: String): String? =
+        if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
 
     //
     // DashKit Listener
@@ -88,11 +89,11 @@ class SafeAdapter(
         return availableBalance(feeRate, address, mapOf())
     }
 
-    override fun fee(amount: BigDecimal, address: String?): BigDecimal {
+    override fun fee(amount: BigDecimal, address: String?): BigDecimal? {
         return fee(amount, feeRate, address, mapOf())
     }
 
-    override fun convertFee(amount: BigDecimal, address: String?): BigDecimal {
+    override fun convertFee(amount: BigDecimal, address: String?): BigDecimal? {
         // 增加兑换WSAFE流量手续费
         var convertFeeRate = feeRate
         convertFeeRate += 50
@@ -135,6 +136,20 @@ class SafeAdapter(
         }
     }
 
+    /*override fun minimumSendAmount(address: String?): BigDecimal? {
+        return try {
+            satoshiToBTC(kit.minimumSpendableValue(address).toLong(), RoundingMode.CEILING)
+        } catch (e: Exception) {
+            null
+        }
+    }*/
+
+    /*private fun satoshiToBTC(value: Long, roundingMode: RoundingMode = RoundingMode.HALF_EVEN): BigDecimal {
+        return BigDecimal(value).divide(satoshisInBitcoin, decimal, roundingMode)
+    }*/
+
+    override val blockchainType = BlockchainType.Safe
+
     companion object {
 
         private const val feeRate = 10L
@@ -142,7 +157,7 @@ class SafeAdapter(
         private fun getNetworkType(testMode: Boolean) =
                 if (testMode) SafeKit.NetworkType.TestNet else SafeKit.NetworkType.MainNet
 
-        private fun createKit(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean): SafeKit {
+        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean): SafeKit {
             val account = wallet.account
             val accountType = account.type
             if (accountType is AccountType.Mnemonic) {
@@ -151,7 +166,7 @@ class SafeAdapter(
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,
-                        syncMode = getSyncMode(syncMode),
+                        syncMode = syncMode,
                         networkType = getNetworkType(testMode),
                         confirmationsThreshold = confirmationsThreshold)
             }

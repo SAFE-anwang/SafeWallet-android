@@ -17,11 +17,11 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFrag
 import io.horizontalsystems.bankwallet.ui.extensions.SelectorDialog
 import io.horizontalsystems.bankwallet.ui.extensions.SelectorItem
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.seekbar.FeeSeekBar
 
 class SendFeeFragment(
-    private val coin: PlatformCoin,
+    private val coin: Token,
     private val feeModuleDelegate: SendFeeModule.IFeeModuleDelegate,
     private val sendHandler: SendModule.ISendHandler,
     private val customPriorityUnit: CustomPriorityUnit?
@@ -130,11 +130,11 @@ class SendFeeFragment(
             binding.feeError.isVisible = error != null
 
             if (error != null) {
-                val coinCode = error.coin.code
+                val coinCode = error.coin.coin.code
                 val tokenProtocol = error.coinProtocol
-                val feeCoinTitle = error.feeCoin.name
+                val feeCoinTitle = error.feeCoin.coin.name
                 val formattedFee =
-                    App.numberFormatter.formatCoin(error.fee.value, error.fee.coin.code, 0, 8)
+                    App.numberFormatter.formatCoinFull(error.fee.value, error.fee.coin.code, 8)
 
                 binding.feeError.text = context?.getString(
                     R.string.Send_Token_InsufficientFeeAlert, coinCode, tokenProtocol,

@@ -58,7 +58,7 @@ class SendActivity : BaseActivity() {
 
         val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
 
-        setToolbar(wallet.platformCoin.fullCoin)
+        setToolbar(wallet.token.fullCoin)
 
         mainPresenter =
             ViewModelProvider(this, SendModule.Factory(wallet)).get(SendPresenter::class.java)
@@ -191,7 +191,7 @@ class SendActivity : BaseActivity() {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
                         val sendAddressFragment =
-                            SendAddressFragment(wallet.platformCoin, it, mainPresenter.handler)
+                            SendAddressFragment(wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)
                         supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAddressFragment)
@@ -211,7 +211,7 @@ class SendActivity : BaseActivity() {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
                         val sendFeeFragment = SendFeeFragment(
-                            wallet.platformCoin,
+                            wallet.token,
                             it,
                             mainPresenter.handler,
                             mainPresenter.customPriorityUnit

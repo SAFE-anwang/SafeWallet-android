@@ -15,12 +15,12 @@ import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
 import io.horizontalsystems.ethereumkit.models.TransactionData
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
 
-data class SendEvmData(
+/*data class SendEvmData(
     val transactionData: TransactionData,
     val additionalInfo: AdditionalInfo? = null,
     val warnings: List<Warning> = listOf()
@@ -64,14 +64,14 @@ data class SendEvmData(
 
     @Parcelize
     data class OneInchSwapInfo(
-        val coinFrom: PlatformCoin,
-        val coinTo: PlatformCoin,
+        val coinFrom: Token,
+        val coinTo: Token,
         val amountFrom: BigDecimal,
         val estimatedAmountTo: BigDecimal,
         val slippage: BigDecimal,
         val recipient: Address?
     ) : Parcelable
-}
+}*/
 
 object SendEvmModule {
 
@@ -97,7 +97,7 @@ object SendEvmModule {
 
     class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
         private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
-        private val service by lazy { SendEvmService(wallet.platformCoin, adapter) }
+        private val service by lazy { SendEvmService(wallet.token, adapter) }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -118,7 +118,7 @@ object SendEvmModule {
                     ) as T
                 }
                 SendAvailableBalanceViewModel::class.java -> {
-                    val coinService = EvmCoinService(wallet.platformCoin, App.currencyManager, App.marketKit)
+                    val coinService = EvmCoinService(wallet.token, App.currencyManager, App.marketKit)
                     SendAvailableBalanceViewModel(service, coinService, listOf(service, coinService)) as T
                 }
                 else -> throw IllegalArgumentException()
@@ -129,7 +129,7 @@ object SendEvmModule {
 
     class WsafeFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
         private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
-        private val service by lazy { SendWsafeService(wallet.platformCoin, adapter) }
+        private val service by lazy { SendWsafeService(wallet.token, adapter) }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -150,7 +150,7 @@ object SendEvmModule {
                     ) as T
                 }
                 SendAvailableBalanceViewModel::class.java -> {
-                    val coinService = EvmCoinService(wallet.platformCoin, App.currencyManager, App.marketKit)
+                    val coinService = EvmCoinService(wallet.token, App.currencyManager, App.marketKit)
                     SendAvailableBalanceViewModel(service, coinService, listOf(service, coinService)) as T
                 }
                 else -> throw IllegalArgumentException()

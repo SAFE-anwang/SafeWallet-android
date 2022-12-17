@@ -28,16 +28,16 @@ class SendConfirmationViewModel(
             when (item) {
                 is SendModule.SendConfirmationAmountViewItem -> {
                     coinName = item.coinValue.coin.name
-                    coinAmount = item.coinValue.getFormatted()
-                    currencyAmount = item.currencyValue?.getFormatted() ?: ""
+                    coinAmount = item.coinValue.getFormattedFull()
+                    currencyAmount = item.currencyValue?.getFormattedFull() ?: ""
                     domain = item.receiver.domain
                     receiver = item.receiver.hex
                     wsafeHex = item.wsafeHex
                 }
                 is SendModule.SendConfirmationFeeViewItem -> {
-                    feeAmount = item.coinValue.getFormatted()
+                    feeAmount = item.coinValue.getFormattedFull()
                     item.currencyValue?.let {
-                        feeAmount += " | ${it.getFormatted()}"
+                        feeAmount += " | ${it.getFormattedFull()}"
                     }
                 }
                 is SendModule.SendConfirmationMemoViewItem -> {

@@ -1,9 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.core.managers.TransactionAdapterManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
+import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -20,6 +21,7 @@ class TransactionRecordRepository(
     private var selectedFilterTransactionType: FilterTransactionType = FilterTransactionType.All
 
     private var selectedWallet: TransactionWallet? = null
+    private var selectedBlockchain: Blockchain? = null
 
     private val itemsSubject = PublishSubject.create<List<TransactionRecord>>()
     override val itemsObservable: Observable<List<TransactionRecord>> get() = itemsSubject
@@ -37,7 +39,16 @@ class TransactionRecordRepository(
 
     private val activeAdapters: List<TransactionAdapterWrapper>
         get() {
-            val activeWallets = selectedWallet?.let { listOf(it) } ?: walletsGroupedBySource
+            val tmpSelectedWallet = selectedWallet
+            val tmpSelectedBlockchain = selectedBlockchain
+
+            val activeWallets = when {
+                tmpSelectedWallet != null -> listOf(tmpSelectedWallet)
+                tmpSelectedBlockchain != null -> walletsGroupedBySource.filter {
+                    it.source.blockchain == tmpSelectedBlockchain
+                }
+                else -> walletsGroupedBySource
+            }
             return activeWallets.mapNotNull { adaptersMap[it] }
         }
 
@@ -45,20 +56,26 @@ class TransactionRecordRepository(
         val mergedWallets = mutableListOf<TransactionWallet>()
 
         transactionWallets.forEach { wallet ->
-            when (wallet.source.blockchain) {
-                TransactionSource.Blockchain.Bitcoin,
-                TransactionSource.Blockchain.BitcoinCash,
-                TransactionSource.Blockchain.Litecoin,
-                TransactionSource.Blockchain.Dash,
-                TransactionSource.Blockchain.Safe,
-                TransactionSource.Blockchain.Zcash,
-                is TransactionSource.Blockchain.Bep2 -> mergedWallets.add(wallet)
-                TransactionSource.Blockchain.Ethereum,
-                TransactionSource.Blockchain.BinanceSmartChain -> {
+            when (wallet.source.blockchain.type) {
+                BlockchainType.Bitcoin,
+                BlockchainType.BitcoinCash,
+                BlockchainType.Litecoin,
+                BlockchainType.Dash,
+                BlockchainType.Safe,
+                BlockchainType.Zcash,
+                BlockchainType.BinanceChain -> mergedWallets.add(wallet)
+                BlockchainType.Ethereum,
+                BlockchainType.BinanceSmartChain,
+                BlockchainType.Polygon,
+                BlockchainType.Avalanche,
+                BlockchainType.Optimism,
+                BlockchainType.ArbitrumOne-> {
                     if (mergedWallets.none { it.source == wallet.source }) {
                         mergedWallets.add(TransactionWallet(null, wallet.source, null))
                     }
                 }
+                BlockchainType.Solana,
+                is BlockchainType.Unsupported -> Unit
             }
         }
         return mergedWallets
@@ -69,6 +86,7 @@ class TransactionRecordRepository(
         transactionWallets: List<TransactionWallet>,
         wallet: TransactionWallet?,
         transactionType: FilterTransactionType,
+        blockchain: Blockchain?,
     ) {
         this.walletsGroupedBySource = groupWalletsBySource(transactionWallets)
 
@@ -97,6 +115,11 @@ class TransactionRecordRepository(
             reload = true
         }
 
+        if (selectedBlockchain != blockchain) {
+            selectedBlockchain = blockchain
+            reload = true
+        }
+
         if (transactionType != selectedFilterTransactionType) {
             selectedFilterTransactionType = transactionType
 
@@ -114,8 +137,9 @@ class TransactionRecordRepository(
         }
     }
 
-    override fun setSelectedWallet(transactionWallet: TransactionWallet?) {
+    override fun setWalletAndBlockchain(transactionWallet: TransactionWallet?, blockchain: Blockchain?) {
         selectedWallet = transactionWallet
+        this.selectedBlockchain = blockchain
 
         unsubscribeFromUpdates()
         allLoaded.set(false)
@@ -216,7 +240,7 @@ class TransactionRecordRepository(
     }
 
     companion object {
-        const val itemsPerPage = 10
+        const val itemsPerPage = 20
     }
 
 }

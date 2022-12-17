@@ -140,6 +140,7 @@ private fun EmptyScreen(viewModel: DAppSearchViewModel) {
                             onClick = viewModel::reload
                         )
                     }
+                    else -> {}
                 }
             }
         }

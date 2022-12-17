@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
 import io.horizontalsystems.bankwallet.ui.extensions.AmountInputView
@@ -34,7 +35,7 @@ object SendAmountModule {
     }
 
     interface IInteractor {
-        var defaultInputType: SendModule.InputType
+        var defaultInputType: AmountInputType
         fun getRate(): BigDecimal?
         fun onCleared()
     }
@@ -49,7 +50,7 @@ object SendAmountModule {
         val xRate: BigDecimal?
         val sendAmountInfo: SendAmountInfo
         val currentAmount: BigDecimal
-        val inputType: SendModule.InputType
+        val inputType: AmountInputType
         val coinAmount: CoinValue
         val fiatAmount: CurrencyValue?
 
@@ -79,7 +80,7 @@ object SendAmountModule {
 
     interface IAmountModuleDelegate {
         fun onChangeAmount()
-        fun onChangeInputType(inputType: SendModule.InputType)
+        fun onChangeInputType(inputType: AmountInputType)
         fun onRateUpdated(rate: BigDecimal?) {}
     }
 
@@ -101,11 +102,11 @@ object SendAmountModule {
             val currencyDecimal = App.appConfigProvider.fiatDecimal
             val baseCurrency = App.currencyManager.baseCurrency
 
-            val interactor = SendAmountInteractor(baseCurrency, App.marketKit, App.localStorage, wallet.platformCoin, App.backgroundManager)
+            val interactor = SendAmountInteractor(baseCurrency, App.marketKit, App.localStorage, wallet.token, App.backgroundManager)
             val sendAmountPresenterHelper =
-                    SendAmountPresenterHelper(App.numberFormatter, wallet.platformCoin, baseCurrency, coinDecimal,
+                    SendAmountPresenterHelper(App.numberFormatter, wallet.token, baseCurrency, coinDecimal,
                             currencyDecimal)
-            val presenter = SendAmountPresenter(view, interactor, sendAmountPresenterHelper, wallet.platformCoin, baseCurrency)
+            val presenter = SendAmountPresenter(view, interactor, sendAmountPresenterHelper, wallet.token, baseCurrency)
 
             sendHandler.amountModule = presenter
             interactor.delegate = presenter

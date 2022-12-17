@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.request.ErrorResult
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import io.horizontalsystems.bankwallet.R
@@ -67,7 +68,7 @@ class DAppItemAdapter(
                 transformations(CircleCropTransformation())
                 listener(
                     object : ImageRequest.Listener {
-                        override fun onError(request: ImageRequest, throwable: Throwable) {
+                        override fun onError(request: ImageRequest, throwable: ErrorResult) {
                             super.onError(request, throwable)
                             Log.e("DAppApiService", "error: $throwable")
                             val resId = when(item.name.lowercase()) {

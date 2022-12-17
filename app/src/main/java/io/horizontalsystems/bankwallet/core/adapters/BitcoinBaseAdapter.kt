@@ -1,7 +1,10 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
 import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.LastBlockInfo
+import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
+import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
@@ -12,12 +15,13 @@ import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.bitcoincore.models.*
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.hdwalletkit.HDWallet.Purpose
 import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.hodler.HodlerOutputData
 import io.horizontalsystems.hodler.HodlerPlugin
+import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.Auditor
-import io.horizontalsystems.marketkit.models.PlatformCoin
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -29,7 +33,7 @@ import java.util.*
 
 abstract class BitcoinBaseAdapter(
     open val kit: AbstractKit,
-    open val syncMode: SyncMode? = null,
+    open val syncMode: BitcoinCore.SyncMode,
     backgroundManager: BackgroundManager,
     val wallet: Wallet,
     protected val testMode: Boolean
@@ -92,7 +96,7 @@ abstract class BitcoinBaseAdapter(
     override val balanceStateUpdatedFlowable: Flowable<Unit>
         get() = adapterStateUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
-    override fun getTransactionRecordsFlowable(coin: PlatformCoin?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
+    override fun getTransactionRecordsFlowable(token: Token?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
         val observable: Observable<List<TransactionRecord>> = when (transactionType) {
             FilterTransactionType.All -> {
                 transactionRecordsSubject
@@ -128,6 +132,8 @@ abstract class BitcoinBaseAdapter(
         return observable.toFlowable(BackpressureStrategy.BUFFER)
     }
 
+    override val isMainnet = true
+
     override val debugInfo: String = ""
 
     override val balanceData: BalanceData
@@ -153,7 +159,7 @@ abstract class BitcoinBaseAdapter(
 
     override fun getTransactionsAsync(
         from: TransactionRecord?,
-        coin: PlatformCoin?,
+        token: Token?,
         limit: Int,
         transactionType: FilterTransactionType
     ): Single<List<TransactionRecord>> {
@@ -197,7 +203,7 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun send(amount: BigDecimal, address: String, feeRate: Long, pluginData: Map<Byte, IPluginData>?, transactionSorting: TransactionDataSortingType?, logger: AppLogger): Single<Unit> {
+    fun send(amount: BigDecimal, address: String, feeRate: Long, pluginData: Map<Byte, IPluginData>?, transactionSorting: TransactionDataSortMode?, logger: AppLogger): Single<Unit> {
         val sortingType = getTransactionSortingType(transactionSorting)
         return Single.create { emitter ->
             try {
@@ -221,8 +227,12 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun minimumSendAmount(address: String?): BigDecimal {
-        return satoshiToBTC(kit.minimumSpendableValue(address).toLong(), RoundingMode.CEILING)
+    fun minimumSendAmount(address: String?): BigDecimal? {
+        return try {
+            satoshiToBTC(kit.minimumSpendableValue(address).toLong(), RoundingMode.CEILING)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun maximumSendAmount(pluginData: Map<Byte, IPluginData>): BigDecimal? {
@@ -231,14 +241,14 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun fee(amount: BigDecimal, feeRate: Long, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal {
+    fun fee(amount: BigDecimal, feeRate: Long, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal? {
         return try {
             val satoshiAmount = (amount * satoshisInBitcoin).toLong()
             val fee = kit.fee(satoshiAmount, address, senderPay = true, feeRate = feeRate.toInt(), pluginData = pluginData
                     ?: mapOf())
             satoshiToBTC(fee, RoundingMode.CEILING)
         } catch (e: Exception) {
-            BigDecimal.ZERO
+            null
         }
     }
 
@@ -287,7 +297,7 @@ abstract class BitcoinBaseAdapter(
             TransactionType.Incoming -> {
                 BitcoinIncomingTransactionRecord(
                         source = wallet.transactionSource,
-                        coin = wallet.platformCoin,
+                        token = wallet.token,
                         uid = transaction.uid,
                         transactionHash = transaction.transactionHash,
                         transactionIndex = transaction.transactionIndex,
@@ -306,7 +316,7 @@ abstract class BitcoinBaseAdapter(
             TransactionType.Outgoing -> {
                 BitcoinOutgoingTransactionRecord(
                         source = wallet.transactionSource,
-                        coin = wallet.platformCoin,
+                        token = wallet.token,
                         uid = transaction.uid,
                         transactionHash = transaction.transactionHash,
                         transactionIndex = transaction.transactionIndex,
@@ -318,7 +328,7 @@ abstract class BitcoinBaseAdapter(
                         lockInfo = transactionLockInfo,
                         conflictingHash = transaction.conflictingTxHash,
                         showRawTransaction = transaction.status == TransactionStatus.NEW || transaction.status == TransactionStatus.INVALID,
-                        amount = satoshiToBTC(transaction.amount),
+                        amount = satoshiToBTC(transaction.amount).negate(),
                         to = to,
                         sentToSelf = false
                 )
@@ -326,7 +336,7 @@ abstract class BitcoinBaseAdapter(
             TransactionType.SentToSelf -> {
                 BitcoinOutgoingTransactionRecord(
                         source = wallet.transactionSource,
-                        coin = wallet.platformCoin,
+                        token = wallet.token,
                         uid = transaction.uid,
                         transactionHash = transaction.transactionHash,
                         transactionIndex = transaction.transactionIndex,
@@ -338,7 +348,7 @@ abstract class BitcoinBaseAdapter(
                         lockInfo = transactionLockInfo,
                         conflictingHash = transaction.conflictingTxHash,
                         showRawTransaction = transaction.status == TransactionStatus.NEW || transaction.status == TransactionStatus.INVALID,
-                        amount = satoshiToBTC(transaction.amount),
+                        amount = satoshiToBTC(transaction.amount).negate(),
                         to = to,
                         sentToSelf = true
                 )
@@ -362,25 +372,17 @@ abstract class BitcoinBaseAdapter(
         const val confirmationsThreshold = 3
         const val decimal = 8
 
-        fun getTransactionSortingType(sortType: TransactionDataSortingType?): TransactionDataSortType = when (sortType) {
-            TransactionDataSortingType.Bip69 -> TransactionDataSortType.Bip69
+        fun getTransactionSortingType(sortType: TransactionDataSortMode?): TransactionDataSortType = when (sortType) {
+            TransactionDataSortMode.Bip69 -> TransactionDataSortType.Bip69
             else -> TransactionDataSortType.Shuffle
         }
 
-        fun getBip(derivation: AccountType.Derivation): HDWallet.Purpose = when (derivation) {
-            AccountType.Derivation.bip44 -> HDWallet.Purpose.BIP44
-            AccountType.Derivation.bip49 -> HDWallet.Purpose.BIP49
-            AccountType.Derivation.bip84 -> HDWallet.Purpose.BIP84
+        fun getPurpose(derivation: AccountType.Derivation): Purpose = when (derivation) {
+            AccountType.Derivation.bip44 -> Purpose.BIP44
+            AccountType.Derivation.bip49 -> Purpose.BIP49
+            AccountType.Derivation.bip84 -> Purpose.BIP84
         }
 
-        fun getSyncMode(mode: SyncMode?): BitcoinCore.SyncMode {
-            return when (mode) {
-                SyncMode.Slow -> BitcoinCore.SyncMode.Full()
-                SyncMode.New -> BitcoinCore.SyncMode.NewWallet()
-                SyncMode.Fast -> BitcoinCore.SyncMode.Api()
-                null -> throw AdapterErrorWrongParameters("SyncMode is null")
-            }
-        }
     }
 
 }

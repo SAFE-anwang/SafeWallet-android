@@ -119,7 +119,7 @@ class PerAppProxyActivity : BaseActivity() {
                         .translationY(target)
                         .setInterpolator(AccelerateInterpolator(2F))
                         .setListener(object : AnimatorListenerAdapter() {
-                            override fun onAnimationEnd(animation: Animator?) {
+                            override fun onAnimationEnd(animation: Animator) {
                                 hiding = false
                             }
                         })
@@ -134,7 +134,7 @@ class PerAppProxyActivity : BaseActivity() {
                         .translationY(target)
                         .setInterpolator(DecelerateInterpolator(2F))
                         .setListener(object : AnimatorListenerAdapter() {
-                            override fun onAnimationEnd(animation: Animator?) {
+                            override fun onAnimationEnd(animation: Animator) {
                                 showing = false
                             }
                         })

@@ -15,10 +15,10 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 
 class SendWsafeViewModel(
@@ -35,7 +35,7 @@ class SendWsafeViewModel(
     val amountCautionLiveData = MutableLiveData<Caution?>(null)
     val proceedLiveEvent = SingleLiveEvent<SendEvmData>()
 
-    val coin: PlatformCoin
+    val coin: Token
         get() = service.coin
 
     init {
@@ -77,7 +77,7 @@ class SendWsafeViewModel(
         } else if (amountCaution.amountWarning == SendWsafeService.AmountWarning.CoinNeededForFee) {
             caution = Caution(
                 Translator.getString(
-                    R.string.EthereumTransaction_Warning_CoinNeededForFee, service.sendCoin.code
+                    R.string.EthereumTransaction_Warning_CoinNeededForFee, service.sendCoin.coin.code
                 ),
                 Caution.Type.Warning
             )

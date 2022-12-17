@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.logoUrl
 import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.treasuries.CoinTreasuriesModule.CoinTreasuriesData
@@ -42,6 +41,7 @@ class CoinTreasuriesViewModel(
                     is DataState.Error -> {
                         viewStateLiveData.postValue(ViewState.Error(state.error))
                     }
+                    DataState.Loading -> {}
                 }
             }, {
                 viewStateLiveData.postValue(ViewState.Error(it))
@@ -109,12 +109,11 @@ class CoinTreasuriesViewModel(
             fund = coinTreasury.fund,
             fundLogoUrl = coinTreasury.logoUrl,
             country = coinTreasury.countryCode,
-            amount = numberFormatter.formatCoinValueAsShortened(coinTreasury.amount, service.coin.code),
-            amountInCurrency = numberFormatter.formatCurrencyValueAsShortened(
-                CurrencyValue(
-                    service.currency,
-                    coinTreasury.amountInCurrency
-                )
+            amount = numberFormatter.formatCoinShort(coinTreasury.amount, service.coin.code, 8),
+            amountInCurrency = numberFormatter.formatFiatShort(
+                coinTreasury.amountInCurrency,
+                service.currency.symbol,
+                2
             )
         )
 }

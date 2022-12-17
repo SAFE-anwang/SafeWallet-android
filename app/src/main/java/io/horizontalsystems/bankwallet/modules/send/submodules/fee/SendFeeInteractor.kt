@@ -3,25 +3,29 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.fee
 import io.horizontalsystems.bankwallet.core.FeeRatePriority
 import io.horizontalsystems.bankwallet.core.IFeeRateProvider
 import io.horizontalsystems.bankwallet.core.isCustom
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.core.entities.Currency
-import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 class SendFeeInteractor(
-        private val baseCurrency: Currency,
-        private val marketKit: MarketKit,
-        private val feeRateProvider: IFeeRateProvider?,
-        private val platformCoin: PlatformCoin)
+    private val baseCurrency: Currency,
+    private val marketKit: MarketKitWrapper,
+    private val feeRateProvider: IFeeRateProvider?,
+    private val platformCoin: Token)
     : SendFeeModule.IInteractor {
 
     var delegate: SendFeeModule.IInteractorDelegate? = null
     private val disposables = CompositeDisposable()
 
     init {
-        if (!platformCoin.coin.isCustom) {
+        if (!platformCoin.isCustom) {
             marketKit.coinPriceObservable(platformCoin.coin.uid, baseCurrency.code)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -46,14 +50,18 @@ class SendFeeInteractor(
         if (feeRateProvider == null)
             return
 
-        feeRateProvider.feeRate(feeRatePriority)
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    delegate?.didUpdate(it, feeRatePriority)
-                }, {
-                    delegate?.didReceiveError(it as Exception)
-                })
-                .let { disposables.add(it) }
+        GlobalScope.launch {
+            try {
+                val feeRate = feeRateProvider.getFeeRate(feeRatePriority)
+                withContext(Dispatchers.Main) {
+                    delegate?.didUpdate(feeRate.toBigInteger(), feeRatePriority)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    delegate?.didReceiveError(e)
+                }
+            }
+        }
     }
 
     override fun onClear() {

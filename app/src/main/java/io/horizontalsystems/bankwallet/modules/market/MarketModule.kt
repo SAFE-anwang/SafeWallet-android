@@ -4,23 +4,21 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
-import io.horizontalsystems.bankwallet.modules.market.advancedsearch.TimePeriod
+import io.horizontalsystems.bankwallet.modules.market.filters.TimePeriod
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
 import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.MarketInfo
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
@@ -67,7 +65,8 @@ data class MarketItem(
     val volume: CurrencyValue,
     val rate: CurrencyValue,
     val diff: BigDecimal?,
-    val marketCap: CurrencyValue
+    val marketCap: CurrencyValue,
+    val rank: Int?
 ) {
     companion object {
         fun createFromCoinMarket(
@@ -76,11 +75,12 @@ data class MarketItem(
             pricePeriod: TimePeriod = TimePeriod.TimePeriod_1D
         ): MarketItem {
             return MarketItem(
-                marketInfo.fullCoin,
-                CurrencyValue(currency, marketInfo.totalVolume ?: BigDecimal.ZERO),
-                CurrencyValue(currency, marketInfo.price ?: BigDecimal.ZERO),
-                marketInfo.priceChangeValue(pricePeriod),
-                CurrencyValue(currency, marketInfo.marketCap ?: BigDecimal.ZERO)
+                fullCoin = marketInfo.fullCoin,
+                volume = CurrencyValue(currency, marketInfo.totalVolume ?: BigDecimal.ZERO),
+                rate = CurrencyValue(currency, marketInfo.price ?: BigDecimal.ZERO),
+                diff = marketInfo.priceChangeValue(pricePeriod),
+                marketCap = CurrencyValue(currency, marketInfo.marketCap ?: BigDecimal.ZERO),
+                rank = marketInfo.marketCapRank
             )
         }
     }
@@ -132,7 +132,7 @@ enum class MarketField(@StringRes val titleResId: Int) : WithTranslatableTitle, 
 
 @Parcelize
 enum class TopMarket(val value: Int) : WithTranslatableTitle, Parcelable {
-    Top250(250), Top500(500), Top1000(1000);
+    Top100(100), Top200(200), Top300(300);
 
     fun next() = values()[if (ordinal == values().size - 1) 0 else ordinal + 1]
 
@@ -147,7 +147,10 @@ sealed class ImageSource {
     @Composable
     fun painter(): Painter = when (this) {
         is Local -> painterResource(resId)
-        is Remote -> rememberImagePainter(url, builder = { error(placeholder) })
+        is Remote -> rememberAsyncImagePainter(
+            model = url,
+            error = painterResource(placeholder)
+        )
     }
 }
 
@@ -168,100 +171,6 @@ sealed class MarketDataValue {
     class DiffNew(val value: Value) : MarketDataValue()
 }
 
-@Immutable
-data class MarketViewItem(
-    val fullCoin: FullCoin,
-    val coinRate: String,
-    val marketDataValue: MarketDataValue,
-    val rank: String?,
-    val favorited: Boolean,
-) {
-
-    val coinUid: String
-        get() = fullCoin.coin.uid
-
-    val coinCode: String
-        get() = fullCoin.coin.code
-
-    val coinName: String
-        get() = fullCoin.coin.name
-
-    val iconUrl: String
-        get() = fullCoin.coin.iconUrl
-
-    val iconPlaceHolder: Int
-        get() = fullCoin.iconPlaceholder
-
-    fun areItemsTheSame(other: MarketViewItem): Boolean {
-        return fullCoin.coin == other.fullCoin.coin
-    }
-
-    fun areContentsTheSame(other: MarketViewItem): Boolean {
-        return this == other
-    }
-
-    companion object {
-        fun create(
-            marketItem: MarketItem,
-            marketField: MarketField,
-            favorited: Boolean = false,
-            rank: String?
-        ): MarketViewItem {
-            val marketDataValue = when (marketField) {
-                MarketField.MarketCap -> {
-                    val (shortenValue, suffix) = App.numberFormatter.shortenValue(
-                        marketItem.marketCap.value
-                    )
-                    val marketCapFormatted = App.numberFormatter.formatFiat(
-                        shortenValue,
-                        marketItem.marketCap.currency.symbol,
-                        0,
-                        2
-                    ) + " $suffix"
-
-                    MarketDataValue.MarketCap(marketCapFormatted)
-                }
-                MarketField.Volume -> {
-                    val (shortenValue, suffix) = App.numberFormatter.shortenValue(
-                        marketItem.volume.value
-                    )
-                    val volumeFormatted = App.numberFormatter.formatFiat(
-                        shortenValue,
-                        marketItem.volume.currency.symbol,
-                        0,
-                        2
-                    ) + " $suffix"
-
-                    MarketDataValue.Volume(volumeFormatted)
-                }
-                MarketField.PriceDiff -> {
-                    MarketDataValue.Diff(marketItem.diff)
-                }
-            }
-            return MarketViewItem(
-                marketItem.fullCoin,
-                App.numberFormatter.formatFiat(
-                    marketItem.rate.value,
-                    marketItem.rate.currency.symbol,
-                    0,
-                    6
-                ),
-                marketDataValue,
-                rank ?: marketItem.fullCoin.coin.marketCapRank?.toString(),
-                favorited
-            )
-        }
-
-        fun create(
-            marketItem: MarketItem,
-            marketField: MarketField,
-            favorited: Boolean = false
-        ): MarketViewItem {
-            return create(marketItem = marketItem, marketField = marketField, favorited, null)
-        }
-    }
-}
-
 inline fun <T, R : Comparable<R>> Iterable<T>.sortedByDescendingNullLast(crossinline selector: (T) -> R?): List<T> {
     return sortedWith(compareBy(nullsFirst(), selector)).sortedByDescending(selector)
 }
@@ -277,4 +186,14 @@ fun MarketInfo.priceChangeValue(period: TimePeriod) = when (period) {
     TimePeriod.TimePeriod_1M -> priceChange30d
     TimePeriod.TimePeriod_6M -> priceChange200d
     TimePeriod.TimePeriod_1Y -> priceChange1y
+}
+
+@Parcelize
+enum class TimeDuration(val titleResId: Int) : WithTranslatableTitle, Parcelable {
+    OneDay(R.string.CoinPage_TimeDuration_Day),
+    SevenDay(R.string.CoinPage_TimeDuration_Week),
+    ThirtyDay(R.string.CoinPage_TimeDuration_Month);
+
+    @IgnoredOnParcel
+    override val title = TranslatableString.ResString(titleResId)
 }

@@ -70,7 +70,7 @@ class SendWsafeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setToolbar(wsafeWallet.platformCoin.fullCoin)
+        setToolbar()
 
         availableBalanceViewModel.viewStateLiveData.observe(viewLifecycleOwner, { state ->
             binding.availableBalanceSpinner.isVisible =
@@ -131,7 +131,7 @@ class SendWsafeFragment : BaseFragment() {
         SafeInfoManager.startNet()
     }
 
-    private fun setToolbar(fullCoin: FullCoin) {
+    private fun setToolbar() {
         binding.toolbarCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
@@ -199,7 +199,7 @@ class SendWsafeFragment : BaseFragment() {
                     Spacer(modifier = Modifier.height(12.dp))
                     HSAddressInput(
                         initial = Address(receiveAdapter.receiveAddress),
-                        coinType = safeWallet.coinType,
+                        tokenQuery = safeWallet.token.tokenQuery,
                         coinCode = safeWallet.coin.code,
                         error = viewModel.error,
                         onValueChange = {

@@ -65,7 +65,7 @@ class SafeConvertSendActivity : BaseActivity() {
 
         wsafeWallet = intent.getParcelableExtra(WALLET_WSAFE) ?: run { finish(); return }
 
-        setToolbar(safeWallet.platformCoin.fullCoin)
+        setToolbar()
 
         val adapter by lazy { App.adapterManager.getAdapterForWallet(wsafeWallet) as ISendEthereumAdapter }
 
@@ -81,7 +81,7 @@ class SafeConvertSendActivity : BaseActivity() {
 
     }
 
-    private fun setToolbar(fullCoin: FullCoin) {
+    private fun setToolbar() {
         binding.toolbarCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
@@ -198,7 +198,7 @@ class SafeConvertSendActivity : BaseActivity() {
                     mainPresenter.addressModuleDelegate?.let {
                         val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
                         val wsafeAddressFragment =
-                            WsafeAddressFragment(receiveAdapter.receiveAddress, wsafeWallet.platformCoin, it, mainPresenter.handler)
+                            WsafeAddressFragment(receiveAdapter.receiveAddress, wsafeWallet.token, it, mainPresenter.handler)
                         fragments.add(wsafeAddressFragment)
                         supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, wsafeAddressFragment)
@@ -209,7 +209,7 @@ class SafeConvertSendActivity : BaseActivity() {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
                         val wsafeFeeFragment = WsafeFeeFragment(
-                            wallet.platformCoin,
+                            wallet.token,
                             it,
                             mainPresenter.handler,
                             mainPresenter.customPriorityUnit
@@ -226,6 +226,7 @@ class SafeConvertSendActivity : BaseActivity() {
                     proceedButtonView?.bind { mainPresenter.validMinAmount() }
                     binding.sendLinearLayout.addView(proceedButtonView)
                 }
+                else -> {}
             }
         }
 

@@ -8,11 +8,11 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,6 +35,7 @@ import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellNews
+import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 
@@ -89,7 +90,7 @@ private fun CoinReportsScreen(
         AppBar(
             title = TranslatableString.ResString(R.string.CoinPage_Reports),
             navigationIcon = {
-                IconButton(onClick = onClickNavigation) {
+                HsIconButton(onClick = onClickNavigation) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_back),
                         contentDescription = "back button",
@@ -104,14 +105,14 @@ private fun CoinReportsScreen(
         ) {
             Crossfade(viewState) { viewState ->
                 when (viewState) {
-                    is ViewState.Loading -> {
+                    ViewState.Loading -> {
                         Loading()
                     }
                     is ViewState.Error -> {
                         ListErrorView(stringResource(R.string.SyncError), viewModel::onErrorClick)
                     }
                     ViewState.Success -> {
-                        LazyColumn {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
                             reportViewItems?.let {
                                 items(it) { report ->
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -130,6 +131,7 @@ private fun CoinReportsScreen(
                             }
                         }
                     }
+                    null -> {}
                 }
             }
         }

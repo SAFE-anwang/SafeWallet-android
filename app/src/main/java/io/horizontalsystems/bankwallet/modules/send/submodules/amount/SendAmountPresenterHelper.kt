@@ -1,25 +1,26 @@
 package io.horizontalsystems.bankwallet.modules.send.submodules.amount
 
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.core.entities.Currency
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class SendAmountPresenterHelper(
         private val numberFormatter: IAppNumberFormatter,
-        private val coin: PlatformCoin,
+        private val coin: Token,
         private val baseCurrency: Currency,
         private val coinDecimal: Int,
         private val currencyDecimal: Int) {
 
-    fun getAmount(coinAmount: BigDecimal?, inputType: SendModule.InputType, rate: BigDecimal?): String {
+    fun getAmount(coinAmount: BigDecimal?, inputType: AmountInputType, rate: BigDecimal?): String {
         val amount = when (inputType) {
-            SendModule.InputType.COIN -> {
+            AmountInputType.COIN -> {
                 coinAmount?.setScale(coinDecimal, RoundingMode.DOWN)
             }
-            SendModule.InputType.CURRENCY -> {
+            AmountInputType.CURRENCY -> {
                 rate?.let { coinAmount?.times(it) }?.let {
                     val scale = if (it >= BigDecimal(1000)) 0 else currencyDecimal
 
@@ -32,46 +33,46 @@ class SendAmountPresenterHelper(
     }
 
 
-    fun getHint(coinAmount: BigDecimal? = null, inputType: SendModule.InputType, rate: BigDecimal?): String? {
+    fun getHint(coinAmount: BigDecimal? = null, inputType: AmountInputType, rate: BigDecimal?): String? {
         return when (inputType) {
-            SendModule.InputType.CURRENCY -> {
-                numberFormatter.formatCoin(coinAmount ?: BigDecimal.ZERO, coin.code, 0, 8)
+            AmountInputType.CURRENCY -> {
+                numberFormatter.formatCoinFull(coinAmount ?: BigDecimal.ZERO, coin.coin.code, 8)
             }
-            SendModule.InputType.COIN -> {
+            AmountInputType.COIN -> {
                 rate?.let {
-                    numberFormatter.formatFiat(coinAmount?.times(it) ?: BigDecimal.ZERO, baseCurrency.symbol, 2, 2)
+                    numberFormatter.formatFiatShort(coinAmount?.times(it) ?: BigDecimal.ZERO, baseCurrency.symbol, 2)
                 }
             }
         }
     }
 
-    fun getAvailableBalance(coinAmount: BigDecimal? = null, inputType: SendModule.InputType, rate: BigDecimal?): String? {
+    fun getAvailableBalance(coinAmount: BigDecimal? = null, inputType: AmountInputType, rate: BigDecimal?): String? {
         return when (inputType) {
-            SendModule.InputType.CURRENCY -> {
+            AmountInputType.CURRENCY -> {
                 rate?.let {
-                    numberFormatter.formatFiat(coinAmount?.times(it) ?: BigDecimal.ZERO, baseCurrency.symbol, 2, 2)
+                    numberFormatter.formatFiatShort(coinAmount?.times(it) ?: BigDecimal.ZERO, baseCurrency.symbol, 2)
                 }
             }
-            SendModule.InputType.COIN -> {
-                numberFormatter.formatCoin(coinAmount ?: BigDecimal.ZERO, coin.code, 0, 8)
+            AmountInputType.COIN -> {
+                numberFormatter.formatCoinFull(coinAmount ?: BigDecimal.ZERO, coin.coin.code,8)
             }
         }
     }
 
-    fun getAmountPrefix(inputType: SendModule.InputType, rate: BigDecimal?): String? {
+    fun getAmountPrefix(inputType: AmountInputType, rate: BigDecimal?): String? {
         return when {
-            inputType == SendModule.InputType.CURRENCY && rate != null -> baseCurrency.symbol
+            inputType == AmountInputType.CURRENCY && rate != null -> baseCurrency.symbol
             else -> null
         }
     }
 
-    fun getCoinAmount(amount: BigDecimal?, inputType: SendModule.InputType, rate: BigDecimal?): BigDecimal? {
+    fun getCoinAmount(amount: BigDecimal?, inputType: AmountInputType, rate: BigDecimal?): BigDecimal? {
         return when (inputType) {
-            SendModule.InputType.CURRENCY -> rate?.let { amount?.divide(it, coinDecimal, RoundingMode.CEILING) }
+            AmountInputType.CURRENCY -> rate?.let { amount?.divide(it, coinDecimal, RoundingMode.CEILING) }
             else -> amount
         }
     }
 
-    fun decimal(inputType: SendModule.InputType) = if (inputType == SendModule.InputType.COIN) coinDecimal else currencyDecimal
+    fun decimal(inputType: AmountInputType) = if (inputType == AmountInputType.COIN) coinDecimal else currencyDecimal
 
 }

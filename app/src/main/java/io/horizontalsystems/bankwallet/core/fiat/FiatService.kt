@@ -1,15 +1,14 @@
 package io.horizontalsystems.bankwallet.core.fiat
 
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService.AmountType
-import io.horizontalsystems.bankwallet.core.isCustom
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
 import io.horizontalsystems.core.ICurrencyManager
 import io.horizontalsystems.core.entities.Currency
-import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -22,13 +21,13 @@ import java.util.*
 class FiatService(
     private val switchService: AmountTypeSwitchService,
     private val currencyManager: ICurrencyManager,
-    private val marketKit: MarketKit
+    private val marketKit: MarketKitWrapper
 ) : AmountTypeSwitchService.IToggleAvailableListener {
 
     private val disposables = CompositeDisposable()
     private var latestRateDisposable: Disposable? = null
 
-    private var platformCoin: PlatformCoin? = null
+    private var token: Token? = null
     private var coinAmount: BigDecimal? = null
     private var currencyAmount: BigDecimal? = null
 
@@ -54,7 +53,7 @@ class FiatService(
         switchService.amountTypeObservable
                 .subscribeOn(Schedulers.io())
                 .subscribe {
-                    syncAmountType(it)
+                    syncAmountType()
                 }
                 .let { disposables.add(it) }
     }
@@ -65,17 +64,15 @@ class FiatService(
 
         toggleAvailable = false
 
-        val coin = platformCoin ?: return
+        val token = token ?: return
 
-        syncLatestRate(marketKit.coinPrice(coin.coin.uid, currency.code))
+        syncLatestRate(marketKit.coinPrice(token.coin.uid, currency.code))
 
-        if (!coin.coin.isCustom) {
-            latestRateDisposable = marketKit.coinPriceObservable(coin.coin.uid, currency.code)
-                .subscribeOn(Schedulers.io())
-                .subscribe {
-                    syncLatestRate(it)
-                }
-        }
+        latestRateDisposable = marketKit.coinPriceObservable(token.coin.uid, currency.code)
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                syncLatestRate(it)
+            }
     }
 
     private fun syncLatestRate(coinPrice: CoinPrice?) {
@@ -91,12 +88,12 @@ class FiatService(
     }
 
     private fun fullAmountInfo(): FullAmountInfo? {
-        val coin = platformCoin ?: return null
+        val token = token ?: return null
         val coinAmount = coinAmount ?: return null
 
         return when (switchService.amountType) {
             AmountType.Coin -> {
-                val primary = CoinValue(CoinValue.Kind.PlatformCoin(coin), coinAmount)
+                val primary = CoinValue(token, coinAmount)
                 val secondary = currencyAmount?.let { CurrencyValue(currency, it) }
                 FullAmountInfo(
                         primaryInfo = AmountInfo.CoinValueInfo(primary),
@@ -108,7 +105,7 @@ class FiatService(
                 val currencyAmount = currencyAmount ?: return null
 
                 val primary = CurrencyValue(currency, currencyAmount)
-                val secondary = CoinValue(CoinValue.Kind.PlatformCoin(coin), coinAmount)
+                val secondary = CoinValue(token, coinAmount)
                 FullAmountInfo(
                         primaryInfo = AmountInfo.CurrencyValueInfo(primary),
                         secondaryInfo = AmountInfo.CoinValueInfo(secondary),
@@ -118,7 +115,7 @@ class FiatService(
         }
     }
 
-    private fun syncAmountType(amountType: AmountType) {
+    private fun syncAmountType() {
         fullAmountInfoSubject.onNext(Optional.ofNullable(fullAmountInfo()))
     }
 
@@ -135,7 +132,7 @@ class FiatService(
     }
 
     fun buildForCurrency(amount: BigDecimal?): FullAmountInfo? {
-        val coin = platformCoin ?: return null
+        val coin = token ?: return null
 
         currencyAmount = amount
 
@@ -156,8 +153,8 @@ class FiatService(
                 AmountType.Currency -> buildForCurrency(amount)
             }
 
-    fun set(coin: PlatformCoin?) {
-        this.platformCoin = coin
+    fun set(token: Token?) {
+        this.token = token
 
         rate = null
         subscribeToLatestRate()

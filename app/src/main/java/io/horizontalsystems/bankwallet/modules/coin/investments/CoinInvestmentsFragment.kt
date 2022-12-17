@@ -11,8 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -91,7 +89,7 @@ private fun CoinInvestmentsScreen(
         AppBar(
             title = TranslatableString.ResString(R.string.CoinPage_FundsInvested),
             navigationIcon = {
-                IconButton(onClick = onClickNavigation) {
+                HsIconButton(onClick = onClickNavigation) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_back),
                         contentDescription = "back button",
@@ -107,14 +105,14 @@ private fun CoinInvestmentsScreen(
         ) {
             Crossfade(viewState) { viewState ->
                 when (viewState) {
-                    is ViewState.Loading -> {
+                    ViewState.Loading -> {
                         Loading()
                     }
                     is ViewState.Error -> {
                         ListErrorView(stringResource(R.string.SyncError), viewModel::onErrorClick)
                     }
                     ViewState.Success -> {
-                        LazyColumn {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
                             viewItems?.forEach { viewItem ->
                                 item {
                                     CoinInvestmentHeader(viewItem.amount, viewItem.info)
@@ -130,6 +128,7 @@ private fun CoinInvestmentsScreen(
                             }
                         }
                     }
+                    null -> {}
                 }
             }
         }
@@ -139,18 +138,12 @@ private fun CoinInvestmentsScreen(
 @Composable
 fun CoinInvestmentHeader(amount: String, info: String) {
     CellSingleLineClear(borderTop = true) {
-        Text(
+        body_jacob(
             modifier = Modifier.weight(1f),
             text = amount,
-            style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.jacob,
         )
 
-        Text(
-            text = info,
-            style = ComposeAppTheme.typography.subhead1,
-            color = ComposeAppTheme.colors.grey,
-        )
+        subhead1_grey(text = info)
     }
 }
 
@@ -169,19 +162,15 @@ fun CoinInvestmentFund(fundViewItem: FundViewItem, onClick: () -> Unit) {
                 .padding(horizontal = 16.dp)
                 .size(24.dp)
         )
-        Text(
+        body_leah(
             modifier = Modifier.weight(1f),
             text = fundViewItem.name,
-            style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.leah,
             overflow = TextOverflow.Ellipsis
         )
         if (fundViewItem.isLead) {
-            Text(
+            subhead2_remus(
                 modifier = Modifier.padding(horizontal = 6.dp),
                 text = stringResource(R.string.CoinPage_CoinInvestments_Lead),
-                style = ComposeAppTheme.typography.subhead2,
-                color = ComposeAppTheme.colors.remus
             )
         }
         if (hasWebsiteUrl) {

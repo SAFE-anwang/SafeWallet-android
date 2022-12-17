@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
@@ -15,7 +14,7 @@ import io.horizontalsystems.binancechainkit.models.TransactionFilterType
 import io.horizontalsystems.binancechainkit.models.TransactionInfo
 import io.horizontalsystems.binancechainkit.storage.KitDatabase
 import io.horizontalsystems.binancechainkit.storage.Storage
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.math.BigDecimal
@@ -24,13 +23,13 @@ import java.util.*
 class BinanceAdapter(
     private val binanceKit: BinanceChainKit,
     private val symbol: String,
-    private val feeCoin: PlatformCoin,
+    private val feeToken: Token,
     private val wallet: Wallet,
     private val testMode: Boolean
 ) : IAdapter, ITransactionsAdapter, IBalanceAdapter, IReceiveAdapter, ISendBinanceAdapter {
 
     private val asset = binanceKit.register(symbol)
-    private val coin = wallet.platformCoin
+    private val token = wallet.token
 
     val networkType = if (testMode)
         BinanceChainKit.NetworkType.TestNet else
@@ -74,6 +73,10 @@ class BinanceAdapter(
     override val debugInfo: String
         get() = ""
 
+    // IBaseAdapter
+
+    override val isMainnet = true
+
     // IBalanceAdapter
 
     override val balanceState: AdapterState
@@ -90,6 +93,9 @@ class BinanceAdapter(
 
     // ITransactionsAdapter
 
+    override val explorerTitle: String =
+        "binance.org"
+
     override val transactionsState: AdapterState
         get() = syncState
 
@@ -102,9 +108,8 @@ class BinanceAdapter(
     override val lastBlockUpdatedFlowable: Flowable<Unit>
         get() = binanceKit.latestBlockFlowable.map { }
 
-    override fun getTransactionRecordsFlowable(coin: PlatformCoin?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
+    override fun getTransactionRecordsFlowable(token: Token?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
         return try {
-//            Log.i("safe4", "---platformCoin = $coin")
             val filter = getBinanceTransactionTypeFilter(transactionType)
             asset.getTransactionsFlowable(filter).map { it.map { transactionRecord(it) } }
         } catch (e: UnsupportedFilterException) {
@@ -112,7 +117,7 @@ class BinanceAdapter(
         }
     }
 
-    override fun getTransactionsAsync(from: TransactionRecord?, coin: PlatformCoin?, limit: Int, transactionType: FilterTransactionType): Single<List<TransactionRecord>> {
+    override fun getTransactionsAsync(from: TransactionRecord?, token: Token?, limit: Int, transactionType: FilterTransactionType): Single<List<TransactionRecord>> {
         return try {
             val filter = getBinanceTransactionTypeFilter(transactionType)
             binanceKit
@@ -140,26 +145,29 @@ class BinanceAdapter(
         return when {
             fromMine && !toMine -> BinanceChainOutgoingTransactionRecord(
                 transaction,
-                feeCoin,
-                coin,
+                feeToken,
+                token,
                 false,
                 wallet.transactionSource
             )
             !fromMine && toMine -> BinanceChainIncomingTransactionRecord(
                 transaction,
-                feeCoin,
-                coin,
+                feeToken,
+                token,
                 wallet.transactionSource
             )
             else -> BinanceChainOutgoingTransactionRecord(
                 transaction,
-                feeCoin,
-                coin,
+                feeToken,
+                token,
                 true,
                 wallet.transactionSource
             )
         }
     }
+
+    override fun getTransactionUrl(transactionHash: String): String? =
+        if (testMode) "https://testnet-explorer.binance.org/tx/$transactionHash" else "https://explorer.binance.org/tx/$transactionHash"
 
     // ISendBinanceAdapter
 

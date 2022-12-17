@@ -25,6 +25,7 @@ class SafeWCSignMessageRequestFragment : BaseFragment() {
     val vmFactory by lazy {
         WCSignMessageRequestModule.Factory(
             baseViewModel.sharedSignMessageRequest!!,
+            "",
             baseViewModel.service
         )
     }

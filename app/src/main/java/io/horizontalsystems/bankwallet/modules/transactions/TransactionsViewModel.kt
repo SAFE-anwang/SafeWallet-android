@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
@@ -10,9 +9,13 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
-import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValueNew
+import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
 import io.horizontalsystems.core.helpers.DateHelper
+import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 
@@ -21,11 +24,13 @@ class TransactionsViewModel(
     private val transactionViewItem2Factory: TransactionViewItemFactory
 ) : ViewModel() {
 
-//    lateinit var tmpItemToShow: TransactionItem
+    var tmpItemToShow: TransactionItem? = null
 
     val syncingLiveData = MutableLiveData<Boolean>()
-    val filterCoinsLiveData = MutableLiveData<List<Filter<TransactionWallet>>>()
+    val filterResetEnabled by service::filterResetEnabled
+    val filterCoinsLiveData = MutableLiveData<List<Filter<TransactionWallet?>>>()
     val filterTypesLiveData = MutableLiveData<List<Filter<FilterTransactionType>>>()
+    val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
     val transactionList = MutableLiveData<Map<String, List<TransactionViewItem>>>()
     val viewState = MutableLiveData<ViewState>(ViewState.Loading)
 
@@ -46,6 +51,17 @@ class TransactionsViewModel(
                     Filter(it, it == selectedType)
                 }
                 filterTypesLiveData.postValue(filterTypes)
+            }
+            .let {
+                disposables.add(it)
+            }
+
+        service.blockchainObservable
+            .subscribeIO { (blockchains, selectedType) ->
+                val filterBlockchains = blockchains.map {
+                    Filter(it, it == selectedType)
+                }
+                filterBlockchainsLiveData.postValue(filterBlockchains)
             }
             .let {
                 disposables.add(it)
@@ -84,6 +100,15 @@ class TransactionsViewModel(
         service.setFilterCoin(w)
     }
 
+    fun onEnterFilterBlockchain(filterBlockchain: Filter<Blockchain?>) {
+        service.setFilterBlockchain(filterBlockchain.item)
+    }
+
+    fun resetFilters() {
+        service.resetFilters()
+    }
+
+
     fun onBottomReached() {
         service.loadNext()
     }
@@ -104,24 +129,44 @@ class TransactionsViewModel(
 data class TransactionItem(
     val record: TransactionRecord,
     val currencyValue: CurrencyValue?,
-    val lastBlockInfo: LastBlockInfo?
+    val lastBlockInfo: LastBlockInfo?,
+    val nftMetadata: Map<NftUid, NftAssetBriefMetadata>
 ) {
     val createdAt = System.currentTimeMillis()
 }
 
 data class TransactionViewItem(
     val uid: String,
-    val typeIcon: Int,
-    val progress: Int?,
+    val progress: Float?,
     val title: String,
     val subtitle: String,
-    val primaryValue: ColoredValueNew?,
-    val secondaryValue: ColoredValueNew?,
+    val primaryValue: ColoredValue?,
+    val secondaryValue: ColoredValue?,
     val date: Date,
     val sentToSelf: Boolean = false,
     val doubleSpend: Boolean = false,
-    val locked: Boolean? = null
+    val locked: Boolean? = null,
+    val icon: Icon
 ) {
+
+    sealed class Icon {
+        class ImageResource(val resourceId: Int) : Icon()
+        class Regular(val url: String?, val placeholder: Int?, val rectangle: Boolean = false) : Icon()
+        class Double(val back: Regular, val front: Regular): Icon()
+        object Failed : Icon()
+        class Platform(source: TransactionSource) : Icon() {
+            val iconRes = when (source.blockchain.type) {
+                BlockchainType.BinanceSmartChain -> R.drawable.logo_chain_bsc_trx_24
+                BlockchainType.Ethereum -> R.drawable.logo_chain_ethereum_trx_24
+                BlockchainType.Polygon -> R.drawable.logo_chain_polygon_trx_24
+                BlockchainType.Avalanche ->  R.drawable.logo_chain_avalanche_trx_24
+                BlockchainType.Optimism ->  R.drawable.logo_chain_optimism_trx_24
+                BlockchainType.ArbitrumOne ->  R.drawable.logo_chain_arbitrum_one_trx_24
+                else -> null
+            }
+        }
+    }
+
     val formattedDate = formatDate(date).uppercase()
 
     private fun formatDate(date: Date): String {

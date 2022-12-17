@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.Warning
+import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.evmfee.GasDataError
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.swap.SwapActionState
+import io.horizontalsystems.bankwallet.modules.swap.SwapButtons
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ApproveStep
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapError
@@ -36,7 +38,7 @@ class UniswapViewModel(
     private val isLoadingLiveData = MutableLiveData(false)
     private val swapErrorLiveData = MutableLiveData<String?>(null)
     private val tradeViewItemLiveData = MutableLiveData<TradeViewItem?>(null)
-    private val buttonsLiveData = MutableLiveData<Buttons>()
+    private val buttonsLiveData = MutableLiveData<SwapButtons>()
     private val approveStepLiveData = MutableLiveData(ApproveStep.NA)
     private val openApproveLiveEvent = SingleLiveEvent<SwapAllowanceService.ApproveData>()
     private val openConfirmationLiveEvent = SingleLiveEvent<SendEvmData>()
@@ -56,51 +58,47 @@ class UniswapViewModel(
     fun isLoadingLiveData(): LiveData<Boolean> = isLoadingLiveData
     fun swapErrorLiveData(): LiveData<String?> = swapErrorLiveData
     fun tradeViewItemLiveData(): LiveData<TradeViewItem?> = tradeViewItemLiveData
-    fun buttonsLiveData(): LiveData<Buttons> = buttonsLiveData
+    fun buttonsLiveData(): LiveData<SwapButtons> = buttonsLiveData
     fun approveStepLiveData(): LiveData<ApproveStep> = approveStepLiveData
-    fun openApproveLiveEvent(): LiveData<SwapAllowanceService.ApproveData> = openApproveLiveEvent
-    fun openConfirmationLiveEvent(): LiveData<SendEvmData> = openConfirmationLiveEvent
+
+    val revokeEvmData by service::revokeEvmData
+    val blockchainType by service::blockchainType
+    val approveData by service::approveData
+
+    val proceedParams: SendEvmData?
+        get() {
+            val serviceState = service.state
+            if (serviceState is UniswapService.State.Ready) {
+                val trade = (tradeService.state as? UniswapTradeService.State.Ready)?.trade
+                val swapInfo = SendEvmData.UniswapInfo(
+                    estimatedIn = tradeService.amountFrom ?: BigDecimal.ZERO,
+                    estimatedOut = tradeService.amountTo ?: BigDecimal.ZERO,
+                    slippage = formatter.slippage(tradeService.tradeOptions.allowedSlippage),
+                    deadline = formatter.deadline(tradeService.tradeOptions.ttl),
+                    recipientDomain = tradeService.tradeOptions.recipient?.title,
+                    price = formatter.price(
+                        trade?.tradeData?.executionPrice,
+                        tradeService.tokenFrom,
+                        tradeService.tokenTo
+                    ),
+                    priceImpact = trade?.let { formatter.priceImpactViewItem(it) }
+                )
+                val warnings: List<Warning> = if (trade?.priceImpactLevel == UniswapTradeService.PriceImpactLevel.Forbidden)
+                    listOf(UniswapModule.UniswapWarnings.PriceImpactWarning)
+                else
+                    listOf()
+
+                return SendEvmData(
+                        serviceState.transactionData,
+                        SendEvmData.AdditionalInfo.Uniswap(swapInfo),
+                        warnings
+                    )
+            }
+            return null
+        }
 
     fun onTapSwitch() {
         tradeService.switchCoins()
-    }
-
-    fun onTapApprove() {
-        service.approveData?.let { approveData ->
-            openApproveLiveEvent.postValue(approveData)
-        }
-    }
-
-    fun onTapProceed() {
-        val serviceState = service.state
-        if (serviceState is UniswapService.State.Ready) {
-            val trade = (tradeService.state as? UniswapTradeService.State.Ready)?.trade
-            val swapInfo = SendEvmData.UniswapInfo(
-                estimatedIn = tradeService.amountFrom ?: BigDecimal.ZERO,
-                estimatedOut = tradeService.amountTo ?: BigDecimal.ZERO,
-                slippage = formatter.slippage(tradeService.tradeOptions.allowedSlippage),
-                deadline = formatter.deadline(tradeService.tradeOptions.ttl),
-                recipientDomain = tradeService.tradeOptions.recipient?.title,
-                price = formatter.price(
-                    trade?.tradeData?.executionPrice,
-                    tradeService.coinFrom,
-                    tradeService.coinTo
-                ),
-                priceImpact = trade?.let { formatter.priceImpactViewItem(it) }
-            )
-            val warnings: List<Warning> = if (trade?.priceImpactLevel == UniswapTradeService.PriceImpactLevel.Forbidden)
-                listOf(UniswapModule.UniswapWarnings.PriceImpactWarning)
-            else
-                listOf()
-
-            openConfirmationLiveEvent.postValue(
-                SendEvmData(
-                    serviceState.transactionData,
-                    SendEvmData.AdditionalInfo.Uniswap(swapInfo),
-                    warnings
-                )
-            )
-        }
     }
 
     fun didApprove() {
@@ -113,8 +111,8 @@ class UniswapViewModel(
 
     fun getProviderState(): SwapMainModule.SwapProviderState {
         return SwapMainModule.SwapProviderState(
-            tradeService.coinFrom,
-            tradeService.coinTo,
+            tradeService.tokenFrom,
+            tradeService.tokenTo,
             tradeService.amountFrom,
             tradeService.amountTo,
             tradeService.amountType
@@ -207,60 +205,82 @@ class UniswapViewModel(
     }
 
     private fun syncState() {
-        val approveAction = getApproveActionState()
-        val proceedAction = getProceedActionState()
-        val approveStep = getApproveStep()
-        buttonsLiveData.postValue(Buttons(approveAction, proceedAction))
+        val revokeAction = getRevokeActionState()
+        val approveAction = getApproveActionState(revokeAction)
+        val proceedAction = getProceedActionState(revokeAction)
+        val approveStep = getApproveStep(revokeAction)
+        buttonsLiveData.postValue(SwapButtons(revokeAction, approveAction, proceedAction))
         approveStepLiveData.postValue(approveStep)
     }
 
-    private fun getProceedActionState(): ActionState {
+    private fun getProceedActionState(revokeAction: SwapActionState): SwapActionState {
         return when {
+            revokeAction !is SwapActionState.Hidden -> {
+                SwapActionState.Hidden
+            }
             service.state is UniswapService.State.Ready -> {
-                ActionState.Enabled(Translator.getString(R.string.Swap_Proceed))
+                SwapActionState.Enabled(Translator.getString(R.string.Swap_Proceed))
             }
             tradeService.state is UniswapTradeService.State.Ready -> {
                 when {
                     service.errors.any { it == SwapError.InsufficientBalanceFrom } -> {
-                        ActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
+                        SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
                     }
-                    pendingAllowanceService.state == SwapPendingAllowanceState.Pending -> {
-                        ActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
+                    pendingAllowanceService.state == SwapPendingAllowanceState.Approving -> {
+                        SwapActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
                     }
                     else -> {
-                        ActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
+                        SwapActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
                     }
                 }
             }
             else -> {
-                ActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
+                SwapActionState.Disabled(Translator.getString(R.string.Swap_Proceed))
             }
         }
     }
 
-    private fun getApproveActionState(): ActionState {
+    private fun getRevokeActionState() = when {
+        pendingAllowanceService.state == SwapPendingAllowanceState.Revoking -> {
+            SwapActionState.Disabled(Translator.getString(R.string.Swap_Revoking))
+        }
+        service.errors.any { it == SwapError.RevokeAllowanceRequired } -> {
+            SwapActionState.Enabled(Translator.getString(R.string.Swap_Revoke))
+        }
+        else -> {
+            SwapActionState.Hidden
+        }
+    }
+
+    private fun getApproveActionState(revokeAction: SwapActionState): SwapActionState {
         return when {
-            pendingAllowanceService.state == SwapPendingAllowanceState.Pending -> {
-                ActionState.Disabled(Translator.getString(R.string.Swap_Approving))
+            revokeAction !is SwapActionState.Hidden -> {
+                SwapActionState.Hidden
+            }
+            pendingAllowanceService.state == SwapPendingAllowanceState.Approving -> {
+                SwapActionState.Disabled(Translator.getString(R.string.Swap_Approving))
             }
             tradeService.state is UniswapTradeService.State.NotReady || service.errors.any { it == SwapError.InsufficientBalanceFrom } -> {
-                ActionState.Hidden
+                SwapActionState.Hidden
             }
             service.errors.any { it == SwapError.InsufficientAllowance } -> {
-                ActionState.Enabled(Translator.getString(R.string.Swap_Approve))
+                SwapActionState.Enabled(Translator.getString(R.string.Swap_Approve))
             }
             pendingAllowanceService.state == SwapPendingAllowanceState.Approved -> {
-                ActionState.Disabled(Translator.getString(R.string.Swap_Approve))
+                SwapActionState.Disabled(Translator.getString(R.string.Swap_Approve))
             }
             else -> {
-                ActionState.Hidden
+                SwapActionState.Hidden
             }
         }
     }
 
-    private fun getApproveStep(): ApproveStep {
+    private fun getApproveStep(revokeAction: SwapActionState): ApproveStep {
         return when {
-            pendingAllowanceService.state == SwapPendingAllowanceState.Pending -> {
+            revokeAction !is SwapActionState.Hidden -> {
+                ApproveStep.NA
+            }
+            pendingAllowanceService.state == SwapPendingAllowanceState.Approving -> {
                 ApproveStep.Approving
             }
             tradeService.state is UniswapTradeService.State.NotReady || service.errors.any { it == SwapError.InsufficientBalanceFrom } -> {
@@ -282,22 +302,22 @@ class UniswapViewModel(
         return TradeViewItem(
             buyPrice = formatter.price(
                 trade.tradeData.executionPrice,
-                quoteCoin = tradeService.coinFrom,
-                baseCoin = tradeService.coinTo
+                quoteToken = tradeService.tokenFrom,
+                baseToken = tradeService.tokenTo
             ),
             sellPrice = formatter.price(
                 Price(
                     baseTokenAmount = trade.tradeData.trade.tokenAmountOut,
                     quoteTokenAmount = trade.tradeData.trade.tokenAmountIn
                 ).decimalValue,
-                quoteCoin = tradeService.coinTo,
-                baseCoin = tradeService.coinFrom
+                quoteToken = tradeService.tokenTo,
+                baseToken = tradeService.tokenFrom
             ),
             priceImpact = formatter.priceImpactViewItem(trade, UniswapTradeService.PriceImpactLevel.Warning),
             guaranteedAmount = formatter.guaranteedAmountViewItem(
                 trade.tradeData,
-                tradeService.coinFrom,
-                tradeService.coinTo
+                tradeService.tokenFrom,
+                tradeService.tokenTo
             )
         )
     }
@@ -310,12 +330,5 @@ class UniswapViewModel(
         val guaranteedAmount: UniswapModule.GuaranteedAmountViewItem? = null
     )
 
-    sealed class ActionState {
-        object Hidden : ActionState()
-        class Enabled(val title: String) : ActionState()
-        class Disabled(val title: String) : ActionState()
-    }
-
-    data class Buttons(val approve: ActionState, val proceed: ActionState)
     //endregion
 }

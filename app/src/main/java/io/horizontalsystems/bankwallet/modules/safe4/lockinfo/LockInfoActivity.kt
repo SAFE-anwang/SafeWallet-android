@@ -62,8 +62,8 @@ class LockInfoActivity : BaseActivity() {
     }
 
     private fun getAmount(amount: BigDecimal) : String {
-        val significantDecimal = App.numberFormatter.getSignificantDecimalCoin(amount)
-        return App.numberFormatter.formatCoin(amount, "SAFE", 0, significantDecimal)
+//        val significantDecimal = App.numberFormatter.getSignificantDecimalCoin(amount)
+        return App.numberFormatter.formatCoinFull(amount, "SAFE", 8)
     }
 
     private fun setToolbar() {

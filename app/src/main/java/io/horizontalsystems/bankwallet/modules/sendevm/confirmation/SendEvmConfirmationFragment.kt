@@ -18,9 +18,10 @@ import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.databinding.FragmentConfirmationSendEvmBinding
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmViewModel
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
@@ -121,13 +122,13 @@ class SendEvmConfirmationFragment : BaseFragment() {
             findNavController().popBackStack()
         }
 
-        binding.sendEvmTransactionView.init(
+        /*binding.sendEvmTransactionView.init(
             sendEvmTransactionViewModel,
             feeViewModel,
             viewLifecycleOwner,
             findNavController(),
             R.id.sendEvmConfirmationFragment
-        )
+        )*/
 
         binding.buttonSendCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -137,6 +138,14 @@ class SendEvmConfirmationFragment : BaseFragment() {
     }
 
     private fun setSendButton(enabled: Boolean = false) {
+        binding.sendEvmTransactionView.setContent {
+            SendEvmTransactionView(
+                sendEvmTransactionViewModel,
+                feeViewModel,
+                findNavController(),
+                R.id.sendWsafeConfirmationFragment,
+            )
+        }
         binding.buttonSendCompose.setContent {
             ComposeAppTheme {
                 ButtonPrimaryYellow(

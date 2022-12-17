@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -75,7 +73,7 @@ class CoinTreasuriesFragment : BaseFragment() {
             AppBar(
                 title = TranslatableString.ResString(R.string.CoinPage_Treasuries),
                 navigationIcon = {
-                    IconButton(onClick = { findNavController().popBackStack() }) {
+                    HsIconButton(onClick = { findNavController().popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_back),
                             contentDescription = "back button",
@@ -92,14 +90,14 @@ class CoinTreasuriesFragment : BaseFragment() {
             ) {
                 Crossfade(viewState) { viewState ->
                     when (viewState) {
-                        is ViewState.Loading -> {
+                        ViewState.Loading -> {
                             Loading()
                         }
                         is ViewState.Error -> {
                             ListErrorView(stringResource(R.string.SyncError), viewModel::onErrorClick)
                         }
                         ViewState.Success -> {
-                            LazyColumn {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 treasuriesData?.let { treasuriesData ->
                                     item {
                                         CoinTreasuriesMenu(
@@ -137,6 +135,7 @@ class CoinTreasuriesFragment : BaseFragment() {
                                 }
                             }
                         }
+                        null -> {}
                     }
                 }
 
@@ -162,7 +161,7 @@ class CoinTreasuriesFragment : BaseFragment() {
         onClickTreasuryTypeSelector: () -> Unit,
         onToggleSortType: () -> Unit
     ) {
-        Header(borderTop = true, borderBottom = true) {
+        HeaderSorting(borderTop = true, borderBottom = true) {
             Box(modifier = Modifier.weight(1f)) {
                 SortMenu(treasuryTypeSelect.selected.title, onClickTreasuryTypeSelector)
             }
@@ -182,17 +181,13 @@ class CoinTreasuriesFragment : BaseFragment() {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            subhead2_grey(
                 text = country,
-                color = ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
                 maxLines = 1,
             )
             Spacer(modifier = Modifier.weight(1f))
-            Text(
+            subhead2_jacob(
                 text = fiatAmount,
-                color = ComposeAppTheme.colors.jacob,
-                style = ComposeAppTheme.typography.subhead2,
                 maxLines = 1,
             )
         }

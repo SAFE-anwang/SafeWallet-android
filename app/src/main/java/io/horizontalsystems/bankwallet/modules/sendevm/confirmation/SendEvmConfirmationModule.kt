@@ -7,19 +7,22 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItemFactory
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
+import io.horizontalsystems.bankwallet.modules.evmfee.EvmCommonGasDataService
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeService
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559GasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceService
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.Chain
-import io.horizontalsystems.marketkit.models.CoinType
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.marketkit.models.TokenType
 
 object SendEvmConfirmationModule {
 
@@ -30,8 +33,8 @@ object SendEvmConfirmationModule {
 
         private val feeCoin by lazy {
             when (evmKitWrapper.evmKit.chain) {
-                Chain.BinanceSmartChain -> App.marketKit.platformCoin(CoinType.BinanceSmartChain)!!
-                else -> App.marketKit.platformCoin(CoinType.Ethereum)!!
+                Chain.BinanceSmartChain -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
+                else -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
             }
         }
         private val gasPriceService: IEvmGasPriceService by lazy {
@@ -45,20 +48,24 @@ object SendEvmConfirmationModule {
             }
         }
         private val feeService by lazy {
-            val gasLimitSurchargePercent = if (sendEvmData.transactionData.input.isEmpty()) 0 else 20
-            EvmFeeService(evmKitWrapper.evmKit, gasPriceService, sendEvmData.transactionData, gasLimitSurchargePercent)
+            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, 20)
+            EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, sendEvmData.transactionData)
         }
-        private val coinServiceFactory by lazy { EvmCoinServiceFactory(feeCoin, App.marketKit, App.currencyManager) }
-        private val cautionViewItemFactory by lazy { CautionViewItemFactory(coinServiceFactory.baseCoinService) }
+        private val coinServiceFactory by lazy { EvmCoinServiceFactory(feeCoin, App.marketKit, App.currencyManager)  }
+        private val cautionViewItemFactory by lazy {
+            coinServiceFactory.let {
+                CautionViewItemFactory(it.baseCoinService)
+            }
+        }
         private val sendService by lazy {
-            SendEvmTransactionService(sendEvmData, evmKitWrapper, feeService, App.activateCoinManager)
+            SendEvmTransactionService(sendEvmData, evmKitWrapper, feeService, App.evmLabelManager)
         }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
                 SendEvmTransactionViewModel::class.java -> {
-                    SendEvmTransactionViewModel(sendService, coinServiceFactory, cautionViewItemFactory) as T
+                    SendEvmTransactionViewModel(sendService, coinServiceFactory, cautionViewItemFactory, App.evmLabelManager) as T
                 }
                 EvmFeeCellViewModel::class.java -> {
                     EvmFeeCellViewModel(feeService, gasPriceService, coinServiceFactory.baseCoinService) as T

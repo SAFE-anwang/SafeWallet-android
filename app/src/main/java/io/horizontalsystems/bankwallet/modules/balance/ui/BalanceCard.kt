@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
-import android.content.Intent
 import android.view.View
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,10 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
@@ -37,8 +35,7 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
-import io.horizontalsystems.bankwallet.modules.send.SendActivity
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
+import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
@@ -47,7 +44,6 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.marketkit.models.CoinType
 
 @Composable
 fun BalanceCardSwipable(
@@ -65,7 +61,7 @@ fun BalanceCardSwipable(
     ) {
         ActionsRow(
             content = {
-                IconButton(
+                HsIconButton(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(88.dp),
@@ -110,13 +106,7 @@ fun BalanceCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                if (viewItem.isWatchAccount) {
-                    val coinUid = viewItem.wallet.coin.uid
-                    val arguments = CoinFragment.prepareParams(coinUid)
-                    navController.slideFromRight(R.id.mainFragment_to_coinFragment, arguments)
-                } else {
-                    viewModel.onItem(viewItem)
-                }
+                viewModel.onItem(viewItem)
             }
     ) {
         CellMultilineClear {
@@ -132,33 +122,40 @@ fun BalanceCard(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = viewItem.coinCode,
-                            color = ComposeAppTheme.colors.oz,
-                            style = ComposeAppTheme.typography.headline2,
-                            maxLines = 1,
-                        )
-                        if (!viewItem.badge.isNullOrBlank()) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(start = 8.dp, end = 16.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(ComposeAppTheme.colors.jeremy)
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 1.dp),
-                                    text = viewItem.badge,
-                                    color = ComposeAppTheme.colors.bran,
-                                    style = ComposeAppTheme.typography.microSB,
-                                    maxLines = 1,
-                                )
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                        ) {
+                            headline2_leah(
+                                text = viewItem.coinCode,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!viewItem.badge.isNullOrBlank()) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(ComposeAppTheme.colors.jeremy)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(
+                                            start = 4.dp,
+                                            end = 4.dp,
+                                            bottom = 1.dp
+                                        ),
+                                        text = viewItem.badge,
+                                        color = ComposeAppTheme.colors.bran,
+                                        style = ComposeAppTheme.typography.microSB,
+                                        maxLines = 1,
+                                    )
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.weight(1f))
-                        if (viewItem.fiatValue.visible) {
+                        Spacer(Modifier.width(24.dp))
+                        if (viewItem.primaryValue.visible) {
                             Text(
-                                text = viewItem.fiatValue.text ?: "",
-                                color = if (viewItem.fiatValue.dimmed) ComposeAppTheme.colors.yellow50 else ComposeAppTheme.colors.jacob,
+                                text = viewItem.primaryValue.value,
+                                color = if (viewItem.primaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
                                 style = ComposeAppTheme.typography.headline2,
                                 maxLines = 1,
                             )
@@ -174,17 +171,15 @@ fun BalanceCard(
                             modifier = Modifier.weight(1f),
                         ) {
                             if (viewItem.syncingTextValue.visible) {
-                                Text(
-                                    text = viewItem.syncingTextValue.text ?: "",
-                                    color = ComposeAppTheme.colors.grey,
-                                    style = ComposeAppTheme.typography.subhead2,
+                                subhead2_grey(
+                                    text = viewItem.syncingTextValue.value ?: "",
                                     maxLines = 1,
                                 )
                             }
                             if (viewItem.exchangeValue.visible) {
                                 Row {
                                     Text(
-                                        text = viewItem.exchangeValue.text ?: "",
+                                        text = viewItem.exchangeValue.value,
                                         color = if (viewItem.exchangeValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
                                         style = ComposeAppTheme.typography.subhead2,
                                         maxLines = 1,
@@ -203,17 +198,15 @@ fun BalanceCard(
                             modifier = Modifier.padding(start = 16.dp),
                         ) {
                             if (viewItem.syncedUntilTextValue.visible) {
-                                Text(
-                                    text = viewItem.syncedUntilTextValue.text ?: "",
-                                    color = ComposeAppTheme.colors.grey,
-                                    style = ComposeAppTheme.typography.subhead2,
+                                subhead2_grey(
+                                    text = viewItem.syncedUntilTextValue.value ?: "",
                                     maxLines = 1,
                                 )
                             }
-                            if (viewItem.coinValue.visible) {
+                            if (viewItem.secondaryValue.visible) {
                                 Text(
-                                    text = viewItem.coinValue.text ?: "",
-                                    color = if (viewItem.coinValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
+                                    text = viewItem.secondaryValue.value,
+                                    color = if (viewItem.secondaryValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
                                     style = ComposeAppTheme.typography.subhead2,
                                     maxLines = 1,
                                 )
@@ -230,7 +223,6 @@ fun BalanceCard(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ExpandableContent(
     viewItem: BalanceViewItem,
@@ -259,7 +251,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
     val onClickReceive = {
         try {
             navController.slideFromBottom(
-                R.id.mainFragment_to_receiveFragment,
+                R.id.receiveFragment,
                 bundleOf(ReceiveFragment.WALLET_KEY to viewModel.getWalletForReceive(viewItem))
             )
         } catch (e: BackupRequiredError) {
@@ -276,55 +268,48 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             .height(70.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val context = LocalContext.current
-
-        ButtonPrimaryYellow(
-            modifier = Modifier.weight(1f),
-            title = stringResource(R.string.Balance_Send),
-            onClick = {
-                when (viewItem.wallet.coinType) {
-                    CoinType.Ethereum, is CoinType.Erc20,
-                    CoinType.BinanceSmartChain, is CoinType.Bep20 -> {
-                        navController.slideFromBottom(
-                            R.id.mainFragment_to_sendEvmFragment,
-                            bundleOf(SendEvmModule.walletKey to viewItem.wallet)
-                        )
-                    }
-                    else -> {
-                        val intent = Intent(context, SendActivity::class.java)
-                        intent.putExtra(SendActivity.WALLET, viewItem.wallet)
-
-                        context.startActivity(intent)
-                    }
-                }
-            },
-            enabled = viewItem.sendEnabled
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        if (viewItem.swapVisible) {
-            ButtonPrimaryCircle(
-                icon = R.drawable.ic_arrow_down_left_24,
-                onClick = onClickReceive,
-                enabled = viewItem.receiveEnabled
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ButtonPrimaryCircle(
-                icon = R.drawable.ic_swap_24,
-                onClick = {
-                    navController.slideFromBottom(
-                        R.id.mainFragment_to_swapFragment,
-                        SwapMainModule.prepareParams(viewItem.wallet.platformCoin)
-                    )
-                },
-                enabled = viewItem.swapEnabled
-            )
-        } else {
+        if (viewItem.isWatchAccount) {
             ButtonPrimaryDefault(
                 modifier = Modifier.weight(1f),
-                title = stringResource(R.string.Balance_Receive),
+                title = stringResource(R.string.Balance_Address),
                 onClick = onClickReceive,
-                enabled = viewItem.receiveEnabled
             )
+        } else {
+            ButtonPrimaryYellow(
+                modifier = Modifier.weight(1f),
+                title = stringResource(R.string.Balance_Send),
+                onClick = {
+                    navController.slideFromBottom(
+                        R.id.sendXFragment,
+                        SendFragment.prepareParams(viewItem.wallet)
+                    )
+                },
+                enabled = viewItem.sendEnabled
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            if (viewItem.swapVisible) {
+                ButtonPrimaryCircle(
+                    icon = R.drawable.ic_arrow_down_left_24,
+                    onClick = onClickReceive,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                ButtonPrimaryCircle(
+                    icon = R.drawable.ic_swap_24,
+                    onClick = {
+                        navController.slideFromBottom(
+                            R.id.swapFragment,
+                            SwapMainModule.prepareParams(viewItem.wallet.token)
+                        )
+                    },
+                    enabled = viewItem.swapEnabled
+                )
+            } else {
+                ButtonPrimaryDefault(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.Balance_Receive),
+                    onClick = onClickReceive,
+                )
+            }
         }
         Spacer(modifier = Modifier.width(8.dp))
         ButtonPrimaryCircle(
@@ -334,9 +319,8 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     || viewItem.wallet.coin.uid == "custom_safe-bep20-SAFE") "safe-coin" else viewItem.wallet.coin.uid
                 val arguments = CoinFragment.prepareParams(coinUid)
 
-                navController.slideFromRight(R.id.mainFragment_to_coinFragment, arguments)
+                navController.slideFromRight(R.id.coinFragment, arguments)
             },
-            enabled = viewItem.exchangeValue.text != null
         )
     }
 }
@@ -365,14 +349,14 @@ private fun LockedValueRow(viewItem: BalanceViewItem) {
             )
             Text(
                 modifier = Modifier.padding(start = 6.dp),
-                text = viewItem.coinValueLocked.text ?: "",
+                text = viewItem.coinValueLocked.value,
                 color = if (viewItem.coinValueLocked.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
                 style = ComposeAppTheme.typography.subhead2,
                 maxLines = 1,
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = viewItem.fiatValueLocked.text ?: "",
+                text = viewItem.fiatValueLocked.value,
                 color = if (viewItem.fiatValueLocked.dimmed) ComposeAppTheme.colors.yellow50 else ComposeAppTheme.colors.jacob,
                 style = ComposeAppTheme.typography.subhead2,
                 maxLines = 1,

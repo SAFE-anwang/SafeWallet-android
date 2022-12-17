@@ -306,8 +306,7 @@ private fun WsafeCell(title :String, address: String, onClickCopy: (String) -> U
             modifier = Modifier
                 .padding(start = 8.dp),
             title = address,
-            onClick = { onClickCopy.invoke(address) },
-            ellipsis = Ellipsis.Middle(10)
+            onClick = { onClickCopy.invoke(address) }
         )
     }
 }
@@ -330,8 +329,7 @@ private fun AddressCell(address: String, onClickCopy: (String) -> Unit) {
             modifier = Modifier
                 .padding(start = 8.dp),
             title = address,
-            onClick = { onClickCopy.invoke(address) },
-            ellipsis = Ellipsis.Middle(10)
+            onClick = { onClickCopy.invoke(address) }
         )
     }
 }

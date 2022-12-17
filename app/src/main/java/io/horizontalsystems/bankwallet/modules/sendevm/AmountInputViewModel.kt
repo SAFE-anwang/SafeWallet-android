@@ -9,7 +9,7 @@ import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
 import io.horizontalsystems.bankwallet.ui.extensions.AmountInputView
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import java.lang.Integer.min
@@ -19,11 +19,11 @@ import java.util.*
 
 interface IAmountInputService {
     val amount: BigDecimal
-    val coin: PlatformCoin?
+    val coin: Token?
     val balance: BigDecimal?
 
     val amountObservable: Flowable<BigDecimal>
-    val coinObservable: Flowable<Optional<PlatformCoin>>
+    val coinObservable: Flowable<Optional<Token>>
 
     fun onChangeAmount(amount: BigDecimal)
 }
@@ -74,7 +74,7 @@ class AmountInputViewModel(
         fiatService.setCoinAmount(amount)
     }
 
-    private fun syncCoin(coin: PlatformCoin?) {
+    private fun syncCoin(coin: Token?) {
         val max = maxCoinDecimal
         coinDecimal = min(max, (coin?.decimals ?: max))
 

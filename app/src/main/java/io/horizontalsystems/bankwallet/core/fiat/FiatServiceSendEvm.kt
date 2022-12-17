@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.core.fiat
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm.AmountType
 import io.horizontalsystems.bankwallet.core.isCustom
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -10,7 +11,7 @@ import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.core.ICurrencyManager
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
@@ -22,13 +23,13 @@ import java.math.RoundingMode
 class FiatServiceSendEvm(
         private val switchService: AmountTypeSwitchServiceSendEvm,
         private val currencyManager: ICurrencyManager,
-        private val marketKit: MarketKit
+        private val marketKit: MarketKitWrapper
 ) : Clearable {
 
     private val disposable = CompositeDisposable()
     private var marketInfoDisposable: Disposable? = null
 
-    private var coin: PlatformCoin? = null
+    private var coin: Token? = null
 
     private var toggleAvailableSubject = PublishSubject.create<Boolean>()
     val toggleAvailableObservable: Flowable<Boolean>
@@ -102,7 +103,7 @@ class FiatServiceSendEvm(
     private fun sync() {
         val coin = coin
         if (coin != null) {
-            val coinAmountInfo = SendModule.AmountInfo.CoinValueInfo(CoinValue(CoinValue.Kind.PlatformCoin(coin), coinAmount))
+            val coinAmountInfo = SendModule.AmountInfo.CoinValueInfo(CoinValue(token = coin, coinAmount))
             val currencyAmountInfo = currencyAmount?.let { SendModule.AmountInfo.CurrencyValueInfo(CurrencyValue(currency, it)) }
 
             when (switchService.amountType) {
@@ -138,7 +139,7 @@ class FiatServiceSendEvm(
         currencyAmount = rate?.let { coinAmount * it }
     }
 
-    fun setCoin(platformCoin: PlatformCoin?) {
+    fun setCoin(platformCoin: Token?) {
         this.coin = platformCoin
 
         marketInfoDisposable?.dispose()
@@ -147,7 +148,7 @@ class FiatServiceSendEvm(
         if (platformCoin != null) {
             syncLatestRate(marketKit.coinPrice(platformCoin.coin.uid, currency.code))
 
-            if (!platformCoin.coin.isCustom) {
+            if (platformCoin.isCustom) {
                 marketKit.coinPriceObservable(platformCoin.coin.uid, currency.code)
                     .subscribeIO { latestRate ->
                         syncLatestRate(latestRate)

@@ -22,11 +22,11 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/stateful_sort_type_text_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Recommended (2 h.)" />
 
+    <!--android:textColor="@color/stateful_sort_type_text_color"-->
 </androidx.constraintlayout.widget.ConstraintLayout>

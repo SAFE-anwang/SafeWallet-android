@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.wsafekit.WSafeManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -24,9 +25,10 @@ object SafeInfoManager {
 
     fun startNet() {
         val chain: Chain
-        if (App.ethereumKitManager.evmKitWrapper != null) {
-            if (App.ethereumKitManager.evmKitWrapper?.evmKit != null) {
-                chain = App.ethereumKitManager.evmKitWrapper?.evmKit!!.chain
+        if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper != null) {
+            if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit != null) {
+//                chain = App.ethereumKitManager.evmKitWrapper?.evmKit!!.chain
+                chain = App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit!!.chain
             } else {
                 chain = Chain.Ethereum
             }
@@ -58,9 +60,9 @@ object SafeInfoManager {
         var safeInfoPO = safeStorage?.decodeParcelable(KEY_SAFE_INFO, SafeInfoPO::class.java)
         if(safeInfoPO == null){
             val chain: Chain
-            if (App.ethereumKitManager.evmKitWrapper != null) {
-                if (App.ethereumKitManager.evmKitWrapper?.evmKit != null) {
-                    chain = App.ethereumKitManager.evmKitWrapper?.evmKit!!.chain
+            if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper != null) {
+                if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit != null) {
+                    chain = App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit!!.chain
                 } else {
                     chain = Chain.Ethereum
                 }

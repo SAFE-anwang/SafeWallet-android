@@ -14,7 +14,6 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.math.max
 import kotlin.math.min
 
@@ -43,8 +42,8 @@ class Eip1559GasPriceService(
         lowerBound = Bound.Fixed(0),
         upperBound = Bound.Multiplied(BigDecimal(10))
     )
-    private val overpricingBound = Bound.Added(2_000_000_000)
-    private val riskOfStuckBound = Bound.Added(-2_000_000_000)
+    private val overpricingBound = Bound.Multiplied(BigDecimal(1.5))
+    private val riskOfStuckBound = Bound.Multiplied(BigDecimal(0.9))
 
     private var recommendedGasPrice: GasPrice.Eip1559? = null
 
@@ -114,7 +113,7 @@ class Eip1559GasPriceService(
 
     @Throws
     private fun validatedGasPriceInfo(gasPrice: GasPrice): GasPriceInfo {
-        val gasPrice = (gasPrice as? GasPrice.Eip1559)
+        val gasPriceEip1559 = (gasPrice as? GasPrice.Eip1559)
             ?: throw FeeSettingsError.InvalidGasPriceType("Expected EIP1559, received Legacy")
 
         val recommendedGasPrice = recommendedGasPrice
@@ -123,7 +122,7 @@ class Eip1559GasPriceService(
 
         if (recommendedGasPrice != null) {
             val recommendedBaseFee = recommendedGasPrice.maxFeePerGas - recommendedGasPrice.maxPriorityFeePerGas
-            val tip = min(gasPrice.maxFeePerGas - recommendedBaseFee, gasPrice.maxPriorityFeePerGas)
+            val tip = min(gasPriceEip1559.maxFeePerGas - recommendedBaseFee, gasPriceEip1559.maxPriorityFeePerGas)
 
             when {
                 tip < 0 -> {
@@ -138,7 +137,7 @@ class Eip1559GasPriceService(
             }
         }
 
-        return GasPriceInfo(gasPrice, warnings, errors)
+        return GasPriceInfo(gasPriceEip1559, warnings, errors)
     }
 
     private fun syncRecommended() {
@@ -181,7 +180,7 @@ class Eip1559GasPriceService(
 
     private fun recommendedBaseFee(feeHistory: FeeHistory): Long {
         val lastNRecommendedBaseFeesList = feeHistory.baseFeePerGas.takeLast(lastNRecommendedBaseFees)
-        return roundToBillionthDigit(java.util.Collections.max(lastNRecommendedBaseFeesList))
+        return java.util.Collections.max(lastNRecommendedBaseFeesList)
     }
 
     private fun recommendedPriorityFee(feeHistory: FeeHistory): Long {
@@ -198,7 +197,7 @@ class Eip1559GasPriceService(
         else
             0
 
-        return roundToBillionthDigit(priorityFee)
+        return priorityFee
     }
 
     private fun syncFeeRanges(newRecommendGasPrice: GasPrice.Eip1559) {
@@ -236,11 +235,6 @@ class Eip1559GasPriceService(
         }
 
         return baseFeeRangeLowerBound..baseFeeRangeUpperBound
-    }
-
-    private fun roundToBillionthDigit(wei: Long): Long {
-        val gweiFactor = 1_000_000_000
-        return BigDecimal(wei).divide(BigDecimal(gweiFactor), RoundingMode.CEILING).toLong() * gweiFactor
     }
 
 }

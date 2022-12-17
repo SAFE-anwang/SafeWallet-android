@@ -1,36 +1,27 @@
 package io.horizontalsystems.bankwallet.modules.backupkey
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.core.SingleLiveEvent
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.modules.recoveryphrase.RecoveryPhraseModule
 
-class BackupKeyViewModel(
-        private val service: BackupKeyService
-) : ViewModel() {
-    val openUnlockLiveEvent = SingleLiveEvent<Unit>()
-    val showKeyLiveEvent = SingleLiveEvent<Unit>()
-    val openConfirmationLiveEvent = SingleLiveEvent<Account>()
+class BackupKeyViewModel(val account: Account) : ViewModel() {
 
-    val words: List<String>
-        get() = service.words
+    var passphrase by mutableStateOf("")
+        private set
 
-    val passphrase: String
-        get() = service.passphrase
+    var wordsNumbered by mutableStateOf<List<RecoveryPhraseModule.WordNumbered>>(listOf())
+        private set
 
-    fun onClickShow() {
-        if (service.isPinSet) {
-            openUnlockLiveEvent.postValue(Unit)
-        } else {
-            showKeyLiveEvent.postValue(Unit)
+    init {
+        if (account.type is AccountType.Mnemonic) {
+            wordsNumbered = account.type.words.mapIndexed { index, word ->
+                RecoveryPhraseModule.WordNumbered(word, index + 1)
+            }
+            passphrase = account.type.passphrase
         }
     }
-
-    fun onUnlock() {
-        showKeyLiveEvent.postValue(Unit)
-    }
-
-    fun onClickBackup() {
-        openConfirmationLiveEvent.postValue(service.account)
-    }
-
 }

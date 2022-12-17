@@ -6,8 +6,6 @@ import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.CoinSettings
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppApiService
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppService
-import io.horizontalsystems.bankwallet.net.SafeNetService
-import io.horizontalsystems.marketkit.models.PlatformCoin
 import java.math.BigDecimal
 import java.util.*
 
@@ -51,11 +49,11 @@ sealed class TransactionStatus {
     object Failed : TransactionStatus()
 }
 
-data class TransactionWallet(
+/*data class TransactionWallet(
     val platformCoin: PlatformCoin?,
     val source: TransactionSource,
     val badge: String?
-)
+)*/
 
 data class TransactionSource(
     val blockchain: Blockchain,

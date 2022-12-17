@@ -15,9 +15,7 @@ object AppStatusModule {
                     App.accountManager,
                     App.walletManager,
                     App.adapterManager,
-                    App.ethereumKitManager,
-                    App.binanceSmartChainKitManager,
-                    App.binanceKitManager
+                    App.marketKit,
             )
             return AppStatusViewModel(appStatusService) as T
         }

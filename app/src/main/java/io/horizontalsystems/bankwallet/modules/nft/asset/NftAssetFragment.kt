@@ -38,25 +38,35 @@ import androidx.core.app.ShareCompat
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.ImagePainter
-import coil.compose.rememberImagePainter
-import coil.size.OriginalSize
-import coil.size.Scale
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.shortenedAddress
+import io.horizontalsystems.bankwallet.core.shorten
+import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftEventMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
-import io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetModuleAssetItem.*
+import io.horizontalsystems.bankwallet.modules.nft.collection.NftCollectionFragment
+import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftCollectionEventsModule
+import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftCollectionEventsViewModel
+import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftEventListType
+import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftEvents
+import io.horizontalsystems.bankwallet.modules.nft.send.SendNftModule
+import io.horizontalsystems.bankwallet.modules.nft.ui.CellLink
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,17 +81,15 @@ class NftAssetFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        val accountId = requireArguments().getString(NftAssetModule.accountIdKey)
-        val tokenId = requireArguments().getString(NftAssetModule.tokenIdKey)
-        val contractAddress = requireArguments().getString(NftAssetModule.contractAddressKey)
+        val collectionUid = requireArguments().getString(NftAssetModule.collectionUidKey)
+        val nftUid = requireArguments().getString(NftAssetModule.nftUidKey)?.let { NftUid.fromUid(it) }
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
-                NftAssetScreen(findNavController(), accountId, tokenId, contractAddress)
+                NftAssetScreen(findNavController(), collectionUid, nftUid)
             }
         }
     }
@@ -90,15 +98,12 @@ class NftAssetFragment : BaseFragment() {
 @Composable
 fun NftAssetScreen(
     navController: NavController,
-    accountId: String?,
-    tokenId: String?,
-    contractAddress: String?
+    collectionUid: String?,
+    nftUid: NftUid?
 ) {
-    if (accountId == null || tokenId == null || contractAddress == null) return
+    if (collectionUid == null || nftUid == null) return
 
-    val viewModel =
-        viewModel<NftAssetViewModel>(factory = NftAssetModule.Factory(accountId, tokenId, contractAddress))
-    val viewState = viewModel.viewState
+    val viewModel = viewModel<NftAssetViewModel>(factory = NftAssetModule.Factory(collectionUid, nftUid))
     val errorMessage = viewModel.errorMessage
 
     ComposeAppTheme {
@@ -112,40 +117,103 @@ fun NftAssetScreen(
                     }
                 )
             )
-            HSSwipeRefresh(
-                state = rememberSwipeRefreshState(false),
-                onRefresh = viewModel::refresh
-            ) {
-                Crossfade(viewState) { viewState ->
-                    when (viewState) {
-                        is ViewState.Loading -> {
-                            Loading()
-                        }
-                        is ViewState.Error -> {
-                            ListErrorView(stringResource(R.string.SyncError), viewModel::refresh)
-                        }
-                        ViewState.Success -> {
-                            viewModel.nftAssetItem?.let { asset ->
-                                NftAsset(asset, viewModel.viewModelScope)
-                            }
-                        }
-                    }
-                }
-            }
+            NftAsset(viewModel, navController)
         }
 
-        ErrorMessageHud(errorMessage)
+        errorMessage?.let {
+            SnackbarError(it.getString())
+            viewModel.errorShown()
+        }
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun NftAsset(
-    asset: NftAssetModuleAssetItem,
+    viewModel: NftAssetViewModel,
+    navController: NavController
+) {
+    val pagerState = rememberPagerState(initialPage = 0)
+    val coroutineScope = viewModel.viewModelScope
+
+    val tabs = viewModel.tabs
+    val selectedTab = tabs[pagerState.currentPage]
+    val tabItems = tabs.map {
+        TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
+    }
+
+    Column {
+        Tabs(tabItems, onClick = {
+            coroutineScope.launch {
+                pagerState.scrollToPage(it.ordinal)
+            }
+        })
+
+        HorizontalPager(
+            count = tabs.size,
+            state = pagerState,
+            userScrollEnabled = false
+        ) { page ->
+            when (tabs[page]) {
+                NftAssetModule.Tab.Overview -> {
+                    NftAssetInfo(viewModel, navController, coroutineScope)
+                }
+                NftAssetModule.Tab.Activity -> {
+                    NftAssetEvents(viewModel)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NftAssetInfo(
+    viewModel: NftAssetViewModel,
+    navController: NavController,
     coroutineScope: CoroutineScope
 ) {
+    var combinedState = viewModel.viewState
+
+    val model = ImageRequest.Builder(LocalContext.current)
+        .data(viewModel.viewItem?.imageUrl)
+        .size(Size.ORIGINAL)
+        .crossfade(true)
+        .build()
+    val painter = rememberAsyncImagePainter(model)
+
+    if (combinedState !is ViewState.Error) {
+        if (painter.state is AsyncImagePainter.State.Loading) {
+            combinedState = ViewState.Loading
+        }
+    }
+
+    Crossfade(combinedState) { state ->
+        when (state) {
+            is ViewState.Loading -> {
+                Loading()
+            }
+            is ViewState.Error -> {
+                ListErrorView(stringResource(R.string.SyncError), viewModel::refresh)
+            }
+            else -> {
+                AssetContent(painter, viewModel.viewItem, viewModel.nftUid, navController, coroutineScope)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AssetContent(
+    painter: AsyncImagePainter,
+    viewItem: NftAssetViewModel.ViewItem?,
+    nftUid: NftUid,
+    navController: NavController,
+    coroutineScope: CoroutineScope,
+) {
+    val asset = viewItem ?: return
     val context = LocalContext.current
     val view = LocalView.current
+    var showActionSelectorDialog by remember { mutableStateOf(false) }
 
     var nftFileByteArray by remember { mutableStateOf(byteArrayOf()) }
 
@@ -165,22 +233,7 @@ private fun NftAsset(
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Box {
-                    val painter = rememberImagePainter(
-                        data = asset.imageUrl,
-                        builder = {
-                            size(OriginalSize)
-                            scale(Scale.FIT)
-                        })
-                    if (painter.state !is ImagePainter.State.Success) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(328.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(ComposeAppTheme.colors.steel20)
-                        )
-                    }
+                if (painter.state is AsyncImagePainter.State.Success) {
                     Image(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -189,108 +242,78 @@ private fun NftAsset(
                         contentDescription = null,
                         contentScale = ContentScale.FillWidth
                     )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = asset.name ?: "#${asset.tokenId}",
+                    text = asset.name,
                     color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.headline1
                 )
 
+                CellSingleLine {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                navController.slideFromRight(
+                                    R.id.nftCollectionFragment,
+                                    NftCollectionFragment.prepareParams(asset.providerCollectionUid, asset.nftUid.blockchainType)
+                                )
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        subhead1_jacob(text = asset.collectionName)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = null,
+                            tint = ComposeAppTheme.colors.grey
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = asset.collectionName,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.subhead1
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-                Row {
-                    var showActionSelectorDialog by remember { mutableStateOf(false) }
-
-                    ButtonPrimaryDefault(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(id = R.string.NftAsset_OpenSea),
-                        onClick = {
-                            asset.assetLinks?.permalink?.let {
-                                LinkHelper.openLinkInAppBrowser(context, it)
+                Row(horizontalArrangement = Arrangement.End) {
+                    Crossfade(
+                        targetState = asset.showSend,
+                        modifier = Modifier.weight(1f)
+                    ) { showSend ->
+                        if (showSend) {
+                            Row {
+                                ButtonPrimaryYellow(
+                                    modifier = Modifier.weight(1f),
+                                    title = stringResource(R.string.Button_Send),
+                                    onClick = {
+                                        navController.slideFromBottom(
+                                            R.id.nftSendFragment,
+                                            SendNftModule.prepareParams(nftUid.uid)
+                                        )
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                        } else {
+                            asset.providerUrl?.let { (title, url) ->
+                                Row {
+                                    ButtonPrimaryDefault(
+                                        modifier = Modifier.weight(1f),
+                                        title = title,
+                                        onClick = {
+                                            LinkHelper.openLinkInAppBrowser(context, url)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
                             }
                         }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    }
                     ButtonPrimaryCircle(
                         icon = R.drawable.ic_more_24,
                         onClick = {
                             showActionSelectorDialog = true
                         }
                     )
-
-                    if (showActionSelectorDialog) {
-                        SelectorDialogCompose(
-                            items = NftAssetAction.values().map { (TabItem(stringResource(it.title), false, it)) },
-                            onDismissRequest = {
-                                showActionSelectorDialog = false
-                            },
-                            onSelectItem = { selectedOption ->
-                                when (selectedOption) {
-                                    NftAssetAction.Share -> {
-                                        asset.assetLinks?.permalink?.let {
-                                            ShareCompat.IntentBuilder(context)
-                                                .setType("text/plain")
-                                                .setText(it)
-                                                .startChooser()
-                                        }
-                                    }
-                                    NftAssetAction.Save -> {
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            try {
-                                                val url = asset.imageUrl ?: throw IllegalStateException("No URL!")
-                                                val fileName = "${asset.collectionName}-${asset.tokenId}"
-                                                var extension: String?
-
-                                                val connection = URL(url).openConnection()
-                                                connection.connect()
-                                                connection.getInputStream().use { input ->
-                                                    val disposition = try {
-                                                        connection.getHeaderField("Content-Disposition")
-                                                    } catch (e: Exception) {
-                                                        null
-                                                    }
-                                                    val headerFileName = if (disposition != null) {
-                                                        val index = disposition.indexOf("filename=")
-                                                        if (index > 0) {
-                                                            disposition.substring(index + 10, disposition.length - 1)
-                                                        } else {
-                                                            null
-                                                        }
-                                                    } else {
-                                                        url.substring(url.lastIndexOf("/") + 1, url.length)
-                                                    }
-
-                                                    extension = headerFileName?.split(".")?.lastOrNull()
-                                                    nftFileByteArray = input.readBytes()
-                                                }
-
-                                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                                                    addCategory(Intent.CATEGORY_OPENABLE)
-                                                    type = connection.contentType
-                                                    putExtra(
-                                                        Intent.EXTRA_TITLE,
-                                                        "$fileName${extension?.let { ".$it" } ?: ""}")
-                                                }
-
-                                                pickerLauncher.launch(intent)
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                                HudHelper.showErrorMessage(view, e.message ?: e.javaClass.simpleName)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -299,53 +322,61 @@ private fun NftAsset(
             Column {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                val prices = mutableListOf<Pair<String, Price?>>()
-                prices.add(
-                    Pair(
-                        stringResource(id = R.string.NftAsset_Price_Purchase),
-                        asset.stats.lastSale
+                val prices = mutableListOf<Pair<String, NftAssetViewModel.PriceViewItem>>()
+                asset.lastSale?.let {
+                    prices.add(
+                        Pair(
+                            stringResource(id = R.string.NftAsset_Price_Purchase),
+                            asset.lastSale
+                        )
                     )
-                )
-                prices.add(
-                    Pair(
-                        stringResource(id = R.string.NftAsset_Price_Average7d),
-                        asset.stats.average7d
+                }
+                asset.average7d?.let {
+                    prices.add(
+                        Pair(
+                            stringResource(id = R.string.NftAsset_Price_Average7d),
+                            asset.average7d
+                        )
                     )
-                )
-                prices.add(
-                    Pair(
-                        stringResource(id = R.string.NftAsset_Price_Average30d),
-                        asset.stats.average30d
+                }
+                asset.average30d?.let {
+                    prices.add(
+                        Pair(
+                            stringResource(id = R.string.NftAsset_Price_Average30d),
+                            asset.average30d
+                        )
                     )
-                )
-                prices.add(
-                    Pair(
-                        stringResource(id = R.string.NftAsset_Price_Floor),
-                        asset.stats.collectionFloor
+                }
+                asset.collectionFloor?.let {
+                    prices.add(
+                        Pair(
+                            stringResource(id = R.string.NftAsset_Price_Floor),
+                            asset.collectionFloor
+                        )
                     )
-                )
+                }
 
                 CellMultilineLawrenceSection(prices) { (title, price) ->
                     NftAssetPriceCell(title, price)
                 }
 
-                asset.stats.sale?.let {
+                asset.sale?.let {
                     Spacer(modifier = Modifier.height(12.dp))
                     NftAssetSale(it)
                 }
 
-                asset.stats.bestOffer?.let {
+                asset.bestOffer?.let {
                     Spacer(modifier = Modifier.height(12.dp))
                     NftAssetBestOffer(it)
                 }
 
-                if (asset.attributes.isNotEmpty()) {
+                if (asset.traits.isNotEmpty()) {
                     NftAssetSectionBlock(text = stringResource(id = R.string.NftAsset_Properties)) {
                         ChipVerticalGrid(
                             modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
                             spacing = 7.dp
                         ) {
-                            asset.attributes.forEach {
+                            asset.traits.forEach {
                                 NftAssetAttribute(context, it)
                             }
                         }
@@ -367,17 +398,12 @@ private fun NftAsset(
                                     .padding(horizontal = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = stringResource(id = R.string.NftAsset_ContractAddress),
-                                    style = ComposeAppTheme.typography.body,
-                                    color = ComposeAppTheme.colors.leah
-                                )
+                                body_leah(text = stringResource(id = R.string.NftAsset_ContractAddress))
                                 Spacer(modifier = Modifier.weight(1f))
 
-                                val contractAddress = asset.contract.address
+                                val contractAddress = asset.contractAddress
 
                                 val clipboardManager = LocalClipboardManager.current
-                                val view = LocalView.current
                                 ButtonSecondaryCircle(
                                     icon = R.drawable.ic_copy_20,
                                     onClick = {
@@ -386,7 +412,6 @@ private fun NftAsset(
                                     }
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                val context = LocalContext.current
                                 ButtonSecondaryCircle(
                                     icon = R.drawable.ic_share_20,
                                     onClick = {
@@ -402,13 +427,13 @@ private fun NftAsset(
                         add {
                             DetailItem(
                                 stringResource(id = R.string.NftAsset_TokenId),
-                                asset.tokenId.shortenedAddress()
+                                asset.nftUid.tokenId.shorten()
                             )
                         }
                         add {
                             DetailItem(
                                 stringResource(id = R.string.NftAsset_TokenStandard),
-                                asset.contract.type
+                                asset.schemaName
                             )
                         }
                         add {
@@ -423,46 +448,33 @@ private fun NftAsset(
 
                 NftAssetSectionBlock(text = stringResource(id = R.string.NftAsset_Links)) {
                     val links = mutableListOf<@Composable () -> Unit>()
-                    asset.assetLinks?.external_link?.let { external_link ->
-                        links.add {
-                            CellLink(
-                                icon = painterResource(id = R.drawable.ic_globe_20),
-                                title = stringResource(id = R.string.NftAsset_Links_Website),
-                                onClick = {
-                                    LinkHelper.openLinkInAppBrowser(context, external_link)
-                                }
-                            )
+                    asset.links.forEach { link ->
+                        val icon: Painter
+                        val title: String
+                        when (link.type) {
+                            NftAssetViewModel.LinkType.Website -> {
+                                icon = painterResource(id = R.drawable.ic_globe_20)
+                                title = stringResource(id = R.string.NftAsset_Links_Website)
+                            }
+                            is NftAssetViewModel.LinkType.Provider -> {
+                                icon = painterResource(id = link.type.icon)
+                                title = link.type.title
+                            }
+                            NftAssetViewModel.LinkType.Discord -> {
+                                icon = painterResource(id = R.drawable.ic_discord_20)
+                                title = stringResource(id = R.string.NftAsset_Links_Discord)
+                            }
+                            NftAssetViewModel.LinkType.Twitter -> {
+                                icon = painterResource(id = R.drawable.ic_twitter_20)
+                                title = stringResource(id = R.string.NftAsset_Links_Twitter)
+                            }
                         }
-                    }
-                    asset.assetLinks?.permalink?.let { permalink ->
                         links.add {
                             CellLink(
-                                icon = painterResource(id = R.drawable.ic_opensea_20),
-                                title = stringResource(id = R.string.NftAsset_Links_OpenSea),
+                                icon = icon,
+                                title = title,
                                 onClick = {
-                                    LinkHelper.openLinkInAppBrowser(context, permalink)
-                                }
-                            )
-                        }
-                    }
-                    asset.collectionLinks?.discord_url?.let { discord_url ->
-                        links.add {
-                            CellLink(
-                                icon = painterResource(id = R.drawable.ic_discord_20),
-                                title = stringResource(id = R.string.NftAsset_Links_Discord),
-                                onClick = {
-                                    LinkHelper.openLinkInAppBrowser(context, discord_url)
-                                }
-                            )
-                        }
-                    }
-                    asset.collectionLinks?.twitter_username?.let { twitter_username ->
-                        links.add {
-                            CellLink(
-                                icon = painterResource(id = R.drawable.ic_twitter_20),
-                                title = stringResource(id = R.string.NftAsset_Links_Twitter),
-                                onClick = {
-                                    LinkHelper.openLinkInAppBrowser(context, "https://twitter.com/$twitter_username")
+                                    LinkHelper.openLinkInAppBrowser(context, link.url)
                                 }
                             )
                         }
@@ -475,12 +487,92 @@ private fun NftAsset(
             }
         }
     }
+
+    if (showActionSelectorDialog) {
+        SelectorDialogCompose(
+            items = NftAssetModule.NftAssetAction.values().map { (TabItem(stringResource(it.title), false, it)) },
+            onDismissRequest = {
+                showActionSelectorDialog = false
+            },
+            onSelectItem = { selectedOption ->
+                when (selectedOption) {
+                    NftAssetModule.NftAssetAction.Share -> {
+                        asset.providerUrl?.second?.let {
+                            ShareCompat.IntentBuilder(context)
+                                .setType("text/plain")
+                                .setText(it)
+                                .startChooser()
+                        }
+                    }
+                    NftAssetModule.NftAssetAction.Save -> {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            try {
+                                val url = asset.imageUrl ?: throw IllegalStateException("No URL!")
+                                val fileName = "${asset.collectionName}-${asset.nftUid.tokenId}"
+                                var extension: String?
+
+                                val connection = URL(url).openConnection()
+                                connection.connect()
+                                connection.getInputStream().use { input ->
+                                    val disposition = try {
+                                        connection.getHeaderField("Content-Disposition")
+                                    } catch (e: Exception) {
+                                        null
+                                    }
+                                    val headerFileName = if (disposition != null) {
+                                        val index = disposition.indexOf("filename=")
+                                        if (index > 0) {
+                                            disposition.substring(index + 10, disposition.length - 1)
+                                        } else {
+                                            null
+                                        }
+                                    } else {
+                                        url.substring(url.lastIndexOf("/") + 1, url.length)
+                                    }
+
+                                    extension = headerFileName?.split(".")?.lastOrNull()
+                                    nftFileByteArray = input.readBytes()
+                                }
+
+                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = connection.contentType
+                                    putExtra(
+                                        Intent.EXTRA_TITLE,
+                                        "$fileName${extension?.let { ".$it" } ?: ""}")
+                                }
+
+                                pickerLauncher.launch(intent)
+                            } catch (e: Exception) {
+                                HudHelper.showErrorMessage(view, e.message ?: e.javaClass.simpleName)
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun ErrorMessageHud(errorMessage: TranslatableString?) {
-    errorMessage?.let {
-        HudHelper.showErrorMessage(LocalView.current, it.getString())
+private fun NftAssetEvents(nftAssetViewModel: NftAssetViewModel) {
+    Crossfade(nftAssetViewModel.viewState) { viewState ->
+        when (viewState) {
+            is ViewState.Error -> {
+                ListErrorView(stringResource(R.string.SyncError), nftAssetViewModel::refresh)
+            }
+            else -> {
+                val nftUid = nftAssetViewModel.viewItem?.nftUid ?: return@Crossfade
+                val viewModel = viewModel<NftCollectionEventsViewModel>(
+                    factory = NftCollectionEventsModule.Factory(
+                        NftEventListType.Asset(nftUid),
+                        NftEventMetadata.EventType.All
+                    )
+                )
+
+                NftEvents(viewModel, null, true)
+            }
+        }
     }
 }
 
@@ -523,14 +615,14 @@ private fun ChipVerticalGrid(
 }
 
 @Composable
-private fun NftAssetAttribute(context: Context, attribute: NftAssetModuleAssetItem.Attribute) {
+private fun NftAssetAttribute(context: Context, trait: NftAssetViewModel.TraitViewItem) {
     Box(
         modifier = Modifier
             .height(60.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(ComposeAppTheme.colors.lawrence)
-            .clickable {
-                LinkHelper.openLinkInAppBrowser(context, attribute.searchUrl)
+            .clickable(trait.searchUrl != null) {
+                LinkHelper.openLinkInAppBrowser(context, trait.searchUrl ?: "")
             }
     ) {
         Column(
@@ -538,12 +630,8 @@ private fun NftAssetAttribute(context: Context, attribute: NftAssetModuleAssetIt
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = attribute.value,
-                    color = ComposeAppTheme.colors.leah,
-                    style = ComposeAppTheme.typography.body,
-                )
-                attribute.percent?.let { percent ->
+                body_leah(text = trait.value)
+                trait.percent?.let { percent ->
                     Box(
                         modifier = Modifier
                             .padding(start = 6.dp)
@@ -560,24 +648,20 @@ private fun NftAssetAttribute(context: Context, attribute: NftAssetModuleAssetIt
                     }
                 }
             }
-            Text(
-                text = attribute.type,
-                color = ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
-            )
+            subhead2_grey(text = trait.type)
         }
     }
 }
 
 @Composable
-private fun NftAssetBestOffer(bestOffer: Price) {
+private fun NftAssetBestOffer(bestOffer: NftAssetViewModel.PriceViewItem) {
     CellMultilineLawrenceSection {
         NftAssetPriceCell(stringResource(R.string.NftAsset_Price_BestOffer), bestOffer)
     }
 }
 
 @Composable
-private fun NftAssetSale(sale: Sale) {
+private fun NftAssetSale(sale: NftAssetViewModel.SaleViewItem) {
     val saleComposables = mutableListOf<@Composable () -> Unit>()
 
     saleComposables.add {
@@ -586,62 +670,29 @@ private fun NftAssetSale(sale: Sale) {
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            Text(
-                text = stringResource(R.string.Nfts_Asset_OnSale),
-                color = ComposeAppTheme.colors.leah,
-                style = ComposeAppTheme.typography.body,
-            )
+            val title = when (sale.type) {
+                NftAssetMetadata.SaleType.OnSale -> stringResource(R.string.Nfts_Asset_OnSale)
+                NftAssetMetadata.SaleType.OnAuction ->  stringResource(R.string.Nfts_Asset_OnAuction)
+            }
 
-            Text(
+            body_leah(text = title)
+
+            subhead2_grey(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.Nfts_Asset_OnSaleUntil,
-                    sale.untilDate?.let { DateHelper.getFullDate(it) } ?: "---"),
-                color = ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
+                text = sale.untilDate.getString(),
             )
         }
     }
 
     saleComposables.add {
         val title = when (sale.type) {
-            Sale.PriceType.BuyNow -> stringResource(R.string.NftAsset_Price_BuyNow)
-            Sale.PriceType.TopBid -> stringResource(R.string.NftAsset_Price_TopBid)
-            Sale.PriceType.MinimumBid -> stringResource(R.string.NftAsset_Price_MinimumBid)
+            NftAssetMetadata.SaleType.OnSale -> stringResource(R.string.NftAsset_Price_BuyNow)
+            NftAssetMetadata.SaleType.OnAuction ->  stringResource(R.string.NftAsset_Price_MinimumBid)
         }
         NftAssetPriceCell(title, sale.price)
     }
 
     CellMultilineLawrenceSection(saleComposables)
-}
-
-@Composable
-private fun CellLink(icon: Painter, title: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Icon(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            painter = icon,
-            contentDescription = null,
-            tint = ComposeAppTheme.colors.grey
-        )
-        Text(
-            modifier = Modifier.weight(1f),
-            text = title,
-            style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.leah,
-        )
-        Icon(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            painter = painterResource(id = R.drawable.ic_arrow_right),
-            contentDescription = null,
-            tint = ComposeAppTheme.colors.grey
-        )
-    }
 }
 
 @Composable
@@ -652,17 +703,9 @@ private fun DetailItem(title: String, value: String) {
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.leah
-        )
+        body_leah(text = title)
         Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = value,
-            style = ComposeAppTheme.typography.subhead1,
-            color = ComposeAppTheme.colors.grey,
-        )
+        subhead1_grey(text = value)
     }
 }
 
@@ -671,11 +714,7 @@ private fun NftAssetSectionBlock(text: String, content: @Composable () -> Unit) 
     Column {
         Spacer(modifier = Modifier.height(24.dp))
         CellSingleLineClear(borderTop = true) {
-            Text(
-                text = text,
-                style = ComposeAppTheme.typography.body,
-                color = ComposeAppTheme.colors.leah
-            )
+            body_leah(text = text)
         }
         content.invoke()
     }
@@ -684,7 +723,7 @@ private fun NftAssetSectionBlock(text: String, content: @Composable () -> Unit) 
 @Composable
 private fun NftAssetPriceCell(
     title: String,
-    price: Price?
+    price: NftAssetViewModel.PriceViewItem
 ) {
     Row(
         modifier = Modifier
@@ -692,26 +731,18 @@ private fun NftAssetPriceCell(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            color = ComposeAppTheme.colors.leah,
-            style = ComposeAppTheme.typography.body,
-        )
+        body_leah(text = title)
         Spacer(modifier = Modifier.weight(1f))
         Column {
-            Text(
+            body_jacob(
                 modifier = Modifier.fillMaxWidth(),
-                text = price?.coinValue?.getFormatted(4) ?: "---",
-                color = ComposeAppTheme.colors.jacob,
-                style = ComposeAppTheme.typography.body,
+                text = price.coinValue,
                 textAlign = TextAlign.End,
             )
             Spacer(modifier = Modifier.height(1.dp))
-            Text(
+            subhead2_grey(
                 modifier = Modifier.fillMaxWidth(),
-                text = price?.currencyValue?.getFormatted() ?: "---",
-                color = ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
+                text = price.fiatValue,
                 textAlign = TextAlign.End,
             )
         }

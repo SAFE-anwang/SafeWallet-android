@@ -5,28 +5,31 @@ import io.horizontalsystems.bankwallet.core.FeeRatePriority
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.FeeRateState
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountInfo
 import io.horizontalsystems.core.entities.Currency
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
 
 class SendFeePresenter(
-        val view: SendFeeModule.IView,
-        private val interactor: SendFeeModule.IInteractor,
-        private val helper: SendFeePresenterHelper,
-        private val baseCoin: PlatformCoin,
-        private val baseCurrency: Currency,
-        private val feeCoinData: Pair<PlatformCoin, String>?,
-        private val customPriorityUnit: CustomPriorityUnit?,
-        private val feeRateAdjustmentHelper: FeeRateAdjustmentHelper)
+    val view: SendFeeModule.IView,
+    private val interactor: SendFeeModule.IInteractor,
+    private val helper: SendFeePresenterHelper,
+    private val baseCoin: Token,
+    private val baseCurrency: Currency,
+    private val feeCoinData: Pair<Token, String>?,
+    private val customPriorityUnit: CustomPriorityUnit?,
+    private val feeRateAdjustmentHelper: FeeRateAdjustmentHelper)
     : ViewModel(), SendFeeModule.IViewDelegate, SendFeeModule.IFeeModule, SendFeeModule.IInteractorDelegate {
 
     var moduleDelegate: SendFeeModule.IFeeModuleDelegate? = null
 
     private var xRate: BigDecimal? = null
-    private var inputType = SendModule.InputType.COIN
+    private var inputType = AmountInputType.COIN
 
     private var fee: BigDecimal = BigDecimal.ZERO
     private var availableFeeBalance: BigDecimal? = null
@@ -46,7 +49,7 @@ class SendFeePresenter(
     private var feeRateAdjustmentInfo: FeeRateAdjustmentInfo = FeeRateAdjustmentInfo(SendAmountInfo.NotEntered, null, baseCurrency, null)
     private var recommendedFeeRate: BigInteger? = null
 
-    private val platformCoin: PlatformCoin
+    private val platformCoin: Token
         get() = feeCoinData?.first ?: baseCoin
 
     private fun syncError() {
@@ -82,16 +85,17 @@ class SendFeePresenter(
         val availableFeeBalance = availableFeeBalance ?: return
 
         if (availableFeeBalance < fee) {
-            throw SendFeeModule.InsufficientFeeBalance(baseCoin, coinProtocol, feeCoin, CoinValue(CoinValue.Kind.PlatformCoin(platformCoin), fee))
+            throw SendFeeModule.InsufficientFeeBalance(baseCoin, coinProtocol, feeCoin, CoinValue(platformCoin, fee))
         }
     }
 
     private fun updateCustomFeeParams(priority: FeeRatePriority.Custom) {
         customPriorityUnit ?: return
 
-        val range = IntRange(customPriorityUnit.fromBaseUnit(priority.range.first).toInt(), customPriorityUnit.fromBaseUnit(priority.range.last).toInt())
+//        val range = IntRange(customPriorityUnit.fromBaseUnit(priority.range.first).toInt(), customPriorityUnit.fromBaseUnit(priority.range.last).toInt())
+        val range = IntRange(customPriorityUnit.fromBaseUnit(priority.value).toInt(), customPriorityUnit.fromBaseUnit(priority.value).toInt())
         val feeRateValue = (feeRate ?: priority.value).let { customPriorityUnit.fromBaseUnit(it) }
-        val adjustedFeeRateValue = feeRateValue.coerceAtMost(customPriorityUnit.fromBaseUnit(priority.range.last)).toInt()   // value can't be more than slider upper range
+        val adjustedFeeRateValue = feeRateValue.coerceAtMost(customPriorityUnit.fromBaseUnit(priority.value)).toInt()   // value can't be more than slider upper range
         this.customFeeRate = adjustedFeeRateValue.toBigInteger()
 
         view.setCustomFeeParams(adjustedFeeRateValue, range, customPriorityUnit.getLabel())
@@ -99,7 +103,7 @@ class SendFeePresenter(
 
     private fun getSmartFee(): Long? {
         return fetchedFeeRate?.let {
-            feeRateAdjustmentHelper.applyRule(platformCoin.coinType, feeRateAdjustmentInfo, it.toLong())
+            feeRateAdjustmentHelper.applyRule(platformCoin.blockchainType, feeRateAdjustmentInfo, it.toLong())
         }
     }
 
@@ -127,7 +131,7 @@ class SendFeePresenter(
 
 
     override val coinValue: CoinValue
-        get() = CoinValue(CoinValue.Kind.PlatformCoin(platformCoin), fee)
+        get() = CoinValue(platformCoin, fee)
 
     override val currencyValue: CurrencyValue?
         get() = this.xRate?.let { xRate ->
@@ -166,7 +170,7 @@ class SendFeePresenter(
         syncError()
     }
 
-    override fun setInputType(inputType: SendModule.InputType) {
+    override fun setInputType(inputType: AmountInputType) {
         this.inputType = inputType
         syncFees()
     }
@@ -218,7 +222,6 @@ class SendFeePresenter(
         syncFeeRateLabels()
 
         moduleDelegate?.onUpdateFeeRate()
-
         fetchFeeRate()
     }
 

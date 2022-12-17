@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.logoUrl
 import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.investments.CoinInvestmentsModule.FundViewItem
@@ -39,6 +38,7 @@ class CoinInvestmentsViewModel(
                     is DataState.Error -> {
                         viewStateLiveData.postValue(ViewState.Error(state.error))
                     }
+                    DataState.Loading -> {}
                 }
             }, {
                 viewStateLiveData.postValue(ViewState.Error(it))
@@ -77,7 +77,7 @@ class CoinInvestmentsViewModel(
 
     private fun viewItem(investment: CoinInvestment): ViewItem {
         val amount = investment.amount?.let {
-            numberFormatter.formatCurrencyValueAsShortened(CurrencyValue(service.usdCurrency, it))
+            numberFormatter.formatFiatShort(it, service.usdCurrency.symbol, 2)
         } ?: "---"
         val dateString = DateHelper.formatDate(investment.date, "MMM dd, yyyy")
 

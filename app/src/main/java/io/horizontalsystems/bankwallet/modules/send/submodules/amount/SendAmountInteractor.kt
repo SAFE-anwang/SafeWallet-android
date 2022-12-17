@@ -2,20 +2,22 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.amount
 
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.isCustom
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.MarketKit
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 
 class SendAmountInteractor(
     private val baseCurrency: Currency,
-    private val marketKit: MarketKit,
+    private val marketKit: MarketKitWrapper,
     private val localStorage: ILocalStorage,
-    private val platformCoin: PlatformCoin,
+    private val token: Token,
     private val backgroundManager: BackgroundManager)
     : SendAmountModule.IInteractor, BackgroundManager.Listener {
 
@@ -25,8 +27,8 @@ class SendAmountInteractor(
     init {
         backgroundManager.registerListener(this)
 
-        if (!platformCoin.coin.isCustom) {
-            marketKit.coinPriceObservable(platformCoin.coin.uid, baseCurrency.code)
+        if (!token.isCustom) {
+            marketKit.coinPriceObservable(token.coin.uid, baseCurrency.code)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe { marketInfo ->
@@ -38,12 +40,12 @@ class SendAmountInteractor(
         }
     }
 
-    override var defaultInputType: SendModule.InputType
-        get() = localStorage.sendInputType ?: SendModule.InputType.COIN
-        set(value) { localStorage.sendInputType = value }
+    override var defaultInputType: AmountInputType
+        get() = localStorage.amountInputType ?: AmountInputType.COIN
+        set(value) { localStorage.amountInputType = value }
 
     override fun getRate(): BigDecimal? {
-        return marketKit.coinPrice(platformCoin.coin.uid, baseCurrency.code)?.value
+        return marketKit.coinPrice(token.coin.uid, baseCurrency.code)?.value
     }
 
     override fun willEnterForeground() {

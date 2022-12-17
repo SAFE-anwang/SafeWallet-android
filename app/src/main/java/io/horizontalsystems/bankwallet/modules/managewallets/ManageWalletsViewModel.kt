@@ -7,13 +7,11 @@ import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.label
-import io.horizontalsystems.bankwallet.entities.supportedPlatforms
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsService.ItemState.Supported
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsService.ItemState.Unsupported
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItem
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.disposables.CompositeDisposable
 
@@ -22,7 +20,7 @@ class ManageWalletsViewModel(
     private val clearables: List<Clearable>
 ) : ViewModel() {
 
-    val viewItemsLiveData = MutableLiveData<List<CoinViewItem>>()
+    val viewItemsLiveData = MutableLiveData<List<CoinViewItem<String>>>()
     val disableCoinLiveData = MutableLiveData<String>()
 
     private var disposables = CompositeDisposable()
@@ -47,16 +45,16 @@ class ManageWalletsViewModel(
     }
 
 
-    private fun safeSort(items: ArrayList<CoinViewItem>): List<CoinViewItem> {
-        var safe: CoinViewItem? = null
-        var safeErc20: CoinViewItem? = null
-        var bsvErc20: CoinViewItem? = null
+    private fun safeSort(items: ArrayList<CoinViewItem<String>>): List<CoinViewItem<String>> {
+        var safe: CoinViewItem<String>? = null
+        var safeErc20: CoinViewItem<String>? = null
+        var bsvErc20: CoinViewItem<String>? = null
         items.forEach {
-            if (it.uid == "safe-coin") {
+            if (it.item == "safe-coin") {
                 safe = it
-            } else if (it.uid == "custom_safe-erc20-SAFE") {
+            } else if (it.item == "custom_safe-erc20-SAFE") {
                 safeErc20 = it
-            } else if (it.uid == "custom_safe-bep20-SAFE") {
+            } else if (it.item == "custom_safe-bep20-SAFE") {
                 bsvErc20 = it
             }
         }
@@ -77,9 +75,7 @@ class ManageWalletsViewModel(
 
     private fun viewItem(
         item: ManageWalletsService.Item,
-    ): CoinViewItem {
-        val supportedPlatforms = item.fullCoin.supportedPlatforms
-        val label = supportedPlatforms.singleOrNull()?.coinType?.label
+    ): CoinViewItem<String> {
         val state = when (item.state) {
             is Supported -> CoinViewItemState.ToggleVisible(
                 item.state.enabled,
@@ -95,12 +91,11 @@ class ManageWalletsViewModel(
             ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
         }
         return CoinViewItem(
-            item.fullCoin.coin.uid,
-            image,
-            item.fullCoin.coin.name,
-            item.fullCoin.coin.code,
-            state,
-            label,
+            item = item.fullCoin.coin.uid,
+            imageSource = image,
+            title = item.fullCoin.coin.code,
+            subtitle = item.fullCoin.coin.name,
+            state = state,
         )
     }
 
@@ -123,6 +118,12 @@ class ManageWalletsViewModel(
     fun updateFilter(filter: String) {
         service.setFilter(filter)
     }
+
+    val accountTypeDescription: String
+        get() = service.accountType?.description ?: ""
+
+    val addTokenEnabled: Boolean
+        get() = service.accountType?.canAddTokens ?: false
 
     override fun onCleared() {
         clearables.forEach(Clearable::clear)

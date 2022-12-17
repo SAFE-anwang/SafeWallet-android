@@ -2,6 +2,10 @@ package io.horizontalsystems.bankwallet.entities.transactionrecords
 
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.TransactionValue
+import io.horizontalsystems.bankwallet.entities.nft.NftUid
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ContractCallTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmOutgoingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ExternalContractCallTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionStatus
 
@@ -13,10 +17,9 @@ abstract class TransactionRecord(
     val confirmationsThreshold: Int?,
     val timestamp: Long,
     val failed: Boolean = false,
+    val spam: Boolean = false,
     val source: TransactionSource
 ) : Comparable<TransactionRecord> {
-
-    val blockchainTitle: String = source.blockchain.getTitle()
 
     open val mainValue: TransactionValue? = null
 
@@ -53,7 +56,7 @@ abstract class TransactionRecord(
             if (confirmations >= threshold) {
                 return TransactionStatus.Completed
             } else {
-                return TransactionStatus.Processing(confirmations.toDouble() / threshold.toDouble())
+                return TransactionStatus.Processing(confirmations.toFloat() / threshold.toFloat())
             }
         }
 
@@ -66,3 +69,24 @@ abstract class TransactionRecord(
 
 
 }
+
+val TransactionRecord.nftUids: Set<NftUid>
+    get() = when (this) {
+        is EvmOutgoingTransactionRecord -> {
+            value.nftUid?.let { setOf(it) } ?: emptySet()
+        }
+        is ContractCallTransactionRecord -> {
+            ((incomingEvents + outgoingEvents).mapNotNull { it.value.nftUid }).toSet()
+        }
+        is ExternalContractCallTransactionRecord -> {
+            ((incomingEvents + outgoingEvents).mapNotNull { it.value.nftUid }).toSet()
+        }
+        else -> emptySet()
+    }
+
+val List<TransactionRecord>.nftUids: Set<NftUid>
+    get() {
+        val nftUids = mutableSetOf<NftUid>()
+        forEach { nftUids.addAll(it.nftUids) }
+        return nftUids
+    }

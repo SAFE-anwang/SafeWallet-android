@@ -3,13 +3,10 @@ package io.horizontalsystems.bankwallet.core.managers
 import io.horizontalsystems.bankwallet.core.IWordsManager
 import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.hdwalletkit.Mnemonic
-import io.horizontalsystems.hdwalletkit.WordList
-import kotlin.jvm.Throws
 
 class WordsManager(
     private val mnemonic: Mnemonic
 ) : IWordsManager {
-//    private val wordList = WordList.wordList(Language.English)
 
     @Throws
     override fun validateChecksum(words: List<String>) {

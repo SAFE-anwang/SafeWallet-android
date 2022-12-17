@@ -2,18 +2,16 @@ package io.horizontalsystems.bankwallet.core
 
 import android.content.Intent
 import android.os.Parcelable
-import android.view.View
 import android.widget.ImageView
 import androidx.annotation.CheckResult
 import coil.load
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.entities.CustomToken
-import io.horizontalsystems.bankwallet.entities.label
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
+import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.ethereumkit.core.toRawHexString
+import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.*
-import io.horizontalsystems.views.SingleClickListener
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -27,29 +25,23 @@ val <T> Optional<T>.orNull: T?
         else -> null
     }
 
-val Coin.isCustom: Boolean get() = uid.startsWith(CustomToken.uidPrefix)
+val Platform.iconUrl: String
+    get() = "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
 
 val Coin.iconUrl: String
-    get() = "https://markets.nyc3.digitaloceanspaces.com/coin-icons/$uid@3x.png"
+    get() = "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
 
 val CoinCategory.imageUrl: String
-    get() = "https://markets.nyc3.digitaloceanspaces.com/category-icons/$uid@3x.png"
+    get() = "https://cdn.blocksdecoded.com/category-icons/$uid@3x.png"
 
 val CoinInvestment.Fund.logoUrl: String
-    get() = "https://markets.nyc3.digitaloceanspaces.com/fund-icons/$uid@3x.png"
+    get() = "https://cdn.blocksdecoded.com/fund-icons/$uid@3x.png"
 
 val CoinTreasury.logoUrl: String
-    get() = "https://markets.nyc3.digitaloceanspaces.com/treasury-icons/$fundUid@3x.png"
+    get() = "https://cdn.blocksdecoded.com/treasury-icons/$fundUid@3x.png"
 
 val Auditor.logoUrl: String
-    get() = "https://markets.nyc3.digitaloceanspaces.com/auditor-icons/$name@3x.png"
-
-val FullCoin.iconPlaceholder: Int
-    get() = if (platforms.size == 1) {
-        platforms.first().coinType.iconPlaceholder
-    } else {
-        R.drawable.coin_placeholder
-    }
+    get() = "https://cdn.blocksdecoded.com/auditor-icons/$name@3x.png"
 
 fun List<FullCoin>.sortedByFilter(filter: String, enabled: (FullCoin) -> Boolean): List<FullCoin> {
     var comparator: Comparator<FullCoin> = compareByDescending {
@@ -76,43 +68,27 @@ fun List<FullCoin>.sortedByFilter(filter: String, enabled: (FullCoin) -> Boolean
     return sortedWith(comparator)
 }
 
-val CoinType.iconPlaceholder: Int
+val Language.displayNameStringRes: Int
     get() = when (this) {
-        is CoinType.Erc20 -> R.drawable.erc20
-        is CoinType.Bep2 -> R.drawable.bep2
-        is CoinType.Bep20 -> R.drawable.bep20
-
-        is CoinType.Safe -> R.drawable.logo_safe_24
-
-        else -> R.drawable.coin_placeholder
-    }
-
-val FullCoin.typeLabel: String?
-    get() = if (platforms.size == 1) {
-        platforms.first().coinType.label
-    } else {
-        null
-    }
-
-val CoinType.blockchainLogo: Int
-    get() = when (this) {
-        CoinType.Bitcoin -> R.drawable.logo_bitcoin_24
-        CoinType.Ethereum -> R.drawable.logo_ethereum_24
-        CoinType.BitcoinCash -> R.drawable.logo_bitcoincash_24
-        CoinType.Dash -> R.drawable.logo_dash_24
-        CoinType.Safe -> R.drawable.logo_safe_24
-        CoinType.BinanceSmartChain -> R.drawable.logo_binancesmartchain_24
-        is CoinType.Bep2 -> R.drawable.logo_bep2_24
-        CoinType.Litecoin -> R.drawable.logo_litecoin_24
-        CoinType.Zcash -> R.drawable.logo_zcash_24
-        else -> R.drawable.coin_placeholder
+        Language.English -> R.string.Language_English
+        Language.Japanese -> R.string.Language_Japanese
+        Language.Korean -> R.string.Language_Korean
+        Language.Spanish -> R.string.Language_Spanish
+        Language.SimplifiedChinese -> R.string.Language_SimplifiedChinese
+        Language.TraditionalChinese -> R.string.Language_TraditionalChinese
+        Language.French -> R.string.Language_French
+        Language.Italian -> R.string.Language_Italian
+        Language.Czech -> R.string.Language_Czech
+        Language.Portuguese -> R.string.Language_Portuguese
     }
 
 // ImageView
 
-fun ImageView.setRemoteImage(url: String, placeholder: Int = R.drawable.ic_placeholder) {
+fun ImageView.setRemoteImage(url: String, placeholder: Int? = R.drawable.ic_placeholder) {
     load(url) {
-        error(placeholder)
+        if (placeholder != null) {
+            error(placeholder)
+        }
     }
 }
 
@@ -121,17 +97,6 @@ fun ImageView.setImage(imageSource: ImageSource) {
         is ImageSource.Local -> setImageResource(imageSource.resId)
         is ImageSource.Remote -> setRemoteImage(imageSource.url, imageSource.placeholder)
     }
-}
-
-// View
-
-fun View.setOnSingleClickListener(l: ((v: View) -> Unit)) {
-    this.setOnClickListener(
-        object : SingleClickListener() {
-            override fun onSingleClick(v: View) {
-                l.invoke(v)
-            }
-        })
 }
 
 // String
@@ -214,7 +179,22 @@ fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
         .subscribe(onSuccess)
 }
 
-fun String.shortenedAddress(characters: Int = 6) = when {
-    length <= characters * 2 + 4 -> this
-    else -> take(characters) + "..." + takeLast(characters)
+fun String.shorten(): String {
+    val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:")
+
+    var prefix = ""
+    for (p in prefixes) {
+        if (this.startsWith(p)) {
+            prefix = p
+            break
+        }
+    }
+
+    val withoutPrefix = this.removePrefix(prefix)
+
+    val characters = 4
+    return if (withoutPrefix.length > characters * 2)
+        prefix + withoutPrefix.take(characters) + "..." + withoutPrefix.takeLast(characters)
+    else
+        this
 }

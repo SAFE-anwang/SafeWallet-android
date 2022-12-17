@@ -27,7 +27,7 @@ class LineLockSendInteractor(private val adapter: ISendSafeAdapter) : SendModule
             .let { disposables.add(it) }
     }
 
-    override fun fetchMinimumAmount(address: String?): BigDecimal {
+    override fun fetchMinimumAmount(address: String?): BigDecimal? {
         return adapter.minimumSendAmount(address)
     }
 
@@ -40,7 +40,9 @@ class LineLockSendInteractor(private val adapter: ISendSafeAdapter) : SendModule
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ fee ->
-                delegate?.didFetchFee(fee)
+                fee?.let {
+                    delegate?.didFetchFee(fee)
+                }
             }, {
 
             })

@@ -1,20 +1,26 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import coil.compose.rememberImagePainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.modules.coin.details.CoinDetailsModule
 import io.horizontalsystems.bankwallet.modules.market.Value
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import java.math.BigDecimal
 
 @Composable
 fun RateColor(diff: BigDecimal?) =
-    if (diff ?: BigDecimal.ZERO >= BigDecimal.ZERO) ComposeAppTheme.colors.remus else ComposeAppTheme.colors.lucian
+    if ((diff ?: BigDecimal.ZERO) >= BigDecimal.ZERO) ComposeAppTheme.colors.remus else ComposeAppTheme.colors.lucian
 
 @Composable
 fun diffColor(value: BigDecimal) =
@@ -25,12 +31,16 @@ fun diffColor(value: BigDecimal) =
     }
 
 @Composable
-fun formatValueAsDiff(value: Value): String =
-    App.numberFormatter.formatValueAsDiff(value)
+fun diffColor(trend: CoinDetailsModule.ChartMovementTrend) =
+    when (trend) {
+        CoinDetailsModule.ChartMovementTrend.Up -> ComposeAppTheme.colors.remus
+        CoinDetailsModule.ChartMovementTrend.Down -> ComposeAppTheme.colors.lucian
+        CoinDetailsModule.ChartMovementTrend.Neutral -> ComposeAppTheme.colors.grey
+    }
 
 @Composable
-fun formatCurrencyValueAsShortened(currencyValue: CurrencyValue): String =
-    App.numberFormatter.formatCurrencyValueAsShortened(currencyValue)
+fun formatValueAsDiff(value: Value): String =
+    App.numberFormatter.formatValueAsDiff(value)
 
 @Composable
 fun RateText(diff: BigDecimal?): String {
@@ -41,20 +51,59 @@ fun RateText(diff: BigDecimal?): String {
 
 @Composable
 fun CoinImage(
-    iconUrl: String,
+    iconUrl: String?,
     placeholder: Int? = null,
     modifier: Modifier,
     colorFilter: ColorFilter? = null
 ) {
-    Image(
-        painter = rememberImagePainter(
-            data = iconUrl,
-            builder = {
-                error(placeholder ?: R.drawable.coin_placeholder)
-            }
-        ),
-        contentDescription = "coin icon",
-        modifier = modifier,
-        colorFilter = colorFilter
-    )
+    val fallback = placeholder ?: R.drawable.coin_placeholder
+    when {
+        iconUrl != null -> Image(
+            painter = rememberAsyncImagePainter(
+                model = iconUrl,
+                error = painterResource(fallback),
+                onError = {
+                    Log.e("longwen", "load error: ${it.result.throwable}")
+                }
+            ),
+            contentDescription = null,
+            modifier = modifier,
+            colorFilter = colorFilter,
+            contentScale = ContentScale.FillBounds,
+        )
+        else -> Image(
+            painter = painterResource(fallback),
+            contentDescription = null,
+            modifier = modifier,
+            colorFilter = colorFilter
+        )
+    }
+}
+
+@Composable
+fun NftIcon(
+    iconUrl: String?,
+    placeholder: Int? = null,
+    modifier: Modifier,
+    colorFilter: ColorFilter? = null
+) {
+    val fallback = placeholder ?: R.drawable.ic_platform_placeholder_24
+    when {
+        iconUrl != null -> Image(
+            painter = rememberAsyncImagePainter(
+                model = iconUrl,
+                error = painterResource(fallback)
+            ),
+            contentDescription = null,
+            modifier = modifier.clip(RoundedCornerShape(4.dp)),
+            colorFilter = colorFilter,
+            contentScale = ContentScale.Crop
+        )
+        else -> Image(
+            painter = painterResource(fallback),
+            contentDescription = null,
+            modifier = modifier,
+            colorFilter = colorFilter
+        )
+    }
 }

@@ -1,204 +1,195 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import android.util.Log
+import io.horizontalsystems.bankwallet.BuildConfig.testMode
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
-import io.horizontalsystems.bankwallet.core.managers.AccountSettingManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.binancechain.BinanceChainIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.binancechain.BinanceChainOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
+import io.horizontalsystems.bankwallet.entities.transactionrecords.nftUids
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
+import io.horizontalsystems.bankwallet.modules.transactions.NftMetadataService
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.core.ICurrencyManager
-import io.horizontalsystems.ethereumkit.models.Chain
-import io.horizontalsystems.marketkit.MarketKit
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 class TransactionInfoService(
-    transactionRecord: TransactionRecord,
+    private val transactionRecord: TransactionRecord,
     private val adapter: ITransactionsAdapter,
-    private val marketKit: MarketKit,
+    private val marketKit: MarketKitWrapper,
     private val currencyManager: ICurrencyManager,
-    private val testMode: Boolean,
-    private val accountSettingManager: AccountSettingManager
-) : Clearable {
+    private val nftMetadataService: NftMetadataService
+) {
 
-    val transactionHash: String get() = transactionInfoItem.record.transactionHash
-    val source: TransactionSource get() = transactionInfoItem.record.source
+    val transactionHash: String get() = transactionRecord.transactionHash
+    val source: TransactionSource get() = transactionRecord.source
 
-    private val disposables = CompositeDisposable()
+    private val _transactionInfoItemFlow = MutableStateFlow<TransactionInfoItem?>(null)
+    val transactionInfoItemFlow = _transactionInfoItemFlow.filterNotNull()
 
-    private val transactionInfoItemSubject = BehaviorSubject.create<TransactionInfoItem>()
-    val transactionInfoItemObservable: Observable<TransactionInfoItem> = transactionInfoItemSubject
-
-    private var transactionInfoItem = TransactionInfoItem(transactionRecord, adapter.lastBlockInfo, getExplorerData(transactionRecord), mapOf())
+    private var transactionInfoItem = TransactionInfoItem(
+        transactionRecord,
+        adapter.lastBlockInfo,
+        TransactionInfoModule.ExplorerData(adapter.explorerTitle, adapter.getTransactionUrl(transactionRecord.transactionHash)),
+        mapOf(),
+        mapOf()
+    )
+        set(value) {
+            field = value
+            _transactionInfoItemFlow.update { value }
+        }
 
     private val coinUidsForRates: List<String>
         get() {
-            val coinUids = mutableListOf<String>()
+            val coinUids = mutableListOf<String?>()
 
-            val txCoinTypes = when (val tx = transactionInfoItem.record) {
+            val txCoinTypes = when (val tx = transactionRecord) {
                 is EvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
-                is EvmOutgoingTransactionRecord -> listOf(tx.fee.coinUid, tx.value.coinUid)
-                is SwapTransactionRecord -> listOf(
-                    tx.fee,
-                    tx.valueIn,
-                    tx.valueOut
-                ).mapNotNull { it?.coinUid }
-                is UnknownSwapTransactionRecord -> {
-                    val tempCoinUidList = mutableListOf<String>()
-                    if (tx.value.value != BigDecimal.ZERO) {
-                        tempCoinUidList.add(tx.value.coinUid)
-                    }
-                    tempCoinUidList.addAll(tx.incomingInternalETHs.map { it.value.coinUid })
-                    tempCoinUidList.addAll(tx.incomingEip20Events.map { it.value.coinUid })
-                    tempCoinUidList.addAll(tx.outgoingEip20Events.map { it.value.coinUid })
-                    tempCoinUidList
-                }
-                is ApproveTransactionRecord -> listOf(tx.fee.coinUid, tx.value.coinUid)
+                is EvmOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
+                is SwapTransactionRecord -> listOf(tx.fee, tx.valueIn, tx.valueOut).map { it?.coinUid }
+                is UnknownSwapTransactionRecord -> listOf(tx.fee, tx.valueIn, tx.valueOut).map { it?.coinUid }
+                is ApproveTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
                 is ContractCallTransactionRecord -> {
                     val tempCoinUidList = mutableListOf<String>()
-                    if (tx.value.value != BigDecimal.ZERO) {
-                        tempCoinUidList.add(tx.value.coinUid)
-                    }
-                    tempCoinUidList.addAll(tx.incomingInternalETHs.map { it.value.coinUid })
-                    tempCoinUidList.addAll(tx.incomingEip20Events.map { it.value.coinUid })
-                    tempCoinUidList.addAll(tx.outgoingEip20Events.map { it.value.coinUid })
+                    tempCoinUidList.addAll(tx.incomingEvents.map { it.value.coinUid })
+                    tempCoinUidList.addAll(tx.outgoingEvents.map { it.value.coinUid })
+                    tempCoinUidList
+                }
+                is ExternalContractCallTransactionRecord -> {
+                    val tempCoinUidList = mutableListOf<String>()
+                    tempCoinUidList.addAll(tx.incomingEvents.map { it.value.coinUid })
+                    tempCoinUidList.addAll(tx.outgoingEvents.map { it.value.coinUid })
                     tempCoinUidList
                 }
                 is BitcoinIncomingTransactionRecord -> listOf(tx.value.coinUid)
-                is BitcoinOutgoingTransactionRecord -> listOf(
-                    tx.fee,
-                    tx.value
-                ).mapNotNull { it?.coinUid }
+                is BitcoinOutgoingTransactionRecord -> listOf(tx.fee, tx.value).map { it?.coinUid }
                 is BinanceChainIncomingTransactionRecord -> listOf(tx.value.coinUid)
-                is BinanceChainOutgoingTransactionRecord -> listOf(
-                    tx.fee,
-                    tx.value
-                ).map { it.coinUid }
+                is BinanceChainOutgoingTransactionRecord -> listOf(tx.fee, tx.value).map { it.coinUid }
                 else -> emptyList()
             }
 
-            (transactionInfoItem.record as? EvmTransactionRecord)?.let { transactionRecord ->
+            (transactionRecord as? EvmTransactionRecord)?.let { transactionRecord ->
                 if (!transactionRecord.foreignTransaction) {
-                    coinUids.add(transactionRecord.fee.coinUid)
+                    coinUids.add(transactionRecord.fee?.coinUid)
                 }
             }
 
             coinUids.addAll(txCoinTypes)
 
-            return coinUids.filter { it.isNotBlank() }.distinct()
+            return coinUids.filterNotNull().filter { it.isNotBlank() }.distinct()
         }
 
-    init {
-        transactionInfoItemSubject.onNext(transactionInfoItem)
+    suspend fun start() = withContext(Dispatchers.IO) {
+        _transactionInfoItemFlow.update { transactionInfoItem }
+
+        launch {
+            adapter.getTransactionRecordsFlowable(null, FilterTransactionType.All).asFlow()
+                .collect { transactionRecords ->
+                    val record = transactionRecords.find { it == transactionRecord }
+
+                    if (record != null) {
+                        handleRecordUpdate(record)
+                    }
+                }
+        }
+
+        launch {
+            adapter.lastBlockUpdatedFlowable.asFlow()
+                .collect {
+                    handleLastBlockUpdate()
+                }
+        }
+
+        launch {
+            nftMetadataService.assetsBriefMetadataFlow.collect {
+                handleNftMetadata(it)
+            }
+        }
 
         fetchRates()
-            .subscribeIO {
-                handleRates(it)
-            }
-            .let {
-                disposables.add(it)
-            }
-
-        adapter.getTransactionRecordsFlowable(null, FilterTransactionType.All)
-            .flatMap {
-                val record = it.find { it == transactionInfoItem.record }
-                if (record != null) {
-                    Flowable.just(record)
-                } else {
-                    Flowable.empty()
-                }
-            }
-            .subscribeIO {
-                handleRecordUpdate(it)
-            }
-            .let {
-                disposables.add(it)
-            }
-
-        adapter.lastBlockUpdatedFlowable
-            .subscribeIO {
-                handleLastBlockUpdate()
-            }
-            .let {
-                disposables.add(it)
-            }
+        fetchNftMetadata()
     }
 
-    private fun fetchRates(): Single<Map<String, CurrencyValue>> {
+    private suspend fun fetchNftMetadata() {
+        val nftUids = transactionRecord.nftUids
+        val assetsBriefMetadata = nftMetadataService.assetsBriefMetadata(nftUids)
+
+        handleNftMetadata(assetsBriefMetadata)
+
+        if (nftUids.subtract(assetsBriefMetadata.keys).isNotEmpty()) {
+            nftMetadataService.fetch(nftUids)
+        }
+    }
+
+    private suspend fun fetchRates() = withContext(Dispatchers.IO) {
         val coinUids = coinUidsForRates
-        val timestamp = transactionInfoItem.record.timestamp
-        val flowables: List<Single<Pair<String, CurrencyValue>>> = coinUids.map { coinUid ->
+        val timestamp = transactionRecord.timestamp
+
+        val rates = coinUids.mapNotNull { coinUid ->
             var uid = coinUid
             if (coinUid == "custom_safe-erc20-SAFE"
                 || coinUid == "custom_safe-bep20-SAFE") {
                 uid = "safe-coin"
             }
-            marketKit.coinHistoricalPriceSingle(uid, currencyManager.baseCurrency.code, timestamp)
-                .onErrorResumeNext(Single.just(BigDecimal.ZERO)) //provide default value on error
-                .map {
-                    Pair(coinUid, CurrencyValue(currencyManager.baseCurrency, it))
+            try {
+                val rate = marketKit
+                    .coinHistoricalPriceSingle(uid, currencyManager.baseCurrency.code, timestamp)
+                    .await()
+                if (rate != BigDecimal.ZERO) {
+                    Pair(coinUid, CurrencyValue(currencyManager.baseCurrency, rate))
+                } else {
+                    null
                 }
-        }
-
-        return Single
-            .zip(flowables) { array ->
-                array.mapNotNull {
-                    it as Pair<String, CurrencyValue>
-
-                    if (it.second.value == BigDecimal.ZERO) {
-                        null
-                    } else {
-                        it.first to it.second
-                    }
-                }.toMap()
+            } catch (error: Exception) {
+                null
             }
+        }.toMap()
+
+        handleRates(rates)
     }
 
     @Synchronized
     private fun handleLastBlockUpdate() {
         transactionInfoItem = transactionInfoItem.copy(lastBlockInfo = adapter.lastBlockInfo)
-        transactionInfoItemSubject.onNext(transactionInfoItem)
     }
 
     @Synchronized
     private fun handleRecordUpdate(transactionRecord: TransactionRecord) {
         transactionInfoItem = transactionInfoItem.copy(record = transactionRecord)
-        transactionInfoItemSubject.onNext(transactionInfoItem)
     }
 
     @Synchronized
     private fun handleRates(rates: Map<String, CurrencyValue>) {
         transactionInfoItem = transactionInfoItem.copy(rates = rates)
-        transactionInfoItemSubject.onNext(transactionInfoItem)
     }
 
-    fun getRaw(): String? {
-        return adapter.getRawTransaction(transactionInfoItem.record.transactionHash)
+    @Synchronized
+    private fun handleNftMetadata(nftMetadata: Map<NftUid, NftAssetBriefMetadata>) {
+        transactionInfoItem = transactionInfoItem.copy(nftMetadata = nftMetadata)
     }
 
-    override fun clear() {
-        disposables.clear()
+    fun getRawTransaction(): String? {
+        return adapter.getRawTransaction(transactionRecord.transactionHash)
     }
 
-    private fun ethereumChain(account: Account): Chain {
-        return accountSettingManager.ethereumNetwork(account).chain
-    }
-
-    private fun getExplorerData(record: TransactionRecord): TransactionInfoModule.ExplorerData {
+    /*private fun getExplorerData(record: TransactionRecord): TransactionInfoModule.ExplorerData {
         val hash = record.transactionHash
         val blockchain = record.source.blockchain
         val account = record.source.account
@@ -248,6 +239,6 @@ class TransactionInfoService(
                 if (testMode) null else "https://blockchair.com/zcash/transaction/$hash"
             )
         }
-    }
+    }*/
 
 }

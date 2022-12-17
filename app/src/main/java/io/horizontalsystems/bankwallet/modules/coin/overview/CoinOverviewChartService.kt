@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.coin.overview
 
 import io.horizontalsystems.bankwallet.core.IChartTypeStorage
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.chart.AbstractChartService
 import io.horizontalsystems.bankwallet.modules.chart.ChartPointsWrapper
@@ -10,7 +11,6 @@ import io.horizontalsystems.chartview.models.ChartIndicator
 import io.horizontalsystems.chartview.models.ChartPoint
 import io.horizontalsystems.core.ICurrencyManager
 import io.horizontalsystems.core.entities.Currency
-import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.models.ChartInfo
 import io.horizontalsystems.marketkit.models.ChartPointType
 import io.horizontalsystems.marketkit.models.CoinPrice
@@ -19,7 +19,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 
 class CoinOverviewChartService(
-    private val marketKit: MarketKit,
+    private val marketKit: MarketKitWrapper,
     override val currencyManager: ICurrencyManager,
     private val chartTypeStorage: IChartTypeStorage,
     private val coinUid: String,
@@ -53,7 +53,7 @@ class CoinOverviewChartService(
         currency: Currency,
     ): Single<ChartPointsWrapper> {
         val newKey = chartInterval.name + currency.code
-        if (newKey != updatesSubscriptionKey) {
+        if (forceRefresh || newKey != updatesSubscriptionKey) {
             unsubscribeFromUpdates()
             subscribeForUpdates(currency, chartInterval)
             updatesSubscriptionKey = newKey
@@ -128,11 +128,17 @@ class CoinOverviewChartService(
 
             if (chartInterval == HsTimePeriod.Day1) {
                 val startTimestamp = lastCoinPrice.timestamp - 24 * 60 * 60
-                val startValue = (lastCoinPrice.value * 100.toBigDecimal()) / (lastCoinPrice.diff + 100.toBigDecimal())
-                val startItem = ChartPoint(startValue.toFloat(), startTimestamp)
+                val diff = lastCoinPrice.diff
+                if (diff == null) {
+                    items.removeIf { it.timestamp < startTimestamp }
+                } else {
+                    items.removeIf { it.timestamp <= startTimestamp }
 
-                items.removeIf { it.timestamp <= startTimestamp }
-                items.add(0, startItem)
+                    val startValue = (lastCoinPrice.value * 100.toBigDecimal()) / (diff + 100.toBigDecimal())
+                    val startItem = ChartPoint(startValue.toFloat(), startTimestamp)
+
+                    items.add(0, startItem)
+                }
             }
         }
 

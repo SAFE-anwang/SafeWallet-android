@@ -7,16 +7,15 @@ import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.TopMarket
 import io.horizontalsystems.bankwallet.modules.market.category.MarketItemWrapper
-import io.horizontalsystems.bankwallet.modules.market.overview.TopMarketsRepository
 import io.horizontalsystems.core.ICurrencyManager
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 class MarketTopCoinsService(
-    private val topMarketsRepository: TopMarketsRepository,
+    private val marketTopMoversRepository: MarketTopMoversRepository,
     private val currencyManager: ICurrencyManager,
     private val favoritesManager: MarketFavoritesManager,
-    topMarket: TopMarket = TopMarket.Top250,
+    topMarket: TopMarket = TopMarket.Top100,
     sortingField: SortingField = SortingField.HighestCap,
 ) {
     private var disposables = CompositeDisposable()
@@ -36,24 +35,23 @@ class MarketTopCoinsService(
 
     fun setSortingField(sortingField: SortingField) {
         this.sortingField = sortingField
-        sync(false)
+        sync()
     }
 
     fun setTopMarket(topMarket: TopMarket) {
         this.topMarket = topMarket
-        sync(false)
+        sync()
     }
 
-    private fun sync(forceRefresh: Boolean) {
+    private fun sync() {
         disposables.clear()
 
-        topMarketsRepository
+        marketTopMoversRepository
             .get(
                 topMarket.value,
                 sortingField,
                 topMarket.value,
-                currencyManager.baseCurrency,
-                forceRefresh
+                currencyManager.baseCurrency
             )
             .subscribeIO({
                 marketItems = it
@@ -73,7 +71,7 @@ class MarketTopCoinsService(
     }
 
     fun start() {
-        sync(true)
+        sync()
 
         favoritesManager.dataUpdatedAsync
             .subscribeIO {
@@ -84,7 +82,7 @@ class MarketTopCoinsService(
     }
 
     fun refresh() {
-        sync(true)
+        sync()
     }
 
     fun stop() {

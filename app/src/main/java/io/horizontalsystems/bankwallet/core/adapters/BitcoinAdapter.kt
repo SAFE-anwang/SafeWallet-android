@@ -5,7 +5,6 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.SyncMode
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bitcoincore.BitcoinCore
@@ -15,17 +14,18 @@ import io.horizontalsystems.bitcoincore.models.TransactionInfo
 import io.horizontalsystems.bitcoinkit.BitcoinKit
 import io.horizontalsystems.bitcoinkit.BitcoinKit.NetworkType
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 
 class BitcoinAdapter(
         override val kit: BitcoinKit,
-        syncMode: SyncMode?,
+        syncMode: BitcoinCore.SyncMode,
         backgroundManager: BackgroundManager,
         wallet: Wallet,
         testMode: Boolean
 ) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, testMode), BitcoinKit.Listener, ISendBitcoinAdapter {
 
-    constructor(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean, backgroundManager: BackgroundManager) : this(createKit(wallet, syncMode, testMode), syncMode, backgroundManager, wallet, testMode)
+    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean, backgroundManager: BackgroundManager) : this(createKit(wallet, syncMode, testMode), syncMode, backgroundManager, wallet, testMode)
 
     init {
         kit.listener = this
@@ -40,6 +40,13 @@ class BitcoinAdapter(
     //
     // BitcoinKit Listener
     //
+
+    override val explorerTitle: String
+        get() = "blockchair.com"
+
+
+    override fun getTransactionUrl(transactionHash: String): String? =
+        if (testMode) null else "https://blockchair.com/bitcoin/transaction/$transactionHash"
 
     override fun onBalanceUpdate(balance: BalanceInfo) {
         balanceUpdatedSubject.onNext(Unit)
@@ -71,25 +78,48 @@ class BitcoinAdapter(
         // ignored for now
     }
 
+    override val blockchainType = BlockchainType.Bitcoin
+
+
     companion object {
 
         private fun getNetworkType(testMode: Boolean) =
                 if (testMode) NetworkType.TestNet else NetworkType.MainNet
 
-        private fun createKit(wallet: Wallet, syncMode: SyncMode?, testMode: Boolean): BitcoinKit {
+        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean): BitcoinKit {
             val account = wallet.account
-            val accountType = (account.type as? AccountType.Mnemonic) ?: throw UnsupportedAccountException()
-            val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
+            val accountType = account.type
 
-            return BitcoinKit(context = App.instance,
-                    connectionManager = App.bitCoinConnectionManager,
-                    words = accountType.words,
-                    passphrase = accountType.passphrase,
-                    walletId = account.id,
-                    syncMode = getSyncMode(syncMode),
-                    networkType = getNetworkType(testMode),
-                    confirmationsThreshold = confirmationsThreshold,
-                    purpose = getBip(derivation))
+            when (accountType) {
+                is AccountType.HdExtendedKey -> {
+                    return BitcoinKit(
+                        context = App.instance,
+//                        connectionManager = App.bitCoinConnectionManager,
+                        extendedKey = accountType.hdExtendedKey,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = getNetworkType(testMode),
+                        confirmationsThreshold = confirmationsThreshold
+                    )
+                }
+                is AccountType.Mnemonic -> {
+                    val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
+
+                    return BitcoinKit(
+                        context = App.instance,
+//                        connectionManager = App.bitCoinConnectionManager,
+                        words = accountType.words,
+                        passphrase = accountType.passphrase,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = getNetworkType(testMode),
+                        confirmationsThreshold = confirmationsThreshold,
+                        purpose = getPurpose(derivation)
+                    )
+                }
+                else -> throw UnsupportedAccountException()
+            }
+
         }
 
         fun clear(walletId: String, testMode: Boolean) {

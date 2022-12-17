@@ -51,7 +51,7 @@
                 android:text="@string/Restore_Mnemonic_Description"
                 android:textColor="@color/grey" />
 
-            <io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.ImportLanguageView
+            <io.horizontalsystems.bankwallet.modules.restoreaccount.restoreotherwallet.ImportLanguageView
                 android:id="@+id/language"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

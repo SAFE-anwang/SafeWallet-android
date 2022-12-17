@@ -243,7 +243,8 @@ class DAppBrowseFragment: BaseFragment(){
             App.wc1Manager,
             App.wc1SessionManager,
             App.wc1RequestManager,
-            App.connectivityManager
+            App.connectivityManager,
+            App.evmBlockchainManager,
         )
         val baseViewModel by navGraphViewModels<SafeWalletConnectViewModel>(R.id.mainFragment) {
             WalletConnectModule.Factory2(
@@ -288,6 +289,7 @@ class DAppBrowseFragment: BaseFragment(){
                         wc1Service?.clear()
                         wc1Service = null
                     }
+                    else -> {}
                 }
             }
             .let {
@@ -297,16 +299,16 @@ class DAppBrowseFragment: BaseFragment(){
             .subscribe {
                 Log.e("connectWallet", "requestObservable: $it, ${Thread.currentThread().name}")
 
-                when (it) {
+                when (it.wC1Request) {
                     is WC1SendEthereumTransactionRequest -> {
-                        baseViewModel.sharedSendEthereumTransactionRequest = it
+                        baseViewModel.sharedSendEthereumTransactionRequest = it.wC1Request
                     }
                     is WC1SignMessageRequest -> {
                         Log.e("connectWallet", "navigation sign message")
-                        baseViewModel.sharedSignMessageRequest = it
+                        baseViewModel.sharedSignMessageRequest = it.wC1Request
                     }
                 }
-                openRequestLiveEvent.postValue(it)
+                openRequestLiveEvent.postValue(it.wC1Request)
             }
             .let {
                 disposables.add(it)
@@ -322,6 +324,7 @@ class DAppBrowseFragment: BaseFragment(){
             App.accountManager,
             WC2PingService(),
             App.connectivityManager,
+            App.evmBlockchainManager,
             topic,
             connectionLink,
         )
@@ -359,6 +362,7 @@ class DAppBrowseFragment: BaseFragment(){
                         wc2Service?.stop()
                         wc2Service = null
                     }
+                    else -> {}
                 }
             }
             .let {

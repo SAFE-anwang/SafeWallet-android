@@ -60,7 +60,7 @@ class LineLockSendActivity : BaseActivity() {
 
         val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
 
-        setToolbar(wallet.platformCoin.fullCoin)
+        setToolbar()
 
         mainPresenter =
             ViewModelProvider(this, SendModule.LineLockFactory(wallet)).get(SendPresenter::class.java)
@@ -72,7 +72,7 @@ class LineLockSendActivity : BaseActivity() {
 
     }
 
-    private fun setToolbar(fullCoin: FullCoin) {
+    private fun setToolbar() {
         binding.toolbarCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
@@ -188,7 +188,7 @@ class LineLockSendActivity : BaseActivity() {
                     mainPresenter.addressModuleDelegate?.let {
                         val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
                         val sendAddressFragment =
-                            DefaultAddressFragment(receiveAdapter.receiveAddress, wallet.platformCoin, it, mainPresenter.handler)
+                            DefaultAddressFragment(receiveAdapter.receiveAddress, wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)
                         supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAddressFragment)
@@ -208,7 +208,7 @@ class LineLockSendActivity : BaseActivity() {
                     //add fee view
                     mainPresenter.feeModuleDelegate?.let {
                         val sendFeeFragment = LineLockFeeFragment(
-                            wallet.platformCoin,
+                            wallet.token,
                             it,
                             mainPresenter.handler,
                             mainPresenter.customPriorityUnit

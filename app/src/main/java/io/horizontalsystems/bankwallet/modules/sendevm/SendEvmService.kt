@@ -5,9 +5,9 @@ import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmData.AdditionalInfo
-import io.horizontalsystems.marketkit.models.CoinType
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -17,7 +17,7 @@ import java.util.*
 import io.horizontalsystems.ethereumkit.models.Address as EvmAddress
 
 class SendEvmService(
-    val sendCoin: PlatformCoin,
+    val sendCoin: Token,
     val adapter: ISendEthereumAdapter
 ) : IAvailableBalanceService, IAmountInputService, Clearable {
 
@@ -49,7 +49,7 @@ class SendEvmService(
 
         state = if (amountError == null && evmAmount != null && addressData != null) {
             val transactionData = adapter.getTransactionData(evmAmount, addressData.evmAddress)
-            val additionalInfo = AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
+            val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
             State.Ready(SendEvmData(transactionData, additionalInfo))
         } else {
             State.NotReady
@@ -78,7 +78,7 @@ class SendEvmService(
     override val amount: BigDecimal
         get() = BigDecimal.ZERO
 
-    override val coin: PlatformCoin
+    override val coin: Token
         get() = sendCoin
 
     override val balance: BigDecimal
@@ -87,14 +87,14 @@ class SendEvmService(
     override val amountObservable: Flowable<BigDecimal>
         get() = Flowable.empty()
 
-    override val coinObservable: Flowable<Optional<PlatformCoin>>
+    override val coinObservable: Flowable<Optional<Token>>
         get() = Flowable.empty()
 
     override fun onChangeAmount(amount: BigDecimal) {
         if (amount > BigDecimal.ZERO) {
             var amountWarning: AmountWarning? = null
             try {
-                if (amount == balance && (sendCoin.coinType is CoinType.Ethereum || sendCoin.coinType is CoinType.BinanceSmartChain)) {
+                if (amount == balance && (sendCoin.blockchainType is BlockchainType.Ethereum || sendCoin.blockchainType is BlockchainType.BinanceSmartChain)) {
                     amountWarning = AmountWarning.CoinNeededForFee
                 }
                 evmAmount = validEvmAmount(amount)

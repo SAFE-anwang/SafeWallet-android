@@ -143,7 +143,8 @@ class DAppBrowseActivity: BaseActivity(){
             App.wc1Manager,
             App.wc1SessionManager,
             App.wc1RequestManager,
-            App.connectivityManager
+            App.connectivityManager,
+            App.evmBlockchainManager
         )
         wc1Service!!.connectionStateObservable
             .subscribe {
@@ -188,6 +189,7 @@ class DAppBrowseActivity: BaseActivity(){
             App.accountManager,
             WC2PingService(),
             App.connectivityManager,
+            App.evmBlockchainManager,
             topic,
             connectionLink,
         )

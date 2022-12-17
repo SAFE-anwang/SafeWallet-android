@@ -15,10 +15,10 @@ import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.RecipientAddressViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 
 class SendAddressFragment(
-    private val platformCoin: PlatformCoin,
+    private val token: Token,
     private val addressModuleDelegate: SendAddressModule.IAddressModuleDelegate,
     private val sendHandler: SendModule.ISendHandler
 ) : SendSubmoduleFragment() {
@@ -40,8 +40,8 @@ class SendAddressFragment(
                 ComposeAppTheme {
                     HSAddressInput(
                         modifier = Modifier.padding(top = 12.dp),
-                        coinType = platformCoin.coinType,
-                        coinCode = platformCoin.code,
+                        tokenQuery = token.tokenQuery,
+                        coinCode = token.coin.code,
                         error = viewModel.error
                     ) {
                         viewModel.setAddress(it)

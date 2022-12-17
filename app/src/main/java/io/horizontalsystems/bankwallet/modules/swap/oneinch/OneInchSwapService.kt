@@ -3,12 +3,14 @@ package io.horizontalsystems.bankwallet.modules.swap.oneinch
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
 import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapError
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceService
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -61,6 +63,10 @@ class OneInchSwapService(
         }
     override val balanceToObservable: Observable<Optional<BigDecimal>> = balanceToSubject
 
+    val blockchainType = dex.blockchainType
+    val revokeEvmData : SendEvmData?
+        get() = allowanceService.revokeEvmData()
+
     val approveData: SwapAllowanceService.ApproveData?
         get() = balanceFrom?.let { amount ->
             allowanceService.approveData(dex, amount)
@@ -70,30 +76,30 @@ class OneInchSwapService(
     init {
         tradeService.stateObservable
             .subscribeOn(Schedulers.io())
-            .subscribe { state ->
-                onUpdateTrade(state)
+            .subscribe {
+                onUpdateTrade()
             }
             .let { disposables.add(it) }
 
-        tradeService.coinFromObservable
+        tradeService.tokenFromObservable
             .subscribeOn(Schedulers.io())
-            .subscribe { coin ->
-                onUpdateCoinFrom(coin.orElse(null))
+            .subscribe { token ->
+                onUpdateCoinFrom(token.orElse(null))
             }
             .let { disposables.add(it) }
-        onUpdateCoinFrom(tradeService.coinFrom)
+        onUpdateCoinFrom(tradeService.tokenFrom)
 
-        tradeService.coinToObservable
+        tradeService.tokenToObservable
             .subscribeOn(Schedulers.io())
-            .subscribe { coin ->
-                onUpdateCoinTo(coin.orElse(null))
+            .subscribe { token ->
+                onUpdateCoinTo(token.orElse(null))
             }
             .let { disposables.add(it) }
 
         tradeService.amountFromObservable
             .subscribeOn(Schedulers.io())
             .subscribe {
-                onUpdateAmountFrom(it.orElse(null))
+                onUpdateAmountFrom()
             }
             .let { disposables.add(it) }
 
@@ -129,21 +135,21 @@ class OneInchSwapService(
         pendingAllowanceService.onCleared()
     }
 
-    private fun onUpdateTrade(state: OneInchTradeService.State) {
+    private fun onUpdateTrade() {
         syncState()
     }
 
-    private fun onUpdateCoinFrom(coin: PlatformCoin?) {
-        balanceFrom = coin?.let { balance(it) }
-        allowanceService.set(coin)
-        pendingAllowanceService.set(coin)
+    private fun onUpdateCoinFrom(token: Token?) {
+        balanceFrom = token?.let { balance(it) }
+        allowanceService.set(token)
+        pendingAllowanceService.set(token)
     }
 
-    private fun onUpdateCoinTo(coin: PlatformCoin?) {
-        balanceTo = coin?.let { balance(it) }
+    private fun onUpdateCoinTo(token: Token?) {
+        balanceTo = token?.let { balance(it) }
     }
 
-    private fun onUpdateAmountFrom(amount: BigDecimal?) {
+    private fun onUpdateAmountFrom() {
         syncState()
     }
 
@@ -162,6 +168,7 @@ class OneInchSwapService(
             is OneInchTradeService.State.NotReady -> {
                 allErrors.addAll(state.errors)
             }
+            is OneInchTradeService.State.Ready -> {}
         }
 
         when (val state = allowanceService.state) {
@@ -171,13 +178,18 @@ class OneInchSwapService(
             is SwapAllowanceService.State.Ready -> {
                 tradeService.amountFrom?.let { amountFrom ->
                     if (amountFrom > state.allowance.value) {
-                        allErrors.add(SwapError.InsufficientAllowance)
+                        if (revokeRequired()) {
+                            allErrors.add(SwapError.RevokeAllowanceRequired)
+                        } else {
+                            allErrors.add(SwapError.InsufficientAllowance)
+                        }
                     }
                 }
             }
             is SwapAllowanceService.State.NotReady -> {
                 allErrors.add(state.error)
             }
+            null -> {}
         }
 
         tradeService.amountFrom?.let { amountFrom ->
@@ -187,7 +199,7 @@ class OneInchSwapService(
             }
         }
 
-        if (pendingAllowanceService.state == SwapPendingAllowanceState.Pending) {
+        if (pendingAllowanceService.state.loading()) {
             loading = true
         }
 
@@ -200,8 +212,23 @@ class OneInchSwapService(
         }
     }
 
-    private fun balance(coin: PlatformCoin): BigDecimal? =
-        (adapterManager.getAdapterForPlatformCoin(coin) as? IBalanceAdapter)?.balanceData?.available
+    private fun revokeRequired(): Boolean {
+        val tokenFrom = tradeService.tokenFrom ?: return false
+        val allowance = approveData?.allowance ?: return false
+
+        return allowance.compareTo(BigDecimal.ZERO) != 0 && isUsdt(tokenFrom)
+    }
+
+    private fun isUsdt(token: Token): Boolean {
+        val tokenType = token.type
+
+        return token.blockchainType is BlockchainType.Ethereum
+            && tokenType is TokenType.Eip20
+            && tokenType.address.lowercase() == "0xdac17f958d2ee523a2206206994597c13d831ec7"
+    }
+
+    private fun balance(token: Token): BigDecimal? =
+        (adapterManager.getAdapterForToken(token) as? IBalanceAdapter)?.balanceData?.available
 
     //region models
     sealed class State {

@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.setOnSingleClickListener
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.databinding.ViewDappItemBinding
 import java.util.HashMap
@@ -61,7 +60,7 @@ class DAppAdapter(
             } else {
                 title
             }
-            binding.txtAll.setOnSingleClickListener {
+            binding.txtAll.setOnClickListener {
                 viewModel.tempListApp = dApps
                 listener.onAllDApp(title)
             }

@@ -63,7 +63,7 @@ class SendEvmFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setToolbar(wallet.platformCoin.fullCoin)
+        setToolbar(wallet.token.fullCoin)
 
         availableBalanceViewModel.viewStateLiveData.observe(viewLifecycleOwner, { state ->
             binding.availableBalanceSpinner.isVisible =
@@ -188,7 +188,7 @@ class SendEvmFragment : BaseFragment() {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     HSAddressInput(
-                        coinType = wallet.coinType,
+                        tokenQuery = wallet.token.tokenQuery,
                         coinCode = wallet.coin.code
                     ) {
                         viewModel.onEnterAddress(it)

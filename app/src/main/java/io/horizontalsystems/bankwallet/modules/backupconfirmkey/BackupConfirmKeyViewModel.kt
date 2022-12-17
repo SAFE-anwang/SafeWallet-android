@@ -1,118 +1,136 @@
 package io.horizontalsystems.bankwallet.modules.backupconfirmkey
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.IRandomProvider
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
-import io.horizontalsystems.core.SingleLiveEvent
-import io.reactivex.disposables.CompositeDisposable
+import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.entities.AccountType
 
 class BackupConfirmKeyViewModel(
-        private val service: BackupConfirmKeyService,
-        private val translator: Translator
+    private val account: Account,
+    private val accountManager: IAccountManager,
+    private val randomProvider: IRandomProvider
 ) : ViewModel() {
-    private val disposable = CompositeDisposable()
 
-    val indexViewItemLiveData = MutableLiveData<IndexViewItem>()
-    val successLiveEvent = SingleLiveEvent<Unit>()
+    private val wordsIndexed: List<Pair<Int, String>>
+    private var hiddenWordItems = listOf<HiddenWordItem>()
+    private var wordOptions = listOf<WordOption>()
+    private var currentHiddenWordItemIndex = -1
+    private var confirmed = false
+    private var error: Throwable? = null
 
-    val firstWordCautionLiveData = MutableLiveData<Caution?>(null)
-    val secondWordCautionLiveData = MutableLiveData<Caution?>(null)
-    val passphraseCautionLiveData = MutableLiveData<Caution?>(null)
-    val clearInputsLiveEvent = SingleLiveEvent<Unit>()
-
-    val passpraseVisible get() = service.hasPassphrase()
+    var uiState by mutableStateOf(
+        BackupConfirmUiState(
+            hiddenWordItems = hiddenWordItems,
+            wordOptions = wordOptions,
+            currentHiddenWordItemIndex = currentHiddenWordItemIndex,
+            confirmed = confirmed,
+            error = error,
+        )
+    )
 
     init {
-        service.indexItemObservable
-                .subscribeIO { sync(it) }
-                .let { disposable.add(it) }
-        sync(service.indexItem)
-    }
-
-    private fun sync(indexItem: BackupConfirmKeyService.IndexItem) {
-        val indexViewItem = IndexViewItem(first = "${indexItem.first + 1}.", second = "${indexItem.second + 1}.")
-        indexViewItemLiveData.postValue(indexViewItem)
-    }
-
-    private fun clearInputs() {
-        clearInputsLiveEvent.postValue(Unit)
-
-        firstWordCautionLiveData.postValue(null)
-        secondWordCautionLiveData.postValue(null)
-        passphraseCautionLiveData.postValue(null)
-
-        service.firstWord = ""
-        service.secondWord = ""
-        service.passphraseConfirm = ""
-    }
-
-    private fun getErrorText(error: Throwable): String {
-        return if (error is BackupConfirmKeyService.BackupError) {
-            translator.getString(R.string.BackupConfirmKey_EmptyOrInvalidWords)
-        } else {
-            error.javaClass.simpleName
-        }
-    }
-
-    fun onViewCreated() {
-        service.generateIndices()
-        clearInputs()
-    }
-
-    fun onChangeFirstWord(v: String) {
-        service.firstWord = v
-        firstWordCautionLiveData.postValue(null)
-    }
-
-    fun onChangeSecondWord(v: String) {
-        service.secondWord = v
-        secondWordCautionLiveData.postValue(null)
-    }
-
-    fun onChangePassphrase(v: String) {
-        service.passphraseConfirm = v
-        passphraseCautionLiveData.postValue(null)
-    }
-
-    fun onClickDone() {
-        try {
-            service.backup()
-            successLiveEvent.postValue(Unit)
-        } catch (e: BackupConfirmKeyService.BackupError) {
-            e.validationErrors.forEach {
-                when (it) {
-                    BackupConfirmKeyService.ValidationError.EmptyFirstWord -> {
-                        firstWordCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_EmptyWord), Caution.Type.Error))
-                    }
-                    BackupConfirmKeyService.ValidationError.InvalidFirstWord -> {
-                        firstWordCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_InvalidWord), Caution.Type.Error))
-                    }
-                    BackupConfirmKeyService.ValidationError.EmptySecondWord -> {
-                        secondWordCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_EmptyWord), Caution.Type.Error))
-                    }
-                    BackupConfirmKeyService.ValidationError.InvalidSecondWord -> {
-                        secondWordCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_InvalidWord), Caution.Type.Error))
-                    }
-                    BackupConfirmKeyService.ValidationError.EmptyPassphrase -> {
-                        passphraseCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_EmptyPassphrase), Caution.Type.Error))
-                    }
-                    BackupConfirmKeyService.ValidationError.InvalidPassphrase -> {
-                        passphraseCautionLiveData.postValue(Caution(Translator.getString(R.string.BackupConfirmKey_Error_InvalidPassphrase), Caution.Type.Error))
-                    }
-                }
+        if (account.type is AccountType.Mnemonic) {
+            wordsIndexed = account.type.words.mapIndexed { index, s ->
+                Pair(index, s)
             }
-        } catch (e: Throwable) {
 
+            reset()
+            emitState()
+        } else {
+            wordsIndexed = listOf()
         }
     }
 
-    override fun onCleared() {
-        disposable.clear()
+    private fun reset() {
+        val wordsCountToGuess = when (wordsIndexed.size) {
+            12 -> 2
+            15, 18, 21 -> 3
+            24 -> 4
+            else -> 2
+        }
+
+        val shuffled = wordsIndexed.shuffled().take(12)
+        val randomNumbers = randomProvider.getRandomNumbers(wordsCountToGuess, shuffled.size)
+
+        hiddenWordItems = randomNumbers.map { number ->
+            val wordIndexed = shuffled[number]
+            HiddenWordItem(
+                index = wordIndexed.first,
+                word = wordIndexed.second,
+                isRevealed = false
+            )
+        }
+        wordOptions = shuffled.map {
+            WordOption(it.second, true)
+        }
+        currentHiddenWordItemIndex = 0
     }
 
-    data class IndexViewItem(val first: String, val second: String)
+    fun onSelectWord(wordOption: WordOption) {
+        val hiddenWordItem = hiddenWordItems[currentHiddenWordItemIndex]
+        if (hiddenWordItem.word != wordOption.word) {
+            reset()
+            error = Exception(Translator.getString(R.string.BackupConfirmKey_Error_InvalidWord))
+        } else {
+            hiddenWordItems = hiddenWordItems.toMutableList().apply {
+                set(currentHiddenWordItemIndex, hiddenWordItem.copy(isRevealed = true))
+            }
 
+            val indexOfWordOption = wordOptions.indexOf(wordOption)
+            wordOptions = wordOptions.toMutableList().apply {
+                set(indexOfWordOption, wordOption.copy(enabled = false))
+            }
+
+            if (currentHiddenWordItemIndex != hiddenWordItems.lastIndex) {
+                currentHiddenWordItemIndex++
+            } else {
+                accountManager.update(account.copy(isBackedUp = true))
+                confirmed = true
+            }
+        }
+
+        emitState()
+    }
+
+    fun onErrorShown() {
+        error = null
+        emitState()
+    }
+
+    private fun emitState() {
+        uiState = BackupConfirmUiState(
+            hiddenWordItems = hiddenWordItems,
+            wordOptions = wordOptions,
+            currentHiddenWordItemIndex = currentHiddenWordItemIndex,
+            confirmed = confirmed,
+            error = error
+        )
+    }
+}
+
+data class BackupConfirmUiState(
+    val hiddenWordItems: List<HiddenWordItem>,
+    val wordOptions: List<WordOption>,
+    val currentHiddenWordItemIndex: Int,
+    val confirmed: Boolean,
+    val error: Throwable?
+)
+
+data class WordOption(val word: String, val enabled: Boolean)
+
+data class HiddenWordItem(
+    val index: Int,
+    val word: String,
+    val isRevealed: Boolean
+) {
+    override fun toString() = when {
+        isRevealed -> "${index + 1}. $word"
+        else -> "${index + 1}."
+    }
 }

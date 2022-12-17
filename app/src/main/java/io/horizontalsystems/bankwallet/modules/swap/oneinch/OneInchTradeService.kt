@@ -6,7 +6,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.AmountType
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule.OneInchSwapSettings
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.marketkit.models.PlatformCoin
+import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.oneinchkit.Quote
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
@@ -25,8 +25,8 @@ class OneInchTradeService(
 
     //region internal subjects
     private val amountTypeSubject = PublishSubject.create<AmountType>()
-    private val coinFromSubject = PublishSubject.create<Optional<PlatformCoin>>()
-    private val coinToSubject = PublishSubject.create<Optional<PlatformCoin>>()
+    private val tokenFromSubject = PublishSubject.create<Optional<Token>>()
+    private val tokenToSubject = PublishSubject.create<Optional<Token>>()
     private val amountFromSubject = PublishSubject.create<Optional<BigDecimal>>()
     private val amountToSubject = PublishSubject.create<Optional<BigDecimal>>()
     private val stateSubject = PublishSubject.create<State>()
@@ -35,19 +35,19 @@ class OneInchTradeService(
     private var lastUpdateTime = 0L
 
     //region outputs
-    override var coinFrom: PlatformCoin? = null
+    override var tokenFrom: Token? = null
         private set(value) {
             field = value
-            coinFromSubject.onNext(Optional.ofNullable(value))
+            tokenFromSubject.onNext(Optional.ofNullable(value))
         }
-    override val coinFromObservable: Observable<Optional<PlatformCoin>> = coinFromSubject
+    override val tokenFromObservable: Observable<Optional<Token>> = tokenFromSubject
 
-    override var coinTo: PlatformCoin? = null
+    override var tokenTo: Token? = null
         private set(value) {
             field = value
-            coinToSubject.onNext(Optional.ofNullable(value))
+            tokenToSubject.onNext(Optional.ofNullable(value))
         }
-    override val coinToObservable: Observable<Optional<PlatformCoin>> = coinToSubject
+    override val tokenToObservable: Observable<Optional<Token>> = tokenToSubject
 
     override var amountFrom: BigDecimal? = null
         private set(value) {
@@ -83,34 +83,34 @@ class OneInchTradeService(
             syncQuote()
         }
 
-    override fun enterCoinFrom(coin: PlatformCoin?) {
-        if (coinFrom == coin) return
+    override fun enterTokenFrom(token: Token?) {
+        if (tokenFrom == token) return
 
-        coinFrom = coin
+        tokenFrom = token
 
         if (amountType == AmountType.ExactTo) {
             amountFrom = null
         }
 
-        if (coinTo == coinFrom) {
-            coinTo = null
+        if (tokenTo == tokenFrom) {
+            tokenTo = null
             amountTo = null
         }
 
         syncQuote()
     }
 
-    override fun enterCoinTo(coin: PlatformCoin?) {
-        if (coinTo == coin) return
+    override fun enterTokenTo(token: Token?) {
+        if (tokenTo == token) return
 
-        coinTo = coin
+        tokenTo = token
 
         if (amountType == AmountType.ExactFrom) {
             amountTo = null
         }
 
-        if (coinFrom == coinTo) {
-            coinFrom = null
+        if (tokenFrom == tokenTo) {
+            tokenFrom = null
             amountFrom = null
         }
 
@@ -140,15 +140,15 @@ class OneInchTradeService(
     }
 
     override fun switchCoins() {
-        val swapCoin = coinTo
-        coinTo = coinFrom
+        val swapCoin = tokenTo
+        tokenTo = tokenFrom
 
-        enterCoinFrom(swapCoin)
+        enterTokenFrom(swapCoin)
     }
 
     override fun restoreState(swapProviderState: SwapMainModule.SwapProviderState) {
-        coinFrom = swapProviderState.coinFrom
-        coinTo = swapProviderState.coinTo
+        tokenFrom = swapProviderState.tokenFrom
+        tokenTo = swapProviderState.tokenTo
         amountType = swapProviderState.amountType
 
         when (swapProviderState.amountType) {
@@ -198,8 +198,8 @@ class OneInchTradeService(
         quoteDisposable = null
 
         val amountFrom = amountFrom
-        val coinFrom = coinFrom ?: return
-        val coinTo = coinTo ?: return
+        val tokenFrom = tokenFrom ?: return
+        val tokenTo = tokenTo ?: return
 
         if (amountFrom == null || amountFrom.compareTo(BigDecimal.ZERO) == 0) {
             state = State.NotReady()
@@ -208,15 +208,15 @@ class OneInchTradeService(
 
         state = State.Loading
 
-        quoteDisposable = oneInchKitHelper.getQuoteAsync(coinFrom, coinTo, amountFrom)
+        quoteDisposable = oneInchKitHelper.getQuoteAsync(tokenFrom, tokenTo, amountFrom)
             .subscribeIO({ quote ->
-                handle(quote, coinFrom, coinTo, amountFrom)
+                handle(quote, tokenFrom, tokenTo, amountFrom)
             }, { error ->
                 state = State.NotReady(listOf(error))
             })
     }
 
-    private fun handle(quote: Quote, coinFrom: PlatformCoin, coinTo: PlatformCoin, amountFrom: BigDecimal) {
+    private fun handle(quote: Quote, tokenFrom: Token, tokenTo: Token, amountFrom: BigDecimal) {
         val amountToBigDecimal =
             quote.toTokenAmount.abs().toBigDecimal().movePointLeft(quote.toToken.decimals)
                 .stripTrailingZeros()
@@ -224,8 +224,8 @@ class OneInchTradeService(
         amountTo = amountToBigDecimal
 
         val parameters = OneInchSwapParameters(
-            coinFrom,
-            coinTo,
+            tokenFrom,
+            tokenTo,
             amountFrom,
             amountToBigDecimal,
             swapSettings.slippage,

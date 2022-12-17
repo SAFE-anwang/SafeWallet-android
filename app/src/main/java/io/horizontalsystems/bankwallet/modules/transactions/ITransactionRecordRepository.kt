@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.transactions
 
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
+import io.horizontalsystems.marketkit.models.Blockchain
 import io.reactivex.Observable
 
 interface ITransactionRecordRepository : Clearable {
@@ -10,9 +11,10 @@ interface ITransactionRecordRepository : Clearable {
     fun setWallets(
         transactionWallets: List<TransactionWallet>,
         wallet: TransactionWallet?,
-        transactionType: FilterTransactionType
+        transactionType: FilterTransactionType,
+        blockchain: Blockchain?
     )
-    fun setSelectedWallet(transactionWallet: TransactionWallet?)
+    fun setWalletAndBlockchain(transactionWallet: TransactionWallet?, blockchain: Blockchain?)
     fun setTransactionType(transactionType: FilterTransactionType)
     fun loadNext()
 }

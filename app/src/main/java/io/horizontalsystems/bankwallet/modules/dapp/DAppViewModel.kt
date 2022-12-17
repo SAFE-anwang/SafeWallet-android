@@ -2,11 +2,16 @@ package io.horizontalsystems.bankwallet.modules.dapp
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppService
+import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class DAppViewModel(
     private val service: DAppService
@@ -17,6 +22,8 @@ class DAppViewModel(
     val viewState = MutableLiveData<ViewState>(ViewState.Loading)
     val filterTypesLiveData = MutableLiveData<List<Filter<FilterDAppType>>>()
     val syncingLiveData = MutableLiveData<Boolean>()
+
+
 
     private val disposables = CompositeDisposable()
 
@@ -61,6 +68,20 @@ class DAppViewModel(
     }
 
     private fun groupDAppData(datas: List<DAppItem>) {
+        datas.forEach {
+            it.iconPlaceholder = when(it.name.lowercase()) {
+                "uniswap" -> {
+                    R.drawable.ic_uniswap
+                }
+                "sushi" -> {
+                    R.drawable.sushi
+                }
+                "safeswap" -> {
+                    R.drawable.safe
+                }
+                else -> null
+            }
+        }
         val items = datas.groupBy {
             it.subType
         }
@@ -86,8 +107,18 @@ class DAppViewModel(
         return
     }
 
+    fun onErrorClick() {
+        refresh()
+    }
+
     fun refresh() {
         service.refresh()
+
+        viewModelScope.launch {
+            syncingLiveData.postValue(true)
+            delay(1000)
+            syncingLiveData.postValue(false)
+        }
     }
 }
 
@@ -99,7 +130,8 @@ data class DAppItem(
     val descEN: String,
     val icon: String,
     val dlink: String,
-    val md5Code: String
+    val md5Code: String,
+    var iconPlaceholder: Int? = null
 ) {
 
 }

@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.providers
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.core.entities.Currency
 import java.util.*
@@ -87,6 +86,18 @@ class AppConfigProvider(val index: Int) {
      val bscscanApiKey by lazy {
         Translator.getString(R.string.bscscanKey)
     }
+     val polygonscanApiKey by lazy {
+        Translator.getString(R.string.polygonscanKey)
+    }
+     val snowtraceApiKey by lazy {
+        Translator.getString(R.string.snowtraceApiKey)
+    }
+     val optimisticEtherscanApiKey by lazy {
+        Translator.getString(R.string.optimisticEtherscanApiKey)
+    }
+     val arbiscanApiKey by lazy {
+        Translator.getString(R.string.arbiscanApiKey)
+    }
      val guidesUrl by lazy {
         Translator.getString(R.string.guidesUrl)
     }
@@ -112,20 +123,21 @@ class AppConfigProvider(val index: Int) {
      val maxDecimal: Int = 8
      val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
 
-    val currencies: List<Currency> = listOf(
-        Currency("AUD", "A$", 2),
-        Currency("BRL", "R$", 2),
-        Currency("CAD", "C$", 2),
-        Currency("CHF", "₣", 2),
-        Currency("CNY", "¥", 2),
-        Currency("EUR", "€", 2),
-        Currency("GBP", "£", 2),
-        Currency("HKD", "HK$", 2),
-        Currency("ILS", "₪", 2),
-        Currency("JPY", "¥", 2),
-        Currency("RUB", "₽", 2),
-        Currency("SGD", "S$", 2),
-        Currency("USD", "$", 2),
+     val currencies: List<Currency> = listOf(
+            Currency("AUD", "A$", 2),
+            Currency("BRL", "R$", 2),
+            Currency("CAD", "C$", 2),
+            Currency("CHF", "₣", 2),
+            Currency("CNY", "¥", 2),
+            Currency("EUR", "€", 2),
+            Currency("GBP", "£", 2),
+            Currency("HKD", "HK$", 2),
+            Currency("ILS", "₪", 2),
+            Currency("JPY", "¥", 2),
+            Currency("RUB", "₽", 2),
+            Currency("SGD", "S$", 2),
+            Currency("USD", "$", 2),
+            Currency("ZAR", "R", 2),
     )
 
     val safeTwitterUser = "safeanwang"

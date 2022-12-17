@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,19 +30,22 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinPlatformsViewModel
+import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
+import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItem
-import io.horizontalsystems.bankwallet.modules.restore.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultipleDialog
-import io.horizontalsystems.bankwallet.ui.extensions.ZcashBirthdayHeightDialog
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.getNavigationResult
 
 class ManageWalletsFragment : BaseFragment() {
 
@@ -51,7 +53,7 @@ class ManageWalletsFragment : BaseFragment() {
     private val viewModel by viewModels<ManageWalletsViewModel> { vmFactory }
     private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
-    private val coinPlatformsViewModel by viewModels<CoinPlatformsViewModel> { vmFactory }
+    private val coinTokensViewModel by viewModels<CoinTokensViewModel> { vmFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,7 +68,8 @@ class ManageWalletsFragment : BaseFragment() {
                 ComposeAppTheme {
                     ManageWalletsScreen(
                         findNavController(),
-                        viewModel
+                        viewModel,
+                        restoreSettingsViewModel
                     )
                 }
             }
@@ -87,26 +90,11 @@ class ManageWalletsFragment : BaseFragment() {
             )
         }
 
-        restoreSettingsViewModel.openBirthdayAlertSignal.observe(viewLifecycleOwner) {
-            val zcashBirhdayHeightDialog = ZcashBirthdayHeightDialog()
-            zcashBirhdayHeightDialog.onEnter = {
-                restoreSettingsViewModel.onEnter(it)
-            }
-            zcashBirhdayHeightDialog.onCancel = {
-                restoreSettingsViewModel.onCancelEnterBirthdayHeight()
-            }
-
-            zcashBirhdayHeightDialog.show(
-                requireActivity().supportFragmentManager,
-                "ZcashBirthdayHeightDialog"
-            )
-        }
-
-        coinPlatformsViewModel.openPlatformsSelectorEvent.observe(viewLifecycleOwner) { config ->
+        coinTokensViewModel.openSelectorEvent.observe(viewLifecycleOwner) { config ->
             showBottomSelectorDialog(
                 config,
-                onSelect = { indexes -> coinPlatformsViewModel.onSelect(indexes) },
-                onCancel = { coinPlatformsViewModel.onCancelSelect() }
+                onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
+                onCancel = { coinTokensViewModel.onCancelSelect() }
             )
         }
     }
@@ -120,14 +108,15 @@ class ManageWalletsFragment : BaseFragment() {
         BottomSheetSelectorMultipleDialog.show(
             fragmentManager = childFragmentManager,
             title = config.title,
-            subtitle = config.subtitle,
             icon = config.icon,
             items = config.viewItems,
             selected = config.selectedIndexes,
             notifyUnchanged = true,
             onItemSelected = { onSelect(it) },
             onCancelled = { onCancel() },
-            warning = config.description
+            warningTitle = config.descriptionTitle,
+            warning = config.description,
+            allowEmpty= config.allowEmpty
         )
     }
 
@@ -136,10 +125,30 @@ class ManageWalletsFragment : BaseFragment() {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ManageWalletsScreen(
-    findNavController: NavController,
-    viewModel: ManageWalletsViewModel
+    navController: NavController,
+    viewModel: ManageWalletsViewModel,
+    restoreSettingsViewModel: RestoreSettingsViewModel
 ) {
     val coinItems by viewModel.viewItemsLiveData.observeAsState()
+
+    if (restoreSettingsViewModel.openZcashConfigure != null) {
+        restoreSettingsViewModel.zcashConfigureOpened()
+
+        navController.getNavigationResult(ZcashConfigure.resultBundleKey) { bundle ->
+            val requestResult = bundle.getInt(ZcashConfigure.requestResultKey)
+
+            if (requestResult == ZcashConfigure.RESULT_OK) {
+                val zcashConfig = bundle.getParcelable<ZCashConfig>(ZcashConfigure.zcashConfigKey)
+                zcashConfig?.let { config ->
+                    restoreSettingsViewModel.onEnter(config)
+                }
+            } else {
+                restoreSettingsViewModel.onCancelEnterBirthdayHeight()
+            }
+        }
+
+        navController.slideFromBottom(R.id.zcashConfigure)
+    }
 
     Column(
         modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
@@ -147,16 +156,19 @@ private fun ManageWalletsScreen(
         SearchBar(
             title = stringResource(R.string.ManageCoins_title),
             searchHintText = stringResource(R.string.ManageCoins_Search),
-            navController = findNavController,
-            menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.ManageCoins_AddToken),
-                    icon = R.drawable.ic_add_yellow,
-                    onClick = {
-                        findNavController.slideFromRight(R.id.manageWalletsFragment_to_addToken)
-                    }
-                )
-            ),
+            navController = navController,
+            menuItems = if (viewModel.addTokenEnabled) {
+                listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.ManageCoins_AddToken),
+                        icon = R.drawable.ic_add_yellow,
+                        onClick = {
+                            navController.slideFromRight(R.id.addTokenFragment)
+                        }
+                    ))
+            } else {
+                listOf()
+            },
             onSearchTextChanged = { text ->
                 viewModel.updateFilter(text)
             }
@@ -180,8 +192,21 @@ private fun ManageWalletsScreen(
                     items(it) { viewItem ->
                         CoinCell(
                             viewItem = viewItem,
-                            onItemClick = { onItemClick(viewItem, viewModel) },
-                            onSettingClick = { viewModel.onClickSettings(viewItem.uid) },
+                            onItemClick = {
+                                if (viewItem.state is CoinViewItemState.ToggleVisible) {
+                                    if (viewItem.state.enabled) {
+                                        viewModel.disable(viewItem.item)
+                                    } else {
+                                        viewModel.enable(viewItem.item)
+                                    }
+                                } else {
+                                    navController.slideFromBottom(
+                                        R.id.coinNotSupportedDialog,
+                                        CoinNotSupportedDialog.prepareParams(viewModel.accountTypeDescription, viewItem.subtitle)
+                                    )
+                                }
+                            },
+                            onSettingClick = { viewModel.onClickSettings(viewItem.item) },
                         )
                     }
                 }
@@ -192,7 +217,7 @@ private fun ManageWalletsScreen(
 
 @Composable
 private fun CoinCell(
-    viewItem: CoinViewItem,
+    viewItem: CoinViewItem<String>,
     onItemClick: () -> Unit,
     onSettingClick: () -> Unit,
 ) {
@@ -217,10 +242,8 @@ private fun CoinCell(
                 modifier = Modifier.weight(1f)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
+                    body_leah(
                         text = viewItem.title,
-                        color = ComposeAppTheme.colors.leah,
-                        style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                     )
                     viewItem.label?.let { labelText ->
@@ -244,10 +267,8 @@ private fun CoinCell(
                         }
                     }
                 }
-                Text(
+                subhead2_grey(
                     text = viewItem.subtitle,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.subhead2,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 1.dp)
                 )
@@ -255,7 +276,7 @@ private fun CoinCell(
             if (viewItem.state is CoinViewItemState.ToggleVisible) {
                 Spacer(Modifier.width(12.dp))
                 if (viewItem.state.hasSettings) {
-                    IconButton(
+                    HsIconButton(
                         onClick = onSettingClick
                     ) {
                         Icon(
@@ -274,24 +295,14 @@ private fun CoinCell(
     }
 }
 
-private fun onItemClick(viewItem: CoinViewItem, viewModel: ManageWalletsViewModel) {
-    if (viewItem.state is CoinViewItemState.ToggleVisible) {
-        if (viewItem.state.enabled) {
-            viewModel.disable(viewItem.uid)
-        } else {
-            viewModel.enable(viewItem.uid)
-        }
-    }
-}
-
 @Preview
 @Composable
 fun PreviewCoinCell() {
     val viewItem = CoinViewItem(
         "arbitrum",
         ImageSource.Local(R.drawable.logo_arbitrum_24),
-        "Arbitrum",
         "ARB",
+        "Arbitrum",
         CoinViewItemState.ToggleVisible(true, true),
         "Arbitrum"
     )

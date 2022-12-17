@@ -2,7 +2,7 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.fee
 
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountInfo
-import io.horizontalsystems.marketkit.models.CoinType
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 
 class FeeRateAdjustmentHelper(private val appConfigProvider: AppConfigProvider) {
@@ -16,11 +16,11 @@ class FeeRateAdjustmentHelper(private val appConfigProvider: AppConfigProvider) 
     )
 
     private val rulesByCoin = mapOf(
-            CoinType.Bitcoin to amountRules,
-            CoinType.Ethereum to amountRules
+        BlockchainType.Bitcoin to amountRules,
+        BlockchainType.Ethereum to amountRules
     )
 
-    fun applyRule(coinType: CoinType, feeRateAdjustmentInfo: FeeRateAdjustmentInfo, feeRate: Long): Long {
+    fun applyRule(coinType: BlockchainType, feeRateAdjustmentInfo: FeeRateAdjustmentInfo, feeRate: Long): Long {
 
         val coinRules = rulesByCoin[coinType] ?: return feeRate  //Binance, BCH, Dash, Litecoin has static fee
 

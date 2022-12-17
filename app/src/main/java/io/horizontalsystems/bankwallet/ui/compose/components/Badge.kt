@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.ui.compose.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.SteelDark
+import java.math.BigDecimal
 
 @Composable
 fun Badge(modifier: Modifier = Modifier, text: String) {
@@ -30,6 +32,38 @@ fun Badge(modifier: Modifier = Modifier, text: String) {
         color = ComposeAppTheme.colors.bran,
         style = ComposeAppTheme.typography.microSB,
     )
+}
+
+@Composable
+fun BadgeWithDiff(
+    modifier: Modifier = Modifier,
+    text: String,
+    diff: BigDecimal? = null
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(ComposeAppTheme.colors.jeremy)
+            .padding(horizontal = 4.dp, vertical = 2.dp)
+    ) {
+        Row {
+            Text(
+                text = text,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.microSB,
+                maxLines = 1,
+            )
+            diff?.let { diffValue ->
+                Text(
+                    modifier = Modifier.padding(start = 4.dp),
+                    text = "${sign(diffValue)}${diff.abs()}",
+                    color = diffColor(diffValue),
+                    style = ComposeAppTheme.typography.microSB,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -77,6 +111,25 @@ fun BadgeCircle(modifier: Modifier = Modifier, text: String) {
     )
 }
 
+@Composable
+fun BadgeStepCircle(
+    modifier: Modifier = Modifier,
+    text: String,
+    active: Boolean = false
+) {
+    val background = if (active) ComposeAppTheme.colors.bran else ComposeAppTheme.colors.steel20
+    val textColor = if (active) ComposeAppTheme.colors.claude else ComposeAppTheme.colors.grey
+
+    Text(
+        text = text,
+        modifier = modifier
+            .background(background, shape = CircleShape)
+            .badgeLayout(),
+        color = textColor,
+        style = ComposeAppTheme.typography.captionSB,
+    )
+}
+
 fun Modifier.badgeLayout() =
     layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
@@ -92,6 +145,14 @@ fun Modifier.badgeLayout() =
             )
         }
     }
+
+private fun sign(value: BigDecimal): String {
+    return when (value.signum()) {
+        1 -> "+"
+        -1 -> "-"
+        else -> ""
+    }
+}
 
 @Preview
 @Composable
@@ -127,7 +188,20 @@ fun BagdeCirclePreview() {
             modifier = Modifier.padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            BadgeCircle(text = "123")
+            BadgeCircle(text = "1")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BagdeStepCircle_Preview() {
+    ComposeAppTheme {
+        Box(
+            modifier = Modifier.padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            BadgeStepCircle(text = "2", active = true)
         }
     }
 }
