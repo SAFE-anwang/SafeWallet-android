@@ -134,7 +134,7 @@ fun AppearanceScreen(navController: NavController) {
                                 viewModel.onEnterLaunchPage(option)
                             }
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        /*Spacer(modifier = Modifier.height(24.dp))
 
                         HeaderText(text = stringResource(id = R.string.Appearance_AppIcon))
                         AppIconSection(uiState.appIconOptions) {
@@ -142,7 +142,7 @@ fun AppearanceScreen(navController: NavController) {
                                 selectedAppIcon = it
                                 sheetState.show()
                             }
-                        }
+                        }*/
                         Spacer(modifier = Modifier.height(24.dp))
 
                         HeaderText(text = stringResource(id = R.string.Appearance_BalanceConversion))

@@ -34,6 +34,7 @@ import io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMn
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletViewModel
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.WalletInfo
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_NAME_KEY
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.PURPOSE_TYPE_KEY
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -193,7 +194,10 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             hideKeyboard()
             findNavController().slideFromRight(
                 R.id.restoreSelectCoinsFragment,
-                bundleOf(ACCOUNT_TYPE_KEY to accountType, PURPOSE_TYPE_KEY to purpose.value)
+                bundleOf(
+                    ACCOUNT_NAME_KEY to viewModel.defaultName,
+                    ACCOUNT_TYPE_KEY to accountType,
+                    PURPOSE_TYPE_KEY to purpose.value)
             )
         })
 

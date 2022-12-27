@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -103,13 +105,22 @@ fun MarketCoin(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CoinImage(
-                iconUrl = coinIconUrl,
-                placeholder = coinIconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp)
-            )
+            if (coinIconUrl.endsWith("safe-coin@3x.png")) {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(24.dp)
+                )
+            } else {
+                CoinImage(
+                    iconUrl = coinIconUrl,
+                    placeholder = coinIconPlaceholder,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(24.dp)
+                )
+            }
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {

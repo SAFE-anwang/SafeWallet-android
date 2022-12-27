@@ -38,7 +38,12 @@ class TransactionsRateRepository(
     }
 
     fun getHistoricalRate(key: HistoricalRateKey): CurrencyValue? {
-        return marketKit.coinHistoricalPrice(key.coinUid, baseCurrency.code, key.timestamp)?.let {
+        var uid = key.coinUid
+        if (key.coinUid == "custom_safe-erc20-SAFE"
+            || key.coinUid == "custom_safe-bep20-SAFE") {
+            uid = "safe-coin"
+        }
+        return marketKit.coinHistoricalPrice(uid, baseCurrency.code, key.timestamp)?.let {
             CurrencyValue(baseCurrency, it)
         }
     }
@@ -47,8 +52,12 @@ class TransactionsRateRepository(
         if (requestedXRates.containsKey(key)) return
 
         requestedXRates[key] = Unit
-
-        marketKit.coinHistoricalPriceSingle(key.coinUid, baseCurrency.code, key.timestamp)
+        var uid = key.coinUid
+        if (key.coinUid == "custom_safe-erc20-SAFE"
+            || key.coinUid == "custom_safe-bep20-SAFE") {
+            uid = "safe-coin"
+        }
+        marketKit.coinHistoricalPriceSingle(uid, baseCurrency.code, key.timestamp)
             .doFinally {
                 requestedXRates.remove(key)
             }

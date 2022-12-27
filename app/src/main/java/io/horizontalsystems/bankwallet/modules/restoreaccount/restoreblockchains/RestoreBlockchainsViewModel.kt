@@ -63,7 +63,6 @@ class RestoreBlockchainsViewModel(
 
     fun enable(blockchain: Blockchain, purpose: Int? = null) {
         service.enable(blockchain, purpose)
-        successLiveEvent.call()
     }
 
     fun disable(blockchain: Blockchain) {
@@ -77,6 +76,7 @@ class RestoreBlockchainsViewModel(
     fun onRestore() {
         service.restore()
         restored = true
+        successLiveEvent.call()
     }
 
     override fun onCleared() {

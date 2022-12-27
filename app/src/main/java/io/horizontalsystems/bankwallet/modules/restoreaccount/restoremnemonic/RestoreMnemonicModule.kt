@@ -26,6 +26,7 @@ object RestoreMnemonicModule {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             val service = RestoreMnemonicService(App.wordsManager, PassphraseValidator())
             return RestoreHDWalletViewModel(
+                App.accountFactory,
                 service, listOf(service),
             ) as T
         }

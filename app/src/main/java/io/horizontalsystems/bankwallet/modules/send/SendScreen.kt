@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.send
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -9,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
@@ -31,13 +33,22 @@ fun SendScreen(
         AppBar(
             title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
             navigationIcon = {
-                CoinImage(
-                    iconUrl = fullCoin.coin.iconUrl,
-                    placeholder = fullCoin.iconPlaceholder,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .size(24.dp)
-                )
+                if (fullCoin.coin.uid == "safe-coin" || fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+                    Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(24.dp)
+                    )
+                } else {
+                    CoinImage(
+                        iconUrl = fullCoin.coin.iconUrl,
+                        placeholder = fullCoin.iconPlaceholder,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(24.dp)
+                    )
+                }
             },
             menuItems = listOf(
                 MenuItem(

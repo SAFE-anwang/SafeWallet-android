@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.IAccountFactory
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMnemonicService
@@ -14,7 +15,11 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 
-class RestoreHDWalletViewModel(private val service: RestoreMnemonicService, private val clearables: List<Clearable>) : ViewModel() {
+class RestoreHDWalletViewModel(
+    accountFactory: IAccountFactory,
+    private val service: RestoreMnemonicService,
+    private val clearables: List<Clearable>
+) : ViewModel() {
 
     private val disposables = CompositeDisposable()
 
@@ -28,6 +33,9 @@ class RestoreHDWalletViewModel(private val service: RestoreMnemonicService, priv
 
     private val regex = Regex("\\S+")
     private var state = State(listOf(), listOf())
+
+
+    val defaultName = accountFactory.getNextAccountName()
 
     override fun onCleared() {
         clearables.forEach(Clearable::clear)

@@ -79,8 +79,6 @@ object RestoreBlockchainsModule {
     }
 
     class Factory2(
-        private val accountName: String,
-        private val accountType: AccountType
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
@@ -94,19 +92,6 @@ object RestoreBlockchainsModule {
         }
         private val enableCoinService by lazy {
             EnableCoinService(coinTokensService, restoreSettingsService, coinSettingsService)
-        }
-
-        private val restoreSelectCoinsService by lazy {
-            RestorePrivateKeyService(
-                accountName,
-                accountType,
-                App.accountFactory,
-                App.accountManager,
-                App.walletManager,
-                App.marketKit,
-                enableCoinService,
-                App.evmBlockchainManager
-            )
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -123,7 +108,7 @@ object RestoreBlockchainsModule {
                 }
                 PrivateKeyImportViewModel::class.java -> {
                     PrivateKeyImportViewModel(
-                        restoreSelectCoinsService
+                        App.accountFactory
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.coincard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,17 +77,21 @@ fun SwapCoinCardViewComposable(
                 .height(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /* if (platformCoin.coin.uid == "custom_safe-erc20-SAFE"
-                || platformCoin.coin.uid == "custom_safe-bep20-SAFE") {
-                binding.iconCoin.setImage(ImageSource.Local(R.drawable.logo_safe_24))
-            }*/
-            CoinImage(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .size(24.dp),
-                iconUrl = token?.coin?.iconUrl,
-                placeholder = token?.iconPlaceholder ?: R.drawable.coin_placeholder
-            )
+            if (token?.coin?.uid == "safe-coin"
+                || token?.coin?.uid == "custom_safe-erc20-SAFE") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                )
+            } else {
+                CoinImage(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(24.dp),
+                    iconUrl = token?.coin?.iconUrl,
+                    placeholder = token?.iconPlaceholder ?: R.drawable.coin_placeholder
+                )
+            }
             body_leah(text = title)
             Spacer(Modifier.weight(1f))
             SelectButton(

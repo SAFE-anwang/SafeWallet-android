@@ -43,6 +43,7 @@ class SendWsafeFragment : BaseFragment() {
 
     private val wsafeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_WSAFE)!! }
     private val safeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_SAFE)!! }
+    private val isETH by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_ETH)!! }
 
     private val vmFactory by lazy { SendEvmModule.WsafeFactory(wsafeWallet) }
     private val viewModel by navGraphViewModels<SendWsafeViewModel>(R.id.sendWsafeFragment) { vmFactory }
@@ -137,7 +138,7 @@ class SendWsafeFragment : BaseFragment() {
         )
         binding.toolbarCompose.setContent {
             var titleRes = R.string.Safe4_Title_wsafe2safe_erc20
-            if ("custom_safe-bep20-SAFE" == wsafeWallet.coin.uid) {
+            if (!isETH) {
                 titleRes = R.string.Safe4_Title_wsafe2safe_bep20
             }
             ComposeAppTheme {

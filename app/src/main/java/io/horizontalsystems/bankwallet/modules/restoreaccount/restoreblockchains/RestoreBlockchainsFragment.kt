@@ -88,7 +88,6 @@ class RestoreBlockchainsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         observe()
         purpose = arguments?.getInt(PURPOSE_TYPE_KEY)
-        Log.e("longwen", "purpose: $purpose")
         purpose?.let {
             val viewItems = viewModel.viewItemsLiveData.value
             viewItems?.find {
@@ -102,7 +101,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            findNavController().popBackStack(R.id.restoreSelectImportWayFragment, true)
+            findNavController().popBackStack(R.id.manageAccountsFragment, false)
         }
 
         coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->

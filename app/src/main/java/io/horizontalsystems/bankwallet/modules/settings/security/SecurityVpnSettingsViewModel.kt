@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.settings.security
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -31,7 +33,10 @@ import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTor
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.BlockchainSettingsBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.PasscodeBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.TorBlock
+import io.horizontalsystems.bankwallet.modules.settings.security.ui.VpnBlock
+import io.horizontalsystems.bankwallet.modules.settings.security.vpn.SecurityVpnSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
+import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -61,6 +66,15 @@ class SecuritySettingsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        val vpnViewModel = SecurityVpnSettingsViewModel(requireContext().getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)) { connectState ->
+            context?.let {
+                if (connectState) {
+                    VpnConnectService.startVpn(requireActivity())
+                } else {
+                    Utils.stopVService(it)
+                }
+            }
+        }
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -70,6 +84,7 @@ class SecuritySettingsFragment : BaseFragment() {
                     SecurityCenterScreen(
                         passcodeViewModel = passcodeViewModel,
                         torViewModel = torViewModel,
+                        vpnViewModel = vpnViewModel,
                         blockchainSettingsViewModel = blockchainSettingsViewModel,
                         navController = findNavController(),
                         showAppRestartAlert = { showAppRestartAlert() },
@@ -127,6 +142,7 @@ class SecuritySettingsFragment : BaseFragment() {
 private fun SecurityCenterScreen(
     passcodeViewModel: SecurityPasscodeSettingsViewModel,
     torViewModel: SecurityTorSettingsViewModel,
+    vpnViewModel: SecurityVpnSettingsViewModel,
     blockchainSettingsViewModel: BlockchainSettingsViewModel,
     navController: NavController,
     showAppRestartAlert: () -> Unit,
@@ -168,6 +184,10 @@ private fun SecurityCenterScreen(
                 item {
                     Spacer(Modifier.height(24.dp))
                     HeaderText(stringResource(R.string.SecurityCenter_Internet))
+                    VpnBlock(
+                        vpnViewModel,
+                        showAppRestartAlert,
+                    )
                     TorBlock(
                         torViewModel,
                         showAppRestartAlert,

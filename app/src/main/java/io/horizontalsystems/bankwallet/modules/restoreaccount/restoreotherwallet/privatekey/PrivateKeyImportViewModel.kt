@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.IAccountFactory
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.DataState
@@ -21,29 +22,35 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.BackpressureStrategy
 
 class PrivateKeyImportViewModel(
-    private val service: RestorePrivateKeyService
+    accountFactory: IAccountFactory,
+//    private val service: RestorePrivateKeyService
 ): ViewModel() {
 
-    val restoreEnabledLiveData: LiveData<Boolean>
+    /*val restoreEnabledLiveData: LiveData<Boolean>
         get() = LiveDataReactiveStreams.fromPublisher(
             service.canRestore.toFlowable(BackpressureStrategy.DROP)
-        )
+        )*/
 
     var keyInvalidState = SingleLiveEvent<String?>()
 
     val successLiveEvent = SingleLiveEvent<Unit>()
 
+    val defaultName = accountFactory.getNextAccountName()
+
+    var accountType: AccountType? = null
+
     fun resolveAccountType(text: String): AccountType? {
         keyInvalidState.value = null
         return try {
             accountType(text)
+            return accountType
         } catch (e: Throwable) {
             keyInvalidState.value = Translator.getString(R.string.Restore_PrivateKey_InvalidKey)
             null
         }
     }
 
-    private fun accountType(text: String): AccountType {
+    private fun accountType(text: String) {
         val textCleaned = text.trim()
 
         if (textCleaned.isEmpty()) {
@@ -56,7 +63,7 @@ class PrivateKeyImportViewModel(
                 when (extendedKey.derivedType) {
                     HDExtendedKey.DerivedType.Master,
                     HDExtendedKey.DerivedType.Account -> {
-                        return AccountType.HdExtendedKey(extendedKey.serializePrivate())
+                        accountType = AccountType.HdExtendedKey(extendedKey.serializePrivate())
                     }
                     else -> throw RestorePrivateKeyModule.RestoreError.NotSupportedDerivedType
                 }
@@ -69,7 +76,8 @@ class PrivateKeyImportViewModel(
 
         try {
             val privateKey = Signer.privateKey(text)
-            return AccountType.EvmPrivateKey(privateKey)
+            accountType = AccountType.EvmPrivateKey(privateKey)
+            return
         } catch (e: Throwable) {
             //do nothing
         }
@@ -78,7 +86,7 @@ class PrivateKeyImportViewModel(
     }
 
     fun onRestore(accountType: AccountType) {
-        service.restore(accountType)
+//        service.restore(accountType)
         successLiveEvent.call()
     }
 
@@ -90,7 +98,7 @@ class PrivateKeyImportViewModel(
                 Blockchain(BlockchainType.Ethereum, "Ethereum", null)
             }
         }
-        service.enable(blockchain)
+//        service.enable(blockchain)
     }
 
     fun disable(type: String) {
@@ -101,7 +109,7 @@ class PrivateKeyImportViewModel(
                 Blockchain(BlockchainType.Ethereum, "Ethereum", null)
             }
         }
-        service.disable(blockchain)
+//        service.disable(blockchain)
     }
 
 }

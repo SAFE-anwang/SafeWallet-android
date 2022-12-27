@@ -27,6 +27,7 @@ object Migration_40_41 : Migration(40, 41) {
                         "bitcoinCash" -> BtcBlockchain.BitcoinCash
                         "litecoin" -> BtcBlockchain.Litecoin
                         "dash" -> BtcBlockchain.Dash
+                        "safe-coin" -> BtcBlockchain.Safe
                         else -> null
                     }
                     val btcRestoreMode = when (value) {
@@ -55,5 +56,6 @@ private enum class BtcBlockchain(val raw: String) {
     Bitcoin("bitcoin"),
     BitcoinCash("bitcoinCash"),
     Litecoin("litecoin"),
-    Dash("dash");
+    Dash("dash"),
+    Safe("SAFE");
 }

@@ -226,9 +226,9 @@ private fun onTransactionClick(
 ) {
     val transactionItem = viewModel.getTransactionItem(transactionViewItem) ?: return
 
-    viewModel.tmpItemToShow = transactionItem
-//    App.tmpItemToShow = transactionItem
-    viewModel.tmpItemToShow?.let {
+//    viewModel.tmpItemToShow = transactionItem
+    App.tmpItemToShow = transactionItem
+    App.tmpItemToShow?.let {
         navController.slideFromBottom(R.id.transactionInfoFragment)
     }
 }
@@ -321,27 +321,46 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        CoinImage(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(24.dp)
-                                .clip(shape),
-                            iconUrl = icon.url,
-                            placeholder = icon.placeholder
-                        )
+                        if (icon.url?.endsWith("safe-coin@3x.png") ==true  || icon.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(24.dp)
+                                    .clip(shape))
+                        } else {
+                            CoinImage(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(24.dp)
+                                    .clip(shape),
+                                iconUrl = icon.url,
+                                placeholder = icon.placeholder
+                            )
+                        }
                     }
                     is TransactionViewItem.Icon.Double -> {
                         val backShape = if (icon.back.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        CoinImage(
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .padding(top = 6.dp, start = 6.dp)
-                                .size(20.dp)
-                                .clip(backShape),
-                            iconUrl = icon.back.url,
-                            placeholder = icon.back.placeholder,
-                        )
+                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true  || icon.back.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(top = 6.dp, start = 6.dp)
+                                    .size(20.dp)
+                                    .clip(backShape))
+                        } else {
+                            CoinImage(
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(top = 6.dp, start = 6.dp)
+                                    .size(20.dp)
+                                    .clip(backShape),
+                                iconUrl = icon.back.url,
+                                placeholder = icon.back.placeholder,
+                            )
+                        }
 
                         Box(
                             modifier = Modifier
@@ -351,16 +370,25 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                                 .clip(frontShape)
                                 .background(ComposeAppTheme.colors.tyler)
                         )
-
-                        CoinImage(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 6.dp, end = 6.dp)
-                                .size(20.dp)
-                                .clip(frontShape),
-                            iconUrl = icon.front.url,
-                            placeholder = icon.front.placeholder,
-                        )
+                        if (icon.front.url?.endsWith("safe-coin@3x.png") ==true  || icon.front.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 6.dp, end = 6.dp)
+                                    .size(20.dp)
+                                    .clip(frontShape))
+                        } else {
+                            CoinImage(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 6.dp, end = 6.dp)
+                                    .size(20.dp)
+                                    .clip(frontShape),
+                                iconUrl = icon.front.url,
+                                placeholder = icon.front.placeholder,
+                            )
+                        }
                     }
                     is TransactionViewItem.Icon.ImageResource -> {}
                 }

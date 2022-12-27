@@ -49,6 +49,7 @@ class SendFragment : BaseFragment() {
                     BlockchainType.BitcoinCash,
                     BlockchainType.Litecoin,
                     BlockchainType.Dash,
+                    BlockchainType.Safe,
                     -> {
                         val sendBitcoinViewModel by navGraphViewModels<SendBitcoinViewModel>(R.id.sendXFragment) { SendBitcoinModule.Factory(wallet) }
 

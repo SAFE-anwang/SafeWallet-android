@@ -47,15 +47,15 @@ import io.horizontalsystems.core.helpers.KeyboardHelper
 
 class PrivateKeyImportFragment: BaseFragment() {
 
-    val vmFactory by lazy {
+    /*val vmFactory by lazy {
         RestoreBlockchainsModule.Factory2(
             arguments?.getString(RestoreBlockchainsFragment.ACCOUNT_NAME_KEY)!!,
             arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!
         )
-    }
+    }*/
 
-    private val viewModel by viewModels<PrivateKeyImportViewModel> { vmFactory }
-    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
+    private val viewModel by viewModels<PrivateKeyImportViewModel> { RestoreBlockchainsModule.Factory2() }
+//    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
 
     private var _binding: FragmentRestorePrivateKeyImportBinding? = null
     private val binding get() = _binding!!
@@ -154,9 +154,10 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 findNavController().slideFromRight(
                                     R.id.restoreSelectCoinsFragment,
                                     bundleOf(
-                                        ACCOUNT_TYPE_KEY to accountType
-                                    )
+                                        RestoreBlockchainsFragment.ACCOUNT_NAME_KEY to viewModel.defaultName,
+                                        ACCOUNT_TYPE_KEY to accountType)
                                 )
+
                             }
                         }
                     }
@@ -172,15 +173,15 @@ class PrivateKeyImportFragment: BaseFragment() {
     }
 
     private fun observer() {
-        coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
+        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
             coinSettingsViewModel.onSelect(listOf(0, 1, 2))
-        }
+        }*/
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
             findNavController().popBackStack(R.id.restoreSelectImportWayFragment, true)
         }
-        viewModel.restoreEnabledLiveData.observe(viewLifecycleOwner) {
+        /*viewModel.restoreEnabledLiveData.observe(viewLifecycleOwner) {
             binding.importButton.isEnabled = it
-        }
+        }*/
         binding.rbBtc.setOnCheckedChangeListener { buttonView, isChecked ->
             if(isChecked) {
                 Toast.makeText(

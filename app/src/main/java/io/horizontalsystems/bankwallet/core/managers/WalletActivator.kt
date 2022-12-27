@@ -16,9 +16,7 @@ class WalletActivator(
         val wallets = mutableListOf<Wallet>()
 
         for (tokenQuery in tokenQueries) {
-            Log.e("longwen", "token: ${tokenQuery.id}")
             val token = marketKit.token(tokenQuery) ?: continue
-            Log.e("longwen", "query token; $token")
 
             val defaultSettingsArray = token.blockchainType.defaultSettingsArray(account.type)
 

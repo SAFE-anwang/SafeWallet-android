@@ -36,6 +36,7 @@ class LineLockSendInteractor(private val adapter: ISendSafeAdapter) : SendModule
     }
 
     override fun fetchFee(amount: BigDecimal, address: String?) {
+        if (amount.toInt() == 0)    return
         Single.just(adapter.fee(amount, address))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

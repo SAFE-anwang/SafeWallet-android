@@ -693,7 +693,7 @@
     <string name="Settings_LaunchScreen">启动屏幕</string>
     <string name="Settings_Appearance">外观</string>
     <string name="Appearance_Theme">主题</string>
-    <string name="Appearance_LaunchScreen">局域网SCREEN</string>
+    <string name="Appearance_LaunchScreen">启动屏幕</string>
     <string name="Appearance_AppIcon">应用图标</string>
     <string name="Appearance_BalanceConversion">余额配对</string>
     <string name="Appearance_BalanceValue">平衡值</string>
@@ -710,7 +710,7 @@
     <string name="Privacy_BulletedText3">钱包没有收集任何有关用户的数据。</string>
     <string name="Privacy_BulletedText4">没有用户帐户或数据库存放其他地方的用户数据。</string>
     <!-- Security Center -->
-    <string name="SecurityCenter_BlockchainSettings">黑色设置</string>
+    <string name="SecurityCenter_BlockchainSettings">区块链设置</string>
     <string name="SecurityCenter_Internet">网络</string>
     <string name="SecurityCenter_BlockchainSettingsFooterDescription">选择恢复和同步钱包的数据源</string>
     <!--Evm Network-->

@@ -63,7 +63,7 @@ fun CoinImage(
                 model = iconUrl,
                 error = painterResource(fallback),
                 onError = {
-                    Log.e("longwen", "load error: ${it.result.throwable}")
+
                 }
             ),
             contentDescription = null,

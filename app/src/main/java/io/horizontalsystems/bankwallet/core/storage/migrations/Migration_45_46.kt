@@ -54,6 +54,9 @@ object Migration_45_46 : Migration(45, 46) {
             is CoinType.Dash -> {
                 TokenQuery(BlockchainType.Dash, TokenType.Native)
             }
+            is CoinType.Safe -> {
+                TokenQuery(BlockchainType.Safe, TokenType.Native)
+            }
             is CoinType.Zcash -> {
                 TokenQuery(BlockchainType.Zcash, TokenType.Native)
             }
@@ -138,6 +141,9 @@ private sealed class CoinType : Parcelable {
     object Dash : CoinType()
 
     @Parcelize
+    object Safe : CoinType()
+
+    @Parcelize
     object Zcash : CoinType()
 
     @Parcelize
@@ -215,6 +221,7 @@ private sealed class CoinType : Parcelable {
             is BitcoinCash -> "bitcoinCash"
             is Litecoin -> "litecoin"
             is Dash -> "dash"
+            is Safe -> "safe-coin"
             is Zcash -> "zcash"
             is Ethereum -> "ethereum"
             is BinanceSmartChain -> "binanceSmartChain"
@@ -254,6 +261,7 @@ private sealed class CoinType : Parcelable {
         BitcoinCash -> "bitcoinCash"
         Litecoin -> "litecoin"
         Dash -> "dash"
+        Safe -> "SAFE"
         Zcash -> "zcash"
         Ethereum -> "ethereum"
         BinanceSmartChain -> "binanceSmartChain"

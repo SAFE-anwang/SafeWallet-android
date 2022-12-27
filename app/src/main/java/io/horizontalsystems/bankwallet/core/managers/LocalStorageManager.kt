@@ -166,7 +166,7 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
         }
 
     override var isLockTimeEnabled: Boolean
-        get() = preferences.getBoolean(LOCK_TIME_ENABLED, false)
+        get() = preferences.getBoolean(LOCK_TIME_ENABLED, true)
         set(enabled) {
             preferences.edit().putBoolean(LOCK_TIME_ENABLED, enabled).apply()
         }

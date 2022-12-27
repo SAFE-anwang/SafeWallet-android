@@ -97,6 +97,7 @@ class UniswapFragment : SwapBaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         uniswapViewModel.isSwitch1Inch = false
+        observerEvent()
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -126,22 +127,15 @@ class UniswapFragment : SwapBaseFragment() {
         uniswapViewModel.onStop()
     }
 
-    /*
-
+    private fun observerEvent() {
         uniswapViewModel.swapErrorLiveData().observe(viewLifecycleOwner, { error ->
             if (error == Translator.getString(R.string.Swap_ErrorNoLiquidity) && dex.provider.id == "safe") {
                 switch1InchSwap()
-            } else {
+            }/* else {
                 binding.commonError.text = error
                 binding.commonError.isVisible = error != null
-            }
+            }*/
         })
-
-            private fun switch1InchSwap() {
-        val intent = Intent("com.anwang.safe.switchSwap")
-        requireActivity()?.sendBroadcast(intent)
-    }
-
 
         uniswapViewModel.priceImpactLiveEvent.observe(viewLifecycleOwner, {
             if (dex.provider.id == "safe" && it && !uniswapViewModel.isSwitch1Inch) {
@@ -149,7 +143,12 @@ class UniswapFragment : SwapBaseFragment() {
                 switch1InchSwap()
             }
         })
-    * */
+    }
+
+    private fun switch1InchSwap() {
+        val intent = Intent("com.anwang.safe.switchSwap")
+        requireActivity()?.sendBroadcast(intent)
+    }
 }
 
 @Composable

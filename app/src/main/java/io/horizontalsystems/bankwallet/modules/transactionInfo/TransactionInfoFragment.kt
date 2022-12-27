@@ -53,14 +53,15 @@ class TransactionInfoFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val viewItem = viewModelTxs.tmpItemToShow ?: run {
-            findNavController().popBackStack()
-            return null
-        }
-        /*if (App.tmpItemToShow == null) {
+        /*val viewItem = viewModelTxs.tmpItemToShow ?: run {
+            Log.e("longwen", "transactionInfoFragment----")
             findNavController().popBackStack()
             return null
         }*/
+        val viewItem = App.tmpItemToShow ?: run {
+            findNavController().popBackStack()
+            return null
+        }
 
         val viewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment) {
             TransactionInfoModule.Factory(viewItem)

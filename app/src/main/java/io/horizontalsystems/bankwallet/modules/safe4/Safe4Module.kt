@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 object Safe4Module {
 
@@ -31,13 +32,14 @@ object Safe4Module {
         var safeWallet: Wallet? = null
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
-//            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType=$chainType")
+//            Log.i("safe4", "---coinType = ${it.token} ---uid = ${it.coin.uid} ---chainType=$chainType")
             if (it.coin.uid == "safe-coin") {
                 safeWallet = it
-            } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
+//                Log.i("safe4", "---safe---")
+            } else if (chainType == ChainType.ETH &&  it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC && it.coin.uid == "custom_safe-bep20-SAFE") {
+            } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }
@@ -61,6 +63,7 @@ object Safe4Module {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
                 putExtra(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
+                putExtra(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
             })
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
@@ -76,10 +79,10 @@ object Safe4Module {
 //            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
             if (it.coin.uid == "safe-coin") {
                 safeWallet = it
-            } else if (chainType == ChainType.ETH && it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC && it.coin.uid == "custom_safe-bep20-SAFE") {
+            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }
@@ -103,6 +106,7 @@ object Safe4Module {
             val bundle = Bundle()
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
+            bundle.putBoolean(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
             navController.slideFromBottom(
                 R.id.sendWsafeFragment,
                 bundle

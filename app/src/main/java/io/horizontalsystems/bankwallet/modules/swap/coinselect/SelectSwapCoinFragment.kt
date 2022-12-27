@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -118,11 +120,19 @@ fun SelectSwapCoinDialogScreen(
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            CoinImage(
-                                iconUrl = coinItem.token.coin.iconUrl,
-                                placeholder = coinItem.token.iconPlaceholder,
-                                modifier = Modifier.size(24.dp)
-                            )
+                            if (coinItem.token.coin.uid == "safe-coin"
+                                || coinItem.token.coin.uid == "custom_safe-erc20-SAFE") {
+                                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                CoinImage(
+                                    iconUrl = coinItem.token.coin.iconUrl,
+                                    placeholder = coinItem.token.iconPlaceholder,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                             Spacer(modifier = Modifier.size(16.dp))
                             MultitextM1(
                                 title = { B2(text = coinItem.token.coin.name) },
