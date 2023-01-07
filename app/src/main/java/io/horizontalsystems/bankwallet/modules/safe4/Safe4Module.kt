@@ -39,7 +39,7 @@ object Safe4Module {
             } else if (chainType == ChainType.ETH &&  it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "custom_safe-erc20-SAFE" || it.coin.uid == "custom_safe-bep20-SAFE")) {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }
@@ -82,7 +82,7 @@ object Safe4Module {
             } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "custom_safe-erc20-SAFE" || it.coin.uid == "custom_safe-bep20-SAFE")) {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }

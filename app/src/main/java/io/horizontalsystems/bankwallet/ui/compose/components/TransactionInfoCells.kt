@@ -130,7 +130,8 @@ fun TransactionAmountCell(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (coinIconUrl?.endsWith("safe-coin@3x.png") ==true  || coinIconUrl?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+        if (coinIconUrl?.endsWith("safe-coin@3x.png") ==true  || coinIconUrl?.endsWith("custom_safe-erc20-SAFE@3x.png")==true
+            || coinIconUrl?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier

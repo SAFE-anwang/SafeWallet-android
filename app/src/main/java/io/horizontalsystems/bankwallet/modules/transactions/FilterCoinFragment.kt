@@ -26,6 +26,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import coil.compose.rememberAsyncImagePainter
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
@@ -37,14 +38,14 @@ import io.horizontalsystems.core.findNavController
 
 class FilterCoinFragment : BaseFragment() {
 
-//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
+//        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -96,7 +97,8 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        if (token.coin.uid == "safe-coin"  || token.coin.uid == ("custom_safe-erc20-SAFE")) {
+                                        Log.e("longwen", "uid: ${token.coin.uid}")
+                                        if (token.coin.uid == "safe-coin" || token.coin.uid == ("custom_safe-erc20-SAFE") || token.coin.uid == ("custom_safe-bep20-SAFE")) {
                                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                                 contentDescription = null,
                                                 modifier = Modifier

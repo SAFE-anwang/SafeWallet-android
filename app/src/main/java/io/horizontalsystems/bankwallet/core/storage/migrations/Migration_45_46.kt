@@ -302,6 +302,7 @@ private sealed class CoinType : Parcelable {
                     "bitcoinCash" -> BitcoinCash
                     "litecoin" -> Litecoin
                     "dash" -> Dash
+                    "safe-coin" -> Safe
                     "zcash" -> Zcash
                     "ethereum" -> Ethereum
                     "binanceSmartChain" -> BinanceSmartChain

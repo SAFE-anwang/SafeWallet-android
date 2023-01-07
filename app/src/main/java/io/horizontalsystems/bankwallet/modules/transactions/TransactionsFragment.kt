@@ -51,14 +51,13 @@ import io.horizontalsystems.core.findNavController
 
 class TransactionsFragment : BaseFragment() {
 
-//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
@@ -321,7 +320,8 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.url?.endsWith("safe-coin@3x.png") ==true  || icon.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                        if (icon.url?.endsWith("safe-coin@3x.png") ==true  || icon.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true
+                            || icon.url?.endsWith("custom_safe-bep20-SAFE@3x.png")==true) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
@@ -342,7 +342,8 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     is TransactionViewItem.Icon.Double -> {
                         val backShape = if (icon.back.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true  || icon.back.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true || icon.back.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true
+                            || icon.back.url?.endsWith("custom_safe-bep20-SAFE@3x.png")==true) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
