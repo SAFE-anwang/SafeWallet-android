@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import coil.compose.rememberAsyncImagePainter
@@ -35,13 +36,14 @@ import io.horizontalsystems.core.findNavController
 
 class FilterCoinFragment : BaseFragment() {
 
-    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)

@@ -162,7 +162,7 @@ fun AppearanceScreen(navController: NavController) {
                         }
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        HeaderText(text = stringResource(id = R.string.Appearance_BalanceValue))
+                        /*HeaderText(text = stringResource(id = R.string.Appearance_BalanceValue))
                         CellMultilineLawrenceSection(uiState.balanceViewTypeOptions.options) { option ->
                             RowMultilineSelect(
                                 title = stringResource(id = option.titleResId),
@@ -172,7 +172,7 @@ fun AppearanceScreen(navController: NavController) {
                                 viewModel.onEnterBalanceViewType(option)
                             }
                         }
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(32.dp))*/
                     }
                 }
             }
