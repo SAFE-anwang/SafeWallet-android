@@ -64,7 +64,6 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/tyler</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_safe_20</item>
         <item name="windowSplashScreenAnimationDuration">300</item>
         <item name="postSplashScreenTheme">@style/Theme.AppTheme</item>
     </style>

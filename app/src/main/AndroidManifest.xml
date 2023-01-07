@@ -49,8 +49,7 @@
             android:name=".modules.tor.TorConnectionActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".modules.launcher.LauncherActivity"
-            android:theme="@style/Theme.App.Starting" />
+            android:name=".modules.launcher.LauncherActivity" />
         <activity
             android:name=".modules.main.MainActivity"
             android:screenOrientation="portrait"
