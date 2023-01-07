@@ -22,8 +22,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -32,6 +35,7 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinToke
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsFragment
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -99,9 +103,28 @@ class RestoreBlockchainsFragment : BaseFragment() {
         }
     }
 
+    private fun isContainerManagerFragment(): Boolean {
+        try {
+            val back: NavBackStackEntry = findNavController().getBackStackEntry(R.id.manageAccountsFragment)
+            return true
+        } catch (ex: IllegalArgumentException){
+        }
+        return false
+    }
+
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            findNavController().popBackStack(R.id.manageAccountsFragment, false)
+            if (isContainerManagerFragment()) {
+                findNavController().popBackStack(
+                    R.id.manageAccountsFragment,
+                    false
+                )
+            } else {
+                findNavController().popBackStack(
+                    R.id.mainFragment,
+                    false
+                )
+            }
         }
 
         coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->

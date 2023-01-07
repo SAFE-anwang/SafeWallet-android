@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
@@ -95,16 +96,24 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(
-                                                model = token.coin.iconUrl,
-                                                error = painterResource(token.iconPlaceholder)
-                                            ),
-                                            modifier = Modifier
-                                                .padding(end = 16.dp)
-                                                .size(24.dp),
-                                            contentDescription = null
-                                        )
+                                        if (token.coin.uid == "safe-coin"  || token.coin.uid == ("custom_safe-erc20-SAFE")) {
+                                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .padding(end = 16.dp)
+                                                    .size(24.dp))
+                                        } else {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(
+                                                    model = token.coin.iconUrl,
+                                                    error = painterResource(token.iconPlaceholder)
+                                                ),
+                                                modifier = Modifier
+                                                    .padding(end = 16.dp)
+                                                    .size(24.dp),
+                                                contentDescription = null
+                                            )
+                                        }
                                         Column {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 B2(text = token.coin.name)
