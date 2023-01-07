@@ -85,26 +85,38 @@ class SafeAdapter(
 
     // ISendDashAdapter
 
-    override fun availableBalance(address: String?): BigDecimal {
+    override fun availableBalanceSafe(address: String?): BigDecimal {
         return availableBalance(feeRate, address, mapOf())
     }
 
-    override fun fee(amount: BigDecimal, address: String?): BigDecimal? {
+    override fun minimumSendAmountSafe(address: String?): BigDecimal? {
+        return try {
+            satoshiToBTC(kit.minimumSpendableValue(address).toLong(), RoundingMode.CEILING)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun satoshiToBTC(value: Long, roundingMode: RoundingMode = RoundingMode.HALF_EVEN): BigDecimal {
+        return BigDecimal(value).divide(satoshisInBitcoin, decimal, roundingMode)
+    }
+
+    override fun feeSafe(amount: BigDecimal, address: String?): BigDecimal? {
         return fee(amount, feeRate, address, mapOf())
     }
 
-    override fun convertFee(amount: BigDecimal, address: String?): BigDecimal? {
+    override fun convertFeeSafe(amount: BigDecimal, address: String?): BigDecimal? {
         // 增加兑换WSAFE流量手续费
         var convertFeeRate = feeRate
         convertFeeRate += 50
         return fee(amount, convertFeeRate, address, mapOf())
     }
 
-    override fun validate(address: String) {
+    override fun validateSafe(address: String) {
         validate(address, mapOf())
     }
 
-    override fun send(amount: BigDecimal, address: String, logger: AppLogger, lockedTimeInterval: LockTimeInterval? , reverseHex: String ?): Single<Unit> {
+    override fun sendSafe(amount: BigDecimal, address: String, logger: AppLogger, lockedTimeInterval: LockTimeInterval? , reverseHex: String ?): Single<Unit> {
         var unlockedHeight = 0L
         if ( lockedTimeInterval != null ){
             val lockedMonth = lockedTimeInterval.value();
@@ -159,9 +171,20 @@ class SafeAdapter(
 
         private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean): SafeKit {
             val account = wallet.account
-            val accountType = account.type
-            if (accountType is AccountType.Mnemonic) {
-                return SafeKit(context = App.instance,
+            when(val accountType = account.type) {
+                is AccountType.HdExtendedKey -> {
+                    return SafeKit(
+                        context = App.instance,
+                        connectionManager = App.bitCoinConnectionManager,
+                        extendedKey = accountType.hdExtendedKey,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = getNetworkType(testMode),
+                        confirmationsThreshold = confirmationsThreshold
+                    )
+                }
+                is AccountType.Mnemonic -> {
+                    return SafeKit(context = App.instance,
                         connectionManager = App.bitCoinConnectionManager,
                         words = accountType.words,
                         passphrase = accountType.passphrase,
@@ -169,6 +192,8 @@ class SafeAdapter(
                         syncMode = syncMode,
                         networkType = getNetworkType(testMode),
                         confirmationsThreshold = confirmationsThreshold)
+                }
+                else -> throw UnsupportedAccountException()
             }
 
             throw UnsupportedAccountException()

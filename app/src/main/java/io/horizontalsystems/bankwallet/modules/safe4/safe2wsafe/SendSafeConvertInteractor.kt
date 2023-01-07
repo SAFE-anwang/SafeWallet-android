@@ -16,7 +16,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
     var delegate: SendModule.ISendSafeInteractorDelegate? = null
 
     override fun fetchAvailableBalance(address: String?) {
-        Single.just(adapter.availableBalance(address))
+        Single.just(adapter.availableBalanceSafe(address))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ availableBalance ->
@@ -28,7 +28,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
     }
 
     override fun fetchMinimumAmount(address: String?): BigDecimal? {
-        return adapter.minimumSendAmount(address)
+        return adapter.minimumSendAmountSafe(address)
     }
 
     override fun validate(address: String) {
@@ -37,7 +37,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
 
     override fun fetchFee(amount: BigDecimal, address: String?) {
         if (amount.toInt() == 0)    return
-        Single.just(adapter.convertFee(amount, address))
+        Single.just(adapter.convertFeeSafe(amount, address))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ fee ->
@@ -51,7 +51,7 @@ class SendSafeConvertInteractor(private val adapter: ISendSafeAdapter) : SendMod
     }
 
     override fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ?, reverseHex: String ?): Single<Unit> {
-        return adapter.send(amount, address, logger , lockTimeInterval, reverseHex)
+        return adapter.sendSafe(amount, address, logger , lockTimeInterval, reverseHex)
     }
 
     override fun clear() {

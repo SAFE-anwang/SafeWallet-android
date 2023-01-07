@@ -37,8 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/sendEvmConfirmationFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.sendevm.confirmation.SendEvmConfirmationFragment"
-        tools:layout="@layout/fragment_confirmation_send_evm" />
+        android:name="io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment"/>
     <fragment
         android:id="@+id/sendWsafeConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.confirmation.SendWsafeConfirmationFragment"/>
@@ -290,6 +289,9 @@
     <fragment
         android:id="@+id/sendXFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.SendFragment" />
+    <activity
+        android:id="@+id/sendSafeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity" />
     <fragment
         android:id="@+id/sendConfirmation"
         android:name="io.horizontalsystems.bankwallet.modules.send.SendConfirmationFragment" />

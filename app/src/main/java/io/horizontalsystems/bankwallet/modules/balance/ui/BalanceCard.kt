@@ -279,10 +279,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
-                    navController.slideFromBottom(
-                        R.id.sendXFragment,
-                        SendFragment.prepareParams(viewItem.wallet)
-                    )
+                    if (viewItem.wallet.coin.uid == "safe-coin") {
+                        navController.slideFromBottom(
+                            R.id.sendSafeFragment,
+                            SendFragment.prepareParams(viewItem.wallet)
+                        )
+                    } else {
+                        navController.slideFromBottom(
+                            R.id.sendXFragment,
+                            SendFragment.prepareParams(viewItem.wallet)
+                        )
+                    }
                 },
                 enabled = viewItem.sendEnabled
             )

@@ -113,7 +113,7 @@ class SendWsafeViewModel(
         error = null
         address?.hex?.let {
             try {
-                adapter.validate(it)
+                adapter.validateSafe(it)
             } catch (e: Exception) {
                 error = AddressValidationException.Invalid(e)
             }

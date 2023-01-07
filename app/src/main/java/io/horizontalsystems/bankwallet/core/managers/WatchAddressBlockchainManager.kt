@@ -55,7 +55,8 @@ class WatchAddressBlockchainManager(
             BlockchainType.Bitcoin,
             BlockchainType.BitcoinCash,
             BlockchainType.Litecoin,
-            BlockchainType.Dash
+            BlockchainType.Dash,
+            BlockchainType.Safe
         )
         val supportedBlockchainTypes = blockchainTypes.filter { it.supports(account.type) }
 

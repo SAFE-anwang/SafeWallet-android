@@ -45,6 +45,10 @@ class FeeRateProvider(appConfig: AppConfigProvider) {
         return feeRateKit.dash()
     }
 
+    fun safeFeeRate(): Single<BigInteger> {
+        return Single.just(BigInteger("10"))
+    }
+
 }
 
 class BitcoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
@@ -88,5 +92,11 @@ class BitcoinCashFeeRateProvider(private val feeRateProvider: FeeRateProvider) :
 class DashFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
         feeRateProvider.dashFeeRate().blockingGet().toLong()
+    }
+}
+
+class SafeFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
+    override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
+        feeRateProvider.safeFeeRate().blockingGet().toLong()
     }
 }

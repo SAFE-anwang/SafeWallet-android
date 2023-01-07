@@ -287,13 +287,12 @@ interface ISendDashAdapter {
 }
 
 interface ISendSafeAdapter {
-    val blockchainType: BlockchainType
-    fun availableBalance(address: String?): BigDecimal
-    fun minimumSendAmount(address: String?): BigDecimal?
-    fun fee(amount: BigDecimal, address: String?): BigDecimal?
-    fun convertFee(amount: BigDecimal, address: String?): BigDecimal?
-    fun validate(address: String)
-    fun send(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ? = null, reverseHex: String ?): Single<Unit>
+    fun availableBalanceSafe(address: String?): BigDecimal
+    fun minimumSendAmountSafe(address: String?): BigDecimal?
+    fun feeSafe(amount: BigDecimal, address: String?): BigDecimal?
+    fun convertFeeSafe(amount: BigDecimal, address: String?): BigDecimal?
+    fun validateSafe(address: String)
+    fun sendSafe(amount: BigDecimal, address: String, logger: AppLogger , lockTimeInterval: LockTimeInterval ? = null, reverseHex: String ?): Single<Unit>
 }
 
 
