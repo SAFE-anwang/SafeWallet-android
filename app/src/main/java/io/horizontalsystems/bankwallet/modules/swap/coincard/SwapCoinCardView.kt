@@ -77,8 +77,7 @@ fun SwapCoinCardViewComposable(
                 .height(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (token?.coin?.uid == "safe-coin"
-                || token?.coin?.uid == "custom_safe-erc20-SAFE") {
+            if (token?.coin?.uid == "custom_safe-erc20-SAFE") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

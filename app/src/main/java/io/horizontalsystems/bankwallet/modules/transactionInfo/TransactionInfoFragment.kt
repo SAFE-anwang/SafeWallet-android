@@ -31,7 +31,7 @@ import io.horizontalsystems.core.findNavController
 
 class TransactionInfoFragment : BaseFragment() {
 
-    private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+//    private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     /*private val viewModelTxs by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) {
         TransactionsModule.Factory()
     }*/

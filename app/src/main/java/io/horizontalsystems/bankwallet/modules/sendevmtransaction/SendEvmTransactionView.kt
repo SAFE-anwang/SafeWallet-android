@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -168,11 +169,18 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
             .height(60.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CoinImage(
-            modifier = Modifier.size(24.dp),
-            iconUrl = item.token.coin.iconUrl,
-            placeholder = item.token.iconPlaceholder
-        )
+        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+        } else {
+            CoinImage(
+                modifier = Modifier.size(24.dp),
+                iconUrl = item.token.coin.iconUrl,
+                placeholder = item.token.iconPlaceholder
+            )
+        }
         Column(
             modifier = Modifier
                 .padding(start = 16.dp)
@@ -218,13 +226,20 @@ private fun Amount(item: ViewItem.Amount) {
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CoinImage(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp),
-            iconUrl = item.token.coin.iconUrl,
-            placeholder = item.token.iconPlaceholder
-        )
+        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier.padding(end = 16.dp).size(24.dp)
+            )
+        } else {
+            CoinImage(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp),
+                iconUrl = item.token.coin.iconUrl,
+                placeholder = item.token.iconPlaceholder
+            )
+        }
         Text(
             text = item.coinAmount,
             maxLines = 1,
@@ -269,13 +284,20 @@ private fun Token(item: ViewItem.TokenItem) {
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CoinImage(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp),
-            iconUrl = item.token.coin.iconUrl,
-            placeholder = item.token.iconPlaceholder
-        )
+        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier.padding(end = 16.dp).size(24.dp)
+            )
+        } else {
+            CoinImage(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp),
+                iconUrl = item.token.coin.iconUrl,
+                placeholder = item.token.iconPlaceholder
+            )
+        }
         subhead1_leah(item.token.coin.code)
     }
 }

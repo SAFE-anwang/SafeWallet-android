@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.walletconnect.request.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -64,13 +65,22 @@ fun AmountCell(
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CoinImage(
-            iconUrl = token.coin.iconUrl,
-            placeholder = token.iconPlaceholder,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp)
-        )
+        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        } else {
+            CoinImage(
+                iconUrl = token.coin.iconUrl,
+                placeholder = token.iconPlaceholder,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        }
         Text(
             text = coinAmount,
             color = coinAmountColor,
@@ -90,13 +100,22 @@ fun TokenCell(token: Token) {
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CoinImage(
-            iconUrl = token.coin.iconUrl,
-            placeholder = token.iconPlaceholder,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp)
-        )
+        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        } else {
+            CoinImage(
+                iconUrl = token.coin.iconUrl,
+                placeholder = token.iconPlaceholder,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        }
         subhead1_leah(token.coin.code)
     }
 }
@@ -117,13 +136,22 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
             .height(height),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CoinImage(
-            iconUrl = token.coin.iconUrl,
-            placeholder = token.iconPlaceholder,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp)
-        )
+        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        } else {
+            CoinImage(
+                iconUrl = token.coin.iconUrl,
+                placeholder = token.iconPlaceholder,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        }
         Column(
             verticalArrangement = Arrangement.Center
         ) {
