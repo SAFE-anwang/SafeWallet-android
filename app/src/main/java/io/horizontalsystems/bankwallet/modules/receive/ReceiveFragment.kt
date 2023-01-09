@@ -101,13 +101,20 @@ private fun ReceiveScreen(
             AppBar(
                 title = title,
                 navigationIcon = {
-                    CoinImage(
-                        iconUrl = fullCoin.coin.iconUrl,
-                        placeholder = fullCoin.iconPlaceholder,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .size(24.dp)
-                    )
+                    if (fullCoin.coin.uid == "safe-coin" || fullCoin.coin.uid == "custom_safe-erc20-SAFE") {
+                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                            contentDescription = null,
+                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                        )
+                    } else {
+                        CoinImage(
+                            iconUrl = fullCoin.coin.iconUrl,
+                            placeholder = fullCoin.iconPlaceholder,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .size(24.dp)
+                        )
+                    }
                 },
                 menuItems = listOf(
                     MenuItem(
