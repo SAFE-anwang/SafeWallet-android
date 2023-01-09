@@ -30,7 +30,6 @@ class BalanceAccountsViewModel(accountManager: IAccountManager) : ViewModel() {
 
     private fun handleAccount(activeAccount: Account?) {
         accountViewItem = activeAccount?.let { account ->
-            App.binanceRefreshManager.startRefreshBinance()
             AccountViewItem(account.type !is AccountType.EvmAddress, account.type is AccountType.EvmAddress, account.name, account.id)
         }
     }
