@@ -30,6 +30,13 @@ data class Account(
             else -> false
         }
 
+    @IgnoredOnParcel
+    val manageCoinsAllowed: Boolean
+        get() = when (this.type) {
+            is AccountType.EvmAddress -> false
+            else -> true
+        }
+
     override fun equals(other: Any?): Boolean {
         if (other is Account) {
             return id == other.id

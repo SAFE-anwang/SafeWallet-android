@@ -19,6 +19,7 @@ import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.*
 
 class SafeAdapter(
     override val kit: SafeKit,
@@ -161,6 +162,26 @@ class SafeAdapter(
     }*/
 
     override val blockchainType = BlockchainType.Safe
+
+    fun fallbackBlock(year: Int, month: Int) {
+        lastBlockInfo?.let {
+            kit.fallbackBlockDate = "$year${if(month <10) "0" else ""}$month"
+            val calendar = Calendar.getInstance()
+            calendar.clear()
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month - 1)
+            calendar.set(Calendar.DAY_OF_MONTH, 1)
+            kit.bitcoinCore.stop()
+            val blocksList = kit.bitcoinCore.storage.getBlocksForTime(calendar.time.time/1000)
+            if (blocksList.isNotEmpty()) {
+                kit.bitcoinCore.storage.deleteBlocks(blocksList)
+            }
+            kit.mainNetSafe?.let {
+                kit.bitcoinCore.updateLastBlockInfo(syncMode, it)
+            }
+            kit.bitcoinCore.start()
+        }
+    }
 
     companion object {
 

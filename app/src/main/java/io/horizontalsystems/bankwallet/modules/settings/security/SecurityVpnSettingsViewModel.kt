@@ -23,17 +23,18 @@ import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.icon24
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsModule
 import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsViewModel
+import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.BottomSheetFallbackBlockSelectDialog
+import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockModule
+import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.passcode.SecurityPasscodeSettingsModule
 import io.horizontalsystems.bankwallet.modules.settings.security.passcode.SecurityPasscodeSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsModule
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsViewModel
-import io.horizontalsystems.bankwallet.modules.settings.security.ui.BlockchainSettingsBlock
-import io.horizontalsystems.bankwallet.modules.settings.security.ui.PasscodeBlock
-import io.horizontalsystems.bankwallet.modules.settings.security.ui.TorBlock
-import io.horizontalsystems.bankwallet.modules.settings.security.ui.VpnBlock
+import io.horizontalsystems.bankwallet.modules.settings.security.ui.*
 import io.horizontalsystems.bankwallet.modules.settings.security.vpn.SecurityVpnSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
 import io.horizontalsystems.bankwallet.net.VpnConnectService
@@ -44,6 +45,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.marketkit.models.Blockchain
 import kotlin.system.exitProcess
 
 class SecuritySettingsFragment : BaseFragment() {
@@ -58,6 +60,10 @@ class SecuritySettingsFragment : BaseFragment() {
 
     private val passcodeViewModel by viewModels<SecurityPasscodeSettingsViewModel> {
         SecurityPasscodeSettingsModule.Factory()
+    }
+
+    private val fallbackBlockViewModel by viewModels<FallbackBlockViewModel> {
+        FallbackBlockModule.Factory()
     }
 
     override fun onCreateView(
@@ -85,10 +91,14 @@ class SecuritySettingsFragment : BaseFragment() {
                         passcodeViewModel = passcodeViewModel,
                         torViewModel = torViewModel,
                         vpnViewModel = vpnViewModel,
+                        fallbackBlockViewModel = fallbackBlockViewModel,
                         blockchainSettingsViewModel = blockchainSettingsViewModel,
                         navController = findNavController(),
                         showAppRestartAlert = { showAppRestartAlert() },
                         restartApp = { restartApp() },
+                        fallbackClick = {
+                            showFallbackSelectorDialog(it)
+                        }
                     )
                 }
             }
@@ -126,6 +136,43 @@ class SecuritySettingsFragment : BaseFragment() {
         )
     }
 
+    private fun showFallbackBlockAlert(blockchain: Blockchain, year: Int, month: Int) {
+        val warningTitle = getString(R.string.fallback_block_title)
+
+        ConfirmationDialog.show(
+            icon = blockchain.type.icon24,
+            title = getString(R.string.fallback_block_title),
+            warningTitle = warningTitle,
+            warningText = getString(R.string.fallback_Warning),
+            actionButtonTitle = getString(R.string.Alert_fallback),
+            transparentButtonTitle = getString(R.string.Alert_fallback_Cancel),
+            fragmentManager = childFragmentManager,
+            listener = object : ConfirmationDialog.Listener {
+                override fun onActionButtonClick() {
+                    fallbackBlockViewModel.fallback(blockchain, year, month)
+                }
+
+                override fun onTransparentButtonClick() {
+
+                }
+
+                override fun onCancelButtonClick() {
+
+                }
+            }
+        )
+    }
+
+    private fun showFallbackSelectorDialog(blockchain: Blockchain) {
+        val dialog = BottomSheetFallbackBlockSelectDialog()
+        dialog.items = fallbackBlockViewModel.itemsTime
+        dialog.onSelectListener = {
+            showFallbackBlockAlert(blockchain, it.year, it.month)
+        }
+
+        dialog.show(childFragmentManager, "selector_dialog")
+    }
+
     private fun restartApp() {
         activity?.let {
             MainModule.startAsNewTask(it)
@@ -143,10 +190,12 @@ private fun SecurityCenterScreen(
     passcodeViewModel: SecurityPasscodeSettingsViewModel,
     torViewModel: SecurityTorSettingsViewModel,
     vpnViewModel: SecurityVpnSettingsViewModel,
+    fallbackBlockViewModel: FallbackBlockViewModel,
     blockchainSettingsViewModel: BlockchainSettingsViewModel,
     navController: NavController,
     showAppRestartAlert: () -> Unit,
     restartApp: () -> Unit,
+    fallbackClick: (Blockchain) -> Unit
 ) {
 
     if (torViewModel.restartApp) {
@@ -192,6 +241,12 @@ private fun SecurityCenterScreen(
                         torViewModel,
                         showAppRestartAlert,
                     )
+                }
+
+                item {
+                    Spacer(Modifier.height(24.dp))
+                    HeaderText(stringResource(R.string.fallback_block_title))
+                    FallBlockBlock(fallbackBlockViewModel, fallbackClick)
                 }
 
                 item {

@@ -1576,4 +1576,17 @@
     <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of ETH could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
 
     <string name="CreateWallet_Error_PassphraseForbiddenSymbols">Please use only latin letters and numbers for the passphrase</string>
+
+    <string name="fallback_block">Fallback SAFE Blockchains</string>
+    <string name="fallback_block_title">Fallback Block</string>
+    <string name="fallback_block_time_1">February 2023</string>
+    <string name="fallback_block_time_2">January 2023</string>
+    <string name="fallback_block_time_3">December 2022</string>
+    <string name="fallback_block_time_4">3 months</string>
+    <string name="fallback_block_time_5">October 2022</string>
+    <string name="fallback_block_time_6">September 2022</string>
+    <string name="fallback_block_time_7">August 2022</string>
+    <string name="fallback_Warning">This operation will resynchronize blocks</string>
+    <string name="Alert_fallback">Fallback</string>
+    <string name="Alert_fallback_Cancel">Cancel</string>
 </resources>

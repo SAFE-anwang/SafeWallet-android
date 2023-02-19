@@ -25,19 +25,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
     }
 
     override var activeAccountId: String?
-        get() {
-            var activeId = dao.getActiveAccount()?.accountId
-            if (activeId == null) {
-                try {
-                    activeId = dao.getAll().first().id
-                } catch (e: Exception) {
-                }
-                if (activeId != null) {
-                    dao.insertActiveAccount(ActiveAccount(activeId))
-                }
-            }
-            return activeId
-        }
+        get() = dao.getActiveAccount()?.accountId
         set(value) {
             if (value != null) {
                 dao.insertActiveAccount(ActiveAccount(value))
