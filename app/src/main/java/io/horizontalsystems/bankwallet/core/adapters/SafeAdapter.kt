@@ -172,6 +172,7 @@ class SafeAdapter(
             calendar.set(Calendar.MONTH, month - 1)
             calendar.set(Calendar.DAY_OF_MONTH, 1)
             kit.bitcoinCore.stop()
+            kit.bitcoinCore.stopDownload()
             val blocksList = kit.bitcoinCore.storage.getBlocksForTime(calendar.time.time/1000)
             if (blocksList.isNotEmpty()) {
                 kit.bitcoinCore.storage.deleteBlocks(blocksList)

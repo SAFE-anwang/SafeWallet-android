@@ -33,6 +33,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.main.MainFragment
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
@@ -41,6 +42,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.getNavigationResult
 
 class MainSettingsFragment : BaseFragment() {
 
@@ -59,6 +61,16 @@ class MainSettingsFragment : BaseFragment() {
                 ComposeAppTheme {
                     SettingsScreen(viewModel, findNavController())
                 }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getNavigationResult("fallbackHeight") {
+            val isFallback = it.getBoolean("isFallback")
+            if (isFallback) {
+                (requireParentFragment() as MainFragment).openBalanceFragment()
             }
         }
     }

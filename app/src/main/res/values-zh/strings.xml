@@ -1395,16 +1395,17 @@
     <!--Biometric Auth texts-->
     <string name="BiometricAuth_DialogTitle">生物扫描仪</string>
 
-    <string name="fallback_block">回退SAFE区块</string>
-    <string name="fallback_block_title">回退区块</string>
-    <string name="fallback_block_time_1">2023年2月</string>
-    <string name="fallback_block_time_2">2023年1月</string>
-    <string name="fallback_block_time_3">2022年12月</string>
-    <string name="fallback_block_time_4">2022年11月</string>
-    <string name="fallback_block_time_5">2022年10月</string>
-    <string name="fallback_block_time_6">2022年9月</string>
-    <string name="fallback_block_time_7">2022年8月</string>
+    <string name="fallback_block">SAFE区块回退高度</string>
+    <string name="fallback_block_title">SAFE区块回退</string>
+    <string name="fallback_block_time_1">高度: 4581517 (2023-2-1)</string>
+    <string name="fallback_block_time_2">高度: 4496731 (2023-1-1)</string>
+    <string name="fallback_block_time_3">高度: 4411940 (2022-12-1)</string>
+    <string name="fallback_block_time_4">高度: 4330516 (2022-11-1)</string>
+    <string name="fallback_block_time_5">高度: 4246017 (2022-10-1)</string>
+    <string name="fallback_block_time_6">高度: 4166829 (2022-9-1)</string>
+    <string name="fallback_block_time_7">高度: 4082133 (2022-8-1)</string>
     <string name="fallback_Warning">此操作将重新同步区块。</string>
     <string name="Alert_fallback">回退</string>
     <string name="Alert_fallback_Cancel">取消</string>
+    <string name="fallback_block_type">%s 高度</string>
 </resources>

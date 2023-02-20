@@ -35,7 +35,8 @@ class FallbackBlockViewModel(
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_5, 2022,10))
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_6, 2022,9))
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_7, 2022,8))
-        items.add(FallbackViewItem(Blockchain(BlockchainType.Safe, "SAFE", null)))
+
+        items.add(FallbackViewItem(Blockchain(BlockchainType.Safe, App.instance.getString(R.string.fallback_block_type, "SAFE"), null)))
     }
 
     override fun onCleared() {

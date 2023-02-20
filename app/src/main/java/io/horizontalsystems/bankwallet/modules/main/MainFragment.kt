@@ -210,4 +210,8 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         }
         startTelegramService?.join(groupLink)
     }
+
+    fun openBalanceFragment() {
+        binding.viewPager.setCurrentItem(1, false)
+    }
 }

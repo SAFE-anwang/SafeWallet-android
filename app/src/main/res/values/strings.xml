@@ -1577,16 +1577,17 @@
 
     <string name="CreateWallet_Error_PassphraseForbiddenSymbols">Please use only latin letters and numbers for the passphrase</string>
 
-    <string name="fallback_block">Fallback SAFE Blockchains</string>
-    <string name="fallback_block_title">Fallback Block</string>
-    <string name="fallback_block_time_1">February 2023</string>
-    <string name="fallback_block_time_2">January 2023</string>
-    <string name="fallback_block_time_3">December 2022</string>
-    <string name="fallback_block_time_4">3 months</string>
-    <string name="fallback_block_time_5">October 2022</string>
-    <string name="fallback_block_time_6">September 2022</string>
-    <string name="fallback_block_time_7">August 2022</string>
+    <string name="fallback_block">SAFE block fallback height</string>
+    <string name="fallback_block_title">SAFE block fallback</string>
+    <string name="fallback_block_time_1">Height: 4581517 (2023-2-1)</string>
+    <string name="fallback_block_time_2">Height: 4496731 (2023-1-1)</string>
+    <string name="fallback_block_time_3">Height: 4411940 (2022-12-1)</string>
+    <string name="fallback_block_time_4">Height: 4330516 (2022-11-1)</string>
+    <string name="fallback_block_time_5">Height: 4246017 (2022-10-1)</string>
+    <string name="fallback_block_time_6">Height: 4166829 (2022-9-1)</string>
+    <string name="fallback_block_time_7">Height: 4082133 (2022-8-1)</string>
     <string name="fallback_Warning">This operation will resynchronize blocks</string>
     <string name="Alert_fallback">Fallback</string>
     <string name="Alert_fallback_Cancel">Cancel</string>
+    <string name="fallback_block_type">%s height</string>
 </resources>

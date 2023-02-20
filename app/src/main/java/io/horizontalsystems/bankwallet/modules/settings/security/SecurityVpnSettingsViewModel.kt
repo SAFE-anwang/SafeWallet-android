@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import com.v2ray.ang.util.Utils
@@ -45,6 +46,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.setNavigationResult
 import io.horizontalsystems.marketkit.models.Blockchain
 import kotlin.system.exitProcess
 
@@ -150,6 +152,9 @@ class SecuritySettingsFragment : BaseFragment() {
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
                     fallbackBlockViewModel.fallback(blockchain, year, month)
+                    setNavigationResult("fallbackHeight", bundleOf("isFallback" to true))
+                    findNavController().popBackStack()
+
                 }
 
                 override fun onTransparentButtonClick() {
