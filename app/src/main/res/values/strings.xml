@@ -1590,4 +1590,9 @@
     <string name="Alert_fallback">Fallback</string>
     <string name="Alert_fallback_Cancel">Cancel</string>
     <string name="fallback_block_type">%s height</string>
+
+    <string name="Access_Websites_Warning_Title">Warning</string>
+    <string name="Access_Websites_Warning">You will visit the third party link, please ensure that the link is safe and reliable, and you will bear any consequences</string>
+    <string name="Access_Websites_Warning_Proceed">I will risk it</string>
+    <string name="Access_Websites_Input_Hint">Enter link access</string>
 </resources>

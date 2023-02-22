@@ -6,10 +6,12 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.webkit.*
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
@@ -30,8 +32,11 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingSer
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Request
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SendEthereumTransactionRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SignMessageRequest
+import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.setNavigationResult
+import io.horizontalsystems.marketkit.models.Blockchain
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -60,6 +65,7 @@ class DAppBrowseFragment: BaseFragment(){
 
     private var autoConnect = true
     private var isConnecting = false
+    private var isShowWarning = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,8 +89,39 @@ class DAppBrowseFragment: BaseFragment(){
         binding.dappToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-        val url = arguments?.getString("url")
+        binding.back.setOnClickListener {
+            findNavController().popBackStack()
+        }
+        binding.refreshView.setOnClickListener {
+            val inputContent = binding.inputWebUrl.text.toString()
+            if (inputContent.isEmpty()) return@setOnClickListener
+            if (!isShowWarning) {
+                isShowWarning = true
+                showAlert(inputContent)
+                return@setOnClickListener
+            }
+            webView.loadUrl(inputContent)
+        }
+        binding.inputWebUrl.setOnEditorActionListener { textView, i, keyEvent ->
+            if (i == EditorInfo.IME_ACTION_GO || i == EditorInfo.IME_ACTION_DONE) {
+                val inputContent = binding.inputWebUrl.text.toString()
+                if (inputContent.isEmpty()) return@setOnEditorActionListener false
+                if (!isShowWarning) {
+                    isShowWarning = true
+                    showAlert(inputContent)
+                } else {
+                    webView.loadUrl(inputContent)
+                }
+            }
+            false
+        }
+        val url = arguments?.getString("url") ?: ""
         val name = arguments?.getString("name")
+        val isInput = arguments?.getBoolean("isInput")?.let {
+            binding.dappToolbar.visibility = if (it) View.GONE else View.VISIBLE
+            binding.layoutInput.visibility = if (it) View.VISIBLE else View.GONE
+        }
+        binding.inputWebUrl.setText(url)
         binding.dappToolbar.title = name
         binding.progressBar.progress = 0
         addWebView()
@@ -153,6 +190,31 @@ class DAppBrowseFragment: BaseFragment(){
         errorLiveEvent.observe(viewLifecycleOwner, Observer {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         })
+    }
+
+    private fun showAlert(url: String) {
+
+        ConfirmationDialog.show(
+            icon = R.drawable.ic_attention_24,
+            title = getString(R.string.Access_Websites_Warning_Title),
+            warningText = getString(R.string.Access_Websites_Warning),
+            actionButtonTitle = getString(R.string.Access_Websites_Warning_Proceed),
+            transparentButtonTitle = getString(R.string.Alert_fallback_Cancel),
+            fragmentManager = childFragmentManager,
+            listener = object : ConfirmationDialog.Listener {
+                override fun onActionButtonClick() {
+                    webView.loadUrl(url)
+                }
+
+                override fun onTransparentButtonClick() {
+
+                }
+
+                override fun onCancelButtonClick() {
+
+                }
+            }
+        )
     }
 
     private fun addWebView() {

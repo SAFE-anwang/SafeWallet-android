@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,15 +52,40 @@ fun DAppFragment2(
     val viewItems by viewModel.dAppList.observeAsState()
 
     val scrollState = rememberScrollState()
+    Column(){
+        CellSingleLineLawrenceSection {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 12.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable {
+                        val bundle = Bundle()
+                        bundle.putBoolean("isInput", true)
+                        navController.slideFromRight(R.id.dappBrowseFragment, bundle)
+                    },
+                verticalArrangement = Arrangement.Center
+            ) {
 
-
+                body_leah(
+                    text = stringResource(R.string.Access_Websites_Input_Hint),
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+//                Spacer(Modifier.weight(1f))
+            }
+        }
     HSSwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
         onRefresh = {
             viewModel.refresh()
         }
     ) {
-        DAppScreen(viewModel)
+
+        DAppScreen(viewModel, navController)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -109,14 +136,19 @@ fun DAppFragment2(
             }
         }
     }
+    }
 
 }
 
 @Composable
-private fun DAppScreen(viewModel: DAppViewModel) {
+private fun DAppScreen(
+    viewModel: DAppViewModel,
+    navController: NavController
+) {
     val filterTypes by viewModel.filterTypesLiveData.observeAsState()
 
-    Surface(color = ComposeAppTheme.colors.tyler) {
+//    Surface(color = ComposeAppTheme.colors.tyler) {
+        Spacer(modifier = Modifier.height(70.dp))
         Column {
             filterTypes?.let { filterTypes ->
                 FilterTypeTabs(
@@ -126,7 +158,7 @@ private fun DAppScreen(viewModel: DAppViewModel) {
                 )
             }
         }
-    }
+//    }
 }
 
 

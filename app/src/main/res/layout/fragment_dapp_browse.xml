@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="?android:windowBackground">
 
@@ -12,6 +13,54 @@
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="@drawable/ic_back"
         app:titleTextAppearance="@style/Title3" />
+    <LinearLayout
+        android:id="@+id/layoutInput"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center_horizontal"
+        android:paddingTop="5dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:padding="5dp"
+            android:layout_marginLeft="10dp"/>
+
+        <EditText
+            android:id="@+id/inputWebUrl"
+            style="@style/Subhead2"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:autofillHints=""
+            android:hint="@string/Access_Websites_Input_Hint"
+            android:background="@drawable/input_background_themed"
+            android:gravity="top"
+            android:textColor="@color/oz"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="5dp"
+            android:paddingTop="11dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="11dp"
+            android:singleLine="true"
+            android:imeOptions="actionGo"/>
+
+        <ImageView
+            android:id="@+id/refreshView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_refresh"
+            android:padding="5dp"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
