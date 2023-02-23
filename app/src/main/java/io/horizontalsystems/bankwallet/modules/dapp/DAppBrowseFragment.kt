@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.dapp
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.view.KeyEvent
@@ -93,24 +94,25 @@ class DAppBrowseFragment: BaseFragment(){
             findNavController().popBackStack()
         }
         binding.refreshView.setOnClickListener {
-            val inputContent = binding.inputWebUrl.text.toString()
+            var inputContent = binding.inputWebUrl.text.toString()
             if (inputContent.isEmpty()) return@setOnClickListener
             if (!isShowWarning) {
                 isShowWarning = true
                 showAlert(inputContent)
                 return@setOnClickListener
             }
-            webView.loadUrl(inputContent)
+
+            webView.loadUrl(checkUrl(inputContent))
         }
         binding.inputWebUrl.setOnEditorActionListener { textView, i, keyEvent ->
             if (i == EditorInfo.IME_ACTION_GO || i == EditorInfo.IME_ACTION_DONE) {
-                val inputContent = binding.inputWebUrl.text.toString()
+                var inputContent = binding.inputWebUrl.text.toString()
                 if (inputContent.isEmpty()) return@setOnEditorActionListener false
                 if (!isShowWarning) {
                     isShowWarning = true
                     showAlert(inputContent)
                 } else {
-                    webView.loadUrl(inputContent)
+                    webView.loadUrl(checkUrl(inputContent))
                 }
             }
             false
@@ -192,6 +194,17 @@ class DAppBrowseFragment: BaseFragment(){
         })
     }
 
+    private fun checkUrl(url: String):String {
+        var newUrl = url
+        if (newUrl.startsWith("http://")) {
+            newUrl = url.replace("http://", "https://")
+        }
+        if (!newUrl.startsWith("https://") && newUrl.startsWith("www.")) {
+            newUrl = "https://$newUrl"
+        }
+        return newUrl
+    }
+
     private fun showAlert(url: String) {
 
         ConfirmationDialog.show(
@@ -203,7 +216,7 @@ class DAppBrowseFragment: BaseFragment(){
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
-                    webView.loadUrl(url)
+                    webView.loadUrl(checkUrl(url))
                 }
 
                 override fun onTransparentButtonClick() {
@@ -253,6 +266,9 @@ class DAppBrowseFragment: BaseFragment(){
         webViewSettings.javaScriptEnabled = true
         webViewSettings.domStorageEnabled = true
         webViewSettings.loadWithOverviewMode = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            webViewSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
     }
 
     private fun getSession() {

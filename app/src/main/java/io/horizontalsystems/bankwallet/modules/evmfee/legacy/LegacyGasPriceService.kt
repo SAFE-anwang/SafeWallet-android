@@ -20,7 +20,7 @@ import java.math.BigDecimal
 class LegacyGasPriceService(
     private val gasPriceProvider: LegacyGasPriceProvider,
     private val minRecommendedGasPrice: Long? = null,
-    private val initialGasPrice: Long? = 10000000000,
+    private val initialGasPrice: Long? = null,
 ) : IEvmGasPriceService {
 
     var recommendedGasPrice: Long? = null

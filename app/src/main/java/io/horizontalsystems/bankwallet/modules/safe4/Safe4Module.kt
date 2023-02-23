@@ -33,13 +33,13 @@ object Safe4Module {
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
 //            Log.i("safe4", "---coinType = ${it.token} ---uid = ${it.coin.uid} ---chainType=$chainType")
-            if (it.coin.uid == "safe-coin") {
+            if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
                 safeWallet = it
 //                Log.i("safe4", "---safe---")
-            } else if (chainType == ChainType.ETH &&  it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if (chainType == ChainType.ETH &&  it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "safe-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "custom_safe-erc20-SAFE" || it.coin.uid == "custom_safe-bep20-SAFE")) {
+            } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "safe-coin")) {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }
@@ -77,12 +77,12 @@ object Safe4Module {
         var wsafeWallet: Wallet? = null
         for (it in walletList) {
 //            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
-            if (it.coin.uid == "safe-coin") {
+            if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
                 safeWallet = it
-            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "custom_safe-erc20-SAFE") {
+            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid == "safe-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "custom_safe-erc20-SAFE" || it.coin.uid == "custom_safe-bep20-SAFE")) {
+            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "safe-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             }
@@ -122,7 +122,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.coin.uid == "safe-coin") {
+            if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
                 safeWallet = it
             }
         }
@@ -147,7 +147,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.coin.uid == "safe-coin") {
+            if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
                 safeWallet = it
             }
         }
