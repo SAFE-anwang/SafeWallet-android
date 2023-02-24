@@ -44,6 +44,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun BalanceCardSwipable(
@@ -279,7 +280,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 modifier = Modifier.weight(1f),
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
-                    if (viewItem.wallet.coin.uid == "safe-coin") {
+                    if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
                         navController.slideFromBottom(
                             R.id.sendSafeFragment,
                             SendFragment.prepareParams(viewItem.wallet)
