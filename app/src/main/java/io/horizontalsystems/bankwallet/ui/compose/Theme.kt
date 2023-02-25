@@ -7,6 +7,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 
 
 val lightPalette = Colors(
@@ -37,17 +39,34 @@ val darkPalette = Colors(
     raina = Steel10,
 )
 
+val bluePalette = Colors(
+    jacob = YellowD,
+    remus = GreenD,
+    lucian = RedD,
+    tyler = Blue,
+    bran = LightGrey,
+    leah = SteelLight,
+    claude = Dark,
+    lawrence = SteelBlue,
+    jeremy = Steel20,
+    laguna = LagunaD,
+    raina = Steel10,
+)
+
 @Composable
 fun ComposeAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable() () -> Unit
 ) {
 
-    val colors = if (darkTheme) {
-        darkPalette
-    } else {
-        lightPalette
-    }
+    val colors = if (App.localStorage.currentTheme == ThemeType.Blue) bluePalette
+        else {
+            if (darkTheme) {
+                darkPalette
+            } else {
+                lightPalette
+            }
+        }
 
     //custom styles
     ProvideLocalAssets(colors = colors, typography = Typography()) {

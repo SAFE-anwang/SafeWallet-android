@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -34,70 +35,73 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
 
     BackupAlert(navController)
 
-    Column {
-        TopAppBar(
-            modifier = Modifier.height(56.dp),
-            title = {
-                Row(
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            navController.slideFromBottom(
-                                R.id.manageAccountsFragment,
-                                ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
-                            )
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    title3_leah(
-                        text = accountViewItem.name,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(weight = 1f, fill = false)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_down_24),
-                        contentDescription = null,
-                        tint = ComposeAppTheme.colors.grey
-                    )
-                }
-            },
-            actions = {
-                AppBarMenuButton(
-                    icon = R.drawable.ic_nft_24,
-                    onClick = {
-                        navController.slideFromRight(R.id.nftsFragment)
-                    }
-                )
-            },
-            backgroundColor = ComposeAppTheme.colors.tyler,
-            elevation = 0.dp
-        )
-
-        val uiState = viewModel.uiState
-
-        Crossfade(uiState.viewState) { viewState ->
-            when (viewState) {
-                ViewState.Success -> {
-                    val balanceViewItems = uiState.balanceViewItems
-
-                    if (balanceViewItems.isNotEmpty()) {
-                        BalanceItems(
-                            balanceViewItems,
-                            viewModel,
-                            accountViewItem,
-                            navController,
-                            uiState
+    Surface(color = ComposeAppTheme.colors.tyler) {
+        Column {
+            TopAppBar(
+                modifier = Modifier.height(56.dp),
+                title = {
+                    Row(
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                navController.slideFromBottom(
+                                    R.id.manageAccountsFragment,
+                                    ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
+                                )
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        title3_leah(
+                            text = accountViewItem.name,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(weight = 1f, fill = false)
                         )
-                    } else {
-                        BalanceItemsEmpty(navController, accountViewItem)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_down_24),
+                            contentDescription = null,
+                            tint = ComposeAppTheme.colors.grey
+                        )
+                    }
+                },
+                actions = {
+                    AppBarMenuButton(
+                        icon = R.drawable.ic_nft_24,
+                        onClick = {
+                            navController.slideFromRight(R.id.nftsFragment)
+                        }
+                    )
+                },
+                backgroundColor = ComposeAppTheme.colors.tyler,
+                elevation = 0.dp
+            )
+
+            val uiState = viewModel.uiState
+
+            Crossfade(uiState.viewState) { viewState ->
+                when (viewState) {
+                    ViewState.Success -> {
+                        val balanceViewItems = uiState.balanceViewItems
+
+                        if (balanceViewItems.isNotEmpty()) {
+                            BalanceItems(
+                                balanceViewItems,
+                                viewModel,
+                                accountViewItem,
+                                navController,
+                                uiState
+                            )
+                        } else {
+                            BalanceItemsEmpty(navController, accountViewItem)
+                        }
+                    }
+                    ViewState.Loading,
+                    is ViewState.Error -> {
                     }
                 }
-                ViewState.Loading,
-                is ViewState.Error -> {}
             }
         }
     }

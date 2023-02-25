@@ -23,5 +23,10 @@ enum class ThemeType(
         "System",
         TranslatableString.ResString(R.string.SettingsTheme_System),
         R.drawable.ic_theme_system
+    ),
+    Blue(
+        "Blue",
+        TranslatableString.ResString(R.string.SettingsTheme_Blue),
+        R.drawable.ic_theme_light
     );
 }

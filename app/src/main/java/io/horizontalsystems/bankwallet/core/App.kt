@@ -392,6 +392,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         val nightMode = when (localStorage.currentTheme) {
             ThemeType.Light -> AppCompatDelegate.MODE_NIGHT_NO
             ThemeType.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+            ThemeType.Blue -> AppCompatDelegate.MODE_NIGHT_YES
             ThemeType.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
 

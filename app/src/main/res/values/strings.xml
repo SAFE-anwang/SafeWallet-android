@@ -927,6 +927,7 @@
     <string name="SettingsTheme_Title">Theme</string>
     <string name="SettingsTheme_Dark">Dark</string>
     <string name="SettingsTheme_Light">Light</string>
+    <string name="SettingsTheme_Blue">SAFE Blue</string>
     <string name="SettingsTheme_System">System</string>
 
     <!--Errors-->

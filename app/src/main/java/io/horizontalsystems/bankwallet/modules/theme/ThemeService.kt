@@ -16,6 +16,9 @@ class ThemeService(private val localStorage: ILocalStorage) {
     val optionsFlow = _optionsFlow.asStateFlow()
 
     fun setThemeType(themeType: ThemeType) {
+        if (localStorage.currentTheme == ThemeType.Dark || localStorage.currentTheme == ThemeType.Blue) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
         localStorage.currentTheme = themeType
         localStorage.relaunchBySettingChange = true
 
@@ -26,6 +29,7 @@ class ThemeService(private val localStorage: ILocalStorage) {
         val nightMode = when (themeType) {
             ThemeType.Light -> AppCompatDelegate.MODE_NIGHT_NO
             ThemeType.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+            ThemeType.Blue -> AppCompatDelegate.MODE_NIGHT_YES
             ThemeType.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
 

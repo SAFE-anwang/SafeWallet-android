@@ -824,6 +824,7 @@
     <string name="SettingsTheme_Title">主题样式</string>
     <string name="SettingsTheme_Dark">深色</string>
     <string name="SettingsTheme_Light">浅色</string>
+    <string name="SettingsTheme_Blue">SAFE蓝</string>
     <string name="SettingsTheme_System">系统</string>
     <!--Errors-->
     <string name="Binance_Backend_Error_MemoRequired">收款人要求在转账交易中包含非空的备注</string>
