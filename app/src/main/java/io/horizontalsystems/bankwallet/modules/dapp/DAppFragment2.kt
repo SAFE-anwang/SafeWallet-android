@@ -202,7 +202,6 @@ fun CellItems(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Log.e("longwen", "icon: ${dappItem.icon}")
             CoinImage(
                 iconUrl = dappItem.icon,
                 placeholder = dappItem.iconPlaceholder,

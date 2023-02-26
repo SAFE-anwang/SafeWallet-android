@@ -29,8 +29,13 @@ class CoinTokensViewModel(
         currentRequest = request
         val fullCoin = request.fullCoin
         val selectedTokenIndexes = if (request.currentTokens.isEmpty()) listOf(0) else request.currentTokens.map { fullCoin.supportedTokens.indexOf(it) }
+        val imageSource = if (fullCoin.coin.uid == "safe-coin") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(fullCoin.coin.iconUrl, fullCoin.iconPlaceholder)
+        }
         val config = BottomSheetSelectorMultipleDialog.Config(
-            icon = ImageSource.Remote(fullCoin.coin.iconUrl, fullCoin.iconPlaceholder),
+            icon = imageSource,
             title = fullCoin.coin.code,
             description = if (fullCoin.supportedTokens.size > 1) Translator.getString(R.string.CoinPlatformsSelector_Description) else null,
             selectedIndexes = selectedTokenIndexes,

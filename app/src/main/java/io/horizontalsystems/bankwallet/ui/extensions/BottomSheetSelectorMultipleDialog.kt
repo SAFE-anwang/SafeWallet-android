@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -103,13 +104,22 @@ class BottomSheetSelectorMultipleDialog(
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            item.icon?.let { url ->
-                                CoinImage(
-                                    iconUrl = url,
+                            if (icon is ImageSource.Local) {
+                                Image(painter = icon.painter(),
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .padding(end = 16.dp)
+                                        .padding(horizontal = 16.dp)
                                         .size(24.dp)
                                 )
+                            } else {
+                                item.icon?.let { url ->
+                                    CoinImage(
+                                        iconUrl = url,
+                                        modifier = Modifier
+                                            .padding(end = 16.dp)
+                                            .size(24.dp)
+                                    )
+                                }
                             }
                             Column {
                                 body_leah(text = item.title)
@@ -133,7 +143,9 @@ class BottomSheetSelectorMultipleDialog(
             }
         }
         ButtonPrimaryYellow(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
             title = getString(R.string.Button_Done),
             onClick = {
                 if (notifyUnchanged || !equals(selectedIndexes, selected)) {

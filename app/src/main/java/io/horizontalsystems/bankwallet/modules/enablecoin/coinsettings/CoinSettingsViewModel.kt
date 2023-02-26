@@ -57,8 +57,13 @@ class CoinSettingsViewModel(
         current: List<AccountType.Derivation>,
         allowEmpty: Boolean
     ): BottomSheetSelectorMultipleDialog.Config {
+        val imageSource = if (token.coin.uid == "safe-coin") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder)
+        }
         return BottomSheetSelectorMultipleDialog.Config(
-            icon = ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder),
+            icon = imageSource,
             title = token.coin.code,
             selectedIndexes = current.map { allDerivations.indexOf(it) }.filter { it > -1 },
             viewItems = allDerivations.map { derivation ->
@@ -78,8 +83,13 @@ class CoinSettingsViewModel(
         current: List<BitcoinCashCoinType>,
         allowEmpty: Boolean
     ): BottomSheetSelectorMultipleDialog.Config {
+        val imageSource = if (token.coin.uid == "safe-coin") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder)
+        }
         return BottomSheetSelectorMultipleDialog.Config(
-            icon = ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder),
+            icon = imageSource,
             title = token.coin.code,
             selectedIndexes = current.map { types.indexOf(it) }.filter { it > -1 },
             viewItems = types.map { type ->
