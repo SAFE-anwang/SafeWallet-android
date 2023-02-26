@@ -46,7 +46,7 @@ class FallbackBlockViewModel(
     fun fallback(block: Blockchain, year: Int, month: Int) {
         disposables.add(Observable.create(object : ObservableOnSubscribe<String> {
             override fun subscribe(emitter: ObservableEmitter<String>) {
-                walletManager.activeWallets.find { it.coin.uid == "safe-coin" }?.let {
+                walletManager.activeWallets.find { it.coin.uid == "safe-coin" && it.token.blockchainType == BlockchainType.Safe }?.let {
                     try {
                         adapterManager.getAdapterForWallet(it)?.let {
                             (it as SafeAdapter).fallbackBlock(year, month)
