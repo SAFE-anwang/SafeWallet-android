@@ -20,7 +20,7 @@ val White50 = Color(0x80FFFFFF)
 
 val YellowD = Color(0xFFFFA800)
 val YellowL = Color(0xFFF58400)
-val GreenD = Color(0xFF05C46B)
+val GreenD = Color(0xFF00FF00)
 val GreenL = Color(0xFF04AD5F)
 val Green50 = Color(0x8013D670)
 val RedD = Color(0xFFF43A4F)

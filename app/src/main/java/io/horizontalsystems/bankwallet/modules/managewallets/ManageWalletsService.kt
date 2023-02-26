@@ -10,10 +10,7 @@ import io.horizontalsystems.bankwallet.entities.ConfiguredToken
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
 import io.horizontalsystems.ethereumkit.core.AddressValidator
-import io.horizontalsystems.marketkit.models.Coin
-import io.horizontalsystems.marketkit.models.FullCoin
-import io.horizontalsystems.marketkit.models.Token
-import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.marketkit.models.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -42,6 +39,20 @@ class ManageWalletsService(
     private val disposables = CompositeDisposable()
 
     private var filter: String = ""
+
+    var blockchains: List<Blockchain?> = listOf(
+        null,
+        Blockchain(BlockchainType.Bitcoin, "Bitcoin", null),
+        Blockchain(BlockchainType.BitcoinCash, "Bitcoin Cash", null),
+        Blockchain(BlockchainType.Litecoin, "Litecoin", null),
+        Blockchain(BlockchainType.Dash, "Dash", null),
+        Blockchain(BlockchainType.Zcash, "Zcash", null),
+        Blockchain(BlockchainType.Ethereum, "Ethereum", null),
+        Blockchain(BlockchainType.BinanceSmartChain, "BinanceSmartChain", null),
+        Blockchain(BlockchainType.BinanceChain, "BinanceChain", null),
+    )
+    var selectedBlockchain: Blockchain? = null
+        private set
 
     init {
         walletManager.activeWalletsUpdatedObservable
@@ -198,6 +209,26 @@ class ManageWalletsService(
         syncFullCoins()
         sortFullCoins()
         syncState()
+    }
+
+    fun setFilter(filter: Blockchain?) {
+        this.selectedBlockchain = filter
+
+        syncFullCoins()
+        filterForBlockchain()
+        sortFullCoins()
+        syncState()
+    }
+
+    private fun filterForBlockchain() {
+        if (selectedBlockchain != null) {
+            fullCoins = fullCoins.filter {
+                val tokens = it.tokens.filter {
+                    it.blockchain == selectedBlockchain
+                }
+                tokens.isNotEmpty()
+            }
+        }
     }
 
     fun enable(uid: String) {

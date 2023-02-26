@@ -14,8 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -130,6 +129,7 @@ private fun ManageWalletsScreen(
     restoreSettingsViewModel: RestoreSettingsViewModel
 ) {
     val coinItems by viewModel.viewItemsLiveData.observeAsState()
+    val filterBlockchains by viewModel.filterBlockchainsLiveData.observeAsState()
 
     if (restoreSettingsViewModel.openZcashConfigure != null) {
         restoreSettingsViewModel.zcashConfigureOpened()
@@ -173,6 +173,44 @@ private fun ManageWalletsScreen(
                 viewModel.updateFilter(text)
             }
         )
+        filterBlockchains?.let { filterBlockchains ->
+            CellHeaderSorting(borderBottom = true) {
+                var showFilterBlockchainDialog by remember { mutableStateOf(false) }
+                if (showFilterBlockchainDialog) {
+                    SelectorDialogCompose(
+                        title = stringResource(R.string.Transactions_Filter_Blockchain),
+                        items = filterBlockchains.map {
+                            TabItem(
+                                it.item?.name
+                                    ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
+                                it.selected,
+                                it
+                            )
+                        },
+                        onDismissRequest = {
+                            showFilterBlockchainDialog = false
+                        },
+                        onSelectItem = viewModel::onEnterFilterBlockchain
+                    )
+                }
+
+                val filterBlockchain = filterBlockchains.firstOrNull { it.selected }?.item
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    ButtonSecondaryTransparent(
+                        title = filterBlockchain?.name
+                            ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
+                        iconRight = R.drawable.ic_down_arrow_20,
+                        onClick = {
+                            showFilterBlockchainDialog = true
+                        }
+                    )
+                }
+            }
+        }
 
         coinItems?.let {
             if (it.isEmpty()) {

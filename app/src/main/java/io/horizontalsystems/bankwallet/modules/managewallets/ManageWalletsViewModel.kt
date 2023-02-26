@@ -12,6 +12,8 @@ import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsServic
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.transactions.Filter
+import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.disposables.CompositeDisposable
 
@@ -22,6 +24,7 @@ class ManageWalletsViewModel(
 
     val viewItemsLiveData = MutableLiveData<List<CoinViewItem<String>>>()
     val disableCoinLiveData = MutableLiveData<String>()
+    val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
 
     private var disposables = CompositeDisposable()
 
@@ -35,6 +38,8 @@ class ManageWalletsViewModel(
             .let { disposables.add(it) }
 
         sync(service.items)
+
+        updateFilterBlockchains(service.selectedBlockchain)
     }
 
     private fun sync(items: List<ManageWalletsService.Item>) {
@@ -130,4 +135,16 @@ class ManageWalletsViewModel(
         disposables.clear()
     }
 
+    fun onEnterFilterBlockchain(filterBlockchain: Filter<Blockchain?>) {
+        service.setFilter(filterBlockchain.item)
+
+        updateFilterBlockchains(filterBlockchain.item)
+    }
+
+    private fun updateFilterBlockchains(select: Blockchain?) {
+        val filterBlockchains = service.blockchains.map {
+            Filter(it, it == select)
+        }
+        filterBlockchainsLiveData.postValue(filterBlockchains)
+    }
 }
