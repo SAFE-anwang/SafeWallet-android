@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
@@ -109,8 +110,11 @@ class BalanceViewModel(
     private suspend fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>) {
         withContext(Dispatchers.IO) {
             viewState = ViewState.Success
-
-            balanceViewItems = balanceItems.map { balanceItem ->
+            // 解决列表key相同闪退bug，过滤相同的记录
+            val tmpBalanceViewItems = balanceItems.distinctBy {
+                it.wallet.hashCode()
+            }
+            balanceViewItems = tmpBalanceViewItems.map { balanceItem ->
                 balanceViewItemFactory.viewItem(
                     balanceItem,
                     service.baseCurrency,
