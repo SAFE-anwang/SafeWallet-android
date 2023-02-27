@@ -43,14 +43,11 @@ class ManageWalletsService(
     var blockchains: List<Blockchain?> = listOf(
         null,
         Blockchain(BlockchainType.Bitcoin, "Bitcoin", null),
-        Blockchain(BlockchainType.BitcoinCash, "Bitcoin Cash", null),
-        Blockchain(BlockchainType.Litecoin, "Litecoin", null),
-        Blockchain(BlockchainType.Dash, "Dash", null),
         Blockchain(BlockchainType.Zcash, "Zcash", null),
         Blockchain(BlockchainType.Ethereum, "Ethereum", null),
-        Blockchain(BlockchainType.BinanceSmartChain, "BinanceSmartChain", null),
-        Blockchain(BlockchainType.BinanceChain, "BinanceChain", null),
+        Blockchain(BlockchainType.BinanceSmartChain, "Binance Smart Chain", null)
     )
+
     var selectedBlockchain: Blockchain? = null
         private set
 
@@ -225,10 +222,16 @@ class ManageWalletsService(
             fullCoins = fullCoins.filter {
                 val tokens = it.tokens.filter {
                     it.blockchain == selectedBlockchain
+                    || (selectedBlockchain != null && selectedBlockchain!!.type == BlockchainType.Bitcoin && isBitcoins(it.blockchain.type))
                 }
                 tokens.isNotEmpty()
             }
         }
+    }
+
+    private fun isBitcoins(type: BlockchainType):Boolean {
+        return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
+                || type == BlockchainType.Dash || type == BlockchainType.Safe
     }
 
     fun enable(uid: String) {
