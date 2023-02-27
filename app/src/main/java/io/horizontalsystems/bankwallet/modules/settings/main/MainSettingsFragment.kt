@@ -65,12 +65,18 @@ class MainSettingsFragment : BaseFragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         getNavigationResult("fallbackHeight") {
             val isFallback = it.getBoolean("isFallback")
-            if (isFallback) {
-                (requireParentFragment() as MainFragment).openBalanceFragment()
+            try {
+                if (isFallback) {
+                    if (isAdded) {
+                        (requireParentFragment() as MainFragment).openBalanceFragment()
+                    }
+                }
+            } catch (e: Exception) {
+
             }
         }
     }
