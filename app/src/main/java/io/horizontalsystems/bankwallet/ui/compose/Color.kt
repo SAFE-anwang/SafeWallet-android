@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val Dark = Color(0xFF13151A)
 val Light = Color(0xFFF0F0F0)
-val Blue = Color(0xFF2ca5e0)
+val Blue = Color(0xff517da2)
 val LightGrey = Color(0xFFC8C7CC)
 val SteelLight = Color(0xFFE1E1E5)
 val SteelDark = Color(0xFF252933)
