@@ -1414,4 +1414,7 @@
     <string name="Access_Websites_Warning">您将访问第三方链接，请确保该链接安全可靠，若造成任何后果由您承担；</string>
     <string name="Access_Websites_Warning_Proceed">我将冒险使用此操作</string>
     <string name="Access_Websites_Input_Hint">输入链接访问</string>
+
+    <string name="Manage_Wallets_Bitcoin">Bitcoin 系列</string>
+    <string name="Manage_Wallets_L2">L2 系列</string>
 </resources>

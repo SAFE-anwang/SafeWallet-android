@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
 import android.util.Log
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
@@ -42,10 +43,12 @@ class ManageWalletsService(
 
     var blockchains: List<Blockchain?> = listOf(
         null,
-        Blockchain(BlockchainType.Bitcoin, "Bitcoin", null),
-        Blockchain(BlockchainType.Zcash, "Zcash", null),
-        Blockchain(BlockchainType.Ethereum, "Ethereum", null),
-        Blockchain(BlockchainType.BinanceSmartChain, "Binance Smart Chain", null)
+        Blockchain(BlockchainType.Bitcoin, App.instance.getString(R.string.Manage_Wallets_Bitcoin), null),
+        Blockchain(BlockchainType.Safe, "SAFE", null),
+        Blockchain(BlockchainType.Ethereum, "ETH", null),
+        Blockchain(BlockchainType.BinanceSmartChain, "BSC", null),
+        Blockchain(BlockchainType.Polygon, App.instance.getString(R.string.Manage_Wallets_L2), null),
+        Blockchain(BlockchainType.Avalanche, "Avalanche", null)
     )
 
     var selectedBlockchain: Blockchain? = null
@@ -223,6 +226,7 @@ class ManageWalletsService(
                 val tokens = it.tokens.filter {
                     it.blockchain == selectedBlockchain
                     || (selectedBlockchain != null && selectedBlockchain!!.type == BlockchainType.Bitcoin && isBitcoins(it.blockchain.type))
+                    || (selectedBlockchain != null && selectedBlockchain!!.type == BlockchainType.Polygon && isL2(it.blockchain.type))
                 }
                 tokens.isNotEmpty()
             }
@@ -232,6 +236,11 @@ class ManageWalletsService(
     private fun isBitcoins(type: BlockchainType):Boolean {
         return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
                 || type == BlockchainType.Dash || type == BlockchainType.Safe
+    }
+
+    private fun isL2(type: BlockchainType):Boolean {
+        return type == BlockchainType.Polygon || type == BlockchainType.ArbitrumOne
+                || type == BlockchainType.Optimism
     }
 
     fun enable(uid: String) {
