@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -29,7 +31,12 @@ fun ButtonPrimaryDefault(
         modifier = modifier,
         onClick = onClick,
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
-            backgroundColor = ComposeAppTheme.colors.leah,
+            backgroundColor =
+                if (App.localStorage.currentTheme == ThemeType.Blue)
+                    ComposeAppTheme.colors.tyler
+                else
+                    ComposeAppTheme.colors.leah
+            ,
             contentColor = ComposeAppTheme.colors.claude,
             disabledBackgroundColor = ComposeAppTheme.colors.steel20,
             disabledContentColor = ComposeAppTheme.colors.grey50,
