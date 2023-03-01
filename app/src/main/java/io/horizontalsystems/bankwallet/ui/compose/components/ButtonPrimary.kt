@@ -33,6 +33,32 @@ fun ButtonPrimaryDefault(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor =
                 if (App.localStorage.currentTheme == ThemeType.Blue)
+                    ComposeAppTheme.colors.lawrence
+                else
+                    ComposeAppTheme.colors.leah
+            ,
+            contentColor = ComposeAppTheme.colors.claude,
+            disabledBackgroundColor = ComposeAppTheme.colors.steel20,
+            disabledContentColor = ComposeAppTheme.colors.grey50,
+        ),
+        content = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        enabled = enabled
+    )
+}
+
+@Composable
+fun ButtonPrimaryDefaultBlue(
+    modifier: Modifier = Modifier,
+    title: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
+    ButtonPrimary(
+        modifier = modifier,
+        onClick = onClick,
+        buttonColors = ButtonPrimaryDefaults.textButtonColors(
+            backgroundColor =
+                if (App.localStorage.currentTheme == ThemeType.Blue)
                     ComposeAppTheme.colors.tyler
                 else
                     ComposeAppTheme.colors.leah

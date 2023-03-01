@@ -9,6 +9,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -32,7 +34,7 @@ fun InfoH1(text: String) {
         Spacer(Modifier.height(8.dp))
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.grey50
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.grey50
         )
     }
 }

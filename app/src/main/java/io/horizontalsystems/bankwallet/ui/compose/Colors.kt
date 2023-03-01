@@ -37,7 +37,7 @@ class Colors(
     val steel10 = Steel10
     val steel20 = if(App.localStorage.currentTheme == ThemeType.Blue) SteelLight else Steel20
     val grey = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Black else Grey
-    val grey50 = if(App.localStorage.currentTheme == ThemeType.Blue) tyler else Grey50
+    val grey50 = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Black else Grey50
     val yellow50 = Yellow50
     val yellow20 = Yellow20
 
@@ -52,6 +52,7 @@ class Colors(
     val red50 = Red50
     val red20 = Red20
     val tgBlue = Color(0xFF28A7E7)
+    val dividerLine = LightGrey50
 
     //themed colors
     var jacob by mutableStateOf(jacob)

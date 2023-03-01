@@ -20,14 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.shorten
-import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCell
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
@@ -96,7 +94,7 @@ private fun SectionView(viewItems: List<ViewItem>) {
             if (index != 0) {
                 Divider(
                     thickness = 1.dp,
-                    color = ComposeAppTheme.colors.steel10,
+                    color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 )
             }
             when (item) {
@@ -169,7 +167,7 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
             .height(60.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
@@ -226,7 +224,7 @@ private fun Amount(item: ViewItem.Amount) {
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp).size(24.dp)
@@ -284,7 +282,7 @@ private fun Token(item: ViewItem.TokenItem) {
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (item.token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp).size(24.dp)

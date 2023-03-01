@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -29,7 +31,7 @@ fun BottomSheetsElementsButtons(
     ) {
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
         )
         Spacer(modifier = Modifier.height(15.dp))
         ButtonPrimaryYellow(
@@ -75,7 +77,7 @@ fun BottomSheetsElementsText(text: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
         )
 
         subhead2_grey(
@@ -128,7 +130,7 @@ fun BottomSheetsElementsCheckbox(
     Column(modifier = Modifier.fillMaxWidth()) {
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
         )
         Row(
             modifier = Modifier

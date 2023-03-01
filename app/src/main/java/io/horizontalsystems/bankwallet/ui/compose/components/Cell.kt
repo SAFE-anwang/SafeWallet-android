@@ -96,7 +96,7 @@ fun CellMultilineLawrence(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -104,7 +104,7 @@ fun CellMultilineLawrence(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
@@ -245,7 +245,7 @@ fun CellSingleLine(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -253,7 +253,7 @@ fun CellSingleLine(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
@@ -276,7 +276,7 @@ fun CellHeaderSorting(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -284,7 +284,7 @@ fun CellHeaderSorting(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
@@ -328,7 +328,7 @@ fun CellMultilineClear(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -336,7 +336,7 @@ fun CellMultilineClear(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.elenaD else ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
@@ -360,7 +360,7 @@ fun CellSingleLineClear(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -368,7 +368,7 @@ fun CellSingleLineClear(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
@@ -391,7 +391,7 @@ fun CellFooter(text: String) {
             .height(58.dp)
             .fillMaxWidth(),
     ) {
-        Divider(color = ComposeAppTheme.colors.steel10)
+        Divider(color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10)
         caption_grey(
             text = text,
             modifier = Modifier
@@ -430,7 +430,7 @@ fun CellLawrence(
         if (borderTop) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
@@ -438,7 +438,7 @@ fun CellLawrence(
         if (borderBottom) {
             Divider(
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }

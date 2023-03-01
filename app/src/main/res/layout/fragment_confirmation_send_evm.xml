@@ -44,7 +44,8 @@
         android:background="@drawable/gradient_tyler"
         app:layout_constraintBottom_toTopOf="@id/buttonSendCompose"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"/>
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/buttonSendCompose"

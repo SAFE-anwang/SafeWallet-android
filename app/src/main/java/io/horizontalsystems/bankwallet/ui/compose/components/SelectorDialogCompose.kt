@@ -13,6 +13,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -53,7 +55,7 @@ fun <T> SelectorDialogCompose(
                             }
                         )
                 ) {
-                    Divider(thickness = 1.dp, color = ComposeAppTheme.colors.steel10)
+                    Divider(thickness = 1.dp, color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10)
                     val color = if (it.selected) {
                         ComposeAppTheme.colors.jacob
                     } else {

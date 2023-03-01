@@ -224,10 +224,10 @@ private fun ManageWalletsScreen(
                 LazyColumn {
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
-                        Divider(
+                        /*Divider(
                             thickness = 1.dp,
-                            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.elenaD else ComposeAppTheme.colors.steel10,
-                        )
+                            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
+                        )*/
                     }
                     items(it) { viewItem ->
                         CoinCell(

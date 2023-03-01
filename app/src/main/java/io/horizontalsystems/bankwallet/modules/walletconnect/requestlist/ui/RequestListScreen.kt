@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.requestlist.WC2RequestListModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.requestlist.WC2RequestListViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -136,7 +138,7 @@ private fun RequestCell(
     ) {
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
         )
         Row(
             modifier = Modifier

@@ -16,8 +16,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
 import io.horizontalsystems.bankwallet.modules.market.search.MarketSearchModule
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CategoryCard
@@ -32,7 +34,7 @@ fun TopSectorsBoardView(
 ) {
     Divider(
         thickness = 1.dp,
-        color = ComposeAppTheme.colors.steel10
+        color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
     )
     Row(modifier = Modifier.height(42.dp)) {
         Row(

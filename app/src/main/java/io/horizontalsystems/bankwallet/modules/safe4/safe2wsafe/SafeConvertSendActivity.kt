@@ -32,6 +32,7 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.Conf
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.fee.SendFeeInfoFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.sendbutton.ProceedButtonView
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -58,6 +59,10 @@ class SafeConvertSendActivity : BaseActivity() {
 
         binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
+        if (App.localStorage.currentTheme == ThemeType.Blue) {
+            setTheme(R.style.Theme_AppTheme_DayNightBlue)
+            window.statusBarColor = getColor(R.color.safe_blue)
+        }
         setContentView(view)
 
         overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)

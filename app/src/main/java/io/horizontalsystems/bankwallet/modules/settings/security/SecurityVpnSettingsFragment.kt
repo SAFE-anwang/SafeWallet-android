@@ -242,6 +242,7 @@ private fun SecurityCenterScreen(
                         vpnViewModel,
                         showAppRestartAlert,
                     )
+                    Spacer(Modifier.height(5.dp))
                     TorBlock(
                         torViewModel,
                         showAppRestartAlert,

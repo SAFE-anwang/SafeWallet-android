@@ -29,12 +29,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinFragment
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -77,7 +79,7 @@ fun SwapCoinCardViewComposable(
                 .height(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (token?.coin?.uid == "custom_safe-erc20-SAFE") {
+            if (token?.coin?.uid == "safe-coin") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
@@ -292,7 +294,7 @@ fun SwapAmountInput(
 
             Divider(
                 modifier = Modifier.padding(horizontal = 8.dp),
-                color = ComposeAppTheme.colors.steel10
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
             )
 
             Row(

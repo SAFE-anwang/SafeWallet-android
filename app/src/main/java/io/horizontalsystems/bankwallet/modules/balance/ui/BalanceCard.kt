@@ -27,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
@@ -38,6 +39,7 @@ import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.DraggableCardSimple
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -240,7 +242,7 @@ private fun ExpandableContent(
             Divider(
                 modifier = Modifier.padding(horizontal = 14.dp),
                 thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
             )
             ButtonsRow(viewItem, navController, viewModel)
         }
@@ -312,7 +314,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     enabled = viewItem.swapEnabled
                 )
             } else {
-                ButtonPrimaryDefault(
+                ButtonPrimaryDefaultBlue(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.Balance_Receive),
                     onClick = onClickReceive,
@@ -343,7 +345,7 @@ private fun LockedValueRow(viewItem: BalanceViewItem) {
         Divider(
             modifier = Modifier.padding(horizontal = 14.dp),
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
         )
         Row(
             modifier = Modifier

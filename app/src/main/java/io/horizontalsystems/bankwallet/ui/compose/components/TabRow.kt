@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 data class TabItem<T>(val title: String, val selected: Boolean, val item: T, val icon: ImageSource? = null, val label: String? = null, val enabled: Boolean = true)
@@ -30,7 +32,7 @@ fun <T>Tabs(tabs: List<TabItem<T>>, onClick: (T) -> Unit) {
     ) {
         Divider(
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 
@@ -88,7 +90,7 @@ fun <T>ScrollableTabs(tabs: List<TabItem<T>>, onClick: (T) -> Unit) {
         Divider(
             modifier = Modifier.align(Alignment.BottomCenter),
             thickness = 1.dp,
-            color = ComposeAppTheme.colors.steel10,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
         )
 
         ScrollableTabRow(
