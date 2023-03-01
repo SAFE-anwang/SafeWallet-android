@@ -22,4 +22,5 @@
 
     <color name="tylerGradientStart">#ff13151a</color>
     <color name="tylerGradientEnd">#0013151a</color>
+    <color name="grey">@color/light_grey</color>
 </resources>

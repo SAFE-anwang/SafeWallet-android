@@ -48,6 +48,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         if (App.localStorage.currentTheme == ThemeType.Blue) {
             setTheme(R.style.Theme_AppTheme_DayNightBlue)
+            window.statusBarColor = getColor(R.color.safe_blue)
         }
         setContentView(R.layout.activity_main)
 

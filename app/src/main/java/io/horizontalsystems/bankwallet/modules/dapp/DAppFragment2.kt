@@ -34,6 +34,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -237,8 +238,8 @@ fun CellItems(
 
         }
             Divider(
-                thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
+                thickness = 0.5.dp,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.lightGrey else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }

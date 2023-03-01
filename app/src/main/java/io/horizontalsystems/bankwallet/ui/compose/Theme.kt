@@ -40,17 +40,17 @@ val darkPalette = Colors(
 )
 
 val bluePalette = Colors(
-    jacob = YellowD,
-    remus = GreenD,
-    lucian = RedD,
+    jacob = YellowL,
+    remus = GreenL,
+    lucian = RedL,
     tyler = Blue,
     bran = Color.Black,
     leah = Color.Black,
-    claude = Dark,
+    claude = Color.White,
     lawrence = Color.White,
-    jeremy = Steel20,
-    laguna = LagunaD,
-    raina = Steel10,
+    jeremy = SteelLight,
+    laguna = LagunaL,
+    raina = White50,
 )
 
 @Composable

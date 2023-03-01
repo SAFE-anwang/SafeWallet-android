@@ -16,7 +16,7 @@
 
     <color name="black">#000000</color>
     <color name="steel_dark">#252933</color>
-    <color name="grey">#808085</color>
+    <color name="grey">#252933</color>
     <color name="light_grey">#c8c7cc</color>
     <color name="steel_light">#e1e1e5</color>
     <color name="white">#ffffff</color>

@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -48,7 +50,12 @@ fun DoubleText(
                 ),
             text = body,
             style = ComposeAppTheme.typography.body,
-            color = if (dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
+            color = if (dimmed) {
+                if (App.localStorage.currentTheme == ThemeType.Blue)
+                    ComposeAppTheme.colors.raina
+                else
+                    ComposeAppTheme.colors.grey50
+            } else ComposeAppTheme.colors.grey,
             maxLines = 1
         )
     }

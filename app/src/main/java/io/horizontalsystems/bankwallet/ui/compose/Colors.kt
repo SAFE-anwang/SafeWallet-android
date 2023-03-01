@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import io.horizontalsystems.bankwallet.widgets.AppWidgetTheme
 
 @Stable
 class Colors(
@@ -34,9 +35,9 @@ class Colors(
     val steelLight = SteelLight
     val steelDark = SteelDark
     val steel10 = Steel10
-    val steel20 = Steel20
+    val steel20 = if(App.localStorage.currentTheme == ThemeType.Blue) SteelLight else Steel20
     val grey = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Black else Grey
-    val grey50 = Grey50
+    val grey50 = if(App.localStorage.currentTheme == ThemeType.Blue) tyler else Grey50
     val yellow50 = Yellow50
     val yellow20 = Yellow20
 
