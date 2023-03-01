@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -38,6 +39,7 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashC
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -224,7 +226,7 @@ private fun ManageWalletsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         Divider(
                             thickness = 1.dp,
-                            color = ComposeAppTheme.colors.steel10,
+                            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.elenaD else ComposeAppTheme.colors.steel10,
                         )
                     }
                     items(it) { viewItem ->

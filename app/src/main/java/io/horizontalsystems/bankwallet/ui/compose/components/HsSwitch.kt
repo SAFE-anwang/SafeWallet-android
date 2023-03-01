@@ -4,6 +4,8 @@ import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
@@ -21,7 +23,7 @@ fun HsSwitch(
             checkedThumbColor = ComposeAppTheme.colors.white,
             uncheckedThumbColor = ComposeAppTheme.colors.lightGrey,
             checkedTrackColor = ComposeAppTheme.colors.yellowD,
-            uncheckedTrackColor = ComposeAppTheme.colors.elenaD,
+            uncheckedTrackColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.raina else ComposeAppTheme.colors.elenaD,
             checkedTrackAlpha = 1f,
             uncheckedTrackAlpha = 0.2f,
         ),

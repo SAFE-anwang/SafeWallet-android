@@ -239,7 +239,7 @@ fun CellItems(
         }
             Divider(
                 thickness = 0.5.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.lightGrey else ComposeAppTheme.colors.steel10,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.elenaD else ComposeAppTheme.colors.steel10,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }

@@ -172,6 +172,7 @@ class ManageWalletsService(
             sortFullCoins()
         }
 
+        filterForBlockchain()
         syncState()
     }
 
@@ -235,7 +236,7 @@ class ManageWalletsService(
 
     private fun isBitcoins(type: BlockchainType):Boolean {
         return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
-                || type == BlockchainType.Dash || type == BlockchainType.Safe
+                || type == BlockchainType.Dash
     }
 
     private fun isL2(type: BlockchainType):Boolean {
