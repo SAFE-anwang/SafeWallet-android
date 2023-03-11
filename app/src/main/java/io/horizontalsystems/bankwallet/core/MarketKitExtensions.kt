@@ -32,7 +32,7 @@ val Token.swappable: Boolean
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
         BlockchainType.ArbitrumOne -> true
-        BlockchainType.Polygon -> if(coin.uid == "safe-coin") false else true
+        BlockchainType.Polygon -> coin.uid != "safe-coin"
         else -> false
     }
 
