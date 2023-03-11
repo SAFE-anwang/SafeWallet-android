@@ -42,6 +42,8 @@ object Safe4Module {
             } else if (chainType == ChainType.BSC &&  it.token.blockchain.type is BlockchainType.BinanceSmartChain && (it.coin.uid == "safe-coin")) {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
+            } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon && (it.coin.uid == "safe-coin")) {
+                wsafeWallet = it
             }
         }
         if (safeWallet == null) {
@@ -53,6 +55,8 @@ object Safe4Module {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.BSC) {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
+            } else if (chainType == ChainType.MATIC) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe Matic"), Toast.LENGTH_SHORT).show()
             }
             return
         }
@@ -64,6 +68,7 @@ object Safe4Module {
                 putExtra(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
                 putExtra(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
                 putExtra(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
+                putExtra(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
             })
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
@@ -85,6 +90,8 @@ object Safe4Module {
             } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid == "safe-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
+            } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon && (it.coin.uid == "safe-coin")) {
+                wsafeWallet = it
             }
         }
         if (safeWallet == null) {
@@ -96,6 +103,8 @@ object Safe4Module {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.BSC) {
                 Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
+            } else if (chainType == ChainType.MATIC) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe Matic"), Toast.LENGTH_SHORT).show()
             }
             return
         }
@@ -107,6 +116,7 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             bundle.putBoolean(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
+            bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
             navController.slideFromBottom(
                 R.id.sendWsafeFragment,
                 bundle
@@ -168,7 +178,7 @@ object Safe4Module {
     }
 
     enum class ChainType {
-        ETH, BSC
+        ETH, BSC, MATIC
     }
 
 }

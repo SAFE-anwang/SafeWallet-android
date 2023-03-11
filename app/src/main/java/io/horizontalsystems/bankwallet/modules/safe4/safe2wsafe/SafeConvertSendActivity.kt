@@ -52,6 +52,7 @@ class SafeConvertSendActivity : BaseActivity() {
     lateinit var safeWallet: Wallet
     lateinit var wsafeWallet: Wallet
     private var isETH: Boolean = true
+    private var isMatic: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // prevent fragment recreations by passing null to onCreate
@@ -71,6 +72,7 @@ class SafeConvertSendActivity : BaseActivity() {
 
         wsafeWallet = intent.getParcelableExtra(WALLET_WSAFE) ?: run { finish(); return }
         isETH = intent.getBooleanExtra(IS_ETH, true)
+        isMatic = intent.getBooleanExtra(IS_MATIC, false)
 
         setToolbar()
 
@@ -96,6 +98,9 @@ class SafeConvertSendActivity : BaseActivity() {
             var titleRes = R.string.Safe4_Title_safe2wsafe_erc20
             if (!isETH) {
                 titleRes = R.string.Safe4_Title_safe2wsafe_bep20
+            }
+            if (isMatic) {
+                titleRes = R.string.Safe4_Title_safe2wsafe_matic
             }
             ComposeAppTheme {
                 AppBar(
@@ -252,6 +257,7 @@ class SafeConvertSendActivity : BaseActivity() {
         const val WALLET_SAFE = "wallet_safe_key"
         const val WALLET_WSAFE = "wallet_wsafe_key"
         const val IS_ETH = "eth_Transaction"
+        const val IS_MATIC = "is_matic"
     }
 
 }

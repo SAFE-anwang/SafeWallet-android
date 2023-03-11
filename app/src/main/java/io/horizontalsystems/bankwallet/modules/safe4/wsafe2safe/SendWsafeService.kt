@@ -55,7 +55,9 @@ class SendWsafeService(
             if(toSafeAddr != null){
                 val wsafeKit = WsafeKit.getInstance(adapter.evmKitWrapper.evmKit.chain)
                 val safeAddr = toSafeAddr!!.hex
-                val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
+                val transactionData = if (sendCoin.blockchainType is BlockchainType.Polygon)
+                        wsafeKit.transactionDataMatic(evmAmount, safeAddr)
+                     else wsafeKit.transactionData(evmAmount, safeAddr)
                 val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
                 State.Ready(SendEvmData(transactionData, additionalInfo))
             } else {
@@ -104,7 +106,7 @@ class SendWsafeService(
         if (amount > BigDecimal.ZERO) {
             var amountWarning: AmountWarning? = null
             try {
-                if (amount == balance && (sendCoin.blockchainType is BlockchainType.Ethereum || sendCoin.blockchainType is BlockchainType.BinanceSmartChain)) {
+                if (amount == balance && (sendCoin.blockchainType is BlockchainType.Ethereum || sendCoin.blockchainType is BlockchainType.BinanceSmartChain || sendCoin.blockchainType is BlockchainType.Polygon)) {
                     amountWarning = AmountWarning.CoinNeededForFee
                 }
                 evmAmount = validEvmAmount(amount)

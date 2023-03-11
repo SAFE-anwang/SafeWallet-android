@@ -133,7 +133,9 @@ class SendSafeConvertHandler(
         val safeRemarkPrex = "736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a020100122e"
         if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.BinanceSmartChain) {
             wsafeAddress = "bsc:" + addressModule.validAddress().hex
-        } else {
+        } else if(ethAdapter.evmKitWrapper.evmKit.chain == Chain.Polygon) {
+            wsafeAddress = "matic:" + addressModule.validAddress().hex
+        }else {
             wsafeAddress = "eth:" + addressModule.validAddress().hex
         }
         val wsafeHex = HashUtils.toHexString(wsafeAddress.toByteArray())

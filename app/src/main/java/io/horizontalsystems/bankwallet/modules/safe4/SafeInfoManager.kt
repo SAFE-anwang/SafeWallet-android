@@ -81,11 +81,13 @@ object SafeInfoManager {
     private fun defaultSafeInfo(chain: Chain): SafeInfoPO {
         val mainNet = SafeInfoPO("", "2",
             ChainInfoPO("", "","0.25", safe2eth = true, eth2safe = true),
-            ChainInfoPO("", "","0.25", safe2eth = true, eth2safe = true)
+            ChainInfoPO("", "","0.25", safe2eth = true, eth2safe = true),
+            MaticChainInfo("", "","0.25", safe2matic = true, matic2safe = true)
         )
         val testNet = SafeInfoPO("", "0.01",
             ChainInfoPO("", "","0", safe2eth = true, eth2safe = true),
-            ChainInfoPO("", "","0", safe2eth = true, eth2safe = true)
+            ChainInfoPO("", "","0", safe2eth = true, eth2safe = true),
+            MaticChainInfo("", "","0.25", safe2matic = true, matic2safe = true)
         )
         val safeInfoPO = when (chain) {
             Chain.Ethereum -> mainNet
@@ -100,7 +102,8 @@ object SafeInfoManager {
         val safe_usdt: String,
         val minamount: String,
         val eth: ChainInfoPO,
-        val bsc: ChainInfoPO
+        val bsc: ChainInfoPO,
+        val matic: MaticChainInfo
     ) : Parcelable
 
     @Parcelize
@@ -110,6 +113,15 @@ object SafeInfoManager {
         val safe_fee: String,
         val safe2eth: Boolean,
         val eth2safe: Boolean
+    )  : Parcelable
+
+    @Parcelize
+    data class MaticChainInfo(
+        val price: String,
+        val gas_price_gwei: String,
+        val safe_fee: String,
+        val safe2matic: Boolean,
+        val matic2safe: Boolean
     )  : Parcelable
 
 }

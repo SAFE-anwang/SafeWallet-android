@@ -44,6 +44,7 @@ class SendWsafeFragment : BaseFragment() {
     private val wsafeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_WSAFE)!! }
     private val safeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_SAFE)!! }
     private val isETH by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_ETH)!! }
+    private val isMatic by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_MATIC)!! }
 
     private val vmFactory by lazy { SendEvmModule.WsafeFactory(wsafeWallet) }
     private val viewModel by navGraphViewModels<SendWsafeViewModel>(R.id.sendWsafeFragment) { vmFactory }
@@ -140,6 +141,10 @@ class SendWsafeFragment : BaseFragment() {
             var titleRes = R.string.Safe4_Title_wsafe2safe_erc20
             if (!isETH) {
                 titleRes = R.string.Safe4_Title_wsafe2safe_bep20
+            }
+            if (isMatic) {
+                viewModel.isMatic = isMatic
+                titleRes = R.string.Safe4_Title_wsafe2safe_matic
             }
             ComposeAppTheme {
                 AppBar(

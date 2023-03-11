@@ -38,6 +38,8 @@ class SendWsafeViewModel(
     val coin: Token
         get() = service.coin
 
+    var isMatic: Boolean = false
+
     init {
         service.stateObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
         service.amountCautionObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
@@ -47,7 +49,7 @@ class SendWsafeViewModel(
 
     fun onClickProceed() {
         val safeInfoPO = SafeInfoManager.getSafeInfo()
-        if (!safeInfoPO.eth.eth2safe) {
+        if ((isMatic && !safeInfoPO.matic.matic2safe) || !safeInfoPO.eth.eth2safe) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }

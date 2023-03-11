@@ -250,6 +250,63 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
 
     Text(
+        text = stringResource(R.string.Safe4_Cross_Chain_matic),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForEth(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "MATIC",
+                    onClick = {
+                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.MATIC)
+                    }
+                )
+            },
+            {
+                HsSettingCellForSafe(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "MATIC",
+                    onClick = {
+                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.MATIC, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_BSC_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeMaticContract)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe_BSC_Pancakeswap,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safeMaticPancakeswap)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
         text = stringResource(R.string.Safe4_Locked),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,

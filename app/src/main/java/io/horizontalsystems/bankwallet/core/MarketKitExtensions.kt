@@ -29,10 +29,10 @@ val Token.swappable: Boolean
     get() = when (blockchainType) {
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
-        BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
         BlockchainType.ArbitrumOne -> true
+        BlockchainType.Polygon -> if(coin.uid == "safe-coin") false else true
         else -> false
     }
 
