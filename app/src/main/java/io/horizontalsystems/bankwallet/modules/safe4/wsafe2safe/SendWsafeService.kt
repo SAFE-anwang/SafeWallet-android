@@ -55,9 +55,7 @@ class SendWsafeService(
             if(toSafeAddr != null){
                 val wsafeKit = WsafeKit.getInstance(adapter.evmKitWrapper.evmKit.chain)
                 val safeAddr = toSafeAddr!!.hex
-                val transactionData = if (sendCoin.blockchainType is BlockchainType.Polygon)
-                        wsafeKit.transactionDataMatic(evmAmount, safeAddr)
-                     else wsafeKit.transactionData(evmAmount, safeAddr)
+                val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
                 val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
                 State.Ready(SendEvmData(transactionData, additionalInfo))
             } else {
