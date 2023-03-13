@@ -1246,7 +1246,7 @@
     <string name="Safe4_Title">SAFE专区</string>
     <string name="Safe4_Cross_Chain_erc20">跨链(ETH)</string>
     <string name="Safe4_Cross_Chain_bep20">跨链(BSC)</string>
-    <string name="Safe4_Cross_Chain_matic">跨链(Matic)</string>
+    <string name="Safe4_Cross_Chain_matic">跨链(MATIC)</string>
     <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
@@ -1310,6 +1310,7 @@
     <string name="Safe4_Safe_ETH_Uniswap">SAFE@uniswapv2</string>
     <string name="Safe4_Safe_BSC_Contract">SAFE合约</string>
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
+    <string name="Safe4_Safe_Matic_Pancakeswap">SAFE@quickswap</string>
 
 
     <string name="Restore_Select_Wallet">请选择钱包</string>

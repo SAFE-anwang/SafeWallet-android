@@ -1472,7 +1472,7 @@
     <string name="Safe4_Title">SAFE Zone</string>
     <string name="Safe4_Cross_Chain_erc20">Cross Chain(ETH)</string>
     <string name="Safe4_Cross_Chain_bep20">Cross Chain(BSC)</string>
-    <string name="Safe4_Cross_Chain_matic">Cross Chain(Matic)</string>
+    <string name="Safe4_Cross_Chain_matic">Cross Chain(MATIC)</string>
     <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
@@ -1537,6 +1537,7 @@
     <string name="Safe4_Safe_ETH_Uniswap">SAFE@uniswapv2</string>
     <string name="Safe4_Safe_BSC_Contract">SAFE contract</string>
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
+    <string name="Safe4_Safe_Matic_Pancakeswap">SAFE@quickswap</string>
 
 
     <string name="Restore_Select_Wallet">Select wallet</string>

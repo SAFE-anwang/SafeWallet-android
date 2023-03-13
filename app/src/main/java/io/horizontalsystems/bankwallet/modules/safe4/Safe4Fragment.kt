@@ -290,16 +290,6 @@ private fun Safe4Sections(
                         onClick(App.appConfigProvider.safeMaticContract)
                     }
                 )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_BSC_Pancakeswap,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeMaticPancakeswap)
-                    }
-                )
             }
         )
     )
