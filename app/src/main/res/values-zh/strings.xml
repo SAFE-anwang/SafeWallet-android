@@ -581,7 +581,7 @@
     <string name="Transactions_Processing">正在处理</string>
     <string name="Transactions_Send">发送​​</string>
     <string name="Transactions_Burn">燃烧</string>
-    <string name="Transactions_Mint">薄荷绿</string>
+    <string name="Transactions_Mint">发行</string>
     <string name="Transactions_Approve">批准请求</string>
     <string name="Transactions_Swap">互兑交易</string>
     <string name="Transactions_Failed">失败</string>

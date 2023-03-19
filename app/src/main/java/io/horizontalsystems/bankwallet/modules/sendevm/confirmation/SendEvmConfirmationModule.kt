@@ -34,6 +34,7 @@ object SendEvmConfirmationModule {
         private val feeCoin by lazy {
             when (evmKitWrapper.evmKit.chain) {
                 Chain.BinanceSmartChain -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
+                Chain.Polygon -> App.marketKit.token(TokenQuery(BlockchainType.Polygon, TokenType.Native))!!
                 else -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
             }
         }
