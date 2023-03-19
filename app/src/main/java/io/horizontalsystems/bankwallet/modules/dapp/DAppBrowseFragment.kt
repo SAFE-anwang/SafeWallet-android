@@ -118,6 +118,7 @@ class DAppBrowseFragment: BaseFragment(){
                 } else {
                     webView.loadUrl(checkUrl(inputContent))
                     saveHistory(checkUrl(inputContent))
+                    hideHistory()
                 }
             }
             false
@@ -225,6 +226,7 @@ class DAppBrowseFragment: BaseFragment(){
                 override fun onActionButtonClick() {
                     webView.loadUrl(checkUrl(url))
                     saveHistory(checkUrl(url))
+                    hideHistory()
                 }
 
                 override fun onTransparentButtonClick() {
@@ -479,12 +481,12 @@ class DAppBrowseFragment: BaseFragment(){
     private fun initHistoryView() {
         val historyList = getHistory()
         if (historyList.isEmpty()) {
-            binding.layoutHistory.visibility = View.GONE
+            hideHistory()
             return
         }
         adapter = DAppHistoryAdapter(historyList, object : DAppHistoryAdapter.HistoryClickListener {
             override fun onClick(url: String) {
-                binding.layoutHistory.visibility = View.GONE
+                hideHistory()
                 binding.inputWebUrl.setText(url)
                 if (!isShowWarning) {
                     isShowWarning = true
@@ -520,6 +522,10 @@ class DAppBrowseFragment: BaseFragment(){
     private fun deleteHistory() {
         App.preferences.edit().remove(HISTORY_KEY).commit()
         adapter?.updateData(emptyList())
+        hideHistory()
+    }
+
+    private fun hideHistory() {
         binding.layoutHistory.visibility = View.GONE
     }
 
