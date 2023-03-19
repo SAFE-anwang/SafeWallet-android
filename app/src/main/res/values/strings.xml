@@ -1603,4 +1603,5 @@
 
     <string name="Manage_Wallets_Bitcoin">Bitcoin series</string>
     <string name="Manage_Wallets_L2">L2 series</string>
+    <string name="dapp_history">History</string>
 </resources>

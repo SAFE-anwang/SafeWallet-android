@@ -15,6 +15,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
+import androidx.recyclerview.widget1.LinearLayoutManager
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
@@ -47,6 +48,7 @@ class DAppBrowseFragment: BaseFragment(){
 
 //    private lateinit  var baseViewModel : WalletConnectViewModel
 
+    private val HISTORY_KEY = "dapp_history"
     private var _binding: FragmentDappBrowseBinding? = null
     private val binding get() = _binding!!
 
@@ -67,6 +69,8 @@ class DAppBrowseFragment: BaseFragment(){
     private var autoConnect = true
     private var isConnecting = false
     private var isShowWarning = false
+
+    var adapter: DAppHistoryAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,6 +117,7 @@ class DAppBrowseFragment: BaseFragment(){
                     showAlert(inputContent)
                 } else {
                     webView.loadUrl(checkUrl(inputContent))
+                    saveHistory(checkUrl(inputContent))
                 }
             }
             false
@@ -122,6 +127,7 @@ class DAppBrowseFragment: BaseFragment(){
         val isInput = arguments?.getBoolean("isInput")?.let {
             binding.dappToolbar.visibility = if (it) View.GONE else View.VISIBLE
             binding.layoutInput.visibility = if (it) View.VISIBLE else View.GONE
+            binding.layoutHistory.visibility = if (it) View.VISIBLE else View.GONE
         }
         binding.inputWebUrl.setText(url)
         binding.dappToolbar.title = name
@@ -192,6 +198,7 @@ class DAppBrowseFragment: BaseFragment(){
         errorLiveEvent.observe(viewLifecycleOwner, Observer {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         })
+        initHistoryView()
     }
 
     private fun checkUrl(url: String):String {
@@ -217,6 +224,7 @@ class DAppBrowseFragment: BaseFragment(){
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
                     webView.loadUrl(checkUrl(url))
+                    saveHistory(checkUrl(url))
                 }
 
                 override fun onTransparentButtonClick() {
@@ -466,6 +474,53 @@ class DAppBrowseFragment: BaseFragment(){
         wc1Service = null
         wc2Service = null
         super.onDestroy()
+    }
+
+    private fun initHistoryView() {
+        val historyList = getHistory()
+        if (historyList.isEmpty()) {
+            binding.layoutHistory.visibility = View.GONE
+            return
+        }
+        adapter = DAppHistoryAdapter(historyList, object : DAppHistoryAdapter.HistoryClickListener {
+            override fun onClick(url: String) {
+                binding.layoutHistory.visibility = View.GONE
+                binding.inputWebUrl.setText(url)
+                if (!isShowWarning) {
+                    isShowWarning = true
+                    showAlert(url)
+                } else {
+                    webView.loadUrl(checkUrl(url))
+                }
+            }
+        })
+        binding.rvHistory.adapter = adapter
+        binding.ivDelete.setOnClickListener {
+            deleteHistory()
+        }
+    }
+
+    private fun getHistory(): List<String> {
+        val sp = App.preferences
+        val historyList = sp.getStringSet(HISTORY_KEY, mutableSetOf())
+        return historyList?.map {
+            it
+        } ?: emptyList()
+    }
+
+    private fun saveHistory(url: String) {
+        val sp = App.preferences
+        val historyList = sp.getStringSet(HISTORY_KEY, mutableSetOf())
+        historyList?.let {
+            historyList.add(url)
+            sp.edit().putStringSet(HISTORY_KEY, historyList).commit()
+        }
+    }
+
+    private fun deleteHistory() {
+        App.preferences.edit().remove(HISTORY_KEY).commit()
+        adapter?.updateData(emptyList())
+        binding.layoutHistory.visibility = View.GONE
     }
 
 }
