@@ -11,7 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class SendBitcoinPluginService(localStorage: ILocalStorage, blockchainType: BlockchainType) {
-    val isLockTimeEnabled = localStorage.isLockTimeEnabled && (blockchainType is BlockchainType.Bitcoin || blockchainType is BlockchainType.Safe || blockchainType is BlockchainType.Dash || blockchainType is BlockchainType.Litecoin)
+    val isLockTimeEnabled = localStorage.isLockTimeEnabled
+            && (blockchainType is BlockchainType.Bitcoin
+            || blockchainType is BlockchainType.Safe
+            || blockchainType is BlockchainType.Dash
+            || blockchainType is BlockchainType.Litecoin
+            || blockchainType is BlockchainType.BitcoinCash)
     val lockTimeIntervals = listOf(null) + LockTimeInterval.values().toList()
 
     private var lockTimeInterval: LockTimeInterval? = null
