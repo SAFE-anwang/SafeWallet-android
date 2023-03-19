@@ -20,7 +20,7 @@ class SecurityVpnSettingsViewModel(val sp: SharedPreferences, val onConnectCallb
         private set
 
     fun vpnConnect(connectState: Boolean) {
-        sp.edit().putBoolean("vpnOpen", connectState)
+        sp.edit().putBoolean("vpnOpen", connectState).commit()
         onConnectCallback(connectState)
         vpnConnectionStatus = getStatus()
         vpnCheckEnabled = connectState

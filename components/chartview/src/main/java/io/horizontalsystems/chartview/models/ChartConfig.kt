@@ -17,9 +17,9 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
     var timelineTextPadding = dp2px(4f)
 
     var gridTextColor = context.getColor(R.color.nina)
-    var gridLineColor = context.getColor(R.color.steel_20)
-    var gridDashColor = context.getColor(R.color.steel_10)
-    var gridLabelColor = context.getColor(R.color.grey_50)
+    var gridLineColor = Color.parseColor("#4D4D4D")
+    var gridDashColor = Color.parseColor("#4D4D4D")
+    var gridLabelColor = Color.parseColor("#4D4D4D")
 
     var gridTextSize = dp2px(12f)
     var gridTextPadding = dp2px(4f)
@@ -28,30 +28,30 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
 
     var trendUpColor = context.getColor(R.color.green_d)
     var trendDownColor = context.getColor(R.color.red_d)
-    var trendUpGradient = GradientColor(Color.parseColor("#416BFF"), Color.parseColor("#13D670"))
-    var trendDownGradient = GradientColor(Color.parseColor("#7413D6"), Color.parseColor("#FF0303"))
+    var trendUpGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
+    var trendDownGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
     var pressedGradient = GradientColor(context.getColor(R.color.leah), context.getColor(R.color.leah))
-    var outdatedGradient = GradientColor(context.getColor(R.color.grey_50), context.getColor(R.color.grey_50))
+    var outdatedGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
 
     var curveColor = trendUpColor
     var curveGradient = trendUpGradient
     var curvePressedColor = context.getColor(R.color.leah)
-    var curveOutdatedColor = context.getColor(R.color.grey_50)
+    var curveOutdatedColor = Color.parseColor("#4D4D4D")
     var curveVerticalOffset = dp2px(18f)
     var curveMinimalVerticalOffset = dp2px(10f)
-    var curveFastColor = Color.parseColor("#801A60FF")
-    var curveSlowColor = Color.parseColor("#80ffa800")
+    var curveFastColor = Color.parseColor("#804D4D4D")
+    var curveSlowColor = Color.parseColor("#804D4D4D")
 
     var curveDominanceLabelColor = context.getColor(R.color.jacob)
 
     var cursorColor = context.getColor(R.color.leah)
 
-    var volumeColor = context.getColor(R.color.steel_20)
+    var volumeColor = Color.parseColor("#4D4D4D")
     var volumeWidth = dp2px(4f)
     var volumeOffset = dp2px(8f)
 
-    var macdHistogramUpColor = Color.parseColor("#8013D670")
-    var macdHistogramDownColor = Color.parseColor("#80FF4820")
+    var macdHistogramUpColor = Color.parseColor("#804D4D4D")
+    var macdHistogramDownColor = Color.parseColor("#804D4D4D")
     var macdLineOffset = dp2px(2f)
     var macdHistogramOffset = dp2px(4f)
 
