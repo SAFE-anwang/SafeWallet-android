@@ -182,7 +182,7 @@ fun RestorePhrase(
                                 TransformedText(it, OffsetMapping.Identity)
                             }
                         },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         decorationBox = { innerTextField ->
                             if (textState.text.isEmpty()) {
                                 body_grey50(
