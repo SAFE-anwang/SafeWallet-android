@@ -79,7 +79,7 @@ object SafeInfoManager {
     }
 
     private fun defaultSafeInfo(chain: Chain): SafeInfoPO {
-        val mainNet = SafeInfoPO("", "0.01",
+        val mainNet = SafeInfoPO("", "2",
             ChainInfoPO("", "","0.25", safe2eth = true, eth2safe = true),
             ChainInfoPO("", "","0.25", safe2eth = true, eth2safe = true),
             MaticChainInfo("", "","0.25", safe2matic = true, matic2safe = true)
