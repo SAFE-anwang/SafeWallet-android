@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import android.util.Log
 import cash.z.ecc.android.sdk.ext.toHex
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
@@ -147,7 +146,6 @@ class EvmTransactionConverter(
                 val eip20Transfers = decoration.eventInstances.mapNotNull { it as? TransferEventInstance }
                 val incomingEip20Transfers = eip20Transfers.filter { it.to == address && it.from != address }.distinctBy { it.from }
                 val outgoingEip20Transfers = eip20Transfers.filter { it.from == address }.distinctBy { it.from }
-                Log.e("longwen", "incomingEip20Transfers=${incomingEip20Transfers.size}, outgoingEip20Transfers=${outgoingEip20Transfers.size}")
 
                 val eip721Transfers = decoration.eventInstances.mapNotNull { it as? Eip721TransferEventInstance }
                 val incomingEip721Transfers = eip721Transfers.filter { it.to == address && it.from != address }
