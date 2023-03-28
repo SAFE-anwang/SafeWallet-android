@@ -55,7 +55,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private val selectWalletViewModel = SelectWalletViewModel()
     private var purpose = HDWallet.Purpose.BIP49
 
-    val bip32Path = listOf<String>("m/49'/0'/0'", "m/44'/0'/0'", "m/84'/0'/0'")
+    val bip32Path = listOf<String>( "m/44'/0'/0'", "m/49'/0'/0'", "m/84'/0'/0'")
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
