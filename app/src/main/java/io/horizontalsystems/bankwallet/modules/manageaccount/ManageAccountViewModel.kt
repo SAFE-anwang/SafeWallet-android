@@ -6,20 +6,27 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.managers.FaqManager
+import io.horizontalsystems.bankwallet.core.managers.LanguageManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.modules.balance.HeaderNote
+import io.horizontalsystems.bankwallet.modules.balance.faqUrl
+import io.horizontalsystems.bankwallet.modules.balance.headerNote
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.hdwalletkit.HDExtendedKey
 import io.horizontalsystems.hdwalletkit.HDExtendedKey.DerivedType
 import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.hdwalletkit.Mnemonic
-import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
+import java.net.URL
 
 class ManageAccountViewModel(
     private val service: ManageAccountService,
-    private val clearables: List<Clearable>
+    private val clearables: List<Clearable>,
+    private val faqManager: FaqManager,
+    private val languageManager: LanguageManager
 ) : ViewModel() {
     val disposable = CompositeDisposable()
 
@@ -28,7 +35,6 @@ class ManageAccountViewModel(
 
     val saveEnabledLiveData = MutableLiveData<Boolean>()
     val finishLiveEvent = SingleLiveEvent<Unit>()
-    val additionalViewItemsLiveData = MutableLiveData<List<AdditionalViewItem>>()
 
     val account: Account
         get() = service.account
@@ -40,6 +46,9 @@ class ManageAccountViewModel(
     val bip32RootKey: HDExtendedKey?
     val accountExtendedPrivateKey: HDExtendedKey?
     val accountExtendedPublicKey: HDExtendedKey?
+
+    val headerNote: HeaderNote
+        get() = account.headerNote(false)
 
     init {
         val hdExtendedKey = (accountType as? AccountType.HdExtendedKey)?.hdExtendedKey
@@ -77,7 +86,6 @@ class ManageAccountViewModel(
 
         syncState(service.state)
         syncAccount(service.account)
-        syncAccountSettings()
     }
 
     private fun syncState(state: ManageAccountService.State) {
@@ -95,20 +103,6 @@ class ManageAccountViewModel(
         }
     }
 
-    private fun syncAccountSettings() {
-        if (keyActionState == KeyActionState.ShowRecoveryPhrase) {
-            val additionalViewItems =
-                service.accountSettingsInfo.map { (token, restoreSettingType, value) ->
-                    AdditionalViewItem(
-                        token,
-                        service.getSettingsTitle(restoreSettingType, token),
-                        value
-                    )
-                }
-            additionalViewItemsLiveData.postValue(additionalViewItems)
-        }
-    }
-
     fun onChange(name: String?) {
         service.setName(name ?: "")
     }
@@ -116,6 +110,12 @@ class ManageAccountViewModel(
     fun onSave() {
         service.saveAccount()
         finishLiveEvent.postValue(Unit)
+    }
+
+    fun getFaqUrl(headerNote: HeaderNote): String {
+        val baseUrl = URL(faqManager.faqListUrl)
+        val faqUrl = headerNote.faqUrl(languageManager.currentLocale.language)
+        return URL(baseUrl, faqUrl).toString()
     }
 
     override fun onCleared() {
@@ -126,11 +126,5 @@ class ManageAccountViewModel(
     enum class KeyActionState {
         None, ShowRecoveryPhrase, BackupRecoveryPhrase
     }
-
-    data class AdditionalViewItem(
-        val token: Token,
-        val title: String,
-        val value: String
-    )
 
 }

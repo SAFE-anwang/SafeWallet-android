@@ -35,6 +35,8 @@ import io.horizontalsystems.bankwallet.modules.settings.security.passcode.Securi
 import io.horizontalsystems.bankwallet.modules.settings.security.passcode.SecurityPasscodeSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsModule
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsViewModel
+import io.horizontalsystems.bankwallet.modules.settings.security.ui.PasscodeBlock
+import io.horizontalsystems.bankwallet.modules.settings.security.ui.TorBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.*
 import io.horizontalsystems.bankwallet.modules.settings.security.vpn.SecurityVpnSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
@@ -51,10 +53,6 @@ import io.horizontalsystems.marketkit.models.Blockchain
 import kotlin.system.exitProcess
 
 class SecuritySettingsFragment : BaseFragment() {
-
-    private val blockchainSettingsViewModel by viewModels<BlockchainSettingsViewModel> {
-        BlockchainSettingsModule.Factory()
-    }
 
     private val torViewModel by viewModels<SecurityTorSettingsViewModel> {
         SecurityTorSettingsModule.Factory()
@@ -94,7 +92,6 @@ class SecuritySettingsFragment : BaseFragment() {
                         torViewModel = torViewModel,
                         vpnViewModel = vpnViewModel,
                         fallbackBlockViewModel = fallbackBlockViewModel,
-                        blockchainSettingsViewModel = blockchainSettingsViewModel,
                         navController = findNavController(),
                         showAppRestartAlert = { showAppRestartAlert() },
                         restartApp = { restartApp() },
@@ -196,7 +193,6 @@ private fun SecurityCenterScreen(
     torViewModel: SecurityTorSettingsViewModel,
     vpnViewModel: SecurityVpnSettingsViewModel,
     fallbackBlockViewModel: FallbackBlockViewModel,
-    blockchainSettingsViewModel: BlockchainSettingsViewModel,
     navController: NavController,
     showAppRestartAlert: () -> Unit,
     restartApp: () -> Unit,
@@ -255,15 +251,8 @@ private fun SecurityCenterScreen(
                     FallBlockBlock(fallbackBlockViewModel, fallbackClick)
                 }
 
-                item {
-                    Spacer(Modifier.height(24.dp))
-                    HeaderText(stringResource(R.string.SecurityCenter_BlockchainSettings))
-                    BlockchainSettingsBlock(blockchainSettingsViewModel, navController)
-                }
-
             }
         }
-
     }
 
 }

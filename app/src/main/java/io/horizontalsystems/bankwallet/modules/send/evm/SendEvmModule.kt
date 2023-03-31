@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
+import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
@@ -24,6 +25,7 @@ import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 
 data class SendEvmData(
     val transactionData: TransactionData,
@@ -92,7 +94,8 @@ data class SendEvmData(
         val amountFrom: BigDecimal,
         val estimatedAmountTo: BigDecimal,
         val slippage: BigDecimal,
-        val recipient: Address?
+        val recipient: Address?,
+        val price: String? = null
     ) : Parcelable
 }
 
@@ -135,11 +138,10 @@ object SendEvmModule {
                     val amountValidator = AmountValidator()
                     val coinMaxAllowedDecimals = wallet.token.decimals
 
-                    val amountService = SendEvmAmountService(
-                        adapter,
+                    val amountService = SendAmountAdvancedService(
+                        adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
                         wallet.token,
-                        amountValidator,
-                        coinMaxAllowedDecimals
+                        amountValidator
                     )
                     val addressService = SendEvmAddressService()
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)

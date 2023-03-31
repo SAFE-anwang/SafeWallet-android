@@ -5,14 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -250,8 +245,20 @@ fun TransactionList(
                 DateHeader(dateHeader)
             }
 
-            items(transactions) { item ->
-                TransactionCell(item) { onClick.invoke(item) }
+            val itemsCount = transactions.size
+            val singleElement = itemsCount == 1
+
+            itemsIndexed(transactions) { index, item ->
+                val position: SectionItemPosition = when {
+                    singleElement -> SectionItemPosition.Single
+                    index == 0 -> SectionItemPosition.First
+                    index == itemsCount - 1 -> SectionItemPosition.Last
+                    else -> SectionItemPosition.Middle
+                }
+
+                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    TransactionCell(item, position) { onClick.invoke(item) }
+                }
 
                 willShow.invoke(item)
 
@@ -259,10 +266,14 @@ fun TransactionList(
                     onBottomReached.invoke()
                 }
             }
+
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
 
         item {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -277,7 +288,7 @@ private fun getBottomReachedUid(transactionsMap: Map<String, List<TransactionVie
 
 @Composable
 fun DateHeader(dateHeader: String) {
-    HeaderSorting(borderTop = false, borderBottom = true) {
+    HeaderSorting {
         subhead1_grey(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = dateHeader,
@@ -287,16 +298,42 @@ fun DateHeader(dateHeader: String) {
 }
 
 @Composable
-fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
-    CellMultilineClear(borderBottom = true, onClick = onClick) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
+fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, onClick: () -> Unit) {
+    val divider = position == SectionItemPosition.Middle || position == SectionItemPosition.Last
+    SectionUniversalItem(
+        borderTop = divider,
+    ) {
+        val clipModifier = when (position) {
+            SectionItemPosition.First -> {
+                Modifier.clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            }
+            SectionItemPosition.Last -> {
+                Modifier.clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+            }
+            SectionItemPosition.Single -> {
+                Modifier.clip(RoundedCornerShape(12.dp))
+            }
+            else -> Modifier
+        }
+
+        val borderModifier = if (position != SectionItemPosition.Single) {
+            Modifier.sectionItemBorder(1.dp, ComposeAppTheme.colors.steel20, 12.dp, position)
+        } else {
+            Modifier.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
+        }
+
+        RowUniversal(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(clipModifier)
+                .then(borderModifier)
+                .clickable(onClick = onClick),
         ) {
             Box(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .size(40.dp)
+                    .size(42.dp),
+                contentAlignment = Alignment.Center
             ) {
                 item.progress?.let { progress ->
                     HSCircularProgressIndicator(progress)
@@ -305,7 +342,6 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                 when (icon) {
                     TransactionViewItem.Icon.Failed -> {
                         Icon(
-                            modifier = Modifier.align(Alignment.Center),
                             painter = painterResource(R.drawable.ic_attention_24),
                             tint = ComposeAppTheme.colors.lucian,
                             contentDescription = null
@@ -313,7 +349,7 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     }
                     is TransactionViewItem.Icon.Platform -> {
                         Icon(
-                            modifier = Modifier.align(Alignment.Center),
+                            modifier = Modifier.size(32.dp),
                             painter = painterResource(icon.iconRes ?: R.drawable.coin_placeholder),
                             tint = ComposeAppTheme.colors.leah,
                             contentDescription = null
@@ -321,19 +357,17 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.url?.endsWith("safe-coin@3x.png") ==true  || icon.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true
-                            || icon.url?.endsWith("custom_safe-bep20-SAFE@3x.png")==true) {
+                        if (icon.url?.endsWith("safe-coin@3x.png") ==true) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .size(24.dp)
+                                    .size(32.dp)
                                     .clip(shape))
                         } else {
                             CoinImage(
                                 modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(24.dp)
+                                    .size(32.dp)
                                     .clip(shape),
                                 iconUrl = icon.url,
                                 placeholder = icon.placeholder
@@ -343,21 +377,20 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                     is TransactionViewItem.Icon.Double -> {
                         val backShape = if (icon.back.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true || icon.back.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true
-                            || icon.back.url?.endsWith("custom_safe-bep20-SAFE@3x.png")==true) {
+                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
                                     .padding(top = 6.dp, start = 6.dp)
-                                    .size(20.dp)
+                                    .size(24.dp)
                                     .clip(backShape))
                         } else {
                             CoinImage(
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
-                                    .padding(top = 6.dp, start = 6.dp)
-                                    .size(20.dp)
+                                    .padding(top = 4.dp, start = 6.dp)
+                                    .size(24.dp)
                                     .clip(backShape),
                                 iconUrl = icon.back.url,
                                 placeholder = icon.back.placeholder,
@@ -367,12 +400,12 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .padding(bottom = 6.5.dp, end = 6.5.dp)
-                                .size(20.dp)
+                                .padding(bottom = 4.5.dp, end = 6.5.dp)
+                                .size(24.dp)
                                 .clip(frontShape)
                                 .background(ComposeAppTheme.colors.tyler)
                         )
-                        if (icon.front.url?.endsWith("safe-coin@3x.png") ==true  || icon.front.url?.endsWith("custom_safe-erc20-SAFE@3x.png")==true) {
+                        if (icon.front.url?.endsWith("safe-coin@3x.png") ==true) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
@@ -384,8 +417,8 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                             CoinImage(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .padding(bottom = 6.dp, end = 6.dp)
-                                    .size(20.dp)
+                                    .padding(bottom = 4.dp, end = 6.dp)
+                                    .size(24.dp)
                                     .clip(frontShape),
                                 iconUrl = icon.front.url,
                                 placeholder = icon.front.placeholder,
@@ -438,9 +471,11 @@ fun TransactionCell(item: TransactionViewItem, onClick: () -> Unit) {
                 Row {
                     subhead2_grey(
                         text = item.subtitle,
-                        maxLines = 1,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp),
+                        maxLines = 2,
                     )
-                    Spacer(Modifier.weight(1f))
                     item.secondaryValue?.let { coloredValue ->
                         Text(
                             text = coloredValue.value,

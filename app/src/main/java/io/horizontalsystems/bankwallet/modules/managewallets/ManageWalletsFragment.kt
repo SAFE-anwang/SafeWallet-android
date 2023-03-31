@@ -98,6 +98,13 @@ class ManageWalletsFragment : BaseFragment() {
                 onCancel = { coinTokensViewModel.onCancelSelect() }
             )
         }
+        viewModel.showBirthdayHeightLiveEvent.observe(viewLifecycleOwner) {
+            BirthdayHeightDialog(
+                blockchainIcon = it.blockchainIcon,
+                blockchainName = it.blockchainName,
+                birthdayHeight = it.birthdayHeight
+            ).show(childFragmentManager, "birthday_height_dialog")
+        }
     }
 
     private fun showBottomSelectorDialog(
@@ -117,7 +124,7 @@ class ManageWalletsFragment : BaseFragment() {
             onCancelled = { onCancel() },
             warningTitle = config.descriptionTitle,
             warning = config.description,
-            allowEmpty= config.allowEmpty
+            allowEmpty = config.allowEmpty
         )
     }
 
@@ -233,20 +240,14 @@ private fun ManageWalletsScreen(
                         CoinCell(
                             viewItem = viewItem,
                             onItemClick = {
-                                if (viewItem.state is CoinViewItemState.ToggleVisible) {
-                                    if (viewItem.state.enabled) {
-                                        viewModel.disable(viewItem.item)
-                                    } else {
-                                        viewModel.enable(viewItem.item)
-                                    }
+                                if (viewItem.enabled) {
+                                    viewModel.disable(viewItem.item)
                                 } else {
-                                    navController.slideFromBottom(
-                                        R.id.coinNotSupportedDialog,
-                                        CoinNotSupportedDialog.prepareParams(viewModel.accountTypeDescription, viewItem.subtitle)
-                                    )
+                                    viewModel.enable(viewItem.item)
                                 }
                             },
                             onSettingClick = { viewModel.onClickSettings(viewItem.item) },
+                            onInfoClick = { viewModel.onClickInfo(viewItem.item) }
                         )
                     }
                 }
@@ -260,26 +261,25 @@ private fun CoinCell(
     viewItem: CoinViewItem<String>,
     onItemClick: () -> Unit,
     onSettingClick: () -> Unit,
+    onInfoClick: () -> Unit
 ) {
-    CellMultilineClear(
-        borderBottom = true,
-        onClick = onItemClick
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
+    Column {
+        RowUniversal(
+            onClick = onItemClick,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalPadding = 0.dp
         ) {
             Image(
                 painter = viewItem.imageSource.painter(),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp)
+                    .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                    .size(32.dp)
             )
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     body_leah(
@@ -313,25 +313,37 @@ private fun CoinCell(
                     modifier = Modifier.padding(top = 1.dp)
                 )
             }
-            if (viewItem.state is CoinViewItemState.ToggleVisible) {
-                Spacer(Modifier.width(12.dp))
-                if (viewItem.state.hasSettings) {
-                    HsIconButton(
-                        onClick = onSettingClick
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_edit_20),
-                            contentDescription = null,
-                            tint = ComposeAppTheme.colors.grey
-                        )
-                    }
+            Spacer(Modifier.width(12.dp))
+            if (viewItem.hasSettings) {
+                HsIconButton(
+                    onClick = onSettingClick
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_edit_20),
+                        contentDescription = null,
+                        tint = ComposeAppTheme.colors.grey
+                    )
                 }
-                HsSwitch(
-                    checked = viewItem.state.enabled,
-                    onCheckedChange = { onItemClick.invoke() },
-                )
             }
+            if (viewItem.hasInfo) {
+                HsIconButton(onClick = onInfoClick) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_info_20),
+                        contentDescription = null,
+                        tint = ComposeAppTheme.colors.grey
+                    )
+                }
+            }
+            HsSwitch(
+                modifier = Modifier.padding(0.dp),
+                checked = viewItem.enabled,
+                onCheckedChange = { onItemClick.invoke() },
+            )
         }
+        Divider(
+            thickness = 1.dp,
+            color = ComposeAppTheme.colors.steel10,
+        )
     }
 }
 
@@ -339,18 +351,21 @@ private fun CoinCell(
 @Composable
 fun PreviewCoinCell() {
     val viewItem = CoinViewItem(
-        "arbitrum",
-        ImageSource.Local(R.drawable.logo_arbitrum_24),
-        "ARB",
-        "Arbitrum",
-        CoinViewItemState.ToggleVisible(true, true),
-        "Arbitrum"
+        item = "ethereum",
+        imageSource = ImageSource.Local(R.drawable.logo_ethereum_24),
+        title = "ETH",
+        subtitle = "Ethereum",
+        enabled = true,
+        hasSettings = true,
+        hasInfo = true,
+        label = "Ethereum"
     )
     ComposeAppTheme {
         CoinCell(
             viewItem,
             {},
             {},
+            {}
         )
     }
 }

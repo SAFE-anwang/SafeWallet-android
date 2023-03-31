@@ -19,6 +19,7 @@ class AccountCleaner(private val testMode: Boolean) : IAccountCleaner {
         EvmAdapter.clear(accountId, testMode)
         Eip20Adapter.clear(accountId, testMode)
         ZcashAdapter.clear(accountId, testMode)
+        SolanaAdapter.clear(accountId, testMode)
     }
 
 }

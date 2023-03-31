@@ -294,7 +294,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="${applicationId}.HashTag1009LauncherAlias"
+            android:name="${applicationId}.Ball8LauncherAlias"
             android:enabled="false"
             android:icon="@mipmap/ic_app_color"
             android:label="@string/App_Name"

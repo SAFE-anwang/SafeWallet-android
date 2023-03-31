@@ -2,16 +2,16 @@ package io.horizontalsystems.bankwallet.entities
 
 import android.os.Parcelable
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.managers.PassphraseValidator
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.shorten
-import io.horizontalsystems.hdwalletkit.HDExtendedKey
-import io.horizontalsystems.hdwalletkit.HDWallet
-import io.horizontalsystems.hdwalletkit.Mnemonic
+import io.horizontalsystems.hdwalletkit.*
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.consenlabs.tokencore.wallet.WalletManager
 import org.consenlabs.tokencore.wallet.model.Metadata
 import java.math.BigInteger
+import java.text.Normalizer
 
 @Parcelize
 data class Account(
@@ -26,9 +26,44 @@ data class Account(
     val isWatchAccount: Boolean
         get() = when (this.type) {
             is AccountType.EvmAddress -> true
+            is AccountType.SolanaAddress -> true
             is AccountType.HdExtendedKey -> this.type.hdExtendedKey.info.isPublic
             else -> false
         }
+
+    @IgnoredOnParcel
+    val nonStandard: Boolean by lazy {
+        if (type is AccountType.Mnemonic) {
+            val words = type.words.joinToString(separator = " ")
+            val passphrase = type.passphrase
+            val normalizedWords = words.normalizeNFKD()
+            val normalizedPassphrase = passphrase.normalizeNFKD()
+
+            when {
+                words != normalizedWords -> true
+                passphrase != normalizedPassphrase -> true
+                else -> try {
+                    Mnemonic().validateStrict(type.words)
+                    false
+                } catch (exception: Exception) {
+                    true
+                }
+            }
+        } else {
+            false
+        }
+    }
+
+    @IgnoredOnParcel
+    val nonRecommended: Boolean by lazy {
+        if (type is AccountType.Mnemonic) {
+            val englishWords = WordList.wordList(Language.English).validWords(type.words)
+            val standardPassphrase = PassphraseValidator().validate(type.passphrase)
+            !englishWords || !standardPassphrase
+        } else {
+            false
+        }
+    }
 
     @IgnoredOnParcel
     val manageCoinsAllowed: Boolean
@@ -54,6 +89,9 @@ data class Account(
 sealed class AccountType : Parcelable {
     @Parcelize
     data class EvmAddress(val address: String) : AccountType()
+
+    @Parcelize
+    data class SolanaAddress(val address: String) : AccountType()
 
     @Parcelize
     data class Mnemonic(val words: List<String>, val passphrase: String) : AccountType() {
@@ -144,6 +182,7 @@ sealed class AccountType : Parcelable {
                 }
             }
             is EvmAddress -> "EVM Address"
+            is SolanaAddress -> "Solana Address"
             is EvmPrivateKey -> "EVM Private Key"
             is HdExtendedKey -> {
                 when (this.hdExtendedKey.derivedType) {
@@ -173,11 +212,13 @@ sealed class AccountType : Parcelable {
             else -> emptyList()
         }
 
-    val hideZeroBalances = this is EvmAddress
+    val hideZeroBalances: Boolean
+        get() = this is EvmAddress || this is SolanaAddress
 
     val detailedDescription: String
         get() = when (this) {
             is EvmAddress -> this.address.shorten()
+            is SolanaAddress -> this.address.shorten()
             else -> this.description
         }
 
@@ -215,18 +256,11 @@ val AccountType.Derivation.rawName: String
         AccountType.Derivation.bip84 -> "BIP 84"
     }
 
-val AccountType.Derivation.title: String
+val AccountType.Derivation.description: String
     get() = when (this) {
         AccountType.Derivation.bip44 -> Translator.getString(R.string.CoinOption_bip44_Title)
         AccountType.Derivation.bip49 -> Translator.getString(R.string.CoinOption_bip49_Title)
         AccountType.Derivation.bip84 -> Translator.getString(R.string.CoinOption_bip84_Title)
-    }
-
-val AccountType.Derivation.description: String
-    get() = when (this) {
-        AccountType.Derivation.bip44 -> rawName
-        AccountType.Derivation.bip84,
-        AccountType.Derivation.bip49 -> "$rawName - $addressType"
     }
 
 @Parcelize
@@ -234,3 +268,5 @@ enum class AccountOrigin(val value: String) : Parcelable {
     Created("Created"),
     Restored("Restored");
 }
+
+fun String.normalizeNFKD(): String = Normalizer.normalize(this, Normalizer.Form.NFKD)

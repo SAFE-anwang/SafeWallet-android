@@ -88,14 +88,24 @@ class MarketKitWrapper(
     fun coinPrice(coinUid: String, currencyCode: String): CoinPrice? =
         if (coinUid.isCustomCoin) null else marketKit.coinPrice(coinUid, currencyCode)
 
-    fun coinPriceMap(coinUids: List<String>, currencyCode: String): Map<String, CoinPrice> =
-        marketKit.coinPriceMap(coinUids.removeCustomCoins(), currencyCode)
+    fun coinPriceMap(coinUids: List<String>, currencyCode: String): Map<String, CoinPrice> {
+        val coinUidsNoCustom = coinUids.removeCustomCoins()
+        return when {
+            coinUidsNoCustom.isEmpty() -> mapOf()
+            else -> marketKit.coinPriceMap(coinUidsNoCustom, currencyCode)
+        }
+    }
 
     fun coinPriceObservable(coinUid: String, currencyCode: String): Observable<CoinPrice> =
         if (coinUid.isCustomCoin) Observable.never() else marketKit.coinPriceObservable(coinUid, currencyCode)
 
-    fun coinPriceMapObservable(coinUids: List<String>, currencyCode: String): Observable<Map<String, CoinPrice>> =
-        marketKit.coinPriceMapObservable(coinUids.removeCustomCoins(), currencyCode)
+    fun coinPriceMapObservable(coinUids: List<String>, currencyCode: String): Observable<Map<String, CoinPrice>> {
+        val coinUidsNoCustom = coinUids.removeCustomCoins()
+        return when {
+            coinUidsNoCustom.isEmpty() -> Observable.never()
+            else -> marketKit.coinPriceMapObservable(coinUidsNoCustom, currencyCode)
+        }
+    }
 
     // Coin Historical Price
 
@@ -147,12 +157,13 @@ class MarketKitWrapper(
 
     // Chart Info
 
-    fun chartInfo(coinUid: String, currencyCode: String, interval: HsTimePeriod) = marketKit.chartInfo(coinUid, currencyCode, interval)
+    fun chartStartTimeSingle(coinUid: String) = marketKit.chartStartTimeSingle(coinUid)
+    fun chartInfo(coinUid: String, currencyCode: String, periodType: HsPeriodType) = marketKit.chartInfo(coinUid, currencyCode, periodType)
 
-    fun chartInfoSingle(coinUid: String, currencyCode: String, interval: HsTimePeriod) = marketKit.chartInfoSingle(coinUid, currencyCode, interval)
+    fun chartInfoSingle(coinUid: String, currencyCode: String, periodType: HsPeriodType) = marketKit.chartInfoSingle(coinUid, currencyCode, periodType)
 
-    fun getChartInfoAsync(coinUid: String, currencyCode: String, interval: HsTimePeriod) =
-        marketKit.getChartInfoAsync(coinUid, currencyCode, interval)
+    fun getChartInfoAsync(coinUid: String, currencyCode: String, periodType: HsPeriodType) =
+        marketKit.getChartInfoAsync(coinUid, currencyCode, periodType)
 
     // Global Market Info
 

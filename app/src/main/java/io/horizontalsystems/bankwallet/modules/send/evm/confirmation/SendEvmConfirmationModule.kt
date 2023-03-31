@@ -21,8 +21,6 @@ import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.marketkit.models.TokenQuery
-import io.horizontalsystems.marketkit.models.TokenType
 
 object SendEvmConfirmationModule {
 
@@ -38,9 +36,11 @@ object SendEvmConfirmationModule {
                 Chain.Avalanche -> BlockchainType.Avalanche
                 Chain.Optimism -> BlockchainType.Optimism
                 Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
+                Chain.Gnosis -> BlockchainType.Gnosis
+                Chain.EthereumGoerli -> BlockchainType.EthereumGoerli
                 else -> BlockchainType.Ethereum
             }
-            App.marketKit.token(TokenQuery(blockchainType, TokenType.Native))!!
+            App.evmBlockchainManager.getBaseToken(blockchainType)!!
         }
         private val gasPriceService: IEvmGasPriceService by lazy {
             val evmKit = evmKitWrapper.evmKit
@@ -57,7 +57,15 @@ object SendEvmConfirmationModule {
             val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, gasLimitSurchargePercent)
             EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, sendEvmData.transactionData)
         }
-        private val coinServiceFactory by lazy { EvmCoinServiceFactory(feeToken, App.marketKit, App.currencyManager) }
+        private val coinServiceFactory by lazy {
+            EvmCoinServiceFactory(
+                feeToken,
+                App.marketKit,
+                App.currencyManager,
+                App.evmTestnetManager,
+                App.coinManager
+            )
+        }
         private val cautionViewItemFactory by lazy { CautionViewItemFactory(coinServiceFactory.baseCoinService) }
         private val sendService by lazy {
             SendEvmTransactionService(sendEvmData, evmKitWrapper, feeService, App.evmLabelManager)

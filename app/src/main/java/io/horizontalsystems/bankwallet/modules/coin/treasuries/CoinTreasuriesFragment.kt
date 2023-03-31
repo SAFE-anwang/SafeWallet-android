@@ -23,11 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.market.tvl.TvlModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
@@ -83,7 +82,7 @@ class CoinTreasuriesFragment : BaseFragment() {
                 }
             )
             HSSwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
+                refreshing = isRefreshing,
                 onRefresh = {
                     viewModel.refresh()
                 }
@@ -109,14 +108,14 @@ class CoinTreasuriesFragment : BaseFragment() {
                                     }
 
                                     items(treasuriesData.coinTreasuries) { item ->
-                                        MultilineClear(
+                                        SectionItemBorderedRowUniversalClear(
                                             borderBottom = true
                                         ) {
                                             CoinImage(
                                                 iconUrl = item.fundLogoUrl,
                                                 modifier = Modifier
                                                     .padding(end = 16.dp)
-                                                    .size(24.dp)
+                                                    .size(32.dp)
                                             )
                                             Column(
                                                 modifier = Modifier.fillMaxWidth()

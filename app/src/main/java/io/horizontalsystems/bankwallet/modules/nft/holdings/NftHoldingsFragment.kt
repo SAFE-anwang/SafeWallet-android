@@ -23,14 +23,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.TotalUIState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.nft.asset.NftAssetModule
 import io.horizontalsystems.bankwallet.modules.nft.ui.NftAssetPreview
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -86,7 +85,7 @@ fun NftHoldingsScreen(navController: NavController) {
 
             )
             HSSwipeRefresh(
-                state = rememberSwipeRefreshState(loading),
+                refreshing = loading,
                 onRefresh = viewModel::refresh
             ) {
                 Crossfade(viewState) { viewState ->
@@ -107,34 +106,35 @@ fun NftHoldingsScreen(navController: NavController) {
                                 Column {
                                     val context = LocalContext.current
 
-                                    when (val totalState = viewModel.totalState) {
+                                    when (val totalState = viewModel.totalUiState) {
                                         TotalUIState.Hidden -> {
                                             DoubleText(
                                                 title = "*****",
                                                 body = "*****",
                                                 dimmed = false,
                                                 onClickTitle = {
-                                                    viewModel.onBalanceClick()
+                                                    viewModel.toggleBalanceVisibility()
                                                     HudHelper.vibrate(context)
                                                 },
-                                                onClickBody = {
-
-                                                }
+                                                onClickSubtitle = {
+                                                    viewModel.toggleTotalType()
+                                                    HudHelper.vibrate(context)
+                                                },
                                             )
                                         }
                                         is TotalUIState.Visible -> {
                                             DoubleText(
-                                                title = totalState.currencyValueStr,
-                                                body = totalState.coinValueStr,
+                                                title = totalState.primaryAmountStr,
+                                                body = totalState.secondaryAmountStr,
                                                 dimmed = totalState.dimmed,
                                                 onClickTitle = {
-                                                    viewModel.onBalanceClick()
+                                                    viewModel.toggleBalanceVisibility()
                                                     HudHelper.vibrate(context)
                                                 },
-                                                onClickBody = {
+                                                onClickSubtitle = {
                                                     viewModel.toggleTotalType()
                                                     HudHelper.vibrate(context)
-                                                }
+                                                },
                                             )
                                         }
                                     }
@@ -192,7 +192,7 @@ fun LazyListScope.nftsCollectionSection(
     onClickAsset: (NftAssetViewItem) -> Unit
 ) {
     item(key = "${collection.uid}-header") {
-        CellSingleLineClear(
+        CellBorderedRowUniversal(
             modifier = Modifier
                 .clickable(
                     indication = null,
@@ -203,7 +203,6 @@ fun LazyListScope.nftsCollectionSection(
             borderTop = true
         ) {
             NftIcon(
-                modifier = Modifier.size(24.dp),
                 iconUrl = collection.imageUrl,
             )
             headline2_leah(

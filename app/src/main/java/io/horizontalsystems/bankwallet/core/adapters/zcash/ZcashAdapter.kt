@@ -49,10 +49,7 @@ class ZcashAdapter(
     private val decimalCount = 8
     private val network: ZcashNetwork = if (testMode) ZcashNetwork.Testnet else ZcashNetwork.Mainnet
     private val feeChangeHeight: Long = if (testMode) 1_028_500 else 1_077_550
-    private val lightWalletEndpoint = when {
-        testMode -> LightWalletEndpoint.defaultForNetwork(network)
-        else -> LightWalletEndpoint("zcash.blocksdecoded.com", 9067, true)
-    }
+    private val lightWalletEndpoint = LightWalletEndpoint.defaultForNetwork(network)
 
     private val synchronizer: Synchronizer
     private val transactionsProvider: ZcashTransactionsProvider
@@ -276,7 +273,7 @@ class ZcashAdapter(
         val scope = synchronizer.coroutineScope
         synchronizer.clearedTransactions.distinctUntilChanged().collectWith(scope, transactionsProvider::onClearedTransactions)
         synchronizer.pendingTransactions.distinctUntilChanged().collectWith(scope, transactionsProvider::onPendingTransactions)
-        synchronizer.status.distinctUntilChanged().collectWith(scope, ::onStatus)
+        synchronizer.status.collectWith(scope, ::onStatus)
         synchronizer.progress.distinctUntilChanged().collectWith(scope, ::onDownloadProgress)
         synchronizer.saplingBalances.collectWith(scope, ::onBalance)
         synchronizer.processorInfo.distinctUntilChanged().collectWith(scope, ::onProcessorInfo)

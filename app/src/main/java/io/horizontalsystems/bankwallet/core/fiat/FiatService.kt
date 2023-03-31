@@ -1,12 +1,12 @@
 package io.horizontalsystems.bankwallet.core.fiat
 
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService.AmountType
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
-import io.horizontalsystems.core.ICurrencyManager
-import io.horizontalsystems.core.entities.Currency
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Observable
@@ -20,7 +20,7 @@ import java.util.*
 
 class FiatService(
     private val switchService: AmountTypeSwitchService,
-    private val currencyManager: ICurrencyManager,
+    private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper
 ) : AmountTypeSwitchService.IToggleAvailableListener {
 
@@ -51,11 +51,11 @@ class FiatService(
 
     init {
         switchService.amountTypeObservable
-                .subscribeOn(Schedulers.io())
-                .subscribe {
-                    syncAmountType()
-                }
-                .let { disposables.add(it) }
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                syncAmountType()
+            }
+            .let { disposables.add(it) }
     }
 
     private fun subscribeToLatestRate() {
@@ -69,6 +69,7 @@ class FiatService(
         syncLatestRate(marketKit.coinPrice(token.coin.uid, currency.code))
 
         latestRateDisposable = marketKit.coinPriceObservable(token.coin.uid, currency.code)
+            .distinct()
             .subscribeOn(Schedulers.io())
             .subscribe {
                 syncLatestRate(it)
@@ -96,9 +97,9 @@ class FiatService(
                 val primary = CoinValue(token, coinAmount)
                 val secondary = currencyAmount?.let { CurrencyValue(currency, it) }
                 FullAmountInfo(
-                        primaryInfo = AmountInfo.CoinValueInfo(primary),
-                        secondaryInfo = secondary?.let { AmountInfo.CurrencyValueInfo(secondary) },
-                        coinValue = primary
+                    primaryInfo = AmountInfo.CoinValueInfo(primary),
+                    secondaryInfo = secondary?.let { AmountInfo.CurrencyValueInfo(secondary) },
+                    coinValue = primary
                 )
             }
             AmountType.Currency -> {
@@ -107,9 +108,9 @@ class FiatService(
                 val primary = CurrencyValue(currency, currencyAmount)
                 val secondary = CoinValue(token, coinAmount)
                 FullAmountInfo(
-                        primaryInfo = AmountInfo.CurrencyValueInfo(primary),
-                        secondaryInfo = AmountInfo.CoinValueInfo(secondary),
-                        coinValue = secondary
+                    primaryInfo = AmountInfo.CurrencyValueInfo(primary),
+                    secondaryInfo = AmountInfo.CoinValueInfo(secondary),
+                    coinValue = secondary
                 )
             }
         }
@@ -148,10 +149,10 @@ class FiatService(
     }
 
     fun buildAmountInfo(amount: BigDecimal?): FullAmountInfo? =
-            when (switchService.amountType) {
-                AmountType.Coin -> buildForCoin(amount)
-                AmountType.Currency -> buildForCurrency(amount)
-            }
+        when (switchService.amountType) {
+            AmountType.Coin -> buildForCoin(amount)
+            AmountType.Currency -> buildForCurrency(amount)
+        }
 
     fun set(token: Token?) {
         this.token = token
@@ -166,9 +167,9 @@ class FiatService(
     }
 
     data class FullAmountInfo(
-            val primaryInfo: AmountInfo,
-            val secondaryInfo: AmountInfo?,
-            val coinValue: CoinValue
+        val primaryInfo: AmountInfo,
+        val secondaryInfo: AmountInfo?,
+        val coinValue: CoinValue
     ) {
         val primaryValue: BigDecimal
             get() = when (primaryInfo) {

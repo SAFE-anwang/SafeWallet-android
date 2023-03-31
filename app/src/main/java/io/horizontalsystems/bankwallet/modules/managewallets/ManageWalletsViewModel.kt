@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
@@ -11,6 +12,7 @@ import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsServic
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsService.ItemState.Unsupported
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
+import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
 import io.horizontalsystems.bankwallet.modules.transactions.Filter
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -23,7 +25,7 @@ class ManageWalletsViewModel(
 ) : ViewModel() {
 
     val viewItemsLiveData = MutableLiveData<List<CoinViewItem<String>>>()
-    val disableCoinLiveData = MutableLiveData<String>()
+    var showBirthdayHeightLiveEvent = SingleLiveEvent<BirthdayHeightViewItem>()
     val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
 
     private var disposables = CompositeDisposable()
@@ -31,10 +33,6 @@ class ManageWalletsViewModel(
     init {
         service.itemsObservable
             .subscribeIO { sync(it) }
-            .let { disposables.add(it) }
-
-        service.cancelEnableCoinObservable
-            .subscribeIO { disableCoinLiveData.postValue(it.uid) }
             .let { disposables.add(it) }
 
         sync(service.items)
@@ -81,26 +79,19 @@ class ManageWalletsViewModel(
     private fun viewItem(
         item: ManageWalletsService.Item,
     ): CoinViewItem<String> {
-        val state = when (item.state) {
-            is Supported -> CoinViewItemState.ToggleVisible(
-                item.state.enabled,
-                item.state.hasSettings
-            )
-            is Unsupported -> CoinViewItemState.ToggleHidden
-        }
-        val image = if (item.fullCoin.coin.uid == "safe-coin"
-            || item.fullCoin.coin.uid == "custom_safe-erc20-SAFE"
-            || item.fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
+        val image = if (item.fullCoin.coin.uid == "safe-coin") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
             ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
         }
         return CoinViewItem(
             item = item.fullCoin.coin.uid,
-            imageSource = image,
+            imageSource = ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder),
             title = item.fullCoin.coin.code,
             subtitle = item.fullCoin.coin.name,
-            state = state,
+            enabled = item.enabled,
+            hasSettings = item.hasSettings,
+            hasInfo = item.hasInfo
         )
     }
 
@@ -124,7 +115,22 @@ class ManageWalletsViewModel(
         service.setFilter(filter)
     }
 
-    val accountTypeDescription: String
+    fun onClickInfo(uid: String) {
+        val (blockchain, birthdayHeight) = service.birthdayHeight(uid) ?: return
+        showBirthdayHeightLiveEvent.postValue(
+            BirthdayHeightViewItem(
+                blockchainIcon = ImageSource.Remote(blockchain.type.imageUrl),
+                blockchainName = blockchain.name,
+                birthdayHeight = birthdayHeight.toString()
+            )
+        )
+    }
+
+    fun onCloseBirthdayHeight() {
+        showBirthdayHeightLiveEvent.postValue(null)
+    }
+
+    private val accountTypeDescription: String
         get() = service.accountType?.description ?: ""
 
     val addTokenEnabled: Boolean
@@ -147,4 +153,10 @@ class ManageWalletsViewModel(
         }
         filterBlockchainsLiveData.postValue(filterBlockchains)
     }
+
+    data class BirthdayHeightViewItem(
+        val blockchainIcon: ImageSource,
+        val blockchainName: String,
+        val birthdayHeight: String
+    )
 }

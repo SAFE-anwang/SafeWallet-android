@@ -6,17 +6,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,19 +34,24 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
+import io.horizontalsystems.bankwallet.modules.swap.SwapActionState
 import io.horizontalsystems.bankwallet.modules.swap.SwapBaseFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainViewModel
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapCoinCardViewComposable
+import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapCoinCardView
 import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapCoinCardViewModel
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationModule
 import io.horizontalsystems.bankwallet.modules.swap.ui.*
 import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapTradeService.PriceImpactLevel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.AdditionalDataCell2
+import io.horizontalsystems.bankwallet.ui.compose.Keyboard
+import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
 import java.util.*
@@ -54,18 +63,16 @@ class UniswapFragment : SwapBaseFragment() {
 
     private val vmFactory by lazy { UniswapModule.Factory(dex) }
     private val uniswapViewModel by navGraphViewModels<UniswapViewModel>(R.id.swapFragment) { vmFactory }
-    private val allowanceViewModelFactory by lazy {
-        UniswapModule.AllowanceViewModelFactory(
-            uniswapViewModel.service
-        )
-    }
+    private val allowanceViewModelFactory by lazy { UniswapModule.AllowanceViewModelFactory(uniswapViewModel.service) }
     private val allowanceViewModel by viewModels<SwapAllowanceViewModel> { allowanceViewModelFactory }
+    private val mainViewModel by navGraphViewModels<SwapMainViewModel>(R.id.swapFragment)
     private val coinCardViewModelFactory by lazy {
         SwapMainModule.CoinCardViewModelFactory(
             this,
             dex,
             uniswapViewModel.service,
-            uniswapViewModel.tradeService
+            uniswapViewModel.tradeService,
+            mainViewModel.switchService
         )
     }
 
@@ -109,7 +116,7 @@ class UniswapFragment : SwapBaseFragment() {
                     fromCoinCardViewModel = fromCoinCardViewModel,
                     toCoinCardViewModel = toCoinCardViewModel,
                     allowanceViewModel = allowanceViewModel,
-                    navController = findNavController(),
+                    navController = findNavController()
                 )
             }
         }
@@ -160,130 +167,186 @@ private fun UniswapScreen(
     navController: NavController
 ) {
     val buttons by viewModel.buttonsLiveData().observeAsState()
-    val showProgressbar by viewModel.isLoadingLiveData().observeAsState(false)
+    val isLoading by viewModel.isLoadingLiveData().observeAsState(false)
     val swapError by viewModel.swapErrorLiveData().observeAsState()
-    val approveStep by viewModel.approveStepLiveData().observeAsState()
     val tradeViewItem by viewModel.tradeViewItemLiveData().observeAsState()
+    val availableBalance by fromCoinCardViewModel.balanceLiveData().observeAsState()
+    val hasNonZeroBalance by fromCoinCardViewModel.hasNonZeroBalance().observeAsState()
+    val keyboardState by observeKeyboardState()
+    val fromAmount by fromCoinCardViewModel.amountLiveData().observeAsState()
+    val tradeTimeoutProgress by viewModel.tradeTimeoutProgressLiveData().observeAsState()
 
     ComposeAppTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
+        val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
+        var showSuggestions by remember { mutableStateOf(false) }
 
-            Spacer(Modifier.height(12.dp))
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
 
-            SwapCoinCardViewComposable(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = stringResource(R.string.Swap_FromAmountTitle),
-                viewModel = fromCoinCardViewModel,
-                uuid = uuidFrom,
-                amountEnabled = true,
-                navController = navController
-            )
+        Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-            SwitchCoinsSection(showProgressbar) { viewModel.onTapSwitch() }
+                Spacer(Modifier.height(12.dp))
 
-            SwapCoinCardViewComposable(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                title = stringResource(R.string.Swap_ToAmountTitle),
-                viewModel = toCoinCardViewModel,
-                uuid = uuidTo,
-                amountEnabled = false,
-                navController = navController
-            )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(ComposeAppTheme.colors.lawrence)
+                ) {
 
-            SwapAllowance(allowanceViewModel)
+                    SwapCoinCardView(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 22.dp),
+                        viewModel = fromCoinCardViewModel,
+                        uuid = uuidFrom,
+                        amountEnabled = true,
+                        navController = navController,
+                        focusRequester = focusRequester,
+                        isLoading = isLoading
+                    ) { isFocused ->
+                        showSuggestions = isFocused
+                    }
 
-            TradeView(tradeViewItem)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SwitchCoinsSection { viewModel.onTapSwitch() }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            SwapError(swapError)
+                    SwapCoinCardView(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 22.dp),
+                        viewModel = toCoinCardViewModel,
+                        uuid = uuidTo,
+                        amountEnabled = true,
+                        navController = navController,
+                        isLoading = isLoading
+                    )
+                }
 
-            ActionButtons(
-                buttons = buttons,
-                onTapRevoke = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
+                if (swapError != null) {
+                    swapError?.let {
+                        SwapError(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp), text = it)
+                    }
+                } else {
+                    val infoItems = mutableListOf<@Composable () -> Unit>()
+                    tradeViewItem?.primaryPrice?.let { primaryPrice ->
+                        tradeViewItem?.secondaryPrice?.let { secondaryPrice ->
+                            infoItems.add { Price(primaryPrice, secondaryPrice, tradeTimeoutProgress ?: 1f, tradeViewItem?.expired ?: false) }
                         }
                     }
-
-                    viewModel.revokeEvmData?.let { revokeEvmData ->
-                        navController.slideFromBottom(
-                            R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, viewModel.blockchainType, false)
-                        )
+                    if (allowanceViewModel.uiState.isVisible && !allowanceViewModel.uiState.revokeRequired) {
+                        infoItems.add { SwapAllowance(allowanceViewModel, navController) }
                     }
-                },
-                onTapApprove = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
+                    tradeViewItem?.priceImpact?.let {
+                        infoItems.add { PriceImpact(it, navController) }
                     }
 
-                    viewModel.approveData?.let { data ->
-                        navController.slideFromBottom(
-                            R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data)
-                        )
+                    if (infoItems.isEmpty()) {
+                        availableBalance?.let { infoItems.add { AvailableBalance(it) } }
                     }
-                },
-                onTapProceed = {
-                    viewModel.proceedParams?.let { sendEvmData ->
-                        navController.slideFromRight(
-                            R.id.uniswapConfirmationFragment,
-                            UniswapConfirmationModule.prepareParams(sendEvmData)
+
+                    if (infoItems.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        SingleLineGroup(infoItems)
+                    }
+
+                    if (buttons?.revoke is SwapActionState.Enabled && allowanceViewModel.uiState.revokeRequired) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TextImportantWarning(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            text = stringResource(R.string.Approve_RevokeAndApproveInfo, allowanceViewModel.uiState.allowance ?: "")
                         )
                     }
                 }
-            )
 
-            SwapAllowanceSteps(approveStep)
+                Spacer(Modifier.height(32.dp))
 
-            Spacer(Modifier.height(32.dp))
+                ActionButtons(
+                    buttons = buttons,
+                    onTapRevoke = {
+                        navController.getNavigationResult(SwapApproveModule.requestKey) {
+                            if (it.getBoolean(SwapApproveModule.resultKey)) {
+                                viewModel.didApprove()
+                            }
+                        }
+
+                        viewModel.revokeEvmData?.let { revokeEvmData ->
+                            navController.slideFromBottom(
+                                R.id.swapApproveConfirmationFragment,
+                                SwapApproveConfirmationModule.prepareParams(revokeEvmData, viewModel.blockchainType, false)
+                            )
+                        }
+                    },
+                    onTapApprove = {
+                        navController.getNavigationResult(SwapApproveModule.requestKey) {
+                            if (it.getBoolean(SwapApproveModule.resultKey)) {
+                                viewModel.didApprove()
+                            }
+                        }
+
+                        viewModel.approveData?.let { data ->
+                            navController.slideFromBottom(
+                                R.id.swapApproveFragment,
+                                SwapApproveModule.prepareParams(data)
+                            )
+                        }
+                    },
+                    onTapProceed = {
+                        viewModel.proceedParams?.let { sendEvmData ->
+                            navController.slideFromRight(
+                                R.id.uniswapConfirmationFragment,
+                                UniswapConfirmationModule.prepareParams(sendEvmData)
+                            )
+                        }
+                    }
+                )
+
+                Spacer(Modifier.height(32.dp))
+            }
+
+            if (hasNonZeroBalance == true && fromAmount?.second.isNullOrEmpty() && showSuggestions && keyboardState == Keyboard.Opened) {
+                SuggestionsBar(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    focusManager.clearFocus()
+                    fromCoinCardViewModel.onSetAmountInBalancePercent(it)
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun TradeView(data: UniswapViewModel.TradeViewItem?) {
-    data?.let { tradeViewItem ->
-        Spacer(Modifier.height(12.dp))
-        if (tradeViewItem.buyPrice != null && tradeViewItem.sellPrice != null) {
-            AdditionalDataCell2 {
-                subhead2_grey(text = stringResource(R.string.Swap_BuyPrice))
-                Spacer(Modifier.weight(1f))
-                subhead2_grey(text = tradeViewItem.buyPrice)
-            }
-            AdditionalDataCell2 {
-                subhead2_grey(text = stringResource(R.string.Swap_SellPrice))
-                Spacer(Modifier.weight(1f))
-                subhead2_grey(text = tradeViewItem.sellPrice)
-            }
-        }
-        tradeViewItem.priceImpact?.let { priceImpact ->
-            AdditionalDataCell2 {
-                subhead2_grey(text = stringResource(R.string.Swap_PriceImpact))
-                Spacer(Modifier.weight(1f))
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = priceImpact.value,
-                    style = ComposeAppTheme.typography.subhead2,
-                    color = getPriceImpactColor(priceImpact.level),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        tradeViewItem.guaranteedAmount?.let { guaranteedAmount ->
-            AdditionalDataCell2 {
-                subhead2_grey(text = guaranteedAmount.title)
-                Spacer(Modifier.weight(1f))
-                subhead2_grey(text = guaranteedAmount.value)
-            }
-        }
+private fun PriceImpact(
+    priceImpact: UniswapModule.PriceImpactViewItem,
+    navController: NavController
+) {
+    Row(modifier = Modifier.height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+        val infoTitle = stringResource(id = R.string.SwapInfo_PriceImpactTitle)
+        val infoText = stringResource(id = R.string.SwapInfo_PriceImpactDescription)
+        Image(
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .clickable {
+                    navController.slideFromBottom(
+                        R.id.feeSettingsInfoDialog,
+                        FeeSettingsInfoDialog.prepareParams(infoTitle, infoText)
+                    )
+                },
+            painter = painterResource(id = R.drawable.ic_info_20), contentDescription = ""
+        )
+        subhead2_grey(text = stringResource(R.string.Swap_PriceImpact))
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = priceImpact.value,
+            style = ComposeAppTheme.typography.subhead2,
+            color = getPriceImpactColor(priceImpact.level),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

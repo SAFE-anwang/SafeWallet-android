@@ -24,7 +24,7 @@ object RestoreBlockchainsModule {
     class Factory(
         private val accountName: String,
         private val accountType: AccountType
-        ) : ViewModelProvider.Factory {
+    ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
             RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
@@ -48,7 +48,8 @@ object RestoreBlockchainsModule {
                 App.walletManager,
                 App.marketKit,
                 enableCoinService,
-                App.evmBlockchainManager
+                App.evmBlockchainManager,
+                App.evmTestnetManager
             )
         }
 
@@ -71,7 +72,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService) as T
+                    CoinTokensViewModel(coinTokensService, App.accountManager) as T
                 }
                 else -> throw IllegalArgumentException()
             }
@@ -127,11 +128,8 @@ data class CoinViewItem<T>(
     val imageSource: ImageSource,
     val title: String,
     val subtitle: String,
-    val state: CoinViewItemState,
+    val enabled: Boolean,
+    val hasSettings: Boolean = false,
+    val hasInfo: Boolean = false,
     val label: String? = null,
 )
-
-sealed class CoinViewItemState {
-    data class ToggleVisible(val enabled: Boolean, val hasSettings: Boolean) : CoinViewItemState()
-    object ToggleHidden : CoinViewItemState()
-}

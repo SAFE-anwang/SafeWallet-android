@@ -28,6 +28,8 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
 
     var trendUpColor = context.getColor(R.color.green_d)
     var trendDownColor = context.getColor(R.color.red_d)
+    var neutralColor = context.getColor(R.color.jacob)
+    var neutralGradientColor = GradientColor(Color.parseColor("#FFA800"), Color.parseColor("#FFA800"))
     var trendUpGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
     var trendDownGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
     var pressedGradient = GradientColor(context.getColor(R.color.leah), context.getColor(R.color.leah))
@@ -78,6 +80,10 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
             chartData.isExpired -> {
                 curveColor = curveOutdatedColor
                 curveGradient = outdatedGradient
+            }
+            !chartData.isMovementChart -> {
+                curveColor = neutralColor
+                curveGradient = neutralGradientColor
             }
             chartData.diff() < BigDecimal.ZERO -> {
                 curveColor = trendDownColor

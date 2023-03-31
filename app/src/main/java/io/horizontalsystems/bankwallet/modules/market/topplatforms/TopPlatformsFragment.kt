@@ -27,12 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.modules.market.SortingField
@@ -99,7 +98,7 @@ fun TopPlatformsScreen(
             TopCloseButton(interactionSource) { navController.popBackStack() }
 
             HSSwipeRefresh(
-                state = rememberSwipeRefreshState(viewModel.isRefreshing),
+                refreshing = viewModel.isRefreshing,
                 onRefresh = {
                     viewModel.refresh()
                 }
@@ -237,7 +236,7 @@ private fun TopPlatformSecondRow(
 
 @Composable
 fun TopPlatformItem(item: TopPlatformViewItem, onItemClick: (Platform) -> Unit) {
-    MultilineClear(
+    SectionItemBorderedRowUniversalClear(
         borderBottom = true,
         onClick = { onItemClick(item.platform) }
     ) {
@@ -246,7 +245,7 @@ fun TopPlatformItem(item: TopPlatformViewItem, onItemClick: (Platform) -> Unit) 
             placeholder = item.iconPlaceHolder,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .size(24.dp)
+                .size(32.dp)
         )
         Column(modifier = Modifier.fillMaxWidth()) {
             MarketCoinFirstRow(item.platform.name, item.marketCap)

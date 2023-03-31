@@ -64,7 +64,12 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
                 testMode -> listOf(Chain.EthereumGoerli)
                 else -> listOf(
                     Chain.Ethereum,
-                    Chain.BinanceSmartChain
+                    Chain.BinanceSmartChain,
+                    Chain.Polygon,
+                    Chain.Avalanche,
+                    Chain.Optimism,
+                    Chain.ArbitrumOne,
+                    Chain.Gnosis,
                 )
             }
             networkTypes.forEach {

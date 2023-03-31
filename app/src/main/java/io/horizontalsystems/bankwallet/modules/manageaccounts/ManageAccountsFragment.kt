@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -132,12 +133,9 @@ fun ManageAccountsScreen(navController: NavController, mode: ManageAccountsModul
                             navController.slideFromRight(R.id.watchAddressFragment, args)
                         }
                     )
-                    CellSingleLineLawrenceSection(actions) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(onClick = it.callback),
-                            verticalAlignment = Alignment.CenterVertically
+                    CellUniversalLawrenceSection(actions) {
+                        RowUniversal(
+                            onClick = it.callback
                         ) {
                             Icon(
                                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -149,10 +147,6 @@ fun ManageAccountsScreen(navController: NavController, mode: ManageAccountsModul
                         }
                     }
 
-                    InfoText(
-                        text = stringResource(id = R.string.ManageAccounts_Hint),
-                    )
-
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -162,14 +156,9 @@ fun ManageAccountsScreen(navController: NavController, mode: ManageAccountsModul
 
 @Composable
 private fun AccountsSection(accounts: List<AccountViewItem>, viewModel: ManageAccountsViewModel, navController: NavController) {
-    CellMultilineLawrenceSection(items = accounts) { accountViewItem ->
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    viewModel.onSelect(accountViewItem)
-                },
-            verticalAlignment = Alignment.CenterVertically
+    CellUniversalLawrenceSection(items = accounts) { accountViewItem ->
+        RowUniversal(
+            onClick = { viewModel.onSelect(accountViewItem) }
         ) {
             if (accountViewItem.selected) {
                 Icon(
@@ -190,6 +179,8 @@ private fun AccountsSection(accounts: List<AccountViewItem>, viewModel: ManageAc
                 body_leah(text = accountViewItem.title)
                 if (accountViewItem.backupRequired) {
                     subhead2_lucian(text = stringResource(id = R.string.ManageAccount_BackupRequired_Title))
+                } else if (accountViewItem.migrationRequired) {
+                    subhead2_lucian(text = stringResource(id = R.string.ManageAccount_MigrationRequired_Title))
                 } else {
                     subhead2_grey(
                         text = accountViewItem.subtitle,
@@ -208,7 +199,11 @@ private fun AccountsSection(accounts: List<AccountViewItem>, viewModel: ManageAc
 
             val icon: Int
             val iconTint: Color
-            if (accountViewItem.backupRequired) {
+            if (
+                accountViewItem.backupRequired
+                || accountViewItem.migrationRequired
+                || accountViewItem.migrationRecommended
+            ) {
                 icon = R.drawable.icon_warning_2_20
                 iconTint = ComposeAppTheme.colors.lucian
             } else {

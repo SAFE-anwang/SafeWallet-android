@@ -1,11 +1,16 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.graphics.Color
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -22,6 +27,9 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
+import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
@@ -36,6 +44,10 @@ class MainActivity : BaseActivity() {
 
     val viewModel by viewModels<MainActivityViewModel>(){
         MainModule.FactoryForActivityViewModel()
+    }
+
+    private val wc2MainViewModel by viewModels<WC2MainViewModel> {
+        WC2MainViewModel.Factory()
     }
 
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -80,6 +92,32 @@ class MainActivity : BaseActivity() {
                     )
                 }
             }
+        wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
+            navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+        }
+        wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
+            navHost.navController.slideFromBottom(
+                R.id.wc2RequestFragment,
+                WC2RequestFragment.prepareParams(requestId)
+            )
+        }
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        if (CoreApp.instance.testMode) {
+            val rootView = findViewById<ViewGroup>(android.R.id.content)
+            val testLabelTv = TextView(this)
+            testLabelTv.text = "Test"
+            testLabelTv.setPadding(5, 3, 5, 3)
+            testLabelTv.includeFontPadding = false
+            testLabelTv.setBackgroundColor(Color.RED)
+            testLabelTv.setTextColor(Color.WHITE)
+            testLabelTv.textSize = 12f
+            val layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+            layoutParams.gravity = Gravity.CENTER_HORIZONTAL
+            testLabelTv.layoutParams = layoutParams
+            rootView.addView(testLabelTv)
         }
     }
 
@@ -90,34 +128,6 @@ class MainActivity : BaseActivity() {
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
     }
-
-//    override fun onTrimMemory(level: Int) {
-//        super.onTrimMemory(level)
-//        when (level) {
-//            TRIM_MEMORY_RUNNING_MODERATE,
-//            TRIM_MEMORY_RUNNING_LOW,
-//            TRIM_MEMORY_RUNNING_CRITICAL -> {
-//                /*
-//                   Release any memory that your app doesn't need to run.
-//
-//                   The device is running low on memory while the app is running.
-//                   The event raised indicates the severity of the memory-related event.
-//                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
-//                   begin killing background processes.
-//                */
-//                if (App.backgroundManager.inBackground) {
-//                    val logger = AppLogger("low memory")
-//                    logger.info("Kill activity due to low memory, level: $level")
-//                    finishAffinity()
-//                    Utils.stopVService(this)
-//                }
-//            }
-//            else -> {  /*do nothing*/
-//            }
-//        }
-//
-//        super.onTrimMemory(level)
-//    }
 
     fun openSend(wallet: Wallet) {
         /*startActivity(Intent(this, SendActivity::class.java).apply {

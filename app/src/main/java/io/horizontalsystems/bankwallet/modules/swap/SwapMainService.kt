@@ -41,8 +41,7 @@ class SwapMainService(
 
     private fun getDex(tokenFrom: Token?): SwapMainModule.Dex {
         val blockchain = getBlockchainForToken(tokenFrom)
-        val provider = getSwapProvider(blockchain.type)
-            ?: throw IllegalStateException("No provider found for ${blockchain}")
+        val provider = getSwapProvider(blockchain.type) ?: throw IllegalStateException("No provider found for ${blockchain.name}")
 
         return SwapMainModule.Dex(blockchain, provider)
     }
@@ -60,6 +59,7 @@ class SwapMainService(
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
+        BlockchainType.Gnosis,
         BlockchainType.ArbitrumOne -> token.blockchain
         null -> Blockchain(BlockchainType.Ethereum, "Ethereum", null) // todo: find better solution
         else -> throw IllegalStateException("Swap not supported for ${token.blockchainType}")

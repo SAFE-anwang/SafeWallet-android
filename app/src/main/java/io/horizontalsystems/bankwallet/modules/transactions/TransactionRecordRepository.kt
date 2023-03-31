@@ -65,16 +65,18 @@ class TransactionRecordRepository(
                 BlockchainType.Zcash,
                 BlockchainType.BinanceChain -> mergedWallets.add(wallet)
                 BlockchainType.Ethereum,
+                BlockchainType.EthereumGoerli,
                 BlockchainType.BinanceSmartChain,
                 BlockchainType.Polygon,
                 BlockchainType.Avalanche,
                 BlockchainType.Optimism,
-                BlockchainType.ArbitrumOne-> {
+                BlockchainType.ArbitrumOne,
+                BlockchainType.Gnosis,
+                BlockchainType.Solana -> {
                     if (mergedWallets.none { it.source == wallet.source }) {
                         mergedWallets.add(TransactionWallet(null, wallet.source, null))
                     }
                 }
-                BlockchainType.Solana,
                 is BlockchainType.Unsupported -> Unit
             }
         }

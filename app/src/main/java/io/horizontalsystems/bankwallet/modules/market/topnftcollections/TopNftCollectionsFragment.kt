@@ -26,12 +26,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.TimeDuration
@@ -110,7 +109,7 @@ fun TopNftCollectionsScreen(
             TopCloseButton(interactionSource, onCloseButtonClick)
 
             HSSwipeRefresh(
-                state = rememberSwipeRefreshState(viewModel.isRefreshing),
+                refreshing = viewModel.isRefreshing,
                 onRefresh = {
                     viewModel.refresh()
                 }
@@ -193,16 +192,14 @@ private fun TopNftCollectionsList(
     ) {
         preItems.invoke(this)
         items(collections) { collection ->
-            MultilineClear(
+            SectionItemBorderedRowUniversalClear(
                 onClick = { onClickCollection(collection.blockchainType, collection.uid) },
                 borderBottom = true
             ) {
                 NftIcon(
                     iconUrl = collection.imageUrl ?: "",
                     placeholder = R.drawable.coin_placeholder,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .size(24.dp)
+                    modifier = Modifier.padding(end = 16.dp)
                         .background(Color.White, CircleShape)
                 )
                 Column(modifier = Modifier.fillMaxWidth()) {

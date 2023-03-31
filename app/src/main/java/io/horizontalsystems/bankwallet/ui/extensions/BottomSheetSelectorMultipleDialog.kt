@@ -7,12 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
@@ -84,68 +82,62 @@ class BottomSheetSelectorMultipleDialog(
                 .border(1.dp, ComposeAppTheme.colors.steel10, RoundedCornerShape(12.dp))
         ) {
             items.forEachIndexed { index, item ->
-                CellMultilineLawrence(borderTop = index != 0) {
-                    CellMultilineLawrence(borderBottom = true) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(
-                                    enabled = item.copyableString != null,
-                                    onClick = {
-                                        item.copyableString?.let {
-                                            TextHelper.copyText(it)
-                                            HudHelper.showSuccessMessage(
-                                                localView,
-                                                R.string.Hud_Text_Copied
-                                            )
-                                        }
-                                    }
-                                )
-                                .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (icon is ImageSource.Local) {
-                                Image(painter = icon.painter(),
-                                    contentDescription = null,
+                val onClick = if (item.copyableString != null) {
+                    {
+                        HudHelper.showSuccessMessage(localView, R.string.Hud_Text_Copied)
+                        TextHelper.copyText(item.copyableString)
+                    }
+                } else {
+                    null
+                }
+
+                SectionUniversalItem(
+                    borderTop = index != 0,
+                ) {
+                    RowUniversal(
+                        onClick = onClick,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalPadding = 0.dp
+                    ) {
+                        if (icon is ImageSource.Local) {
+                            Image(painter = icon.painter(),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .size(24.dp)
+                            )
+                        } else {
+                            item.icon?.let { url ->
+                                CoinImage(
+                                    iconUrl = url,
                                     modifier = Modifier
-                                        .padding(horizontal = 16.dp)
+                                        .padding(end = 16.dp)
                                         .size(24.dp)
                                 )
-                            } else {
-                                item.icon?.let { url ->
-                                    CoinImage(
-                                        iconUrl = url,
-                                        modifier = Modifier
-                                            .padding(end = 16.dp)
-                                            .size(24.dp)
-                                    )
-                                }
                             }
-                            Column {
-                                body_leah(text = item.title)
-                                subhead2_grey(text = item.subtitle)
-                            }
-                            Spacer(modifier = Modifier.weight(1f))
-                            HsSwitch(
-                                modifier = Modifier.padding(start = 5.dp),
-                                checked = selected.contains(index),
-                                onCheckedChange = { checked ->
-                                    if (checked) {
-                                        selected.add(index)
-                                    } else {
-                                        selected.remove(index)
-                                    }
-                                },
-                            )
                         }
+                        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                            body_leah(text = item.title)
+                            subhead2_grey(text = item.subtitle)
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        HsSwitch(
+                            modifier = Modifier.padding(start = 5.dp),
+                            checked = selected.contains(index),
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    selected.add(index)
+                                } else {
+                                    selected.remove(index)
+                                }
+                            },
+                        )
                     }
                 }
             }
         }
         ButtonPrimaryYellow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
             title = getString(R.string.Button_Done),
             onClick = {
                 if (notifyUnchanged || !equals(selectedIndexes, selected)) {

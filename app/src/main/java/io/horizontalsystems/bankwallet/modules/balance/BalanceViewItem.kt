@@ -5,8 +5,8 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.CoinPrice
@@ -110,13 +110,16 @@ class BalanceViewItemFactory {
         BlockchainType.Safe,
         BlockchainType.Zcash -> 10
         BlockchainType.Ethereum,
+        BlockchainType.EthereumGoerli,
         BlockchainType.BinanceSmartChain,
         BlockchainType.BinanceChain,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
         BlockchainType.Solana,
+        BlockchainType.Gnosis,
         BlockchainType.ArbitrumOne -> 50
+        BlockchainType.Solana -> 50
         is BlockchainType.Unsupported -> 0
     }
 

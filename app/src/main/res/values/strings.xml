@@ -32,7 +32,8 @@
     <string name="Button_Disconnect">Disconnect</string>
     <string name="Button_Start">Start</string>
     <string name="Button_Create">Create</string>
-    <string name="Button_Restore">Restore</string>
+    <string name="Button_Advanced">Advanced</string>
+    <string name="Button_Restore">Import</string>
     <string name="Button_WatchAddress">Watch Address</string>
     <string name="Button_Reset">Reset</string>
     <string name="Button_Reconnect">Reconnect</string>
@@ -57,6 +58,10 @@
 
     <string name="Keyboard">Keyboard</string>
 
+    <string name="AccountRecovery_Note">Note</string>
+    <string name="AccountRecovery_MigrationRecommended">This wallet seems to use a non-standard character in its secret word list and/or a passphrase. If you do not see a balance or transactions please read below for details.\n\nCLICK TO GET MORE INFO</string>
+    <string name="AccountRecovery_MigrationRequired">This is a non-standard wallet. \n\nCLICK TO GET MORE INFO</string>
+
     <!--Intro-->
 
     <string name="Intro_Wallet_Screen1Description">SafeWallet</string>
@@ -76,16 +81,18 @@
     <string name="Welcome_PrivacySettings">Privacy Settings</string>
 
     <!--Create Wallet-->
-    <string name="CreateWallet_Title">New Wallet</string>
+    <string name="CreateWallet_Advanced_Title">Advanced</string>
     <string name="CreateWallet_Mnemonic">Mnemonic</string>
-    <string name="CreateWallet_Wordlist">Wordlist</string>
+    <string name="CreateWallet_Wordlist">Word List</string>
     <string name="Passphrase">Passphrase</string>
+    <string name="ConfirmPassphrase">Confirm</string>
+    <string name="CreateWallet_N_WordsRecommended">%s words (recommended)</string>
     <string name="CreateWallet_N_Words">%s words</string>
     <string name="CreateWallet_PassphraseConfirm">Confirm</string>
     <string name="CreateWallet_Error_EmptyPassphrase">Passphrase cannot be empty</string>
+    <string name="CreateWallet_Error_PassphraseForbiddenSymbols">Please use only supported symbols: <![CDATA[A-Z a-z 0-9 \' " ` & / ? ! : ; . , ~ * $ = + - [ ](){} <> \ _ # @ | % ]]></string>
     <string name="CreateWallet_Error_InvalidConfirmation">Passphrase confirmation does not match</string>
-    <string name="EnterPassphrase">Enter the passphrase</string>
-    <string name="CreateWallet_PassphraseDescription">Passphrases add an additional security layer to the wallets, enabling users to create multiple independent multi-coin wallets using a single mnemonic recovery phrase, but associated with different passwords. \n\nTo restore these wallets, a user will require a mnemonic recovery phrase as well as a password for each to be restored wallet.</string>
+    <string name="CreateWallet_PassphraseDescription">Passphrases add additional security layer for wallets. To restore such wallet a user required both mnemonic as well as a passphrase.\n\nPassphrases also make it easy for users to have many multi-coin wallets using a single mnemonic but different passwords.</string>
 
     <!--Languages-->
     <string name="Language_English">English</string>
@@ -108,23 +115,24 @@
     <string name="RateApp_Button_NotNow">Not now</string>
 
     <!--Restore-->
-
-    <string name="Restore_Enter_Key_Title">Restore</string>
+    <string name="Restore_Advanced_Title">Advanced</string>
     <string name="Restore_Mnemonic_Description">Enter your wallet recovery phrase (aka mnemonic) which consists of 12, 15, 18, 21 or 24 words and may include additional alphanumeric password.</string>
     <string name="Restore_ValidationFailed">Incorrect Key</string>
     <string name="Restore_Error_MnemonicWordCount">Wrong words count. It must be between 12 or 24 words. You entered: %d</string>
     <string name="Restore_Error_EmptyPassphrase">Passphrase cannot be empty</string>
     <string name="Restore_Error_EmptyPassphrase_Password">Password cannot be empty</string>
     <string name="Restore_InvalidChecksum">Invalid Checksum</string>
-    <string name="Restore_PassphraseDescription">Enter the passphrase you used when creating this mnemonic phrase.</string>
+    <string name="Restore_PassphraseDescription">Enter the passphrase you used when creating this mnemonic phrase. Restoring an existing wallet with a new passphrase will generate a brand new wallet.</string>
     <string name="Restore_Title">Choose Blockchains</string>
     <string name="Restore_Key">Key</string>
-    <string name="Restore_By">By</string>
-    <string name="Restore_RestoreBy">Restore By</string>
+    <string name="Restore_By">Import By</string>
+    <string name="Restore_RestoreBy">Import By</string>
     <string name="Restore_RecoveryPhrase">Recovery Phrase</string>
     <string name="Restore_PrivateKey">Private Key</string>
     <string name="Restore_PrivateKeyHint">Enter EVM Private Key, BIP32 Root Key or Account Extended Private Key</string>
-    <string name="Restore_PhraseHint">Enter 12, 15, 18, 21 or 24 words</string>
+    <string name="Restore_PhraseHint">Enter Recovery Phrase</string>
+    <string name="Restore_NonStandardRestore">Non-Standard Import</string>
+    <string name="Restore_NonStandard_Description">This page provides a special wallet restore mechanism to Unstoppable users who have a non-standard wallet. Such wallets might have been created in Unstoppable version 0.27 - 0.28 using a non-English mnemonic word list and/or a special character in the wallet passphrase (i.e. diacritic symbol).\n\nIf you\'re an affected user then your wallet balance will be shown 0 after restoring such wallet in version 0.29 or above. This page will enable you to restore access to your non-standard wallet. Once restored you\'re recommended to create a new wallet (which will be standard compliant) and move funds there.</string>
 
     <string name="Restore_PrivateKey_InvalidKey">Invalid Key</string>
 
@@ -326,7 +334,7 @@
     <string name="Market_Filter_PriceChange_Negative_10_minus">&lt; -10%</string>
     <string name="Market_Filter_PriceChange_Negative_25_minus">&lt; -25%</string>
     <string name="Market_Filter_PriceChange_Negative_50_minus">&lt; -50%</string>
-    <string name="Market_Filter_PriceChange_Negative_100_minus">&lt; -100%</string>
+    <string name="Market_Filter_PriceChange_Negative_75_minus">&lt; -75%</string>
     <string name="TimePeriod_24h">24h</string>
 
     <!--Coin Markets-->
@@ -481,8 +489,8 @@
     <string name="FeeInfo_Fast">High</string>
     <string name="FeeInfo_FastDescription">For transactions where priority is important, we recommend using the high fee value. It\'s expected to be sufficient for a transaction to be completed within 10 minutes for Bitcoin and within 1-2 minutes for Ethereum.</string>
 
-    <!--Wallet Connect-->
-    <string name="WalletConnect_Title" translatable="false">Wallet Connect</string>
+    <!--WalletConnect-->
+    <string name="WalletConnect_Title" translatable="false">WalletConnect</string>
     <string name="WalletConnect_Request">Request</string>
     <string name="WalletConnect_SendRequest_Title">Send</string>
     <string name="WalletConnect_ApproveRequest_Title">Approve</string>
@@ -495,7 +503,7 @@
     <string name="WalletConnect_Ready_Hint">You can go to the browser. Do not close this page while interacting in the browser.</string>
     <string name="WalletConnect_Reconnect_Hint">Failed to establish connection. Try reconnecting again.</string>
     <string name="WalletConnect_Error_InvalidUrl">Invalid URL Address</string>
-    <string name="WalletConnect_NotSupportedV2">Wallet Connect v2 is not supported</string>
+    <string name="WalletConnect_NotSupportedV2">WalletConnect v2 is not supported</string>
     <string name="WalletConnect_Requirement">Requirement</string>
     <string name="WalletConnect_Alert">Alert</string>
     <string name="WalletConnect_Status_Offline">Offline</string>
@@ -509,7 +517,8 @@
     <string name="WalletConnect_SignMessageRequest_ShowMessageTitle">Message to sign</string>
     <string name="WalletConnect_SignMessageRequest_SignMessageHint">Please sign a message to authenticate</string>
     <string name="WalletConnect_SignMessageRequest_ButtonSign">Sign</string>
-    <string name="WalletConnect_Error_NoWallet">No suitable Wallet. You need to create or restore existing wallet</string>
+    <string name="WalletConnect_Error_NoWallet">You need to create or import a wallet before you can use WalletConnect</string>
+    <string name="WalletConnect_Error_NeedBackup">You need to backup %s before you can use WalletConnect</string>
     <string name="WalletConnect_Error_WatchAccount">This feature does not work with the watch only wallets, you need to switch to a restored or created wallet </string>
     <string name="WalletConnect_Error_UnsupportedChainId">Unsupported Blockchain</string>
     <string name="WalletConnect_Error_NoSuitableAccount">No suitable account</string>
@@ -528,6 +537,17 @@
     <string name="WalletConnect_Note">Note</string>
     <string name="WalletConnect_LegacySignWarning">Signing this message can be dangerous. This signature could potentially perform any operation on behalf of your account, including giving full control of your account and all of its assets to the requesting site. Sign this message only if you know what you are doing or fully trust the requesting site.</string>
     <string name="WalletConnect_NotSupportedDescription">You current wallet type %s does not support WalletConnect</string>
+    <string name="WalletConnect_Unnamed">Unnamed</string>
+    <string name="WalletConnect_DAppUnknown">Unknown dApp</string>
+    <string name="WalletConnect_Pairings">Pairings</string>
+    <string name="WalletConnect_PairedDApps">Paired dApps</string>
+    <string name="WalletConnect_Pairings_DeleteAll">Delete All</string>
+    <string name="WalletConnect_Pairings_ConfirmationDeleteAll">Do you want to delete all paired dApss?</string>
+    <string name="WalletConnect_Pairings_Delete">Delete</string>
+    <string name="WalletConnect_DeleteAllPairs">Delete All Pairs</string>
+    <string name="WalletConnect_UnsupportedRequest_Title">Unsupported Request</string>
+    <string name="WalletConnect_UnsupportedRequest_WarningTitle">Unsupported</string>
+    <string name="WalletConnect_UnsupportedRequest_WarningDescription">This request format is not supported by the wallet</string>
 
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">Warning</string>
@@ -552,7 +572,7 @@
     <string name="Swap_Percent" translatable="false">%s%%</string>
     <string name="Swap_Estimated">ESTIMATED</string>
     <string name="Swap_TokenSelectorTitle">Select</string>
-    <string name="Swap_Balance">Balance</string>
+    <string name="Swap_Balance">Available balance</string>
     <string name="Swap_Allowance">Allowance</string>
     <string name="Swap_Price">Price</string>
     <string name="Swap_SellPrice">Sell Price</string>
@@ -564,13 +584,15 @@
     <string name="Swap_MaxFee">Max Fee</string>
     <string name="Swap_Fee">Fee</string>
     <string name="Swap_ErrorInsufficientBalance">Insufficient balance</string>
+    <string name="Swap_ErrorBalanceNotAvailable">Balance N/A</string>
     <string name="Swap_ErrorNoLiquidity">Can\'t swap these tokens</string>
+    <string name="Swap_ErrorWrapUnwrapNotAllowed">This service doesn\'t allow wrapping/unwrapping. Use 1inch instead.</string>
     <string name="Swap_ErrorHighPriceImpact">High price impact</string>
     <string name="Swap_Proceed">Next</string>
     <string name="Swap_Revoke">Revoke</string>
     <string name="Swap_Revoking">Revoking...</string>
     <string name="Swap_Approve">Approve</string>
-    <string name="Swap_Approving">Approving...</string>
+    <string name="Swap_Approving">Approving</string>
     <string name="Swap_Swapping">Swapping</string>
     <string name="Swap_MaximumPaid">Maximum Amount</string>
     <string name="Swap_MinimumGot">Guaranteed Amount</string>
@@ -579,9 +601,10 @@
     <string name="Swap_AmountEstimated">(est)</string>
     <string name="Swap_AmountMin">(min)</string>
     <string name="Swap_AmountMax">(max)</string>
+    <string name="Swap_AmountTypeCoin">Coin</string>
 
     <!-- Swap Settings -->
-    <string name="SwapSettings_Title">Advanced Settings</string>
+    <string name="SwapSettings_Title">Swap Settings</string>
     <string name="SwapSettings_Service">Service</string>
     <string name="SwapSettings_SlippageTitle">Slippage Tolerance</string>
     <string name="SwapSettings_SlippageDescription">Your transaction will revert if the price changes unfavorably by more than this percentage</string>
@@ -592,6 +615,7 @@
     <string name="SwapSettings_Apply">Apply</string>
     <string name="SwapSettings_DeadlineMinute">%s min</string>
     <string name="SwapSettings_RecipientPlaceholder">Address or domain</string>
+    <string name="SwapSettings_FeeSettingsAlert">A service fee for the swap action on the platform typically either 0.3% or 0.6%</string>
 
     <string name="SwapSettings_Error_DeadlineZero">Zero Deadline</string>
     <string name="SwapSettings_Error_SlippageZero">Zero Slippage</string>
@@ -623,24 +647,12 @@
 
     <!--Uniswap Info -->
 
-    <string name="SwapInfo_Description">This exchange service is powered by %1$s, a decentralized token exchange protocol built on the %2$s blockchain. \n\n%3$s is fully automated and managed by smart contracts that facilitate token exchanges in a reliable manner without any means to cheat.</string>
-    <string name="SwapInfo_DexRelated">%s Related</string>
     <string name="SwapInfo_AllowanceTitle">Allowance</string>
-    <string name="SwapInfo_AllowanceDescription">Token swaps on SafeWallet are powered by decentralized token exchanges i.e. Uniswap, 1inch, PancakeSwap, Quickswap etc. These services are fully automated and facilitate token exchanges in a reliable manner without any means to cheat. \n\nAllowance refers to the amount of token an exchange service has a permission to spend on user\'s behalf. Typically, the allowance amount is set using \'approval\' transaction before a trade. A sufficient allowance is required before a swap action can take place.</string>
+    <string name="SwapInfo_AllowanceDescription">The amount an exchange can spend on a user\’s behalf when executing token swaps. A proceeding transaction setting sufficient allowance is required before an actual swap transaction can take place.</string>
     <string name="SwapInfo_PriceImpactTitle">Price Impact</string>
-    <string name="SwapInfo_PriceImpactDescription">The expected price deviation from a shown spot price. The higher is the amount of tokens being swapped the higher is the deviation.</string>
-    <string name="SwapInfo_SwapFeeTitle">Swap Fee</string>
-    <string name="SwapInfo_SwapFeeDescription">A service fee for the swap action on the platform, shown in the currency the user sells. For most orders it should be either 0.3% or 0.6%.</string>
+    <string name="SwapInfo_PriceImpactDescription">The expected price deviation from a shown price, typically increases with the swap amount.</string>
     <string name="SwapInfo_GuaranteedAmountTitle">Guaranteed Amount</string>
-    <string name="SwapInfo_GuaranteedAmountDescription">The minimum amount a user swapping tokens is expected to receive as a result of a swap action.</string>
     <string name="SwapInfo_MaxSpendTitle">Maximum Spend</string>
-    <string name="SwapInfo_MaxSpendDescription">The maximum amount a user swapping tokens is expected to spend as a result of a swap action.</string>
-    <string name="SwapInfo_Other">Other</string>
-    <string name="SwapInfo_TransactionFeeTitle">Transaction Fee</string>
-    <string name="SwapInfo_TransactionFeeDescription">The maximum cost of executing a transaction on the blockchain. Note that, the transaction fee is the cost of executing a transaction on the blockchain itself and doesn\'t include service fees charged by decentralized token exchange protocols. \n\nDecentralized token exchange protocols typically charge a swap fee equivalent to 0.3% (or 0.6%) of the amount traded. This fee is applied within the swap order.</string>
-    <string name="SwapInfo_TransactionSpeedTitle">Transaction Speed</string>
-    <string name="SwapInfo_TransactionSpeedDescription">Transactions with a higher transaction fee will result in faster processing speeds. The opposite is true as well.</string>
-    <string name="SwapInfo_Site">%s Site</string>
 
     <!--Deposit-->
 
@@ -773,7 +785,7 @@
     <!--Settings-->
 
     <string name="Settings_Title">Settings</string>
-    <string name="Settings_SecurityCenter">Security Center</string>
+    <string name="Settings_SecurityCenter">Security</string>
     <string name="Settings_Notifications">Notifications</string>
     <string name="Settings_ExperimentalFeatures">Experimental</string>
     <string name="Settings_BaseCurrency">Base Currency</string>
@@ -788,17 +800,19 @@
     <string name="Settings_Faq">FAQ</string>
 
     <string name="Settings_AppStatus">App Status</string>
-    <string name="Settings_WalletConnect">Wallet Connect</string>
+    <string name="Settings_WalletConnect">WalletConnect</string>
     <string name="Settings_RateUs">Rate Us</string>
     <string name="Settings_LaunchScreen">Launch Screen</string>
     <string name="Settings_Appearance">Appearance</string>
 
     <string name="Appearance_Theme">THEME</string>
+    <string name="Appearance_Tab">TAB SETTINGS</string>
     <string name="Appearance_LaunchScreen">LAUNCH SCREEN</string>
     <string name="Appearance_AppIcon">APP ICON</string>
     <string name="Appearance_BalanceConversion">BALANCE CONVERSION</string>
     <string name="Appearance_BalanceValue">BALANCE VALUE</string>
     <string name="Appearance_Warning_CloseApplication">Changing icon will close application</string>
+    <string name="Appearance_MarketsTab">Markets Tab</string>
 
     <string name="BalanceViewType_CoinValue">Coin Value</string>
     <string name="BalanceViewType_FiatValue">Fiat Value</string>
@@ -808,6 +822,10 @@
     <string name="SettingsAboutApp_Twitter" translatable="false">Twitter</string>
     <string name="SettingsAboutApp_Site">Website</string>
     <string name="SettingsAboutApp_WhatsNew">What\'s New</string>
+
+    <!-- Blockchain Settings  -->
+
+    <string name="BlockchainSettings_Title">Blockchain Settings</string>
 
     <!-- Privacy  -->
 
@@ -819,13 +837,25 @@
 
     <!-- Security Center -->
 
-    <string name="SecurityCenter_BlockchainSettings">BLOCKCHAIN SETTINGS</string>
     <string name="SecurityCenter_Internet">INTERNET</string>
-    <string name="SecurityCenter_BlockchainSettingsFooterDescription">Select data source for restoring and synchronizing wallet</string>
 
     <!--Evm Network-->
+
+    <string name="EvmNetwork_AddNew">Add New</string>
+    <string name="EvmNetwork_Added">Added</string>
     <string name="EvmNetwork_SyncMode">Sync Mode</string>
     <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
+
+    <!--Add RPC Source-->
+
+    <string name="AddEvmSyncSource_RpcUrl">RPC Url</string>
+    <string name="AddEvmSyncSource_AddRPCSource">Add RPC Source</string>
+    <string name="AddEvmSyncSource_Name">Name</string>
+    <string name="AddEvmSyncSource_BasicAuthentication">Basic Auth(optional)</string>
+    <string name="AddEvmSyncSource_RpcSource">RPC Source</string>
+    <string name="AddEvmSyncSource_Warning_UrlExists">RPC Source with this url already exists</string>
+    <string name="AddEvmSyncSource_Error_InvalidUrl">Entered url is invalid. Valid url must have one of the following schemes: http, https, ws, wss</string>
+
 
     <!--Btc Blockchain Settings -->
     <string name="BtcBlockchainSettings_RestoreSourceChangeWarning">After changing Restore Source the wallet will have to resync itself with the Bitcoin blockchain.</string>
@@ -873,12 +903,11 @@
 \n\nIt\'s a non-custodial, peer-to-peer wallet where only the user has control over the funds. It doesn\'t collect any data and keeps the user independent by not locking the user\'s funds to a specific wallet app.
 \n\nThe SafeWallet is fully open-source and anyone can confirm the app works exactly as it claims to.
 \n\nWe built SafeWallet for ourselves as the other available solutions were not up to par. Both from an engineering and usability perspective, we believe this wallet to be significantly ahead of alternative products.</string>
-    <string name="SettingsTerms_Backup">Back up your wallet recovery phrases to regain access to the funds.</string>
-    <string name="SettingsTerms_PrivateKeys">Private keys and recovery phrases are stored only on your device.</string>
-    <string name="SettingsTerms_DisablingPin">Disabling smartphone unlock PIN deletes all wallets from app. Recovery phrases will be needed to regain access to funds.</string>
-    <string name="SettingsTerms_JailBraking">Jail breaking (rooting), installing apps from unknown sources, and using outdated OS can endanger safety of funds.</string>
-    <string name="SettingsTerms_Bugs">There may be undiscovered software issues in the code powering this app which may lead to unexpected behavior or the app malfunctioning.</string>
-    <string name="SettingsTerms_Responsibility">Only user is responsible for safety of funds and no other entity.</string>
+    <string name="SettingsTerms_Backup">Securely backup recovery phrases for each wallet. It\'s the only way to regain access to funds if the app malfunctions.</string>
+    <string name="SettingsTerms_PrivateKeys">The wallet recovery phrases are randomly generated on the device during setup and are not stored elsewhere.</string>
+    <string name="SettingsTerms_DisablingPin">Disabling unlock PIN (code) on the smartphone deletes all wallets from the app. Recovery phrases will be needed to restore access to funds.</string>
+    <string name="SettingsTerms_JailBraking">Jailbreaking (rooting), using outdated OS, and installing apps from unknown sources may endanger the safety of funds.</string>
+    <string name="SettingsTerms_Bugs">There may be undiscovered software issues in the code powering this app which may cause the app to malfunction.</string>
 
     <!--Setting_Tell Friends-->
 
@@ -940,7 +969,7 @@
     <string name="Hud_Text_NoInternet">No Internet</string>
     <string name="Hud_Text_Copied">Copied</string>
     <string name="Hud_Text_Created">Created</string>
-    <string name="Hud_Text_Restored">Restored</string>
+    <string name="Hud_Text_Restored">Imported</string>
     <string name="Hud_Text_AddressAdded">Address Added</string>
     <string name="Hud_Text_Done">Done</string>
     <string name="Hud_Text_Verified">Verified</string>
@@ -949,22 +978,20 @@
     <string name="Hud_Added_To_Wallet">Added To Wallet</string>
     <string name="Hud_Already_In_Wallet">Already added to wallet</string>
     <string name="Hud_Removed_from_Watchlist">Removed from Watchlist</string>
+    <string name="Hud_Removed">Removed</string>
     <string name="Hud_UnknownError">%s</string>
 
     <!--Manage Coins-->
 
     <string name="ManageCoins_title">Coin Manager</string>
-    <string name="ManageCoins_Search">Token code or name</string>
+    <string name="ManageCoins_Search">Name, code or contract address</string>
     <string name="ManageCoins_AddToken">Add Token</string>
     <string name="ManageCoins_NoResults">No results found. Try to add token manually if you know its smart contract address.</string>
-    <string name="ManageCoins_NotSupported">Not Supported</string>
-    <string name="ManageCoins_NotSupportedDescription">Your current wallet type %1$s does not support %2$s</string>
 
     <!-- Experimental Feature -->
 
     <string name="ExperimentalFeatures_Title">Experimental</string>
     <string name="ExperimentalFeatures_Description">The features below are experimental and should be used with caution. While we have thoroughly tested these features using our own crypto funds, we cannot guarantee they will work as expected in all possible cases.</string>
-    <string name="ExperimentalFeatures_BitcoinHodling">TimeLock</string>
 
     <!-- Bitcoin Hodling -->
 
@@ -972,22 +999,28 @@
     <string name="BitcoinHodling_LockTime" translatable="false">Activate</string>
     <string name="BitcoinHodling_Description">This enables you to send Bitcoins that cannot be spent until a specified date. \n\nThe receiver of such transactions should use the SafeWallet app version 0.10 or newer, with the BIP44 address format for Bitcoin. \n\nOnly the SafeWallet can correctly identify such transactions on the Bitcoin network, as well as enable the receiver to spend those Bitcoins after the lock period expires. \n\nIf you’re a HODLer, you may use this feature to force yourself into hodling your Bitcoins by sending such transactions to yourself. \n\nBeing an experimental feature, the maximum amount per transaction is limited to 0.5 BTC.</string>
 
+    <!-- Testnet Settings -->
+    <string name="TestnetSettings_EvmTestnet" translatable="false">Testnet</string>
+    <string name="TestnetSettings_Description">This option activates Ethereum\'s Goerli testnet only for GoerliETH token and adds it to the coin manager.\n\nIt only affects GoerliETH token while all other EVM and Ethereum tokens operate over mainnet. In other words, only transactions in GoerliETH go through Goerli testnet, while all other EVM token transfers including ETH go through mainnet.</string>
+
     <!--Manage Accounts-->
     <string name="ManageAccounts_Title">Manage Wallets</string>
-    <string name="ManageAccounts_CreateNewWallet">Create</string>
-    <string name="ManageAccounts_ImportWallet">Restore</string>
-    <string name="ManageAccounts_WatchAddress">Watch Address</string>
-    <string name="ManageAccounts_Hint">Tip! Restoring an existing wallet but with a new passphrase will generate a brand new wallet. This is handy if you want to use a single 12-24 word mnemonic recovery phrase for multiple wallets.</string>
+    <string name="ManageAccounts_CreateNewWallet">New Wallet</string>
+    <string name="ManageAccounts_ImportWallet">Import Wallet</string>
+    <string name="ManageAccounts_WatchAddress">Watch Wallet</string>
 
-    <string name="Watch_Address_Title">Watch Address</string>
     <string name="Watch_Address_Hint">Address or Domain</string>
     <string name="Watch_XPubKey_Hint">Enter Account Extended Public Key</string>
     <string name="Watch_Address_Description">Available only for Ethereum and other supported EVM blockchains.</string>
     <string name="Watch_Address_Watch">Watch</string>
+    <string name="Watch_Select_Blockchains">Choose Blockchains</string>
+    <string name="Watch_Select_Coins">Choose Coins</string>
     <string name="Watch_By">By</string>
     <string name="Watch_WatchBy">Watch By</string>
-    <string name="Watch_TypeAddress">EVM Address</string>
+    <string name="Watch_TypeEvmAddress">EVM Address</string>
+    <string name="Watch_TypeSolanaAddress">Solana Address</string>
     <string name="Watch_TypeXPubKey">Account xPubKey</string>
+    <string name="Watch_Error_InvalidXPubKey">Invalid xPubKey</string>
 
     <!--Manage Account-->
     <string name="ManageAccount_Name">Name</string>
@@ -1000,12 +1033,13 @@
     <string name="ManageAccount_BackupRequired_Description">You need to backup %1$s before you may receive %2$s.</string>
     <string name="ManageAccount_Delete_ConfirmationRemove">This action will delete the selected wallet from this device.</string>
     <string name="ManageAccount_Delete_ConfirmationLose">If you didn\'t backup the private key for this wallet, you will lose access to your funds.</string>
+    <string name="ManageAccount_MigrationRequired_Title">Migration Required</string>
     <string name="ManageAccount_BirthdayHeight">%s Birthday Height</string>
     <string name="ManageAccount_NWords">%s words</string>
     <string name="ManageAccount_NWordsWithPassphrase">%s words with passphrase</string>
     <string name="ManageAccount_SwitchWallet_Title">Switch Wallet</string>
     <string name="ManageAccount_Wallets">Wallets</string>
-    <string name="ManageAccount_WatchAddresses">Watch Addresses</string>
+    <string name="ManageAccount_WatchAddresses">Watch Wallets</string>
     <string name="ManageAccount_SwitchWallet_Subtitle">Select wallet for quick switch</string>
     <string name="ManageAccount_DeleteWarning">Do you want to stop watching this wallet address?</string>
 
@@ -1035,8 +1069,8 @@
     <string name="ShowKey_Bip84" translatable="false">BIP 84 - Native SegWit</string>
 
     <!-- Backup Recovery Phrase -->
-    <string name="BackupRecoveryPhrase_Title">Backup Recovery Phrase</string>
-    <string name="BackupRecoveryPhrase_Description">Create a backup copy of the recovery phrase and the associated password that will allow you to recover your wallet if your phone is lost, stolen, broken, etc.</string>
+    <string name="BackupRecoveryPhrase_Title">Backup Wallet</string>
+    <string name="BackupRecoveryPhrase_Description">Backup this wallet by creating a copy of its recovery phrase. It will be required in order to access the wallet if your phone is lost, stolen, broken etc.</string>
     <string name="BackupRecoveryPhrase_Backup">Backup</string>
     <string name="BackupRecoveryPhrase_Later">Later</string>
 
@@ -1120,15 +1154,20 @@
     <string name="AddToken_Title">Add Token</string>
     <string name="AddToken_CoinName">Coin Name</string>
     <string name="AddToken_Symbol">Symbol</string>
+    <string name="AddToken_CoinCode">Coin Code</string>
     <string name="AddToken_Decimals">Decimals</string>
     <string name="AddToken_Dots">…</string>
     <string name="AddToken_CoinTypes">COIN TYPES</string>
+    <string name="AddToken_AlreadyAdded">ALREADY ADDED</string>
     <string name="AddToken_AddressOrSymbol">Contract Address</string>
+    <string name="AddToken_ChooseToken">Choose Token</string>
+    <string name="AddToken_Blockchain">Blockchain</string>
 
-    <string name="AddToken_CoinAlreadyInListWarning">This token is already in the coin manager list</string>
-    <string name="AddToken_InvalidAddressError">Invalid contract address or BEP2 symbol</string>
-    <string name="AddToken_ApiLimitExceeded">Api limit exceeded. Try again later.</string>
-    <string name="AddEvmToken_TokenNotFound">Token not found</string>
+    <string name="AddToken_CoinAlreadyInListWarning">This token is already in the Coin Manager list</string>
+    <string name="AddToken_InvalidContractAddress">Invalid contract address</string>
+    <string name="AddToken_InvalidBep2Symbol">Invalid BEP2 symbol</string>
+    <string name="AddEvmToken_Bep2NotFound">BEP2 symbol not found</string>
+    <string name="AddEvmToken_ContractAddressNotFoundInBlockchain">Contract address not found in %s blockchain</string>
 
     <!-- Address Format Settings List -->
 
@@ -1166,13 +1205,14 @@
     <string name="TorPage_Connected">Connected</string>
     <string name="TorPage_Failed">Failed</string>
     <string name="TorPage_ConnectionClosed">Disconnected</string>
+    <string name="Tor_TorIsActive">Tor is active</string>
     <string name="Tor_PrerequisitesAlert_Content">Activating TOR will reset Ethereum blockchain connection back to Infura.</string>
 
     <!--Coin Option-->
 
-    <string name="CoinOption_bip44_Title" translatable="false">Legacy</string>
-    <string name="CoinOption_bip49_Title">Newer (recommended)</string>
-    <string name="CoinOption_bip84_Title">Newest</string>
+    <string name="CoinOption_bip44_Title">Old</string>
+    <string name="CoinOption_bip49_Title">Good</string>
+    <string name="CoinOption_bip84_Title">Best</string>
 
     <!--Coin Page-->
 
@@ -1190,6 +1230,7 @@
     <string name="CoinPage_TimeDuration_HalfYear">6M</string>
     <string name="CoinPage_TimeDuration_Year">1Y</string>
     <string name="CoinPage_TimeDuration_Year2">2Y</string>
+    <string name="CoinPage_TimeDuration_All">All</string>
 
     <string name="CoinPage_Markets">Markets</string>
     <string name="CoinPage_TradingVolume">Trading Volume</string>
@@ -1307,6 +1348,7 @@
     <string name="CoinPage_DetailsTxVolume_Description">The aggregate token transaction volume is recorded on-chain. The volume is measured in the actual tokens (not USD).</string>
     <string name="CoinPage_DetailsActiveAddresses">Active Addresses</string>
     <string name="CoinPage_DetailsActiveAddresses_Description">The number of unique wallet addresses involved in transactions over various periods.</string>
+    <string name="CoinPage_DetailsChartPeriod_Month1">30d</string>
     <string name="CoinPage_NftBannerTitle">Unstoppable NFT</string>
     <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding Unstoppable NFTs.</string>
     <string name="CoinPage_CoinNotFound">[%s]\nNot found</string>
@@ -1379,6 +1421,7 @@
     <string name="NftCollection_EventType_Custom">Custom</string>
     <string name="NftCollection_EventType_Payout">Payout</string>
     <string name="NftCollection_EventType_BulkCancel">Bulk Cancel</string>
+    <string name="NftCollection_EventType_Mint">Mint</string>
     <string name="NftCollection_EventType_Unknown">Unknown</string>
 
     <!--Rate list-->
@@ -1421,6 +1464,7 @@
 
     <string name="WidgetList_Config_Title">Choose Type</string>
     <string name="NftAssetActivity_Empty">No item activity yet</string>
+    <string name="Widget_EnableAutostartWarning">To make sure that this widget works properly, you should enable Autostart.</string>
 
     <!--Alert-->
 

@@ -9,14 +9,21 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.main.MainFragment"
-        tools:layout="@layout/fragment_main"/>
+        android:name="io.horizontalsystems.bankwallet.modules.main.MainFragment">
+        <deepLink
+            app:action=""
+            android:id="@+id/deepLink"
+            app:uri="wc:{topic}"/>
+        <argument android:name="topic" app:argType="string"/>
+        <argument android:name="bridge" app:argType="string"/>
+        <argument android:name="key" app:argType="string"/>
+    </fragment>
     <fragment
-        android:id="@+id/wc2SignMessageRequestFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment"/>
+        android:id="@+id/wc2SessionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionFragment"/>
     <fragment
-        android:id="@+id/wc2SendEthereumTransactionRequestFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment"/>
+        android:id="@+id/wc2RequestFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment"/>
     <fragment
         android:id="@+id/wcDisplayTypedMessageFragment"
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCDisplayTypedMessageFragment"/>
@@ -111,8 +118,8 @@
         android:id="@+id/securitySettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.settings.security.SecuritySettingsFragment"/>
     <fragment
-        android:id="@+id/appStatusFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.settings.appstatus.AppStatusFragment"/>
+        android:id="@+id/blockchainSettingsFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.blockchainsettings.BlockchainSettingsFragment"/>
     <fragment
         android:id="@+id/faqListFragment"
         android:name="io.horizontalsystems.bankwallet.modules.settings.faq.FaqListFragment"
@@ -134,9 +141,6 @@
         android:id="@+id/termsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.settings.terms.TermsFragment"/>
     <fragment
-        android:id="@+id/privacyFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.settings.privacy.PrivacyFragment"/>
-    <fragment
         android:id="@+id/aboutAppFragment"
         android:name="io.horizontalsystems.bankwallet.modules.settings.about.AboutFragment"/>
     <fragment
@@ -144,7 +148,10 @@
         android:name="io.horizontalsystems.bankwallet.modules.settings.experimental.ExperimentalFeaturesFragment"/>
     <fragment
         android:id="@+id/timeLockFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.settings.experimental.TimeLockFragment"/>
+        android:name="io.horizontalsystems.bankwallet.modules.settings.experimental.timelock.TimeLockFragment"/>
+    <fragment
+        android:id="@+id/testnetSettingsFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.settings.experimental.testnet.TestnetSettingsFragment"/>
     <fragment
         android:id="@+id/metricsPageFragment"
         android:name="io.horizontalsystems.bankwallet.modules.market.metricspage.MetricsPageFragment" />
@@ -200,9 +207,6 @@
         android:id="@+id/swapApproveConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment"/>
     <fragment
-        android:id="@+id/swapInfoFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.info.SwapInfoFragment" />
-    <fragment
         android:id="@+id/uniswapSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.UniswapSettingsFragment"
         />
@@ -242,14 +246,26 @@
         android:id="@+id/marketAdvancedSearchResultsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.market.filtersresult.MarketFiltersResultsFragment"/>
     <fragment
+        android:id="@+id/createAccountAdvancedFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.createaccount.CreateAccountAdvancedFragment" />
+    <fragment
         android:id="@+id/createAccountFragment"
         android:name="io.horizontalsystems.bankwallet.modules.createaccount.CreateAccountFragment" />
     <fragment
-        android:id="@+id/restoreMnemonicFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreMnemonicFragment" />
+        android:id="@+id/restoreMnemonicNonStandardFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonicnonstandard.RestoreMnemonicNonStandardFragment" />
+    <fragment
+        android:id="@+id/restoreAccountFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountFragment" />
+    <fragment
+        android:id="@+id/restoreAccountAdvancedFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountAdvancedFragment" />
     <fragment
         android:id="@+id/watchAddressFragment"
         android:name="io.horizontalsystems.bankwallet.modules.watchaddress.WatchAddressFragment" />
+    <fragment
+        android:id="@+id/selectBlockchainsFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains.SelectBlockchainsFragment" />
     <fragment
         android:id="@+id/restoreSelectCoinsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment"/>
@@ -264,6 +280,10 @@
         android:id="@+id/evmNetworkFragment"
         android:name="io.horizontalsystems.bankwallet.modules.evmnetwork.EvmNetworkFragment"
         android:label="EvmNetworkFragment" />
+    <fragment
+        android:id="@+id/solanaNetworkFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.solananetwork.SolanaNetworkFragment"
+        android:label="SolanaNetworkFragment" />
     <fragment
         android:id="@+id/btcBlockchainSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockchainSettingsFragment"/>
@@ -392,9 +412,6 @@
         android:id="@+id/backupRequiredDialog"
         android:name="io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog" />
     <dialog
-        android:id="@+id/coinNotSupportedDialog"
-        android:name="io.horizontalsystems.bankwallet.modules.managewallets.CoinNotSupportedDialog" />
-    <dialog
         android:id="@+id/backupRecoveryPhraseDialog"
         android:name="io.horizontalsystems.bankwallet.modules.backupalert.BackupRecoveryPhraseDialog" />
     <dialog
@@ -412,4 +429,7 @@
     <dialog
         android:id="@+id/proUsersActivateDialog"
         android:name="io.horizontalsystems.bankwallet.modules.profeatures.yakauthorization.ProUsersActivateDialog" />
+    <dialog
+        android:id="@+id/confirmDeleteAllPairingsDialog"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.pairing.ConfirmDeleteAllPairingsDialog" />
 </navigation>

@@ -4,6 +4,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
@@ -13,6 +14,9 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.binancechain.
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaOutgoingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaUnknownTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColorName
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
 import java.math.BigDecimal
@@ -190,8 +194,65 @@ class TransactionViewItemFactory(
             is SwapTransactionRecord -> createViewItemFromSwapTransactionRecord(record, progress, icon)
             is UnknownSwapTransactionRecord -> createViewItemFromUnknownSwapTransactionRecord(record, progress, icon)
             is EvmTransactionRecord -> createViewItemFromEvmTransactionRecord(record, progress, icon)
+            is SolanaIncomingTransactionRecord -> createViewItemFromSolanaIncomingTransactionRecord(record, transactionItem.currencyValue, progress, icon, transactionItem.nftMetadata)
+            is SolanaOutgoingTransactionRecord -> createViewItemFromSolanaOutgoingTransactionRecord(record, transactionItem.currencyValue, progress, icon, transactionItem.nftMetadata)
+            is SolanaUnknownTransactionRecord -> createViewItemFromSolanaUnknownTransactionRecord(record, transactionItem.currencyValue, progress, icon)
             else -> throw IllegalArgumentException("Undefined record type ${record.javaClass.name}")
         }
+    }
+
+    private fun createViewItemFromSolanaUnknownTransactionRecord(record: SolanaUnknownTransactionRecord, currencyValue: CurrencyValue?, progress: Float?, icon: TransactionViewItem.Icon.Failed?): TransactionViewItem {
+        val incomingValues = record.incomingTransfers.map { it.value }
+        val outgoingValues = record.outgoingTransfers.map { it.value }
+        val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, mutableMapOf())
+
+        return TransactionViewItem(
+                uid = record.uid,
+                progress = progress,
+                title = Translator.getString(R.string.Transactions_Unknown),
+                subtitle = Translator.getString(R.string.Transactions_Unknown_Description),
+                primaryValue = primaryValue,
+                secondaryValue = secondaryValue,
+                date = Date(record.timestamp * 1000),
+                icon = icon ?: iconType(record.source, incomingValues, outgoingValues, mutableMapOf())
+        )
+    }
+
+    private fun createViewItemFromSolanaOutgoingTransactionRecord(record: SolanaOutgoingTransactionRecord, currencyValue: CurrencyValue?, progress: Float?, icon: TransactionViewItem.Icon.Failed?, nftMetadata: Map<NftUid, NftAssetBriefMetadata>): TransactionViewItem {
+        val primaryValue = if (record.sentToSelf) {
+            ColoredValue(getCoinString(record.value, true), ColorName.Leah)
+        } else {
+            getColoredValue(record.value, ColorName.Lucian)
+        }
+        val secondaryValue = singleValueSecondaryValue(record.value, currencyValue, nftMetadata)
+
+        return TransactionViewItem(
+                uid = record.uid,
+                progress = progress,
+                title = Translator.getString(R.string.Transactions_Send),
+                subtitle = record.to?.let { Translator.getString(R.string.Transactions_To, it.shorten()) } ?: "",
+                primaryValue = primaryValue,
+                secondaryValue = secondaryValue,
+                date = Date(record.timestamp * 1000),
+                sentToSelf = record.sentToSelf,
+                icon = icon ?: singleValueIconType(record.value, nftMetadata)
+        )
+    }
+
+    private fun createViewItemFromSolanaIncomingTransactionRecord(record: SolanaIncomingTransactionRecord, currencyValue: CurrencyValue?, progress: Float?, icon: TransactionViewItem.Icon.Failed?, nftMetadata: Map<NftUid, NftAssetBriefMetadata>): TransactionViewItem {
+        val primaryValue = getColoredValue(record.value, ColorName.Remus)
+        val secondaryValue = singleValueSecondaryValue(record.value, currencyValue, nftMetadata)
+
+        return TransactionViewItem(
+                uid = record.uid,
+                progress = progress,
+                title = Translator.getString(R.string.Transactions_Receive),
+                subtitle = record.from?.let { Translator.getString(R.string.Transactions_From, it.shorten()) } ?: "",
+                primaryValue = primaryValue,
+                secondaryValue = secondaryValue,
+                date = Date(record.timestamp * 1000),
+                icon = icon ?: singleValueIconType(record.value)
+        )
     }
 
     private fun createViewItemFromSwapTransactionRecord(
@@ -376,7 +437,13 @@ class TransactionViewItemFactory(
             title = Translator.getString(R.string.Transactions_Receive)
             val addresses = record.incomingEvents.mapNotNull { it.address }.toSet().toList()
 
-            subTitle = if (addresses.size == 1) evmLabelManager.mapped(addresses.first()) else Translator.getString(R.string.Transactions_Multiple)
+            subTitle = if (addresses.size == 1) {
+                Translator.getString(
+                    R.string.Transactions_From, evmLabelManager.mapped(addresses.first())
+                )
+            } else {
+                Translator.getString(R.string.Transactions_Multiple)
+            }
         } else {
             title = Translator.getString(R.string.Transactions_ExternalContractCall)
             subTitle = "---"

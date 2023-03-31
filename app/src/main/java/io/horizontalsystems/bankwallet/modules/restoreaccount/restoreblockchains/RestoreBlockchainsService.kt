@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchain
 
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
+import io.horizontalsystems.bankwallet.core.managers.EvmTestnetManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
@@ -23,7 +24,8 @@ class RestoreBlockchainsService(
     private val walletManager: IWalletManager,
     private val marketKit: MarketKitWrapper,
     private val enableCoinService: EnableCoinService,
-    private val evmBlockchainManager: EvmBlockchainManager
+    private val evmBlockchainManager: EvmBlockchainManager,
+    private val evmTestnetManager: EvmTestnetManager
 ) : Clearable {
 
     private val disposables = CompositeDisposable()
@@ -51,12 +53,14 @@ class RestoreBlockchainsService(
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
         BlockchainType.ArbitrumOne,
+        BlockchainType.Gnosis,
         BlockchainType.Zcash,
         BlockchainType.Dash,
         BlockchainType.Safe,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
         BlockchainType.BinanceChain,
+        BlockchainType.Solana,
     )
 
     init {
@@ -86,11 +90,17 @@ class RestoreBlockchainsService(
             .map { TokenQuery(it, TokenType.Native) }
             .let { marketKit.tokens(it) }
 
-        internalItems = blockchains.mapNotNull { blockchain ->
+        val allTokens = blockchains.mapNotNull { blockchain ->
             tokens.find { it.blockchain == blockchain }?.let {
                 InternalItem(blockchain, it)
             }
         }
+
+        val testnetTokens = evmTestnetManager.nativeTokens()
+            .filter { it.blockchainType.supports(accountType) }
+            .map { InternalItem(it.blockchain, it) }
+
+        internalItems = allTokens + testnetTokens
     }
 
     private fun handleEnableCoin(

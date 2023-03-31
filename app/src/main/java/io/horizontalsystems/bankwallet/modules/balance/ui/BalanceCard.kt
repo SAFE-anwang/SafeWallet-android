@@ -27,6 +27,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.isCustom
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -62,20 +64,17 @@ fun BalanceCardSwipable(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        ActionsRow(
+        HsIconButton(
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.CenterEnd)
+                .width(88.dp),
+            onClick = { viewModel.disable(viewItem) },
             content = {
-                HsIconButton(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(88.dp),
-                    onClick = { viewModel.disable(viewItem) },
-                    content = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_circle_minus_24),
-                            tint = Color.Gray,
-                            contentDescription = "delete",
-                        )
-                    }
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_circle_minus_24),
+                    tint = Color.Gray,
+                    contentDescription = "delete",
                 )
             }
         )
@@ -102,9 +101,8 @@ fun BalanceCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(ComposeAppTheme.colors.lawrence)
-            .padding(vertical = 4.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -112,8 +110,8 @@ fun BalanceCard(
                 viewModel.onItem(viewItem)
             }
     ) {
-        CellMultilineClear {
-            Row {
+        CellMultilineClear(height = 64.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 WalletIcon(viewItem, viewModel, navController)
                 Column(
                     modifier = Modifier
@@ -127,8 +125,9 @@ fun BalanceCard(
                     ) {
                         Row(
                             modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            headline2_leah(
+                            body_leah(
                                 text = viewItem.coinCode,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -165,7 +164,7 @@ fun BalanceCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(1.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -240,7 +239,7 @@ private fun ExpandableContent(
         Column {
             LockedValueRow(viewItem)
             Divider(
-                modifier = Modifier.padding(horizontal = 14.dp),
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
                 thickness = 1.dp,
                 color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
             )
@@ -258,17 +257,20 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 bundleOf(ReceiveFragment.WALLET_KEY to viewModel.getWalletForReceive(viewItem))
             )
         } catch (e: BackupRequiredError) {
+            val text = Translator.getString(
+                R.string.ManageAccount_BackupRequired_Description,
+                e.account.name,
+                e.coinTitle
+            )
             navController.slideFromBottom(
                 R.id.backupRequiredDialog,
-                BackupRequiredDialog.prepareParams(e.account, e.coinTitle)
+                BackupRequiredDialog.prepareParams(e.account, text)
             )
         }
     }
 
     Row(
-        modifier = Modifier
-            .padding(start = 12.dp, end = 12.dp, bottom = 2.dp)
-            .height(70.dp),
+        modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (viewItem.isWatchAccount) {
@@ -324,9 +326,9 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
         Spacer(modifier = Modifier.width(8.dp))
         ButtonPrimaryCircle(
             icon = R.drawable.ic_chart_24,
+            enabled = !viewItem.wallet.token.isCustom,
             onClick = {
-                val coinUid = if (viewItem.wallet.coin.uid == "custom_safe-erc20-SAFE"
-                    || viewItem.wallet.coin.uid == "custom_safe-bep20-SAFE") "safe-coin" else viewItem.wallet.coin.uid
+                val coinUid = viewItem.wallet.coin.uid
                 val arguments = CoinFragment.prepareParams(coinUid)
 
                 navController.slideFromRight(R.id.coinFragment, arguments)
@@ -342,35 +344,37 @@ private fun LockedValueRow(viewItem: BalanceViewItem) {
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        Divider(
-            modifier = Modifier.padding(horizontal = 14.dp),
-            thickness = 1.dp,
-            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
-        )
-        Row(
-            modifier = Modifier
-                .height(36.dp)
-                .padding(start = 16.dp, end = 17.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_lock_16),
-                contentDescription = "lock icon"
+        Column {
+            Divider(
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+                thickness = 1.dp,
+                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
             )
-            Text(
-                modifier = Modifier.padding(start = 6.dp),
-                text = viewItem.coinValueLocked.value,
-                color = if (viewItem.coinValueLocked.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
-                maxLines = 1,
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = viewItem.fiatValueLocked.value,
-                color = if (viewItem.fiatValueLocked.dimmed) ComposeAppTheme.colors.yellow50 else ComposeAppTheme.colors.jacob,
-                style = ComposeAppTheme.typography.subhead2,
-                maxLines = 1,
-            )
+            Row(
+                modifier = Modifier
+                    .height(25.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_lock_16),
+                    contentDescription = "lock icon"
+                )
+                Text(
+                    modifier = Modifier.padding(start = 6.dp),
+                    text = viewItem.coinValueLocked.value,
+                    color = if (viewItem.coinValueLocked.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.subhead2,
+                    maxLines = 1,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = viewItem.fiatValueLocked.value,
+                    color = if (viewItem.fiatValueLocked.dimmed) ComposeAppTheme.colors.yellow50 else ComposeAppTheme.colors.jacob,
+                    style = ComposeAppTheme.typography.subhead2,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
@@ -379,8 +383,9 @@ private fun LockedValueRow(viewItem: BalanceViewItem) {
 private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, navController: NavController) {
     Box(
         modifier = Modifier
-            .width(56.dp)
+            .width(64.dp)
             .fillMaxHeight(),
+        contentAlignment = Alignment.Center
     ) {
         if (!viewItem.mainNet) {
             Image(
@@ -392,8 +397,7 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
         viewItem.syncingProgress.progress?.let { progress ->
             AndroidView(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(41.dp),
+                    .size(52.dp),
                 factory = { context ->
                     RotatingCircleProgressView(context)
                 },
@@ -410,8 +414,7 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
             val view = LocalView.current
             Image(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(24.dp)
+                    .size(32.dp)
                     .clickable {
                         onSyncErrorClicked(viewItem, viewModel, navController, view)
                     },
@@ -425,14 +428,13 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(24.dp))
+                        .size(32.dp))
             } else {
                 CoinImage(
                     iconUrl = viewItem.coinIconUrl,
                     placeholder = viewItem.coinIconPlaceholder,
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(24.dp)
+                        .size(32.dp)
                 )
             }
         }

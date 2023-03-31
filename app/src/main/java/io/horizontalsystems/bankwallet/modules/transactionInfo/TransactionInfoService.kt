@@ -1,9 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.BuildConfig.testMode
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
@@ -15,6 +15,9 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.Bitco
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
 import io.horizontalsystems.bankwallet.entities.transactionrecords.nftUids
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaOutgoingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaUnknownTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.bankwallet.modules.transactions.NftMetadataService
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
@@ -34,7 +37,7 @@ class TransactionInfoService(
     private val transactionRecord: TransactionRecord,
     private val adapter: ITransactionsAdapter,
     private val marketKit: MarketKitWrapper,
-    private val currencyManager: ICurrencyManager,
+    private val currencyManager: CurrencyManager,
     private val nftMetadataService: NftMetadataService
 ) {
 
@@ -82,6 +85,14 @@ class TransactionInfoService(
                 is BitcoinOutgoingTransactionRecord -> listOf(tx.fee, tx.value).map { it?.coinUid }
                 is BinanceChainIncomingTransactionRecord -> listOf(tx.value.coinUid)
                 is BinanceChainOutgoingTransactionRecord -> listOf(tx.fee, tx.value).map { it.coinUid }
+                is SolanaIncomingTransactionRecord -> listOf(tx.value.coinUid)
+                is SolanaOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
+                is SolanaUnknownTransactionRecord -> {
+                    val tempCoinUidList = mutableListOf<String>()
+                    tempCoinUidList.addAll(tx.incomingTransfers.map { it.value.coinUid })
+                    tempCoinUidList.addAll(tx.outgoingTransfers.map { it.value.coinUid })
+                    tempCoinUidList
+                }
                 else -> emptyList()
             }
 
@@ -144,10 +155,6 @@ class TransactionInfoService(
 
         val rates = coinUids.mapNotNull { coinUid ->
             var uid = coinUid
-            if (coinUid == "custom_safe-erc20-SAFE"
-                || coinUid == "custom_safe-bep20-SAFE") {
-                uid = "safe-coin"
-            }
             try {
                 val rate = marketKit
                     .coinHistoricalPriceSingle(uid, currencyManager.baseCurrency.code, timestamp)

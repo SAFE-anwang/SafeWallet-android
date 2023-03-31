@@ -46,9 +46,9 @@ object SwapMainModule {
 
     @Parcelize
     object UniswapProvider : ISwapProvider {
-        override val id = "uniswap"
-        override val title = "Uniswap"
-        override val url = "https://uniswap.org/"
+        override val id get() = "uniswap"
+        override val title get() = "Uniswap"
+        override val url get() = "https://uniswap.org/"
         override val fragment: SwapBaseFragment
             get() = UniswapFragment()
 
@@ -59,9 +59,9 @@ object SwapMainModule {
 
     @Parcelize
     object SafeSwapProvider : ISwapProvider {
-        override val id = "safe"
-        override val title = "SafeSwap"
-        override val url = "https://safecoreswap.com/"
+        override val id get() = "safe"
+        override val title get()  = "SafeSwap"
+        override val url get()  = "https://safecoreswap.com/"
         override val fragment: SwapBaseFragment
             get() = UniswapFragment()
         /*override val settingsFragment: SwapSettingsBaseFragment
@@ -74,9 +74,9 @@ object SwapMainModule {
 
     @Parcelize
     object PancakeSwapProvider : ISwapProvider {
-        override val id = "pancake"
-        override val title = "PancakeSwap"
-        override val url = "https://pancakeswap.finance/"
+        override val id get() = "pancake"
+        override val title get() = "PancakeSwap"
+        override val url get() = "https://pancakeswap.finance/"
         override val fragment: SwapBaseFragment
             get() = UniswapFragment()
 
@@ -87,9 +87,9 @@ object SwapMainModule {
 
     @Parcelize
     object OneInchProvider : ISwapProvider {
-        override val id = "oneinch"
-        override val title = "1inch"
-        override val url = "https://app.1inch.io/"
+        override val id get() = "oneinch"
+        override val title get() = "1inch"
+        override val url get() = "https://app.1inch.io/"
         override val fragment: SwapBaseFragment
             get() = OneInchFragment()
 
@@ -99,6 +99,7 @@ object SwapMainModule {
             BlockchainType.Polygon,
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
+            BlockchainType.Gnosis,
             BlockchainType.ArbitrumOne -> true
             else -> false
         }
@@ -106,9 +107,9 @@ object SwapMainModule {
 
     @Parcelize
     object QuickSwapProvider : ISwapProvider {
-        override val id = "quickswap"
-        override val title = "QuickSwap"
-        override val url = "https://quickswap.exchange/"
+        override val id get() = "quickswap"
+        override val title get() = "QuickSwap"
+        override val url get() = "https://quickswap.exchange/"
         override val fragment: SwapBaseFragment
             get() = UniswapFragment()
 
@@ -140,6 +141,8 @@ object SwapMainModule {
 
         val amountType: AmountType
         val amountTypeObservable: Observable<AmountType>
+
+        val timeoutProgressObservable: Observable<Float>
 
         fun enterTokenFrom(token: Token?)
         fun enterAmountFrom(amount: BigDecimal?)
@@ -194,8 +197,8 @@ object SwapMainModule {
 
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
         private val tokenFrom: Token? = arguments.getParcelable(tokenFromKey)
-        private val swapProviders: List<ISwapProvider> =
-            listOf(UniswapProvider, PancakeSwapProvider, OneInchProvider, QuickSwapProvider, SafeSwapProvider)
+        private val swapProviders: List<ISwapProvider> = listOf(UniswapProvider, PancakeSwapProvider, OneInchProvider, QuickSwapProvider, SafeSwapProvider)
+        private val switchService by lazy { AmountTypeSwitchService() }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -207,7 +210,9 @@ object SwapMainModule {
                             tokenFrom,
                             swapProviders,
                             App.localStorage
-                        )
+                        ),
+                        switchService,
+                        App.currencyManager
                     ) as T
                 }
                 else -> throw IllegalArgumentException()
@@ -220,11 +225,10 @@ object SwapMainModule {
         owner: SavedStateRegistryOwner,
         private val dex: Dex,
         private val service: ISwapService,
-        private val tradeService: ISwapTradeService
+        private val tradeService: ISwapTradeService,
+        private val switchService: AmountTypeSwitchService
     ) : AbstractSavedStateViewModelFactory(owner, null) {
-        private val switchService by lazy {
-            AmountTypeSwitchService()
-        }
+
         private val fromCoinCardService by lazy {
             SwapFromCoinCardService(service, tradeService)
         }
@@ -242,13 +246,11 @@ object SwapMainModule {
                 SwapCoinCardViewModel::class.java -> {
                     val fiatService = FiatService(switchService, App.currencyManager, App.marketKit)
                     val coinCardService: ISwapCoinCardService
-                    var maxButtonEnabled = false
                     val resetAmountOnCoinSelect: Boolean
 
                     if (key == coinCardTypeFrom) {
                         coinCardService = fromCoinCardService
                         switchService.fromListener = fiatService
-                        maxButtonEnabled = true
                         resetAmountOnCoinSelect = true
                     } else {
                         coinCardService = toCoinCardService
@@ -260,7 +262,6 @@ object SwapMainModule {
                         coinCardService,
                         fiatService,
                         switchService,
-                        maxButtonEnabled,
                         formatter,
                         resetAmountOnCoinSelect,
                         dex
@@ -278,7 +279,7 @@ object SwapMainModule {
 sealed class SwapActionState {
     object Hidden : SwapActionState()
     class Enabled(val buttonTitle: String) : SwapActionState()
-    class Disabled(val buttonTitle: String) : SwapActionState();
+    class Disabled(val buttonTitle: String, val loading: Boolean = false) : SwapActionState()
 
     val title: String
         get() = when (this) {
@@ -286,6 +287,9 @@ sealed class SwapActionState {
             is Disabled -> this.buttonTitle
             else -> ""
         }
+
+    val showProgress: Boolean
+        get() = this is Disabled && loading
 }
 
 data class SwapButtons(

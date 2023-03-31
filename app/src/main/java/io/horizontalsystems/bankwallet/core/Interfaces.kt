@@ -21,14 +21,12 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.bitcoincore.core.IPluginData
-import io.horizontalsystems.core.entities.AppVersion
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
-import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.solanakit.models.FullTransaction
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.*
 import io.reactivex.Flowable
@@ -40,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
+import io.horizontalsystems.solanakit.models.Address as SolanaAddress
 
 interface IAdapterManager {
     val adaptersReadyObservable: Flowable<Map<Wallet, IAdapter>>
@@ -87,20 +86,18 @@ interface ILocalStorage {
     var launchPage: LaunchPage?
     var appIcon: AppIcon?
     var mainTab: MainModule.MainTab?
-    var favoriteCoinIdsMigrated: Boolean
-    var fillWalletInfoDone: Boolean
     var marketFavoritesSortingField: SortingField?
     var marketFavoritesMarketField: MarketField?
     var relaunchBySettingChange: Boolean
+    var marketsTabEnabled: Boolean
+    val marketsTabEnabledFlow: StateFlow<Boolean>
+    var testnetEnabled: Boolean
+    var nonRecommendedAccountAlertDismissedAccounts: Set<String>
 
     fun getSwapProviderId(blockchainType: BlockchainType): String?
     fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
 
     fun clear()
-}
-
-interface IChartTypeStorage {
-    var chartInterval: HsTimePeriod
 }
 
 interface IRestoreSettingsStorage {
@@ -115,6 +112,7 @@ interface IMarketStorage {
 }
 
 interface IAccountManager {
+    val hasNonStandardAccount: Boolean
     val activeAccount: Account?
     val activeAccountStateFlow: Flow<ActiveAccountState>
     val activeAccountObservable: Flowable<Optional<Account>>
@@ -171,8 +169,7 @@ interface INetworkManager {
 
     fun ping(host: String, url: String, isSafeCall: Boolean): Flowable<Any>
     fun getEvmInfo(host: String, path: String): Single<JsonObject>
-    suspend fun getBep2TokeInfo(blockchainUid: String, symbol: String): TokenInfoService.Bep2TokenInfo
-    suspend fun getEvmTokeInfo(blockchainUid: String, address: String): TokenInfoService.EvmTokenInfo
+    suspend fun getBep2Tokens(): List<Bep2TokenInfoService.Bep2Token>
 }
 
 interface IClipboardManager {
@@ -183,9 +180,10 @@ interface IClipboardManager {
 
 interface IWordsManager {
     fun validateChecksum(words: List<String>)
+    fun validateChecksumStrict(words: List<String>)
     fun isWordValid(word: String): Boolean
     fun isWordPartiallyValid(word: String): Boolean
-    fun generateWords(count: Int = 12, language: Language): List<String>
+    fun generateWords(count: Int = 12): List<String>
 }
 
 sealed class AdapterState {
@@ -330,6 +328,11 @@ interface IBaseAdapter {
     val isMainnet: Boolean
 }
 
+interface ISendSolanaAdapter {
+    val availableBalance: BigDecimal
+    suspend fun send(amount: BigDecimal, to: SolanaAddress): FullTransaction
+}
+
 interface IAccountsStorage {
     var activeAccountId: String?
     val isAccountsEmpty: Boolean
@@ -429,7 +432,6 @@ interface ITorManager {
     fun setTorAsDisabled()
     fun setListener(listener: TorManager.Listener)
     val isTorEnabled: Boolean
-    val isTorNotificationEnabled: Boolean
     val torStatusFlow: Flow<TorStatus>
     val torObservable: Subject<TorStatus>
 }

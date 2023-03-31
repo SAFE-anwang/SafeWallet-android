@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
-import io.horizontalsystems.bankwallet.core.icon24
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -54,6 +54,9 @@ class NftCollectionOverviewViewModel(
 
     val blockchainType: BlockchainType
         get() = service.blockchainType
+
+    var contracts: List<ContractInfo> = listOf()
+        private set
 
     init {
         service.nftCollection.collectWith(viewModelScope) { result ->
@@ -104,6 +107,8 @@ class NftCollectionOverviewViewModel(
     @Synchronized
     private fun sync(result: Result<NftCollectionMetadata>, rate: CurrencyValue?) {
         overviewViewItem = result.getOrNull()?.let { collection ->
+            contracts = contracts(collection)
+
             NftCollectionOverviewViewItem(
                 name = collection.name,
                 imageUrl = collection.imageUrl ?: collection.thumbnailImageUrl,
@@ -118,7 +123,7 @@ class NftCollectionOverviewViewModel(
                 royalty = collection.royalty?.let { numberFormatter.format(it, 0, 2, suffix = "%") },
                 inceptionDate = collection.inceptionDate?.let { DateHelper.formatDate(it, "MMM dd, yyyy") },
                 links = links(collection),
-                contracts = contracts(collection)
+                contracts = contracts
             )
         }
 
@@ -132,9 +137,11 @@ class NftCollectionOverviewViewModel(
     private fun contracts(collection: NftCollectionMetadata) =
         collection.contracts.map {
             ContractInfo(
-                it,
-                service.blockchainType.icon24,
-                service.blockchain?.explorerUrl?.replace("\$ref", it)
+                it.address,
+                service.blockchainType.imageUrl,
+                service.blockchain?.explorerUrl?.replace("\$ref", it.address),
+                it.name,
+                it.schemaName
             )
         }
 

@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterState
-import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
+import io.horizontalsystems.bankwallet.core.managers.FaqManager
+import io.horizontalsystems.bankwallet.core.managers.LanguageManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -16,26 +17,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URL
 
 class BalanceViewModel(
     private val service: BalanceService,
     private val balanceViewItemFactory: BalanceViewItemFactory,
-    private val totalService: TotalService,
     private val balanceViewTypeManager: BalanceViewTypeManager,
-    private val balanceHiddenManager: BalanceHiddenManager
-) : ViewModel() {
-    private var totalState = createTotalUIState(totalService.stateFlow.value)
+    private val totalBalance: TotalBalance,
+    private val localStorage: ILocalStorage,
+    private val languageManager: LanguageManager,
+    private val faqManager: FaqManager
+) : ViewModel(), ITotalBalance by totalBalance {
+
+    private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
     private var viewState: ViewState = ViewState.Loading
     private var balanceViewItems = listOf<BalanceViewItem>()
     private var isRefreshing = false
-    private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
 
     var uiState by mutableStateOf(
         BalanceUiState(
             balanceViewItems = balanceViewItems,
             viewState = viewState,
             isRefreshing = isRefreshing,
-            totalState = totalState
+            headerNote = HeaderNote.None
         )
     )
         private set
@@ -49,21 +53,16 @@ class BalanceViewModel(
         viewModelScope.launch {
             service.balanceItemsFlow
                 .collect { items ->
-                    totalService.setItems(items?.map {
+                    totalBalance.setTotalServiceItems(items?.map {
                         TotalService.BalanceItem(
                             it.balanceData.total,
                             it.state !is AdapterState.Synced,
                             it.coinPrice
                         )
                     })
+
                     items?.let { refreshViewItems(it) }
                 }
-        }
-
-        viewModelScope.launch {
-            totalService.stateFlow.collect {
-                handleUpdatedTotalState(it)
-            }
         }
 
         viewModelScope.launch {
@@ -72,9 +71,9 @@ class BalanceViewModel(
             }
         }
 
-        totalService.start()
-
         service.start()
+
+        totalBalance.start(viewModelScope)
     }
 
     private suspend fun handleUpdatedBalanceViewType(balanceViewType: BalanceViewType) {
@@ -85,20 +84,12 @@ class BalanceViewModel(
         }
     }
 
-    private suspend fun handleUpdatedTotalState(totalState: TotalService.State) {
-        withContext(Dispatchers.IO) {
-            this@BalanceViewModel.totalState = createTotalUIState(totalState)
-
-            emitState()
-        }
-    }
-
     private fun emitState() {
         val newUiState = BalanceUiState(
             balanceViewItems = balanceViewItems,
             viewState = viewState,
             isRefreshing = isRefreshing,
-            totalState = totalState
+            headerNote = headerNote()
         )
 
         viewModelScope.launch {
@@ -106,6 +97,12 @@ class BalanceViewModel(
         }
     }
 
+    private fun headerNote(): HeaderNote {
+        val account = service.account ?: return HeaderNote.None
+        val nonRecommendedDismissed = localStorage.nonRecommendedAccountAlertDismissedAccounts.contains(account.id)
+
+        return account.headerNote(nonRecommendedDismissed)
+    }
 
     private suspend fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>) {
         withContext(Dispatchers.IO) {
@@ -119,7 +116,7 @@ class BalanceViewModel(
                     balanceItem,
                     service.baseCurrency,
                     balanceItem.wallet == expandedWallet,
-                    balanceHiddenManager.balanceHidden,
+                    balanceHidden,
                     service.isWatchAccount,
                     balanceViewType
                 )
@@ -130,19 +127,19 @@ class BalanceViewModel(
     }
 
     override fun onCleared() {
-        totalService.stop()
+        totalBalance.stop()
         service.clear()
     }
 
-    fun onBalanceClick() {
+    override fun toggleBalanceVisibility() {
+        totalBalance.toggleBalanceVisibility()
         viewModelScope.launch {
-            balanceHiddenManager.toggleBalanceHidden()
             service.balanceItemsFlow.value?.let { refreshViewItems(it) }
         }
     }
 
-    fun toggleTotalType() {
-        totalService.toggleType()
+    override fun toggleTotalType() {
+        totalBalance.toggleTotalType()
     }
 
     fun onItem(viewItem: BalanceViewItem) {
@@ -178,6 +175,24 @@ class BalanceViewModel(
         }
     }
 
+    fun onCloseHeaderNote(headerNote: HeaderNote) {
+        when (headerNote) {
+            HeaderNote.NonRecommendedAccount -> {
+                service.account?.let { account ->
+                    localStorage.nonRecommendedAccountAlertDismissedAccounts += account.id
+                    emitState()
+                }
+            }
+            else -> Unit
+        }
+    }
+
+    fun getFaqUrl(headerNote: HeaderNote): String {
+        val baseUrl = URL(faqManager.faqListUrl)
+        val faqUrl = headerNote.faqUrl(languageManager.currentLocale.language)
+        return URL(baseUrl, faqUrl).toString()
+    }
+
     fun disable(viewItem: BalanceViewItem) {
         service.disable(viewItem.wallet)
     }
@@ -185,19 +200,6 @@ class BalanceViewModel(
     fun getSyncErrorDetails(viewItem: BalanceViewItem): SyncError = when {
         service.networkAvailable -> SyncError.Dialog(viewItem.wallet, viewItem.errorMessage)
         else -> SyncError.NetworkNotAvailable()
-    }
-
-    private fun createTotalUIState(totalState: TotalService.State) = when (totalState) {
-        TotalService.State.Hidden -> TotalUIState.Hidden
-        is TotalService.State.Visible -> TotalUIState.Visible(
-            currencyValueStr = totalState.currencyValue?.let {
-                App.numberFormatter.formatFiatFull(it.value, it.currency.symbol)
-            } ?: "---",
-            coinValueStr = totalState.coinValue?.let {
-                "~" + App.numberFormatter.formatCoinFull(it.value, it.coin.code, it.decimal)
-            } ?: "---",
-            dimmed = totalState.dimmed
-        )
     }
 
     sealed class SyncError {
@@ -212,16 +214,34 @@ data class BalanceUiState(
     val balanceViewItems: List<BalanceViewItem>,
     val viewState: ViewState,
     val isRefreshing: Boolean,
-    val totalState: TotalUIState
+    val headerNote: HeaderNote
 )
 
 sealed class TotalUIState {
     data class Visible(
-        val currencyValueStr: String,
-        val coinValueStr: String,
+        val primaryAmountStr: String,
+        val secondaryAmountStr: String,
         val dimmed: Boolean
     ) : TotalUIState()
 
     object Hidden : TotalUIState()
 
+}
+
+enum class HeaderNote {
+    None,
+    NonStandardAccount,
+    NonRecommendedAccount
+}
+
+fun HeaderNote.faqUrl(language: String) = when (this) {
+    HeaderNote.NonStandardAccount -> "faq/$language/management/migration_required.md"
+    HeaderNote.NonRecommendedAccount -> "faq/$language/management/migration_recommended.md"
+    HeaderNote.None -> null
+}
+
+fun Account.headerNote(nonRecommendedDismissed: Boolean): HeaderNote = when {
+    nonStandard -> HeaderNote.NonStandardAccount
+    nonRecommended -> if (nonRecommendedDismissed) HeaderNote.None else HeaderNote.NonRecommendedAccount
+    else -> HeaderNote.None
 }

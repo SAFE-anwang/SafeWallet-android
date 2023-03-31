@@ -88,12 +88,13 @@ class AddressHandlerUdn(private val tokenQuery: TokenQuery, private val coinCode
                 else -> null
             }
             is TokenType.Eip20 -> when (tokenQuery.blockchainType) {
-                BlockchainType.Ethereum -> "ERC20"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Polygon -> "MATIC"
                 BlockchainType.Avalanche -> "AVAX"
-                BlockchainType.Optimism -> "ERC20"
-                BlockchainType.ArbitrumOne -> "ERC20"
+                BlockchainType.Ethereum,
+                BlockchainType.Optimism,
+                BlockchainType.ArbitrumOne,
+                BlockchainType.Gnosis -> "ERC20"
                 else -> null
             }
             else -> null
@@ -113,6 +114,22 @@ class AddressHandlerEvm : IAddressHandler {
     override fun parseAddress(value: String): Address {
         val evmAddress = io.horizontalsystems.ethereumkit.models.Address(value)
         return Address(evmAddress.hex)
+    }
+
+}
+
+class AddressHandlerSolana : IAddressHandler {
+    override fun isSupported(value: String) = true
+
+    override fun parseAddress(value: String): Address {
+        try {
+            //simulate steps in Solana kit init
+            io.horizontalsystems.solanakit.models.Address(value)
+        } catch (e: Throwable) {
+            throw AddressValidator.AddressValidationException(e.message ?: "")
+        }
+
+        return Address(value)
     }
 
 }
