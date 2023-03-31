@@ -126,11 +126,11 @@ data class DAppItem(
     val type: String,
     val subType: String,
     val name: String,
-    val desc: String,
-    val descEN: String,
+    val desc: String?,
+    val descEN: String?,
     val icon: String,
     val dlink: String,
-    val md5Code: String,
+    val md5Code: String?,
     var iconPlaceholder: Int? = null
 ) {
 
