@@ -34,6 +34,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
+import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.ByMenu
 import io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains.SelectBlockchainsModule
@@ -211,19 +212,19 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                     }
                 }
 
-                    Text(
-                        text = Translator.getString(R.string.watch_address_hint),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        style = ComposeAppTheme.typography.caption,
-                        color = ComposeAppTheme.colors.jacob,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                Text(
+                    text = Translator.getString(R.string.watch_address_hint),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = ComposeAppTheme.typography.caption,
+                    color = ComposeAppTheme.colors.jacob,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
 
-                    Spacer(Modifier.height(32.dp))
-                }
+                Spacer(Modifier.height(32.dp))
 
-                ButtonsGroupWithShade {
+
+                /*ButtonsGroupWithShade {
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -235,7 +236,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                         enabled = submitEnabled
                     )
                 }
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(32.dp))*/
             }
         }
     }

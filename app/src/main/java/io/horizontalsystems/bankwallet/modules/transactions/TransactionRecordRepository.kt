@@ -63,6 +63,7 @@ class TransactionRecordRepository(
                 BlockchainType.Dash,
                 BlockchainType.Safe,
                 BlockchainType.Zcash,
+                BlockchainType.ECash,
                 BlockchainType.BinanceChain -> mergedWallets.add(wallet)
                 BlockchainType.Ethereum,
                 BlockchainType.EthereumGoerli,
@@ -72,6 +73,7 @@ class TransactionRecordRepository(
                 BlockchainType.Optimism,
                 BlockchainType.ArbitrumOne,
                 BlockchainType.Gnosis,
+                BlockchainType.Fantom,
                 BlockchainType.Solana -> {
                     if (mergedWallets.none { it.source == wallet.source }) {
                         mergedWallets.add(TransactionWallet(null, wallet.source, null))

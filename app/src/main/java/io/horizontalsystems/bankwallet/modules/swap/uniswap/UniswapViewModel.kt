@@ -38,9 +38,6 @@ class UniswapViewModel(
     private val swapErrorLiveData = MutableLiveData<String?>(null)
     private val tradeViewItemLiveData = MutableLiveData<TradeViewItem?>(null)
     private val buttonsLiveData = MutableLiveData<SwapButtons>()
-    private val approveStepLiveData = MutableLiveData(ApproveStep.NA)
-    private val openApproveLiveEvent = SingleLiveEvent<SwapAllowanceService.ApproveData>()
-    private val openConfirmationLiveEvent = SingleLiveEvent<SendEvmData>()
     val priceImpactLiveEvent = SingleLiveEvent<Boolean>()
 
     var isSwitch1Inch = false

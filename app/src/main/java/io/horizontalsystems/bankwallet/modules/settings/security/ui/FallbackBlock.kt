@@ -16,12 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.decode.ImageSource
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.icon24
-import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockchainSettingsModule
-import io.horizontalsystems.bankwallet.modules.evmnetwork.EvmNetworkModule
-import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsModule
-import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineLawrenceSection
@@ -56,7 +50,7 @@ private fun BlockchainSettingCell(
 
         Image(
             modifier = Modifier.padding(horizontal = 16.dp),
-            painter = io.horizontalsystems.bankwallet.modules.market.ImageSource.Local(item.blockchain.type.icon24).painter(),
+            painter = io.horizontalsystems.bankwallet.modules.market.ImageSource.Local(R.drawable.ic_safe_20).painter(),
             contentDescription = null,
         )
         Column(modifier = Modifier.weight(1f)) {

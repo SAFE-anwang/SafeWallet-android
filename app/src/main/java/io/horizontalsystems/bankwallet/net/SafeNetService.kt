@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.net
 
+import com.anwang.safewallet.safekit.netwok.RetrofitUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
@@ -24,27 +25,11 @@ class SafeNetService() {
     private val url: String = "https://chain.anwang.org/"
 
     init {
-        val loggingInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-            override fun log(message: String) {
-                logger.info(message)
-            }
-        }).setLevel(HttpLoggingInterceptor.Level.BODY)
-
-        val httpClient = NetworkUtils.getUnsafeOkHttpClient().newBuilder()
-            .addInterceptor(loggingInterceptor)
-
         gson = GsonBuilder()
             .setLenient()
             .create()
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(httpClient.build())
-            .build()
-
-        service = retrofit.create(SafeNetServiceApi::class.java)
+        service = RetrofitUtils.build(url).create(SafeNetServiceApi::class.java)
     }
 
     fun getVpnNodes(): Single<List<Map<String, String>>> {

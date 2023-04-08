@@ -24,10 +24,7 @@ import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.icon24
 import io.horizontalsystems.bankwallet.modules.main.MainModule
-import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsModule
-import io.horizontalsystems.bankwallet.modules.settings.security.blockchains.BlockchainSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.BottomSheetFallbackBlockSelectDialog
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockModule
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockViewModel
@@ -139,7 +136,7 @@ class SecuritySettingsFragment : BaseFragment() {
         val warningTitle = getString(R.string.fallback_block_title)
 
         ConfirmationDialog.show(
-            icon = blockchain.type.icon24,
+            icon = R.drawable.ic_safe_20,
             title = getString(R.string.fallback_block_title),
             warningTitle = warningTitle,
             warningText = getString(R.string.fallback_Warning),

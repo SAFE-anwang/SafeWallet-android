@@ -88,14 +88,13 @@ object TransactionInfoOptionsModule {
         private val transactionData by lazy {
             when (optionType) {
                 Type.SpeedUp -> {
-                    TransactionData(transaction.to!!, transaction.value!!, transaction.input!!, transaction.nonce)
+                    TransactionData(transaction.to!!, transaction.value!!, transaction.input!!)
                 }
                 Type.Cancel -> {
                     TransactionData(
                         evmKitWrapper.evmKit.receiveAddress,
                         BigInteger.ZERO,
-                        byteArrayOf(),
-                        transaction.nonce
+                        byteArrayOf()
                     )
                 }
             }

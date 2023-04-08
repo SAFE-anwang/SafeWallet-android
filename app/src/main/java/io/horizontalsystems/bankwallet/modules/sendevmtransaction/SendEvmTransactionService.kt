@@ -111,7 +111,7 @@ class SendEvmTransactionService(
             transaction.transactionData,
             transaction.gasData.gasPrice,
             transaction.gasData.gasLimit,
-            transaction.transactionData.nonce
+            null
         )
             .subscribeIO({ fullTransaction ->
                 sendState = SendState.Sent(fullTransaction.transaction.hash)

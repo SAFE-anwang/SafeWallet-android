@@ -139,7 +139,7 @@ class SendEvmTransactionViewModel(
                 decoration.to,
                 decoration.value,
                 decoration.contractAddress,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo
             )
 
@@ -147,7 +147,7 @@ class SendEvmTransactionViewModel(
                 decoration.spender,
                 decoration.value,
                 decoration.contractAddress,
-                transactionData?.nonce
+                null
             )
 
             is SwapDecoration -> getUniswapViewItems(
@@ -181,7 +181,7 @@ class SendEvmTransactionViewModel(
             is OutgoingEip721Decoration -> getNftTransferItems(
                 decoration.to,
                 BigInteger.ONE,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo,
                 decoration.tokenId,
             )
@@ -189,7 +189,7 @@ class SendEvmTransactionViewModel(
             is OutgoingEip1155Decoration -> getNftTransferItems(
                 decoration.to,
                 decoration.value,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo,
                 decoration.tokenId,
             )
@@ -713,7 +713,7 @@ class SendEvmTransactionViewModel(
             )
         )
 
-        if (transactionData.nonce != null) {
+        /*if (transactionData.nonce != null) {
             viewItems.add(
                 ViewItem.Value(
                     Translator.getString(R.string.Send_Confirmation_Nonce),
@@ -721,7 +721,7 @@ class SendEvmTransactionViewModel(
                     ValueType.Regular
                 ),
             )
-        }
+        }*/
 
         methodName?.let {
             viewItems.add(ViewItem.Value(Translator.getString(R.string.Send_Confirmation_Method), it, ValueType.Regular))

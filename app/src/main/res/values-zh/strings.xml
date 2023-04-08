@@ -856,7 +856,6 @@
     <string name="Binance_Backend_Error_RequiresDigits">要求备注仅包含数字</string>
 
     <!--Hud texts-->
-    <string name="Hud_Text_Success">成功</string>
     <string name="Hud_Text_NoInternet">没有网络</string>
     <string name="Hud_Text_Copied">已复制</string>
     <string name="Hud_Text_Created">已创建</string>
