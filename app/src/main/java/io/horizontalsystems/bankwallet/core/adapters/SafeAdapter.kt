@@ -217,8 +217,6 @@ class SafeAdapter(
                 }
                 else -> throw UnsupportedAccountException()
             }
-
-            throw UnsupportedAccountException()
         }
 
         fun clear(walletId: String, testMode: Boolean) {

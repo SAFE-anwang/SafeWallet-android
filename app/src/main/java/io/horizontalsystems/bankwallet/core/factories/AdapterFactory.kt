@@ -45,44 +45,61 @@ class AdapterFactory(
         return Eip20Adapter(context, evmKitWrapper, address, baseToken, coinManager, wallet, evmLabelManager)
     }
 
-    fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
-        TokenType.Native -> when (wallet.token.blockchainType) {
-            BlockchainType.Bitcoin -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Bitcoin, wallet.account.origin)
-                BitcoinAdapter(wallet, syncMode, testMode, backgroundManager)
+    fun getAdapter(wallet: Wallet): IAdapter? {
+        try {
+            return when (val tokenType = wallet.token.type) {
+                TokenType.Native -> when (wallet.token.blockchainType) {
+                    BlockchainType.Bitcoin -> {
+                        val syncMode =
+                            btcBlockchainManager.syncMode(BlockchainType.Bitcoin, wallet.account.origin)
+                        BitcoinAdapter(wallet, syncMode, testMode, backgroundManager)
+                    }
+                    BlockchainType.BitcoinCash -> {
+                        val syncMode =
+                            btcBlockchainManager.syncMode(BlockchainType.BitcoinCash, wallet.account.origin)
+                        BitcoinCashAdapter(wallet, syncMode, testMode, backgroundManager)
+                    }
+                    BlockchainType.Litecoin -> {
+                        val syncMode =
+                            btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
+                        LitecoinAdapter(wallet, syncMode, testMode, backgroundManager)
+                    }
+                    BlockchainType.Dash -> {
+                        val syncMode =
+                            btcBlockchainManager.syncMode(BlockchainType.Dash, wallet.account.origin)
+                        DashAdapter(wallet, syncMode, testMode, backgroundManager)
+                    }
+                    BlockchainType.Safe -> {
+                        val syncMode =
+                            btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
+                        SafeAdapter(wallet, syncMode, testMode, backgroundManager)
+                    }
+                    BlockchainType.Zcash -> {
+                        ZcashAdapter(
+                            context,
+                            wallet,
+                            restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType),
+                            testMode
+                        )
+                    }
+                    BlockchainType.Ethereum,
+                    BlockchainType.BinanceSmartChain,
+                    BlockchainType.Polygon,
+                    BlockchainType.Avalanche,
+                    BlockchainType.Optimism,
+                    BlockchainType.ArbitrumOne -> getEvmAdapter(wallet)
+                    BlockchainType.BinanceChain -> getBinanceAdapter(wallet, "BNB")
+                    else -> null
+                }
+                is TokenType.Eip20 -> getEip20Adapter(wallet, tokenType.address)
+                is TokenType.Bep2 -> getBinanceAdapter(wallet, tokenType.symbol)
+                is TokenType.Spl,
+                is TokenType.Unsupported -> null
             }
-            BlockchainType.BitcoinCash -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.BitcoinCash, wallet.account.origin)
-                BitcoinCashAdapter(wallet, syncMode, testMode, backgroundManager)
-            }
-            BlockchainType.Litecoin -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
-                LitecoinAdapter(wallet, syncMode, testMode, backgroundManager)
-            }
-            BlockchainType.Dash -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dash, wallet.account.origin)
-                DashAdapter(wallet, syncMode, testMode, backgroundManager)
-            }
-            BlockchainType.Safe -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
-                SafeAdapter(wallet, syncMode, testMode, backgroundManager)
-            }
-            BlockchainType.Zcash -> {
-                ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType), testMode)
-            }
-            BlockchainType.Ethereum,
-            BlockchainType.BinanceSmartChain,
-            BlockchainType.Polygon,
-            BlockchainType.Avalanche,
-            BlockchainType.Optimism,
-            BlockchainType.ArbitrumOne -> getEvmAdapter(wallet)
-            BlockchainType.BinanceChain -> getBinanceAdapter(wallet, "BNB")
-            else -> null
+        } catch (e: Exception) {
+
         }
-        is TokenType.Eip20 -> getEip20Adapter(wallet, tokenType.address)
-        is TokenType.Bep2 -> getBinanceAdapter(wallet, tokenType.symbol)
-        is TokenType.Spl,
-        is TokenType.Unsupported -> null
+        return null
     }
 
     private fun getBinanceAdapter(

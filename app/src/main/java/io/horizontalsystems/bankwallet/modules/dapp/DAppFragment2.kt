@@ -227,7 +227,6 @@ fun CellItems(
 
                 var desc = if (App.languageManager.currentLanguageName.contains("中文"))
                     dappItem.desc else dappItem.descEN
-                Log.e("longwen", "desc=$desc")
                 if (desc == null) {
                     if (dappItem.desc != null) {
                         desc = dappItem.desc
