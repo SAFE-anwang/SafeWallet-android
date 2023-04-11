@@ -41,7 +41,9 @@ class SendWsafeViewModel(
     var isMatic: Boolean = false
 
     init {
-        service.stateObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
+        service.stateObservable.subscribeIO {
+            Log.e("longwen", "state=$it")
+            sync(it) }.let { disposable.add(it) }
         service.amountCautionObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
 
         sync(service.state)
@@ -116,7 +118,9 @@ class SendWsafeViewModel(
         address?.hex?.let {
             try {
                 adapter.validateSafe(it)
+                service.addressEnable = true
             } catch (e: Exception) {
+                service.addressEnable = false
                 error = AddressValidationException.Invalid(e)
             }
         }
