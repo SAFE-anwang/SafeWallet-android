@@ -138,7 +138,7 @@ class UniswapFragment : SwapBaseFragment() {
         })
 
         uniswapViewModel.priceImpactLiveEvent.observe(viewLifecycleOwner, {
-            if (dex.provider.id == "safe" && it && !uniswapViewModel.isSwitch1Inch) {
+            if ((dex.provider.id == "safe" || dex.provider.id == "pancake") && it && !uniswapViewModel.isSwitch1Inch) {
                 uniswapViewModel.isSwitch1Inch = true
                 switch1InchSwap()
             }
