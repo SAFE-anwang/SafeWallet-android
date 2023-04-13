@@ -78,7 +78,7 @@
     <string name="Language_Portuguese">Portugiesisch</string>
     <!--Rate App-->
     <string name="RateApp_Title_Rate_This_App">GT!</string>
-    <string name="RateApp_Description_Rate_This_App">Gefällt Ihnen Unstoppable? Teilen Sie uns Ihr Feedback und Ihre Ideen zur Weiterentwicklung mit.</string>
+    <string name="RateApp_Description_Rate_This_App">Gefällt Ihnen SafeWallet? Teilen Sie uns Ihr Feedback und Ihre Ideen zur Weiterentwicklung mit.</string>
     <string name="RateApp_Button_RateIt">Bewerten</string>
     <string name="RateApp_Button_NotNow">Nicht jetzt</string>
     <!--Restore-->
@@ -346,7 +346,7 @@
     <string name="Send_Error_MinimumAmount">Minimaler Betrag %s</string>
     <string name="Send_Error_MaximumAmount">Maximaler Betrag %s</string>
     <string name="Send_Error_MinRequiredBalance">Mindestens erforderlicher Rest %s</string>
-    <string name="Send_Error_TransparentAddress">Unstoppable unterstützt keine Zahlungen an eine transparente Adresse</string>
+    <string name="Send_Error_TransparentAddress">SafeWallet unterstützt keine Zahlungen an eine transparente Adresse</string>
     <string name="Send_Error_SendToSelf">Sich selbst zu senden wird nicht unterstützt</string>
     <string name="Send_DialogAvailableBalance">Verfügbares Guthaben</string>
     <string name="Send_DialogSpeed">Transaktionsgeschwindigkeit</string>

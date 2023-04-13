@@ -43,7 +43,7 @@
     <string name="PercentTitle">Percent</string>
     <string name="Keyboard">Teclado</string>
     <!--Intro-->
-    <string name="Intro_Wallet_Screen1Description">Be Unstoppable</string>
+    <string name="Intro_Wallet_Screen1Description">Be SafeWallet</string>
     <string name="Intro_Wallet_Screen2Title">Desencadenar Activos</string>
     <string name="Intro_Wallet_Screen2Description">No te encierres y no dejes que otros te hagan eso.</string>
     <string name="Intro_Wallet_Screen3Title">Actúa sin Fronteras</string>
@@ -78,7 +78,7 @@
     <string name="Language_Portuguese">Portugués</string>
     <!--Rate App-->
     <string name="RateApp_Title_Rate_This_App">¡GM!</string>
-    <string name="RateApp_Description_Rate_This_App">¿Disfrutas de Unstoppable? Comparte comentarios e ideas para mejorarlo.</string>
+    <string name="RateApp_Description_Rate_This_App">¿Disfrutas de SafeWallet? Comparte comentarios e ideas para mejorarlo.</string>
     <string name="RateApp_Button_RateIt">Valóralo</string>
     <string name="RateApp_Button_NotNow">No ahora</string>
     <!--Restore-->

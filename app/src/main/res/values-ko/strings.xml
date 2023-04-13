@@ -43,7 +43,7 @@
     <string name="PercentTitle">퍼센트율</string>
     <string name="Keyboard">키보드</string>
     <!--Intro-->
-    <string name="Intro_Wallet_Screen1Description">Be Unstoppable</string>
+    <string name="Intro_Wallet_Screen1Description">Be SafeWallet</string>
     <string name="Intro_Wallet_Screen2Title">풀린 자산</string>
     <string name="Intro_Wallet_Screen2Description">자신을 잠금하지 말고 다른 사람들이 귀하에게 그렇게 하도록 두지 마십시오.</string>
     <string name="Intro_Wallet_Screen3Title">무경계로</string>
@@ -78,7 +78,7 @@
     <string name="Language_Portuguese">포르투갈어</string>
     <!--Rate App-->
     <string name="RateApp_Title_Rate_This_App">안녕</string>
-    <string name="RateApp_Description_Rate_This_App">Unstoppable을 즐기고 계십니까? 더 발전하기 위해 피드백과 아이디어를 공유해 주세요.</string>
+    <string name="RateApp_Description_Rate_This_App">SafeWallet을 즐기고 계십니까? 더 발전하기 위해 피드백과 아이디어를 공유해 주세요.</string>
     <string name="RateApp_Button_RateIt">평가 하기</string>
     <string name="RateApp_Button_NotNow">다음에 확인</string>
     <!--Restore-->
