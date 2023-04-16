@@ -84,6 +84,7 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
     val viewState by viewModel.viewState.observeAsState()
     val syncing by viewModel.syncingLiveData.observeAsState(false)
     val filterResetEnabled by viewModel.filterResetEnabled.collectAsState()
+    val isHideZeroTransaction by viewModel.isHideZeroTransactionLiveData.observeAsState()
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
@@ -102,6 +103,18 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
                     }
                 },
                 menuItems = listOf(
+
+                    MenuItem(
+                        title = TranslatableString.ResString(if (isHideZeroTransaction == true) {
+                            R.string.Transaction_Show_Zero_Incoming_Transaction
+                        } else {
+                            R.string.Transaction_Hide_Zero_Incoming_Transaction
+                        }),
+                        enabled = true,
+                        onClick = {
+                            viewModel.setFilterZeroIncomingTransaction()
+                        }
+                    ),
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Reset),
                         enabled = filterResetEnabled,

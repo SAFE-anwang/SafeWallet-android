@@ -1422,4 +1422,9 @@
     <string name="Manage_Wallets_Bitcoin">Bitcoin 系列</string>
     <string name="Manage_Wallets_L2">L2 系列</string>
     <string name="dapp_history">历史记录</string>
+
+    <string name="liquidity_title">流动性</string>
+    <string name="liquidity_add_title">添加流动性</string>
+    <string name="Transaction_Hide_Zero_Incoming_Transaction">隐藏</string>
+    <string name="Transaction_Show_Zero_Incoming_Transaction">显示</string>
 </resources>

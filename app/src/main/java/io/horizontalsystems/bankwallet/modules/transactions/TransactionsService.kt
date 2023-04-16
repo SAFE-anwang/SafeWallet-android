@@ -328,4 +328,14 @@ class TransactionsService(
     fun getTransactionItem(recordUid: String): TransactionItem? {
         return transactionItems.find { it.record.uid == recordUid }
     }
+
+
+    fun setFilterZeroIncoming() {
+        val f = transactionFilterService.selectedTransactionType
+        executorService.submit {
+            typesSubject.onNext(Pair(transactionFilterService.getFilterTypes(), f))
+            transactionFilterService.setSelectedTransactionType(f)
+            transactionRecordRepository.setTransactionType(f)
+        }
+    }
 }

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.transactions
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -12,6 +13,7 @@ import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -33,8 +35,11 @@ class TransactionsViewModel(
     val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
     val transactionList = MutableLiveData<Map<String, List<TransactionViewItem>>>()
     val viewState = MutableLiveData<ViewState>(ViewState.Loading)
+    val isHideZeroTransactionLiveData = MutableLiveData<Boolean>()
 
     private val disposables = CompositeDisposable()
+
+    private var isHideZeroTransaction = true
 
     init {
         service.syncingObservable
@@ -81,6 +86,15 @@ class TransactionsViewModel(
         service.itemsObservable
             .subscribeIO { items ->
                 val viewItems = items
+                    .filter {
+                        val result = if (isHideZeroTransaction) {
+                            // filter input transcation value zero of eth
+                            !(it.record is EvmIncomingTransactionRecord && it.record.value.zeroValue)
+                        } else {
+                            true
+                        }
+                        result
+                    }
                     .map { transactionViewItem2Factory.convertToViewItemCached(it) }
                     .groupBy { it.formattedDate }
 
@@ -90,6 +104,17 @@ class TransactionsViewModel(
             .let {
                 disposables.add(it)
             }
+        updateHideFilterName()
+    }
+
+    private fun updateHideFilterName() {
+        isHideZeroTransactionLiveData.postValue(isHideZeroTransaction)
+    }
+
+    fun setFilterZeroIncomingTransaction() {
+        this.isHideZeroTransaction = !isHideZeroTransaction
+        updateHideFilterName()
+        service.setFilterZeroIncoming()
     }
 
     fun setFilterTransactionType(filterType: FilterTransactionType) {

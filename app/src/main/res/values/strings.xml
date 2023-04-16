@@ -1604,4 +1604,9 @@
     <string name="Manage_Wallets_Bitcoin">Bitcoin series</string>
     <string name="Manage_Wallets_L2">L2 series</string>
     <string name="dapp_history">History</string>
+
+    <string name="liquidity_title">Liquidity</string>
+    <string name="liquidity_add_title">Add Liquidity</string>
+    <string name="Transaction_Hide_Zero_Incoming_Transaction">Hide</string>
+    <string name="Transaction_Show_Zero_Incoming_Transaction">Show</string>
 </resources>
