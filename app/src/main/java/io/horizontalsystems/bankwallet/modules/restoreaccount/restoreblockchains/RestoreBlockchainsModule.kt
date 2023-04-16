@@ -71,7 +71,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService) as T
+                    CoinTokensViewModel(coinTokensService, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }
@@ -79,6 +79,7 @@ object RestoreBlockchainsModule {
     }
 
     class Factory2(
+        private val accountType: AccountType?
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
@@ -112,7 +113,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService) as T
+                    CoinTokensViewModel(coinTokensService, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }

@@ -179,6 +179,16 @@ class ManageWalletsService(
     private fun handleEnableCoin(
         configuredTokens: List<ConfiguredToken>, restoreSettings: RestoreSettings
     ) {
+        val configuredTokens = if (account?.type is AccountType.EvmPrivateKey) {
+            configuredTokens.map {
+                if (it.token.blockchainType is BlockchainType.Safe) {
+
+                }
+                it
+            }
+        } else {
+            configuredTokens
+        }
         val account = this.account ?: return
         val coin = configuredTokens.firstOrNull()?.token?.coin ?: return
 

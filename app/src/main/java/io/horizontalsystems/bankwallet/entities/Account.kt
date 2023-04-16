@@ -33,7 +33,6 @@ data class Account(
     @IgnoredOnParcel
     val manageCoinsAllowed: Boolean
         get() = when (this.type) {
-            is AccountType.EvmPrivateKey,
             is AccountType.EvmAddress -> false
             else -> true
         }

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingType
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -253,6 +254,7 @@ val BlockchainType.feePriceScale: FeePriceScale
     }
 
 fun BlockchainType.supports(accountType: AccountType): Boolean {
+    Log.e("longwen", "accountType=$accountType")
     return when (accountType) {
         is AccountType.Mnemonic -> true
         is AccountType.HdExtendedKey -> {
@@ -271,7 +273,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         is AccountType.EvmPrivateKey -> {
             this == BlockchainType.Ethereum
                     || this == BlockchainType.BinanceSmartChain
-                    || this == BlockchainType.Polygon
+//                    || this == BlockchainType.Polygon
                     || this == BlockchainType.Avalanche
                     || this == BlockchainType.Optimism
                     || this == BlockchainType.ArbitrumOne

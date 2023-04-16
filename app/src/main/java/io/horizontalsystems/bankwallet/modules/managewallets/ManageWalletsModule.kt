@@ -1,8 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensService
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensViewModel
@@ -12,8 +14,9 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.Restor
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 
 object ManageWalletsModule {
+    const val ACCOUNT_TYPE_KEY = "account_type_key"
 
-    class Factory : ViewModelProvider.Factory {
+    class Factory(val accountType: AccountType? = null) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
             RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
@@ -48,10 +51,11 @@ object ManageWalletsModule {
                     ManageWalletsViewModel(manageWalletsService, listOf(manageWalletsService)) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService) as T
+                    CoinTokensViewModel(coinTokensService, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }
         }
     }
+    fun prepareParams(accountType: AccountType) = bundleOf(ACCOUNT_TYPE_KEY to accountType)
 }
