@@ -593,8 +593,8 @@
     <string name="Transaction_Unlimited">无限%s</string>
     <string name="Transactions_All">所有</string>
     <string name="Transactions_Filter_Blockchain">按区块链过滤</string>
-    <string name="Transactions_Filter_AllBlockchains">所有Blockchains</string>
-    <string name="Transactions_Filter_AllCoins">所有硬币</string>
+    <string name="Transactions_Filter_AllBlockchains">所有区块链</string>
+    <string name="Transactions_Filter_AllCoins">所有币</string>
     <string name="Transactions_Filter_ChooseCoin">选择代币</string>
     <string name="Transactions_Incoming">已收到</string>
     <string name="Transactions_Outgoing">已发送</string>
@@ -1425,6 +1425,7 @@
 
     <string name="liquidity_title">流动性</string>
     <string name="liquidity_add_title">添加流动性</string>
-    <string name="Transaction_Hide_Zero_Incoming_Transaction">隐藏</string>
-    <string name="Transaction_Show_Zero_Incoming_Transaction">显示</string>
+    <string name="Transaction_Non_Zero_Transaction">非零交易</string>
+    <string name="Transaction_All_Transaction">所有交易</string>
+    <string name="Zero_Transactions_Filter">过滤交易</string>
 </resources>

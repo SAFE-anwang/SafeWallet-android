@@ -1607,6 +1607,7 @@
 
     <string name="liquidity_title">Liquidity</string>
     <string name="liquidity_add_title">Add Liquidity</string>
-    <string name="Transaction_Hide_Zero_Incoming_Transaction">Hide</string>
-    <string name="Transaction_Show_Zero_Incoming_Transaction">Show</string>
+    <string name="Transaction_Non_Zero_Transaction">Non zero transactions</string>
+    <string name="Transaction_All_Transaction">All transactions</string>
+    <string name="Zero_Transactions_Filter">Filter by Transactions</string>
 </resources>

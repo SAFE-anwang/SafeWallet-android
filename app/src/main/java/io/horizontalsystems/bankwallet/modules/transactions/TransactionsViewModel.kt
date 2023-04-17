@@ -35,7 +35,7 @@ class TransactionsViewModel(
     val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
     val transactionList = MutableLiveData<Map<String, List<TransactionViewItem>>>()
     val viewState = MutableLiveData<ViewState>(ViewState.Loading)
-    val isHideZeroTransactionLiveData = MutableLiveData<Boolean>()
+    val filterZeroTransactionLiveData = MutableLiveData<List<Filter<String>>>()
 
     private val disposables = CompositeDisposable()
 
@@ -104,16 +104,22 @@ class TransactionsViewModel(
             .let {
                 disposables.add(it)
             }
-        updateHideFilterName()
+        initFilterZeroData()
     }
 
-    private fun updateHideFilterName() {
-        isHideZeroTransactionLiveData.postValue(isHideZeroTransaction)
+    private fun initFilterZeroData() {
+        filterZeroTransactionLiveData.postValue(
+            listOf(
+                Filter(Translator.getString(R.string.Transaction_Non_Zero_Transaction), isHideZeroTransaction),
+                Filter(Translator.getString(R.string.Transaction_All_Transaction), !isHideZeroTransaction)
+            )
+        )
     }
 
-    fun setFilterZeroIncomingTransaction() {
+
+    fun setFilterZeroIncomingTransaction(filterTransaction: Filter<String>) {
         this.isHideZeroTransaction = !isHideZeroTransaction
-        updateHideFilterName()
+        initFilterZeroData()
         service.setFilterZeroIncoming()
     }
 
