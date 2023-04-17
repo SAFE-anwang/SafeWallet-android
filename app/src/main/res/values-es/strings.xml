@@ -346,7 +346,7 @@
     <string name="Send_Error_MinimumAmount">Monto mínimo %s</string>
     <string name="Send_Error_MaximumAmount">Monto máximo %s</string>
     <string name="Send_Error_MinRequiredBalance">Min. requerido restante %s</string>
-    <string name="Send_Error_TransparentAddress">Unstoppable no soporta pagos a una dirección transparente</string>
+    <string name="Send_Error_TransparentAddress">SafeWallet no soporta pagos a una dirección transparente</string>
     <string name="Send_Error_SendToSelf">Enviarte a vos mismo no está soportado</string>
     <string name="Send_DialogAvailableBalance">Saldo disponible</string>
     <string name="Send_DialogSpeed">Velocidad de transacción</string>
@@ -528,7 +528,7 @@
     <string name="SwapInfo_Description">Este servicio de intercambio está impulsado por %s, un intercambio de token descentralizado construido en %s blockchain.\n\n%s está completamente automatizado y administrado por contratos inteligentes que facilitan los intercambios de token de una manera conflaible y sin ninguna intención para hacer estafas.</string>
     <string name="SwapInfo_DexRelated">Uniswap Relacionado</string>
     <string name="SwapInfo_AllowanceTitle">Permiso de acceso</string>
-    <string name="SwapInfo_AllowanceDescription">Los swaps de token en Unstoppable son alimentados por intercambios de tokens descentralizados, por ejemplo, Uniswap, 1pulgadas, PancakeSwap, Quickswap, etc. Estos servicios son totalmente automatizados y facilitan el intercambio de fichas de una manera fiable sin ningún medio para hacer trampas. \n\nPermiso se refiere a la cantidad de token que un servicio de intercambio tiene un permiso para gastar en nombre del usuario. Por lo general, el monto de la asignación se establece utilizando la transacción \'aprobación\' antes de una operación. Se requiere una asignación suficiente antes de que una acción de intercambio pueda tener lugar.</string>
+    <string name="SwapInfo_AllowanceDescription">Los swaps de token en SafeWallet son alimentados por intercambios de tokens descentralizados, por ejemplo, Uniswap, 1pulgadas, PancakeSwap, Quickswap, etc. Estos servicios son totalmente automatizados y facilitan el intercambio de fichas de una manera fiable sin ningún medio para hacer trampas. \n\nPermiso se refiere a la cantidad de token que un servicio de intercambio tiene un permiso para gastar en nombre del usuario. Por lo general, el monto de la asignación se establece utilizando la transacción \'aprobación\' antes de una operación. Se requiere una asignación suficiente antes de que una acción de intercambio pueda tener lugar.</string>
     <string name="SwapInfo_PriceImpactTitle">Impacto en el precio</string>
     <string name="SwapInfo_PriceImpactDescription">La desviación esperada del precio al contado. Cuanto mayor es la cantidad de fichas que se intercambian, mayor es la desviación.</string>
     <string name="SwapInfo_SwapFeeTitle">Tarifa por permutar</string>
@@ -617,7 +617,7 @@
     <string name="StatusInfo_Processing">Procesando</string>
     <string name="StatusInfo_Confirmed">Finalizado</string>
     <string name="StatusInfo_Failed">Falló</string>
-    <string name="StatusInfo_PendingDescription">La transacción todavía no ha sido confirmada en la blockchain. Las transacciones enviadas con valores de comisión recomendados o más altos, generalmente se procesan dentro de  minutos. Las transacciones enviadas con una tarifa baja pueden permanecer pendientes por unas pocas horas o incluso días, y hasta pueden ser rechazadas por completo. Además, tenga en cuenta que el estado de una transacción individual que se muestra en la interfaz de Unstoppable wallet generalmente se actualiza con un breve retraso.</string>
+    <string name="StatusInfo_PendingDescription">La transacción todavía no ha sido confirmada en la blockchain. Las transacciones enviadas con valores de comisión recomendados o más altos, generalmente se procesan dentro de  minutos. Las transacciones enviadas con una tarifa baja pueden permanecer pendientes por unas pocas horas o incluso días, y hasta pueden ser rechazadas por completo. Además, tenga en cuenta que el estado de una transacción individual que se muestra en la interfaz de SafeWallet generalmente se actualiza con un breve retraso.</string>
     <string name="StatusInfo_ProcessingDescription">La transacción ha sido incluida en el blockchain pero todavía no ha alcanzado la finalidad permanente. En este punto, es posible considerar que la transacción fue completada para pagos más pequeños. Para pagos más grandes se recomienda esperar hasta que el estado cambie a completar.</string>
     <string name="StatusInfo_ConfirmedDescription">La transacción se completó y se considera permanente e irreversible.</string>
     <string name="StatusInfo_FailedDescription">La transacción no se procesó y no hubo transferencia de valor. Dependiendo de la razón del fracaso, algunas transacciones fallidas pueden consumir comisiones de transacción. Las transacciones que fueron reemplazadas o canceladas por otra transacción no consumen comisiones de transacción y también aparecerán sa fallida. La aplicación imparable no puede mostrar la razón de las transacciones fallidas, pero los usuarios son capaces de buscarlo ellos mismos en un explorador público de bloques etherscan.io.</string>
@@ -643,7 +643,7 @@
     <string name="SettingsCurrency_Title">Moneda principal</string>
     <string name="SettingsCurrency_Other">OTROS</string>
     <string name="SettingsCurrency_DisclaimerTitle">Descargo de responsabilidad</string>
-    <string name="SettingsCurrency_DisclaimerText">Los datos del tipo de cambio proporcionados por un servicio de terceros Coingecko. om\n\nLa aplicación Unstoppable Walleta no garantiza que estos valores sean siempre correctos y coincidan con los datos del mercado. La probabilidad de una inconsistencia es mayor si usted selecciona cualquier moneda base que no sea %s.</string>
+    <string name="SettingsCurrency_DisclaimerText">Los datos del tipo de cambio proporcionados por un servicio de terceros Coingecko. om\n\nLa aplicación SafeWallet no garantiza que estos valores sean siempre correctos y coincidan con los datos del mercado. La probabilidad de una inconsistencia es mayor si usted selecciona cualquier moneda base que no sea %s.</string>
     <string name="SettingsCurrency_Understand">Entiendo</string>
     <!--Settings-->
     <string name="Settings_Title">Ajustes</string>
@@ -673,7 +673,7 @@
     <string name="SettingsAboutApp_Site">Sitio Web</string>
     <string name="SettingsAboutApp_WhatsNew">Qué novedades hay</string>
     <!-- Privacy  -->
-    <string name="Privacy_Information">Unstoppable no recopila ningún dato o utiliza herramientas de análisis que puedan exponer cualquier dato sobre sus usuarios. La cartera está diseñada para asegurar un alto nivel de privacidad para sus usuarios.</string>
+    <string name="Privacy_Information">SafeWallet no recopila ningún dato o utiliza herramientas de análisis que puedan exponer cualquier dato sobre sus usuarios. La cartera está diseñada para asegurar un alto nivel de privacidad para sus usuarios.</string>
     <string name="Privacy_BulletedText1">Los datos del usuario siempre permanecen en el dispositivo del usuario.</string>
     <string name="Privacy_BulletedText2">La cartera no recopila ningún dato sobre los usuarios.</string>
     <string name="Privacy_BulletedText3">La cartera no recopila ningún dato sobre los usuarios.</string>
@@ -684,18 +684,18 @@
     <string name="SecurityCenter_BlockchainSettingsFooterDescription">Seleccionar fuente de datos para restaurar y sincronizar cartera</string>
     <!--Evm Network-->
     <string name="EvmNetwork_SyncMode">Modo de sincronización</string>
-    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
+    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. SafeWallet pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
     <!--Btc Blockchain Settings -->
     <string name="BtcBlockchainSettings_RestoreSourceChangeWarning">Después de cambiar Restaurar Fuente, el monedero tendrá que resinc sí mismo con el blockchain de Bitcoin.</string>
     <string name="BtcBlockchainSettings_RestoreSource">Restaurar Fuente</string>
     <string name="BtcBlockchainSettings_RestoreSourceSettingsDescription">Seleccione la fuente de información para restaurar el monedero con las transacciones.</string>
     <string name="BtcBlockchainSettings_RestoreSourceDescription">This setting is only relevant when restoring an existing wallet. It is a process of getting transaction history for a given cryptocurrency so the wallet app is able to display past transactions and calculate the user\'s balance. This needs to happen only once when the user restores previously created wallets.
-\n\nAt this point, there are two potential ways for a mobile wallet like Unstoppable to do this:
+\n\nAt this point, there are two potential ways for a mobile wallet like SafeWallet to do this:
 \n\n1. from the API Server: There is a third-party predefined server that hosts the entire blockchain and has all the data processed and optimized to provide that data in a fast manner. This method is fast but potentially (not necessarily) less private. It\'s also a centralized method to restore a wallet as it depends on the availability of a 3rd party server. This option is recommended due to its speed of getting data (5-10 minutes).
 \n\n2. from Blockchain: The app tries to restore directly from a network of blockchain nodes. This is a decentralized way to restore wallet balance and past transactions. The app pings many of the network nodes and requests data from them without addressing some nodes specifically. This option is slow and can easily take 2-3 hours, the app needs to be open while restoring is happening. This restore method doesn\'t depend on any entity and should work in all conditions.</string>
     <string name="BtcBlockchainSettings_TransactionInputsOutputs">Transaction Inputs / Outputs</string>
     <string name="BtcBlockchainSettings_TransactionInputsOutputsSettingsDescription">Haga que sus transacciones BTC, LTC, BCH sean más difíciles de rastrear cambiando la forma en que las transacciones están estructuradas.</string>
-    <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.\n\nThe Unstoppable wallet implements measures to make it harder for someone to figure out which output goes where.\n\nThere are two options available to Unstoppable users:\n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.\n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
+    <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.\n\nThe SafeWallet wallet implements measures to make it harder for someone to figure out which output goes where.\n\nThere are two options available to SafeWallet users:\n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.\n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
     <!--Info screen-->
     <string name="Info_Title">Información</string>
     <!--Setting_Security-->
@@ -705,9 +705,9 @@
     <string name="SettingsSecurity_EnablePin">Código</string>
     <string name="SettingsSecurity_EditPin">Editar el código </string>
     <string name="SettingsSecurity_ManageKeys">Gestionar monederos</string>
-    <string name="SettingsSecurity_AppRestartWarning">Esta acción reiniciará el monedero Unstoppable.</string>
+    <string name="SettingsSecurity_AppRestartWarning">Esta acción reiniciará el monedero SafeWallet.</string>
     <string name="SettingsSecurity_TorConnectionDescription">Anonimiza completamente tu internet mientras usas esta aplicación. Tenga en cuenta que en algunos casos la función WalletConnect para aplicaciones DeFi puede ser muy lenta o no funcionar.</string>
-    <string name="SettingsSecurity_NotificationsDisabledWarning">Las notificaciones para la aplicación del Monedero Unstoppable están desactivadas. Necesita activarlas para poder recibir alertas de cambio de precios.</string>
+    <string name="SettingsSecurity_NotificationsDisabledWarning">Las notificaciones para la aplicación del Monedero SafeWallet están desactivadas. Necesita activarlas para poder recibir alertas de cambio de precios.</string>
     <string name="SettingsSecurity_SortingShuffle">Aleatoriamente</string>
     <string name="SettingsSecurity_SortingShuffleDescription">Indexación aleatoria</string>
     <string name="SettingsSecurity_SortingBip69">Bip69 determinista</string>
@@ -716,13 +716,13 @@
     <string name="SettingsSecurity_SyncModeBlockchain">Desde Blockchain</string>
     <string name="SettingsSecurity_SyncModeBlockchainDescription">Más Privado</string>
     <!--Setting_Terms-->
-    <string name="SettingsTerms_Text">El monedero Unstoppable fue creado para aquellos que buscan invertir y almacenar criptomonedas de forma privada e independiente.
+    <string name="SettingsTerms_Text">El monedero SafeWallet fue creado para aquellos que buscan invertir y almacenar criptomonedas de forma privada e independiente.
 
 \n\nEs un monedero peer-to-peer sin custodio, donde sólo el usuario tiene control sobre los fondos. No recopila ningún dato y mantiene al usuario independiente al no enlazar su cartera a un único monedero.
 
-\n\nEl monedero Unstoppable es completamente de código abierto y cualquiera puede verificar que la aplicación funciona exactamente como se afirma.
+\n\nEl monedero SafeWallet es completamente de código abierto y cualquiera puede verificar que la aplicación funciona exactamente como se afirma.
 
-\n\nDesarrollamos Unstoppable para nosotros mismos ya que las soluciones disponibles no estaban a la altura. Desde una perspectiva de ingenieria y practicidad, creemos que este monedero está significativamente por delante de los productos alternativos.</string>
+\n\nDesarrollamos SafeWallet para nosotros mismos ya que las soluciones disponibles no estaban a la altura. Desde una perspectiva de ingenieria y practicidad, creemos que este monedero está significativamente por delante de los productos alternativos.</string>
     <string name="SettingsTerms_Backup">Copia de seguridad las frases de recuperación del monedero para recuperar el acceso a los fondos.</string>
     <string name="SettingsTerms_PrivateKeys">Las claves privadas y las frases de recuperación sólo se almacenan en su dispositivo.</string>
     <string name="SettingsTerms_DisablingPin">Desactivar el teléfono inteligente desbloquea el PIN elimina todas las carteras de la aplicación. Las frases de recuperación serán necesarias para recuperar el acceso a los fondos.</string>
@@ -731,12 +731,12 @@
     <string name="SettingsTerms_Responsibility">Sólo el usuario es responsable de la seguridad de los fondos y ninguna otra entidad.</string>
     <!--Setting_Tell Friends-->
     <string name="SettingsShare_Title">Compartir</string>
-    <string name="SettingsShare_Text">Be Unstoppable</string>
+    <string name="SettingsShare_Text">Be SafeWallet</string>
     <!--Setting_Contact-->
     <string name="SettingsContact_Title">Contacto</string>
     <!--Setting_Notifications-->
     <string name="SettingsNotifications_Description">Establece alertas de variación de precio para las monedas que te gustaría ver\n\nSe te alertará cuando la variación de precio de las últimas 24 horas supere el umbral seleccionado.\n\n La Alerta de Tendencia de Precio advierte de un cambio de tendencia para el corto plazo de 1 semana, y para el largo plazo de 6 meses.</string>
-    <string name="SettingsNotifications_NotificationsDisabledWarning">Las notificaciones para la aplicación del Monedero Unstoppable están desactivadas. Necesita activarlas para poder recibir alertas de cambio de precios.</string>
+    <string name="SettingsNotifications_NotificationsDisabledWarning">Las notificaciones para la aplicación del Monedero SafeWallet están desactivadas. Necesita activarlas para poder recibir alertas de cambio de precios.</string>
     <string name="SettingsNotifications_TurnOn">Activar en ajustes</string>
     <string name="SettingsNotifications_Off">Desactivado</string>
     <string name="SettingsNotifications_DeactivateAll">Restablecer todo</string>
@@ -791,7 +791,7 @@
     <string name="ExperimentalFeatures_Description">Las siguientes características son experimentales y deben utilizarse con precaución. Aunque hemos probado a fondo estas características usando nuestros propios fondos criptográficos, no podemos garantizar que funcionen como se espera en todos los casos posibles.</string>
     <string name="ExperimentalFeatures_BitcoinHodling">TimeLock</string>
     <!-- Bitcoin Hodling -->
-    <string name="BitcoinHodling_Description">Permite enviar Bitcoins que no se pueden gastar hasta la fecha establecida.\n\nEl receptor de dicha transacción debe utilizar el monedero Unstoppable.\n\nSólo el monedero Unstoppable puede identificar correctamente tales transacciones en la red Bitcoin, así como permitir que el receptor gaste esos Bitcoins después de que expire el período de bloqueo.\n\nSi eres un HODLer, puedes usar esta función para obligarte a retener tus Bitcoins enviándote dicha transacción a ti mismo.\n\nPor ser característica experimental, la cantidad máxima por transacción está limitada a 0.5 BTC.</string>
+    <string name="BitcoinHodling_Description">Permite enviar Bitcoins que no se pueden gastar hasta la fecha establecida.\n\nEl receptor de dicha transacción debe utilizar el monedero SafeWallet.\n\nSólo el monedero SafeWallet puede identificar correctamente tales transacciones en la red Bitcoin, así como permitir que el receptor gaste esos Bitcoins después de que expire el período de bloqueo.\n\nSi eres un HODLer, puedes usar esta función para obligarte a retener tus Bitcoins enviándote dicha transacción a ti mismo.\n\nPor ser característica experimental, la cantidad máxima por transacción está limitada a 0.5 BTC.</string>
     <!--Manage Accounts-->
     <string name="ManageAccounts_Title">Monederos</string>
     <string name="ManageAccounts_CreateNewWallet">Crear</string>
@@ -1073,7 +1073,7 @@
     <string name="CoinPage_DetailsTxVolume_Description">El volumen de transacción de token agregada se registra en cadena. El volumen se mide en los tokens reales (no en USD).</string>
     <string name="CoinPage_DetailsActiveAddresses">Direcciones activas</string>
     <string name="CoinPage_DetailsActiveAddresses_Description">El número de direcciones únicas de cartera involucradas en transacciones durante varios períodos.</string>
-    <string name="CoinPage_NftBannerTitle">Unstoppable NFT</string>
+    <string name="CoinPage_NftBannerTitle">SafeWallet NFT</string>
     <string name="CoinPage_NftBannerDescription">Obtén acceso a funciones avanzadas de cartera manteniendo NFT imparables.</string>
     <string name="CoinPage_CoinNotFound">[%s]\nNo encontrado</string>
     <string name="Nfts_Title">NFTS</string>
@@ -1158,7 +1158,7 @@
     <string name="ReleaseNotes_FollowUs">Síguenos</string>
     <string name="CoinPage_Chart_Locked">Bloqueado</string>
     <string name="ProUsersInfo_Title">Usuario Pro</string>
-    <string name="ProUsersInfo_UnstoppablePass">Unstoppable Pass</string>
+    <string name="ProUsersInfo_UnstoppablePass">SafeWallet Pass</string>
     <string name="ProUsersInfo_SubTitle">Información adicional del token</string>
     <string name="ProUsersInfo_Description">Para activar estos datos, debes obtener NFT de bronce de nivel \"Coin Info+\"\n\nTambién obtendrás acceso a los datos a continuación:</string>
     <string name="ProUsersInfo_Features_DexVolume">Volumen y Rango DEX</string>
@@ -1178,8 +1178,8 @@
     <string name="Alert_KeysInvalidatedTitle">Error de almacenamiento de claves de Android</string>
     <string name="Alert_KeysInvalidatedDescription">Los datos encriptados de su monedero han sido recientemente  invalidados porque se cambió la pantalla de bloqueo de Android</string>
     <string name="Alert_TitleWarning">Aviso</string>
-    <string name="Alert_CustomKeyboardIsUsed">Parece que su dispositivo utiliza un teclado no predeterminado. Unstoppable recomienda seleccionar el teclado por defecto en su dispositivo ya que los teclados de terceros potencialmente pueden recopilar y exponer los datos de entrada de los usuarios. \n\nHaga clic en el botón \'Saltar\' si desea seguir usando su teclado preferido.</string>
-    <string name="Alert_DeviceIsRootedWarning">El equipo de Unstoppable recomienda ejecutar la aplicación sólo en teléfonos no rooteados (no jailbrokes).\n\nTenga en cuenta que cuando utilice un dispositivo con root, la aplicación ya no puede garantizar la seguridad de su criptomoneda con el software malicioso.</string>
+    <string name="Alert_CustomKeyboardIsUsed">Parece que su dispositivo utiliza un teclado no predeterminado. SafeWallet recomienda seleccionar el teclado por defecto en su dispositivo ya que los teclados de terceros potencialmente pueden recopilar y exponer los datos de entrada de los usuarios. \n\nHaga clic en el botón \'Saltar\' si desea seguir usando su teclado preferido.</string>
+    <string name="Alert_DeviceIsRootedWarning">El equipo de SafeWallet recomienda ejecutar la aplicación sólo en teléfonos no rooteados (no jailbrokes).\n\nTenga en cuenta que cuando utilice un dispositivo con root, la aplicación ya no puede garantizar la seguridad de su criptomoneda con el software malicioso.</string>
     <!--OS Pin-->
     <string name="OSPin_Confirm_Title">PIN de teléfono</string>
     <string name="OSPin_Confirm_Desciption">Esta aplicación require que el teléfono tenga el código de acceso (bloqueo de pantalla) habilitado.\n\nLo puedes habilitar en los ajustes de Android.\n\nTome en cuenta que cuando desahabilita el PIN en el nivel OS, las medidas de seguridad en el alacenamiento seguro de su teléfono hace que la información previamente almacenada no sea válida. Usted necesita restaurar las claves de sus monederos para poder volver a su monedero.</string>
