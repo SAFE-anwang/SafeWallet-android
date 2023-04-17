@@ -1164,7 +1164,7 @@
     <string name="ProUsersInfo_Title">Pro Users</string>
     <string name="ProUsersInfo_UnstoppablePass">SafeWallet Pass</string>
     <string name="ProUsersInfo_SubTitle">Additional Token Info</string>
-    <string name="ProUsersInfo_Description">To enable this data you should get bronze level UW NFTs “Coin Info+”\n\nAlso you get access to data below:</string>
+    <string name="ProUsersInfo_Description">To enable this data you should get SafeWallet NFT:</string>
     <string name="ProUsersInfo_Features_DexVolume">DEX Volume and Rank</string>
     <string name="ProUsersInfo_Features_DesLiquidity">DEX Liquidity and Rank</string>
     <string name="ProUsersInfo_Features_ActiveAddresses">Active Addresses</string>

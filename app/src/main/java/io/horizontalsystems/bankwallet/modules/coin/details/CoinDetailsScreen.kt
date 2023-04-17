@@ -70,14 +70,14 @@ fun CoinDetailsScreen(
                     val detailBlocks: MutableList<@Composable (borderTop: Boolean) -> Unit> = mutableListOf()
 
                     viewItem?.let { viewItem ->
-                        if (!viewItem.proChartsActivated) {
+                        /*if (!viewItem.proChartsActivated) {
                             detailBlocks.add {
                                 ProFeaturesBanner(
                                     stringResource(R.string.CoinPage_NftBannerTitle),
                                     stringResource(R.string.CoinPage_NftBannerDescription)
                                 ) { authorizationViewModel.onBannerClick() }
                             }
-                        }
+                        }*/
 
                         viewItem.tokenLiquidityViewItem?.let {
                             detailBlocks.add { borderTop ->

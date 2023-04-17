@@ -1356,7 +1356,7 @@
     <string name="ProUsersInfo_Title">专业用户</string>
     <string name="ProUsersInfo_UnstoppablePass">SafeWallet Pass</string>
     <string name="ProUsersInfo_SubTitle">附加令牌信息</string>
-    <string name="ProUsersInfo_Description">若要启用此数据，您应该获得精灵等级的 UW NFTs “Coin Info+”\n\n也可以访问下面的数据：</string>
+    <string name="ProUsersInfo_Description">若要启用此数据，您应该获得SafeWallet NFT</string>
     <string name="ProUsersInfo_Features_DexVolume">DEX 音量和等级</string>
     <string name="ProUsersInfo_Features_DesLiquidity">DEX 流动性和等级</string>
     <string name="ProUsersInfo_Features_ActiveAddresses">活跃地址</string>
