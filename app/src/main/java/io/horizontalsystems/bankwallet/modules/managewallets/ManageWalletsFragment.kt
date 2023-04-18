@@ -224,7 +224,9 @@ private fun ManageWalletsScreen(
                     icon = R.drawable.ic_not_found
                 )
             } else {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ComposeAppTheme.colors.lawrence)) {
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         /*Divider(

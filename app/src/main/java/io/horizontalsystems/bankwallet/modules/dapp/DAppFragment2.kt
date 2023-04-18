@@ -101,7 +101,9 @@ fun DAppFragment2(
                 }
                 ViewState.Success -> {
                     viewItems?.let { viewItem ->
-                        LazyColumn(modifier = Modifier.fillMaxSize().padding(vertical = 40.dp)) {
+                        LazyColumn(modifier = Modifier.wrapContentHeight().padding(vertical = 45.dp, horizontal = 16.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(ComposeAppTheme.colors.lawrence)) {
                             viewItem.keys.forEachIndexed { index, s ->
                                 item {
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -196,6 +198,8 @@ fun CellItems(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+//            .padding(16.dp)
+//            .background(ComposeAppTheme.colors.lawrence)
             .then(clickableModifier)
     ) {
         Row(

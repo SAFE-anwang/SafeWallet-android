@@ -14,11 +14,13 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -142,7 +144,7 @@ fun TopNftCollectionsScreen(
                                     }
 
                                     stickyHeader {
-                                        HeaderSorting(borderTop = true, borderBottom = true) {
+                                        HeaderSorting(borderTop = true, borderBottom = true, isModifyBg = true) {
                                             SortMenu(menu.sortingFieldSelect.selected.title) {
                                                 viewModel.onClickSortingFieldMenu()
                                             }
@@ -189,7 +191,9 @@ private fun TopNftCollectionsList(
 
     LazyColumn(
         state = state,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(vertical = 16.dp, horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ComposeAppTheme.colors.lawrence)
     ) {
         preItems.invoke(this)
         items(collections) { collection ->

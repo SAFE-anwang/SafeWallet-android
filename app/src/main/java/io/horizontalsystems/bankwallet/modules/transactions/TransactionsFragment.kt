@@ -282,7 +282,10 @@ fun TransactionList(
 ) {
     val bottomReachedUid = getBottomReachedUid(transactionsMap)
 
-    LazyColumn(state = listState) {
+    LazyColumn(state = listState,
+        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ComposeAppTheme.colors.lawrence)) {
         transactionsMap.forEach { (dateHeader, transactions) ->
             stickyHeader {
                 DateHeader(dateHeader)
@@ -315,7 +318,7 @@ private fun getBottomReachedUid(transactionsMap: Map<String, List<TransactionVie
 
 @Composable
 fun DateHeader(dateHeader: String) {
-    HeaderSorting(borderTop = false, borderBottom = true) {
+    HeaderSorting(borderTop = false, borderBottom = true, isModifyBg = true) {
         subhead1_grey(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = dateHeader,

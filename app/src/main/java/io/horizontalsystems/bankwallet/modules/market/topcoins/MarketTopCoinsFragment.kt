@@ -8,12 +8,14 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
@@ -152,7 +154,8 @@ fun TopCoinsScreen(
                                             stickyHeader {
                                                 HeaderSorting(
                                                     borderTop = true,
-                                                    borderBottom = true
+                                                    borderBottom = true,
+                                                    isModifyBg = true
                                                 ) {
                                                     Row(
                                                         modifier = Modifier

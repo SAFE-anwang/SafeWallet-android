@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.coin.coinmarkets
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -124,7 +125,10 @@ fun CoinMarketList(
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
-    LazyColumn(state = listState) {
+    LazyColumn(state = listState,
+        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ComposeAppTheme.colors.lawrence)) {
         items(items) { item ->
             CoinMarketCell(
                 item.market,

@@ -4,11 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,9 +30,19 @@ fun MarketCoinClear(
     coinRate: String? = null,
     marketDataValue: MarketDataValue? = null,
     label: String? = null,
+    isTop: Boolean = false,
+    isBottom: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     MultilineClear(
+        modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(
+                topStart = if (isTop) 16.dp else 0.dp,
+                topEnd = if (isTop) 16.dp else 0.dp,
+                bottomEnd = if (isBottom) 16.dp else 0.dp,
+                bottomStart = if (isBottom) 16.dp else 0.dp)
+            )
+            .background(ComposeAppTheme.colors.lawrence),
         onClick = onClick,
         borderBottom = true
     ) {
@@ -98,7 +110,7 @@ fun MarketCoin(
     Box(
         modifier = Modifier
             .height(60.dp)
-            .background(ComposeAppTheme.colors.tyler)
+            .background(ComposeAppTheme.colors.lawrence)
             .clickable { onClick?.invoke() },
     ) {
         Row(
