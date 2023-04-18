@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -89,7 +90,7 @@ class TransactionsViewModel(
                     .filter {
                         val result = if (isHideZeroTransaction) {
                             // filter input transcation value zero of eth
-                            !(it.record is EvmIncomingTransactionRecord && it.record.value.zeroValue)
+                            !(/*it.record is TransactionRecord && */it.record.mainValue?.zeroValue == true)
                         } else {
                             true
                         }
