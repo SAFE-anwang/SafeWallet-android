@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
@@ -149,7 +152,7 @@ class TvlFragment : BaseFragment() {
                                         )
                                     }
 
-                                    items(tvlData.coinTvlViewItems) { item ->
+                                    itemsIndexed(tvlData.coinTvlViewItems, key = { _, item -> item.iconUrl }) { index, item ->
                                         DefiMarket(
                                             item.name,
                                             item.chain,
@@ -165,7 +168,9 @@ class TvlFragment : BaseFragment() {
                                                 }
                                                 else -> null
                                             },
-                                            item.rank
+                                            item.rank,
+                                            isTop = index == 0,
+                                            isBottom = index == tvlData.coinTvlViewItems.size
                                         ) { onCoinClick(item.coinUid) }
                                     }
                                 }
@@ -232,9 +237,20 @@ class TvlFragment : BaseFragment() {
         tvl: CurrencyValue,
         marketDataValue: MarketDataValue?,
         label: String? = null,
+        isTop: Boolean = false,
+        isBottom: Boolean = false,
         onClick: (() -> Unit)? = null
     ) {
         MultilineClear(
+            modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
+                .clip(
+                    RoundedCornerShape(
+                    topStart = if (isTop) 16.dp else 0.dp,
+                    topEnd = if (isTop) 16.dp else 0.dp,
+                    bottomEnd = if (isBottom) 16.dp else 0.dp,
+                    bottomStart = if (isBottom) 16.dp else 0.dp)
+                )
+                .background(ComposeAppTheme.colors.lawrence),
             onClick = onClick,
             borderBottom = true
         ) {

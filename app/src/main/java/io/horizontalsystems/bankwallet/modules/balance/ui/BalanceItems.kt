@@ -18,6 +18,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.*
+import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
@@ -128,7 +129,9 @@ fun BalanceItems(
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
                     onClick = {
-                        navController.slideFromRight(R.id.manageWalletsFragment)
+                        navController.slideFromRight(R.id.manageWalletsFragment,
+                            ManageWalletsModule.prepareParams(accountViewItem.accountType)
+                        )
                     }
                 )
             }

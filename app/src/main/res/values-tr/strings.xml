@@ -43,7 +43,7 @@
     <string name="PercentTitle">Yüzde</string>
     <string name="Keyboard">Klavye</string>
     <!--Intro-->
-    <string name="Intro_Wallet_Screen1Description">Be Unstoppable</string>
+    <string name="Intro_Wallet_Screen1Description">Be Safewallet</string>
     <string name="Intro_Wallet_Screen2Title">Varlıkları Serbest Bırak</string>
     <string name="Intro_Wallet_Screen2Description">Kendinizi kilitlemeyin ve başkalarının bunu sizin için yapmasına izin vermeyin.</string>
     <string name="Intro_Wallet_Screen3Title">Sınırları Kaldırın</string>
@@ -78,7 +78,7 @@
     <string name="Language_Portuguese">Portekizce</string>
     <!--Rate App-->
     <string name="RateApp_Title_Rate_This_App">Günaydın!</string>
-    <string name="RateApp_Description_Rate_This_App">Unstoppable kullanmaktan keyif alıyor musunuz? Daha da iyi olması için görüşlerinizi paylaşın.</string>
+    <string name="RateApp_Description_Rate_This_App">Safewallet kullanmaktan keyif alıyor musunuz? Daha da iyi olması için görüşlerinizi paylaşın.</string>
     <string name="RateApp_Button_RateIt">Puanla</string>
     <string name="RateApp_Button_NotNow">Şimdi değil</string>
     <!--Restore-->
@@ -346,7 +346,7 @@
     <string name="Send_Error_MinimumAmount">Minimum miktar %s</string>
     <string name="Send_Error_MaximumAmount">Maksimum miktar %s</string>
     <string name="Send_Error_MinRequiredBalance">Min. gerekli bakiye %s</string>
-    <string name="Send_Error_TransparentAddress">Unstoppable, bir transparan adrese yapılan ödemeleri desteklemez</string>
+    <string name="Send_Error_TransparentAddress">Safewallet, bir transparan adrese yapılan ödemeleri desteklemez</string>
     <string name="Send_Error_SendToSelf">Kendine gönderme desteklenmiyor</string>
     <string name="Send_DialogAvailableBalance">Mevcut Bakiye</string>
     <string name="Send_DialogSpeed">İşlem hızı</string>
@@ -528,7 +528,7 @@
     <string name="SwapInfo_Description">Bu takas etme hizmeti, %s blok zinciri üzerine inşa edilmiş ve merkezi olmayan jeton takas etme protokolü olan %s tarafından desteklenmektedir.\n\n%s, tamamen otomatiktir ve hile yapmadan jeton takaslarını güvenilir bir şekilde kolaylaştıran akıllı sözleşmelerle yönetilir.</string>
     <string name="SwapInfo_DexRelated">Uniswap Bağlantılı</string>
     <string name="SwapInfo_AllowanceTitle">Ödenek</string>
-    <string name="SwapInfo_AllowanceDescription">Unstoppable\'daki jeton takasları, merkezi olmayan jeton borsaları, yani Uniswap, 1inch, PancakeSwap, Quickswap vb. tarafından desteklenir. Bu hizmetler tamamen otomatiktir ve herhangi bir hileye gerek kalmadan jeton takaslarını güvenilir bir şekilde kolaylaştırır. \n\nÖdenek, bir değişim hizmetinin kullanıcı adına harcama iznine sahip olduğu jeton miktarını ifade eder. Tipik olarak, tahsisat miktarı, bir ticaretten önce \'onay\' işlemi kullanılarak belirlenir. Bir takas eyleminin gerçekleşebilmesi için yeterli bir ödenek gereklidir.</string>
+    <string name="SwapInfo_AllowanceDescription">Safewallet\'daki jeton takasları, merkezi olmayan jeton borsaları, yani Uniswap, 1inch, PancakeSwap, Quickswap vb. tarafından desteklenir. Bu hizmetler tamamen otomatiktir ve herhangi bir hileye gerek kalmadan jeton takaslarını güvenilir bir şekilde kolaylaştırır. \n\nÖdenek, bir değişim hizmetinin kullanıcı adına harcama iznine sahip olduğu jeton miktarını ifade eder. Tipik olarak, tahsisat miktarı, bir ticaretten önce \'onay\' işlemi kullanılarak belirlenir. Bir takas eyleminin gerçekleşebilmesi için yeterli bir ödenek gereklidir.</string>
     <string name="SwapInfo_PriceImpactTitle">Fiyat Etkisi</string>
     <string name="SwapInfo_PriceImpactDescription">Gösterilen bir fiyattan beklenen fiyat sapması, tipik olarak swap tutarı ile artar.</string>
     <string name="SwapInfo_SwapFeeTitle">Swap Ücreti</string>
@@ -617,10 +617,10 @@
     <string name="StatusInfo_Processing">İşleniyor</string>
     <string name="StatusInfo_Confirmed">Tamamlandı</string>
     <string name="StatusInfo_Failed">Başarısız</string>
-    <string name="StatusInfo_PendingDescription">İşlem henüz blok zincirinde onaylanmadı. Tavsiye edilen veya daha yüksek ücret ayarı ile gönderilen işlemler genellikle birkaç dakika içerisinde işlenir. Düşük bir ücretle gönderilen işlemler birkaç saat, hatta günlerce beklemede kalabilir ve hatta reddedilebilir. Unstoppable cüzdan arayüzündeki bir işlemin durumunun genellikle kısa bir gecikmeyle güncellendiğini de unutmayın.</string>
+    <string name="StatusInfo_PendingDescription">İşlem henüz blok zincirinde onaylanmadı. Tavsiye edilen veya daha yüksek ücret ayarı ile gönderilen işlemler genellikle birkaç dakika içerisinde işlenir. Düşük bir ücretle gönderilen işlemler birkaç saat, hatta günlerce beklemede kalabilir ve hatta reddedilebilir. Safewallet cüzdan arayüzündeki bir işlemin durumunun genellikle kısa bir gecikmeyle güncellendiğini de unutmayın.</string>
     <string name="StatusInfo_ProcessingDescription">İşlem blok zincirine dahil edildi ama kalıcı bir sonuca ulaşmadı. Bu noktada, küçük ödemeler için işlemin tamamlandığını düşünebilirsiniz. Daha büyük ödemeler için ise, işlem durumu tamamlandı olarak değişene kadar beklemeniz önerilir.</string>
     <string name="StatusInfo_ConfirmedDescription">İşlem tamamlandı ve bunun kalıcı ve tersine çevrilemez olduğu kabul edilir.</string>
-    <string name="StatusInfo_FailedDescription">İşlem gerçekleşmedi ve herhangi bir değer transferi yapılmadı. Başarısız olma nedenine bağlı olarak, bazı başarısız işlemler, işlem ücreti tüketebilir. Başka bir işlemle değiştirilen veya iptal edilen işlemler, işlem ücretini tüketmez ve başarısız olarak görüntülenir. Unstoppable uygulaması başarısız işlemlerin nedenini gösteremez, ancak kullanıcılar bunu örneğin etherscan.io gibi herkese açık bir blok gezgininde kendileri arayabilirler.</string>
+    <string name="StatusInfo_FailedDescription">İşlem gerçekleşmedi ve herhangi bir değer transferi yapılmadı. Başarısız olma nedenine bağlı olarak, bazı başarısız işlemler, işlem ücreti tüketebilir. Başka bir işlemle değiştirilen veya iptal edilen işlemler, işlem ücretini tüketmez ve başarısız olarak görüntülenir. Safewallet uygulaması başarısız işlemlerin nedenini gösteremez, ancak kullanıcılar bunu örneğin etherscan.io gibi herkese açık bir blok gezgininde kendileri arayabilirler.</string>
     <!-- Transaction Info Options -->
     <string name="TransactionInfoOptions_SpeedUp_Title">Hızlandır</string>
     <string name="TransactionInfoOptions_SpeedUp_Description">Bunu yapmak, daha yüksek bir ücretle işlemi yeniden göndererek önceki işlemi geçersiz kılmaya çalışacaktır. Yeni bir işlem gönderildiğinde ilk işlem beklemede kalırsa, geçersiz olması ve değiştirilmesi olasılığı yüksektir (garanti edilmez). Bu iki işlemden sadece biri blok zincire eklenecektir.</string>
@@ -673,7 +673,7 @@
     <string name="SettingsAboutApp_Site">Web sitesi</string>
     <string name="SettingsAboutApp_WhatsNew">Neler yeni</string>
     <!-- Privacy  -->
-    <string name="Privacy_Information">Unstoppable doesn\'t collect any data or use analytics tools that may expose any data about its users. The wallet is designed to ensure a high level of privacy for its users.</string>
+    <string name="Privacy_Information">SafeWallet doesn\'t collect any data or use analytics tools that may expose any data about its users. The wallet is designed to ensure a high level of privacy for its users.</string>
     <string name="Privacy_BulletedText1">User data always remains on the user\'s device.</string>
     <string name="Privacy_BulletedText2">The wallet doesn\'t collect any data about users.</string>
     <string name="Privacy_BulletedText3">The wallet doesn\'t share any data about users.</string>
@@ -684,15 +684,15 @@
     <string name="SecurityCenter_BlockchainSettingsFooterDescription">Cüzdanı geri yüklemek ve senkronize etmek için veri kaynağını seçin</string>
     <!--Evm Network-->
     <string name="EvmNetwork_SyncMode">Senkron Modu</string>
-    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
+    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. SafeWallet pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
     <!--Btc Blockchain Settings -->
     <string name="BtcBlockchainSettings_RestoreSourceChangeWarning">Bu değişiklikten sonra cüzdan Bitcoin blok zinciri ile kendini yeniden senkronize etmek zorunda kalacak.</string>
     <string name="BtcBlockchainSettings_RestoreSource">Geri Yükleme Kaynağı</string>
     <string name="BtcBlockchainSettings_RestoreSourceSettingsDescription">Cüzdanı işlemlerle geri yüklemek için veri kaynağını seçin.</string>
-    <string name="BtcBlockchainSettings_RestoreSourceDescription">This setting is only relevant when restoring an existing wallet. It is a process of getting transaction history for a given cryptocurrency so the wallet app is able to display past transactions and calculate the user\'s balance. This needs to happen only once when the user restores previously created wallets.\n\nAt this point, there are two potential ways for a mobile wallet like Unstoppable to do this:\n\n1. from the API Server: There is a third-party predefined server that hosts the entire blockchain and has all the data processed and optimized to provide that data in a fast manner. This method is fast but potentially (not necessarily) less private. It\'s also a centralized method to restore a wallet as it depends on the availability of a 3rd party server. This option is recommended due to its speed of getting data (5-10 minutes).\n\n2. from Blockchain: The app tries to restore directly from a network of blockchain nodes. This is a decentralized way to restore wallet balance and past transactions. The app pings many of the network nodes and requests data from them without addressing some nodes specifically. This option is slow and can easily take 2-3 hours, the app needs to be open while restoring is happening. This restore method doesn\'t depend on any entity and should work in all conditions.</string>
+    <string name="BtcBlockchainSettings_RestoreSourceDescription">This setting is only relevant when restoring an existing wallet. It is a process of getting transaction history for a given cryptocurrency so the wallet app is able to display past transactions and calculate the user\'s balance. This needs to happen only once when the user restores previously created wallets.\n\nAt this point, there are two potential ways for a mobile wallet like SafeWallet to do this:\n\n1. from the API Server: There is a third-party predefined server that hosts the entire blockchain and has all the data processed and optimized to provide that data in a fast manner. This method is fast but potentially (not necessarily) less private. It\'s also a centralized method to restore a wallet as it depends on the availability of a 3rd party server. This option is recommended due to its speed of getting data (5-10 minutes).\n\n2. from Blockchain: The app tries to restore directly from a network of blockchain nodes. This is a decentralized way to restore wallet balance and past transactions. The app pings many of the network nodes and requests data from them without addressing some nodes specifically. This option is slow and can easily take 2-3 hours, the app needs to be open while restoring is happening. This restore method doesn\'t depend on any entity and should work in all conditions.</string>
     <string name="BtcBlockchainSettings_TransactionInputsOutputs">İşlem Girdileri / Çıktıları</string>
     <string name="BtcBlockchainSettings_TransactionInputsOutputsSettingsDescription">İşlemlerin yapılandırılma şeklini değiştirerek BTC, LTC, BCH işlemlerinizin izlenilmesini zorlaştırın.</string>
-    <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.\n\nThe Unstoppable wallet implements measures to make it harder for someone to figure out which output goes where.\n\nThere are two options available to Unstoppable users:\n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.\n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
+    <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.\n\nThe SafeWallet implements measures to make it harder for someone to figure out which output goes where.\n\nThere are two options available to SafeWallet users:\n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.\n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
     <!--Info screen-->
     <string name="Info_Title">Bilgi</string>
     <!--Setting_Security-->
@@ -702,9 +702,9 @@
     <string name="SettingsSecurity_EnablePin">Kod</string>
     <string name="SettingsSecurity_EditPin">Kod Değiştir</string>
     <string name="SettingsSecurity_ManageKeys">Cüzdanları yönet</string>
-    <string name="SettingsSecurity_AppRestartWarning">Bu eylem, Unstoppable Cüzdan\'ı yeniden başlatacak.</string>
+    <string name="SettingsSecurity_AppRestartWarning">Bu eylem, SafeWallet Cüzdan\'ı yeniden başlatacak.</string>
     <string name="SettingsSecurity_TorConnectionDescription">Bu uygulamayı kullanırken internetinizi tamamen anonimleştirin. Bazı durumlarda DeFi uygulamaları için WalletConnect özelliğinin çok yavaş olabileceğini veya hiç çalışmayabileceğini unutmayın.</string>
-    <string name="SettingsSecurity_NotificationsDisabledWarning">Unstoppable Cüzdan uygulaması için bildirimler devre dışı bırakıldı. Fiyat değişikliği uyarıları alabilmek için Bildirimler\'i açmanız ve arka plan uygulaması yenilemesine izin vermeniz gerekir.</string>
+    <string name="SettingsSecurity_NotificationsDisabledWarning">SafeWallet Cüzdan uygulaması için bildirimler devre dışı bırakıldı. Fiyat değişikliği uyarıları alabilmek için Bildirimler\'i açmanız ve arka plan uygulaması yenilemesine izin vermeniz gerekir.</string>
     <string name="SettingsSecurity_SortingShuffle">Karıştır</string>
     <string name="SettingsSecurity_SortingShuffleDescription">Rastgele Dizinleme</string>
     <string name="SettingsSecurity_SortingBip69">BIP69</string>
@@ -728,12 +728,12 @@
     <string name="SettingsTerms_Responsibility">Fonların güvenliğinden yalnızca kullanıcı sorumludur ve başka hiçbir kuruluş sorumlu değildir.</string>
     <!--Setting_Tell Friends-->
     <string name="SettingsShare_Title">Paylaş</string>
-    <string name="SettingsShare_Text">Be Unstoppable</string>
+    <string name="SettingsShare_Text">Be SafeWallet</string>
     <!--Setting_Contact-->
     <string name="SettingsContact_Title">Iletişim</string>
     <!--Setting_Notifications-->
     <string name="SettingsNotifications_Description">İzlemek istediğiniz paralar için fiyat değişikliği uyarılarını ayarlayın\n\nSon 24 saatteki fiyat değişikliği seçilen eşiği aştığında uyarı alırsınız. \n\nFiyat Trendi Uyarısı, 6 ay boyunca, 1 haftalık kısa bir süre için bir trend değişikliği durumunu uyarır.</string>
-    <string name="SettingsNotifications_NotificationsDisabledWarning">Unstoppable Cüzdan uygulaması için bildirimler devre dışı bırakıldı. Fiyat değişikliği uyarıları alabilmek için Bildirimler\'i açmanız ve arka plan uygulaması yenilemesine izin vermeniz gerekir.</string>
+    <string name="SettingsNotifications_NotificationsDisabledWarning">SafeWallet Cüzdan uygulaması için bildirimler devre dışı bırakıldı. Fiyat değişikliği uyarıları alabilmek için Bildirimler\'i açmanız ve arka plan uygulaması yenilemesine izin vermeniz gerekir.</string>
     <string name="SettingsNotifications_TurnOn">Ayarlardan aç</string>
     <string name="SettingsNotifications_Off">Kapat</string>
     <string name="SettingsNotifications_DeactivateAll">Tümünü Sıfırla</string>
@@ -788,7 +788,7 @@
     <string name="ExperimentalFeatures_Description">Aşağıdaki özellikler deneyseldir ve dikkatli kullanılmalıdır. Bu özellikleri kendi kripto fonlarımızı kullanarak baştan sona test etmemize rağmen, olası tüm durumlarda beklendiği gibi çalışmalarını garanti edemeyiz.</string>
     <string name="ExperimentalFeatures_BitcoinHodling">TimeLock</string>
     <!-- Bitcoin Hodling -->
-    <string name="BitcoinHodling_Description">Belirtilen tarihe kadar harcanmamış Bitcoin\'leri göndermenize olanak verir.\n\nBu tür bir işlemin alıcısı Unstoppable cüzdan kullanmalıdır.\n\nSadece Unstoppable cüzdan, Bitcoin ağındaki bu tür işlemleri doğru bir şekilde tanımlayabilir ve kilitleme süresi dolduktan sonra da alıcının bu Bitcoin\'leri harcamasını sağlayabilir.\n\nEğer bir HODLer iseniz, kendinize böyle bir işlem göndererek, bu özelliği Bitcoin\'lerinizi zarar etmeden uzun süre elinizde tutmaya zorlamak için kullanabilirsiniz.\n\nDeneysel bir özellik olduğundan, işlem başına maksimum tutar 0.5 BTC ile sınırlandırılmıştır.</string>
+    <string name="BitcoinHodling_Description">Belirtilen tarihe kadar harcanmamış Bitcoin\'leri göndermenize olanak verir.\n\nBu tür bir işlemin alıcısı SafeWallet cüzdan kullanmalıdır.\n\nSadece SafeWallet cüzdan, Bitcoin ağındaki bu tür işlemleri doğru bir şekilde tanımlayabilir ve kilitleme süresi dolduktan sonra da alıcının bu Bitcoin\'leri harcamasını sağlayabilir.\n\nEğer bir HODLer iseniz, kendinize böyle bir işlem göndererek, bu özelliği Bitcoin\'lerinizi zarar etmeden uzun süre elinizde tutmaya zorlamak için kullanabilirsiniz.\n\nDeneysel bir özellik olduğundan, işlem başına maksimum tutar 0.5 BTC ile sınırlandırılmıştır.</string>
     <!--Manage Accounts-->
     <string name="ManageAccounts_Title">Cüzdanları yönet</string>
     <string name="ManageAccounts_CreateNewWallet">Oluştur</string>
@@ -853,7 +853,7 @@
     <string name="RecoveryPhrase_Description">Bu kelimeleri doğru sırayla yazın ve güvenli bir yerde saklayın</string>
     <string name="RecoveryPhrase_ShowPhrase">Kurtarma ifadesini göstermek için dokunun</string>
     <string name="RecoveryPhrase_Verify">Doğrula</string>
-    <string name="RecoveryPhrase_Warning">Kurtarma ifadenizi asla kimseyle paylaşmayın. Unstoppable ekip asla kurtarma ifadenizi istemez.</string>
+    <string name="RecoveryPhrase_Warning">Kurtarma ifadenizi asla kimseyle paylaşmayın. SafeWallet ekip asla kurtarma ifadenizi istemez.</string>
     <string name="RecoveryPhrase_CopyWarning_Title">Kopyalama Riski</string>
     <!-- Evm Private Key -->
     <string name="EvmPrivateKey_Title">EVM Özel anahtar</string>
@@ -1070,8 +1070,8 @@
     <string name="CoinPage_DetailsTxVolume_Description">The aggregate token transaction volume is recorded on-chain. The volume is measured in the actual tokens (not USD).</string>
     <string name="CoinPage_DetailsActiveAddresses">Active Addresses</string>
     <string name="CoinPage_DetailsActiveAddresses_Description">The number of unique wallet addresses involved in transactions over various periods.</string>
-    <string name="CoinPage_NftBannerTitle">Unstoppable NFT</string>
-    <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding Unstoppable NFTs.</string>
+    <string name="CoinPage_NftBannerTitle">SafeWallet NFT</string>
+    <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding SafeWallet NFTs.</string>
     <string name="CoinPage_CoinNotFound">[%s]\nNot found</string>
     <string name="Nfts_Title">NFT\'ler</string>
     <string name="Nfts_PriceType_Days_7">Ortalama 7G</string>
@@ -1155,7 +1155,7 @@
     <string name="ReleaseNotes_FollowUs">Bizi Takip Et</string>
     <string name="CoinPage_Chart_Locked">Locked</string>
     <string name="ProUsersInfo_Title">Pro Users</string>
-    <string name="ProUsersInfo_UnstoppablePass">Unstoppable Pass</string>
+    <string name="ProUsersInfo_UnstoppablePass">SafeWallet Pass</string>
     <string name="ProUsersInfo_SubTitle">Additional Token Info</string>
     <string name="ProUsersInfo_Description">To enable this data you should get bronze level UW NFTs “Coin Info+”\n\nAlso you get access to data below:</string>
     <string name="ProUsersInfo_Features_DexVolume">DEX Volume and Rank</string>
@@ -1175,8 +1175,8 @@
     <string name="Alert_KeysInvalidatedTitle">Android anahtar deposu hatası</string>
     <string name="Alert_KeysInvalidatedDescription">Android cihazınızın kilidi değiştirildiğinden cüzdan bilginizi tutan şifreli dosya artık geçersiz</string>
     <string name="Alert_TitleWarning">Uyarı</string>
-    <string name="Alert_CustomKeyboardIsUsed">Cihazınız varsayılan olmayan bir klavye kullanıyor gibi görünüyor. Unstoppable, üçüncü taraf klavyelerin kullanıcıların girdiği verileri toplayıp paylaşabileceği ihtimali nedeniyle, cihazınızda varsayılan klavyeyi seçmenizi önerir.\n\nTercih ettiğiniz klavyeyi kullanmaya devam etmek istiyorsanız \'Atla\' butonuna tıklayın.</string>
-    <string name="Alert_DeviceIsRootedWarning">Unstoppable ekibi, uygulamanın yalnızca root olmayan (jailbreak yapılmamış) telefonlarda çalıştırılmasını önerir.\n\nKöklü bir cihaz kullandığınızda, uygulamanın artık kripto para biriminizin kötü amaçlı yazılımlara karşı güvenliğini garanti edemeyeceğini lütfen unutmayın.</string>
+    <string name="Alert_CustomKeyboardIsUsed">Cihazınız varsayılan olmayan bir klavye kullanıyor gibi görünüyor. SafeWallet, üçüncü taraf klavyelerin kullanıcıların girdiği verileri toplayıp paylaşabileceği ihtimali nedeniyle, cihazınızda varsayılan klavyeyi seçmenizi önerir.\n\nTercih ettiğiniz klavyeyi kullanmaya devam etmek istiyorsanız \'Atla\' butonuna tıklayın.</string>
+    <string name="Alert_DeviceIsRootedWarning">SafeWallet ekibi, uygulamanın yalnızca root olmayan (jailbreak yapılmamış) telefonlarda çalıştırılmasını önerir.\n\nKöklü bir cihaz kullandığınızda, uygulamanın artık kripto para biriminizin kötü amaçlı yazılımlara karşı güvenliğini garanti edemeyeceğini lütfen unutmayın.</string>
     <!--OS Pin-->
     <string name="OSPin_Confirm_Title">Telefon PİN\'i</string>
     <string name="OSPin_Confirm_Desciption">Bu uygulamayı kullanabilmeniz için telefonun Ekran Kilidi (Şifre/PİN) etkinleştirilmeli.\n\nAndroid Ayarlarından etkinleştirebilirsiniz.\n\nŞifreyi kaldırdığınızda, kullanılmakta olan güvenli bilgi deposu sistem tarafından kaldırılır. Cüzdanlarınızı gizli anahtar ile geri yüklemeniz gerekecek.</string>

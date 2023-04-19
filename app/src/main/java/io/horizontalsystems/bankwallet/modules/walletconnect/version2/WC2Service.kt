@@ -155,7 +155,7 @@ class WC2Service : WalletConnectClient.WalletDelegate {
             sessionTopic = topic,
             jsonRpcResponse = WalletConnect.Model.JsonRpcResponse.JsonRpcError(
                 requestId,
-                WalletConnect.Model.JsonRpcResponse.Error(500, "Unstoppable Wallet Error")
+                WalletConnect.Model.JsonRpcResponse.Error(500, "SafeWallet Error")
             )
         )
 

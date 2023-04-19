@@ -97,7 +97,6 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        Log.e("longwen", "uid: ${token.coin.uid}")
                                         if (token.coin.uid == "safe-coin" || token.coin.uid == ("custom_safe-erc20-SAFE") || token.coin.uid == ("custom_safe-bep20-SAFE")) {
                                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                                 contentDescription = null,

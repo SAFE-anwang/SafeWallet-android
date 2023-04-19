@@ -271,7 +271,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         is AccountType.EvmPrivateKey -> {
             this == BlockchainType.Ethereum
                     || this == BlockchainType.BinanceSmartChain
-                    || this == BlockchainType.Polygon
+//                    || this == BlockchainType.Polygon
                     || this == BlockchainType.Avalanche
                     || this == BlockchainType.Optimism
                     || this == BlockchainType.ArbitrumOne

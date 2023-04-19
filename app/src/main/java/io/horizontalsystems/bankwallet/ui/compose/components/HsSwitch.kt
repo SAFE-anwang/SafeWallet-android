@@ -23,7 +23,7 @@ fun HsSwitch(
             checkedThumbColor = ComposeAppTheme.colors.white,
             uncheckedThumbColor = ComposeAppTheme.colors.lightGrey,
             checkedTrackColor = ComposeAppTheme.colors.yellowD,
-            uncheckedTrackColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.raina else ComposeAppTheme.colors.elenaD,
+            uncheckedTrackColor = ComposeAppTheme.colors.elenaD,
             checkedTrackAlpha = 1f,
             uncheckedTrackAlpha = 0.2f,
         ),

@@ -359,15 +359,19 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 
 		@Override
 		public void onServiceConnected(int profile, BluetoothProfile proxy) {
-			for (BluetoothDevice device : proxy.getConnectedDevices()) {
-				if (proxy.getConnectionState(device) != BluetoothProfile.STATE_CONNECTED) {
-					continue;
+			try {
+				for (BluetoothDevice device : proxy.getConnectedDevices()) {
+					if (proxy.getConnectionState(device) != BluetoothProfile.STATE_CONNECTED) {
+						continue;
+					}
+					currentBluetoothDeviceName = device.getName();
+					break;
 				}
-				currentBluetoothDeviceName = device.getName();
-				break;
+				BluetoothAdapter.getDefaultAdapter().closeProfileProxy(profile, proxy);
+				fetchingBluetoothDeviceName = false;
+			} catch (Exception e) {
+
 			}
-			BluetoothAdapter.getDefaultAdapter().closeProfileProxy(profile, proxy);
-			fetchingBluetoothDeviceName = false;
 		}
 	};
 

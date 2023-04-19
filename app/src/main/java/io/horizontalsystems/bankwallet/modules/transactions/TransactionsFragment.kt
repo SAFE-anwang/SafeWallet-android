@@ -84,6 +84,7 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
     val viewState by viewModel.viewState.observeAsState()
     val syncing by viewModel.syncingLiveData.observeAsState(false)
     val filterResetEnabled by viewModel.filterResetEnabled.collectAsState()
+    val filterZeroTransactions by viewModel.filterZeroTransactionLiveData.observeAsState()
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
@@ -102,6 +103,18 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
                     }
                 },
                 menuItems = listOf(
+/*
+                    MenuItem(
+                        title = TranslatableString.ResString(if (isHideZeroTransaction == true) {
+                            R.string.Transaction_Show_Zero_Incoming_Transaction
+                        } else {
+                            R.string.Transaction_Hide_Zero_Incoming_Transaction
+                        }),
+                        enabled = true,
+                        onClick = {
+                            viewModel.setFilterZeroIncomingTransaction()
+                        }
+                    ),*/
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Reset),
                         enabled = filterResetEnabled,
@@ -120,6 +133,7 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
             filterBlockchains?.let { filterBlockchains ->
                 CellHeaderSorting(borderBottom = true) {
                     var showFilterBlockchainDialog by remember { mutableStateOf(false) }
+                    var showFilterTransaction by remember { mutableStateOf(false) }
                     if (showFilterBlockchainDialog) {
                         SelectorDialogCompose(
                             title = stringResource(R.string.Transactions_Filter_Blockchain),
@@ -133,7 +147,23 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
                         )
                     }
 
+                    if (showFilterTransaction) {
+                        filterZeroTransactions?.let { filterZeroTransactions ->
+                            SelectorDialogCompose(
+                                title = stringResource(R.string.Zero_Transactions_Filter),
+                                items = filterZeroTransactions.map {
+                                    TabItem(it.item, it.selected, it)
+                                },
+                                onDismissRequest = {
+                                    showFilterTransaction = false
+                                },
+                                onSelectItem = viewModel::setFilterZeroIncomingTransaction
+                            )
+                        }
+                    }
+
                     val filterBlockchain = filterBlockchains.firstOrNull { it.selected }?.item
+                    val filterZeroTransaction = filterZeroTransactions?.firstOrNull { it.selected }?.item
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -144,6 +174,14 @@ private fun TransactionsScreen(viewModel: TransactionsViewModel, navController: 
                             iconRight = R.drawable.ic_down_arrow_20,
                             onClick = {
                                 showFilterBlockchainDialog = true
+                            }
+                        )
+
+                        ButtonSecondaryTransparent(
+                            title = filterZeroTransaction ?: stringResource(R.string.Transaction_Non_Zero_Transaction),
+                            iconRight = R.drawable.ic_down_arrow_20,
+                            onClick = {
+                                showFilterTransaction = true
                             }
                         )
 
@@ -244,7 +282,10 @@ fun TransactionList(
 ) {
     val bottomReachedUid = getBottomReachedUid(transactionsMap)
 
-    LazyColumn(state = listState) {
+    LazyColumn(state = listState,
+        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ComposeAppTheme.colors.lawrence)) {
         transactionsMap.forEach { (dateHeader, transactions) ->
             stickyHeader {
                 DateHeader(dateHeader)
@@ -277,7 +318,7 @@ private fun getBottomReachedUid(transactionsMap: Map<String, List<TransactionVie
 
 @Composable
 fun DateHeader(dateHeader: String) {
-    HeaderSorting(borderTop = false, borderBottom = true) {
+    HeaderSorting(borderTop = false, borderBottom = true, isModifyBg = true) {
         subhead1_grey(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = dateHeader,

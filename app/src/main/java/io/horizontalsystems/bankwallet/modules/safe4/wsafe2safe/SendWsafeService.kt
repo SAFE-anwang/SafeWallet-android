@@ -38,6 +38,8 @@ class SendWsafeService(
     private var addressData: AddressData? = null
     private var toSafeAddr: Address? = null
 
+    var addressEnable: Boolean = false
+
     private val amountCautionSubject = PublishSubject.create<AmountCaution>()
     private var amountCaution: AmountCaution = AmountCaution()
         set(value) {
@@ -51,7 +53,7 @@ class SendWsafeService(
         val amountError = this.amountCaution.error
         val evmAmount = this.evmAmount
         val addressData = this.addressData
-        state = if (amountError == null && evmAmount != null && addressData != null) {
+        state = if (addressEnable && amountError == null && evmAmount != null && addressData != null) {
             if(toSafeAddr != null){
                 val wsafeKit = WsafeKit.getInstance(adapter.evmKitWrapper.evmKit.chain)
                 val safeAddr = toSafeAddr!!.hex

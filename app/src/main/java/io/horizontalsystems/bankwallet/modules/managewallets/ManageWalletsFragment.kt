@@ -39,6 +39,7 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashC
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -50,7 +51,9 @@ import io.horizontalsystems.core.getNavigationResult
 
 class ManageWalletsFragment : BaseFragment() {
 
-    private val vmFactory by lazy { ManageWalletsModule.Factory() }
+    private val vmFactory by lazy { ManageWalletsModule.Factory(
+        arguments?.getParcelable(RestoreBlockchainsFragment.ACCOUNT_TYPE_KEY)!!
+    ) }
     private val viewModel by viewModels<ManageWalletsViewModel> { vmFactory }
     private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
@@ -221,7 +224,9 @@ private fun ManageWalletsScreen(
                     icon = R.drawable.ic_not_found
                 )
             } else {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ComposeAppTheme.colors.lawrence)) {
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         /*Divider(

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -142,7 +143,7 @@ class MetricsPageFragment : BaseFragment() {
                                         )
                                     }
                                     var i = 1
-                                    items(marketData.marketViewItems) { marketViewItem ->
+                                    itemsIndexed(marketData.marketViewItems, key = { _, item -> item.coinUid }) { index, marketViewItem ->
                                         MarketCoinClear(
                                             marketViewItem.fullCoin.coin.name,
                                             marketViewItem.fullCoin.coin.code,
@@ -151,6 +152,8 @@ class MetricsPageFragment : BaseFragment() {
                                             marketViewItem.coinRate,
                                             marketViewItem.marketDataValue,
                                             marketViewItem.rank,
+                                            isTop = index == 0,
+                                            isBottom = index == marketData.marketViewItems.size
                                         ) { onCoinClick(marketViewItem.fullCoin.coin.uid) }
                                     }
                                 }

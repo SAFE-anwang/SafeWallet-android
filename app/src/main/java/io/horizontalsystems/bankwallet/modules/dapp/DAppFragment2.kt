@@ -101,7 +101,9 @@ fun DAppFragment2(
                 }
                 ViewState.Success -> {
                     viewItems?.let { viewItem ->
-                        LazyColumn(modifier = Modifier.fillMaxSize().padding(vertical = 40.dp)) {
+                        LazyColumn(modifier = Modifier.wrapContentHeight().padding(vertical = 45.dp, horizontal = 16.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(ComposeAppTheme.colors.lawrence)) {
                             viewItem.keys.forEachIndexed { index, s ->
                                 item {
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -196,6 +198,8 @@ fun CellItems(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+//            .padding(16.dp)
+//            .background(ComposeAppTheme.colors.lawrence)
             .then(clickableModifier)
     ) {
         Row(
@@ -225,15 +229,27 @@ fun CellItems(
                 )
                 Spacer(modifier = Modifier.height(3.dp))
 
-                val desc = if (App.languageManager.currentLanguageName.contains("中文"))
+                var desc = if (App.languageManager.currentLanguageName.contains("中文"))
                     dappItem.desc else dappItem.descEN
-                Text(
-                    modifier = Modifier
-                        .padding(start = 12.dp, bottom = 12.dp),
-                    text = desc,
-                    style = ComposeAppTheme.typography.caption,
-                    color = ComposeAppTheme.colors.grey
-                )
+                if (desc == null) {
+                    if (dappItem.desc != null) {
+                        desc = dappItem.desc
+                    }
+                }
+                if (desc == null) {
+                    if (dappItem.descEN != null) {
+                        desc = dappItem.descEN
+                    }
+                }
+                desc?.let {
+                    Text(
+                        modifier = Modifier
+                            .padding(start = 12.dp, bottom = 12.dp),
+                        text = desc,
+                        style = ComposeAppTheme.typography.caption,
+                        color = ComposeAppTheme.colors.grey
+                    )
+                }
             }
 
         }

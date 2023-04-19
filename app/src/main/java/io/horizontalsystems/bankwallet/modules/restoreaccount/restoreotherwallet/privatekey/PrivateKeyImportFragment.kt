@@ -54,7 +54,7 @@ class PrivateKeyImportFragment: BaseFragment() {
         )
     }*/
 
-    private val viewModel by viewModels<PrivateKeyImportViewModel> { RestoreBlockchainsModule.Factory2() }
+    private val viewModel by viewModels<PrivateKeyImportViewModel> { RestoreBlockchainsModule.Factory2(arguments?.getParcelable(ACCOUNT_TYPE_KEY)) }
 //    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
 
     private var _binding: FragmentRestorePrivateKeyImportBinding? = null

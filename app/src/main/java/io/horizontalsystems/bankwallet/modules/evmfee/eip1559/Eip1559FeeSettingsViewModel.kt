@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.evmfee.eip1559
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Warning
@@ -15,6 +16,7 @@ import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.evmfee.*
 import io.horizontalsystems.ethereumkit.models.GasPrice
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.disposables.CompositeDisposable
 
 class Eip1559FeeSettingsViewModel(
@@ -85,7 +87,9 @@ class Eip1559FeeSettingsViewModel(
                 )
                 priorityFeeSliderViewItemLiveData.postValue(
                     SliderViewItem(
-                        initialWeiValue = gasPriceInfo.gasPrice.maxPriorityFeePerGas,
+                        // Polygon 最大矿工费用设置为两倍
+                        initialWeiValue = gasPriceInfo.gasPrice.maxPriorityFeePerGas
+                                + if(coinService.token.blockchainType is BlockchainType.Polygon) gasPriceInfo.gasPrice.maxPriorityFeePerGas else 0L,
                         weiRange = gasPriceService.priorityFeeRange
                             ?: gasPriceService.defaultPriorityFeeRange,
                         stepSize = EvmFeeModule.stepSize(
