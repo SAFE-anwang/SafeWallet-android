@@ -52,7 +52,7 @@ import io.horizontalsystems.core.getNavigationResult
 class ManageWalletsFragment : BaseFragment() {
 
     private val vmFactory by lazy { ManageWalletsModule.Factory(
-        arguments?.getParcelable(RestoreBlockchainsFragment.ACCOUNT_TYPE_KEY)!!
+        arguments?.getParcelable(RestoreBlockchainsFragment.ACCOUNT_TYPE_KEY)
     ) }
     private val viewModel by viewModels<ManageWalletsViewModel> { vmFactory }
     private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
