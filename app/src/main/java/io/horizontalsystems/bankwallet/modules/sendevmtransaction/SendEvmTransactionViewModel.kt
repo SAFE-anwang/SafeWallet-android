@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 import androidx.annotation.ColorRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.EvmError
@@ -40,7 +41,8 @@ class SendEvmTransactionViewModel(
     private val service: ISendEvmTransactionService,
     private val coinServiceFactory: EvmCoinServiceFactory,
     private val cautionViewItemFactory: CautionViewItemFactory,
-    private val evmLabelManager: EvmLabelManager
+    private val evmLabelManager: EvmLabelManager,
+    private val isAddLiquidity: Boolean = false
 ) : ViewModel() {
     private val disposable = CompositeDisposable()
 
@@ -686,6 +688,7 @@ class SendEvmTransactionViewModel(
         dAppName: String?
     ): List<SectionViewItem> {
         val toValue = transactionData.to.eip55
+        Log.e("longwen", "getUnknownMethodItems=${coinServiceFactory.baseCoinService.token}")
 
         val viewItems = mutableListOf(
             getAmount(
@@ -732,6 +735,7 @@ class SendEvmTransactionViewModel(
     private fun getSendBaseCoinItems(to: Address, value: BigInteger, sendInfo: SendEvmData.SendInfo?): List<SectionViewItem> {
         val toValue = to.eip55
         val baseCoinService = coinServiceFactory.baseCoinService
+        Log.e("longwen", "baseCoinService=$baseCoinService")
 
         return listOf(SectionViewItem(
             listOf(

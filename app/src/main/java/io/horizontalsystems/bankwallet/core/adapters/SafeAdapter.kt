@@ -15,6 +15,7 @@ import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.net.SafeNetWork
+import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
@@ -165,7 +166,8 @@ class SafeAdapter(
 
     fun fallbackBlock(year: Int, month: Int) {
         lastBlockInfo?.let {
-            kit.fallbackBlockDate = "$year${if(month <10) "0" else ""}$month"
+            val date = "$year${if(month <10) "0" else ""}$month"
+            kit.fallbackBlockDate = date
             val calendar = Calendar.getInstance()
             calendar.clear()
             calendar.set(Calendar.YEAR, year)
@@ -173,7 +175,8 @@ class SafeAdapter(
             calendar.set(Calendar.DAY_OF_MONTH, 1)
             kit.bitcoinCore.stop2()
             kit.bitcoinCore.stopDownload()
-            val blocksList = kit.bitcoinCore.storage.getBlocksForTime(calendar.time.time/1000)
+            val checkpoint = Checkpoint("${kit.networkName}_${date}.checkpoint")
+            val blocksList = kit.bitcoinCore.storage.getBlocksChunk(checkpoint.block.height)
             if (blocksList.isNotEmpty()) {
                 kit.bitcoinCore.storage.deleteBlocks(blocksList)
             }

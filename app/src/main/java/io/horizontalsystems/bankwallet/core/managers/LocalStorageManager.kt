@@ -63,6 +63,7 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
     private val CHANGELOG_SHOWN_FOR_APP_VERSION = "changelog_shown_for_app_version"
     private val IGNORE_ROOTED_DEVICE_WARNING = "ignore_rooted_device_warning"
     private val SWAP_PROVIDER = "swap_provider_"
+    private val LIQUIDITY_PROVIDER = "liquidity_provider_"
     private val LAUNCH_PAGE = "launch_page"
     private val APP_ICON = "app_icon"
     private val MAIN_TAB = "main_tab"
@@ -433,8 +434,20 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
         preferences.edit().putString(getSwapProviderKey(blockchainType), providerId).apply()
     }
 
+    override fun getLiquidityProviderId(blockchainType: BlockchainType): String? {
+        return preferences.getString(getLiquidityProviderKey(blockchainType), null)
+    }
+
+    override fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String) {
+        preferences.edit().putString(getLiquidityProviderKey(blockchainType), providerId).apply()
+    }
+
     private fun getSwapProviderKey(blockchainType: BlockchainType): String {
         return SWAP_PROVIDER + blockchainType.uid
+    }
+
+    private fun getLiquidityProviderKey(blockchainType: BlockchainType): String {
+        return LIQUIDITY_PROVIDER + blockchainType.uid
     }
 
 }

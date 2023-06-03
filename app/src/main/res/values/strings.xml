@@ -1610,4 +1610,6 @@
     <string name="Transaction_Non_Zero_Transaction">Non zero transactions</string>
     <string name="Transaction_All_Transaction">All transactions</string>
     <string name="Zero_Transactions_Filter">Filter by Transactions</string>
+    <string name="liquidity_setting_price_min">Min price</string>
+    <string name="liquidity_setting_price_max">Max price</string>
 </resources>

@@ -96,6 +96,9 @@ interface ILocalStorage {
     fun getSwapProviderId(blockchainType: BlockchainType): String?
     fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
 
+    fun getLiquidityProviderId(blockchainType: BlockchainType): String?
+    fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String)
+
     fun clear()
 }
 

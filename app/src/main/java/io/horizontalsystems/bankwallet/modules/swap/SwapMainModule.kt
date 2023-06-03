@@ -12,10 +12,8 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
-import io.horizontalsystems.bankwallet.modules.swap.coincard.ISwapCoinCardService
-import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapCoinCardViewModel
-import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapFromCoinCardService
-import io.horizontalsystems.bankwallet.modules.swap.coincard.SwapToCoinCardService
+import io.horizontalsystems.bankwallet.modules.swap.coincard.*
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.uniswap.UniswapLiquidityFragment
 import io.horizontalsystems.bankwallet.modules.swap.oneinch.OneInchFragment
 import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapFragment
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -32,8 +30,9 @@ object SwapMainModule {
     const val coinCardTypeTo = "coinCardTypeTo"
 
     private const val tokenFromKey = "tokenFromKey"
+    const val isAddLiquidityKey = "isAddLiquidityKey"
 
-    fun prepareParams(tokenFrom: Token) = bundleOf(tokenFromKey to tokenFrom)
+    fun prepareParams(tokenFrom: Token, isAddLiquidity: Boolean = false) = bundleOf(tokenFromKey to tokenFrom, isAddLiquidityKey to isAddLiquidity)
 
     interface ISwapProvider : Parcelable {
         val id: String
@@ -118,6 +117,33 @@ object SwapMainModule {
     }
 
     @Parcelize
+    object UniswapLiquidityProvider : ISwapProvider {
+        override val id = "uniswap"
+        override val title = "Uniswap"
+        override val url = "https://uniswap.org/"
+        override val fragment: SwapBaseFragment
+            get() = UniswapLiquidityFragment()
+
+        override fun supports(blockchainType: BlockchainType): Boolean {
+            return blockchainType == BlockchainType.Ethereum
+        }
+    }
+
+    @Parcelize
+    object PancakeLiquidityProvider : ISwapProvider {
+        override val id = "pancake"
+        override val title = "PancakeSwap"
+        override val url = "https://pancakeswap.finance/"
+        override val fragment: SwapBaseFragment
+            get() = UniswapLiquidityFragment()
+
+        override fun supports(blockchainType: BlockchainType): Boolean {
+            return blockchainType == BlockchainType.BinanceSmartChain
+        }
+    }
+
+
+    @Parcelize
     class Dex(val blockchain: Blockchain, val provider: ISwapProvider) : Parcelable {
         val blockchainType get() = blockchain.type
     }
@@ -170,6 +196,7 @@ object SwapMainModule {
         object InsufficientBalanceFrom : SwapError()
         object InsufficientAllowance : SwapError()
         object RevokeAllowanceRequired : SwapError()
+        object InsufficientBalance : SwapError()
     }
 
     @Parcelize
@@ -194,8 +221,21 @@ object SwapMainModule {
 
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
         private val tokenFrom: Token? = arguments.getParcelable(tokenFromKey)
-        private val swapProviders: List<ISwapProvider> =
-            listOf(UniswapProvider, PancakeSwapProvider, OneInchProvider, QuickSwapProvider, SafeSwapProvider)
+        private val isAddLiquidity: Boolean = arguments.getBoolean(isAddLiquidityKey) ?: false
+        private val swapProviders: List<ISwapProvider> = if (isAddLiquidity) {
+            listOf(
+                UniswapLiquidityProvider,
+                PancakeLiquidityProvider
+            )
+        } else {
+            listOf(
+                UniswapProvider,
+                PancakeSwapProvider,
+                OneInchProvider,
+                QuickSwapProvider,
+                SafeSwapProvider
+            )
+        }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -206,7 +246,8 @@ object SwapMainModule {
                         SwapMainService(
                             tokenFrom,
                             swapProviders,
-                            App.localStorage
+                            App.localStorage,
+                            isAddLiquidity
                         )
                     ) as T
                 }
@@ -257,6 +298,62 @@ object SwapMainModule {
                     }
                     val formatter = SwapViewItemHelper(App.numberFormatter)
                     SwapCoinCardViewModel(
+                        coinCardService,
+                        fiatService,
+                        switchService,
+                        maxButtonEnabled,
+                        formatter,
+                        resetAmountOnCoinSelect,
+                        dex
+                    ) as T
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+
+    }
+
+    class LiquidityCardViewModelFactory(
+        owner: SavedStateRegistryOwner,
+        private val dex: Dex,
+        private val service: ISwapService,
+        private val tradeService: ISwapTradeService
+    ) : AbstractSavedStateViewModelFactory(owner, null) {
+        private val switchService by lazy {
+            AmountTypeSwitchService()
+        }
+        private val fromCoinCardService by lazy {
+            SwapFromCoinCardService(service, tradeService)
+        }
+        private val toCoinCardService by lazy {
+            SwapToCoinCardService(service, tradeService)
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(
+            key: String,
+            modelClass: Class<T>,
+            handle: SavedStateHandle
+        ): T {
+            return when (modelClass) {
+                LiquidityCoinCardViewModel::class.java -> {
+                    val fiatService = FiatService(switchService, App.currencyManager, App.marketKit)
+                    val coinCardService: ISwapCoinCardService
+                    var maxButtonEnabled = false
+                    val resetAmountOnCoinSelect: Boolean
+
+                    if (key == coinCardTypeFrom) {
+                        coinCardService = fromCoinCardService
+                        switchService.fromListener = fiatService
+                        maxButtonEnabled = true
+                        resetAmountOnCoinSelect = true
+                    } else {
+                        coinCardService = toCoinCardService
+                        switchService.toListener = fiatService
+                        resetAmountOnCoinSelect = false
+                    }
+                    val formatter = SwapViewItemHelper(App.numberFormatter)
+                    LiquidityCoinCardViewModel(
                         coinCardService,
                         fiatService,
                         switchService,

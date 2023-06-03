@@ -188,11 +188,24 @@
         android:label="@string/Swap"
         tools:layout="@layout/fragment_swap"/>
     <fragment
+        android:id="@+id/addLiquidityFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainFragment"
+        android:label="@string/Swap"
+        tools:layout="@layout/fragment_swap"/>
+    <fragment
+        android:id="@+id/liquidityFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityFragment"
+        android:label="@string/Swap"
+        tools:layout="@layout/fragment_swap"/>
+    <fragment
         android:id="@+id/swapApproveFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveFragment" />
     <fragment
         android:id="@+id/uniswapConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment"/>
+    <fragment
+        android:id="@+id/liquidityConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation.uniswap.UniswapLiquidityConfirmationFragment"/>
     <fragment
         android:id="@+id/oneInchConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment"/>

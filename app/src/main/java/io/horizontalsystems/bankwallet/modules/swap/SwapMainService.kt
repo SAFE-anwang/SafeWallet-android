@@ -9,7 +9,8 @@ import io.reactivex.subjects.PublishSubject
 class SwapMainService(
     tokenFrom: Token?,
     private val providers: List<SwapMainModule.ISwapProvider>,
-    private val localStorage: ILocalStorage
+    private val localStorage: ILocalStorage,
+    val isAddLiquidity: Boolean
 ) {
     var dex: SwapMainModule.Dex = getDex(tokenFrom)
         private set
@@ -27,8 +28,11 @@ class SwapMainService(
         if (dex.provider.id != provider.id) {
             dex = SwapMainModule.Dex(dex.blockchain, provider)
             providerObservable.onNext(provider)
-
-            localStorage.setSwapProviderId(dex.blockchainType, provider.id)
+            if (isAddLiquidity) {
+                localStorage.setLiquidityProviderId(dex.blockchainType, provider.id)
+            } else {
+                localStorage.setSwapProviderId(dex.blockchainType, provider.id)
+            }
         }
     }
 
@@ -41,8 +45,9 @@ class SwapMainService(
 
     private fun getDex(tokenFrom: Token?): SwapMainModule.Dex {
         val blockchain = getBlockchainForToken(tokenFrom)
-        val provider = getSwapProvider(blockchain.type)
-            ?: throw IllegalStateException("No provider found for ${blockchain}")
+        val provider = if (isAddLiquidity) getLiquidityProvider(blockchain.type) else getSwapProvider(blockchain.type)
+
+        provider ?: throw IllegalStateException("No provider found for ${blockchain}")
 
         return SwapMainModule.Dex(blockchain, provider)
     }
@@ -50,6 +55,13 @@ class SwapMainService(
     private fun getSwapProvider(blockchainType: BlockchainType): SwapMainModule.ISwapProvider? {
         val providerId = localStorage.getSwapProviderId(blockchainType)
             ?: SwapMainModule.OneInchProvider.id
+
+        return providers.firstOrNull { it.id == providerId }
+    }
+
+    private fun getLiquidityProvider(blockchainType: BlockchainType): SwapMainModule.ISwapProvider? {
+        val providerId = localStorage.getLiquidityProviderId(blockchainType)
+            ?: SwapMainModule.PancakeLiquidityProvider.id
 
         return providers.firstOrNull { it.id == providerId }
     }

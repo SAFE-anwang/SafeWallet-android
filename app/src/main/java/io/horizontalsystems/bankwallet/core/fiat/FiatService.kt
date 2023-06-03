@@ -103,7 +103,6 @@ class FiatService(
             }
             AmountType.Currency -> {
                 val currencyAmount = currencyAmount ?: return null
-
                 val primary = CurrencyValue(currency, currencyAmount)
                 val secondary = CoinValue(token, coinAmount)
                 FullAmountInfo(

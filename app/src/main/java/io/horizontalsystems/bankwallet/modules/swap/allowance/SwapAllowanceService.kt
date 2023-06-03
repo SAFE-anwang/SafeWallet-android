@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.swap.allowance
 
 import android.os.Parcelable
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.entities.CoinValue
@@ -106,6 +107,7 @@ class SwapAllowanceService(
         allowanceDisposable = adapter.allowance(spenderAddress, DefaultBlockParameter.Latest)
             .subscribeOn(Schedulers.io())
             .subscribe({ allowance ->
+                Log.e("longwen", "allowance=$allowance")
                 state = State.Ready(CoinValue(token, allowance))
             }, { error ->
                 state = State.NotReady(error)

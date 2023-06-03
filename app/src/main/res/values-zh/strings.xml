@@ -1428,4 +1428,6 @@
     <string name="Transaction_Non_Zero_Transaction">非零交易</string>
     <string name="Transaction_All_Transaction">所有交易</string>
     <string name="Zero_Transactions_Filter">过滤交易</string>
+    <string name="liquidity_setting_price_min">最小价格</string>
+    <string name="liquidity_setting_price_max">最大价格</string>
 </resources>

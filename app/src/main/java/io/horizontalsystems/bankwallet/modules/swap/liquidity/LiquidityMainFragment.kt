@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.swap
+package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,17 +18,19 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.databinding.FragmentSwapBinding
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ISwapProvider
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSwapProviderSelectDialog
 import io.horizontalsystems.core.findNavController
 
-class SwapMainFragment : BaseFragment() {
+class LiquidityMainFragment : BaseFragment() {
 
     private val vmFactory by lazy { SwapMainModule.Factory(requireArguments()) }
-    private val mainViewModel by navGraphViewModels<SwapMainViewModel>(R.id.swapFragment) { vmFactory }
+    private val mainViewModel by navGraphViewModels<SwapMainViewModel>(R.id.addLiquidityFragment) { vmFactory }
 
     private var _binding: FragmentSwapBinding? = null
     private val binding get() = _binding!!
@@ -62,11 +64,6 @@ class SwapMainFragment : BaseFragment() {
                 else -> false
             }
         }
-        requireArguments()?.getBoolean(SwapMainModule.isAddLiquidityKey)?.let {
-            if (it) {
-                binding.toolbar.title = getString(R.string.liquidity_add_title)
-            }
-        }
 
         setProviderView(mainViewModel.provider)
 
@@ -78,9 +75,9 @@ class SwapMainFragment : BaseFragment() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
         )
 
-        val filter = IntentFilter()
+        /*val filter = IntentFilter()
         filter.addAction("com.anwang.safe.switchSwap")
-        requireActivity()?.registerReceiver(receiver, filter)
+        requireActivity()?.registerReceiver(receiver, filter)*/
     }
 
     private fun setProviderView(provider: ISwapProvider) {
@@ -141,7 +138,7 @@ class SwapMainFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        requireActivity()?.unregisterReceiver(receiver)
+//        requireActivity()?.unregisterReceiver(receiver)
     }
 
     private val receiver = object : BroadcastReceiver() {

@@ -21,13 +21,14 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.uniswap.UniswapLiq
 import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.ethereumkit.models.TransactionLiquidityData
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
 
-data class SendEvmData(
-    val transactionData: TransactionData,
+data class SendLiquidityEvmData(
+    val transactionData: TransactionLiquidityData,
     val additionalInfo: AdditionalInfo? = null,
     val warnings: List<Warning> = listOf()
 ) {
@@ -112,14 +113,13 @@ data class SendEvmData(
     ) : Parcelable
 }
 
-object SendEvmModule {
+object SendLiquidityEvmModule {
 
     const val transactionDataKey = "transactionData"
     const val additionalInfoKey = "additionalInfo"
     const val blockchainTypeKey = "blockchainType"
     const val backButtonKey = "backButton"
     const val sendNavGraphIdKey = "sendNavGraphId_key"
-    const val transactionToken = "transactionToken"
 
     @Parcelize
     data class TransactionDataParcelable(
@@ -131,8 +131,7 @@ object SendEvmModule {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
-            transactionData.input,
-            transactionData.nonce
+            transactionData.input
         )
     }
 

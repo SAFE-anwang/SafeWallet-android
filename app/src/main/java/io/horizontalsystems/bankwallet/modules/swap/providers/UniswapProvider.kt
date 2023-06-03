@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.providers
 
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.ethereumkit.models.TransactionLiquidityData
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
@@ -42,6 +43,10 @@ class UniswapProvider(private val uniswapKit: UniswapKit) {
 
     fun transactionData(tradeData: TradeData): TransactionData {
         return uniswapKit.transactionData(tradeData)
+    }
+
+    fun transactionLiquidityData(tradeData: TradeData): TransactionData {
+        return uniswapKit.transactionLiquidityData(tradeData)
     }
 
     @Throws

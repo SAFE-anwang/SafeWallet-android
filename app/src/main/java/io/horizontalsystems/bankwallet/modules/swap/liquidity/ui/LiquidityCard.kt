@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.balance.ui
+package io.horizontalsystems.bankwallet.modules.swap.liquidity.ui
 
 import android.view.View
 import androidx.compose.animation.*
@@ -9,22 +9,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -35,24 +29,19 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
-import io.horizontalsystems.bankwallet.modules.send.SendFragment
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityViewItem
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityViewModel
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
-import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.DraggableCardSimple
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
-fun BalanceCardSwipable(
-    viewItem: BalanceViewItem,
-    viewModel: BalanceViewModel,
+fun LiquidityCardSwipable(
+    viewItem: LiquidityViewItem,
+    viewModel: LiquidityViewModel,
     navController: NavController,
     revealed: Boolean,
     onReveal: (Int) -> Unit,
@@ -63,40 +52,22 @@ fun BalanceCardSwipable(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        ActionsRow(
-            content = {
-                HsIconButton(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(88.dp),
-                    onClick = { viewModel.disable(viewItem) },
-                    content = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_circle_minus_24),
-                            tint = Color.Gray,
-                            contentDescription = "delete",
-                        )
-                    }
-                )
-            }
-        )
-
         DraggableCardSimple(
             isRevealed = revealed,
             cardOffset = 72f,
-            onReveal = { onReveal(viewItem.wallet.hashCode()) },
+            onReveal = { onReveal(viewItem.token.hashCode()) },
             onConceal = onConceal,
             content = {
-                BalanceCard(viewItem, viewModel, navController)
+                LiquidityCard(viewItem, viewModel, navController)
             }
         )
     }
 }
 
 @Composable
-fun BalanceCard(
-    viewItem: BalanceViewItem,
-    viewModel: BalanceViewModel,
+fun LiquidityCard(
+    viewItem: LiquidityViewItem,
+    viewModel: LiquidityViewModel,
     navController: NavController
 ) {
     Column(
@@ -134,7 +105,7 @@ fun BalanceCard(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                            if (!viewItem.badge.isNullOrBlank()) {
+                            /*if (!viewItem.badge.isNullOrBlank()) {
                                 Box(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
@@ -153,7 +124,7 @@ fun BalanceCard(
                                         maxLines = 1,
                                     )
                                 }
-                            }
+                            }*/
                         }
                         Spacer(Modifier.width(24.dp))
                         if (viewItem.primaryValue.visible) {
@@ -174,12 +145,12 @@ fun BalanceCard(
                         Box(
                             modifier = Modifier.weight(1f),
                         ) {
-                            if (viewItem.syncingTextValue.visible) {
+                            /*if (viewItem.syncingTextValue.visible) {
                                 subhead2_grey(
                                     text = viewItem.syncingTextValue.value ?: "",
                                     maxLines = 1,
                                 )
-                            }
+                            }*/
                             if (viewItem.exchangeValue.visible) {
                                 Row {
                                     Text(
@@ -188,25 +159,25 @@ fun BalanceCard(
                                         style = ComposeAppTheme.typography.subhead2,
                                         maxLines = 1,
                                     )
-                                    Text(
+                                    /*Text(
                                         modifier = Modifier.padding(start = 4.dp),
                                         text = RateText(viewItem.diff),
                                         color = RateColor(viewItem.diff),
                                         style = ComposeAppTheme.typography.subhead2,
                                         maxLines = 1,
-                                    )
+                                    )*/
                                 }
                             }
                         }
                         Box(
                             modifier = Modifier.padding(start = 16.dp),
                         ) {
-                            if (viewItem.syncedUntilTextValue.visible) {
+                            /*if (viewItem.syncedUntilTextValue.visible) {
                                 subhead2_grey(
                                     text = viewItem.syncedUntilTextValue.value ?: "",
                                     maxLines = 1,
                                 )
-                            }
+                            }*/
                             if (viewItem.secondaryValue.visible) {
                                 Text(
                                     text = viewItem.secondaryValue.value,
@@ -229,9 +200,9 @@ fun BalanceCard(
 
 @Composable
 private fun ExpandableContent(
-    viewItem: BalanceViewItem,
+    viewItem: LiquidityViewItem,
     navController: NavController,
-    viewModel: BalanceViewModel
+    viewModel: LiquidityViewModel
 ) {
     AnimatedVisibility(
         visible = viewItem.expanded,
@@ -239,7 +210,6 @@ private fun ExpandableContent(
         exit = shrinkVertically() + fadeOut()
     ) {
         Column {
-            LockedValueRow(viewItem)
             Divider(
                 modifier = Modifier.padding(horizontal = 14.dp),
                 thickness = 1.dp,
@@ -251,13 +221,13 @@ private fun ExpandableContent(
 }
 
 @Composable
-private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, viewModel: BalanceViewModel) {
+private fun ButtonsRow(viewItem: LiquidityViewItem, navController: NavController, viewModel: LiquidityViewModel) {
     val onClickReceive = {
         try {
-            navController.slideFromBottom(
+            /*navController.slideFromBottom(
                 R.id.receiveFragment,
                 bundleOf(ReceiveFragment.WALLET_KEY to viewModel.getWalletForReceive(viewItem))
-            )
+            )*/
         } catch (e: BackupRequiredError) {
             navController.slideFromBottom(
                 R.id.backupRequiredDialog,
@@ -272,73 +242,37 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             .height(70.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (viewItem.isWatchAccount) {
-            ButtonPrimaryDefault(
-                modifier = Modifier.weight(1f),
-                title = stringResource(R.string.Balance_Address),
-                onClick = onClickReceive,
-            )
-        } else {
-            ButtonPrimaryYellow(
-                modifier = Modifier.weight(1f),
-                title = stringResource(R.string.Balance_Send),
-                onClick = {
-                    if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
-                        navController.slideFromBottom(
-                            R.id.sendSafeFragment,
-                            SendFragment.prepareParams(viewItem.wallet)
-                        )
-                    } else {
-                        navController.slideFromBottom(
-                            R.id.sendXFragment,
-                            SendFragment.prepareParams(viewItem.wallet)
-                        )
-                    }
-                },
-                enabled = viewItem.sendEnabled
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            if (viewItem.swapVisible) {
-                ButtonPrimaryCircle(
-                    icon = R.drawable.ic_arrow_down_left_24,
-                    onClick = onClickReceive,
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ButtonPrimaryCircle(
-                    icon = R.drawable.ic_swap_24,
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.swapFragment,
-                            SwapMainModule.prepareParams(viewItem.wallet.token)
-                        )
-                    },
-                    enabled = viewItem.swapEnabled
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ButtonPrimaryCircle(
-                    icon = R.drawable.icon_link_20,
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.liquidityFragment,
-                            LiquidityModule.prepareParams(viewItem.wallet.token)
-                        )
-                    },
-                    enabled = viewItem.swapEnabled
-                )
-            } else {
-                ButtonPrimaryDefaultBlue(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.Balance_Receive),
-                    onClick = onClickReceive,
-                )
-            }
-        }
+        /*ButtonPrimaryYellow(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.Balance_Send),
+            onClick = {
+                if (viewItem.token.coin.uid == "safe-coin" && viewItem.token.blockchain.type is BlockchainType.Safe) {
+                    navController.slideFromBottom(
+                        R.id.sendSafeFragment,
+                        SendFragment.prepareParams(viewItem.wallet)
+                    )
+                } else {
+                    navController.slideFromBottom(
+                        R.id.sendXFragment,
+                        SendFragment.prepareParams(viewItem.wallet)
+                    )
+                }
+            },
+            enabled = viewItem.sendEnabled
+        )*/
+        Spacer(modifier = Modifier.width(8.dp))
+
+        ButtonPrimaryDefaultBlue(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.Balance_Receive),
+            onClick = onClickReceive,
+        )
+
         Spacer(modifier = Modifier.width(8.dp))
         ButtonPrimaryCircle(
             icon = R.drawable.ic_chart_24,
             onClick = {
-                val coinUid = if (viewItem.wallet.coin.uid == "custom_safe-erc20-SAFE"
-                    || viewItem.wallet.coin.uid == "custom_safe-bep20-SAFE") "safe-coin" else viewItem.wallet.coin.uid
+                val coinUid = viewItem.token.coin.uid
                 val arguments = CoinFragment.prepareParams(coinUid)
 
                 navController.slideFromRight(R.id.coinFragment, arguments)
@@ -348,53 +282,13 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
 }
 
 @Composable
-private fun LockedValueRow(viewItem: BalanceViewItem) {
-    AnimatedVisibility(
-        visible = viewItem.coinValueLocked.visible,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        Divider(
-            modifier = Modifier.padding(horizontal = 14.dp),
-            thickness = 1.dp,
-            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
-        )
-        Row(
-            modifier = Modifier
-                .height(36.dp)
-                .padding(start = 16.dp, end = 17.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_lock_16),
-                contentDescription = "lock icon"
-            )
-            Text(
-                modifier = Modifier.padding(start = 6.dp),
-                text = viewItem.coinValueLocked.value,
-                color = if (viewItem.coinValueLocked.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
-                style = ComposeAppTheme.typography.subhead2,
-                maxLines = 1,
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = viewItem.fiatValueLocked.value,
-                color = if (viewItem.fiatValueLocked.dimmed) ComposeAppTheme.colors.yellow50 else ComposeAppTheme.colors.jacob,
-                style = ComposeAppTheme.typography.subhead2,
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, navController: NavController) {
+private fun WalletIcon(viewItem: LiquidityViewItem, viewModel: LiquidityViewModel, navController: NavController) {
     Box(
         modifier = Modifier
             .width(56.dp)
             .fillMaxHeight(),
     ) {
-        if (!viewItem.mainNet) {
+        /*if (!viewItem.mainNet) {
             Image(
                 modifier = Modifier.align(Alignment.TopCenter),
                 painter = painterResource(R.drawable.testnet),
@@ -417,8 +311,8 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
                     view.setProgressColored(progress, view.context.getColor(color))
                 }
             )
-        }
-        if (viewItem.failedIconVisible) {
+        }*/
+        /*if (viewItem.failedIconVisible) {
             val view = LocalView.current
             Image(
                 modifier = Modifier
@@ -431,7 +325,7 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
                 contentDescription = "coin icon",
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
-        } else {
+        } else {*/
             if (viewItem.coinCode == "SAFE") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
@@ -447,7 +341,7 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
                         .size(24.dp)
                 )
             }
-        }
+//        }
     }
 }
 
