@@ -37,7 +37,6 @@ data class BalanceViewItem(
     val badge: String?,
     val swapVisible: Boolean,
     val swapEnabled: Boolean = false,
-    val mainNet: Boolean,
     val errorMessage: String?,
     val isWatchAccount: Boolean
 )
@@ -105,6 +104,7 @@ class BalanceViewItemFactory {
     private fun getDefaultSyncingProgress(blockchainType: BlockchainType) = when (blockchainType) {
         BlockchainType.Bitcoin,
         BlockchainType.BitcoinCash,
+        BlockchainType.ECash,
         BlockchainType.Litecoin,
         BlockchainType.Dash,
         BlockchainType.Safe,
@@ -118,6 +118,7 @@ class BalanceViewItemFactory {
         BlockchainType.Optimism,
         BlockchainType.Solana,
         BlockchainType.Gnosis,
+        BlockchainType.Fantom,
         BlockchainType.ArbitrumOne -> 50
         BlockchainType.Solana -> 50
         is BlockchainType.Unsupported -> 0
@@ -259,7 +260,7 @@ class BalanceViewItemFactory {
                 currencySymbol = currency.symbol,
                 coinCode = coin.code,
                 coinTitle = coin.name,
-                coinIconUrl = coin.iconUrl,
+                coinIconUrl = coin.imageUrl,
                 coinIconPlaceholder = wallet.token.iconPlaceholder,
                 primaryValue = primaryValue,
                 secondaryValue = secondaryValue,
@@ -290,7 +291,6 @@ class BalanceViewItemFactory {
                 badge = wallet.badge,
                 swapVisible = wallet.token.swappable,
                 swapEnabled = state is AdapterState.Synced,
-                mainNet = item.mainNet,
                 errorMessage = (state as? AdapterState.NotSynced)?.error?.message,
                 isWatchAccount = watchAccount
         )

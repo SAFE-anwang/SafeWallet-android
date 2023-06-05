@@ -45,7 +45,7 @@ class CoinTokensViewModel(
         val imageSource = if (fullCoin.coin.uid == "safe-coin") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
-            ImageSource.Remote(fullCoin.coin.iconUrl, fullCoin.iconPlaceholder)
+            ImageSource.Remote(fullCoin.coin.imageUrl, fullCoin.iconPlaceholder)
         }
         val config = BottomSheetSelectorMultipleDialog.Config(
             icon = imageSource,

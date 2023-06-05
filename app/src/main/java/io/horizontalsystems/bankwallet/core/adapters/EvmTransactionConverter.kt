@@ -224,7 +224,6 @@ class EvmTransactionConverter(
             }
             tokenInfo != null -> {
                 TransactionValue.TokenValue(
-                    coinUid = "",
                     tokenName = tokenInfo.tokenName,
                     tokenCode = tokenInfo.tokenSymbol,
                     tokenDecimals = tokenInfo.tokenDecimal,

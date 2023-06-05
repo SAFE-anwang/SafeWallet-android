@@ -8,7 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,10 +26,7 @@ import io.horizontalsystems.bankwallet.modules.markdown.MarkdownContent
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
 
@@ -70,8 +67,9 @@ fun ReleaseNotesScreen(
     viewModel: ReleaseNotesViewModel = viewModel(factory = ReleaseNotesModule.Factory())
 ) {
 
-    Surface(color = ComposeAppTheme.colors.tyler) {
-        Column {
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
             if (closeablePopup) {
                 AppBar(
                     menuItems = listOf(
@@ -85,17 +83,13 @@ fun ReleaseNotesScreen(
             } else {
                 AppBar(
                     navigationIcon = {
-                        HsIconButton(onClick = onCloseClick) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_back),
-                                contentDescription = "back button",
-                                tint = ComposeAppTheme.colors.jacob
-                            )
-                        }
+                        HsBackButton(onClick = onCloseClick)
                     }
                 )
             }
-
+        }
+    ) {
+        Column(Modifier.padding(it)) {
             MarkdownContent(
                 modifier = Modifier.weight(1f),
                 viewState = viewModel.viewState,
@@ -136,7 +130,6 @@ fun ReleaseNotesScreen(
                     text = stringResource(R.string.ReleaseNotes_FollowUs)
                 )
             }
-
         }
     }
 }

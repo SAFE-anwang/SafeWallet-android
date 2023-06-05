@@ -109,7 +109,6 @@ class BalanceService(
             val balanceItem = allBalanceItems[i]
 
             allBalanceItems[i] = balanceItem.copy(
-                mainNet = adapterRepository.isMainNet(balanceItem.wallet),
                 balanceData = adapterRepository.balanceData(balanceItem.wallet),
                 state = adapterRepository.state(balanceItem.wallet)
             )
@@ -158,7 +157,6 @@ class BalanceService(
         val balanceItems = wallets.map { wallet ->
             BalanceModule.BalanceItem(
                 wallet,
-                adapterRepository.isMainNet(wallet),
                 adapterRepository.balanceData(wallet),
                 adapterRepository.state(wallet),
                 latestRates[wallet.coin.uid]

@@ -16,7 +16,6 @@ import io.horizontalsystems.marketkit.models.TokenType
 
 class AdapterFactory(
     private val context: Context,
-    private val testMode: Boolean,
     private val btcBlockchainManager: BtcBlockchainManager,
     private val evmBlockchainManager: EvmBlockchainManager,
     private val evmSyncSourceManager: EvmSyncSourceManager,
@@ -56,26 +55,30 @@ class AdapterFactory(
         TokenType.Native -> when (wallet.token.blockchainType) {
             BlockchainType.Bitcoin -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Bitcoin, wallet.account.origin)
-                BitcoinAdapter(wallet, syncMode, testMode, backgroundManager)
+                BitcoinAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.BitcoinCash -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.BitcoinCash, wallet.account.origin)
-                BitcoinCashAdapter(wallet, syncMode, testMode, backgroundManager)
+                BitcoinCashAdapter(wallet, syncMode, backgroundManager)
+            }
+            BlockchainType.ECash -> {
+                val syncMode = btcBlockchainManager.syncMode(BlockchainType.ECash, wallet.account.origin)
+                ECashAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Litecoin -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
-                LitecoinAdapter(wallet, syncMode, testMode, backgroundManager)
+                LitecoinAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Dash -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dash, wallet.account.origin)
-                DashAdapter(wallet, syncMode, testMode, backgroundManager)
+                DashAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Safe -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
                 SafeAdapter(wallet, syncMode, testMode, backgroundManager)
             }
             BlockchainType.Zcash -> {
-                ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType), testMode)
+                ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType))
             }
             BlockchainType.Ethereum,
             BlockchainType.EthereumGoerli,
@@ -84,6 +87,7 @@ class AdapterFactory(
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
             BlockchainType.Gnosis,
+            BlockchainType.Fantom,
             BlockchainType.ArbitrumOne -> getEvmAdapter(wallet)
             BlockchainType.BinanceChain -> getBinanceAdapter(wallet, "BNB")
             BlockchainType.Solana -> {
@@ -104,10 +108,7 @@ class AdapterFactory(
     ): BinanceAdapter? {
         val query = TokenQuery(BlockchainType.BinanceChain, TokenType.Native)
         return coinManager.getToken(query)?.let { feeToken ->
-            BinanceAdapter(
-                binanceKitManager.binanceKit(wallet),
-                symbol, feeToken, wallet, testMode
-            )
+            BinanceAdapter(binanceKitManager.binanceKit(wallet), symbol, feeToken, wallet)
         }
     }
 

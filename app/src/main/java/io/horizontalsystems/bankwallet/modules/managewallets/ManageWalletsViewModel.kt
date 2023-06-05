@@ -2,6 +2,11 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.entities.ConfiguredToken
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
@@ -24,8 +29,7 @@ class ManageWalletsViewModel(
     private val clearables: List<Clearable>
 ) : ViewModel() {
 
-    val viewItemsLiveData = MutableLiveData<List<CoinViewItem<String>>>()
-    var showBirthdayHeightLiveEvent = SingleLiveEvent<BirthdayHeightViewItem>()
+    val viewItemsLiveData = MutableLiveData<List<CoinViewItem<ConfiguredToken>>>()
     val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
 
     private var disposables = CompositeDisposable()
@@ -78,60 +82,27 @@ class ManageWalletsViewModel(
 
     private fun viewItem(
         item: ManageWalletsService.Item,
-    ): CoinViewItem<String> {
-        val image = if (item.fullCoin.coin.uid == "safe-coin") {
-            ImageSource.Local(R.drawable.logo_safe_24)
-        } else {
-            ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder)
-        }
-        return CoinViewItem(
-            item = item.fullCoin.coin.uid,
-            imageSource = ImageSource.Remote(item.fullCoin.coin.iconUrl, item.fullCoin.iconPlaceholder),
-            title = item.fullCoin.coin.code,
-            subtitle = item.fullCoin.coin.name,
-            enabled = item.enabled,
-            hasSettings = item.hasSettings,
-            hasInfo = item.hasInfo
-        )
+    ) = CoinViewItem(
+        item = item.configuredToken,
+        imageSource = ImageSource.Remote(item.configuredToken.token.coin.imageUrl, item.configuredToken.token.iconPlaceholder),
+        title = item.configuredToken.token.coin.code,
+        subtitle = item.configuredToken.token.coin.name,
+        enabled = item.enabled,
+        hasInfo = item.hasInfo,
+        label = item.configuredToken.badge
+    )
+
+    fun enable(configuredToken: ConfiguredToken) {
+        service.enable(configuredToken)
     }
 
-    fun enable(fullCoin: FullCoin) {
-        service.enable(fullCoin)
-    }
-
-    fun enable(uid: String) {
-        service.enable(uid)
-    }
-
-    fun disable(uid: String) {
-        service.disable(uid)
-    }
-
-    fun onClickSettings(uid: String) {
-        service.configure(uid)
+    fun disable(configuredToken: ConfiguredToken) {
+        service.disable(configuredToken)
     }
 
     fun updateFilter(filter: String) {
         service.setFilter(filter)
     }
-
-    fun onClickInfo(uid: String) {
-        val (blockchain, birthdayHeight) = service.birthdayHeight(uid) ?: return
-        showBirthdayHeightLiveEvent.postValue(
-            BirthdayHeightViewItem(
-                blockchainIcon = ImageSource.Remote(blockchain.type.imageUrl),
-                blockchainName = blockchain.name,
-                birthdayHeight = birthdayHeight.toString()
-            )
-        )
-    }
-
-    fun onCloseBirthdayHeight() {
-        showBirthdayHeightLiveEvent.postValue(null)
-    }
-
-    private val accountTypeDescription: String
-        get() = service.accountType?.description ?: ""
 
     val addTokenEnabled: Boolean
         get() = service.accountType?.canAddTokens ?: false

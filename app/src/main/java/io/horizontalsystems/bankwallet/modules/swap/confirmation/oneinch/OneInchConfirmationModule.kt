@@ -11,6 +11,9 @@ import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559GasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceService
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceService
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapViewItemHelper
 import io.horizontalsystems.bankwallet.modules.swap.oneinch.OneInchKitHelper
@@ -50,14 +53,16 @@ object OneInchConfirmationModule {
                 token,
                 App.marketKit,
                 App.currencyManager,
-                App.evmTestnetManager,
                 App.coinManager
             )
         }
+        private val nonceService by lazy { SendEvmNonceService(evmKitWrapper.evmKit) }
+        private val settingsService by lazy { SendEvmSettingsService(feeService, nonceService) }
         private val sendService by lazy {
             OneInchSendEvmTransactionService(
                 evmKitWrapper,
                 feeService,
+                settingsService,
                 SwapViewItemHelper(App.numberFormatter)
             )
         }
@@ -67,10 +72,19 @@ object OneInchConfirmationModule {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
                 SendEvmTransactionViewModel::class.java -> {
-                    SendEvmTransactionViewModel(sendService, coinServiceFactory, cautionViewItemFactory, App.evmLabelManager) as T
+                    SendEvmTransactionViewModel(
+                        sendService,
+                        coinServiceFactory,
+                        cautionViewItemFactory,
+                        blockchainType = blockchainType,
+                        contactsRepo = App.contactsRepository
+                    ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {
                     EvmFeeCellViewModel(feeService, gasPriceService, coinServiceFactory.baseCoinService) as T
+                }
+                SendEvmNonceViewModel::class.java -> {
+                    SendEvmNonceViewModel(nonceService) as T
                 }
                 else -> throw IllegalArgumentException()
             }

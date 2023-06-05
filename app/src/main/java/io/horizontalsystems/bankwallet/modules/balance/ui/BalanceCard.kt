@@ -302,11 +302,13 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             if (viewItem.swapVisible) {
                 ButtonPrimaryCircle(
                     icon = R.drawable.ic_arrow_down_left_24,
+                    contentDescription = stringResource(R.string.Balance_Receive),
                     onClick = onClickReceive,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 ButtonPrimaryCircle(
                     icon = R.drawable.ic_swap_24,
+                    contentDescription = stringResource(R.string.Swap),
                     onClick = {
                         navController.slideFromBottom(
                             R.id.swapFragment,
@@ -326,6 +328,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
         Spacer(modifier = Modifier.width(8.dp))
         ButtonPrimaryCircle(
             icon = R.drawable.ic_chart_24,
+            contentDescription = stringResource(R.string.Coin_Info),
             enabled = !viewItem.wallet.token.isCustom,
             onClick = {
                 val coinUid = viewItem.wallet.coin.uid
@@ -387,13 +390,6 @@ private fun WalletIcon(viewItem: BalanceViewItem, viewModel: BalanceViewModel, n
             .fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
-        if (!viewItem.mainNet) {
-            Image(
-                modifier = Modifier.align(Alignment.TopCenter),
-                painter = painterResource(R.drawable.testnet),
-                contentDescription = "Testnet"
-            )
-        }
         viewItem.syncingProgress.progress?.let { progress ->
             AndroidView(
                 modifier = Modifier

@@ -4,13 +4,11 @@ import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.BitcoinCashCoinType
-import io.horizontalsystems.bankwallet.entities.description
-import io.horizontalsystems.bankwallet.entities.rawName
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultipleDialog
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorViewItem
@@ -60,7 +58,7 @@ class CoinSettingsViewModel(
         val imageSource = if (token.coin.uid == "safe-coin") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
-            ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder)
+            ImageSource.Remote(token.coin.imageUrl, token.iconPlaceholder)
         }
         return BottomSheetSelectorMultipleDialog.Config(
             icon = imageSource,
@@ -69,7 +67,7 @@ class CoinSettingsViewModel(
             viewItems = allDerivations.map { derivation ->
                 BottomSheetSelectorViewItem(
                     title = derivation.rawName,
-                    subtitle = derivation.description
+                    subtitle = derivation.addressType
                 )
             },
             description = Translator.getString(R.string.AddressFormatSettings_Description, token.coin.name),
@@ -86,7 +84,7 @@ class CoinSettingsViewModel(
         val imageSource = if (token.coin.uid == "safe-coin") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
-            ImageSource.Remote(token.coin.iconUrl, token.iconPlaceholder)
+            ImageSource.Remote(token.coin.imageUrl, token.iconPlaceholder)
         }
         return BottomSheetSelectorMultipleDialog.Config(
             icon = imageSource,

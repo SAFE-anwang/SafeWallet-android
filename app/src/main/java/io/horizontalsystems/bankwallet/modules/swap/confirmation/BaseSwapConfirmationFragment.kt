@@ -6,12 +6,9 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +16,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -28,8 +24,11 @@ import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
@@ -38,7 +37,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.CustomSnackbar
 import io.horizontalsystems.core.SnackbarDuration
@@ -50,6 +49,7 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
     protected abstract val logger: AppLogger
     protected abstract val sendEvmTransactionViewModel: SendEvmTransactionViewModel
     protected abstract val feeViewModel: EvmFeeCellViewModel
+    protected abstract val nonceViewModel: SendEvmNonceViewModel
     protected abstract val navGraphId: Int
 
     private val mainViewModel by navGraphViewModels<SwapMainViewModel>(R.id.swapFragment)
@@ -73,6 +73,7 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
                 BaseSwapConfirmationScreen(
                     sendEvmTransactionViewModel = sendEvmTransactionViewModel,
                     feeViewModel = feeViewModel,
+                    nonceViewModel = nonceViewModel,
                     parentNavGraphId = navGraphId,
                     navController = findNavController(),
                     onSendClick = {
@@ -120,6 +121,7 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
 private fun BaseSwapConfirmationScreen(
     sendEvmTransactionViewModel: SendEvmTransactionViewModel,
     feeViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
     parentNavGraphId: Int,
     navController: NavController,
     onSendClick: () -> Unit
@@ -133,20 +135,18 @@ private fun BaseSwapConfirmationScreen(
                 AppBar(
                     title = TranslatableString.ResString(R.string.Send_Confirmation_Title),
                     navigationIcon = {
-                        HsIconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_back),
-                                contentDescription = "back button",
-                                tint = ComposeAppTheme.colors.jacob
-                            )
-                        }
+                        HsBackButton(onClick = { navController.popBackStack() })
                     },
                     menuItems = listOf(
                         MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
+                            title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
+                            icon = R.drawable.ic_manage_2,
+                            tint = ComposeAppTheme.colors.jacob,
                             onClick = {
-                                navController.popBackStack(R.id.swapFragment, true)
+                                navController.slideFromBottom(
+                                    resId = R.id.sendEvmSettingsFragment,
+                                    args = SendEvmSettingsFragment.prepareParams(parentNavGraphId)
+                                )
                             }
                         )
                     )
@@ -162,9 +162,10 @@ private fun BaseSwapConfirmationScreen(
                     SendEvmTransactionView(
                         sendEvmTransactionViewModel,
                         feeViewModel,
-                        navController,
-                        parentNavGraphId,
+                        nonceViewModel,
+                        navController
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
                 ButtonsGroupWithShade {
                     ButtonPrimaryYellow(

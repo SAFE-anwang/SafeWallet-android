@@ -17,12 +17,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCell
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import io.horizontalsystems.bankwallet.modules.fee.FeeCell
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
@@ -33,16 +37,15 @@ import io.horizontalsystems.marketkit.models.*
 fun SendEvmTransactionView(
     transactionViewModel: SendEvmTransactionViewModel,
     feeCellViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
     navController: NavController,
-    parentNavGraphId: Int,
     description: String? = null
 ) {
     ComposeAppTheme {
 
         val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
-        val fee by feeCellViewModel.feeLiveData.observeAsState("")
+        val fee by feeCellViewModel.feeLiveData.observeAsState(null)
         val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
-        val loading by feeCellViewModel.loadingLiveData.observeAsState(false)
 
         Column {
             description?.let {
@@ -52,22 +55,23 @@ fun SendEvmTransactionView(
                 )
             }
             items.forEach { sectionViewItem ->
-                SectionView(sectionViewItem.viewItems)
+                SectionView(sectionViewItem.viewItems, navController)
             }
 
-            Spacer(Modifier.height(12.dp))
-            EvmFeeCell(
-                title = stringResource(R.string.FeeSettings_Fee),
-                value = fee,
-                loading = loading,
-                highlightEditButton = feeCellViewModel.highlightEditButton,
-                viewState = viewState
-            ) {
-                navController.slideFromBottom(
-                    resId = R.id.sendEvmFeeSettingsFragment,
-                    args = EvmFeeSettingsFragment.prepareParams(parentNavGraphId)
-                )
-            }
+            NonceView(nonceViewModel)
+
+            Spacer(Modifier.height(16.dp))
+            CellUniversalLawrenceSection(
+                listOf {
+                    FeeCell(
+                        title = stringResource(R.string.FeeSettings_Fee),
+                        info = stringResource(R.string.FeeSettings_Fee_Info),
+                        value = fee,
+                        viewState = viewState,
+                        navController = navController
+                    )
+                }
+            )
 
             val cautions by transactionViewModel.cautionsLiveData.observeAsState()
             cautions?.let {
@@ -78,8 +82,35 @@ fun SendEvmTransactionView(
 }
 
 @Composable
-private fun SectionView(viewItems: List<ViewItem>) {
-    Spacer(Modifier.height(12.dp))
+private fun NonceView(nonceViewModel: SendEvmNonceViewModel) {
+    val uiState = nonceViewModel.uiState
+    if (!uiState.showInConfirmation) return
+    val nonce = uiState.nonce ?: return
+
+    Spacer(Modifier.height(16.dp))
+    CellUniversalLawrenceSection(
+        listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                subhead2_grey(
+                    text = stringResource(id = R.string.Send_Confirmation_Nonce)
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = nonce.toString(),
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.subhead1,
+                    color = setColorByType(ValueType.Regular)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun SectionView(viewItems: List<ViewItem>, navController: NavController) {
+    Spacer(Modifier.height(16.dp))
     CellUniversalLawrenceSection(viewItems) { item ->
         when (item) {
             is ViewItem.Subhead -> Subhead(item)
@@ -88,7 +119,8 @@ private fun SectionView(viewItems: List<ViewItem>) {
             is ViewItem.AmountMulti -> AmountMulti(item)
             is ViewItem.Amount -> Amount(item)
             is ViewItem.NftAmount -> NftAmount(item)
-            is ViewItem.Address -> TitleValueHex(item.title, item.valueTitle, item.value)
+            is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.value, item.showAdd, item.blockchainType, navController)
+            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
             is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
             is ViewItem.TokenItem -> Token(item)
         }
@@ -175,7 +207,7 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
         } else {
             CoinImage(
                 modifier = Modifier.size(32.dp),
-                iconUrl = item.token.coin.iconUrl,
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }
@@ -231,7 +263,7 @@ private fun Amount(item: ViewItem.Amount) {
                 modifier = Modifier
                     .padding(end = 16.dp)
                     .size(32.dp),
-                iconUrl = item.token.coin.iconUrl,
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }
@@ -281,7 +313,7 @@ private fun Token(item: ViewItem.TokenItem) {
                 modifier = Modifier
                     .padding(end = 16.dp)
                     .size(32.dp),
-                iconUrl = item.token.coin.iconUrl,
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }

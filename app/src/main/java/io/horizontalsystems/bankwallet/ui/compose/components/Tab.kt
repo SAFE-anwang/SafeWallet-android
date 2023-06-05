@@ -26,7 +26,7 @@ fun TabPeriod(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     content: @Composable RowScope.() -> Unit,
 ) {
-    BarSingleLine(modifier, true, false, horizontalArrangement, content)
+    BarSingleLine(modifier, false, false, horizontalArrangement, content)
 }
 
 @Composable

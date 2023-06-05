@@ -37,7 +37,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinFragment
@@ -109,7 +109,7 @@ fun SwapCoinCardView(
             } else {
                 CoinImage(
                     modifier = Modifier.size(32.dp),
-                    iconUrl = token?.coin?.iconUrl,
+                    iconUrl = token?.coin?.imageUrl,
                     placeholder = token?.iconPlaceholder ?: R.drawable.coin_placeholder
                 )
             }

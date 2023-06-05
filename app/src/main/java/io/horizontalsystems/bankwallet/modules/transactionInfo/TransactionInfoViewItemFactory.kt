@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.transactionInfo
 import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
+import io.horizontalsystems.bankwallet.core.isCustom
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -21,10 +22,13 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.*
 import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaUnknownTransactionRecord
+import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
+import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoViewItem.*
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionStatus
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.core.helpers.DateHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -35,7 +39,9 @@ class TransactionInfoViewItemFactory(
     private val translator: Translator,
     private val dateHelper: DateHelper,
     private val evmLabelManager: EvmLabelManager,
-    private val resendEnabled: Boolean
+    private val resendEnabled: Boolean,
+    private val contactsRepo: ContactsRepository,
+    private val blockchainType: BlockchainType
 ) {
     private val zeroAddress = "0x0000000000000000000000000000000000000000"
 
@@ -92,10 +98,19 @@ class TransactionInfoViewItemFactory(
                         true
                     ).toMutableList()
 
-                    if (transaction.recipient != null) {
+                    val recipient = transaction.recipient
+                    if (recipient != null) {
+                        val contact = getContact(recipient)
+
                         youGetSectionItems.add(
-                            Address(getString(R.string.TransactionInfo_RecipientHash), transaction.recipient)
+                            Address(getString(R.string.TransactionInfo_RecipientHash), recipient, contact == null, blockchainType)
                         )
+
+                        contact?.let {
+                            youGetSectionItems.add(
+                                ContactItem(it)
+                            )
+                        }
                     }
 
                     itemSections.add(youGetSectionItems)
@@ -223,9 +238,16 @@ class TransactionInfoViewItemFactory(
         }
 
         itemSections.add(getStatusSectionItems(transaction, status, rates))
+        if (transaction is EvmTransactionRecord && !transaction.foreignTransaction && status == TransactionStatus.Pending && resendEnabled) {
+            itemSections.add(listOf(SpeedUpCancel(transactionHash = transaction.transactionHash)))
+        }
         itemSections.add(getExplorerSectionItems(transactionItem.explorerData))
 
         return itemSections
+    }
+
+    private fun getContact(address: String?): Contact? {
+        return contactsRepo.getContactsFiltered(blockchainType, addressQuery = address).firstOrNull()
     }
 
     private fun addMemoItem(
@@ -271,9 +293,15 @@ class TransactionInfoViewItemFactory(
         )
 
         if (!mint && fromAddress != null) {
+            val contact = getContact(fromAddress)
             items.add(
-                Address(getString(R.string.TransactionInfo_From), fromAddress)
+                Address(getString(R.string.TransactionInfo_From), fromAddress, contact == null, blockchainType)
             )
+            contact?.let {
+                items.add(
+                    ContactItem(it)
+                )
+            }
         }
 
         rate?.let { items.add(it) }
@@ -330,9 +358,14 @@ class TransactionInfoViewItemFactory(
         )
 
         if (!burn && toAddress != null) {
+            val contact = getContact(toAddress)
             items.add(
-                Address(getString(R.string.TransactionInfo_To), toAddress)
+                Address(getString(R.string.TransactionInfo_To), toAddress, contact == null, blockchainType)
             )
+
+            contact?.let {
+                items.add(ContactItem(it))
+            }
         }
 
         rate?.let { items.add(it) }
@@ -447,11 +480,29 @@ class TransactionInfoViewItemFactory(
             ColorName.Grey
         )
 
-        return listOf(
-            Transaction(getString(R.string.Transactions_Approve), value.fullName, R.drawable.ic_checkmark_24),
-            Amount(coinAmountColoredValue, fiatAmountColoredValue, value.coinIconUrl, value.coinIconPlaceholder),
-            Address(getString(R.string.TransactionInfo_Spender), spenderAddress)
+        val contact = getContact(spenderAddress)
+
+        val items = mutableListOf(
+            Transaction(
+                getString(R.string.Transactions_Approve),
+                value.fullName,
+                R.drawable.ic_checkmark_24
+            ),
+            Amount(
+                coinAmountColoredValue,
+                fiatAmountColoredValue,
+                value.coinIconUrl,
+                value.coinIconPlaceholder,
+                value.coin?.uid
+            ),
+            Address(getString(R.string.TransactionInfo_Spender), spenderAddress, contact == null, blockchainType)
         )
+
+        contact?.let {
+            items.add(ContactItem(it))
+        }
+
+        return items
     }
 
     private fun getContractMethodSectionItems(transaction: ContractCallTransactionRecord) =
@@ -496,10 +547,6 @@ class TransactionInfoViewItemFactory(
             Value(getString(R.string.TransactionInfo_Date), dateHelper.getFullDate(Date(transaction.timestamp * 1000))),
             Status(status)
         )
-
-        if (transaction is EvmTransactionRecord && !transaction.foreignTransaction && status == TransactionStatus.Pending && resendEnabled) {
-            items.add(SpeedUpCancel(transactionHash = transaction.transactionHash))
-        }
 
         when (transaction) {
             is EvmTransactionRecord -> {
@@ -602,7 +649,12 @@ class TransactionInfoViewItemFactory(
         } ?: "---"
 
         val coinValueColored = ColoredValue(coinValueFormatted, getAmountColor(incoming))
-        return Amount(coinValueColored, fiatValueColored, value.coinIconUrl, value.coinIconPlaceholder)
+        val coinUid = if (value is TransactionValue.CoinValue && !value.token.isCustom) {
+            value.token.coin.uid
+        } else {
+            null
+        }
+        return Amount(coinValueColored, fiatValueColored, value.coinIconUrl, value.coinIconPlaceholder, coinUid)
     }
 
     private fun getNftAmount(

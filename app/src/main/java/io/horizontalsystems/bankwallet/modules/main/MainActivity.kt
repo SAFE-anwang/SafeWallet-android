@@ -77,27 +77,6 @@ class MainActivity : BaseActivity() {
         startVpn()
     }
 
-    override fun setContentView(layoutResID: Int) {
-        super.setContentView(layoutResID)
-        if (CoreApp.instance.testMode) {
-            val rootView = findViewById<ViewGroup>(android.R.id.content)
-            val testLabelTv = TextView(this)
-            testLabelTv.text = "Test"
-            testLabelTv.setPadding(5, 3, 5, 3)
-            testLabelTv.includeFontPadding = false
-            testLabelTv.setBackgroundColor(Color.RED)
-            testLabelTv.setTextColor(Color.WHITE)
-            testLabelTv.textSize = 12f
-            val layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.gravity = Gravity.CENTER_HORIZONTAL
-            testLabelTv.layoutParams = layoutParams
-            rootView.addView(testLabelTv)
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mMsgReceiver)

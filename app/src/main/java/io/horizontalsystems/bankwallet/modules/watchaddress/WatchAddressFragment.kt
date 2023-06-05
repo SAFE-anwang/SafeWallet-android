@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -113,17 +112,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
             AppBar(
                 title = TranslatableString.ResString(R.string.ManageAccounts_WatchAddress),
                 navigationIcon = {
-                    HsIconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    HsBackButton(onClick = { navController.popBackStack() })
                 },
                 menuItems = buildList {
                     when (submitType) {
@@ -186,6 +175,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                             modifier = Modifier.padding(horizontal = 16.dp),
                             tokenQuery = TokenQuery(BlockchainType.Ethereum, TokenType.Native),
                             coinCode = "ETH",
+                            navController = navController,
                             onValueChange = viewModel::onEnterAddress
                         )
                     }
@@ -194,6 +184,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                             modifier = Modifier.padding(horizontal = 16.dp),
                             tokenQuery = TokenQuery(BlockchainType.Solana, TokenType.Native),
                             coinCode = "SOL",
+                            navController = navController,
                             onValueChange = viewModel::onEnterAddress
                         )
                     }

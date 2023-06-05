@@ -8,13 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -22,7 +20,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.BottomSheetFallbackBlockSelectDialog
@@ -42,7 +39,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
-import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.setNavigationResult
@@ -118,7 +115,7 @@ class SecuritySettingsFragment : BaseFragment() {
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
-                    torViewModel.setTorEnabled(torViewModel.torCheckEnabled)
+                    torViewModel.setTorEnabled()
                 }
 
                 override fun onTransparentButtonClick() {
@@ -175,10 +172,6 @@ class SecuritySettingsFragment : BaseFragment() {
     private fun restartApp() {
         activity?.let {
             MainModule.startAsNewTask(it)
-            if (App.localStorage.torEnabled) {
-                val intent = Intent(it, TorConnectionActivity::class.java)
-                startActivity(intent)
-            }
             exitProcess(0)
         }
     }
@@ -206,13 +199,7 @@ private fun SecurityCenterScreen(
             AppBar(
                 TranslatableString.ResString(R.string.Settings_SecurityCenter),
                 navigationIcon = {
-                    HsIconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    HsBackButton(onClick = { navController.popBackStack() })
                 },
             )
 

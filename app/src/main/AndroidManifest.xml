@@ -46,9 +46,6 @@
         </activity>
 
         <activity
-            android:name=".modules.tor.TorConnectionActivity"
-            android:launchMode="singleTask" />
-        <activity
             android:name=".modules.launcher.LauncherActivity" />
         <activity
             android:name=".modules.main.MainActivity"
@@ -82,9 +79,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".modules.keystore.KeyStoreActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".modules.rooteddevice.RootedDeviceActivity"
             android:screenOrientation="portrait" />
 
         <activity

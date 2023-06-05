@@ -19,7 +19,7 @@ import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceModule
 import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceScreen
 import io.horizontalsystems.bankwallet.modules.send.binance.SendBinanceViewModel
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinModule
-import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinScreen
+import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinNavHost
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmScreen
@@ -46,88 +46,87 @@ class SendFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
-                val wallet = requireArguments().getParcelable<Wallet>(walletKey)
-                    ?: throw IllegalStateException("Wallet is Null!")
+                val wallet = requireArguments().getParcelable<Wallet>(walletKey) ?: throw IllegalStateException("Wallet is Null!")
                 val amountInputModeViewModel by navGraphViewModels<AmountInputModeViewModel>(R.id.sendXFragment) {
                     AmountInputModeModule.Factory(wallet)
                 }
-                setContent {
-                    when (wallet.token.blockchainType) {
-                        BlockchainType.Bitcoin,
-                        BlockchainType.BitcoinCash,
-                        BlockchainType.Litecoin,
-                        BlockchainType.Dash,
-                        BlockchainType.Safe,
-                        -> {
-                            val sendBitcoinViewModel by navGraphViewModels<SendBitcoinViewModel>(R.id.sendXFragment) {
-                                SendBitcoinModule.Factory(wallet)
-                            }
-
-                            SendBitcoinScreen(
+                when (wallet.token.blockchainType) {
+                    BlockchainType.Bitcoin,
+                    BlockchainType.BitcoinCash,
+                    BlockchainType.ECash,
+                    BlockchainType.Litecoin,
+                    BlockchainType.Dash,
+                    BlockchainType.Safe -> {
+                        val sendBitcoinViewModel by navGraphViewModels<SendBitcoinViewModel>(R.id.sendXFragment) {
+                            SendBitcoinModule.Factory(wallet)
+                        }
+                        setContent {
+                            SendBitcoinNavHost(
                                 findNavController(),
                                 sendBitcoinViewModel,
                                 amountInputModeViewModel
                             )
                         }
-                        is BlockchainType.BinanceChain -> {
-                            val sendBinanceViewModel by navGraphViewModels<SendBinanceViewModel>(R.id.sendXFragment) {
-                                SendBinanceModule.Factory(wallet)
-                            }
-
+                    }
+                    is BlockchainType.BinanceChain -> {
+                        val sendBinanceViewModel by navGraphViewModels<SendBinanceViewModel>(R.id.sendXFragment) {
+                            SendBinanceModule.Factory(wallet)
+                        }
+                        setContent {
                             SendBinanceScreen(
                                 findNavController(),
                                 sendBinanceViewModel,
                                 amountInputModeViewModel
                             )
                         }
-                        BlockchainType.Zcash -> {
-                            val sendZCashViewModel by navGraphViewModels<SendZCashViewModel>(R.id.sendXFragment) {
-                                SendZCashModule.Factory(wallet)
-                            }
-
+                    }
+                    BlockchainType.Zcash -> {
+                        val sendZCashViewModel by navGraphViewModels<SendZCashViewModel>(R.id.sendXFragment) {
+                            SendZCashModule.Factory(wallet)
+                        }
+                        setContent {
                             SendZCashScreen(
                                 findNavController(),
                                 sendZCashViewModel,
                                 amountInputModeViewModel
                             )
                         }
-                        BlockchainType.Ethereum,
-                        BlockchainType.EthereumGoerli,
-                        BlockchainType.BinanceSmartChain,
-                        BlockchainType.Polygon,
-                        BlockchainType.Avalanche,
-                        BlockchainType.Optimism,
-                        BlockchainType.Gnosis,
-                        BlockchainType.ArbitrumOne -> {
-                            val factory = SendEvmModule.Factory(wallet)
-                            val evmKitWrapperViewModel by navGraphViewModels<EvmKitWrapperHoldingViewModel>(
-                                R.id.sendXFragment
-                            ) { factory }
-                            val initiateLazyViewModel =
-                                evmKitWrapperViewModel //needed in SendEvmConfirmationFragment
-                            val sendEvmViewModel by navGraphViewModels<SendEvmViewModel>(R.id.sendXFragment) { factory }
-
+                    }
+                    BlockchainType.Ethereum,
+                    BlockchainType.EthereumGoerli,
+                    BlockchainType.BinanceSmartChain,
+                    BlockchainType.Polygon,
+                    BlockchainType.Avalanche,
+                    BlockchainType.Optimism,
+                    BlockchainType.Gnosis,
+                    BlockchainType.Fantom,
+                    BlockchainType.ArbitrumOne -> {
+                        val factory = SendEvmModule.Factory(wallet)
+                        val evmKitWrapperViewModel by navGraphViewModels<EvmKitWrapperHoldingViewModel>(
+                            R.id.sendXFragment
+                        ) { factory }
+                        val initiateLazyViewModel = evmKitWrapperViewModel //needed in SendEvmConfirmationFragment
+                        val sendEvmViewModel by navGraphViewModels<SendEvmViewModel>(R.id.sendXFragment) { factory }
+                        setContent {
                             SendEvmScreen(
                                 findNavController(),
                                 sendEvmViewModel,
                                 amountInputModeViewModel
                             )
                         }
-                        BlockchainType.Solana -> {
-                            val factory = SendSolanaModule.Factory(wallet)
-                            val sendSolanaViewModel by navGraphViewModels<SendSolanaViewModel>(R.id.sendXFragment) { factory }
-
+                    }
+                    BlockchainType.Solana -> {
+                        val factory = SendSolanaModule.Factory(wallet)
+                        val sendSolanaViewModel by navGraphViewModels<SendSolanaViewModel>(R.id.sendXFragment) { factory }
+                        setContent {
                             SendSolanaScreen(
                                 findNavController(),
                                 sendSolanaViewModel,
                                 amountInputModeViewModel
                             )
                         }
-                        else -> {
-
-                        }
                     }
-
+                    else -> {}
                 }
             } catch (t: Throwable) {
                 Toast.makeText(

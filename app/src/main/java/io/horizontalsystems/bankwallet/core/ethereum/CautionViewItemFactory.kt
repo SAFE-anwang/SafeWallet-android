@@ -26,6 +26,13 @@ class CautionViewItemFactory(
                     CautionViewItem.Type.Warning
                 )
             }
+            FeeSettingsWarning.RiskOfGettingStuckLegacy -> {
+                CautionViewItem(
+                    Translator.getString(R.string.FeeSettings_RiskOfGettingStuckLegacy_Title),
+                    Translator.getString(R.string.FeeSettings_RiskOfGettingStuckLegacy),
+                    CautionViewItem.Type.Warning
+                )
+            }
             FeeSettingsWarning.Overpricing -> {
                 CautionViewItem(
                     Translator.getString(R.string.FeeSettings_Overpricing_Title),
@@ -52,13 +59,6 @@ class CautionViewItemFactory(
 
     private fun cautionViewItem(error: Throwable): CautionViewItem {
         return when (error) {
-            FeeSettingsError.LowMaxFee -> {
-                CautionViewItem(
-                    Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit_Title),
-                    Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit),
-                    CautionViewItem.Type.Error
-                )
-            }
             FeeSettingsError.InsufficientBalance -> {
                 CautionViewItem(
                     Translator.getString(R.string.EthereumTransaction_Error_InsufficientBalance_Title),
@@ -66,6 +66,13 @@ class CautionViewItemFactory(
                         R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
                         baseCoinService.token.coin.code
                     ),
+                    CautionViewItem.Type.Error
+                )
+            }
+            FeeSettingsError.UsedNonce -> {
+                CautionViewItem(
+                    Translator.getString(R.string.SendEvmSettings_Error_NonceUsed_Title),
+                    Translator.getString(R.string.SendEvmSettings_Error_NonceUsed),
                     CautionViewItem.Type.Error
                 )
             }

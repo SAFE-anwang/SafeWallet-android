@@ -103,6 +103,9 @@ class AppConfigProvider(val index: Int) {
     val gnosisscanApiKey by lazy {
         Translator.getString(R.string.gnosisscanApiKey)
     }
+    val ftmscanApiKey by lazy {
+        Translator.getString(R.string.ftmscanApiKey)
+    }
      val guidesUrl by lazy {
         Translator.getString(R.string.guidesUrl)
     }
@@ -122,6 +125,10 @@ class AppConfigProvider(val index: Int) {
 
     val marketApiKey by lazy {
         Translator.getString(R.string.marketApiKey)
+    }
+
+    val solscanApiKey by lazy {
+        Translator.getString(R.string.solscanApiKey)
     }
 
      val fiatDecimal: Int = 2

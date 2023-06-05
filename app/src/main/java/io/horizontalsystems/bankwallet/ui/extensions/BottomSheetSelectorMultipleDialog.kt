@@ -104,7 +104,7 @@ class BottomSheetSelectorMultipleDialog(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
-                                    .size(24.dp)
+                                    .size(32.dp)
                             )
                         } else {
                             item.icon?.let { url ->
@@ -112,7 +112,7 @@ class BottomSheetSelectorMultipleDialog(
                                     iconUrl = url,
                                     modifier = Modifier
                                         .padding(end = 16.dp)
-                                        .size(24.dp)
+                                        .size(32.dp)
                                 )
                             }
                         }
