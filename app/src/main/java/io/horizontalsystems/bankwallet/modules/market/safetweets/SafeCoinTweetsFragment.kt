@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.coin.tweets.CoinTweetsModule
 import io.horizontalsystems.bankwallet.modules.coin.tweets.CoinTweetsViewModel
 import io.horizontalsystems.bankwallet.modules.coin.tweets.TweetViewItem
@@ -42,7 +42,7 @@ fun CoinTweetsScreen(
     val context = LocalContext.current
 
     HSSwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
+        refreshing = isRefreshing,
         onRefresh = { viewModel.refresh() },
     ) {
         Crossfade(viewState) { viewState ->

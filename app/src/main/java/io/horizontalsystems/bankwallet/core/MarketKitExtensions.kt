@@ -300,6 +300,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                     || this == BlockchainType.ArbitrumOne
                     || this == BlockchainType.Gnosis
                     || this == BlockchainType.Fantom
+        is AccountType.PrivateKey,
         is AccountType.EvmPrivateKey -> {
             this == BlockchainType.Ethereum
                     || this == BlockchainType.BinanceSmartChain

@@ -16,6 +16,7 @@ import com.anwang.safewallet.safekit.SafeKit
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
+import io.horizontalsystems.dashkit.DashKit
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -25,12 +26,11 @@ class SafeAdapter(
     override val kit: SafeKit,
     syncMode: BitcoinCore.SyncMode,
     backgroundManager: BackgroundManager,
-    wallet: Wallet,
-    testMode: Boolean
-) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, testMode), SafeKit.Listener, ISendBitcoinAdapter, ISendSafeAdapter {
+    wallet: Wallet
+) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), SafeKit.Listener, ISendBitcoinAdapter, ISendSafeAdapter {
 
-    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean, backgroundManager: BackgroundManager) :
-            this(createKit(wallet, syncMode, testMode), syncMode, backgroundManager, wallet, testMode)
+    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, backgroundManager: BackgroundManager) :
+            this(createKit(wallet, syncMode), syncMode, backgroundManager, wallet)
 
     init {
         kit.listener = this
@@ -47,8 +47,7 @@ class SafeAdapter(
     override val explorerTitle: String
         get() = "anwang.com"
 
-    override fun getTransactionUrl(transactionHash: String): String? =
-        if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
+    override fun getTransactionUrl(transactionHash: String): String = "https://${SafeNetWork.getSafeDomainName()}/tx/$transactionHash"
 
     //
     // DashKit Listener
@@ -185,34 +184,33 @@ class SafeAdapter(
     }
 
     companion object {
+        private const val confirmationsThreshold = 6
 
         private const val feeRate = 10L
 
         private fun getNetworkType(testMode: Boolean) =
                 if (testMode) SafeKit.NetworkType.TestNet else SafeKit.NetworkType.MainNet
 
-        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode, testMode: Boolean): SafeKit {
+        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode): SafeKit {
             val account = wallet.account
             when(val accountType = account.type) {
                 is AccountType.HdExtendedKey -> {
                     return SafeKit(
                         context = App.instance,
-                        connectionManager = App.bitCoinConnectionManager,
                         extendedKey = accountType.hdExtendedKey,
                         walletId = account.id,
                         syncMode = syncMode,
-                        networkType = getNetworkType(testMode),
+                        networkType = SafeKit.NetworkType.MainNet,
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
                 is AccountType.Mnemonic -> {
                     return SafeKit(context = App.instance,
-                        connectionManager = App.bitCoinConnectionManager,
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,
                         syncMode = syncMode,
-                        networkType = getNetworkType(testMode),
+                        networkType = SafeKit.NetworkType.MainNet,
                         confirmationsThreshold = confirmationsThreshold)
                 }
                 else -> throw UnsupportedAccountException()
@@ -221,8 +219,8 @@ class SafeAdapter(
             throw UnsupportedAccountException()
         }
 
-        fun clear(walletId: String, testMode: Boolean) {
-            SafeKit.clear(App.instance, getNetworkType(testMode), walletId)
+        fun clear(walletId: String) {
+            SafeKit.clear(App.instance, SafeKit.NetworkType.MainNet, walletId)
         }
     }
 }

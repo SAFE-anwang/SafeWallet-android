@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAccountsViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceScreenState
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable

@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFrag
 import io.horizontalsystems.bankwallet.modules.send.submodules.address.SendAddressModule
 import io.horizontalsystems.bankwallet.modules.swap.settings.RecipientAddressViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.marketkit.models.Token
 
 class DefaultAddressFragment(
@@ -46,6 +47,7 @@ class DefaultAddressFragment(
                         initial = Address(safeAddress),
                         tokenQuery = token.tokenQuery,
                         coinCode = token.coin.code,
+                        navController = findNavController(),
                         error = viewModel.error
                     ) {
                         viewModel.setAddress(it)

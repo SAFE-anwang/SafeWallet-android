@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
@@ -58,12 +59,16 @@ class MainViewModel(
                 MainNavigation.Market,
                 MainNavigation.Balance,
                 MainNavigation.Transactions,
+                MainNavigation.Safe4,
+                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         } else {
             listOf(
                 MainNavigation.Balance,
+                MainNavigation.Safe4,
                 MainNavigation.Transactions,
+                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         }
@@ -225,18 +230,25 @@ class MainViewModel(
                 enabled = true,
             )
         }
-        MainNavigation.Safe4 -> {
+        MainNavigation.Transactions -> {
             MainModule.NavigationViewItem(
                 mainNavItem = item,
                 selected = selected,
                 enabled = transactionsEnabled,
             )
         }
+        MainNavigation.Safe4 -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
         MainNavigation.Tg -> {
             MainModule.NavigationViewItem(
                 mainNavItem = item,
                 selected = selected,
-                enabled = transactionsEnabled,
+                enabled = true,
             )
         }
         MainNavigation.Settings -> {

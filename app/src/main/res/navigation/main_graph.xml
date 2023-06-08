@@ -25,6 +25,12 @@
         android:id="@+id/wc2RequestFragment"
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment"/>
     <fragment
+        android:id="@+id/wc2SignMessageRequestFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment"/>
+    <fragment
+        android:id="@+id/wc2SendEthereumTransactionRequestFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment"/>
+    <fragment
         android:id="@+id/wcDisplayTypedMessageFragment"
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCDisplayTypedMessageFragment"/>
     <fragment
@@ -257,6 +263,9 @@
     <fragment
         android:id="@+id/restoreAccountAdvancedFragment"
         android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountAdvancedFragment" />
+    <fragment
+        android:id="@+id/restoreMnemonicFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountFragment" />
     <fragment
         android:id="@+id/watchAddressFragment"
         android:name="io.horizontalsystems.bankwallet.modules.watchaddress.WatchAddressFragment" />

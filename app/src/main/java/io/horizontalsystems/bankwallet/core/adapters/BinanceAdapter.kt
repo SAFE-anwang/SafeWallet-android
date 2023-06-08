@@ -30,9 +30,7 @@ class BinanceAdapter(
     private val asset = binanceKit.register(symbol)
     private val token = wallet.token
 
-    val networkType = if (testMode)
-        BinanceChainKit.NetworkType.TestNet else
-        BinanceChainKit.NetworkType.MainNet
+    val networkType = BinanceChainKit.NetworkType.MainNet
 
     private val binanceLaunchTime: Long =
         Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { set(2019, 0, 1, 0, 0, 0) }.time.time

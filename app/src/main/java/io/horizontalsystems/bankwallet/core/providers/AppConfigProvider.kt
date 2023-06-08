@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.providers
 
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.entities.Currency
-import io.horizontalsystems.core.entities.Currency
 import java.util.*
 
 class AppConfigProvider(val index: Int) {

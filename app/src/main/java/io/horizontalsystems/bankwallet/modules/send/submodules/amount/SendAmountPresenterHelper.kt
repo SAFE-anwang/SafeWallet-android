@@ -1,19 +1,19 @@
 package io.horizontalsystems.bankwallet.modules.send.submodules.amount
 
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class SendAmountPresenterHelper(
-        private val numberFormatter: IAppNumberFormatter,
-        private val coin: Token,
-        private val baseCurrency: Currency,
-        private val coinDecimal: Int,
-        private val currencyDecimal: Int) {
+    private val numberFormatter: IAppNumberFormatter,
+    private val coin: Token,
+    private val baseCurrency: Currency,
+    private val coinDecimal: Int,
+    private val currencyDecimal: Int) {
 
     fun getAmount(coinAmount: BigDecimal?, inputType: AmountInputType, rate: BigDecimal?): String {
         val amount = when (inputType) {

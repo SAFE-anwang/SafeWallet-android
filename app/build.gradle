@@ -228,6 +228,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation "androidx.biometric:biometric:$biometric_version"
 
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
     implementation 'com.atlassian.commonmark:commonmark:0.17.0'
     implementation "io.noties.markwon:core:4.6.2"
 
@@ -266,6 +268,7 @@ dependencies {
     implementation project(':bitcoin-kit-android:bitcoincashkit')
     implementation project(':bitcoin-kit-android:litecoinkit')
     implementation project(':bitcoin-kit-android:safekit')
+    implementation project(':bitcoin-kit-android:ecashkit')
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
@@ -374,6 +377,9 @@ dependencies {
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy {
+        force 'org.bitcoinj:bitcoinj-core:0.14.3'
+    }
 
     exclude group: "com.google.protobuf", module: "protobuf-java"
 }

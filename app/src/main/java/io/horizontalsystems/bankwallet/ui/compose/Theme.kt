@@ -53,6 +53,7 @@ val bluePalette = Colors(
     jeremy = SteelLight,
     laguna = LagunaL,
     raina = White50,
+    andy = Black50
 )
 
 @Composable

@@ -70,6 +70,9 @@ class ManageAccountViewModel(
                 KeyAction.PrivateKeys,
                 KeyAction.PublicKeys
             )
+            is AccountType.PrivateKey -> listOf(
+                KeyAction.PrivateKeys
+            )
             is AccountType.EvmPrivateKey -> listOf(
                 KeyAction.PrivateKeys,
                 KeyAction.PublicKeys

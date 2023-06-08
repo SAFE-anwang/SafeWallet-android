@@ -12,22 +12,9 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.navGraphViewModels
-import androidx.room.util.StringUtil
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v1.WCSessionModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 class WebViewActivity: BaseActivity(){
 

@@ -99,7 +99,7 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
                             )
                         } else {
                             BalanceItemsEmpty(navController, accountViewItem)
-                        }
+                        } 
                     }
                     ViewState.Loading,
                     is ViewState.Error -> {

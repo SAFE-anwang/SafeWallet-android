@@ -26,12 +26,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -47,6 +49,10 @@ import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceModule
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceScreen
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Fragment
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Screen
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4ViewModel
 import io.horizontalsystems.bankwallet.modules.settings.main.SettingsScreen
 import io.horizontalsystems.bankwallet.modules.tor.TorStatusView
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
@@ -55,7 +61,6 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewMode
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager.SupportState
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
-import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetWalletSelectDialog
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
@@ -70,7 +75,7 @@ import org.telegram.ui.LaunchActivity
 class MainFragment : BaseFragment() {
 
     private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
-
+    private val safe4ViewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
     private var startTelegramService: StartTelegramsService? = null
 
     override fun onCreateView(
@@ -88,7 +93,11 @@ class MainFragment : BaseFragment() {
                         transactionsViewModel = transactionsViewModel,
                         deepLink = activity?.intent?.data?.toString(),
                         navController = findNavController(),
-                        clearActivityData = { activity?.intent?.data = null }
+                        clearActivityData = { activity?.intent?.data = null },
+                        safe4ViewModel = safe4ViewModel,
+                        openLink = {
+                            openLink(it)
+                        }
                     )
                 }
             }
@@ -114,6 +123,35 @@ class MainFragment : BaseFragment() {
         startTelegramService?.join(groupLink)
     }
 
+    private fun openLink(url: String) {
+        context?.let {
+            when(url) {
+                App.appConfigProvider.appTelegramLink -> {
+                    joinTelegramGroup(url)
+                }
+                App.appConfigProvider.supportEmail -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(url)
+                    requireActivity().startActivity(intent)
+                }
+                App.appConfigProvider.safeBSCPancakeswap,
+                App.appConfigProvider.safeEthUniswap -> {
+                    val bundle = Bundle()
+                    bundle.putString("url", url)
+                    bundle.putString("name", url.subSequence(8, url.length).toString())
+                    findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
+                }
+                else -> {
+                    startActivity(Intent(requireActivity(), WebViewActivity::class.java).apply {
+                        putExtra("url", url)
+                        putExtra("name", url.subSequence(8, url.length))
+                    })
+                }
+            }
+        }
+
+    }
+
     /*fun openBalanceFragment() {
         binding.viewPager.setCurrentItem(1, false)
     }*/
@@ -125,12 +163,14 @@ private fun MainScreenWithRootedDeviceCheck(
     deepLink: String?,
     navController: NavController,
     clearActivityData: () -> Unit,
-    rootedDeviceViewModel: RootedDeviceViewModel = viewModel(factory = RootedDeviceModule.Factory())
+    rootedDeviceViewModel: RootedDeviceViewModel = viewModel(factory = RootedDeviceModule.Factory()),
+    safe4ViewModel: Safe4ViewModel,
+    openLink: (String) -> Unit
 ) {
     if (rootedDeviceViewModel.showRootedDeviceWarning) {
         RootedDeviceScreen { rootedDeviceViewModel.ignoreRootedDeviceWarning() }
     } else {
-        MainScreen(transactionsViewModel, deepLink, navController, clearActivityData)
+        MainScreen(transactionsViewModel, deepLink, navController, clearActivityData, safe4ViewModel = safe4ViewModel, openLink = openLink)
     }
 }
 
@@ -141,7 +181,9 @@ private fun MainScreen(
     deepLink: String?,
     fragmentNavController: NavController,
     clearActivityData: () -> Unit,
-    viewModel: MainViewModel = viewModel(factory = MainModule.Factory(deepLink))
+    viewModel: MainViewModel = viewModel(factory = MainModule.Factory(deepLink)),
+    safe4ViewModel: Safe4ViewModel,
+    openLink: (String) -> Unit
 ) {
 
     val uiState = viewModel.uiState
@@ -199,7 +241,13 @@ private fun MainScreen(
                                     enabled = item.enabled,
                                     selectedContentColor = ComposeAppTheme.colors.jacob,
                                     unselectedContentColor = if (item.enabled) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.grey50,
-                                    onClick = { viewModel.onSelect(item.mainNavItem) },
+                                    onClick = {
+                                        if (item.mainNavItem == MainNavigation.Tg) {
+                                            openLink.invoke(App.appConfigProvider.appTelegramLink)
+                                        } else {
+                                            viewModel.onSelect(item.mainNavItem)
+                                        }
+                                    },
                                     onLongClick = {
                                         if (item.mainNavItem == MainNavigation.Balance) {
                                             coroutineScope.launch {
@@ -237,7 +285,11 @@ private fun MainScreen(
                                 fragmentNavController,
                                 transactionsViewModel
                             )
-                            MainNavigation.Settings -> SettingsScreen(fragmentNavController)
+                            MainNavigation.Safe4 -> Safe4Screen(safe4ViewModel, fragmentNavController, openLink)
+                            MainNavigation.Tg -> {
+                                null
+                            }
+                            MainNavigation.Settings -> SettingsScreen(fragmentNavController, mainViewModel = viewModel)
                         }
                     }
                 }

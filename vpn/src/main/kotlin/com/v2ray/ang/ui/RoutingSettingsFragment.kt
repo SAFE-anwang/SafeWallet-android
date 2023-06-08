@@ -9,7 +9,6 @@ import androidx.preference.PreferenceManager
 import android.view.*
 import com.v2ray.ang.R
 import com.v2ray.ang.util.Utils
-import kotlinx.android.synthetic.main.fragment_routing_settings.*
 import android.view.MenuInflater
 import androidx.activity.result.contract.ActivityResultContracts
 import com.tbruyelle.rxpermissions.RxPermissions
@@ -45,7 +44,7 @@ class RoutingSettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val content = defaultSharedPreferences.getString(requireArguments().getString(routing_arg), "")
-        et_routing_content.text = Utils.getEditable(content!!)
+//        et_routing_content.text = Utils.getEditable(content!!)
 
         setHasOptionsMenu(true)
     }
@@ -57,13 +56,13 @@ class RoutingSettingsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.save_routing -> {
-            val content = et_routing_content.text.toString()
-            defaultSharedPreferences.edit().putString(requireArguments().getString(routing_arg), content).apply()
+//            val content = et_routing_content.text.toString()
+//            defaultSharedPreferences.edit().putString(requireArguments().getString(routing_arg), content).apply()
             activity?.toast(R.string.toast_success)
             true
         }
         R.id.del_routing -> {
-            et_routing_content.text = null
+//            et_routing_content.text = null
             true
         }
         R.id.scan_replace -> {
@@ -105,14 +104,14 @@ class RoutingSettingsFragment : Fragment() {
     private val scanQRCodeForReplace = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             val content = it.data?.getStringExtra("SCAN_RESULT")
-            et_routing_content.text = Utils.getEditable(content!!)
+//            et_routing_content.text = Utils.getEditable(content!!)
         }
     }
 
     private val scanQRCodeForAppend = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             val content = it.data?.getStringExtra("SCAN_RESULT")
-            et_routing_content.text = Utils.getEditable("${et_routing_content.text},$content")
+//            et_routing_content.text = Utils.getEditable("${et_routing_content.text},$content")
         }
     }
 
@@ -139,7 +138,7 @@ class RoutingSettingsFragment : Fragment() {
                 ""
             }
             launch(Dispatchers.Main) {
-                et_routing_content.text = Utils.getEditable(content)
+//                et_routing_content.text = Utils.getEditable(content)
                 activity?.toast(R.string.toast_success)
             }
         }

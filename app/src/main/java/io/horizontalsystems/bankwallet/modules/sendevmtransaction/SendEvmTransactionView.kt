@@ -23,7 +23,6 @@ import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel

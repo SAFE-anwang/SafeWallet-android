@@ -26,6 +26,7 @@ class WatchAddressService(
     fun configuredTokens(accountType: AccountType) = buildList {
         when (accountType) {
             is AccountType.Mnemonic,
+            is AccountType.PrivateKey,
             is AccountType.EvmPrivateKey -> Unit // N/A
             is AccountType.SolanaAddress -> {
                 token(BlockchainType.Solana, accountType)?.let {

@@ -21,19 +21,19 @@ import com.v2ray.ang.util.MmkvManager
 import com.v2ray.ang.util.MmkvManager.ID_MAIN
 import com.v2ray.ang.util.MmkvManager.KEY_SELECTED_SERVER
 import com.v2ray.ang.util.Utils
-import kotlinx.android.synthetic.main.activity_server_socks.*
-import kotlinx.android.synthetic.main.activity_server_vmess.*
-import kotlinx.android.synthetic.main.activity_server_vmess.et_address
-import kotlinx.android.synthetic.main.activity_server_vmess.et_id
-import kotlinx.android.synthetic.main.activity_server_vmess.et_path
-import kotlinx.android.synthetic.main.activity_server_vmess.et_port
-import kotlinx.android.synthetic.main.activity_server_vmess.et_remarks
-import kotlinx.android.synthetic.main.activity_server_vmess.et_request_host
-import kotlinx.android.synthetic.main.activity_server_vmess.sp_allow_insecure
-import kotlinx.android.synthetic.main.activity_server_vmess.sp_header_type
-import kotlinx.android.synthetic.main.activity_server_vmess.sp_header_type_title
-import kotlinx.android.synthetic.main.activity_server_vmess.sp_network
-import kotlinx.android.synthetic.main.activity_server_vmess.sp_stream_security
+//import kotlinx.android.synthetic.main.activity_server_socks.*
+//import kotlinx.android.synthetic.main.activity_server_vmess.*
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_address
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_id
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_path
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_port
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_remarks
+//import kotlinx.android.synthetic.main.activity_server_vmess.et_request_host
+//import kotlinx.android.synthetic.main.activity_server_vmess.sp_allow_insecure
+//import kotlinx.android.synthetic.main.activity_server_vmess.sp_header_type
+//import kotlinx.android.synthetic.main.activity_server_vmess.sp_header_type_title
+//import kotlinx.android.synthetic.main.activity_server_vmess.sp_network
+//import kotlinx.android.synthetic.main.activity_server_vmess.sp_stream_security
 
 class ServerActivity : BaseActivity() {
 
@@ -90,7 +90,7 @@ class ServerActivity : BaseActivity() {
 //            EConfigType.TROJAN -> setContentView(R.layout.activity_server_trojan)
             else -> {}
         }
-        sp_network?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        /*sp_network?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val types = transportTypes(networks[position])
                 sp_header_type?.isEnabled = types.size > 1
@@ -109,7 +109,7 @@ class ServerActivity : BaseActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // do nothing
             }
-        }
+        }*/
         if (config != null) {
             bindingServer(config)
         } else {
@@ -124,7 +124,7 @@ class ServerActivity : BaseActivity() {
     private fun bindingServer(config: ServerConfig): Boolean {
         val outbound = config.getProxyOutbound() ?: return false
         val streamSetting = config.outboundBean?.streamSettings ?: return false
-
+/*
         et_remarks.text = Utils.getEditable(config.remarks)
         et_address.text = Utils.getEditable(outbound.getServerAddress().orEmpty())
         et_port.text = Utils.getEditable(outbound.getServerPort()?.toString() ?: DEFAULT_PORT.toString())
@@ -158,7 +158,7 @@ class ServerActivity : BaseActivity() {
         val network = Utils.arrayFind(networks, streamSetting.network)
         if (network >= 0) {
             sp_network?.setSelection(network)
-        }
+        }*/
         return true
     }
 
@@ -166,7 +166,7 @@ class ServerActivity : BaseActivity() {
      * clear or init server config
      */
     private fun clearServer(): Boolean {
-        et_remarks.text = null
+        /*et_remarks.text = null
         et_address.text = null
         et_port.text = Utils.getEditable(DEFAULT_PORT.toString())
         et_id.text = null
@@ -177,7 +177,7 @@ class ServerActivity : BaseActivity() {
         et_request_host?.text = null
         et_path?.text = null
         sp_stream_security?.setSelection(0)
-        sp_allow_insecure?.setSelection(0)
+        sp_allow_insecure?.setSelection(0)*/
 
         //et_security.text = null
         //sp_flow?.setSelection(0)
@@ -188,7 +188,7 @@ class ServerActivity : BaseActivity() {
      * save server config
      */
     private fun saveServer(): Boolean {
-        if (TextUtils.isEmpty(et_remarks.text.toString())) {
+        /*if (TextUtils.isEmpty(et_remarks.text.toString())) {
             toast(R.string.server_lab_remarks)
             return false
         }
@@ -220,12 +220,12 @@ class ServerActivity : BaseActivity() {
 
         MmkvManager.encodeServerConfig(editGuid, config)
         toast(R.string.toast_success)
-        finish()
+        finish()*/
         return true
     }
 
     private fun saveVnext(vnext: V2rayConfig.OutboundBean.OutSettingsBean.VnextBean, port: Int, config: ServerConfig) {
-        vnext.address = et_address.text.toString().trim()
+        /*vnext.address = et_address.text.toString().trim()
         vnext.port = port
         vnext.users[0].id = et_id.text.toString().trim()
         if (config.configType == EConfigType.VMESS) {
@@ -237,11 +237,11 @@ class ServerActivity : BaseActivity() {
             } else {
                 vnext.users[0].flow = ""
             }
-        }
+        }*/
     }
 
     private fun saveServers(server: V2rayConfig.OutboundBean.OutSettingsBean.ServersBean, port: Int, config: ServerConfig) {
-        server.address = et_address.text.toString().trim()
+        /*server.address = et_address.text.toString().trim()
         server.port = port
         if (config.configType == EConfigType.SHADOWSOCKS) {
             server.password = et_id.text.toString().trim()
@@ -257,11 +257,11 @@ class ServerActivity : BaseActivity() {
             }
         } else if (config.configType == EConfigType.TROJAN) {
             server.password = et_id.text.toString().trim()
-        }
+        }*/
     }
 
     private fun saveStreamSettings(streamSetting: V2rayConfig.OutboundBean.StreamSettingsBean, config: ServerConfig) {
-        val network = if (sp_network != null) networks[sp_network.selectedItemPosition] else DEFAULT_NETWORK
+        /*val network = if (sp_network != null) networks[sp_network.selectedItemPosition] else DEFAULT_NETWORK
         val type = if (sp_header_type != null) transportTypes(network)[sp_header_type.selectedItemPosition] else ""
         val requestHost = if (et_request_host != null) et_request_host.text.toString().trim() else ""
         val path = if (et_path != null) et_path.text.toString().trim() else ""
@@ -286,7 +286,7 @@ class ServerActivity : BaseActivity() {
                 if (sp_stream_security != null) streamSecuritys[sp_stream_security.selectedItemPosition] else defaultTls,
                 allowInsecure,
                 sni
-        )
+        )*/
     }
 
     private fun transportTypes(network: String?): Array<out String> {

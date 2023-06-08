@@ -249,6 +249,16 @@ class ManageWalletsService(
         }
     }
 
+    private fun isBitcoins(type: BlockchainType):Boolean {
+        return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
+                || type == BlockchainType.Dash
+    }
+
+    private fun isL2(type: BlockchainType):Boolean {
+        return type == BlockchainType.Polygon || type == BlockchainType.ArbitrumOne
+                || type == BlockchainType.Optimism
+    }
+
     fun enable(configuredToken: ConfiguredToken) {
         val account = this.account ?: return
 

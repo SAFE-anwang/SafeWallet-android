@@ -24,9 +24,6 @@ import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.chart.ChartModule
 import io.horizontalsystems.bankwallet.modules.chart.ChartViewModel
 import io.horizontalsystems.bankwallet.modules.coin.ChartInfoData
-import io.horizontalsystems.bankwallet.modules.coin.details.CoinDetailsModule
-import io.horizontalsystems.bankwallet.modules.market.Value
-import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.chartview.Chart

@@ -33,7 +33,6 @@ import io.horizontalsystems.bankwallet.modules.settings.security.ui.PasscodeBloc
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.TorBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.*
 import io.horizontalsystems.bankwallet.modules.settings.security.vpn.SecurityVpnSettingsViewModel
-import io.horizontalsystems.bankwallet.modules.tor.TorConnectionActivity
 import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString

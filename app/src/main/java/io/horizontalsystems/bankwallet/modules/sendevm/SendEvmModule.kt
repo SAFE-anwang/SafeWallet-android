@@ -89,8 +89,7 @@ object SendEvmModule {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
-            transactionData.input,
-            transactionData.nonce
+            transactionData.input
         )
     }
 

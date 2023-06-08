@@ -112,7 +112,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService) as T
+                    CoinTokensViewModel(coinTokensService, App.accountManager) as T
                 }
                 else -> throw IllegalArgumentException()
             }

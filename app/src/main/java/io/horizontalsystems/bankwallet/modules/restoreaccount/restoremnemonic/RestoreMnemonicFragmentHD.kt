@@ -237,11 +237,11 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             HudHelper.showErrorMessage(this.requireView(), errorMessage)
         })
 
-        viewModel.inputsVisibleLiveData.observe(viewLifecycleOwner) {
+        /*viewModel.inputsVisibleLiveData.observe(viewLifecycleOwner) {
             binding.passphraseToggle.setChecked(it)
             binding.passphrase.isVisible = it
             binding.passphraseDescription.isVisible = it
-        }
+        }*/
 
         viewModel.passphraseCautionLiveData.observe(viewLifecycleOwner) {
             binding.passphrase.setError(it)

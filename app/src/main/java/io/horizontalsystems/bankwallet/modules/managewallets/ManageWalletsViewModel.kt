@@ -7,18 +7,9 @@ import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.ConfiguredToken
-import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsService.ItemState.Supported
-import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsService.ItemState.Unsupported
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.core.SingleLiveEvent
-import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
 import io.horizontalsystems.bankwallet.modules.transactions.Filter
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.FullCoin
@@ -52,16 +43,16 @@ class ManageWalletsViewModel(
     }
 
 
-    private fun safeSort(items: ArrayList<CoinViewItem<String>>): List<CoinViewItem<String>> {
-        var safe: CoinViewItem<String>? = null
-        var safeErc20: CoinViewItem<String>? = null
-        var bsvErc20: CoinViewItem<String>? = null
+    private fun safeSort(items: ArrayList<CoinViewItem<ConfiguredToken>>): List<CoinViewItem<ConfiguredToken>> {
+        var safe: CoinViewItem<ConfiguredToken>? = null
+        var safeErc20: CoinViewItem<ConfiguredToken>? = null
+        var bsvErc20: CoinViewItem<ConfiguredToken>? = null
         items.forEach {
-            if (it.item == "safe-coin") {
+            if (it.item.token.coin.uid == "safe-coin") {
                 safe = it
-            } else if (it.item == "custom_safe-erc20-SAFE") {
+            } else if (it.item.token.coin.uid == "custom_safe-erc20-SAFE") {
                 safeErc20 = it
-            } else if (it.item == "custom_safe-bep20-SAFE") {
+            } else if (it.item.token.coin.uid == "custom_safe-bep20-SAFE") {
                 bsvErc20 = it
             }
         }

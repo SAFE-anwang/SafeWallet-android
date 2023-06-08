@@ -89,8 +89,8 @@ fun HSHodler(
 private fun Preview_HSHodlerInput() {
     ComposeAppTheme {
         HSHodlerInput(
-            listOf(LockTimeInterval.hour, LockTimeInterval.halfYear),
-            LockTimeInterval.halfYear,
+            listOf(LockTimeInterval.month_1, LockTimeInterval.year_1),
+            LockTimeInterval.year_1,
             {}
         )
     }
@@ -100,6 +100,6 @@ private fun Preview_HSHodlerInput() {
 @Composable
 private fun Preview_HSHodler() {
     ComposeAppTheme {
-        HSHodler(LockTimeInterval.halfYear)
+        HSHodler(LockTimeInterval.month_1)
     }
 }

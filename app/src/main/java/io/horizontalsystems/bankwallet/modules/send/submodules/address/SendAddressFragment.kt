@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
@@ -42,6 +43,7 @@ class SendAddressFragment(
                         modifier = Modifier.padding(top = 12.dp),
                         tokenQuery = token.tokenQuery,
                         coinCode = token.coin.code,
+                        navController= findNavController(),
                         error = viewModel.error
                     ) {
                         viewModel.setAddress(it)

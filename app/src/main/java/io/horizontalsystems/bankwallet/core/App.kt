@@ -21,7 +21,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
-import com.walletconnect.walletconnectv2.client.WalletConnect
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.core.factories.AccountFactory
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
@@ -148,7 +147,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var marketWidgetManager: MarketWidgetManager
         lateinit var marketWidgetRepository: MarketWidgetRepository
         lateinit var contactsRepository: ContactsRepository
-        lateinit var watchAddressBlockchainManager: WatchAddressBlockchainManager
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager

@@ -105,6 +105,7 @@ class AddressHandlerUdn(private val tokenQuery: TokenQuery, private val coinCode
             BlockchainType.ECash -> "XEC"
             BlockchainType.Litecoin -> "LTC"
             BlockchainType.Dash -> "DASH"
+            BlockchainType.Safe -> "DASH"
             BlockchainType.Zcash -> "ZEC"
             BlockchainType.Solana -> "SOL"
             is BlockchainType.Unsupported -> blockchainType.uid

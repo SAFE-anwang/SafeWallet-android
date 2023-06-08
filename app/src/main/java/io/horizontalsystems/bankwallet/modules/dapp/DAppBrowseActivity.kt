@@ -12,7 +12,6 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.navGraphViewModels
-import androidx.room.util.StringUtil
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
@@ -118,7 +117,7 @@ class DAppBrowseActivity: BaseActivity(){
             }
         }
         App.wc2SessionManager.sessions.forEach {
-            if (it.accounts.contains(accountId) && cacheConnectLink == it.peerAppMetaData?.url) {
+            if (cacheConnectLink == it.metaData?.url) {
                 Log.e("connectWallet", "auto connect")
                 wc2Connect(it.topic, null)
             }

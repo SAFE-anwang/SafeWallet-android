@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.anwang.safewallet.safekit.MainNetSafe
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
@@ -147,6 +148,10 @@ class AddressViewModel(
             }
             BlockchainType.Dash -> {
                 val network = MainNetDash()
+                rawAddressHandlers.add(AddressHandlerBase58(network))
+            }
+            BlockchainType.Safe -> {
+                val network = MainNetSafe()
                 rawAddressHandlers.add(AddressHandlerBase58(network))
             }
             BlockchainType.BinanceChain -> {

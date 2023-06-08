@@ -23,6 +23,8 @@ class WC2SessionManager(
 
     private val TAG = "WC2SessionManager"
 
+    var pendingRequestDataToOpen = mutableMapOf<Long, RequestData>()
+
     private val disposable = CompositeDisposable()
     private val sessionsSubject = PublishSubject.create<List<Sign.Model.Session>>()
     val sessionsObservable: Flowable<List<Sign.Model.Session>>
@@ -35,6 +37,12 @@ class WC2SessionManager(
     private val pendingRequestSubject = PublishSubject.create<Long>()
     val pendingRequestObservable: Flowable<Long>
         get() = pendingRequestSubject.toFlowable(BackpressureStrategy.BUFFER)
+
+
+    private val pendingRequestSubject2 = PublishSubject.create<WC2Request>()
+    val pendingRequestObservable2: Flowable<WC2Request>
+        get() = pendingRequestSubject2.toFlowable(BackpressureStrategy.BUFFER)
+
 
     val sessions: List<Sign.Model.Session>
         get() {
@@ -127,6 +135,7 @@ class WC2SessionManager(
     private fun handleSessionRequest(sessionRequest: Sign.Model.SessionRequest) {
         if (sessions.any { it.topic == sessionRequest.topic }) {
             pendingRequestSubject.onNext(sessionRequest.request.id)
+//            pendingRequestSubject2.onNext(sessionRequest.request)
         }
     }
 

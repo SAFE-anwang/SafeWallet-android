@@ -75,7 +75,7 @@ class AdapterFactory(
             }
             BlockchainType.Safe -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
-                SafeAdapter(wallet, syncMode, testMode, backgroundManager)
+                SafeAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Zcash -> {
                 ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType))

@@ -32,6 +32,8 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsFragment
 import io.horizontalsystems.bankwallet.modules.contacts.Mode
 import io.horizontalsystems.bankwallet.modules.main.MainFragment
+import io.horizontalsystems.bankwallet.modules.main.MainModule
+import io.horizontalsystems.bankwallet.modules.main.MainViewModel
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -48,15 +50,17 @@ import io.horizontalsystems.core.getNavigationResult
 fun SettingsScreen(
     navController: NavController,
     viewModel: MainSettingsViewModel = viewModel(factory = MainSettingsModule.Factory()),
+    mainViewModel: MainViewModel
 ) {
 
     navController.getNavigationResult("fallbackHeight") {
         val isFallback = it.getBoolean("isFallback")
         try {
             if (isFallback) {
-                if (isAdded) {
+                mainViewModel.onSelect(MainModule.MainNavigation.Balance)
+                /*if (isAdded) {
                     (requireParentFragment() as MainFragment).openBalanceFragment()
-                }
+                }*/
             }
         } catch (e: Exception) {
 

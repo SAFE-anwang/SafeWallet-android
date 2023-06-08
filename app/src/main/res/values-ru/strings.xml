@@ -1304,7 +1304,6 @@
     <string name="Contacts_ActionMore">Ещё</string>
     <string name="Contacts_Error_DefinedAddress">Этот адрес уже используется для %s</string>
     <string name="Contacts_Error_DefinedName">Такое имя уже существует</string>
-    <string name="BiometricAuth_DialogTitle">Биометрический Сканер</string>
     <!-- VPN -->
     <string name="VPN_Title">VPN</string>
 </resources>

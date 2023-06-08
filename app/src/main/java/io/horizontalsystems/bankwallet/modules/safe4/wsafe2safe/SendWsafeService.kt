@@ -56,7 +56,7 @@ class SendWsafeService(
                 val wsafeKit = WsafeKit.getInstance(adapter.evmKitWrapper.evmKit.chain)
                 val safeAddr = toSafeAddr!!.hex
                 val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
-                val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
+                val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo())
                 State.Ready(SendEvmData(transactionData, additionalInfo))
             } else {
                 State.NotReady

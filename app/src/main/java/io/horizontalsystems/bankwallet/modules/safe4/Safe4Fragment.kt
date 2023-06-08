@@ -106,21 +106,22 @@ class Safe4Fragment : BaseFragment() {
 }
 
 @Composable
-private fun Safe4Screen(
+fun Safe4Screen(
     viewModel: Safe4ViewModel,
     navController: NavController,
     onClick: (String) -> Unit
 ) {
+    ComposeAppTheme {
+        Surface(color = ComposeAppTheme.colors.tyler) {
+            Column {
+                AppBar(
+                    TranslatableString.ResString(R.string.Safe4_Title),
+                )
 
-    Surface(color = ComposeAppTheme.colors.tyler) {
-        Column {
-            AppBar(
-                TranslatableString.ResString(R.string.Safe4_Title),
-            )
-
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Safe4Sections(viewModel, navController, onClick)
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Safe4Sections(viewModel, navController, onClick)
+                }
             }
         }
     }
