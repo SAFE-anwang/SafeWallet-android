@@ -21,6 +21,7 @@ class AdapterFactory(
     private val evmSyncSourceManager: EvmSyncSourceManager,
     private val binanceKitManager: BinanceKitManager,
     private val solanaKitManager: SolanaKitManager,
+    private val tronKitManager: TronKitManager,
     private val backgroundManager: BackgroundManager,
     private val restoreSettingsManager: RestoreSettingsManager,
     private val coinManager: ICoinManager,
@@ -49,6 +50,12 @@ class AdapterFactory(
         val solanaKitWrapper = solanaKitManager.getSolanaKitWrapper(wallet.account)
 
         return SplAdapter(solanaKitWrapper, wallet, address)
+    }
+
+    private fun getTrc20Adapter(wallet: Wallet, address: String): IAdapter {
+        val tronKitWrapper = tronKitManager.getTronKitWrapper(wallet.account)
+
+        return Trc20Adapter(tronKitWrapper, address, wallet)
     }
 
     fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
@@ -81,22 +88,37 @@ class AdapterFactory(
                 ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType))
             }
             BlockchainType.Ethereum,
-            BlockchainType.EthereumGoerli,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
             BlockchainType.Gnosis,
             BlockchainType.Fantom,
-            BlockchainType.ArbitrumOne -> getEvmAdapter(wallet)
-            BlockchainType.BinanceChain -> getBinanceAdapter(wallet, "BNB")
+            BlockchainType.ArbitrumOne -> {
+                getEvmAdapter(wallet)
+            }
+
+            BlockchainType.BinanceChain -> {
+                getBinanceAdapter(wallet, "BNB")
+            }
+
             BlockchainType.Solana -> {
                 val solanaKitWrapper = solanaKitManager.getSolanaKitWrapper(wallet.account)
                 SolanaAdapter(solanaKitWrapper)
             }
+            BlockchainType.Tron -> {
+                TronAdapter(tronKitManager.getTronKitWrapper(wallet.account))
+            }
+
             else -> null
         }
-        is TokenType.Eip20 -> getEip20Adapter(wallet, tokenType.address)
+        is TokenType.Eip20 -> {
+            if (wallet.token.blockchainType == BlockchainType.Tron) {
+                getTrc20Adapter(wallet, tokenType.address)
+            } else {
+                getEip20Adapter(wallet, tokenType.address)
+            }
+        }
         is TokenType.Bep2 -> getBinanceAdapter(wallet, tokenType.symbol)
         is TokenType.Spl -> getSplAdapter(wallet, tokenType.address)
         is TokenType.Unsupported -> null
@@ -128,10 +150,17 @@ class AdapterFactory(
         return SolanaTransactionsAdapter(solanaKitWrapper, solanaTransactionConverter)
     }
 
+    fun tronTransactionsAdapter(source: TransactionSource): ITransactionsAdapter? {
+        val tronKitWrapper = tronKitManager.getTronKitWrapper(source.account)
+        val baseToken = coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: return null
+        val tronTransactionConverter = TronTransactionConverter(coinManager, tronKitWrapper, source, baseToken, evmLabelManager)
+
+        return TronTransactionsAdapter(tronKitWrapper, tronTransactionConverter)
+    }
+
     fun unlinkAdapter(wallet: Wallet) {
         when (val blockchainType = wallet.transactionSource.blockchain.type) {
             BlockchainType.Ethereum,
-            BlockchainType.EthereumGoerli,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
@@ -145,6 +174,9 @@ class AdapterFactory(
             BlockchainType.Solana -> {
                 solanaKitManager.unlink(wallet.account)
             }
+            BlockchainType.Tron -> {
+                tronKitManager.unlink(wallet.account)
+            }
             else -> Unit
         }
     }
@@ -152,7 +184,6 @@ class AdapterFactory(
     fun unlinkAdapter(transactionSource: TransactionSource) {
         when (val blockchainType = transactionSource.blockchain.type) {
             BlockchainType.Ethereum,
-            BlockchainType.EthereumGoerli,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
@@ -162,6 +193,9 @@ class AdapterFactory(
             }
             BlockchainType.Solana -> {
                 solanaKitManager.unlink(transactionSource.account)
+            }
+            BlockchainType.Tron -> {
+                tronKitManager.unlink(transactionSource.account)
             }
             else -> Unit
         }

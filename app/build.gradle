@@ -10,8 +10,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 77
-        versionName "0.32.1"
+        versionCode 78
+        versionName "0.33.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -73,6 +73,7 @@ android {
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
+            resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
         }
 
@@ -115,6 +116,7 @@ android {
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
+            resValue "string", "trongridApiKey", "cec10562-8f2f-44a8-a0f6-245842bc6758"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -136,12 +138,9 @@ android {
     packagingOptions {
         resources {
             pickFirsts += ['META-INF/atomicfu.kotlin_module']
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE.md', 'META-INF/NOTICE.md']
         }
         exclude 'google/protobuf/*.proto'
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE.md'
-        exclude 'META-INF/NOTICE.md'
     }
 
     kotlinOptions {
@@ -155,6 +154,9 @@ android {
         kotlinCompilerExtensionVersion '1.4.0'
     }
     namespace 'io.horizontalsystems.bankwallet'
+    lint {
+        disable 'LogNotTimber'
+    }
 
     configurations.all { c ->
         c.resolutionStrategy.dependencySubstitution {
@@ -170,9 +172,6 @@ android {
         }
     }
 
-    lintOptions {
-        disable 'LogNotTimber'
-    }
 }
 
 dependencies {
@@ -270,9 +269,12 @@ dependencies {
     implementation project(':bitcoin-kit-android:safekit')
     implementation project(':bitcoin-kit-android:ecashkit')
 
+
+
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
     implementation 'com.github.horizontalsystems:solana-kit-android:97dcdba'
+    implementation 'com.github.horizontalsystems:tron-kit-android:943f348'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
     implementation project(':ethereum-kit-android:ethereumkit')

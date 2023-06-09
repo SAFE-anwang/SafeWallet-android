@@ -40,6 +40,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.tronkit.transaction.Fee
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.*
 import io.reactivex.Flowable
@@ -52,6 +53,7 @@ import java.math.BigInteger
 import java.util.Date
 import java.util.Optional
 import io.horizontalsystems.solanakit.models.Address as SolanaAddress
+import io.horizontalsystems.tronkit.models.Address as TronAddress
 
 interface IAdapterManager {
     val adaptersReadyObservable: Flowable<Map<Wallet, IAdapter>>
@@ -68,6 +70,7 @@ interface IAdapterManager {
 interface ILocalStorage {
     var amountInputType: AmountInputType?
     var baseCurrencyCode: String?
+    var authToken: String?
 
     var baseBitcoinProvider: String?
     var baseLitecoinProvider: String?
@@ -152,7 +155,7 @@ interface IBackupManager {
 }
 
 interface IAccountFactory {
-    fun account(name: String, type: AccountType, origin: AccountOrigin, backedUp: Boolean): Account
+    fun account(name: String, type: AccountType, origin: AccountOrigin, backedUp: Boolean, fileBackup: Boolean): Account
     fun watchAccount(name: String, type: AccountType): Account
     fun getNextWatchAccountName(): String
     fun getNextAccountName(): String
@@ -256,6 +259,9 @@ data class BalanceData(val available: BigDecimal, val locked: BigDecimal = BigDe
 
 interface IReceiveAdapter {
     val receiveAddress: String
+
+    val isAccountActive: Boolean
+        get() = true
 }
 
 interface ISendBitcoinAdapter {
@@ -339,6 +345,16 @@ interface IAdapter {
 interface ISendSolanaAdapter {
     val availableBalance: BigDecimal
     suspend fun send(amount: BigDecimal, to: SolanaAddress): FullTransaction
+}
+
+interface ISendTronAdapter {
+    val balanceData: BalanceData
+    val trxBalanceData: BalanceData
+
+    suspend fun estimateFee(amount: BigInteger, to: TronAddress): List<Fee>
+    suspend fun send(amount: BigInteger, to: TronAddress, feeLimit: Long?)
+    suspend fun isAddressActive(address: TronAddress): Boolean
+    fun isOwnAddress(address: TronAddress): Boolean
 }
 
 interface IAccountsStorage {

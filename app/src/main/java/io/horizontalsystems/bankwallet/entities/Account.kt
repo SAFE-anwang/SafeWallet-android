@@ -2,10 +2,18 @@ package io.horizontalsystems.bankwallet.entities
 
 import android.os.Parcelable
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.PassphraseValidator
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.shorten
-import io.horizontalsystems.hdwalletkit.*
+import io.horizontalsystems.ethereumkit.core.signer.Signer
+import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.hdwalletkit.HDExtendedKey
+import io.horizontalsystems.hdwalletkit.HDWallet
+import io.horizontalsystems.hdwalletkit.Language
+import io.horizontalsystems.hdwalletkit.Mnemonic
+import io.horizontalsystems.hdwalletkit.WordList
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.consenlabs.tokencore.wallet.WalletManager
@@ -19,7 +27,8 @@ data class Account(
     val name: String,
     val type: AccountType,
     val origin: AccountOrigin,
-    val isBackedUp: Boolean = false
+    val isBackedUp: Boolean = false,
+    val isFileBackedUp: Boolean = false,
 ) : Parcelable {
 
     @IgnoredOnParcel
@@ -27,6 +36,7 @@ data class Account(
         get() = when (this.type) {
             is AccountType.EvmAddress -> true
             is AccountType.SolanaAddress -> true
+            is AccountType.TronAddress -> true
             is AccountType.HdExtendedKey -> this.type.hdExtendedKey.isPublic
             else -> false
         }
@@ -58,7 +68,7 @@ data class Account(
     val nonRecommended: Boolean by lazy {
         if (type is AccountType.Mnemonic) {
             val englishWords = WordList.wordList(Language.English).validWords(type.words)
-            val standardPassphrase = PassphraseValidator().validate(type.passphrase)
+            val standardPassphrase = PassphraseValidator().containsValidCharacters(type.passphrase)
             !englishWords || !standardPassphrase
         } else {
             false
@@ -92,6 +102,9 @@ sealed class AccountType : Parcelable {
 
     @Parcelize
     data class SolanaAddress(val address: String) : AccountType()
+
+    @Parcelize
+    data class TronAddress(val address: String): AccountType()
 
     @Parcelize
     data class Mnemonic(val words: List<String>, val passphrase: String) : AccountType() {
@@ -208,6 +221,7 @@ sealed class AccountType : Parcelable {
             }
             is EvmAddress -> "EVM Address"
             is SolanaAddress -> "Solana Address"
+            is TronAddress -> "Tron Address"
             is EvmPrivateKey -> "EVM Private Key"
             is HdExtendedKey -> {
                 when (this.hdExtendedKey.derivedType) {
@@ -244,6 +258,7 @@ sealed class AccountType : Parcelable {
         get() = when (this) {
             is EvmAddress -> this.address.shorten()
             is SolanaAddress -> this.address.shorten()
+            is TronAddress -> this.address.shorten()
             else -> this.description
         }
 
@@ -258,6 +273,30 @@ sealed class AccountType : Parcelable {
             is Mnemonic, is EvmPrivateKey -> true
             else -> false
         }
+
+    fun evmAddress(chain: Chain) = when (this) {
+        is Mnemonic -> Signer.address(seed, chain)
+        is EvmPrivateKey -> Signer.address(key)
+        else -> null
+    }
+
+    fun sign(message: ByteArray, isLegacy: Boolean = false) : ByteArray? {
+        val signer = when (this) {
+            is Mnemonic -> {
+                Signer.getInstance(seed, App.evmBlockchainManager.getChain(BlockchainType.Ethereum))
+            }
+            is EvmPrivateKey -> {
+                Signer.getInstance(key, App.evmBlockchainManager.getChain(BlockchainType.Ethereum))
+            }
+            else -> null
+        } ?: return null
+
+        return if (isLegacy) {
+            signer.signByteArrayLegacy(message)
+        } else {
+            signer.signByteArray(message)
+        }
+    }
 }
 
 val HDWallet.Purpose.derivation: AccountType.Derivation

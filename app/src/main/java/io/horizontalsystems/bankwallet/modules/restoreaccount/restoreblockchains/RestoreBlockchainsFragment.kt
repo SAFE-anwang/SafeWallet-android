@@ -57,7 +57,9 @@ class RestoreBlockchainsFragment : BaseFragment() {
     val vmFactory by lazy {
         RestoreBlockchainsModule.Factory(
             arguments?.getString(ACCOUNT_NAME_KEY)!!,
-            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!
+            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!,
+            false,
+            false
         )
     }
 
@@ -129,7 +131,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
             }
         }
 
-        coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
+        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
             showBottomSelectorDialog(
                 config,
                 onSelect = { indexes -> coinSettingsViewModel.onSelect(indexes) },
@@ -143,7 +145,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
                 onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
                 onCancel = { coinTokensViewModel.onCancelSelect() }
             )
-        }
+        }*/
     }
 
     private fun showBottomSelectorDialog(

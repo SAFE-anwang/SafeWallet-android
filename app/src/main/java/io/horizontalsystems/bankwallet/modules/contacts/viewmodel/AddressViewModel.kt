@@ -58,7 +58,8 @@ class AddressViewModel(
                 BlockchainType.Zcash,
                 BlockchainType.Solana,
                 BlockchainType.BinanceChain,
-                BlockchainType.ECash
+                BlockchainType.ECash,
+                BlockchainType.Tron
             )
             val definedBlockchainTypes = definedAddresses?.map { it.blockchain.type } ?: listOf()
             val availableBlockchainUids = allBlockchainTypes.filter { !definedBlockchainTypes.contains(it) }.map { it.uid }
@@ -162,7 +163,6 @@ class AddressViewModel(
                 rawAddressHandlers.add(AddressHandlerPure())
             }
             BlockchainType.Ethereum,
-            BlockchainType.EthereumGoerli,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Avalanche,
@@ -175,6 +175,9 @@ class AddressViewModel(
             }
             BlockchainType.Solana -> {
                 rawAddressHandlers.add(AddressHandlerSolana())
+            }
+            BlockchainType.Tron -> {
+                rawAddressHandlers.add(AddressHandlerTron())
             }
             is BlockchainType.Unsupported -> {
             }

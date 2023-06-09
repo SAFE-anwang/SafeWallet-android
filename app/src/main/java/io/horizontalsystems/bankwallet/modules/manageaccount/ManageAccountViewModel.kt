@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.balance.headerNote
+import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.BackupItem
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.KeyAction
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
@@ -27,7 +29,8 @@ class ManageAccountViewModel(
             canSave = false,
             closeScreen = false,
             headerNote = account.headerNote(false),
-            keyActions = getKeyActions(account)
+            keyActions = getKeyActions(account),
+            backupActions = getBackupItems(account),
         )
     )
         private set
@@ -60,29 +63,49 @@ class ManageAccountViewModel(
         viewState = viewState.copy(closeScreen = false)
     }
 
+    private fun getBackupItems(account: Account): List<BackupItem> {
+        if (account.isWatchAccount) {
+            return emptyList()
+        }
+        if (account.type is AccountType.HdExtendedKey || account.type is AccountType.EvmPrivateKey) {
+            return listOf(BackupItem.LocalBackup(false))
+        }
+
+        val items = mutableListOf<BackupItem>()
+        if (!account.isBackedUp && !account.isFileBackedUp) {
+            items.add(BackupItem.ManualBackup(true))
+            items.add(BackupItem.LocalBackup(true))
+            items.add(BackupItem.InfoText(R.string.BackupRecoveryPhrase_BackupRequiredText))
+        } else {
+            items.add(BackupItem.ManualBackup(showAttention = !account.isBackedUp, completed = account.isBackedUp))
+            items.add(BackupItem.LocalBackup(false))
+            items.add(BackupItem.InfoText(R.string.BackupRecoveryPhrase_BackupRecomendedText))
+        }
+
+        return items
+    }
+
     private fun getKeyActions(account: Account): List<KeyAction> {
-        if (!account.isBackedUp) {
-            return listOf(KeyAction.Backup)
+        if (!account.isBackedUp && !account.isFileBackedUp) {
+            return emptyList()
         }
         return when (account.type) {
             is AccountType.Mnemonic -> listOf(
                 KeyAction.RecoveryPhrase,
                 KeyAction.PrivateKeys,
-                KeyAction.PublicKeys
+                KeyAction.PublicKeys,
             )
+
             is AccountType.PrivateKey -> listOf(
                 KeyAction.PrivateKeys
             )
             is AccountType.EvmPrivateKey -> listOf(
                 KeyAction.PrivateKeys,
-                KeyAction.PublicKeys
+                KeyAction.PublicKeys,
             )
-            is AccountType.EvmAddress -> listOf(
-                KeyAction.PublicKeys
-            )
-            is AccountType.SolanaAddress -> listOf(
-                KeyAction.PublicKeys
-            )
+            is AccountType.EvmAddress -> listOf()
+            is AccountType.SolanaAddress -> listOf()
+            is AccountType.TronAddress -> listOf()
             is AccountType.HdExtendedKey -> {
                 if (account.type.hdExtendedKey.isPublic) {
                     listOf(KeyAction.PublicKeys)
@@ -96,7 +119,10 @@ class ManageAccountViewModel(
     private fun handleUpdatedAccounts(accounts: List<Account>) {
         val account = accounts.find { it.id == account.id }
         viewState = if (account != null) {
-            viewState.copy(keyActions = getKeyActions(account))
+            viewState.copy(
+                keyActions = getKeyActions(account),
+                backupActions = getBackupItems(account)
+            )
         } else {
             viewState.copy(closeScreen = true)
         }

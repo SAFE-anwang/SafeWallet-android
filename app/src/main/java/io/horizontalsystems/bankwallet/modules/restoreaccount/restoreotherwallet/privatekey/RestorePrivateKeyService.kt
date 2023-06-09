@@ -159,7 +159,7 @@ class RestorePrivateKeyService(
     }
 
     fun restore(accountType: AccountType) {
-        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true)
+        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, false)
         accountManager.save(account)
 
         restoreSettingsMap.forEach { (token, settings) ->
@@ -169,7 +169,7 @@ class RestorePrivateKeyService(
         items.filter { it.enabled }.forEach { item ->
             val isEvm = evmBlockchainManager.allBlockchainTypes.contains(item.blockchain.type)
             if (isEvm) {
-                evmBlockchainManager.getEvmAccountManager(item.blockchain.type).markAutoEnable(account)
+//                evmBlockchainManager.getEvmAccountManager(item.blockchain.type).markAutoEnable(account)
             }
         }
 

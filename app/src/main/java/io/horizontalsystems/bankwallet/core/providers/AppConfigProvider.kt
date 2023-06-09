@@ -11,6 +11,7 @@ class AppConfigProvider(val index: Int) {
 //     val appWebPageLink: String = "https://unstoppable.money"
      val appWebPageLink: String = "https://www.anwang.com"
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
+val analyticsLink: String = "https://unstoppable.money/analytics"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
 //     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
      val appTwitterLink: String = "https://twitter.com/safeanwang"
@@ -20,7 +21,7 @@ class AppConfigProvider(val index: Int) {
     val appRedditLink: String = "https://www.reddit.com/user/safe_2018"
 //     val reportEmail = "support.unstoppable@protonmail.com"
     val reportEmail = "foundation@anwang.com"
-     val btcCoreRpcUrl: String = "https://btc.horizontalsystems.xyz/rpc"
+     val btcCoreRpcUrl: String = "https://btc.blocksdecoded.com/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
      val walletConnectUrl = "relay.walletconnect.com"
 
@@ -130,12 +131,17 @@ class AppConfigProvider(val index: Int) {
         Translator.getString(R.string.solscanApiKey)
     }
 
+    val trongridApiKey by lazy {
+        Translator.getString(R.string.trongridApiKey)
+    }
+
      val fiatDecimal: Int = 2
      val maxDecimal: Int = 8
      val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
 
     val currencies: List<Currency> = listOf(
         Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
+        Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
         Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
         Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
         Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
@@ -143,9 +149,12 @@ class AppConfigProvider(val index: Int) {
         Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
         Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
         Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
+        Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
         Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
         Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
         Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
+        Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
+        Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
         Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
         Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
         Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),

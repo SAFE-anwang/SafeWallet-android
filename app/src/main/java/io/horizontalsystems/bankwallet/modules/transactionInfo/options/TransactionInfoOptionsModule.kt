@@ -60,7 +60,6 @@ object TransactionInfoOptionsModule {
                 Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
                 Chain.Gnosis -> BlockchainType.Gnosis
                 Chain.Fantom -> BlockchainType.Fantom
-                Chain.EthereumGoerli -> BlockchainType.EthereumGoerli
                 else -> BlockchainType.Ethereum
             }
             App.evmBlockchainManager.getBaseToken(blockchainType)!!
@@ -108,7 +107,11 @@ object TransactionInfoOptionsModule {
                 Type.SpeedUp -> transaction.gasLimit
                 Type.Cancel -> null
             }
-            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, gasLimit = gasLimit)
+            val gasDataService = EvmCommonGasDataService.instance(
+                evmKitWrapper.evmKit,
+                evmKitWrapper.blockchainType,
+                gasLimit = gasLimit
+            )
             EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, transactionData)
         }
 

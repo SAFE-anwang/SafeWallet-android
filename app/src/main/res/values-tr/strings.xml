@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Common-->
+    <string name="Error_ParameterNotSet">Parametre ayarlanmadı</string>
     <string name="LargeNumberFormat">%s%s</string>
     <string name="Alert_Cancel">İptal</string>
     <string name="Alert_Copy">Kopyala</string>
@@ -42,6 +43,10 @@
     <string name="Button_Copy">Kopyala</string>
     <string name="Button_Browser">Tarayıcı</string>
     <string name="Button_Delete">Sil</string>
+    <string name="Button_LearnMore">Daha fazla bilgi edin</string>
+    <string name="Button_Activate">Activate</string>
+    <string name="Button_Sign">kaydol</string>
+    <string name="Button_Activating">Activating</string>
     <string name="Error">Hata</string>
     <string name="NotAvailable">N/A</string>
     <string name="Any">Herhangi</string>
@@ -68,6 +73,7 @@
     <string name="CreateWallet_Mnemonic">Kurtarma cümlesi</string>
     <string name="CreateWallet_Wordlist">Kelime Listesi</string>
     <string name="Passphrase">Parola</string>
+    <string name="Password">Şifre</string>
     <string name="ConfirmPassphrase">Onayla</string>
     <string name="CreateWallet_N_WordsRecommended">%s kelimeler (Tavsiye edilen)</string>
     <string name="CreateWallet_N_Words">%s kelime</string>
@@ -397,6 +403,8 @@
     <string name="FeeSettings_FeeLegacy_Info">Verilen işlem için beklenen maksimum toplam ücret. Genellikle, gerçek işlem ücreti daha düşük olur.</string>
     <string name="FeeSettings_Fee">Maks. Ücret</string>
     <string name="FeeSettings_Fee_Info">Bu işlem için ödenecek maksimum tahmini işlem ücreti, aşağıdaki gaz limiti, maksimum ücret oranı ve maksimum öncelik ücreti değerlerine göre hesaplanır. Ödenen gerçek ücret normalde daha düşük olacaktır.</string>
+    <string name="FeeSettings_NetworkFee">Ağ Ücreti</string>
+    <string name="FeeSettings_NetworkFee_Info">Ağda belirli bir işlemi göndermenin tahmini maliyeti.</string>
     <string name="FeeSettings_GasLimit">Gas Limit</string>
     <string name="FeeSettings_GasLimit_Info">İşlem karmaşıklığı \"gaz\" adı verilen birimlerle ölçülür. Yürütülen akıllı sözleşmeye bağlı olarak değişir. Gaz Limiti, onu yürütmek için gereken tahmini maksimum gazdır. Kullanılan gerçek gaz normalde daha düşük olacaktır.</string>
     <string name="FeeSettings_GasPrice">Gas Price (Gwei)</string>
@@ -430,6 +438,18 @@
     <string name="FeeInfo_AverageDescription">Genellikle bu ücret, işlemin Bitcoin için dakikalar/saatler içinde ve Ethereum için dakikalar içinde işleme alınması için yeterli olacaktır.</string>
     <string name="FeeInfo_Fast">Hızlı</string>
     <string name="FeeInfo_FastDescription">Önceliğin önemli olduğu işlemler için yüksek ücret değeri kullanmanızı öneririz. Bir işlemin Bitcoin için 10 dakika, Ethereum için 1-2 dakika içerisinde tamamlanması için yeterli olacaktır.</string>
+    <string name="FeeInfo_TronFee_Title">Masraf</string>
+    <string name="FeeInfo_TronFee_Description">Ağda belirli bir işlemi göndermenin tahmini maliyeti. (Enerji, Bant Genişliği ve Aktivasyon Ücreti hariç)</string>
+    <string name="FeeInfo_TronActivationFee_Title">Aktivasyon ücreti</string>
+    <string name="FeeInfo_TronActivationFee_Description">TRX veya TRC-10 jetonlarını etkin olmayan bir hesap adresine aktarmak, hesabı etkinleştirir.</string>
+    <string name="FeeInfo_TronResourcesConsumed_Title">Tüketilen Kaynaklar</string>
+    <string name="FeeInfo_TronResourcesConsumed_Description">Band Width, blockchain veritabanında saklanan işlem baytlarının boyutunu ölçen birimdir. İşlem ne kadar büyük olursa, o kadar fazla bant genişliği kaynağı tüketilir.\n\nEnergy, TRON sanal makinesinin TRON ağında belirli işlemleri gerçekleştirmek için ihtiyaç duyduğu hesaplama miktarını ölçen birimdir.\n\nAkıllı sözleşmeden beri işlemlerin yürütülmesi için bilgi işlem kaynakları gerekir, her akıllı sözleşme işleminin energy ücretini ödemesi gerekir.</string>
+    <!--Tron-->
+    <string name="Tron_AddressNotActive_Warning">Bu adres aktif değil</string>
+    <string name="Tron_AddressNotActive_Warning_Short">(aktif değil)</string>
+    <string name="Tron_AddressNotActive_Title">Aktif Adres Değil</string>
+    <string name="Tron_AddressNotActive_Info">TRON blok zincirinde yeni oluşturulan hesaplar etkin değildir ve sorgulanamaz veya araştırılamaz. Etkinleştirilmeleri gerekiyor.\n\nTRX veya TRC-10 jetonlarını etkin olmayan bir hesap adresine aktarmak, hesabı etkinleştirir. Tron zincirinde yeni bir hesabın etkinleştirilmesi 1 TRX ücret gerektirir</string>
+    <string name="Tron_SelfSendTrxNotAllowed">TRX kendinize aktarılamıyor</string>
     <!--WalletConnect-->
     <string name="WalletConnect_Request">İstek</string>
     <string name="WalletConnect_SendRequest_Title">Gönder</string>
@@ -513,6 +533,7 @@
     <string name="Swap_BuyPrice">Alış Fiyatı</string>
     <string name="Swap_PriceImpact">Fiyat Etkisi</string>
     <string name="Swap_PriceImpactTooHigh">Rayiç fiyat ile beklenen uzlaşma fiyatı arasındaki fark çok yüksek.</string>
+    <string name="Swap_PriceImpactWarning">Önemli! Son derece olumsuz bir fiyat alıyorsunuz. Bunun nedeni son derece düşük likiditedir.</string>
     <string name="Swap_MinimumReceived">Garantili Tutar</string>
     <string name="Swap_EstimatedFee">Tahmini Ücret</string>
     <string name="Swap_MaxFee">Maksimum Ücret</string>
@@ -708,6 +729,7 @@
     <string name="Appearance_BalanceValue">BAKIYE DEĞERI</string>
     <string name="Appearance_Warning_CloseApplication">Simgeyi değiştirmek uygulamayı kapatır</string>
     <string name="Appearance_MarketsTab">Markets Tab</string>
+    <string name="Appearance_BalanceAutoHide">Denge Otomatik Gizleme</string>
     <string name="BalanceViewType_CoinValue">Para değeri</string>
     <string name="BalanceViewType_FiatValue">Fiat Değeri</string>
     <string name="SettingsAboutApp_Title">Uygulama Hakkında</string>
@@ -739,7 +761,7 @@
     <!--Btc Blockchain Settings -->
     <string name="BtcBlockchainSettings_RestoreSourceChangeWarning">Bu değişiklikten sonra cüzdan Bitcoin blok zinciri ile kendini yeniden senkronize etmek zorunda kalacak.</string>
     <string name="BtcBlockchainSettings_RestoreSource">Geri Yükleme Kaynağı</string>
-    <string name="BtcBlockchainSettings_RestoreSourceSettingsDescription">Select a data source for wallet restore. Restoring from blockchain takes considerably more time.</string>
+    <string name="BtcBlockchainSettings_RestoreSourceSettingsDescription">M-cüzdan geri yüklemesi için bir veri kaynağı seçin. Blok zincirinden geri yükleme çok daha fazla zaman alır.</string>
     <string name="BtcBlockchainSettings_RestoreSourceDescription">This setting is only relevant when restoring an existing wallet. It is a process of getting transaction history for a given cryptocurrency so the wallet app is able to display past transactions and calculate the user\'s balance. This needs to happen only once when the user restores previously created wallets.\n\nAt this point, there are two potential ways for a mobile wallet like Unstoppable to do this:\n\n1. from the API Server: There is a third-party predefined server that hosts the entire blockchain and has all the data processed and optimized to provide that data in a fast manner. This method is fast but potentially (not necessarily) less private. It\'s also a centralized method to restore a wallet as it depends on the availability of a 3rd party server. This option is recommended due to its speed of getting data (5-10 minutes).\n\n2. from Blockchain: The app tries to restore directly from a network of blockchain nodes. This is a decentralized way to restore wallet balance and past transactions. The app pings many of the network nodes and requests data from them without addressing some nodes specifically. This option is slow and can easily take 2-3 hours, the app needs to be open while restoring is happening. This restore method doesn\'t depend on any entity and should work in all conditions.</string>
     <string name="BtcBlockchainSettings_InputsOutputs">Giriş/Çıkış</string>
     <string name="BtcBlockchainSettings_TransactionSettings">İşlem Ayarları</string>
@@ -855,6 +877,21 @@
     <string name="ManageAccounts_CreateNewWallet">Oluştur</string>
     <string name="ManageAccounts_ImportWallet">Geri Yükle</string>
     <string name="ManageAccounts_WatchAddress">Adresi İzle</string>
+    <!-- Import Wallet -->
+    <string name="ImportWallet_BackupFile">Dosyadan</string>
+    <string name="ImportWallet_BackupFile_Description">Bir yedek dosyadan içe aktar</string>
+    <string name="ImportWallet_RecoveryPhrase">Kurtarma İfadesinden</string>
+    <string name="ImportWallet_RecoveryPhrase_Description">Kurtarma ifadesini veya özel anahtarı kullanarak içe aktarın.</string>
+    <string name="ImportWallet_WatchAddress">Adresi İzle</string>
+    <string name="ImportWallet_WatchAddress_Description">EVM-Chain ve BTC, LTC, DASH adreslerinin gözlem modu</string>
+    <string name="ImportWallet_WarningInvalidJson">Geçersiz Json Dosyası</string>
+    <string name="ImportWallet_WarningInvalidJsonDescription">Bu dosya, cüzdanın geçerli bir yedeği değil veya dosya bozulmuş ve geri yüklenemez.</string>
+    <string name="ImportWallet_SelectAnotherFile">Başka Bir Dosya Seçin</string>
+    <!-- Import Backup File -->
+    <string name="ImportBackupFile_EnterPassword">Parolanı Gir</string>
+    <string name="ImportBackupFile_EnterPassword_Description">Cüzdanınızı içe aktarmak için yedek parolayı girin.</string>
+    <string name="ImportBackupFile_Error_InvalidPassword">Geçersiz şifre</string>
+    <string name="ImportBackupFile_BackupPassword">Yedek Şifre</string>
     <string name="Watch_Address_Hint">Adres veya Domain</string>
     <string name="Watch_XPubKey_Hint">Account Extended Public Key girin</string>
     <string name="Watch_Address_Description">Yalnızca Ethereum ve diğer desteklenen EVM blok zincirleri için kullanılabilir.</string>
@@ -865,6 +902,7 @@
     <string name="Watch_WatchBy">İzle</string>
     <string name="Watch_TypeEvmAddress">EVM Adresi</string>
     <string name="Watch_TypeSolanaAddress">Solana Adresi</string>
+    <string name="Watch_TypeTronAddress">Tron Adresi</string>
     <string name="Watch_TypeXPubKey">Account xPubKey</string>
     <string name="Watch_Error_InvalidXPubKey">Geçersiz xPubKey</string>
     <!--Manage Account-->
@@ -911,7 +949,21 @@
     <string name="BackupRecoveryPhrase_Title">Cüzdanı yedekle</string>
     <string name="BackupRecoveryPhrase_Description">Kurtarma ifadesinin bir kopyasını oluşturarak bu cüzdanı yedekleyin. Telefonunuzun kaybolması, çalınması, kırılması vb. durumlarda cüzdana erişmek için gerekli olacaktır.</string>
     <string name="BackupRecoveryPhrase_Backup">Yedekle</string>
+    <string name="BackupRecoveryPhrase_ManualBackup">Manuel Yedekleme</string>
+    <string name="BackupRecoveryPhrase_LocalBackup">Yerel Yedekleme</string>
     <string name="BackupRecoveryPhrase_Later">Sonra</string>
+    <string name="BackupRecoveryPhrase_BackupRequiredText">Cüzdanı kullanmaya başlamak için cüzdan yedekleme seçeneklerinden birini tamamlayın.</string>
+    <string name="BackupRecoveryPhrase_BackupRecomendedText">Her cüzdan için manuel bir yedeğin olması önerilir.</string>
+    <!-- Local Backup -->
+    <string name="LocalBackup_Title">Yerel Yedekleme</string>
+    <string name="LocalBackup_SaveAndBackup">Kaydet ve Yedekle</string>
+    <string name="LocalBackup_SetPassword">Şifre Ayarla</string>
+    <string name="LocalBackup_BackupSaved">Yedek Kaydedildi</string>
+    <string name="LocalBackup_PasswordInvalid">Bir büyük harf, bir küçük harf, bir rakam ve bir sembol dahil olmak üzere en az 8 karakter.</string>
+    <string name="LocalBackup_DontForgetPasswordWarning">Bu şifre, cüzdanınızın yedek dosyasını şifrelemek için kullanılır. Kaybolur veya unutulursa kurtarılamaz veya sıfırlanamaz.</string>
+    <string name="LocalBackup_ProtextBackupWithPasswordInfo">Yedeklemeniz için kilit açma parolasını ayarlayın. En az 8 sembolden oluşmalı ve en az bir küçük harf, büyük harf, sayı ve özel karakter içermelidir.</string>
+    <string name="LocalBackup_TermsWarningText">Depolama cihazları, yani sabit sürücüler, USB sürücüler , akıllı telefondaki depolama vb. fiziksel hasar, hırsızlık veya diğer öngörülemeyen durumlar nedeniyle kayba karşı savunmasızdır.</string>
+    <string name="LocalBackup_Term1">Bir yedekleme cihazının çalınmasının veya hasar görmesinin, ilgili cüzdanın yedeğinin kaybolmasına neden olacağını anlıyorum.</string>
     <!-- Recovery Phrase -->
     <string name="RecoveryPhrase_Title">Kurtarma cümlesi</string>
     <string name="RecoveryPhrase_Description">Bu kelimeleri doğru sırayla yazın ve güvenli bir yerde saklayın</string>
@@ -1027,10 +1079,6 @@
     <string name="TorPage_ConnectionClosed">Bağlantı kesildi</string>
     <string name="Tor_TorIsActive">Tor aktif</string>
     <string name="Tor_PrerequisitesAlert_Content">TOR\'un etkinleştirilmesi Ethereum blockchain bağlantısını tekrar Infura\'ya sıfırlayacaktır.</string>
-    <!--Coin Option-->
-    <string name="CoinOption_bip44_Title">Eski</string>
-    <string name="CoinOption_bip49_Title">İyi</string>
-    <string name="CoinOption_bip84_Title">En İyi</string>
     <!--Coin Page-->
     <string name="Coin_Info">Coin Info</string>
     <string name="Coin_Tab_Overview">Fiyat</string>
@@ -1169,6 +1217,7 @@
     <string name="CoinAnalytics_ProjectRevenue_Info2">Token\'ın sıralaması, token bahisçileri için 30 günlük süre boyunca elde edilen gelire dayanmaktadır.</string>
     <string name="CoinAnalytics_ProjectRevenue_Info3">Tüm belirteçlerin listesi, (24 saat / 7D / 1M aralıklarında) bahisçileri için üretilen gelire göre sıralanmıştır.</string>
     <string name="CoinAnalytics_PageLocked">This page available only for Unstoppable Wallet premium users</string>
+    <string name="CoinAnalytics_ActivateSubscription">Activate your subscription for getting access to analytics</string>
     <string name="CoinAnalytics_ProjectNoAnalyticData">This project has no analytical data</string>
     <string name="CoinAnalytics_CexVolume">CEX Volume</string>
     <string name="CoinAnalytics_CexVolumeRank">CEX Hacim Sıralaması</string>
@@ -1191,7 +1240,9 @@
     <string name="CoinAnalytics_TvlRatio">M.Cap / TVL Ratio</string>
     <string name="CoinAnalytics_ProjectRevenue">Project Revenue</string>
     <string name="CoinAnalytics_ProjectRevenueRank">Proje Gelir Sıralaması</string>
+    <string name="CoinAnalytics_HoldersRank">Holders Rank</string>
     <string name="CoinAnalytics_ProjectRevenueRank_Description">Tokens ranked by revenue generated for holders via mechanisms i.e. staking or token burns.</string>
+    <string name="CoinAnalytics_HoldersRank_Description">Ranking tokens by unique addresses holding them on multiple blockchains.</string>
     <string name="CoinAnalytics_OtherData">Other Data</string>
     <string name="CoinAnalytics_Reports">Reports</string>
     <string name="CoinAnalytics_Funding">Funding</string>
@@ -1203,6 +1254,11 @@
     <string name="Coin_Analytics_30DayRank">30-Day Rank</string>
     <string name="Coin_Analytics_30DayUniqueAddress">30-Day Unique Addresses</string>
     <string name="Coin_Analytics_30DayVolume">30-Day Volume</string>
+    <string name="ActivateSubscription_Title">Activate</string>
+    <string name="ActivateSubscription_Wallet">Wallet</string>
+    <string name="ActivateSubscription_Address">Adres</string>
+    <string name="ActivateSubscription_MessageToSign">Message to Sign</string>
+    <string name="ActivateSubscription_SignMessageDescription">You need to sign this message to activate your subscription</string>
     <string name="Nfts_Title">NFT\'ler</string>
     <string name="Nfts_PriceType_Days_7">Ortalama 7G</string>
     <string name="Nfts_PriceType_Days_30">Ortalama 30G</string>

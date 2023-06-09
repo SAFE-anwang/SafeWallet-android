@@ -215,14 +215,14 @@ fun BalanceItems(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                ButtonSecondaryCircle(
+                /*ButtonSecondaryCircle(
                     icon = R.drawable.ic_transactions,
                     onClick = {
                         navController.slideFromRight(
                             R.id.transactionFragment
                         )
                     }
-                )
+                )*/
             } else {
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
@@ -234,14 +234,14 @@ fun BalanceItems(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                ButtonSecondaryCircle(
+                /*ButtonSecondaryCircle(
                     icon = R.drawable.ic_transactions,
                     onClick = {
                         navController.slideFromRight(
                             R.id.transactionFragment
                         )
                     }
-                )
+                )*/
             }
 
             Spacer(modifier = Modifier.width(16.dp))
