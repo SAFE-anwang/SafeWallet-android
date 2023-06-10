@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -248,15 +247,8 @@ class TvlFragment : BaseFragment() {
         onClick: (() -> Unit)? = null
     ) {
         SectionItemBorderedRowUniversalClear(
-            modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = if (isTop) 16.dp else 0.dp,
-                        topEnd = if (isTop) 16.dp else 0.dp,
-                        bottomEnd = if (isBottom) 16.dp else 0.dp,
-                        bottomStart = if (isBottom) 16.dp else 0.dp)
-                )
-                .background(ComposeAppTheme.colors.lawrence),
+            isTop = isTop,
+            isBottom = isBottom,
             onClick = onClick,
             borderBottom = true
         ) {

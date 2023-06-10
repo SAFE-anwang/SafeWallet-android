@@ -49,7 +49,6 @@ import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceModule
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceScreen
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.Safe4Fragment
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Screen
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4ViewModel

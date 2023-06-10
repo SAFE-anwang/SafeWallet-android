@@ -74,8 +74,7 @@ import kotlinx.coroutines.launch
 
 class SwapMainFragment : BaseFragment() {
 
-    val factory = SwapMainModule.Factory(requireArguments())
-    val mainViewModel: SwapMainViewModel by viewModels { factory }
+
 
     private var isAutoSetProvider1Inch = false
 
@@ -89,6 +88,8 @@ class SwapMainFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
+                val factory = SwapMainModule.Factory(requireArguments())
+                val mainViewModel: SwapMainViewModel by viewModels { factory }
                 val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
                 setContent {
                     ComposeAppTheme {
@@ -119,7 +120,7 @@ class SwapMainFragment : BaseFragment() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             isAutoSetProvider1Inch = true
-            mainViewModel.autoSetProvider1Inch()
+//            mainViewModel.autoSetProvider1Inch()
         }
     }
 }

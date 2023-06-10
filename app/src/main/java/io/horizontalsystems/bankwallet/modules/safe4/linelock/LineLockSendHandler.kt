@@ -33,45 +33,45 @@ class LineLockSendHandler(
         var addressError: Throwable? = null
 
         try {
-            val value = amountModule.validAmount()
+            val value = amountModule!!.validAmount()
             hodlerModule?.setAmount(value)
         } catch (e: Exception) {
             amountError = e
         }
 
         try {
-            addressModule.validateAddress()
+            addressModule?.validateAddress()
         } catch (e: Exception) {
             addressError = e
         }
 
         delegate.onChange(
-            amountError == null && addressError == null && feeModule.isValid,
+            amountError == null && addressError == null && feeModule?.isValid == true,
             amountError,
             addressError
         )
     }
 
     private fun syncAvailableBalance() {
-        interactor.fetchAvailableBalance(addressModule.currentAddress?.hex)
+        interactor.fetchAvailableBalance(addressModule?.currentAddress?.hex)
     }
 
     private fun syncFee() {
-        interactor.fetchFee(amountModule.coinAmount.value, addressModule.currentAddress?.hex)
+        interactor.fetchFee(amountModule!!.coinAmount.value, addressModule!!.currentAddress?.hex)
     }
 
     private fun syncMinimumAmount() {
-        interactor.fetchMinimumAmount(addressModule.currentAddress?.hex)
-            ?.let { amountModule.setMinimumAmount(it) }
+        interactor.fetchMinimumAmount(addressModule?.currentAddress?.hex)
+            ?.let { amountModule?.setMinimumAmount(it) }
         syncValidation()
     }
 
     // SendModule.ISendHandler
 
-    override lateinit var amountModule: SendAmountModule.IAmountModule
-    override lateinit var addressModule: SendAddressModule.IAddressModule
-    override lateinit var feeModule: SendFeeModule.IFeeModule
-    override lateinit var memoModule: SendMemoModule.IMemoModule
+    override var amountModule: SendAmountModule.IAmountModule? = null
+    override var addressModule: SendAddressModule.IAddressModule? = null
+    override var feeModule: SendFeeModule.IFeeModule? = null
+    override var memoModule: SendMemoModule.IMemoModule? = null
     override var hodlerModule: SendHodlerModule.IHodlerModule? = null
     private var lockedValue: String? = null
     private var startMonth: String? = null
@@ -97,24 +97,24 @@ class LineLockSendHandler(
     override fun confirmationViewItems(): List<SendModule.SendConfirmationViewItem> {
         val hodlerData = hodlerModule?.pluginData()?.get(HodlerPlugin.id) as? HodlerData
         val lockTimeInterval = hodlerData?.lockTimeInterval
-        var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        var outputSize = amountModule!!.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
         outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
         val lockedValue = BigDecimal(lockedValue) * outputSize
 
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(
                 SendModule.SendConfirmationAmountViewItem(
-                    amountModule.getLockedCoinValue(lockedValue),
-                    amountModule.getLockedCurrencyValue(lockedValue),
-                    addressModule.validAddress(),
+                    amountModule!!.getLockedCoinValue(lockedValue),
+                    amountModule!!.getLockedCurrencyValue(lockedValue),
+                    addressModule!!.validAddress(),
                     true
                 )
             )
 
             add(
                 SendModule.SendConfirmationFeeViewItem(
-                    feeModule.coinValue,
-                    feeModule.currencyValue
+                    feeModule!!.coinValue,
+                    feeModule!!.currencyValue
                 )
             )
 
@@ -125,7 +125,7 @@ class LineLockSendHandler(
     }
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
-        var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+        var outputSize = amountModule!!.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
         outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
         val totalAmount = BigDecimal(lockedValue) * outputSize
 
@@ -140,7 +140,7 @@ class LineLockSendHandler(
         )
         return interactor.send(
             totalAmount,
-            addressModule.validAddress().hex,
+            addressModule!!.validAddress().hex,
             logger,
             null,
             reverseHex
@@ -150,12 +150,12 @@ class LineLockSendHandler(
     // SendModule.ISendBitcoinInteractorDelegate
 
     override fun didFetchAvailableBalance(availableBalance: BigDecimal) {
-        amountModule.setAvailableBalance(availableBalance)
+        amountModule?.setAvailableBalance(availableBalance)
         syncValidation()
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        feeModule.setFee(fee)
+        feeModule?.setFee(fee)
     }
 
     // SendAmountModule.ModuleDelegate
@@ -166,7 +166,7 @@ class LineLockSendHandler(
     }
 
     override fun onChangeInputType(inputType: AmountInputType) {
-        feeModule.setInputType(inputType)
+        feeModule?.setInputType(inputType)
     }
 
     // SendAddressModule.ModuleDelegate
@@ -182,7 +182,7 @@ class LineLockSendHandler(
     }
 
     override fun onUpdateAmount(amount: BigDecimal) {
-        amountModule.setAmount(amount)
+        amountModule?.setAmount(amount)
     }
 
     // SendFeeModule.IFeeModuleDelegate
@@ -202,7 +202,7 @@ class LineLockSendHandler(
                 .show()
             return false
         }
-        val amount = amountModule.validAmount()
+        val amount = amountModule?.validAmount()
         if (BigDecimal(lockedValue) > amount) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Locked_Value_Error), Toast.LENGTH_SHORT)
                 .show()
@@ -254,9 +254,9 @@ class LineLockSendHandler(
                 && BigDecimal(lockedValue) > BigDecimal.ZERO
                 && BigDecimal(startMonth) > BigDecimal.ZERO
                 && BigDecimal(intervalMonth) > BigDecimal.ZERO
-                && amountModule.currentAmount > BigDecimal.ZERO
+                && amountModule!!.currentAmount > BigDecimal.ZERO
             ) {
-                var outputSize = amountModule.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
+                var outputSize = amountModule!!.validAmount().divide(BigDecimal(lockedValue),0, RoundingMode.FLOOR)
                 outputSize = checkMaxInterval(outputSize, BigDecimal(startMonth!!), BigDecimal(intervalMonth!!))
                 val totalAmount = BigDecimal(lockedValue) * outputSize
                 val lineLockStr = Translator.getString(
@@ -266,7 +266,7 @@ class LineLockSendHandler(
                     lockedValue!!,
                     totalAmount
                 )
-                this.feeModule.setLineLockTips(lineLockStr)
+                this.feeModule?.setLineLockTips(lineLockStr)
             }
         } catch (e: Exception) {
         }

@@ -19,8 +19,6 @@ import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.uniswap.UniswapLiquidityModule
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token

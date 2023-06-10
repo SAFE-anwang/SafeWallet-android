@@ -19,10 +19,6 @@ import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.bankwallet.modules.swap.coincard.*
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.uniswap.UniswapLiquidityFragment
-import io.horizontalsystems.bankwallet.modules.swap.oneinch.OneInchFragment
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapFragment
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token

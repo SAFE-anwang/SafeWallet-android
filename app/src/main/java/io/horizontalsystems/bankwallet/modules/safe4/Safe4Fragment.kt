@@ -37,7 +37,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
-
+/*
 class Safe4Fragment : BaseFragment() {
 
     private val viewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
@@ -103,7 +103,7 @@ class Safe4Fragment : BaseFragment() {
         }
         startTelegramService?.join(groupLink)
     }
-}
+}*/
 
 @Composable
 fun Safe4Screen(
@@ -153,7 +153,7 @@ private fun Safe4Sections(
                     "ERC20",
                     onClick = {
                         if (!RepeatClickUtils.isRepeat) {
-                            Safe4Module.handlerSafe2eth(Safe4Module.ChainType.ETH)
+                            Safe4Module.handlerSafe2eth(Safe4Module.ChainType.ETH, navController)
                         }
                     }
                 )
@@ -211,7 +211,7 @@ private fun Safe4Sections(
                     "SAFE",
                     "BEP20",
                     onClick = {
-                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.BSC)
+                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.BSC, navController)
                     }
                 )
             },
@@ -268,7 +268,7 @@ private fun Safe4Sections(
                     "SAFE",
                     "MATIC",
                     onClick = {
-                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.MATIC)
+                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.MATIC, navController)
                     }
                 )
             },
@@ -315,7 +315,7 @@ private fun Safe4Sections(
                 showAlert = false,
                 onClick = {
                     if (!RepeatClickUtils.isRepeat) {
-                        Safe4Module.handlerLineLock()
+                        Safe4Module.handlerLineLock(navController)
                     }
                 }
             )

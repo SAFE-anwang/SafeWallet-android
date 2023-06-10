@@ -29,6 +29,10 @@ object ManageWalletsModule {
             )
         }
 
+        private val coinTokensService by lazy {
+            CoinTokensService()
+        }
+
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
@@ -39,7 +43,7 @@ object ManageWalletsModule {
                     ManageWalletsViewModel(manageWalletsService, listOf(manageWalletsService)) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService, accountType) as T
+                    CoinTokensViewModel(coinTokensService, App.accountManager, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }

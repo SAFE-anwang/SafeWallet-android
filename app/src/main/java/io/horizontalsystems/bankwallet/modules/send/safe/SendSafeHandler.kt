@@ -25,40 +25,40 @@ class SendSafeHandler(
         var addressError: Throwable? = null
 
         try {
-            amountModule.validAmount()
+            amountModule?.validAmount()
         } catch (e: Exception) {
             amountError = e
         }
 
         try {
-            addressModule.validateAddress()
+            addressModule?.validateAddress()
         } catch (e: Exception) {
             addressError = e
         }
 
-        delegate.onChange(amountError == null && addressError == null && feeModule.isValid, amountError, addressError)
+        delegate.onChange(amountError == null && addressError == null && feeModule?.isValid == true, amountError, addressError)
     }
 
     private fun syncAvailableBalance() {
-        interactor.fetchAvailableBalance(addressModule.currentAddress?.hex)
+        interactor.fetchAvailableBalance(addressModule?.currentAddress?.hex)
     }
 
     private fun syncFee() {
-        interactor.fetchFee(amountModule.coinAmount.value, addressModule.currentAddress?.hex)
+        interactor.fetchFee(amountModule!!.coinAmount.value, addressModule!!.currentAddress?.hex)
     }
 
     private fun syncMinimumAmount() {
-        interactor.fetchMinimumAmount(addressModule.currentAddress?.hex)
-            ?.let { amountModule.setMinimumAmount(it) }
+        interactor.fetchMinimumAmount(addressModule?.currentAddress?.hex)
+            ?.let { amountModule?.setMinimumAmount(it) }
         syncValidation()
     }
 
     // SendModule.ISendHandler
 
-    override lateinit var amountModule: SendAmountModule.IAmountModule
-    override lateinit var addressModule: SendAddressModule.IAddressModule
-    override lateinit var feeModule: SendFeeModule.IFeeModule
-    override lateinit var memoModule: SendMemoModule.IMemoModule
+    override var amountModule: SendAmountModule.IAmountModule? = null
+    override var addressModule: SendAddressModule.IAddressModule? = null
+    override var feeModule: SendFeeModule.IFeeModule? = null
+    override var memoModule: SendMemoModule.IMemoModule? = null
     override var hodlerModule: SendHodlerModule.IHodlerModule? = null
 
     override lateinit var delegate: SendModule.ISendHandlerDelegate
@@ -83,12 +83,12 @@ class SendSafeHandler(
         val lockTimeInterval = hodlerData?.lockTimeInterval
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(SendModule.SendConfirmationAmountViewItem(
-                amountModule.coinValue(),
-                amountModule.currencyValue(),
-                addressModule.validAddress(),
+                amountModule!!.coinValue(),
+                amountModule!!.currencyValue(),
+                addressModule!!.validAddress(),
                 lockTimeInterval != null))
 
-            add(SendModule.SendConfirmationFeeViewItem(feeModule.coinValue, feeModule.currencyValue))
+            add(SendModule.SendConfirmationFeeViewItem(feeModule!!.coinValue, feeModule!!.currencyValue))
 
             lockTimeInterval?.let {
                 add(SendModule.SendConfirmationLockTimeViewItem(it))
@@ -100,20 +100,20 @@ class SendSafeHandler(
         val hodlerData = hodlerModule?.pluginData()
         if ( hodlerData != null && !hodlerData.isEmpty() ){
             val data = hodlerData !! [ HodlerPlugin.id ] as HodlerData
-            return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , data.lockTimeInterval, null)
+            return interactor.send(amountModule!!.validAmount(), addressModule!!.validAddress().hex, logger , data.lockTimeInterval, null)
         }
-        return interactor.send(amountModule.validAmount(), addressModule.validAddress().hex, logger , null, null)
+        return interactor.send(amountModule!!.validAmount(), addressModule!!.validAddress().hex, logger , null, null)
     }
 
     // SendModule.ISendBitcoinInteractorDelegate
 
     override fun didFetchAvailableBalance(availableBalance: BigDecimal) {
-        amountModule.setAvailableBalance(availableBalance)
+        amountModule?.setAvailableBalance(availableBalance)
         syncValidation()
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        feeModule.setFee(fee)
+        feeModule?.setFee(fee)
     }
 
     // SendAmountModule.ModuleDelegate
@@ -124,7 +124,7 @@ class SendSafeHandler(
     }
 
     override fun onChangeInputType(inputType: AmountInputType) {
-        feeModule.setInputType(inputType)
+        feeModule?.setInputType(inputType)
     }
 
     // SendAddressModule.ModuleDelegate
@@ -140,7 +140,7 @@ class SendSafeHandler(
     }
 
     override fun onUpdateAmount(amount: BigDecimal) {
-        amountModule.setAmount(amount)
+        amountModule?.setAmount(amount)
     }
 
     // SendFeeModule.IFeeModuleDelegate

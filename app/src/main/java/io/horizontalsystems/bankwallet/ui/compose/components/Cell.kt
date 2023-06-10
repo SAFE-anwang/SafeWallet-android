@@ -565,6 +565,8 @@ fun SectionUniversalItem(
 fun SectionItemBorderedRowUniversalClear(
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
+    isTop: Boolean = false,
+    isBottom: Boolean = false,
     onClick: (() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -576,7 +578,14 @@ fun SectionItemBorderedRowUniversalClear(
             )
         }
         RowUniversal(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(
+                    topStart = if (isTop) 16.dp else 0.dp,
+                    topEnd = if (isTop) 16.dp else 0.dp,
+                    bottomEnd = if (isBottom) 16.dp else 0.dp,
+                    bottomStart = if (isBottom) 16.dp else 0.dp)
+                )
+                .background(ComposeAppTheme.colors.lawrence),
             onClick = onClick,
             content = content
         )

@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
@@ -103,6 +102,7 @@ class Eip1559FeeSettingsViewModel(
                     // Polygon 最大矿工费用设置为两倍
                     weiValue = gasPriceInfo.gasPrice.maxPriorityFeePerGas
                             + if(coinService.token.blockchainType is BlockchainType.Polygon) gasPriceInfo.gasPrice.maxPriorityFeePerGas else 0L,
+                    scale = scale,
                     warnings = gasPriceInfo.warnings,
                     errors = gasPriceInfo.errors
                 )

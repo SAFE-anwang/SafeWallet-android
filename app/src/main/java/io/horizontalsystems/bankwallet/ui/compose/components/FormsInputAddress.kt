@@ -61,7 +61,7 @@ fun FormsInputAddress(
     state: DataState<Address>? = null,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
     onChangeFocus: (Boolean) -> Unit,
-    navController: NavController,
+    navController: NavController?,
     blockchainType: BlockchainType,
     chooseContactEnable: Boolean,
     onValueChange: (String) -> Unit,
@@ -182,7 +182,7 @@ fun FormsInputAddress(
                         modifier = Modifier.padding(end = 8.dp),
                         icon = R.drawable.ic_user_20,
                         onClick = {
-                            navController.getNavigationResult(ChooseContactFragment.resultKey) {
+                            navController?.getNavigationResult(ChooseContactFragment.resultKey) {
                                 val chosenAddress = it.getString("contact") ?: ""
 
                                 val textProcessed = textPreprocessor.process(chosenAddress)
@@ -192,7 +192,7 @@ fun FormsInputAddress(
                                 )
                                 onValueChange.invoke(textProcessed)
                             }
-                            navController.slideFromRight(
+                            navController?.slideFromRight(
                                 R.id.chooseContact, ChooseContactFragment.prepareParams(blockchainType)
                             )
                         }

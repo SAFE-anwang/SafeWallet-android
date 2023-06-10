@@ -73,7 +73,11 @@ object SendModule {
 
     }
 
-    class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
+    class Factory(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: SendSafeHandler,
+        private val safeInteractor: SendSafeInteractor
+        ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -82,7 +86,7 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (safeAdapter) {
                 /*is ISendBitcoinAdapter -> {
                     val bitcoinInteractor = SendBitcoinInteractor(adapter, App.localStorage)
                     val handler = SendBitcoinHandler(bitcoinInteractor, wallet.coinType)
@@ -110,8 +114,8 @@ object SendModule {
                     handler
                 }*/
                 is ISendSafeAdapter -> {
-                    val safeInteractor = SendSafeInteractor(adapter)
-                    val handler = SendSafeHandler(safeInteractor)
+//                    val safeInteractor = SendSafeInteractor(adapter)
+//                    val handler = SendSafeHandler(safeInteractor)
 
                     safeInteractor.delegate = handler
 
@@ -159,7 +163,11 @@ object SendModule {
         }
     }
 
-    class SafeConvertFactory(private val wallet: Wallet, private val ethAdapter: ISendEthereumAdapter) : ViewModelProvider.Factory {
+    class SafeConvertFactory(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: SendSafeConvertHandler,
+        private val safeInteractor: SendSafeConvertInteractor
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -168,10 +176,10 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (safeAdapter) {
                 is ISendSafeAdapter -> {
-                    val safeInteractor = SendSafeConvertInteractor(adapter)
-                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
+//                    val safeInteractor = SendSafeConvertInteractor(safeAdapter)
+//                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
 
                     safeInteractor.delegate = handler
 
@@ -199,7 +207,11 @@ object SendModule {
         }
     }
 
-    class LineLockFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
+    class LineLockFactory(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: LineLockSendHandler,
+        private val safeInteractor: LineLockSendInteractor
+        ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -208,10 +220,10 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (safeAdapter) {
                 is ISendSafeAdapter -> {
-                    val safeInteractor = LineLockSendInteractor(adapter)
-                    val handler = LineLockSendHandler(safeInteractor)
+//                    val safeInteractor = LineLockSendInteractor(adapter)
+//                    val handler = LineLockSendHandler(safeInteractor)
 
                     safeInteractor.delegate = handler
 
@@ -278,10 +290,10 @@ object SendModule {
     }
 
     interface ISendHandler {
-        var amountModule: SendAmountModule.IAmountModule
-        var addressModule: SendAddressModule.IAddressModule
-        var feeModule: SendFeeModule.IFeeModule
-        var memoModule: SendMemoModule.IMemoModule
+        var amountModule: SendAmountModule.IAmountModule?
+        var addressModule: SendAddressModule.IAddressModule?
+        var feeModule: SendFeeModule.IFeeModule?
+        var memoModule: SendMemoModule.IMemoModule?
         var hodlerModule: SendHodlerModule.IHodlerModule?
 
         val inputItems: List<Input>

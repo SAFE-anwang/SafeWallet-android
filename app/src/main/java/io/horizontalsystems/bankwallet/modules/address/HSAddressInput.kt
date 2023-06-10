@@ -34,7 +34,7 @@ fun HSAddressInput(
     coinCode: String,
     error: Throwable? = null,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
-    navController: NavController,
+    navController: NavController? = null,
     onStateChange: ((DataState<Address>?) -> Unit)? = null,
     onValueChange: ((Address?) -> Unit)? = null
 ) {
@@ -92,7 +92,7 @@ fun HSAddressInput(
     initial: Address? = null,
     error: Throwable? = null,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
-    navController: NavController,
+    navController: NavController? = null,
     onStateChange: ((DataState<Address>?) -> Unit)? = null,
     onValueChange: ((Address?) -> Unit)? = null
 ) {

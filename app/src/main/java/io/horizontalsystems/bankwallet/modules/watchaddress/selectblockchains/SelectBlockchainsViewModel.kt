@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.description
@@ -62,7 +63,7 @@ class SelectBlockchainsViewModel(
         val blockchain = configuredToken.token.blockchain
         return CoinViewItem(
             item = configuredToken,
-            imageSource = ImageSource.Remote(blockchain.type.imageUrl, R.drawable.ic_platform_placeholder_32),
+            imageSource = getImageSource(configuredToken, R.drawable.ic_platform_placeholder_32),
             title = blockchain.name,
             subtitle = blockchain.description,
             enabled = false
@@ -73,12 +74,20 @@ class SelectBlockchainsViewModel(
         val token = configuredToken.token
         return CoinViewItem(
             item = configuredToken,
-            imageSource = ImageSource.Remote(token.fullCoin.coin.imageUrl, R.drawable.coin_placeholder),
+            imageSource = getImageSource(configuredToken),
             title = token.fullCoin.coin.code,
             subtitle = token.fullCoin.coin.name,
             enabled = false,
             label = label
         )
+    }
+
+    private fun getImageSource(configuredToken: ConfiguredToken, placeHolder: Int = R.drawable.coin_placeholder): ImageSource {
+        return if (configuredToken.token.coin.uid == "safe-coin") {
+            ImageSource.Local(R.drawable.logo_safe_24)
+        } else {
+            ImageSource.Remote(configuredToken.token.fullCoin.coin.imageUrl, placeHolder)
+        }
     }
 
     fun onToggle(configuredToken: ConfiguredToken) {

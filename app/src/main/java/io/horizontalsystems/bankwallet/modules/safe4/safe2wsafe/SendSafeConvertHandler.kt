@@ -37,19 +37,19 @@ class SendSafeConvertHandler(
         var addressError: Throwable? = null
 
         try {
-            amountModule.validAmount()
+            amountModule?.validAmount()
         } catch (e: Exception) {
             amountError = e
         }
 
         try {
-            addressModule.validateAddress()
+            addressModule?.validateAddress()
         } catch (e: Exception) {
             addressError = e
         }
 
         delegate.onChange(
-            amountError == null && addressError == null && feeModule.isValid,
+            amountError == null && addressError == null && feeModule?.isValid == true,
             amountError,
             addressError
         )
@@ -60,20 +60,20 @@ class SendSafeConvertHandler(
     }
 
     private fun syncFee() {
-        interactor.fetchFee(amountModule.coinAmount.value, safeConvertAddress)
+        interactor.fetchFee(amountModule!!.coinAmount.value, safeConvertAddress)
     }
 
     private fun syncMinimumAmount() {
-        interactor.fetchMinimumAmount(safeConvertAddress)?.let { amountModule.setMinimumAmount(it) }
+        interactor.fetchMinimumAmount(safeConvertAddress)?.let { amountModule?.setMinimumAmount(it) }
         syncValidation()
     }
 
     // SendModule.ISendHandler
 
-    override lateinit var amountModule: SendAmountModule.IAmountModule
-    override lateinit var addressModule: SendAddressModule.IAddressModule
-    override lateinit var feeModule: SendFeeModule.IFeeModule
-    override lateinit var memoModule: SendMemoModule.IMemoModule
+    override var amountModule: SendAmountModule.IAmountModule? = null
+    override var addressModule: SendAddressModule.IAddressModule? = null
+    override var feeModule: SendFeeModule.IFeeModule? = null
+    override var memoModule: SendMemoModule.IMemoModule? = null
     override var hodlerModule: SendHodlerModule.IHodlerModule? = null
 
     override lateinit var delegate: SendModule.ISendHandlerDelegate
@@ -98,18 +98,18 @@ class SendSafeConvertHandler(
         return mutableListOf<SendModule.SendConfirmationViewItem>().apply {
             add(
                 SendModule.SendConfirmationAmountViewItem(
-                    amountModule.coinValue(),
-                    amountModule.currencyValue(),
+                    amountModule!!.coinValue(),
+                    amountModule!!.currencyValue(),
                     Address(safeConvertAddress),
                     lockTimeInterval != null,
-                    addressModule.validAddress().hex
+                    addressModule!!.validAddress().hex
                 )
             )
 
             add(
                 SendModule.SendConfirmationFeeViewItem(
-                    feeModule.coinValue,
-                    feeModule.currencyValue
+                    feeModule!!.coinValue,
+                    feeModule!!.currencyValue
                 )
             )
 
@@ -121,7 +121,7 @@ class SendSafeConvertHandler(
 
     override fun sendSingle(logger: AppLogger): Single<Unit> {
         return interactor.send(
-            amountModule.validAmount(),
+            amountModule!!.validAmount(),
             safeConvertAddress,
             logger,
             null,
@@ -133,11 +133,11 @@ class SendSafeConvertHandler(
         val wsafeAddress: String
         val safeRemarkPrex = "736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a020100122e"
         if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.BinanceSmartChain) {
-            wsafeAddress = "bsc:" + addressModule.validAddress().hex
+            wsafeAddress = "bsc:" + addressModule?.validAddress()?.hex
         } else if(ethAdapter.evmKitWrapper.evmKit.chain == Chain.Polygon) {
-            wsafeAddress = "matic:" + addressModule.validAddress().hex
+            wsafeAddress = "matic:" + addressModule?.validAddress()?.hex
         }else {
-            wsafeAddress = "eth:" + addressModule.validAddress().hex
+            wsafeAddress = "eth:" + addressModule?.validAddress()?.hex
         }
         val wsafeHex = HashUtils.toHexString(wsafeAddress.toByteArray())
         return safeRemarkPrex + wsafeHex
@@ -147,7 +147,7 @@ class SendSafeConvertHandler(
     // SendModule.ISendBitcoinInteractorDelegate
 
     override fun didFetchAvailableBalance(availableBalance: BigDecimal) {
-        amountModule.setAvailableBalance(availableBalance)
+        amountModule?.setAvailableBalance(availableBalance)
         syncValidation()
     }
 
@@ -161,7 +161,7 @@ class SendSafeConvertHandler(
             Log.e("longwen", "matic fee=${safeInfoPO.matic.safe_fee}")
         }
         Log.e("longwen", "fee=$fee, newFee=$newFee")
-        feeModule.setFee(newFee)
+        feeModule?.setFee(newFee)
     }
 
     // SendAmountModule.ModuleDelegate
@@ -172,7 +172,7 @@ class SendSafeConvertHandler(
     }
 
     override fun onChangeInputType(inputType: AmountInputType) {
-        feeModule.setInputType(inputType)
+        feeModule?.setInputType(inputType)
     }
 
     // SendAddressModule.ModuleDelegate
@@ -188,7 +188,7 @@ class SendSafeConvertHandler(
     }
 
     override fun onUpdateAmount(amount: BigDecimal) {
-        amountModule.setAmount(amount)
+        amountModule?.setAmount(amount)
     }
 
     // SendFeeModule.IFeeModuleDelegate

@@ -235,9 +235,9 @@ fun BalanceItems(
                     }
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                /*Spacer(modifier = Modifier.weight(1f))
 
-                /*ButtonSecondaryCircle(
+                ButtonSecondaryCircle(
                     icon = R.drawable.ic_transactions,
                     onClick = {
                         navController.slideFromRight(

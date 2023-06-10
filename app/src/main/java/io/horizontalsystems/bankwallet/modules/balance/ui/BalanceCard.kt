@@ -54,7 +54,6 @@ import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequi
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
@@ -342,7 +341,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     },
                     enabled = viewItem.swapEnabled
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                /*Spacer(modifier = Modifier.width(8.dp))
                 ButtonPrimaryCircle(
                     icon = R.drawable.icon_link_20,
                     onClick = {
@@ -352,7 +351,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                         )
                     },
                     enabled = viewItem.swapEnabled
-                )
+                )*/
             } else {
                 ButtonPrimaryDefaultBlue(
                     modifier = Modifier.weight(1f),

@@ -36,7 +36,6 @@ import io.horizontalsystems.bankwallet.modules.configuredtoken.ConfiguredTokenIn
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
-import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItemState
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
@@ -158,7 +157,7 @@ private fun ManageWalletsScreen(
                     ButtonSecondaryTransparent(
                         title = filterBlockchain?.name
                             ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
-                        iconRight = R.drawable.ic_down_arrow_20,
+                        iconRight = R.drawable.ic_arrow_drop_down,
                         onClick = {
                             showFilterBlockchainDialog = true
                         }
@@ -217,13 +216,20 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            Image(
-                painter = viewItem.imageSource.painter(),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
-                    .size(32.dp)
-            )
+            if (viewItem.item.token.coin.uid == "safe-coin") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                )
+            } else {
+                Image(
+                    painter = viewItem.imageSource.painter(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                        .size(32.dp)
+                )
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
