@@ -8,8 +8,6 @@ import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensService
 import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensViewModel
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsService
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 
@@ -22,20 +20,13 @@ object ManageWalletsModule {
             RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
         }
 
-        private val coinSettingsService by lazy {
-            CoinSettingsService()
-        }
-
-        private val coinTokensService by lazy {
-            CoinTokensService()
-        }
-
-        private val enableCoinService by lazy {
-            EnableCoinService(coinTokensService, restoreSettingsService, coinSettingsService)
-        }
-
         private val manageWalletsService by lazy {
-            ManageWalletsService(App.marketKit, App.walletManager, App.accountManager, enableCoinService)
+            ManageWalletsService(
+                App.marketKit,
+                App.walletManager,
+                App.accountManager,
+                restoreSettingsService
+            )
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -43,9 +34,6 @@ object ManageWalletsModule {
             return when (modelClass) {
                 RestoreSettingsViewModel::class.java -> {
                     RestoreSettingsViewModel(restoreSettingsService, listOf(restoreSettingsService)) as T
-                }
-                CoinSettingsViewModel::class.java -> {
-                    CoinSettingsViewModel(coinSettingsService, listOf(coinSettingsService)) as T
                 }
                 ManageWalletsViewModel::class.java -> {
                     ManageWalletsViewModel(manageWalletsService, listOf(manageWalletsService)) as T

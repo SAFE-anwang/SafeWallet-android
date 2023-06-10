@@ -2,28 +2,28 @@ package io.horizontalsystems.bankwallet.modules.hodler
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.stringResId
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
-import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.hodler.LockTimeInterval
 
 @Composable
 fun HSHodlerInput(
-    lockTimeIntervals: List<LockTimeInterval?> = listOf(),
+    lockTimeIntervals: List<LockTimeInterval?>,
     lockTimeInterval: LockTimeInterval?,
-    onSelect: ((LockTimeInterval?) -> Unit)? = null
+    onSelect: (LockTimeInterval?) -> Unit
 ) {
     var showSelectorDialog by remember { mutableStateOf(false) }
     if (showSelectorDialog) {
@@ -36,30 +36,38 @@ fun HSHodlerInput(
                 showSelectorDialog = false
             },
             onSelectItem = {
-                onSelect?.invoke(it)
+                onSelect.invoke(it)
             }
         )
     }
 
-    val selectable = lockTimeIntervals.isNotEmpty()
-    val modifierClickable = if (selectable) {
-        Modifier.clickable(
+    RowUniversal(
+        modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = {
-                showSelectorDialog = true
-            }
-        )
-    } else {
-        Modifier
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(modifierClickable),
-        verticalAlignment = Alignment.CenterVertically,
+            onClick = { showSelectorDialog = true }
+        ),
     ) {
+        body_leah(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.Send_DialogLockTime),
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        ButtonSecondaryWithIcon(
+            modifier = Modifier.height(28.dp),
+            onClick = { showSelectorDialog = true },
+            title = stringResource(lockTimeInterval.stringResId()),
+            iconRight = painterResource(R.drawable.ic_down_arrow_20),
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+    }
+}
+
+@Composable
+fun HSHodler(
+    lockTimeInterval: LockTimeInterval,
+) {
+    RowUniversal {
         Icon(
             modifier = Modifier.padding(horizontal = 16.dp),
             painter = painterResource(id = R.drawable.ic_lock_20),
@@ -72,14 +80,26 @@ fun HSHodlerInput(
         )
         Spacer(modifier = Modifier.weight(1f))
         subhead1_leah(text = stringResource(lockTimeInterval.stringResId()))
-        if (selectable) {
-            Icon(
-                modifier = Modifier.padding(start = 8.dp),
-                painter = painterResource(R.drawable.ic_down_arrow_20),
-                contentDescription = null,
-                tint = ComposeAppTheme.colors.grey
-            )
-        }
         Spacer(modifier = Modifier.width(16.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_HSHodlerInput() {
+    ComposeAppTheme {
+        HSHodlerInput(
+            listOf(LockTimeInterval.month_1, LockTimeInterval.year_1),
+            LockTimeInterval.year_1,
+            {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_HSHodler() {
+    ComposeAppTheme {
+        HSHodler(LockTimeInterval.month_1)
     }
 }

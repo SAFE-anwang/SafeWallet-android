@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,38 +9,73 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.navGraphViewModels
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.databinding.FragmentMainBinding
-import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.modules.rateapp.RateAppDialogFragment
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceScreen
+import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
+import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
+import io.horizontalsystems.bankwallet.modules.market.MarketScreen
+import io.horizontalsystems.bankwallet.modules.rateapp.RateApp
 import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
-import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceActivity
+import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceModule
+import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceScreen
+import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Fragment
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Screen
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4ViewModel
+import io.horizontalsystems.bankwallet.modules.settings.main.SettingsScreen
+import io.horizontalsystems.bankwallet.modules.tor.TorStatusView
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionsScreen
+import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
+import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager.SupportState
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
-import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetWalletSelectDialog
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigationItem
+import io.horizontalsystems.bankwallet.ui.extensions.WalletSwitchBottomSheet
 import io.horizontalsystems.core.findNavController
+import kotlinx.coroutines.launch
 import org.telegram.ui.LaunchActivity
 
 //import org.drinkless.td.libcore.telegram.TdAuthManager
 
-class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
+class MainFragment : BaseFragment() {
 
-    private val viewModel by viewModels<MainViewModel> { MainModule.Factory() }
-    private var bottomBadgeView: View? = null
-
-    private var _binding: FragmentMainBinding? = null
-    private val binding get() = _binding!!
-
+    private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+    private val safe4ViewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
     private var startTelegramService: StartTelegramsService? = null
 
     override fun onCreateView(
@@ -46,162 +83,37 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMainBinding.inflate(inflater, container, false)
-        return binding.root
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+            )
+            setContent {
+                ComposeAppTheme {
+                    MainScreenWithRootedDeviceCheck(
+                        transactionsViewModel = transactionsViewModel,
+                        deepLink = activity?.intent?.data?.toString(),
+                        navController = findNavController(),
+                        clearActivityData = { activity?.intent?.data = null },
+                        safe4ViewModel = safe4ViewModel,
+                        openLink = {
+                            openLink(it)
+                        }
+                    )
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                requireActivity().moveTaskToBack(true)
-            }
-        })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        bottomBadgeView = null
-        _binding = null
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val mainViewPagerAdapter = MainViewPagerAdapter(this)
-
-        binding.viewPager.offscreenPageLimit = 1
-        binding.viewPager.adapter = mainViewPagerAdapter
-        binding.viewPager.isUserInputEnabled = false
-
-        binding.viewPager.setCurrentItem(viewModel.initialTab.ordinal, false)
-        binding.bottomNavigation.menu.getItem(viewModel.initialTab.ordinal).isChecked = true
-
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                viewModel.onTabSelect(position)
-            }
-        })
-
-        binding.bottomNavigation.setOnNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.navigation_market -> binding.viewPager.setCurrentItem(0, false)
-                R.id.navigation_balance -> binding.viewPager.setCurrentItem(1, false)
-                R.id.navigation_safe4 -> binding.viewPager.setCurrentItem(2, false)
-                R.id.navigation_join_tg -> {
-                    /*joinTelegramGroup("https://t.me/safeanwang")
-                    binding.bottomNavigation.menu.getItem(2).isChecked = false*/
-                }
-                R.id.navigation_settings -> binding.viewPager.setCurrentItem(4, false)
-            }
-            true
-        }
-
-        binding.bottomNavigation.findViewById<View>(R.id.navigation_balance)
-            ?.setOnLongClickListener {
-                viewModel.onLongPressBalanceTab()
-                true
-            }
-
-        viewModel.openWalletSwitcherLiveEvent.observe(
-            viewLifecycleOwner,
-            { (wallets, selectedWallet) ->
-                openWalletSwitchDialog(wallets, selectedWallet) {
-                    viewModel.onSelect(it)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    requireActivity().moveTaskToBack(true)
                 }
             })
-
-        viewModel.showRootedDeviceWarningLiveEvent.observe(viewLifecycleOwner, {
-            startActivity(Intent(activity, RootedDeviceActivity::class.java))
-        })
-
-        viewModel.showRateAppLiveEvent.observe(viewLifecycleOwner, Observer {
-            activity?.let {
-                RateAppDialogFragment.show(it, this)
-            }
-        })
-
-        viewModel.showWhatsNewLiveEvent.observe(viewLifecycleOwner) {
-            findNavController().slideFromBottom(
-                R.id.releaseNotesFragment,
-                bundleOf(ReleaseNotesFragment.showAsClosablePopupKey to true)
-            )
-        }
-
-        viewModel.openPlayMarketLiveEvent.observe(viewLifecycleOwner, Observer {
-            openAppInPlayMarket()
-        })
-
-        viewModel.hideContentLiveData.observe(viewLifecycleOwner, Observer { hide ->
-            binding.screenSecureDim.isVisible = hide
-        })
-
-        viewModel.setBadgeVisibleLiveData.observe(viewLifecycleOwner, Observer { visible ->
-            val bottomMenu = binding.bottomNavigation.getChildAt(0) as? BottomNavigationMenuView
-            val settingsNavigationViewItem = bottomMenu?.getChildAt(3) as? BottomNavigationItemView
-
-            if (visible) {
-                if (bottomBadgeView?.parent == null) {
-                    settingsNavigationViewItem?.addView(getBottomBadge())
-                }
-            } else {
-                settingsNavigationViewItem?.removeView(bottomBadgeView)
-            }
-        })
-
-        viewModel.transactionTabEnabledLiveData.observe(viewLifecycleOwner, { enabled ->
-//            binding.bottomNavigation.menu.getItem(2).isEnabled = enabled
-        })
-
-        binding.bottomNavigation.findViewById<View>(R.id.navigation_join_tg)
-            ?.setOnClickListener {
-                joinTelegramGroup(App.appConfigProvider.appTelegramLink)
-            }
-    }
-
-    private fun openWalletSwitchDialog(
-        items: List<Account>,
-        selectedItem: Account?,
-        onSelectListener: (account: Account) -> Unit
-    ) {
-        val dialog = BottomSheetWalletSelectDialog()
-        dialog.wallets = items.filter { !it.isWatchAccount }
-        dialog.watchingAddresses = items.filter { it.isWatchAccount }
-        dialog.selectedItem = selectedItem
-        dialog.onSelectListener = { onSelectListener(it) }
-
-        dialog.show(childFragmentManager, "selector_dialog")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.onResume()
-        startTelegramService?.stopCheckLoginStatus()
-    }
-
-    //  RateAppDialogFragment.Listener
-
-    override fun onClickRateApp() {
-        openAppInPlayMarket()
-    }
-
-    private fun openAppInPlayMarket() {
-        context?.let { context ->
-            RateAppManager.openPlayMarket(context)
-        }
-    }
-
-    private fun getBottomBadge(): View? {
-        if (bottomBadgeView != null) {
-            return bottomBadgeView
-        }
-
-        val bottomMenu = binding.bottomNavigation.getChildAt(0) as? BottomNavigationMenuView
-        bottomBadgeView = LayoutInflater.from(activity)
-            .inflate(R.layout.view_bottom_navigation_badge, bottomMenu, false)
-
-        return bottomBadgeView
     }
 
     private fun joinTelegramGroup(groupLink: String) {
@@ -211,7 +123,288 @@ class MainFragment : BaseFragment(), RateAppDialogFragment.Listener {
         startTelegramService?.join(groupLink)
     }
 
-    fun openBalanceFragment() {
+    private fun openLink(url: String) {
+        context?.let {
+            when(url) {
+                App.appConfigProvider.appTelegramLink -> {
+                    joinTelegramGroup(url)
+                }
+                App.appConfigProvider.supportEmail -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(url)
+                    requireActivity().startActivity(intent)
+                }
+                App.appConfigProvider.safeBSCPancakeswap,
+                App.appConfigProvider.safeEthUniswap -> {
+                    val bundle = Bundle()
+                    bundle.putString("url", url)
+                    bundle.putString("name", url.subSequence(8, url.length).toString())
+                    findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
+                }
+                else -> {
+                    startActivity(Intent(requireActivity(), WebViewActivity::class.java).apply {
+                        putExtra("url", url)
+                        putExtra("name", url.subSequence(8, url.length))
+                    })
+                }
+            }
+        }
+
+    }
+
+    /*fun openBalanceFragment() {
         binding.viewPager.setCurrentItem(1, false)
+    }*/
+}
+
+@Composable
+private fun MainScreenWithRootedDeviceCheck(
+    transactionsViewModel: TransactionsViewModel,
+    deepLink: String?,
+    navController: NavController,
+    clearActivityData: () -> Unit,
+    rootedDeviceViewModel: RootedDeviceViewModel = viewModel(factory = RootedDeviceModule.Factory()),
+    safe4ViewModel: Safe4ViewModel,
+    openLink: (String) -> Unit
+) {
+    if (rootedDeviceViewModel.showRootedDeviceWarning) {
+        RootedDeviceScreen { rootedDeviceViewModel.ignoreRootedDeviceWarning() }
+    } else {
+        MainScreen(transactionsViewModel, deepLink, navController, clearActivityData, safe4ViewModel = safe4ViewModel, openLink = openLink)
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@Composable
+private fun MainScreen(
+    transactionsViewModel: TransactionsViewModel,
+    deepLink: String?,
+    fragmentNavController: NavController,
+    clearActivityData: () -> Unit,
+    viewModel: MainViewModel = viewModel(factory = MainModule.Factory(deepLink)),
+    safe4ViewModel: Safe4ViewModel,
+    openLink: (String) -> Unit
+) {
+
+    val uiState = viewModel.uiState
+    val selectedPage = uiState.selectedPageIndex
+    val pagerState = rememberPagerState(initialPage = selectedPage)
+
+    val coroutineScope = rememberCoroutineScope()
+    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+    ModalBottomSheetLayout(
+        sheetState = modalBottomSheetState,
+        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
+        sheetContent = {
+            WalletSwitchBottomSheet(
+                wallets = viewModel.wallets,
+                watchingAddresses = viewModel.watchWallets,
+                selectedAccount = uiState.activeWallet,
+                onSelectListener = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                        viewModel.onSelect(it)
+                    }
+                },
+                onCancelClick = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                }
+            )
+        },
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                backgroundColor = ComposeAppTheme.colors.tyler,
+                bottomBar = {
+                    Column {
+                        if (uiState.torEnabled) {
+                            TorStatusView()
+                        }
+                        HsBottomNavigation(
+                            backgroundColor = ComposeAppTheme.colors.tyler,
+                            elevation = 10.dp
+                        ) {
+                            uiState.mainNavItems.forEach { item ->
+                                HsBottomNavigationItem(
+                                    icon = {
+                                        BadgedIcon(item.badge) {
+                                            Icon(
+                                                painter = painterResource(item.mainNavItem.iconRes),
+                                                contentDescription = stringResource(item.mainNavItem.titleRes)
+                                            )
+                                        }
+                                    },
+                                    selected = item.selected,
+                                    enabled = item.enabled,
+                                    selectedContentColor = ComposeAppTheme.colors.jacob,
+                                    unselectedContentColor = if (item.enabled) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.grey50,
+                                    onClick = {
+                                        if (item.mainNavItem == MainNavigation.Tg) {
+                                            openLink.invoke(App.appConfigProvider.appTelegramLink)
+                                        } else {
+                                            viewModel.onSelect(item.mainNavItem)
+                                        }
+                                    },
+                                    onLongClick = {
+                                        if (item.mainNavItem == MainNavigation.Balance) {
+                                            coroutineScope.launch {
+                                                modalBottomSheetState.show()
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            ) {
+                BackHandler(enabled = modalBottomSheetState.isVisible) {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                }
+                Column(modifier = Modifier.padding(it)) {
+                    LaunchedEffect(key1 = selectedPage, block = {
+                        pagerState.scrollToPage(selectedPage)
+                    })
+
+                    HorizontalPager(
+                        modifier = Modifier.weight(1f),
+                        count = uiState.mainNavItems.size,
+                        state = pagerState,
+                        userScrollEnabled = false,
+                        verticalAlignment = Alignment.Top
+                    ) { page ->
+                        when (uiState.mainNavItems[page].mainNavItem) {
+                            MainNavigation.Market -> MarketScreen(fragmentNavController)
+                            MainNavigation.Balance -> BalanceScreen(fragmentNavController)
+                            MainNavigation.Transactions -> TransactionsScreen(
+                                fragmentNavController,
+                                transactionsViewModel
+                            )
+                            MainNavigation.Safe4 -> Safe4Screen(safe4ViewModel, fragmentNavController, openLink)
+                            MainNavigation.Tg -> {
+                                null
+                            }
+                            MainNavigation.Settings -> SettingsScreen(fragmentNavController, mainViewModel = viewModel)
+                        }
+                    }
+                }
+            }
+            HideContentBox(uiState.contentHidden)
+        }
+    }
+
+    if (uiState.showWhatsNew) {
+        LaunchedEffect(Unit) {
+            fragmentNavController.slideFromBottom(
+                R.id.releaseNotesFragment,
+                bundleOf(ReleaseNotesFragment.showAsClosablePopupKey to true)
+            )
+            viewModel.whatsNewShown()
+        }
+    }
+
+    if (uiState.showRateAppDialog) {
+        val context = LocalContext.current
+        RateApp(
+            onRateClick = {
+                RateAppManager.openPlayMarket(context)
+                viewModel.closeRateDialog()
+            },
+            onCancelClick = { viewModel.closeRateDialog() }
+        )
+    }
+
+    if (uiState.wcSupportState != null) {
+        when (val wcSupportState = uiState.wcSupportState) {
+            SupportState.Supported -> {
+                fragmentNavController.slideFromRight(R.id.wallet_connect_graph)
+            }
+            SupportState.NotSupportedDueToNoActiveAccount -> {
+                clearActivityData.invoke()
+                fragmentNavController.slideFromBottom(R.id.wcErrorNoAccountFragment)
+            }
+            is SupportState.NotSupportedDueToNonBackedUpAccount -> {
+                clearActivityData.invoke()
+                val text = stringResource(
+                    R.string.WalletConnect_Error_NeedBackup,
+                    wcSupportState.account.name
+                )
+                fragmentNavController.slideFromBottom(
+                    R.id.backupRequiredDialog,
+                    BackupRequiredDialog.prepareParams(wcSupportState.account, text)
+                )
+            }
+            is SupportState.NotSupported -> {
+                clearActivityData.invoke()
+                fragmentNavController.slideFromBottom(
+                    R.id.wcAccountTypeNotSupportedDialog,
+                    WCAccountTypeNotSupportedDialog.prepareParams(wcSupportState.accountTypeDescription)
+                )
+            }
+            null -> {}
+        }
+        viewModel.wcSupportStateHandled()
+    }
+
+    DisposableLifecycleCallbacks(
+        onResume = viewModel::onResume,
+    )
+}
+
+@Composable
+private fun HideContentBox(contentHidden: Boolean) {
+    val backgroundModifier = if (contentHidden) {
+        Modifier.background(ComposeAppTheme.colors.tyler)
+    } else {
+        Modifier
+    }
+    Box(Modifier.fillMaxSize().then(backgroundModifier))
+}
+
+@Composable
+private fun BadgedIcon(
+    badge: MainModule.BadgeType?,
+    icon: @Composable BoxScope.() -> Unit,
+) {
+    when (badge) {
+        is MainModule.BadgeType.BadgeNumber ->
+            BadgedBox(
+                badge = {
+                    Badge(
+                        backgroundColor = ComposeAppTheme.colors.lucian
+                    ) {
+                        Text(
+                            text = badge.number.toString(),
+                            style = ComposeAppTheme.typography.micro,
+                            color = ComposeAppTheme.colors.white,
+                        )
+                    }
+                },
+                content = icon
+            )
+        MainModule.BadgeType.BadgeDot ->
+            BadgedBox(
+                badge = {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                ComposeAppTheme.colors.lucian,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                    ) { }
+                },
+                content = icon
+            )
+        else -> {
+            Box {
+                icon()
+            }
+        }
     }
 }

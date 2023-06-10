@@ -52,8 +52,16 @@ class TransactionAdapterManager(
                     BlockchainType.Polygon,
                     BlockchainType.Avalanche,
                     BlockchainType.Optimism,
+                    BlockchainType.Gnosis,
+                    BlockchainType.Fantom,
                     BlockchainType.ArbitrumOne -> {
                         adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType)
+                    }
+                    BlockchainType.Solana -> {
+                        adapterFactory.solanaTransactionsAdapter(wallet.transactionSource)
+                    }
+                    BlockchainType.Tron -> {
+                        adapterFactory.tronTransactionsAdapter(wallet.transactionSource)
                     }
                     else -> adapter as? ITransactionsAdapter
                 }

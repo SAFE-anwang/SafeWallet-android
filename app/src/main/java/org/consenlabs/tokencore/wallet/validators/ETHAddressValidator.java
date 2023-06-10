@@ -1,15 +1,16 @@
 package org.consenlabs.tokencore.wallet.validators;
 
-import com.google.common.base.Strings;
+
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import org.consenlabs.tokencore.foundation.crypto.Hash;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
+import org.web3j.utils.Strings;
 
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Created by xyz on 2018/3/12.
@@ -40,7 +41,7 @@ public class ETHAddressValidator implements Validator<Void> {
   private boolean isValidAddress(String address) {
 
     // if not [0-9]{40} return false
-    if (Strings.isNullOrEmpty(address) || !ignoreCaseAddrPattern.matcher(address).find()) {
+    if (Strings.isEmpty(address) || !ignoreCaseAddrPattern.matcher(address).find()) {
       return false;
     } else if (lowerCaseAddrPattern.matcher(address).find() || upperCaseAddrPattern.matcher(address).find()) {
       // if it's all small caps or caps return true

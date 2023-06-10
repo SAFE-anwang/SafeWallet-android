@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.ui.compose.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -34,7 +33,7 @@ fun MarketCoinClear(
     isBottom: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
-    MultilineClear(
+    SectionItemBorderedRowUniversalClear(
         modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(
                 topStart = if (isTop) 16.dp else 0.dp,
@@ -51,7 +50,7 @@ fun MarketCoinClear(
             placeholder = coinIconPlaceholder,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .size(24.dp)
+                .size(32.dp)
         )
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -59,39 +58,6 @@ fun MarketCoinClear(
             MarketCoinFirstRow(coinCode, coinRate)
             Spacer(modifier = Modifier.height(3.dp))
             MarketCoinSecondRow(coinName, marketDataValue, label)
-        }
-    }
-}
-
-@Composable
-fun MultilineClear(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    borderBottom: Boolean = false,
-    content: @Composable RowScope.() -> Unit
-) {
-    Box(
-        modifier = modifier
-            .height(60.dp)
-            .clickable(
-                enabled = onClick != null,
-                onClick = { onClick?.invoke() }
-            )
-    ) {
-        if (borderBottom) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            content()
         }
     }
 }
@@ -107,41 +73,34 @@ fun MarketCoin(
     label: String? = null,
     onClick: (() -> Unit)? = null
 ) {
-    Box(
+    RowUniversal(
         modifier = Modifier
-            .height(60.dp)
-            .background(ComposeAppTheme.colors.lawrence)
-            .clickable { onClick?.invoke() },
+            .background(ComposeAppTheme.colors.tyler)
+            .padding(horizontal = 16.dp),
+        onClick = onClick
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        if (coinIconUrl.endsWith("safe-coin@3x.png")) {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(24.dp)
+            )
+        } else {
+            CoinImage(
+                iconUrl = coinIconUrl,
+                placeholder = coinIconPlaceholder,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(32.dp)
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            if (coinIconUrl.endsWith("safe-coin@3x.png")) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .size(24.dp)
-                )
-            } else {
-                CoinImage(
-                    iconUrl = coinIconUrl,
-                    placeholder = coinIconPlaceholder,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .size(24.dp)
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                MarketCoinFirstRow(coinCode, coinRate)
-                Spacer(modifier = Modifier.height(3.dp))
-                MarketCoinSecondRow(coinName, marketDataValue, label)
-            }
+            MarketCoinFirstRow(coinCode, coinRate)
+            Spacer(modifier = Modifier.height(3.dp))
+            MarketCoinSecondRow(coinName, marketDataValue, label)
         }
     }
 }
@@ -184,9 +143,11 @@ fun MarketCoinSecondRow(
         subhead2_grey(
             text = subtitle,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
         )
         marketDataValue?.let {
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
             MarketDataValueComponent(marketDataValue)
         }
     }
@@ -235,11 +196,11 @@ fun MarketDataValueComponent(marketDataValue: MarketDataValue) {
 fun PreviewMarketCoin(){
     ComposeAppTheme {
         MarketCoin(
-            "Ethereum",
-            "ETH",
-            "eth.png",
-            R.drawable.logo_ethereum_24,
-            "$2600",
+            coinName = "Ethereum With very long name for token",
+            coinCode = "ETH",
+            coinIconUrl = "eth.png",
+            coinIconPlaceholder = R.drawable.logo_ethereum_24,
+            coinRate = "$2600",
         )
     }
 }

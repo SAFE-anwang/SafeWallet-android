@@ -49,7 +49,7 @@ class SendEvmService(
 
         state = if (amountError == null && evmAmount != null && addressData != null) {
             val transactionData = adapter.getTransactionData(evmAmount, addressData.evmAddress)
-            val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo(addressData.domain))
+            val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo())
             State.Ready(SendEvmData(transactionData, additionalInfo))
         } else {
             State.NotReady

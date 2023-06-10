@@ -57,7 +57,9 @@ class RestoreBlockchainsFragment : BaseFragment() {
     val vmFactory by lazy {
         RestoreBlockchainsModule.Factory(
             arguments?.getString(ACCOUNT_NAME_KEY)!!,
-            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!
+            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!,
+            false,
+            false
         )
     }
 
@@ -129,7 +131,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
             }
         }
 
-        coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
+        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
             showBottomSelectorDialog(
                 config,
                 onSelect = { indexes -> coinSettingsViewModel.onSelect(indexes) },
@@ -143,7 +145,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
                 onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
                 onCancel = { coinTokensViewModel.onCancelSelect() }
             )
-        }
+        }*/
     }
 
     private fun showBottomSelectorDialog(
@@ -228,13 +230,7 @@ private fun ManageWalletsScreen(
         AppBar(
             title = TranslatableString.ResString(R.string.Restore_Title),
             navigationIcon = {
-                HsIconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "back",
-                        tint = ComposeAppTheme.colors.jacob
-                    )
-                }
+                HsBackButton(onClick = { navController.popBackStack() })
             },
             menuItems = listOf(
                 MenuItem(
@@ -270,7 +266,7 @@ private fun ManageWalletsScreen(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(end = 16.dp)
-                                    .size(24.dp)
+                                    .size(32.dp)
                             )
                             Column(modifier = Modifier.weight(1f)) {
                                 body_leah(
@@ -283,24 +279,22 @@ private fun ManageWalletsScreen(
                                     modifier = Modifier.padding(top = 1.dp)
                                 )
                             }
-                            if (viewItem.state is CoinViewItemState.ToggleVisible) {
-                                Spacer(Modifier.width(12.dp))
-                                if (viewItem.state.hasSettings) {
-                                    HsIconButton(
-                                        onClick = { viewModel.onClickSettings(viewItem.item) }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.ic_edit_20),
-                                            contentDescription = null,
-                                            tint = ComposeAppTheme.colors.grey
-                                        )
-                                    }
+                            Spacer(Modifier.width(12.dp))
+                            if (viewItem.hasSettings) {
+                                HsIconButton(
+                                    onClick = { viewModel.onClickSettings(viewItem.item) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_edit_20),
+                                        contentDescription = null,
+                                        tint = ComposeAppTheme.colors.grey
+                                    )
                                 }
-                                HsSwitch(
-                                    checked = viewItem.state.enabled,
-                                    onCheckedChange = { onItemClick(viewItem, viewModel) },
-                                )
                             }
+                            HsSwitch(
+                                checked = viewItem.enabled,
+                                onCheckedChange = { onItemClick(viewItem, viewModel) },
+                            )
                         }
                     }
                 }
@@ -310,11 +304,9 @@ private fun ManageWalletsScreen(
 }
 
 private fun onItemClick(viewItem: CoinViewItem<Blockchain>, viewModel: RestoreBlockchainsViewModel) {
-    if (viewItem.state is CoinViewItemState.ToggleVisible) {
-        if (viewItem.state.enabled) {
-            viewModel.disable(viewItem.item)
-        } else {
-            viewModel.enable(viewItem.item)
-        }
+    if (viewItem.enabled) {
+        viewModel.disable(viewItem.item)
+    } else {
+        viewModel.enable(viewItem.item)
     }
 }

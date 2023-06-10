@@ -12,8 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 
@@ -24,17 +24,19 @@ fun CoinScreenTitle(
     coinIconUrl: String,
     iconPlaceholder: Int?
 ) {
-    CellSingleLineClear {
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
         if (coinIconUrl.endsWith("safe-coin@3x.png")) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(24.dp))
+                    .size(32.dp))
         } else {
             CoinImage(
                 iconUrl = coinIconUrl,
                 placeholder = iconPlaceholder,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
 

@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -70,13 +70,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                 AppBar(
                     title = TranslatableString.ResString(R.string.Transactions_Filter_ChooseCoin),
                     navigationIcon = {
-                        HsIconButton(onClick = navController::popBackStack) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_back),
-                                contentDescription = "back button",
-                                tint = ComposeAppTheme.colors.jacob
-                            )
-                        }
+                        HsBackButton(onClick = navController::popBackStack)
                     }
                 )
                 filterCoins?.let { filterCoins ->
@@ -97,7 +91,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        if (token.coin.uid == "safe-coin" || token.coin.uid == ("custom_safe-erc20-SAFE") || token.coin.uid == ("custom_safe-bep20-SAFE")) {
+                                        if (token.coin.uid == "safe-coin") {
                                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                                 contentDescription = null,
                                                 modifier = Modifier
@@ -106,7 +100,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                         } else {
                                             Image(
                                                 painter = rememberAsyncImagePainter(
-                                                    model = token.coin.iconUrl,
+                                                    model = token.coin.imageUrl,
                                                     error = painterResource(token.iconPlaceholder)
                                                 ),
                                                 modifier = Modifier

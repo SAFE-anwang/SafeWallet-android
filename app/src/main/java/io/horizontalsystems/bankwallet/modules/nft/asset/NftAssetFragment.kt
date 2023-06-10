@@ -54,7 +54,7 @@ import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftEventMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.nft.collection.NftCollectionFragment
 import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftCollectionEventsModule
 import io.horizontalsystems.bankwallet.modules.nft.collection.events.NftCollectionEventsViewModel
@@ -430,11 +430,13 @@ private fun AssetContent(
                                 asset.nftUid.tokenId.shorten()
                             )
                         }
-                        add {
-                            DetailItem(
-                                stringResource(id = R.string.NftAsset_TokenStandard),
-                                asset.schemaName
-                            )
+                        asset.schemaName?.let { schemaName ->
+                            add {
+                                DetailItem(
+                                    stringResource(id = R.string.NftAsset_TokenStandard),
+                                    schemaName
+                                )
+                            }
                         }
                         add {
                             DetailItem(

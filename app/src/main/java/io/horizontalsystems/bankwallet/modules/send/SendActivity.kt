@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -35,9 +36,9 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.FullCoin
-import io.horizontalsystems.snackbar.SnackbarDuration
 
 class SendActivity : BaseActivity() {
 
@@ -87,7 +88,7 @@ class SendActivity : BaseActivity() {
                             )
                         } else {
                             CoinImage(
-                                iconUrl = fullCoin.coin.iconUrl,
+                                iconUrl = fullCoin.coin.imageUrl,
                                 placeholder = fullCoin.iconPlaceholder,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                             )

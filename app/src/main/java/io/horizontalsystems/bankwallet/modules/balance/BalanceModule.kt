@@ -29,19 +29,24 @@ object BalanceModule {
                 App.accountManager
             )
 
+            val totalService = TotalService(
+                App.currencyManager,
+                App.marketKit,
+                App.baseTokenManager,
+                App.balanceHiddenManager
+            )
             return BalanceViewModel(
                 balanceService,
                 BalanceViewItemFactory(),
-                TotalService(App.currencyManager, App.marketKit, App.baseTokenManager, App.balanceHiddenManager),
                 App.balanceViewTypeManager,
-                App.balanceHiddenManager
+                TotalBalance(totalService, App.balanceHiddenManager),
+                App.localStorage,
             ) as T
         }
     }
 
     data class BalanceItem(
         val wallet: Wallet,
-        val mainNet: Boolean,
         val balanceData: BalanceData,
         val state: AdapterState,
         val coinPrice: CoinPrice? = null

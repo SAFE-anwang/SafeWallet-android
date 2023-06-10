@@ -4,7 +4,14 @@ import android.content.Intent
 import android.os.Parcelable
 import android.widget.ImageView
 import androidx.annotation.CheckResult
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import coil.load
+import com.google.accompanist.navigation.animation.composable
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
@@ -28,9 +35,6 @@ val <T> Optional<T>.orNull: T?
 val Platform.iconUrl: String
     get() = "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
 
-val Coin.iconUrl: String
-    get() = "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
-
 val CoinCategory.imageUrl: String
     get() = "https://cdn.blocksdecoded.com/category-icons/$uid@3x.png"
 
@@ -43,26 +47,23 @@ val CoinTreasury.logoUrl: String
 val Auditor.logoUrl: String
     get() = "https://cdn.blocksdecoded.com/auditor-icons/$name@3x.png"
 
-fun List<FullCoin>.sortedByFilter(filter: String, enabled: (FullCoin) -> Boolean): List<FullCoin> {
-    var comparator: Comparator<FullCoin> = compareByDescending {
-        enabled.invoke(it)
-    }
-    if (filter.isNotBlank()) {
-        val lowercasedFilter = filter.lowercase()
-        comparator = comparator
-            .thenByDescending {
-                it.coin.code.lowercase() == lowercasedFilter
-            }.thenByDescending {
-                it.coin.code.lowercase().startsWith(lowercasedFilter)
-            }.thenByDescending {
-                it.coin.name.lowercase().startsWith(lowercasedFilter)
-            }
-    }
-    comparator = comparator.thenBy {
+fun List<FullCoin>.sortedByFilter(filter: String): List<FullCoin> {
+    val baseComparator = compareBy<FullCoin> {
         it.coin.marketCapRank ?: Int.MAX_VALUE
-    }
-    comparator = comparator.thenBy {
+    }.thenBy {
         it.coin.name.lowercase(Locale.ENGLISH)
+    }
+    val comparator = if (filter.isNotBlank()) {
+        val lowercasedFilter = filter.lowercase()
+        compareByDescending<FullCoin> {
+            it.coin.code.lowercase() == lowercasedFilter
+        }.thenByDescending {
+            it.coin.code.lowercase().startsWith(lowercasedFilter)
+        }.thenByDescending {
+            it.coin.name.lowercase().startsWith(lowercasedFilter)
+        }.thenComparing(baseComparator)
+    } else {
+        baseComparator
     }
 
     return sortedWith(comparator)
@@ -148,7 +149,10 @@ fun <T> Observable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
 }
 
 @CheckResult
-fun <T> Observable<T>.subscribeIO(onSuccess: (t: T) -> Unit, onError: (e: Throwable) -> Unit): Disposable {
+fun <T> Observable<T>.subscribeIO(
+    onSuccess: (t: T) -> Unit,
+    onError: (e: Throwable) -> Unit
+): Disposable {
     return this
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.io())
@@ -164,7 +168,10 @@ fun <T> Flowable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
 }
 
 @CheckResult
-fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit, onError: (e: Throwable) -> Unit): Disposable {
+fun <T> Single<T>.subscribeIO(
+    onSuccess: (t: T) -> Unit,
+    onError: (e: Throwable) -> Unit
+): Disposable {
     return this
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.io())
@@ -180,7 +187,7 @@ fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
 }
 
 fun String.shorten(): String {
-    val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:")
+    val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:", "ecash:")
 
     var prefix = ""
     for (p in prefixes) {
@@ -197,4 +204,55 @@ fun String.shorten(): String {
         prefix + withoutPrefix.take(characters) + "..." + withoutPrefix.takeLast(characters)
     else
         this
+}
+
+//Compose Animated Navigation
+
+@OptIn(ExperimentalAnimationApi::class)
+fun NavGraphBuilder.composablePage(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit,
+) {
+    composable(
+        route = route,
+        arguments = arguments,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Right,
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = { null },
+        content = content
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+fun NavGraphBuilder.composablePopup(
+    route: String,
+    content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit
+) {
+    composable(
+        route,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentScope.SlideDirection.Up,
+                animationSpec = tween(250)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentScope.SlideDirection.Down,
+                animationSpec = tween(250)
+            )
+        },
+        content = content
+    )
 }

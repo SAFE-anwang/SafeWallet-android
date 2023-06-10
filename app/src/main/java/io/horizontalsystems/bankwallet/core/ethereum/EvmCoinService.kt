@@ -2,18 +2,18 @@ package io.horizontalsystems.bankwallet.core.ethereum
 
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.send.SendModule
-import io.horizontalsystems.core.ICurrencyManager
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.BigInteger
 
 class EvmCoinService(
     val token: Token,
-    private val currencyManager: ICurrencyManager,
+    private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper
 ) : Clearable {
 
@@ -25,13 +25,13 @@ class EvmCoinService(
             }
         }
 
-    fun amountData(value: BigInteger): SendModule.AmountData {
+    fun amountData(value: BigInteger, approximate: Boolean = false): SendModule.AmountData {
         val decimalValue = BigDecimal(value, token.decimals)
         val coinValue = CoinValue(token, decimalValue)
 
-        val primaryAmountInfo = SendModule.AmountInfo.CoinValueInfo(coinValue)
+        val primaryAmountInfo = SendModule.AmountInfo.CoinValueInfo(coinValue, approximate)
         val secondaryAmountInfo = rate?.let {
-            SendModule.AmountInfo.CurrencyValueInfo(CurrencyValue(it.currency, it.value * decimalValue))
+            SendModule.AmountInfo.CurrencyValueInfo(CurrencyValue(it.currency, it.value * decimalValue), approximate)
         }
 
         return SendModule.AmountData(primaryAmountInfo, secondaryAmountInfo)

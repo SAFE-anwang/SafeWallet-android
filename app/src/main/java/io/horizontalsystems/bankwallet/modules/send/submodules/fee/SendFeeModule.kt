@@ -6,13 +6,13 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.FeeRatePriority
 import io.horizontalsystems.bankwallet.core.factories.FeeRateProviderFactory
 import io.horizontalsystems.bankwallet.entities.CoinValue
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.FeeRateState
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountInfo
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -119,8 +119,8 @@ object SendFeeModule {
 }
 
 class FeeRateAdjustmentInfo(
-        var amountInfo: SendAmountInfo,
-        var xRate: BigDecimal?,
-        val currency: Currency,
-        var balance: BigDecimal?
+    var amountInfo: SendAmountInfo,
+    var xRate: BigDecimal?,
+    val currency: Currency,
+    var balance: BigDecimal?
 )

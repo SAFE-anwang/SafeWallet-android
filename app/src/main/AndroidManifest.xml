@@ -50,9 +50,6 @@
         </activity>
 
         <activity
-            android:name=".modules.tor.TorConnectionActivity"
-            android:launchMode="singleTask" />
-        <activity
             android:name=".modules.launcher.LauncherActivity" />
         <activity
             android:name=".modules.main.MainActivity"
@@ -86,9 +83,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".modules.keystore.KeyStoreActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".modules.rooteddevice.RootedDeviceActivity"
             android:screenOrientation="portrait" />
 
         <activity
@@ -298,7 +292,7 @@
             </intent-filter>
         </activity-alias>
         <activity-alias
-            android:name="${applicationId}.HashTag1009LauncherAlias"
+            android:name="${applicationId}.Ball8LauncherAlias"
             android:enabled="false"
             android:icon="@mipmap/ic_app_color"
             android:label="@string/App_Name"

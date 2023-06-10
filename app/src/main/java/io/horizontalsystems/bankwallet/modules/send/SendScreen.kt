@@ -12,10 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -25,8 +24,8 @@ import io.horizontalsystems.marketkit.models.FullCoin
 
 @Composable
 fun SendScreen(
-    navController: NavController,
     fullCoin: FullCoin,
+    onCloseClick: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
@@ -42,7 +41,7 @@ fun SendScreen(
                     )
                 } else {
                     CoinImage(
-                        iconUrl = fullCoin.coin.iconUrl,
+                        iconUrl = fullCoin.coin.imageUrl,
                         placeholder = fullCoin.iconPlaceholder,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
@@ -54,9 +53,7 @@ fun SendScreen(
                 MenuItem(
                     title = TranslatableString.ResString(R.string.Button_Close),
                     icon = R.drawable.ic_close,
-                    onClick = {
-                        navController.popBackStack()
-                    }
+                    onClick = onCloseClick
                 )
             )
         )

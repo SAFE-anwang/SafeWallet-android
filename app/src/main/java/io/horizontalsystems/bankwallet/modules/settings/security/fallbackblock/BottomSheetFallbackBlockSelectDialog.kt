@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSectionFramed
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.extensions.BaseComposableBottomSheetFragment
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
@@ -68,7 +68,7 @@ private fun BottomSheetScreen(
     ) {
         Spacer(Modifier.height(12.dp))
         swapProviders?.let { items ->
-            CellSingleLineLawrenceSectionFramed(items) { item ->
+            CellUniversalLawrenceSection(items, showFrame = true) { item ->
                 Row(
                     modifier = Modifier
                         .fillMaxSize()

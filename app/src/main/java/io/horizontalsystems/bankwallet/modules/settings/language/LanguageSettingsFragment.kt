@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -69,20 +72,14 @@ private fun LanguageScreen(
             AppBar(
                 title = TranslatableString.ResString(R.string.Settings_Language),
                 navigationIcon = {
-                    HsIconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    HsBackButton(onClick = { navController.popBackStack() })
                 }
             )
             Column(
                 Modifier.verticalScroll(rememberScrollState())
             ) {
                 Spacer(Modifier.height(12.dp))
-                CellMultilineLawrenceSection(viewModel.languageItems) { item ->
+                CellUniversalLawrenceSection(viewModel.languageItems) { item ->
                     LanguageCell(
                         title = item.name,
                         subtitle = item.nativeName,
@@ -105,14 +102,13 @@ private fun LanguageCell(
     checked: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        onClick = onClick
     ) {
         Image(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .size(32.dp),
             painter = painterResource(icon),
             contentDescription = null
         )

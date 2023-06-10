@@ -46,7 +46,7 @@ class SelectWalletTypeFragment: BaseFragment() {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, bundle)
                 }
                 else -> {
-                    findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
+//                    findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)
                 }
             }
         }

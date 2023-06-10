@@ -1,15 +1,14 @@
 package io.horizontalsystems.bankwallet.modules.market.tvl
 
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.sort
 import io.horizontalsystems.bankwallet.modules.metricchart.MetricsType
-import io.horizontalsystems.chartview.Indicator
 import io.horizontalsystems.chartview.models.ChartPoint
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.models.DefiMarketInfo
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
@@ -38,7 +37,7 @@ class GlobalMarketRepository(
                     }
 
                     val dominance = if (metricsType == MetricsType.TotalMarketCap) point.btcDominance.toFloat() else null
-                    ChartPoint(value = value.toFloat(), timestamp = point.timestamp, indicators = mapOf(Indicator.Dominance to dominance))
+                    ChartPoint(value = value.toFloat(), timestamp = point.timestamp, dominance = dominance)
                 }
             }
     }
@@ -97,7 +96,7 @@ class GlobalMarketRepository(
     fun getMarketTvlItems(
         currency: Currency,
         chain: TvlModule.Chain,
-        chartInterval: HsTimePeriod,
+        chartInterval: HsTimePeriod?,
         sortDescending: Boolean,
         forceRefresh: Boolean
     ): Single<List<TvlModule.MarketTvlItem>> =
@@ -126,7 +125,7 @@ class GlobalMarketRepository(
         defiMarketInfoList: List<DefiMarketInfo>,
         currency: Currency,
         chain: TvlModule.Chain,
-        chartInterval: HsTimePeriod,
+        chartInterval: HsTimePeriod?,
         sortDescending: Boolean
     ): List<TvlModule.MarketTvlItem> {
         val tvlItems = defiMarketInfoList.map { defiMarketInfo ->

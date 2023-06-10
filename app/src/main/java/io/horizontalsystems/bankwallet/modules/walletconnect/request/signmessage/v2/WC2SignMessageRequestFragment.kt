@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestViewModel
@@ -19,7 +20,7 @@ class WC2SignMessageRequestFragment : BaseFragment() {
 
     val vmFactory by lazy {
         WCSignMessageRequestModule.FactoryWC2(
-            requireArguments().getLong(REQUEST_ID_KEY)
+            App.wc2SessionManager.createRequestData(requireArguments().getLong(REQUEST_ID_KEY))
         )
     }
     private val viewModel by viewModels<WCSignMessageRequestViewModel> { vmFactory }

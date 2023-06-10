@@ -2,10 +2,14 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import android.os.Handler
 import android.os.HandlerThread
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.IAdapter
+import io.horizontalsystems.bankwallet.core.IAdapterManager
+import io.horizontalsystems.bankwallet.core.IBalanceAdapter
+import io.horizontalsystems.bankwallet.core.IReceiveAdapter
+import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
+import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
@@ -21,6 +25,8 @@ class AdapterManager(
     btcBlockchainManager: BtcBlockchainManager,
     private val evmBlockchainManager: EvmBlockchainManager,
     private val binanceKitManager: BinanceKitManager,
+    private val solanaKitManager: SolanaKitManager,
+    private val tronKitManager: TronKitManager
 ) : IAdapterManager, HandlerThread("A") {
 
     private val handler: Handler
@@ -49,10 +55,16 @@ class AdapterManager(
             }
         )
 
+        disposables.add(solanaKitManager.kitStoppedObservable
+            .subscribeIO {
+                handleUpdatedKit(BlockchainType.Solana)
+            }
+        )
+
         for (blockchain in evmBlockchainManager.allBlockchains) {
             evmBlockchainManager.getEvmKitManager(blockchain.type).evmKitUpdatedObservable
                 .subscribeIO {
-                    handleUpdatedKit(blockchain)
+                    handleUpdatedKit(blockchain.type)
                 }
                 .let {
                     disposables.add(it)
@@ -60,9 +72,9 @@ class AdapterManager(
         }
     }
 
-    private fun handleUpdatedKit(blockchain: Blockchain) {
+    private fun handleUpdatedKit(blockchainType: BlockchainType) {
         val wallets = adaptersMap.keys().toList().filter {
-            it.token.blockchain == blockchain
+            it.token.blockchain.type == blockchainType
         }
 
         if (wallets.isEmpty()) return
@@ -106,6 +118,8 @@ class AdapterManager(
         }
 
         binanceKitManager.binanceKit?.refresh()
+        solanaKitManager.solanaKitWrapper?.solanaKit?.refresh()
+        tronKitManager.tronKitWrapper?.tronKit?.refresh()
     }
 
     @Synchronized

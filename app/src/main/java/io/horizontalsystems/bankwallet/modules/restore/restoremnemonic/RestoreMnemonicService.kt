@@ -45,7 +45,7 @@ class RestoreMnemonicService(
     }
 
     fun validatePassphrase(text: String?): Boolean {
-        return passphraseValidator.validate(text)
+        return passphraseValidator.containsValidCharacters(text)
     }
 
     sealed class ValidationError : Throwable() {

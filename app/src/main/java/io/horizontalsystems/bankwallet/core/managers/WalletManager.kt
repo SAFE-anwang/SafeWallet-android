@@ -11,8 +11,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
 class WalletManager(
-        private val accountManager: IAccountManager,
-        private val storage: IWalletStorage
+    private val accountManager: IAccountManager,
+    private val storage: IWalletStorage,
 ) : IWalletManager {
 
     override val activeWallets get() = walletsSet.toList()
@@ -23,19 +23,18 @@ class WalletManager(
 
     init {
         accountManager.activeAccountObservable
-                .subscribeIO {
-                    handleUpdated(it.orElse(null))
-                }
-                .let {
-                    disposables.add(it)
-                }
+            .subscribeIO {
+                handleUpdated(it.orElse(null))
+            }
+            .let {
+                disposables.add(it)
+            }
     }
 
     override fun loadWallets() {
         val activeWallets = accountManager.activeAccount?.let { storage.wallets(it) } ?: listOf()
 
-        walletsSet.clear()
-        walletsSet.addAll(activeWallets)
+        setWallets(activeWallets)
         notifyActiveWallets()
     }
 
@@ -77,9 +76,14 @@ class WalletManager(
     private fun handleUpdated(activeAccount: Account?) {
         val activeWallets = activeAccount?.let { storage.wallets(it) } ?: listOf()
 
+        setWallets(activeWallets)
+        notifyActiveWallets()
+    }
+
+    @Synchronized
+    private fun setWallets(activeWallets: List<Wallet>) {
         walletsSet.clear()
         walletsSet.addAll(activeWallets)
-        notifyActiveWallets()
     }
 
     override fun saveEnabledWallets(enabledWallets: List<EnabledWallet>) {

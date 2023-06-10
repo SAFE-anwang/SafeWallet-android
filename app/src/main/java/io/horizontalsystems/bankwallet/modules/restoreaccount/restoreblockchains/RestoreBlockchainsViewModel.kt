@@ -4,12 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.toLiveData
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.description
-import io.horizontalsystems.bankwallet.core.icon24
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.core.SingleLiveEvent
@@ -28,9 +29,7 @@ class RestoreBlockchainsViewModel(
     var restored by mutableStateOf(false)
         private set
     val restoreEnabledLiveData: LiveData<Boolean>
-        get() = LiveDataReactiveStreams.fromPublisher(
-            service.canRestore.toFlowable(BackpressureStrategy.DROP)
-        )
+        get() = service.canRestore.toFlowable(BackpressureStrategy.DROP).toLiveData()
 
     private var disposables = CompositeDisposable()
 
@@ -54,11 +53,13 @@ class RestoreBlockchainsViewModel(
     private fun viewItem(
         item: RestoreBlockchainsService.Item,
     ) = CoinViewItem(
-        item.blockchain,
-        ImageSource.Local(item.blockchain.type.icon24),
-        item.blockchain.name,
-        item.blockchain.description,
-        state = CoinViewItemState.ToggleVisible(item.enabled, item.hasSettings)
+        item = item.blockchain,
+        imageSource = ImageSource.Remote(item.blockchain.type.imageUrl, R.drawable.ic_platform_placeholder_32),
+        title = item.blockchain.name,
+        subtitle = item.blockchain.description,
+        enabled = item.enabled,
+        hasSettings = item.hasSettings,
+        hasInfo = false
     )
 
     fun enable(blockchain: Blockchain, purpose: Int? = null) {

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,10 +24,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -110,27 +106,25 @@ fun SelectSwapCoinDialogScreen(
 
             LazyColumn {
                 items(coinItems) { coinItem ->
-                    CellMultilineClear(borderTop = true) {
-                        Row(
+                    SectionUniversalItem(borderTop = true) {
+                        RowUniversal(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .clickable {
-                                    onClickItem.invoke(coinItem)
-                                }
+                                .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                            onClick = {
+                                onClickItem.invoke(coinItem)
+                            }
                         ) {
-                            if (coinItem.token.coin.uid == "safe-coin"
-                                || coinItem.token.coin.uid == "custom_safe-erc20-SAFE") {
+                            if (coinItem.token.coin.uid == "safe-coin") {
                                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                     contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             } else {
                                 CoinImage(
-                                    iconUrl = coinItem.token.coin.iconUrl,
+                                    iconUrl = coinItem.token.coin.imageUrl,
                                     placeholder = coinItem.token.iconPlaceholder,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.size(16.dp))

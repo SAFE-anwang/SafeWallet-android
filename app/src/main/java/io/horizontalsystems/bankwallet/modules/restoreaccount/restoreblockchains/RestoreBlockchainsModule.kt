@@ -23,8 +23,10 @@ object RestoreBlockchainsModule {
 
     class Factory(
         private val accountName: String,
-        private val accountType: AccountType
-        ) : ViewModelProvider.Factory {
+        private val accountType: AccountType,
+        private val manualBackup: Boolean,
+        private val fileBackup: Boolean,
+    ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
             RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
@@ -43,12 +45,15 @@ object RestoreBlockchainsModule {
             RestoreBlockchainsService(
                 accountName,
                 accountType,
+                manualBackup,
+                fileBackup,
                 App.accountFactory,
                 App.accountManager,
                 App.walletManager,
                 App.marketKit,
                 enableCoinService,
-                App.evmBlockchainManager
+                App.evmBlockchainManager,
+                App.tokenAutoEnableManager
             )
         }
 
@@ -71,7 +76,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService, accountType) as T
+                    CoinTokensViewModel(coinTokensService, App.accountManager, null) as T
                 }
                 else -> throw IllegalArgumentException()
             }
@@ -113,7 +118,7 @@ object RestoreBlockchainsModule {
                     ) as T
                 }
                 CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService, accountType) as T
+                    CoinTokensViewModel(coinTokensService, App.accountManager, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }
@@ -128,11 +133,8 @@ data class CoinViewItem<T>(
     val imageSource: ImageSource,
     val title: String,
     val subtitle: String,
-    val state: CoinViewItemState,
+    val enabled: Boolean,
+    val hasSettings: Boolean = false,
+    val hasInfo: Boolean = false,
     val label: String? = null,
 )
-
-sealed class CoinViewItemState {
-    data class ToggleVisible(val enabled: Boolean, val hasSettings: Boolean) : CoinViewItemState()
-    object ToggleHidden : CoinViewItemState()
-}

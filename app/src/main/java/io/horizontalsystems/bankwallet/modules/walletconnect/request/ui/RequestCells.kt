@@ -2,22 +2,38 @@ package io.horizontalsystems.bankwallet.modules.walletconnect.request.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.AmountValues
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.ValueType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.Token
@@ -25,17 +41,17 @@ import io.horizontalsystems.marketkit.models.Token
 @Composable
 fun TitleHexValueCell(title: String, valueVisible: String, value: String) {
     val localView = LocalView.current
-    Row(
+    RowUniversal(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
     ) {
         subhead2_grey(text = title)
         Spacer(Modifier.weight(1f))
         ButtonSecondaryDefault(
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .height(28.dp),
             title = valueVisible,
             onClick = {
                 TextHelper.copyText(value)
@@ -57,63 +73,69 @@ fun AmountCell(
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
-    Row(
+    RowUniversal(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
             .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 16.dp),
     ) {
-        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         } else {
             CoinImage(
-                iconUrl = token.coin.iconUrl,
+                iconUrl = token.coin.imageUrl,
                 placeholder = token.iconPlaceholder,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         }
         Text(
+            modifier = Modifier.width(120.dp).weight(1f),
             text = coinAmount,
             color = coinAmountColor,
-            style = ComposeAppTheme.typography.subhead1
+            style = ComposeAppTheme.typography.subhead1,
         )
-        Spacer(Modifier.weight(1f))
-        subhead2_grey(text = fiatAmount ?: "")
+        fiatAmount?.let {
+            subhead2_grey(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f), //without this on long numbers, cell fills whole screen height
+                text = fiatAmount,
+                textAlign = TextAlign.End
+            )
+        }
     }
 }
 
 @Composable
 fun TokenCell(token: Token) {
-    Row(
+    RowUniversal(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxWidth(),
     ) {
-        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         } else {
             CoinImage(
-                iconUrl = token.coin.iconUrl,
+                iconUrl = token.coin.imageUrl,
                 placeholder = token.iconPlaceholder,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         }
         subhead1_leah(token.coin.code)
@@ -127,29 +149,28 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
-    val height = if (amounts.size == 2) 60.dp else 48.dp
-    Row(
+    RowUniversal(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(height),
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxWidth(),
     ) {
-        if (token.coin.uid == "custom_safe-erc20-SAFE") {
+        if (token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         } else {
             CoinImage(
-                iconUrl = token.coin.iconUrl,
+                iconUrl = token.coin.imageUrl,
                 placeholder = token.iconPlaceholder,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
             )
         }
         Column(
@@ -178,12 +199,10 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
 
 @Composable
 fun SubheadCell(title: String, value: String, iconRes: Int?) {
-    Row(
+    RowUniversal(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
     ) {
         iconRes?.let { icon ->
             Icon(
@@ -206,13 +225,13 @@ fun TitleTypedValueCell(title: String, value: String, type: ValueType = ValueTyp
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.jacob
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
-    Row(
+    RowUniversal(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
     ) {
         subhead2_grey(
             modifier = Modifier.padding(end = 36.dp),

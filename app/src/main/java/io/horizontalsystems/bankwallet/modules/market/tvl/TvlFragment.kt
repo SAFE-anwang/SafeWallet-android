@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -21,18 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Chart
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.modules.market.Value
 import io.horizontalsystems.bankwallet.modules.market.tvl.TvlModule.SelectorDialogState
@@ -85,8 +88,7 @@ class TvlFragment : BaseFragment() {
         onCoinClick: (String?) -> Unit
     ) {
         val itemsViewState by tvlViewModel.viewStateLiveData.observeAsState()
-        val chartViewState by chartViewModel.viewStateLiveData.observeAsState()
-        val viewState = itemsViewState?.merge(chartViewState)
+        val viewState = itemsViewState?.merge(chartViewModel.uiState.viewState)
         val tvlData by tvlViewModel.tvlLiveData.observeAsState()
         val tvlDiffType by tvlViewModel.tvlDiffTypeLiveData.observeAsState()
         val isRefreshing by tvlViewModel.isRefreshingLiveData.observeAsState(false)
@@ -94,7 +96,6 @@ class TvlFragment : BaseFragment() {
 
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
-                title = TranslatableString.ResString(R.string.MarketGlobalMetrics_TvlInDefi),
                 menuItems = listOf(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Close),
@@ -107,7 +108,7 @@ class TvlFragment : BaseFragment() {
             )
 
             HSSwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
+                refreshing = isRefreshing,
                 onRefresh = {
                     tvlViewModel.refresh()
                 }
@@ -134,6 +135,11 @@ class TvlFragment : BaseFragment() {
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = PaddingValues(bottom = 32.dp),
                             ) {
+                                item {
+                                    tvlViewModel.header.let { header ->
+                                        DescriptionCard(header.title, header.description, header.icon)
+                                    }
+                                }
                                 item {
                                     Chart(chartViewModel = chartViewModel) {
                                         tvlViewModel.onSelectChartInterval(it)
@@ -241,25 +247,31 @@ class TvlFragment : BaseFragment() {
         isBottom: Boolean = false,
         onClick: (() -> Unit)? = null
     ) {
-        MultilineClear(
+        SectionItemBorderedRowUniversalClear(
             modifier = Modifier.wrapContentHeight().padding(horizontal = 16.dp)
                 .clip(
                     RoundedCornerShape(
-                    topStart = if (isTop) 16.dp else 0.dp,
-                    topEnd = if (isTop) 16.dp else 0.dp,
-                    bottomEnd = if (isBottom) 16.dp else 0.dp,
-                    bottomStart = if (isBottom) 16.dp else 0.dp)
+                        topStart = if (isTop) 16.dp else 0.dp,
+                        topEnd = if (isTop) 16.dp else 0.dp,
+                        bottomEnd = if (isBottom) 16.dp else 0.dp,
+                        bottomStart = if (isBottom) 16.dp else 0.dp)
                 )
                 .background(ComposeAppTheme.colors.lawrence),
             onClick = onClick,
             borderBottom = true
         ) {
-            CoinImage(
-                iconUrl = iconUrl,
-                placeholder = iconPlaceholder,
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = iconUrl,
+                    error = painterResource(
+                        iconPlaceholder ?: R.drawable.ic_platform_placeholder_24
+                    )
+                ),
+                contentDescription = null,
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp)
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp)),
             )
             Column(
                 modifier = Modifier.fillMaxWidth()

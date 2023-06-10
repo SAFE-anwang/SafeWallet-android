@@ -9,14 +9,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -27,7 +26,7 @@ import io.horizontalsystems.bankwallet.core.LocalizedException
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Faq
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -73,13 +72,7 @@ private fun FaqScreen(
         AppBar(
             title = TranslatableString.ResString(R.string.Settings_Faq),
             navigationIcon = {
-                HsIconButton(onClick = onCloseClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "back",
-                        tint = ComposeAppTheme.colors.jacob
-                    )
-                }
+                HsBackButton(onClick = onCloseClick)
             }
         )
         Crossfade(viewState) { viewState ->
@@ -112,14 +105,12 @@ private fun FaqScreen(
 
                         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                             Spacer(Modifier.height(12.dp))
-                            HSSectionRounded {
-                                viewModel.faqItems.forEachIndexed { index, faq ->
-                                    CellLawrence(
-                                        borderTop = index != 0,
-                                        onClick = { onItemClick(faq) }
-                                    ) {
-                                        subhead1_leah(text = faq.title)
-                                    }
+                            CellUniversalLawrenceSection(viewModel.faqItems) { faq ->
+                                RowUniversal(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    onClick =  { onItemClick(faq) }
+                                ) {
+                                    subhead1_leah(text = faq.title)
                                 }
                             }
                             Spacer(Modifier.height(32.dp))

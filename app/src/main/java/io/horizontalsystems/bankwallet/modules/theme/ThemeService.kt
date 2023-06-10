@@ -20,7 +20,6 @@ class ThemeService(private val localStorage: ILocalStorage) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
         localStorage.currentTheme = themeType
-        localStorage.relaunchBySettingChange = true
 
         _optionsFlow.update {
             Select(themeType, themes)

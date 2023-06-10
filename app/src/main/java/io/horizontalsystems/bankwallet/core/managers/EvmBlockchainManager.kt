@@ -9,7 +9,7 @@ class EvmBlockchainManager(
     private val backgroundManager: BackgroundManager,
     private val syncSourceManager: EvmSyncSourceManager,
     private val marketKit: MarketKitWrapper,
-    private val accountManagerFactory: EvmAccountManagerFactory
+    private val accountManagerFactory: EvmAccountManagerFactory,
 ) {
     private val evmKitManagersMap = mutableMapOf<BlockchainType, Pair<EvmKitManager, EvmAccountManager>>()
 
@@ -20,9 +20,15 @@ class EvmBlockchainManager(
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
             BlockchainType.ArbitrumOne,
+            BlockchainType.Gnosis,
+            BlockchainType.Fantom,
     )
 
-    val allBlockchains = marketKit.blockchains(allBlockchainTypes.map { it.uid })
+    val allBlockchains: List<Blockchain>
+        get() = marketKit.blockchains(allBlockchainTypes.map { it.uid })
+
+    val allMainNetBlockchains: List<Blockchain>
+        get() = marketKit.blockchains(allBlockchainTypes.map { it.uid })
 
     private fun getEvmKitManagers(blockchainType: BlockchainType): Pair<EvmKitManager, EvmAccountManager> {
         val evmKitManagers = evmKitManagersMap[blockchainType]
@@ -48,6 +54,8 @@ class EvmBlockchainManager(
         BlockchainType.Avalanche -> Chain.Avalanche
         BlockchainType.Optimism -> Chain.Optimism
         BlockchainType.ArbitrumOne -> Chain.ArbitrumOne
+        BlockchainType.Gnosis -> Chain.Gnosis
+        BlockchainType.Fantom -> Chain.Fantom
         else -> throw IllegalArgumentException("Unsupported blockchain type $blockchainType")
     }
 

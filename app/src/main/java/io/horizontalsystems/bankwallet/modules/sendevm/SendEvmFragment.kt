@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.iconUrl
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentSendEvmBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -131,16 +132,14 @@ class SendEvmFragment : BaseFragment() {
                 AppBar(
                     title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
-                        if (fullCoin.coin.uid == "safe-coin"
-                            || fullCoin.coin.uid == "custom_safe-erc20-SAFE"
-                            || fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
+                        if (fullCoin.coin.uid == "safe-coin") {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                             )
                         } else {
                             CoinImage(
-                                iconUrl = fullCoin.coin.iconUrl,
+                                iconUrl = fullCoin.coin.imageUrl,
                                 placeholder = fullCoin.iconPlaceholder,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                             )
@@ -189,7 +188,8 @@ class SendEvmFragment : BaseFragment() {
                     Spacer(modifier = Modifier.height(12.dp))
                     HSAddressInput(
                         tokenQuery = wallet.token.tokenQuery,
-                        coinCode = wallet.coin.code
+                        coinCode = wallet.coin.code,
+                        navController = findNavController()
                     ) {
                         viewModel.onEnterAddress(it)
                     }

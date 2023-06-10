@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import androidx.lifecycle.viewModelScope
+import cash.z.ecc.android.sdk.ext.collectWith
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
@@ -21,8 +23,8 @@ class BalanceAccountsViewModel(accountManager: IAccountManager) : ViewModel() {
 
     init {
         accountManager.activeAccountStateFlow.collectWith(viewModelScope) {
-            handleAccount(it)
-        }
+                handleAccount(it)
+            }
     }
 
     private fun handleAccount(activeAccountState: ActiveAccountState) {
@@ -32,7 +34,6 @@ class BalanceAccountsViewModel(accountManager: IAccountManager) : ViewModel() {
                 balanceScreenState = if (activeAccountState.account != null) {
                     BalanceScreenState.HasAccount(
                         AccountViewItem(
-                            activeAccountState.account.manageCoinsAllowed,
                             activeAccountState.account.isWatchAccount,
                             activeAccountState.account.name,
                             activeAccountState.account.id,
@@ -47,9 +48,9 @@ class BalanceAccountsViewModel(accountManager: IAccountManager) : ViewModel() {
     }
 }
 
-data class AccountViewItem(val manageCoinsAllowed: Boolean, val isWatchAccount: Boolean, val name: String = "", val id: String, val accountType: AccountType)
+data class AccountViewItem(val isWatchAccount: Boolean, val name: String = "", val id: String, val accountType: AccountType)
 
-sealed class BalanceScreenState(){
-    class HasAccount(val accountViewItem: AccountViewItem): BalanceScreenState()
-    object NoAccount: BalanceScreenState()
+sealed class BalanceScreenState() {
+    class HasAccount(val accountViewItem: AccountViewItem) : BalanceScreenState()
+    object NoAccount : BalanceScreenState()
 }

@@ -3,8 +3,13 @@ package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,32 +24,49 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCell
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import io.horizontalsystems.bankwallet.modules.fee.FeeCell
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.NftIcon
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoAddressCell
+import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoContactCell
+import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.marketkit.models.*
+import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 
 @Composable
 fun SendEvmTransactionView(
     transactionViewModel: SendEvmTransactionViewModel,
     feeCellViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
     navController: NavController,
-    parentNavGraphId: Int,
     description: String? = null
 ) {
     ComposeAppTheme {
 
         val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
-        val fee by feeCellViewModel.feeLiveData.observeAsState("")
+        val fee by feeCellViewModel.feeLiveData.observeAsState(null)
         val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
-        val loading by feeCellViewModel.loadingLiveData.observeAsState(false)
 
         Column {
             description?.let {
@@ -55,22 +76,23 @@ fun SendEvmTransactionView(
                 )
             }
             items.forEach { sectionViewItem ->
-                SectionView(sectionViewItem.viewItems)
+                SectionView(sectionViewItem.viewItems, navController)
             }
 
-            Spacer(Modifier.height(12.dp))
-            EvmFeeCell(
-                title = stringResource(R.string.FeeSettings_Fee),
-                value = fee,
-                loading = loading,
-                highlightEditButton = feeCellViewModel.highlightEditButton,
-                viewState = viewState
-            ) {
-                navController.slideFromBottom(
-                    resId = R.id.sendEvmFeeSettingsFragment,
-                    args = EvmFeeSettingsFragment.prepareParams(parentNavGraphId)
-                )
-            }
+            NonceView(nonceViewModel)
+
+            Spacer(Modifier.height(16.dp))
+            CellUniversalLawrenceSection(
+                listOf {
+                    FeeCell(
+                        title = stringResource(R.string.FeeSettings_NetworkFee),
+                        info = stringResource(R.string.FeeSettings_NetworkFee_Info),
+                        value = fee,
+                        viewState = viewState,
+                        navController = navController
+                    )
+                }
+            )
 
             val cautions by transactionViewModel.cautionsLiveData.observeAsState()
             cautions?.let {
@@ -81,44 +103,55 @@ fun SendEvmTransactionView(
 }
 
 @Composable
-private fun SectionView(viewItems: List<ViewItem>) {
-    Spacer(Modifier.height(12.dp))
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(ComposeAppTheme.colors.lawrence)
-    ) {
-        viewItems.forEachIndexed { index, item ->
-            if (index != 0) {
-                Divider(
-                    thickness = 1.dp,
-                    color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
+private fun NonceView(nonceViewModel: SendEvmNonceViewModel) {
+    val uiState = nonceViewModel.uiState
+    if (!uiState.showInConfirmation) return
+    val nonce = uiState.nonce ?: return
+
+    Spacer(Modifier.height(16.dp))
+    CellUniversalLawrenceSection(
+        listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                subhead2_grey(
+                    text = stringResource(id = R.string.Send_Confirmation_Nonce)
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = nonce.toString(),
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.subhead1,
+                    color = setColorByType(ValueType.Regular)
                 )
             }
-            when (item) {
-                is ViewItem.Subhead -> Subhead(item)
-                is ViewItem.Value -> TitleValue(item)
-                is ViewItem.AmountMulti -> AmountMulti(item)
-                is ViewItem.Amount -> Amount(item)
-                is ViewItem.NftAmount -> NftAmount(item)
-                is ViewItem.Address -> TitleValueHex(item.title, item.valueTitle, item.value)
-                is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
-                is ViewItem.TokenItem -> Token(item)
-            }
+        }
+    )
+}
+
+@Composable
+private fun SectionView(viewItems: List<ViewItem>, navController: NavController) {
+    Spacer(Modifier.height(16.dp))
+    CellUniversalLawrenceSection(viewItems) { item ->
+        when (item) {
+            is ViewItem.Subhead -> Subhead(item)
+            is ViewItem.Value -> TitleValue(item)
+            is ViewItem.ValueMulti -> TitleValueMulti(item)
+            is ViewItem.AmountMulti -> AmountMulti(item)
+            is ViewItem.Amount -> Amount(item)
+            is ViewItem.NftAmount -> NftAmount(item)
+            is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.value, item.showAdd, item.blockchainType, navController)
+            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
+            is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
+            is ViewItem.TokenItem -> Token(item)
         }
     }
-
 }
 
 @Composable
 private fun Subhead(item: ViewItem.Subhead) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         item.iconRes?.let {
             Icon(
@@ -140,11 +173,8 @@ private fun Subhead(item: ViewItem.Subhead) {
 
 @Composable
 private fun TitleValue(item: ViewItem.Value) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         subhead2_grey(
             text = item.title
@@ -160,22 +190,45 @@ private fun TitleValue(item: ViewItem.Value) {
 }
 
 @Composable
+private fun TitleValueMulti(item: ViewItem.ValueMulti) {
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        subhead2_grey(
+            text = item.title
+        )
+        Spacer(Modifier.weight(1f))
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = item.primaryValue,
+                maxLines = 1,
+                style = ComposeAppTheme.typography.subhead1,
+                color = setColorByType(item.type)
+            )
+            Text(
+                text = item.secondaryValue,
+                maxLines = 1,
+                style = ComposeAppTheme.typography.caption,
+                color = ComposeAppTheme.colors.grey
+            )
+        }
+    }
+}
+
+@Composable
 private fun AmountMulti(item: ViewItem.AmountMulti) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(60.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         } else {
             CoinImage(
-                modifier = Modifier.size(24.dp),
-                iconUrl = item.token.coin.iconUrl,
+                modifier = Modifier.size(32.dp),
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }
@@ -218,23 +271,20 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
 
 @Composable
 private fun Amount(item: ViewItem.Amount) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
-                modifier = Modifier.padding(end = 16.dp).size(24.dp)
+                modifier = Modifier.padding(end = 16.dp).size(32.dp)
             )
         } else {
             CoinImage(
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp),
-                iconUrl = item.token.coin.iconUrl,
+                    .size(32.dp),
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }
@@ -253,16 +303,11 @@ private fun Amount(item: ViewItem.Amount) {
 
 @Composable
 private fun NftAmount(item: ViewItem.NftAmount) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         NftIcon(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp),
+            modifier = Modifier.padding(end = 16.dp),
             iconUrl = item.iconUrl,
         )
         Text(
@@ -276,23 +321,20 @@ private fun NftAmount(item: ViewItem.NftAmount) {
 
 @Composable
 private fun Token(item: ViewItem.TokenItem) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         if (item.token.coin.uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
-                modifier = Modifier.padding(end = 16.dp).size(24.dp)
+                modifier = Modifier.padding(end = 16.dp).size(32.dp)
             )
         } else {
             CoinImage(
                 modifier = Modifier
                     .padding(end = 16.dp)
-                    .size(24.dp),
-                iconUrl = item.token.coin.iconUrl,
+                    .size(32.dp),
+                iconUrl = item.token.coin.imageUrl,
                 placeholder = item.token.iconPlaceholder
             )
         }
@@ -307,17 +349,15 @@ private fun TitleValueHex(
     value: String,
 ) {
     val localView = LocalView.current
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         subhead2_grey(
             text = title
         )
         Spacer(Modifier.weight(1f))
         ButtonSecondaryDefault(
+            modifier = Modifier.height(28.dp),
             title = valueTitle,
             onClick = {
                 TextHelper.copyText(value)
@@ -334,6 +374,8 @@ private fun setColorByType(type: ValueType) =
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
 
 @Preview

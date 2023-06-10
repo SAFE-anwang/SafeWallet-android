@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
@@ -20,6 +21,7 @@ import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransac
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCSendEthereumTransactionRequestViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.ui.SendEthRequestScreen
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -27,7 +29,9 @@ class WC2SendEthereumTransactionRequestFragment : BaseFragment() {
     private val logger = AppLogger("wallet-connect v2")
     val vmFactory by lazy {
         WCRequestModule.FactoryV2(
-            requireArguments().getLong(REQUEST_ID_KEY)
+            App.wc2SessionManager.createRequestData(requireArguments().getLong(
+                REQUEST_ID_KEY
+            ))
         )
     }
     private val viewModel by viewModels<WCSendEthereumTransactionRequestViewModel> { vmFactory }
