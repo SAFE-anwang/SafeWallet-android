@@ -4,6 +4,7 @@ import android.util.Log
 import io.horizontalsystems.bankwallet.BuildConfig.testMode
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
@@ -19,7 +20,6 @@ import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionTyp
 import io.horizontalsystems.bankwallet.modules.transactions.NftMetadataService
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.bankwallet.net.SafeNetWork
-import io.horizontalsystems.core.ICurrencyManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -34,7 +34,7 @@ class TransactionInfoService(
     private val transactionRecord: TransactionRecord,
     private val adapter: ITransactionsAdapter,
     private val marketKit: MarketKitWrapper,
-    private val currencyManager: ICurrencyManager,
+    private val currencyManager: CurrencyManager,
     private val nftMetadataService: NftMetadataService
 ) {
 

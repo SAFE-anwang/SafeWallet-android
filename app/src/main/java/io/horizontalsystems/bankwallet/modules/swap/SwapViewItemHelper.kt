@@ -3,68 +3,49 @@ package io.horizontalsystems.bankwallet.modules.swap
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapTradeService
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
 import io.horizontalsystems.marketkit.models.Token
-import io.horizontalsystems.uniswapkit.models.TradeData
 import io.horizontalsystems.uniswapkit.models.TradeOptions
-import io.horizontalsystems.uniswapkit.models.TradeType
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 class SwapViewItemHelper(private val numberFormatter: IAppNumberFormatter) {
 
-    fun price(price: BigDecimal?, quoteToken: Token?, baseToken: Token?): String? {
+    fun prices(sellPrice: BigDecimal, buyPrice: BigDecimal, tokenFrom: Token?, tokenTo: Token?): Pair<String?, String?> {
+        val primaryPrice: String?
+        val secondaryPrice: String?
+
+        val sellPriceStr = price(sellPrice, tokenTo, tokenFrom)
+        val buyPriceStr  = price(buyPrice, tokenFrom, tokenTo)
+        if (sellPrice > buyPrice) {
+            primaryPrice = sellPriceStr
+            secondaryPrice = buyPriceStr
+        } else {
+            primaryPrice = buyPriceStr
+            secondaryPrice = sellPriceStr
+        }
+        return Pair(primaryPrice, secondaryPrice)
+    }
+
+    private fun price(price: BigDecimal?, quoteToken: Token?, baseToken: Token?): String? {
         if (price == null || quoteToken == null || baseToken == null)
             return null
 
-        val inversePrice = if (price.compareTo(BigDecimal.ZERO) == 0)
-            BigDecimal.ZERO
-        else
-            BigDecimal.ONE.divide(price, price.scale(), RoundingMode.HALF_UP)
-
-        return "${baseToken.coin.code} = ${coinAmount(inversePrice, quoteToken.coin.code)} "
+        return "1 ${baseToken.coin.code} = ${coinAmount(price, quoteToken.coin.code)}"
     }
 
     fun priceImpactViewItem(
-        trade: UniswapTradeService.Trade,
-        minLevel: UniswapTradeService.PriceImpactLevel = UniswapTradeService.PriceImpactLevel.Normal
-    ): UniswapModule.PriceImpactViewItem? {
+        trade: SwapMainModule.SwapData.UniswapData,
+        minLevel: PriceImpactLevel = PriceImpactLevel.Normal
+    ): PriceImpactViewItem? {
 
-        val priceImpact = trade.tradeData.priceImpact ?: return null
+        val priceImpact = trade.data.priceImpact ?: return null
         val impactLevel = trade.priceImpactLevel ?: return null
         if (impactLevel < minLevel) {
             return null
         }
 
-        return UniswapModule.PriceImpactViewItem(impactLevel, Translator.getString(R.string.Swap_Percent, priceImpact))
-    }
-
-    fun guaranteedAmountViewItem(
-        tradeData: TradeData,
-        tokenIn: Token?,
-        tokenOut: Token?
-    ): UniswapModule.GuaranteedAmountViewItem? {
-        when (tradeData.type) {
-            TradeType.ExactIn -> {
-                val amount = tradeData.amountOutMin ?: return null
-                val token = tokenOut ?: return null
-
-                return UniswapModule.GuaranteedAmountViewItem(
-                    Translator.getString(R.string.Swap_MinimumGot),
-                    coinAmount(amount, token.coin.code)
-                )
-            }
-            TradeType.ExactOut -> {
-                val amount = tradeData.amountInMax ?: return null
-                val token = tokenIn ?: return null
-
-                return UniswapModule.GuaranteedAmountViewItem(
-                    Translator.getString(R.string.Swap_MaximumPaid),
-                    coinAmount(amount, token.coin.code)
-                )
-            }
-        }
+        return PriceImpactViewItem(impactLevel, Translator.getString(R.string.Swap_Percent, priceImpact * BigDecimal.valueOf(-1)))
     }
 
     fun slippage(allowedSlippage: BigDecimal): String? {

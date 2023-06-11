@@ -45,11 +45,11 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultipleDialog
+import io.horizontalsystems.core.CustomSnackbar
+import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.snackbar.CustomSnackbar
-import io.horizontalsystems.snackbar.SnackbarDuration
 import kotlinx.coroutines.launch
 
 class CoinFragment : BaseFragment() {

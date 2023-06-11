@@ -53,13 +53,13 @@ class ManageAccountViewModel(
             null
         }
 
-        accountExtendedPrivateKey = if (hdExtendedKey?.derivedType == DerivedType.Account && !hdExtendedKey.info.isPublic) {
+        accountExtendedPrivateKey = if (hdExtendedKey?.derivedType == DerivedType.Account && !hdExtendedKey.isPublic) {
             hdExtendedKey
         } else {
             null
         }
 
-        accountExtendedPublicKey = if (hdExtendedKey?.derivedType == DerivedType.Account && hdExtendedKey.info.isPublic) {
+        accountExtendedPublicKey = if (hdExtendedKey?.derivedType == DerivedType.Account && hdExtendedKey.isPublic) {
             hdExtendedKey
         } else {
             null

@@ -41,8 +41,9 @@ object SendModule {
     }
 
     sealed class AmountInfo {
-        data class CoinValueInfo(val coinValue: CoinValue) : AmountInfo()
-        data class CurrencyValueInfo(val currencyValue: CurrencyValue) : AmountInfo()
+        abstract val approximate: Boolean
+        data class CoinValueInfo(val coinValue: CoinValue, override val approximate: Boolean = false) : AmountInfo()
+        data class CurrencyValueInfo(val currencyValue: CurrencyValue, override val approximate: Boolean = false) : AmountInfo()
 
         val value: BigDecimal
             get() = when (this) {

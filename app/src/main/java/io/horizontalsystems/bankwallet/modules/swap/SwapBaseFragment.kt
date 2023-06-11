@@ -1,3 +1,4 @@
+/*
 package io.horizontalsystems.bankwallet.modules.swap
 
 import android.os.Bundle
@@ -28,3 +29,4 @@ abstract class SwapBaseFragment : BaseFragment() {
     }
 
 }
+*/

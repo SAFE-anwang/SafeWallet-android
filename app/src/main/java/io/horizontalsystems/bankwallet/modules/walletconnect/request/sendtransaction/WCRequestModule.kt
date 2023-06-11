@@ -14,6 +14,8 @@ import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceServi
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData.AdditionalInfo
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData.WalletConnectInfo
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceService
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v1.WCSendEthereumTransactionRequestService
@@ -41,6 +43,14 @@ object WCRequestModule {
         dAppName: String?
     ) : ViewModelProvider.Factory {
         private val evmKitWrapper by lazy { baseService.evmKitWrapper!! }
+        private val blockchainType = when (evmKitWrapper.evmKit.chain) {
+            Chain.BinanceSmartChain -> BlockchainType.BinanceSmartChain
+            Chain.Polygon -> BlockchainType.Polygon
+            Chain.Avalanche -> BlockchainType.Avalanche
+            Chain.Optimism -> BlockchainType.Optimism
+            Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
+            else -> BlockchainType.Ethereum
+        }
         private val token by lazy { getToken(evmKitWrapper.evmKit.chain) }
         private val transaction = request.transaction
         private val transactionData =
@@ -56,7 +66,7 @@ object WCRequestModule {
         }
 
         private val coinServiceFactory by lazy {
-            EvmCoinServiceFactory(token, App.marketKit, App.currencyManager)
+            EvmCoinServiceFactory(token, App.marketKit, App.currencyManager, App.coinManager)
         }
         private val feeService by lazy {
             val gasDataService = EvmCommonGasDataService(evmKitWrapper.evmKit, 10)
@@ -64,11 +74,13 @@ object WCRequestModule {
         }
         private val cautionViewItemFactory by lazy { CautionViewItemFactory(coinServiceFactory.baseCoinService) }
         private val additionalInfo = AdditionalInfo.WalletConnectRequest(WalletConnectInfo(dAppName))
+        private val nonceService by lazy { SendEvmNonceService(evmKitWrapper.evmKit, transaction.nonce) }
+        private val settingsService by lazy { SendEvmSettingsService(feeService, nonceService) }
         private val sendService by lazy {
             SendEvmTransactionService(
                 SendEvmData(transactionData, additionalInfo),
                 evmKitWrapper,
-                feeService,
+                settingsService,
                 App.evmLabelManager
             )
         }
@@ -91,7 +103,8 @@ object WCRequestModule {
                         sendService,
                         coinServiceFactory,
                         cautionViewItemFactory,
-                        App.evmLabelManager
+                        App.evmLabelManager,
+                        blockchainType = blockchainType,
                     ) as T
                 }
                 else -> throw IllegalArgumentException()
@@ -102,6 +115,14 @@ object WCRequestModule {
     class FactoryV2(private val requestId: Long) : ViewModelProvider.Factory {
         private val service by lazy {
             WC2SendEthereumTransactionRequestService(requestId, App.wc2SessionManager)
+        }
+        private val blockchainType = when (service.evmKitWrapper.evmKit.chain) {
+            Chain.BinanceSmartChain -> BlockchainType.BinanceSmartChain
+            Chain.Polygon -> BlockchainType.Polygon
+            Chain.Avalanche -> BlockchainType.Avalanche
+            Chain.Optimism -> BlockchainType.Optimism
+            Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
+            else -> BlockchainType.Ethereum
         }
         private val token by lazy { getToken(service.evmKitWrapper.evmKit.chain) }
         private val transaction = service.transactionRequest.transaction
@@ -115,7 +136,7 @@ object WCRequestModule {
         }
 
         private val coinServiceFactory by lazy {
-            EvmCoinServiceFactory(token, App.marketKit, App.currencyManager)
+            EvmCoinServiceFactory(token, App.marketKit, App.currencyManager, App.coinManager)
         }
         private val feeService by lazy {
             val evmKitWrapper = service.evmKitWrapper
@@ -125,11 +146,13 @@ object WCRequestModule {
         private val cautionViewItemFactory by lazy { CautionViewItemFactory(coinServiceFactory.baseCoinService) }
         private val additionalInfo =
             AdditionalInfo.WalletConnectRequest(WalletConnectInfo(service.transactionRequest.dAppName))
+        private val nonceService by lazy { SendEvmNonceService(service.evmKitWrapper.evmKit, transaction.nonce) }
+        private val settingsService by lazy { SendEvmSettingsService(feeService, nonceService) }
         private val sendService by lazy {
             SendEvmTransactionService(
                 SendEvmData(transactionData, additionalInfo),
                 service.evmKitWrapper,
-                feeService,
+                settingsService,
                 App.evmLabelManager
             )
         }
@@ -152,7 +175,8 @@ object WCRequestModule {
                         sendService,
                         coinServiceFactory,
                         cautionViewItemFactory,
-                        App.evmLabelManager
+                        App.evmLabelManager,
+                        blockchainType
                     ) as T
                 }
                 else -> throw IllegalArgumentException()

@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmFeeService
 import io.horizontalsystems.bankwallet.modules.evmfee.Transaction
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -17,6 +18,9 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.math.BigInteger
 
 interface ISendEvmTransactionService {
@@ -30,6 +34,8 @@ interface ISendEvmTransactionService {
 
     val ownAddress: Address
 
+    val settingsService: SendEvmSettingsService
+    suspend fun start()
     fun send(logger: AppLogger)
     fun methodName(input: ByteArray): String?
 }
@@ -37,7 +43,7 @@ interface ISendEvmTransactionService {
 class SendEvmTransactionService(
     private val sendEvmData: SendEvmData,
     private val evmKitWrapper: EvmKitWrapper,
-    private val feeService: IEvmFeeService,
+    override val settingsService: SendEvmSettingsService,
     private val evmLabelManager: EvmLabelManager
 ) : Clearable, ISendEvmTransactionService {
     private val disposable = CompositeDisposable()
@@ -69,13 +75,41 @@ class SendEvmTransactionService(
 
     override val ownAddress: Address = evmKit.receiveAddress
 
-    init {
-        feeService.transactionStatusObservable
-            .subscribeIO { sync(it) }
-            .let { disposable.add(it) }
+    override suspend fun start() {
+        GlobalScope.launch {
+            settingsService.stateFlow
+                .collect {
+                    sync(it)
+                }
+        }
+
+        settingsService.start()
     }
 
-    private fun sync(transactionStatus: DataState<Transaction>) {
+
+    private fun sync(settingsState: DataState<SendEvmSettingsService.Transaction>) {
+        when (settingsState) {
+            is DataState.Error -> {
+                state = State.NotReady(errors = listOf(settingsState.error))
+                syncTxDataState()
+            }
+            DataState.Loading -> {
+                state = State.NotReady()
+            }
+            is DataState.Success -> {
+                syncTxDataState(settingsState.data)
+
+                val warnings = settingsState.data.warnings + sendEvmData.warnings
+                state = if (settingsState.data.errors.isNotEmpty()) {
+                    State.NotReady(warnings, settingsState.data.errors)
+                } else {
+                    State.Ready(warnings)
+                }
+            }
+        }
+    }
+
+    /*private fun sync(transactionStatus: DataState<Transaction>) {
         when (transactionStatus) {
             is DataState.Error -> {
                 state = State.NotReady(errors = listOf(transactionStatus.error))
@@ -95,23 +129,23 @@ class SendEvmTransactionService(
                 }
             }
         }
-    }
+    }*/
 
     override fun send(logger: AppLogger) {
         if (state !is State.Ready) {
             logger.info("state is not Ready: ${state.javaClass.simpleName}")
             return
         }
-        val transaction = feeService.transactionStatus.dataOrNull ?: return
+        val txConfig = settingsService.state.dataOrNull ?: return
 
         sendState = SendState.Sending
         logger.info("sending tx")
 
         evmKitWrapper.sendSingle(
-            transaction.transactionData,
-            transaction.gasData.gasPrice,
-            transaction.gasData.gasLimit,
-            transaction.transactionData.nonce
+            txConfig.transactionData,
+            txConfig.gasData.gasPrice,
+            txConfig.gasData.gasLimit,
+            txConfig.nonce
         )
             .subscribeIO({ fullTransaction ->
                 sendState = SendState.Sent(fullTransaction.transaction.hash)
@@ -130,7 +164,7 @@ class SendEvmTransactionService(
         disposable.clear()
     }
 
-    private fun syncTxDataState(transaction: Transaction? = null) {
+    private fun syncTxDataState(transaction: SendEvmSettingsService.Transaction? = null) {
         val transactionData = transaction?.transactionData ?: sendEvmData.transactionData
         txDataState = TxDataState(transactionData, sendEvmData.additionalInfo, evmKit.decorate(transactionData))
     }

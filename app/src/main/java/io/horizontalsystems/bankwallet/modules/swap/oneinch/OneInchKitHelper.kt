@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.swap.oneinch
 
 import io.horizontalsystems.bankwallet.core.convertedError
+import io.horizontalsystems.bankwallet.modules.swap.scaleUp
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.GasPrice
@@ -11,8 +12,6 @@ import io.horizontalsystems.oneinchkit.Quote
 import io.horizontalsystems.oneinchkit.Swap
 import io.reactivex.Single
 import java.math.BigDecimal
-import java.math.BigInteger
-import kotlin.math.absoluteValue
 
 class OneInchKitHelper(
     evmKit: EthereumKit
@@ -29,7 +28,7 @@ class OneInchKitHelper(
     }
 
     val smartContractAddress: Address
-        get() = oneInchKit.getRouterAddress
+        get() = oneInchKit.routerAddress
 
     fun getQuoteAsync(
         fromToken: Token,
@@ -72,14 +71,3 @@ class OneInchKitHelper(
     }
 
 }
-
-fun BigDecimal.scaleUp(scale: Int): BigInteger {
-    val exponent = scale - scale()
-
-    return if (exponent >= 0) {
-        unscaledValue() * BigInteger.TEN.pow(exponent)
-    } else {
-        unscaledValue() / BigInteger.TEN.pow(exponent.absoluteValue)
-    }
-}
-

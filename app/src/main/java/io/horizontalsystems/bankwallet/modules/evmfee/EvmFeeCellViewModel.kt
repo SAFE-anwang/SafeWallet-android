@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.modules.fee.FeeItem
 import io.reactivex.disposables.CompositeDisposable
 
 class EvmFeeCellViewModel(
@@ -17,7 +18,7 @@ class EvmFeeCellViewModel(
 
     private val disposable = CompositeDisposable()
 
-    val feeLiveData = MutableLiveData("")
+    val feeLiveData = MutableLiveData<FeeItem?>()
     val viewStateLiveData = MutableLiveData<ViewState>()
     val loadingLiveData = MutableLiveData<Boolean>()
 
@@ -46,7 +47,7 @@ class EvmFeeCellViewModel(
                 hasError = true
                 loadingLiveData.postValue(false)
                 viewStateLiveData.postValue(ViewState.Error(transactionStatus.error))
-                feeLiveData.postValue(Translator.getString(R.string.NotAvailable))
+                feeLiveData.postValue(null)
             }
             is DataState.Success -> {
                 val transaction = transactionStatus.data
@@ -59,12 +60,14 @@ class EvmFeeCellViewModel(
                     viewStateLiveData.postValue(ViewState.Success)
                 }
 
-                val fee = coinService.amountData(transactionStatus.data.gasData.fee).getFormatted()
-                feeLiveData.postValue(fee)
+                val feeAmountData = coinService.amountData(transactionStatus.data.gasData.estimatedFee, transactionStatus.data.gasData.isSurcharged)
+                val feeViewItem = FeeItem(
+                    primary = feeAmountData.primary.getFormattedPlain(),
+                    secondary = feeAmountData.secondary?.getFormattedPlain()
+                )
+                feeLiveData.postValue(feeViewItem)
             }
         }
-
-        highlightEditButton = hasError || !gasPriceService.isRecommendedGasPriceSelected
     }
 
 }

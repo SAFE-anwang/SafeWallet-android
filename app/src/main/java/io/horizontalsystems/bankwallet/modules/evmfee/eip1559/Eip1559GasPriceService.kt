@@ -57,8 +57,7 @@ class Eip1559GasPriceService(
     override val stateObservable: Observable<DataState<GasPriceInfo>>
         get() = stateSubject
 
-    override var isRecommendedGasPriceSelected = true
-        private set
+    var recommendedGasPriceSelected = true
 
     var currentBaseFee: Long? = null
         private set
@@ -88,16 +87,25 @@ class Eip1559GasPriceService(
             .let { disposable.add(it) }
     }
 
-    fun setRecommended() {
-        isRecommendedGasPriceSelected = true
+
+    override fun setRecommended() {
+        recommendedGasPriceSelected = true
 
         recommendedGasPrice?.let {
-            state = DataState.Success(GasPriceInfo(it, listOf(), listOf()))
+            state = DataState.Success(
+                GasPriceInfo(
+                    gasPrice = it,
+                    gasPriceDefault = it,
+                    default = true,
+                    warnings = listOf(),
+                    errors = listOf()
+                )
+            )
         } ?: syncRecommended()
     }
 
     fun setGasPrice(baseFee: Long, maxPriorityFee: Long) {
-        isRecommendedGasPriceSelected = false
+        recommendedGasPriceSelected = false
 
         val newGasPrice = GasPrice.Eip1559(baseFee + maxPriorityFee, maxPriorityFee)
         state = validatedGasPriceInfoState(newGasPrice)
@@ -126,7 +134,7 @@ class Eip1559GasPriceService(
 
             when {
                 tip < 0 -> {
-                    errors.add(FeeSettingsError.LowMaxFee)
+                    errors.add(FeeSettingsError.UsedNonce)
                 }
                 tip <= riskOfStuckBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
                     warnings.add(FeeSettingsWarning.RiskOfGettingStuck)
@@ -137,7 +145,13 @@ class Eip1559GasPriceService(
             }
         }
 
-        return GasPriceInfo(gasPriceEip1559, warnings, errors)
+        return GasPriceInfo(
+            gasPrice = gasPriceEip1559,
+            gasPriceDefault = recommendedGasPrice ?: gasPriceEip1559,
+            default = recommendedGasPriceSelected,
+            warnings = warnings,
+            errors = errors
+        )
     }
 
     private fun syncRecommended() {
@@ -169,7 +183,7 @@ class Eip1559GasPriceService(
 
         recommendedGasPrice = newRecommendGasPrice
 
-        if (isRecommendedGasPriceSelected) {
+        if (recommendedGasPriceSelected) {
             state = validatedGasPriceInfoState(newRecommendGasPrice)
         } else {
             state.dataOrNull?.let {

@@ -2,30 +2,43 @@ package io.horizontalsystems.bankwallet.modules.evmfee
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559FeeSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyFeeSettingsViewModel
+import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.bankwallet.ui.compose.animations.shake
 import io.horizontalsystems.bankwallet.ui.compose.components.*
+import java.math.BigDecimal
 
 @Composable
 fun Eip1559FeeSettings(
@@ -161,6 +174,106 @@ fun Eip1559FeeSettings(
                 onClick = { navController.popBackStack() }
             )
         }
+    }
+}
+
+
+@Composable
+fun EvmSettingsInput(
+    title: String,
+    info: String,
+    value: BigDecimal,
+    decimals: Int,
+    warnings: List<Warning>,
+    errors: List<Throwable>,
+    navController: NavController,
+    onValueChange: (BigDecimal) -> Unit,
+    onClickIncrement: () -> Unit,
+    onClickDecrement: () -> Unit
+) {
+    HeaderText(text = title) {
+        navController.slideFromBottom(R.id.feeSettingsInfoDialog, FeeSettingsInfoDialog.prepareParams(title, info))
+    }
+    val borderColor = when {
+        errors.isNotEmpty() -> ComposeAppTheme.colors.red50
+        warnings.isNotEmpty() -> ComposeAppTheme.colors.yellow50
+        else -> ComposeAppTheme.colors.steel20
+    }
+
+    NumberInputWithButtons(value, decimals, borderColor, onValueChange, onClickIncrement, onClickDecrement)
+}
+
+@Composable
+private fun NumberInputWithButtons(
+    value: BigDecimal,
+    decimals: Int,
+    borderColor: Color,
+    onValueChange: (BigDecimal) -> Unit,
+    onClickIncrement: () -> Unit,
+    onClickDecrement: () -> Unit
+) {
+    var textState by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        val text = value.toString()
+        mutableStateOf(TextFieldValue(text))
+    }
+    var playShakeAnimation by remember { mutableStateOf(false) }
+
+    LaunchedEffect(value) {
+        textState = textState.copy(text = value.toString())
+    }
+
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 44.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+            .background(ComposeAppTheme.colors.lawrence),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        BasicTextField(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .weight(1f)
+                .shake(
+                    enabled = playShakeAnimation,
+                    onAnimationFinish = { playShakeAnimation = false }
+                ),
+            value = textState,
+            onValueChange = { textFieldValue ->
+                val newValue = textFieldValue.text.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                if (newValue.scale() <= decimals) {
+                    val currentText = textState.text
+                    textState = textFieldValue
+                    if (currentText != textFieldValue.text) {
+                        onValueChange(newValue)
+                    }
+                } else {
+                    playShakeAnimation = true
+                }
+            },
+            textStyle = ColoredTextStyle(
+                color = ComposeAppTheme.colors.leah,
+                textStyle = ComposeAppTheme.typography.body
+            ),
+            singleLine = true,
+            cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+
+        ButtonSecondaryCircle(
+            modifier = Modifier.padding(end = 16.dp),
+            icon = R.drawable.ic_minus_20,
+            onClick = onClickDecrement
+        )
+
+        ButtonSecondaryCircle(
+            modifier = Modifier.padding(end = 16.dp),
+            icon = R.drawable.ic_plus_20,
+            onClick = onClickIncrement
+        )
     }
 }
 

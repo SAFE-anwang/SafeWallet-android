@@ -381,6 +381,7 @@ abstract class BitcoinBaseAdapter(
             AccountType.Derivation.bip44 -> Purpose.BIP44
             AccountType.Derivation.bip49 -> Purpose.BIP49
             AccountType.Derivation.bip84 -> Purpose.BIP84
+            AccountType.Derivation.bip86 -> Purpose.BIP86
         }
 
     }

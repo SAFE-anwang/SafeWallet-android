@@ -20,6 +20,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCell
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
+import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.ViewItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCSendEthereumTransactionRequestViewModel
@@ -42,7 +43,7 @@ fun SendEthRequestScreen(
     val transactionInfoItems by sendEvmTransactionViewModel.viewItemsLiveData.observeAsState()
     val approveEnabled by sendEvmTransactionViewModel.sendEnabledLiveData.observeAsState(false)
     val cautions by sendEvmTransactionViewModel.cautionsLiveData.observeAsState()
-    val fee by feeViewModel.feeLiveData.observeAsState("")
+    val fee by feeViewModel.feeLiveData.observeAsState(null)
     val viewState by feeViewModel.viewStateLiveData.observeAsState()
     val loading by feeViewModel.loadingLiveData.observeAsState(false)
 
@@ -81,10 +82,12 @@ fun SendEthRequestScreen(
                                     item.value,
                                     item.type
                                 )
-                                is ViewItem.Address -> TitleHexValueCell(
+                                is ViewItem.Address -> TransactionInfoAddressCell(
                                     item.title,
-                                    item.valueTitle,
-                                    item.value
+                                    item.value,
+                                    item.showAdd,
+                                    item.blockchainType,
+                                    navController
                                 )
                                 is ViewItem.Input -> TitleHexValueCell(
                                     Translator.getString(R.string.WalletConnect_Input),
@@ -103,25 +106,27 @@ fun SendEthRequestScreen(
                                     item.type,
                                     item.token
                                 )
-                                is ViewItem.NftAmount -> {}
+                                is ViewItem.NftAmount,
+                                is ViewItem.ValueMulti -> {
+                                }
                             }
                         }
                         Spacer(Modifier.height(12.dp))
                     }
                 }
 
-                EvmFeeCell(
-                    title = stringResource(R.string.FeeSettings_MaxFee),
+                FeeCell(
+                    title = stringResource(R.string.FeeSettings_NetworkFee),
+                    info = stringResource(R.string.FeeSettings_NetworkFee_Info),
                     value = fee,
-                    loading = loading,
                     viewState = viewState,
-                    highlightEditButton = feeViewModel.highlightEditButton,
-                ) {
+                    navController = navController
+                )/* {
                     navController.slideFromBottom(
                         resId = R.id.sendEvmFeeSettingsFragment,
                         args = EvmFeeSettingsFragment.prepareParams(parentNavGraphId)
                     )
-                }
+                }*/
 
                 cautions?.let {
                     Cautions(it)

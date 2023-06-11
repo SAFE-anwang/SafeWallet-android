@@ -14,13 +14,13 @@ open class EvmCommonGasDataService(
         private val gasLimit: Long? = null
 ) {
 
-    open fun predefinedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData): Single<GasData>? {
+    /*open fun predefinedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData): Single<GasData>? {
         if (gasLimit == null) {
             return null
         }
 
         return Single.just(GasData(gasLimit, gasPrice))
-    }
+    }*/
 
     open fun estimatedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData, stubAmount: BigInteger?): Single<GasData> {
         val stubTransactionData = if (stubAmount != null)  {
@@ -32,7 +32,9 @@ open class EvmCommonGasDataService(
         return evmKit.estimateGas(stubTransactionData, gasPrice)
                 .map { estimatedGasLimit ->
                     val gasLimit = getSurchargedGasLimit(estimatedGasLimit)
-                    GasData(gasLimit, gasPrice)
+                    GasData(gasLimit = gasLimit,
+                        estimatedGasLimit = estimatedGasLimit,
+                        gasPrice = gasPrice)
                 }
 
     }

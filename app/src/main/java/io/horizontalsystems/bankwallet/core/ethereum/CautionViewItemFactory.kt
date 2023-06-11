@@ -8,7 +8,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsError
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsWarning
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.UniswapWarnings
 
 class CautionViewItemFactory(
     private val baseCoinService: EvmCoinService
@@ -26,6 +26,13 @@ class CautionViewItemFactory(
                     CautionViewItem.Type.Warning
                 )
             }
+            FeeSettingsWarning.RiskOfGettingStuckLegacy -> {
+                CautionViewItem(
+                    Translator.getString(R.string.FeeSettings_RiskOfGettingStuckLegacy_Title),
+                    Translator.getString(R.string.FeeSettings_RiskOfGettingStuckLegacy),
+                    CautionViewItem.Type.Warning
+                )
+            }
             FeeSettingsWarning.Overpricing -> {
                 CautionViewItem(
                     Translator.getString(R.string.FeeSettings_Overpricing_Title),
@@ -33,7 +40,7 @@ class CautionViewItemFactory(
                     CautionViewItem.Type.Warning
                 )
             }
-            UniswapModule.UniswapWarnings.PriceImpactWarning -> {
+            UniswapWarnings.PriceImpactWarning -> {
                 CautionViewItem(
                     Translator.getString(R.string.Swap_PriceImpact),
                     Translator.getString(R.string.Swap_PriceImpactTooHigh),
@@ -52,7 +59,7 @@ class CautionViewItemFactory(
 
     private fun cautionViewItem(error: Throwable): CautionViewItem {
         return when (error) {
-            FeeSettingsError.LowMaxFee -> {
+            FeeSettingsError.UsedNonce -> {
                 CautionViewItem(
                     Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit_Title),
                     Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit),

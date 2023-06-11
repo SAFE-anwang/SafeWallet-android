@@ -8,6 +8,10 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +42,7 @@ import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun SectionTitleCell(
@@ -171,20 +176,33 @@ fun TitleAndValueCell(
 @Composable
 fun TransactionInfoAddressCell(
     title: String,
-    value: String,
-    valueTitle: String
+    value: String, showAdd: Boolean, blockchainType: BlockchainType, navController: NavController? = null
 ) {
     val view = LocalView.current
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    var showSaveAddressDialog by remember { mutableStateOf(false) }
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp),
     ) {
-        subhead2_grey(text = title, modifier = Modifier.padding(end = 16.dp))
-        Spacer(Modifier.weight(1f))
-        ButtonSecondaryDefault(
-            title = valueTitle,
+        subhead2_grey(text = title)
+
+        HSpacer(16.dp)
+        subhead1_leah(
+            modifier = Modifier.weight(1f),
+            text = value,
+            textAlign = TextAlign.Right
+        )
+
+        if (showAdd) {
+            HSpacer(16.dp)
+            ButtonSecondaryCircle(
+                icon = R.drawable.icon_20_user_plus,
+                onClick = { showSaveAddressDialog = true }
+            )
+        }
+
+        HSpacer(16.dp)
+        ButtonSecondaryCircle(
+            icon = R.drawable.ic_copy_20,
             onClick = {
                 TextHelper.copyText(value)
                 HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)

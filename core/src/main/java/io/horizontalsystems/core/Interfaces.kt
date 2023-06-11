@@ -2,7 +2,6 @@ package io.horizontalsystems.core
 
 import android.app.Activity
 import android.content.SharedPreferences
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.core.security.KeyStoreValidationResult
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -15,7 +14,6 @@ interface ICoreApp {
     var encryptionManager: IEncryptionManager
     var systemInfoManager: ISystemInfoManager
     var languageManager: ILanguageManager
-    var currencyManager: ICurrencyManager
     var keyStoreManager: IKeyStoreManager
     var keyProvider: IKeyProvider
     var pinComponent: IPinComponent
@@ -64,11 +62,11 @@ interface ILanguageManager {
     fun getNativeName(language: String): String
 }
 
-interface ICurrencyManager {
+/*interface ICurrencyManager {
     var baseCurrency: Currency
     val baseCurrencyUpdatedSignal: Observable<Unit>
     val currencies: List<Currency>
-}
+}*/
 
 interface IPinStorage {
     var failedAttempts: Int?

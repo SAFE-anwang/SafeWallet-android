@@ -13,7 +13,7 @@ import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo.Curren
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule.ValidationError.InsufficientBalance
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountModule.ValidationError.TooFewAmount
 import io.horizontalsystems.bankwallet.ui.extensions.AmountInputView
-import io.horizontalsystems.core.entities.Currency
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.RoundingMode

@@ -44,6 +44,7 @@
     <string name="SyncError">同步错误。请再试一次</string>
     <string name="PercentTitle">百分比</string>
     <string name="Keyboard">键盘</string>
+    <string name="Button_Back">返回</string>
     <!--Intro-->
     <string name="Intro_Wallet_Screen1Description">SafeWallet</string>
     <string name="Intro_Wallet_Screen2Title">资产解绑</string>
@@ -388,26 +389,45 @@
     <string name="Send_Warning_LowFee">警告！有被骗的风险</string>
     <string name="Send_Warning_LowFee_Description">交易可能被卡或失败</string>
     <string name="Send_Error_FetchFeeRateFailed">获取收费率时出错</string>
+    <!-- Send Evm Settings -->
+    <string name="SendEvmSettings_Title">高级</string>
+    <string name="SendEvmSettings_Nonce">交易nonce</string>
+    <string name="SendEvmSettings_Nonce_Info">Nonce是用于用户钱包内的交易的一个唯一的整数值。它通常随着每一个提交的交易而增加且不需要更改。高级用户可以将其设置为等于一个待定交易的nonce，以便取消和取代该交易，只要新的交易具备足够高的费用来防止旧的交易得到确认即可（例如，他们可能需要加快其确认，或者完全更改交易参数）。当多个待定交易具有相同的nonce时，只有一个会得到确认，通常是具有最高费用的那一个。</string>
+    <string name="SendEvmSettings_Error_NonceUsed_Title">已用nonce</string>
+    <string name="SendEvmSettings_Error_NonceUsed">使用此nonce执行的交易已存在。</string>
     <!-- Fee Settings -->
     <string name="FeeSettings_Title">费用设置</string>
     <string name="FeeSettings_Reset">重置</string>
-    <string name="FeeSettings_MaxFee">最大手续费</string>
-    <string name="FeeSettings_MaxFee_Info">给定交易的最大预计总费用。通常，实际交易费用会更低。</string>
-    <string name="FeeSettings_Fee">费用</string>
+    <string name="FeeSettings_FeeLegacy">最大手续费</string>
+    <string name="FeeSettings_FeeLegacy_Info">给定交易的最大预计总费用。通常，实际交易费用会更低。</string>
+    <string name="FeeSettings_Fee">最大手续费</string>
+    <string name="FeeSettings_Fee_Info">需为此交易支付的最高估计交易费用是根据以下燃料限制（gas limit）、最高费率和最高优先级费用价值计算得出。支付的实际费用通常会较低。</string>
+    <string name="FeeSettings_NetworkFee">网络费</string>
+    <string name="FeeSettings_NetworkFee_Info">在网络上发送给定交易的估计费用。</string>
     <string name="FeeSettings_GasLimit">GAS限制</string>
-    <string name="FeeSettings_GasLimit_Info">燃料限制是用户发送给定交易时愿意花费的最大燃料单位。复杂交易比简单交易需要更多的燃料单位。每一交易的燃料限制将自动得到估计和设置。</string>
-    <string name="FeeSettings_GasPrice">GAS的价格</string>
+    <string name="FeeSettings_GasLimit_Info">交易复杂度以被称为“gas”（燃料）的单位度量。它将根据被执行的智能合同而变化。Gas Limit（燃料限制）是执行它所需要的估计最大燃料。使用的实际燃料通常会较低。</string>
+    <string name="FeeSettings_GasPrice">Gas Price (Gwei)</string>
     <string name="FeeSettings_GasPrice_Info">网上交易费用将按燃料单位计量。燃料价格是用户愿意按单位消费的金额。 当网络忙碌时，燃料价格就高，空闲时价格就低。 燃料价格不足常常是交易被长期搁置的一个原因。</string>
     <string name="FeeSettings_CurrentBaseFee">当前基本费用</string>
     <string name="FeeSettings_MaxBaseFee">最大基本费用</string>
     <string name="FeeSettings_MaxBaseFee_Info">以太坊上的每笔交易都要求用户花费一定数量的燃料单位来处理该交易。单个燃料单元的价格随网络条件实时变化，不受任何单一实体的控制。最大基本费率与可选的矿工消费（见下文）是指用户愿意为发送交易支付的燃料单位的最高价格。</string>
-    <string name="FeeSettings_MaxMinerTips">最大矿工提示</string>
-    <string name="FeeSettings_MaxMinerTips_Info">矿工费用（又称矿工消费）是指用户可选择的费用，用户可以包括此费用以鼓励网络参与者让他们交易优先。</string>
+    <string name="FeeSettings_BaseFee">基础费用</string>
+    <string name="FeeSettings_BaseFee_Info">网络协议将决定每一个区块的每一燃料（gas）的基础价格，称为基础费率。它根据不同区块的网络利用水平而变化。它可能会在下一个区块中增加或减少不多于12.5%，使得费用更具有可预测性。这里显示的值为当前区块的基础费率。</string>
+    <string name="FeeSettings_MaxFee">最大收费率(Gwei)</string>
+    <string name="FeeSettings_MaxFee_Info">这是用户愿意支付的每一燃料（gas）的最高总价。它必须涵盖网络的基础费率和最高优先费率。这里显示的值是基于下一个区块的基础费率加上用户选择的最大优先费率的估计值。实际支付的费率通常会较低。如果将此设置为低于当前的基础费率，将限制所支付的费用，但会导致更长的交易确认等待时间，甚至导致交易被冻结。</string>
+    <string name="FeeSettings_MaxMinerTips">最高优先费 (Gwei)</string>
+    <string name="FeeSettings_MaxMinerTips_Info">用户支付优先费用以激励交易更快地得到确认。这些费用有时被称为小费。最高优先费率是用户在基础费率基础上愿意支付的每一燃料（gas）的最高额外价格。这里显示的值是基于预测的网络条件的建议值。实际的优先费用通常会更低。将此设置为零可能会导致交易确认的等待时间很长，因为它被放置在所有用户的待定交易队列的末尾。</string>
+    <string name="FeeSettings_RiskOfGettingStuckLegacy_Title">有风险</string>
+    <string name="FeeSettings_RiskOfGettingStuckLegacy">交易可能会在一段时间内仍然处于待处理状态或完全失败。</string>
     <string name="FeeSettings_RiskOfGettingStuck_Title">有风险</string>
-    <string name="FeeSettings_RiskOfGettingStuck">交易可能会在一段时间内仍然处于待处理状态或完全失败。</string>
+    <string name="FeeSettings_RiskOfGettingStuck">为了确保交易的快速执行，最大收费率(减去最大金额)。 矿工提示应该高于当前的基本费率。如果不是交易可能一直处于待交易状态，直到条件得到满足。</string>
     <string name="FeeSettings_Overpricing_Title">费用太高</string>
     <string name="FeeSettings_Overpricing">当前设置的交易费用高于处理此交易所需的费用。</string>
     <string name="FeeSettings_Info_IUnderstand">我理解</string>
+    <string name="FeeSettings_FeeRate">费率(SAT/BYTE)</string>
+    <string name="FeeSettings_FeeRate_RecommendedInfo">这是击中下2个区块的推荐值</string>
+    <string name="FeeSettings_FeeRate_Info">Blockchains require users to pay network fees when sending transactions. The fees are higher when a lot of transactions are taking place on the network.\n\nThe Unstoppable wallet estimates fee based on the current blockchain activity and recommends the optimal value in order for the transaction to be processed within a reasonable amount of time.\n\nThe recommended fee rate shown as the amount of satoshi user needs to pay for a single byte of the transaction. Thus, the total fee depends on the total size of the transaction which is measured in bytes.\n\nUsers may use provided controls to increase or decrease the fee rate value. The change in fee rate changes the total fee for the transaction the user will pay.\n\nSetting fee rate below recommended value may result in a transaction being held as pending for hours, or being rejected. The lower the value, the longer it will take for the transaction to confirm. For transactions where priority is important, we recommend setting higher fee rate.</string>
+
     <!--Fee Info -->
     <string name="FeeInfo_Title">交易速度</string>
     <string name="FeeInfo_Description">比特币和Etherum区块链都要求用户在发送交易时支付网络费用。当区块链上发生大量交易时费用较高；而区块链空闲时费用较低。</string>
@@ -493,6 +513,7 @@
     <string name="Swap_MaxFee">最大手续费</string>
     <string name="Swap_Fee">费用</string>
     <string name="Swap_ErrorInsufficientBalance">余额不足</string>
+    <string name="Swap_ErrorBalanceNotAvailable">余额 N/A</string>
     <string name="Swap_ErrorNoLiquidity">订单深度不足</string>
     <string name="Swap_ErrorHighPriceImpact">高价格影响</string>
     <string name="Swap_Proceed">继续</string>
@@ -508,6 +529,7 @@
     <string name="Swap_AmountEstimated">(预估金额)</string>
     <string name="Swap_AmountMin">(最小金额)</string>
     <string name="Swap_AmountMax">(最大金额)</string>
+    <string name="Swap_AmountTypeCoin">硬币</string>
     <!-- Swap Settings -->
     <string name="SwapSettings_Title">高级设置</string>
     <string name="SwapSettings_Service">服务</string>
@@ -1153,6 +1175,8 @@
     <string name="CoinPage_NftBannerDescription">通过持有不可阻挡的 NFT 获取高级钱包功能。</string>
     <string name="CoinPage_CoinNotFound">[%s]\n未找到</string>
     <string name="CoinPage_CoinInvestments_Lead">领导</string>
+    <string name="CoinPage_ShowMore">显示更多</string>
+    <string name="CoinPage_ShowLess">收起</string>
     <!--Rate list-->
     <string name="RateList_TopGainers">涨幅榜</string>
     <string name="RateList_TopLosers">跌幅榜</string>

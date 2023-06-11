@@ -32,7 +32,7 @@ class EvmNetworkService(
     private fun syncItems() {
         val currentSyncSourceId = currentSyncSource.id
 
-        items = evmSyncSourceManager.getAllBlockchains(blockchain.type).map { syncSource ->
+        items = evmSyncSourceManager.allSyncSources(blockchain.type).map { syncSource ->
             Item(syncSource, syncSource.id == currentSyncSourceId)
         }
     }

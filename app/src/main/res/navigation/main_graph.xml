@@ -39,6 +39,9 @@
         android:id="@+id/sendEvmConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment"/>
     <fragment
+        android:id="@+id/sendEvmSettingsFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment" />
+    <fragment
         android:id="@+id/sendWsafeConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.confirmation.SendWsafeConfirmationFragment"/>
     <fragment

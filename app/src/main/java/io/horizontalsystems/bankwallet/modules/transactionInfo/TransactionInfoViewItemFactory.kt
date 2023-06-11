@@ -22,6 +22,7 @@ import io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoVi
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionStatus
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.core.helpers.DateHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -32,7 +33,8 @@ class TransactionInfoViewItemFactory(
     private val translator: Translator,
     private val dateHelper: DateHelper,
     private val evmLabelManager: EvmLabelManager,
-    private val resendEnabled: Boolean
+    private val resendEnabled: Boolean,
+    private val blockchainType: BlockchainType
 ) {
     private val zeroAddress = "0x0000000000000000000000000000000000000000"
 
@@ -89,12 +91,12 @@ class TransactionInfoViewItemFactory(
                         true
                     ).toMutableList()
 
-                    if (transaction.recipient != null) {
+                    val recipient = transaction.recipient
+                    if (recipient != null) {
                         youGetSectionItems.add(
                             Address(
                                 getString(R.string.TransactionInfo_RecipientHash),
-                                transaction.recipient,
-                                evmLabelManager.mapped(transaction.recipient)
+                                recipient, false, blockchainType
                             )
                         )
                     }
@@ -241,9 +243,7 @@ class TransactionInfoViewItemFactory(
         if (!mint && fromAddress != null) {
             items.add(
                 Address(
-                    getString(R.string.TransactionInfo_From),
-                    fromAddress,
-                    evmLabelManager.mapped(fromAddress)
+                    getString(R.string.TransactionInfo_From), fromAddress, false, blockchainType
                 )
             )
         }
@@ -302,7 +302,8 @@ class TransactionInfoViewItemFactory(
                 Address(
                     getString(R.string.TransactionInfo_To),
                     toAddress,
-                    evmLabelManager.mapped(toAddress)
+                    false,
+                    blockchainType
                 )
             )
         }
@@ -422,7 +423,7 @@ class TransactionInfoViewItemFactory(
         return listOf(
             Transaction(getString(R.string.Transactions_Approve), value.fullName, R.drawable.ic_checkmark_24),
             Amount(coinAmountColoredValue, fiatAmountColoredValue, value.coinIconUrl, value.coinIconPlaceholder),
-            Address(getString(R.string.TransactionInfo_Spender), spenderAddress, evmLabelManager.mapped(spenderAddress))
+            Address(getString(R.string.TransactionInfo_Spender), spenderAddress, false, blockchainType)
         )
     }
 

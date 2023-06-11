@@ -57,6 +57,8 @@ fun AmountCell(
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
     Row(
         modifier = Modifier
@@ -127,6 +129,8 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
     val height = if (amounts.size == 2) 60.dp else 48.dp
     Row(
@@ -206,6 +210,8 @@ fun TitleTypedValueCell(title: String, value: String, type: ValueType = ValueTyp
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.jacob
         ValueType.Incoming -> ComposeAppTheme.colors.remus
+        ValueType.Warning -> ComposeAppTheme.colors.jacob
+        ValueType.Forbidden -> ComposeAppTheme.colors.lucian
     }
     Row(
         modifier = Modifier

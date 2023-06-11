@@ -44,6 +44,8 @@ class LegacyGasPriceService(
     override val stateObservable: Observable<DataState<GasPriceInfo>>
         get() = stateSubject
 
+    var recommendedGasPriceSelected = true
+
     private val recommendedGasPriceSingle
         get() = recommendedGasPrice?.let { Single.just(it) }
             ?: gasPriceProvider.gasPriceSingle()
@@ -58,9 +60,6 @@ class LegacyGasPriceService(
     var gasPriceRange: LongRange? = null
         private set
 
-    override var isRecommendedGasPriceSelected = true
-        private set
-
     init {
         if (initialGasPrice != null) {
             setGasPrice(initialGasPrice)
@@ -69,8 +68,8 @@ class LegacyGasPriceService(
         }
     }
 
-    fun setRecommended() {
-        isRecommendedGasPriceSelected = true
+    override fun setRecommended() {
+        recommendedGasPriceSelected = true
 
         state = DataState.Loading
         disposable?.dispose()
@@ -80,6 +79,8 @@ class LegacyGasPriceService(
                 state = DataState.Success(
                     GasPriceInfo(
                         gasPrice = GasPrice.Legacy(recommended),
+                        gasPriceDefault = GasPrice.Legacy(recommended),
+                        default = true,
                         warnings = listOf(),
                         errors = listOf()
                     )
@@ -92,7 +93,7 @@ class LegacyGasPriceService(
     }
 
     fun setGasPrice(value: Long) {
-        isRecommendedGasPriceSelected = false
+        recommendedGasPriceSelected = false
 
         state = DataState.Loading
         disposable?.dispose()
@@ -103,14 +104,22 @@ class LegacyGasPriceService(
                 val errors = mutableListOf<Throwable>()
 
                 if (value < riskOfStuckBound.calculate(recommended)) {
-                    warnings.add(FeeSettingsWarning.RiskOfGettingStuck)
+                    warnings.add(FeeSettingsWarning.RiskOfGettingStuckLegacy)
                 }
 
                 if (value >= overpricingBound.calculate(recommended)) {
                     warnings.add(FeeSettingsWarning.Overpricing)
                 }
 
-                state = DataState.Success(GasPriceInfo(GasPrice.Legacy(value), warnings, errors))
+                state = DataState.Success(
+                    GasPriceInfo(
+                        gasPrice = GasPrice.Legacy(value),
+                        gasPriceDefault = GasPrice.Legacy(recommended),
+                        default = true,
+                        warnings = warnings,
+                        errors = errors
+                    )
+                )
             }, {
                 state = DataState.Error(it)
             }).let {

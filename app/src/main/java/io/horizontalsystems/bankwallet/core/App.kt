@@ -82,9 +82,11 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var torKitManager: ITorManager
         lateinit var chartTypeStorage: IChartTypeStorage
         lateinit var restoreSettingsStorage: IRestoreSettingsStorage
+        lateinit var currencyManager: CurrencyManager
         lateinit var vpnServerStorage: VpnServerStorage
 
         lateinit var blockchainSettingsStorage: BlockchainSettingsStorage
+        lateinit var evmSyncSourceStorage: EvmSyncSourceStorage
         lateinit var btcBlockchainManager: BtcBlockchainManager
         lateinit var wordsManager: WordsManager
         lateinit var networkManager: INetworkManager
@@ -187,7 +189,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         appDatabase = AppDatabase.getInstance(this)
 
         blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
-        evmSyncSourceManager = EvmSyncSourceManager(appConfigProvider, blockchainSettingsStorage)
+        evmSyncSourceStorage = EvmSyncSourceStorage(appDatabase)
+        evmSyncSourceManager = EvmSyncSourceManager(appConfigProvider, blockchainSettingsStorage, evmSyncSourceStorage)
 
         btcBlockchainManager = BtcBlockchainManager(blockchainSettingsStorage, marketKit)
 

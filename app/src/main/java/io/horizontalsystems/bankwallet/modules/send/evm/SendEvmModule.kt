@@ -17,7 +17,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapModule
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
@@ -81,7 +81,7 @@ data class SendEvmData(
         val deadline: String? = null,
         val recipientDomain: String? = null,
         val price: String? = null,
-        val priceImpact: UniswapModule.PriceImpactViewItem? = null,
+        val priceImpact: SwapMainModule.PriceImpactViewItem? = null,
         val gasPrice: String? = null,
     ) : Parcelable
 
@@ -92,7 +92,8 @@ data class SendEvmData(
         val amountFrom: BigDecimal,
         val estimatedAmountTo: BigDecimal,
         val slippage: BigDecimal,
-        val recipient: Address?
+        val recipient: Address?,
+        val price: String? = null
     ) : Parcelable
 }
 
@@ -108,14 +109,12 @@ object SendEvmModule {
     data class TransactionDataParcelable(
         val toAddress: String,
         val value: BigInteger,
-        val input: ByteArray,
-        val nonce: Long? = null
+        val input: ByteArray
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
-            transactionData.input,
-            transactionData.nonce
+            transactionData.input
         )
     }
 

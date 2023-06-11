@@ -1,12 +1,12 @@
 package io.horizontalsystems.bankwallet.core.fiat
 
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService.AmountType
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CoinValue
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
-import io.horizontalsystems.core.ICurrencyManager
-import io.horizontalsystems.core.entities.Currency
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Observable
@@ -14,13 +14,15 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
 
 class FiatService(
     private val switchService: AmountTypeSwitchService,
-    private val currencyManager: ICurrencyManager,
+    private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper
 ) : AmountTypeSwitchService.IToggleAvailableListener {
 
@@ -45,17 +47,17 @@ class FiatService(
     val currency: Currency
         get() = currencyManager.baseCurrency
 
-    private val fullAmountInfoSubject = PublishSubject.create<Optional<FullAmountInfo>>()
-    val fullAmountInfoObservable: Observable<Optional<FullAmountInfo>>
-        get() = fullAmountInfoSubject
+    private val _fullAmountInfoFlow =
+        MutableSharedFlow<FullAmountInfo?>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val fullAmountInfoFlow = _fullAmountInfoFlow.asSharedFlow()
 
     init {
         switchService.amountTypeObservable
-                .subscribeOn(Schedulers.io())
-                .subscribe {
-                    syncAmountType()
-                }
-                .let { disposables.add(it) }
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                syncAmountType()
+            }
+            .let { disposables.add(it) }
     }
 
     private fun subscribeToLatestRate() {
@@ -69,6 +71,7 @@ class FiatService(
         syncLatestRate(marketKit.coinPrice(token.coin.uid, currency.code))
 
         latestRateDisposable = marketKit.coinPriceObservable(token.coin.uid, currency.code)
+            .distinct()
             .subscribeOn(Schedulers.io())
             .subscribe {
                 syncLatestRate(it)
@@ -84,7 +87,7 @@ class FiatService(
 
         toggleAvailable = rate != null
 
-        fullAmountInfoSubject.onNext(Optional.ofNullable(fullAmountInfo()))
+        _fullAmountInfoFlow.tryEmit(fullAmountInfo())
     }
 
     private fun fullAmountInfo(): FullAmountInfo? {
@@ -96,27 +99,27 @@ class FiatService(
                 val primary = CoinValue(token, coinAmount)
                 val secondary = currencyAmount?.let { CurrencyValue(currency, it) }
                 FullAmountInfo(
-                        primaryInfo = AmountInfo.CoinValueInfo(primary),
-                        secondaryInfo = secondary?.let { AmountInfo.CurrencyValueInfo(secondary) },
-                        coinValue = primary
+                    primaryInfo = AmountInfo.CoinValueInfo(primary),
+                    secondaryInfo = secondary?.let { AmountInfo.CurrencyValueInfo(secondary) },
+                    coinValue = primary
                 )
             }
+
             AmountType.Currency -> {
                 val currencyAmount = currencyAmount ?: return null
-
                 val primary = CurrencyValue(currency, currencyAmount)
                 val secondary = CoinValue(token, coinAmount)
                 FullAmountInfo(
-                        primaryInfo = AmountInfo.CurrencyValueInfo(primary),
-                        secondaryInfo = AmountInfo.CoinValueInfo(secondary),
-                        coinValue = secondary
+                    primaryInfo = AmountInfo.CurrencyValueInfo(primary),
+                    secondaryInfo = AmountInfo.CoinValueInfo(secondary),
+                    coinValue = secondary
                 )
             }
         }
     }
 
     private fun syncAmountType() {
-        fullAmountInfoSubject.onNext(Optional.ofNullable(fullAmountInfo()))
+        _fullAmountInfoFlow.tryEmit(fullAmountInfo())
     }
 
     fun buildForCoin(amount: BigDecimal?): FullAmountInfo? {
@@ -147,11 +150,12 @@ class FiatService(
         return fullAmountInfo()
     }
 
-    fun buildAmountInfo(amount: BigDecimal?): FullAmountInfo? =
-            when (switchService.amountType) {
-                AmountType.Coin -> buildForCoin(amount)
-                AmountType.Currency -> buildForCurrency(amount)
-            }
+    fun buildAmountInfo(amount: BigDecimal?): FullAmountInfo? {
+        return when (switchService.amountType) {
+            AmountType.Coin -> buildForCoin(amount)
+            AmountType.Currency -> buildForCurrency(amount)
+        }
+    }
 
     fun set(token: Token?) {
         this.token = token
@@ -160,15 +164,20 @@ class FiatService(
         subscribeToLatestRate()
 
         when (switchService.amountType) {
-            AmountType.Coin -> fullAmountInfoSubject.onNext(Optional.ofNullable(buildForCoin(coinAmount)))
-            AmountType.Currency -> fullAmountInfoSubject.onNext(Optional.ofNullable(buildForCurrency(currencyAmount)))
+            AmountType.Coin -> {
+                _fullAmountInfoFlow.tryEmit(buildForCoin(coinAmount))
+            }
+
+            AmountType.Currency -> {
+                _fullAmountInfoFlow.tryEmit(buildForCurrency(currencyAmount))
+            }
         }
     }
 
     data class FullAmountInfo(
-            val primaryInfo: AmountInfo,
-            val secondaryInfo: AmountInfo?,
-            val coinValue: CoinValue
+        val primaryInfo: AmountInfo,
+        val secondaryInfo: AmountInfo?,
+        val coinValue: CoinValue
     ) {
         val primaryValue: BigDecimal
             get() = when (primaryInfo) {

@@ -92,9 +92,11 @@ class LitecoinAdapter(
 
             when (val accountType = account.type) {
                 is AccountType.HdExtendedKey -> {
+                    val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
                     return LitecoinKit(
                         context = App.instance,
                         extendedKey = accountType.hdExtendedKey,
+                        purpose = derivation.purpose,
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = networkType,

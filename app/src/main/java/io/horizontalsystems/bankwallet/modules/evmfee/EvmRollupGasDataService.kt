@@ -16,14 +16,14 @@ class EvmRollupGasDataService(
         gasLimit: Long? = null
 ): EvmCommonGasDataService(evmKit, gasLimitSurchargePercent, gasLimit) {
 
-    override fun predefinedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData): Single<GasData>? =
+    /*override fun predefinedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData): Single<GasData>? =
             super.predefinedGasDataAsync(gasPrice, transactionData)?.flatMap { gasData ->
                 val gasLimit = gasData.gasLimit
 
                 l1GasFee(transactionData, gasPrice, gasLimit).map { l1Fee ->
-                    RollupGasData(gasLimit, gasPrice, l1Fee)
+                    RollupGasData(gasLimit = gasLimit, gasPrice = gasPrice, l1Fee = l1Fee)
                 }
-            }
+            }*/
 
     override fun estimatedGasDataAsync(gasPrice: GasPrice, transactionData: TransactionData, stubAmount: BigInteger?): Single<GasData> =
             super.estimatedGasDataAsync(gasPrice, transactionData, stubAmount).flatMap { gasData ->
@@ -35,7 +35,7 @@ class EvmRollupGasDataService(
                 }
 
                 l1GasFee(stubTransactionData, gasPrice, gasLimit).map { l1Fee ->
-                    RollupGasData(gasLimit, gasPrice, l1Fee)
+                    RollupGasData(gasLimit = gasLimit, gasPrice = gasPrice, l1Fee = l1Fee)
                 }
             }
 
@@ -47,6 +47,6 @@ class EvmRollupGasDataService(
     }
 
     private fun l1GasFee(transactionData: TransactionData, gasPrice: GasPrice, gasLimit: Long): Single<BigInteger> =
-        l1FeeProvider.getL1Fee(gasPrice, gasLimit, transactionData.to, transactionData.value, transactionData.input, transactionData.nonce)
+        l1FeeProvider.getL1Fee(gasPrice, gasLimit, transactionData.to, transactionData.value, transactionData.input)
 
 }

@@ -159,7 +159,11 @@ fun BlockchainType.defaultSettingsArray(accountType: AccountType): List<CoinSett
         BlockchainType.Litecoin -> {
             when(accountType) {
                 is AccountType.Mnemonic -> listOf(CoinSettings(mapOf(CoinSettingType.derivation to AccountType.Derivation.bip49.value)))
-                is AccountType.HdExtendedKey -> listOf(CoinSettings(mapOf(CoinSettingType.derivation to accountType.hdExtendedKey.info.purpose.derivation.value)))
+                is AccountType.HdExtendedKey -> {
+                    accountType.hdExtendedKey.purposes.firstOrNull()?.let { purpose ->
+                        listOf(CoinSettings(mapOf(CoinSettingType.derivation to purpose.derivation.value)))
+                    } ?: listOf()
+                }
                 else -> listOf()
             }
         }
@@ -256,14 +260,13 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
     return when (accountType) {
         is AccountType.Mnemonic -> true
         is AccountType.HdExtendedKey -> {
-            val info = accountType.hdExtendedKey.info
+            val coinTypes = accountType.hdExtendedKey.coinTypes
             when (this) {
-                BlockchainType.Bitcoin -> info.coinType == ExtendedKeyCoinType.Bitcoin
-                BlockchainType.Litecoin -> info.coinType == ExtendedKeyCoinType.Litecoin && (info.purpose == HDWallet.Purpose.BIP44 || info.purpose == HDWallet.Purpose.BIP49)
-                        || info.coinType == ExtendedKeyCoinType.Bitcoin && (info.purpose == HDWallet.Purpose.BIP44 || info.purpose == HDWallet.Purpose.BIP49 || info.purpose == HDWallet.Purpose.BIP84)
-                BlockchainType.BitcoinCash -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
-                BlockchainType.Dash -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
-                BlockchainType.Safe -> info.coinType == ExtendedKeyCoinType.Bitcoin && info.purpose == HDWallet.Purpose.BIP44
+                BlockchainType.Bitcoin -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
+                BlockchainType.Litecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                BlockchainType.BitcoinCash,
+                BlockchainType.Dash,
+                BlockchainType.Safe -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin) && accountType.hdExtendedKey.purposes.contains(HDWallet.Purpose.BIP44)
                 else -> false
             }
         }

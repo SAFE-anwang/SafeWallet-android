@@ -4,9 +4,7 @@ import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.supports
-import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.derivation
+import io.horizontalsystems.bankwallet.entities.*
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
@@ -84,8 +82,11 @@ class WatchAddressBlockchainManager(
         when(val type = account.type) {
             is AccountType.EvmAddress -> enableEvmBlockchains(account)
             is AccountType.HdExtendedKey -> {
-                if (type.hdExtendedKey.info.isPublic) {
-                    enableBtcBlockchains(account, type.hdExtendedKey.info.purpose.derivation)
+                if (type.hdExtendedKey.isPublic) {
+                    type.hdExtendedKey.purposes.firstOrNull()?.let { purpose ->
+                        enableBtcBlockchains(account, purpose.derivation)
+                    }
+
                 }
             }
             else -> Unit

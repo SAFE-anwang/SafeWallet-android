@@ -92,10 +92,13 @@ class BitcoinAdapter(
 
             when (accountType) {
                 is AccountType.HdExtendedKey -> {
+                    val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
+
                     return BitcoinKit(
                         context = App.instance,
 //                        connectionManager = App.bitCoinConnectionManager,
                         extendedKey = accountType.hdExtendedKey,
+                        purpose = derivation.purpose,
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = getNetworkType(testMode),

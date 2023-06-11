@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 import androidx.annotation.ColorRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.EvmError
@@ -15,9 +16,9 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.oneinch.scaleUp
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.scaleUp
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapTradeService
 import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
@@ -25,6 +26,7 @@ import io.horizontalsystems.ethereumkit.decorations.OutgoingDecoration
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.nftkit.decorations.OutgoingEip1155Decoration
 import io.horizontalsystems.nftkit.decorations.OutgoingEip721Decoration
@@ -33,14 +35,16 @@ import io.horizontalsystems.oneinchkit.decorations.OneInchSwapDecoration
 import io.horizontalsystems.oneinchkit.decorations.OneInchUnoswapDecoration
 import io.horizontalsystems.uniswapkit.decorations.SwapDecoration
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
 
 class SendEvmTransactionViewModel(
-    private val service: ISendEvmTransactionService,
+    val service: ISendEvmTransactionService,
     private val coinServiceFactory: EvmCoinServiceFactory,
     private val cautionViewItemFactory: CautionViewItemFactory,
-    private val evmLabelManager: EvmLabelManager
+    private val evmLabelManager: EvmLabelManager,
+    private val blockchainType: BlockchainType
 ) : ViewModel() {
     private val disposable = CompositeDisposable()
 
@@ -59,6 +63,10 @@ class SendEvmTransactionViewModel(
 
         sync(service.state)
         sync(service.sendState)
+
+        viewModelScope.launch {
+            service.start()
+        }
     }
 
     fun send(logger: AppLogger) {
@@ -72,7 +80,8 @@ class SendEvmTransactionViewModel(
     private fun sync(state: SendEvmTransactionService.State) {
         when (state) {
             is SendEvmTransactionService.State.Ready -> {
-                sendEnabledLiveData.postValue(true)
+                val sendEnabled = service.txDataState.additionalInfo?.uniswapInfo?.priceImpact?.level != SwapMainModule.PriceImpactLevel.Forbidden
+                sendEnabledLiveData.postValue(sendEnabled)
                 cautionsLiveData.postValue(cautionViewItemFactory.cautionViewItems(state.warnings, errors = listOf()))
             }
             is SendEvmTransactionService.State.NotReady -> {
@@ -139,7 +148,7 @@ class SendEvmTransactionViewModel(
                 decoration.to,
                 decoration.value,
                 decoration.contractAddress,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo
             )
 
@@ -147,7 +156,7 @@ class SendEvmTransactionViewModel(
                 decoration.spender,
                 decoration.value,
                 decoration.contractAddress,
-                transactionData?.nonce
+                null
             )
 
             is SwapDecoration -> getUniswapViewItems(
@@ -181,7 +190,7 @@ class SendEvmTransactionViewModel(
             is OutgoingEip721Decoration -> getNftTransferItems(
                 decoration.to,
                 BigInteger.ONE,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo,
                 decoration.tokenId,
             )
@@ -189,7 +198,7 @@ class SendEvmTransactionViewModel(
             is OutgoingEip1155Decoration -> getNftTransferItems(
                 decoration.to,
                 decoration.value,
-                transactionData?.nonce,
+                null,
                 additionalInfo?.sendInfo,
                 decoration.tokenId,
             )
@@ -225,8 +234,9 @@ class SendEvmTransactionViewModel(
                     ),
                     ViewItem.Address(
                         Translator.getString(R.string.Send_Confirmation_To),
-                        addressTitle,
-                        addressValue
+                        addressValue,
+                        false,
+                        blockchainType
                     )
                 )
             )
@@ -348,8 +358,9 @@ class SendEvmTransactionViewModel(
             otherViewItems.add(
                 ViewItem.Address(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
-                    addressTitle,
-                    addressValue
+                    addressValue,
+                    false,
+                    blockchainType
                 )
             )
         }
@@ -364,8 +375,8 @@ class SendEvmTransactionViewModel(
         }
         uniswapInfo?.priceImpact?.let {
             val color = when (it.level) {
-                UniswapTradeService.PriceImpactLevel.Warning -> R.color.jacob
-                UniswapTradeService.PriceImpactLevel.Forbidden -> R.color.lucian
+                SwapMainModule.PriceImpactLevel.Warning -> R.color.jacob
+                SwapMainModule.PriceImpactLevel.Forbidden -> R.color.lucian
                 else -> null
             }
 
@@ -488,8 +499,9 @@ class SendEvmTransactionViewModel(
             viewItems.add(
                 ViewItem.Address(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
-                    addressTitle,
-                    addressValue
+                    addressValue,
+                    false,
+                    blockchainType
                 )
             )
         }
@@ -601,8 +613,9 @@ class SendEvmTransactionViewModel(
         viewItems.add(
             ViewItem.Address(
                 Translator.getString(R.string.Send_Confirmation_To),
-                addressTitle,
-                value = addressValue
+                addressValue,
+                false,
+                blockchainType
             )
         )
         nonce?.let {
@@ -641,8 +654,9 @@ class SendEvmTransactionViewModel(
                     ViewItem.TokenItem(coinService.token),
                     ViewItem.Address(
                         Translator.getString(R.string.Approve_Spender),
-                        addressTitle,
-                        addressValue
+                        addressValue,
+                        false,
+                        blockchainType
                     )
                 )
             )
@@ -660,8 +674,9 @@ class SendEvmTransactionViewModel(
                     ),
                     ViewItem.Address(
                         Translator.getString(R.string.Approve_Spender),
-                        addressTitle,
-                        addressValue
+                        addressValue,
+                        false,
+                        blockchainType
                     )
                 )
             )
@@ -695,12 +710,13 @@ class SendEvmTransactionViewModel(
             ),
             ViewItem.Address(
                 Translator.getString(R.string.Send_Confirmation_To),
-                evmLabelManager.mapped(toValue),
-                toValue
+                toValue,
+                false,
+                blockchainType
             )
         )
 
-        if (transactionData.nonce != null) {
+        /*if (transactionData.nonce != null) {
             viewItems.add(
                 ViewItem.Value(
                     Translator.getString(R.string.Send_Confirmation_Nonce),
@@ -708,7 +724,7 @@ class SendEvmTransactionViewModel(
                     ValueType.Regular
                 ),
             )
-        }
+        }*/
 
         methodName?.let {
             viewItems.add(ViewItem.Value(Translator.getString(R.string.Send_Confirmation_Method), it, ValueType.Regular))
@@ -745,7 +761,10 @@ class SendEvmTransactionViewModel(
                     ValueType.Outgoing,
                     baseCoinService.token
                 ),
-                ViewItem.Address(Translator.getString(R.string.Send_Confirmation_To), sendInfo?.domain ?: evmLabelManager.mapped(toValue), toValue)
+                ViewItem.Address(Translator.getString(R.string.Send_Confirmation_To),
+                    toValue,
+                    false,
+                    blockchainType)
             )
         ))
     }
@@ -835,6 +854,13 @@ sealed class ViewItem {
         @ColorRes val color: Int? = null
     ) : ViewItem()
 
+    class ValueMulti(
+        val title: String,
+        val primaryValue: String,
+        val secondaryValue: String,
+        val type: ValueType,
+    ) : ViewItem()
+
     class AmountMulti(
         val amounts: List<AmountValues>,
         val type: ValueType,
@@ -854,7 +880,7 @@ sealed class ViewItem {
         val type: ValueType,
     ) : ViewItem()
 
-    class Address(val title: String, val valueTitle: String, val value: String) : ViewItem()
+    class Address(val title: String, val value: String, val showAdd: Boolean, val blockchainType: BlockchainType) : ViewItem()
     class Input(val value: String) : ViewItem()
     class TokenItem(val token: Token) : ViewItem()
 }
@@ -862,5 +888,5 @@ sealed class ViewItem {
 data class AmountValues(val coinAmount: String, val fiatAmount: String?)
 
 enum class ValueType {
-    Regular, Disabled, Outgoing, Incoming
+    Regular, Disabled, Outgoing, Incoming, Warning, Forbidden
 }

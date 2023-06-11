@@ -35,7 +35,7 @@ class Eip1559FeeSettingsViewModel(
     val feeViewItemStateLiveData = MutableLiveData<ViewState>()
     val feeViewItemLoadingLiveData = MutableLiveData<Boolean>()
     val cautionsLiveData = MutableLiveData<List<CautionViewItem>>()
-    val isRecommendedGasPriceSelected by gasPriceService::isRecommendedGasPriceSelected
+    val isRecommendedGasPriceSelected by gasPriceService::recommendedGasPriceSelected
 
     init {
         sync(gasPriceService.state)

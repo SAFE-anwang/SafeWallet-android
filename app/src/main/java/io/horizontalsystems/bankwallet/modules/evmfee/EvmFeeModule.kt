@@ -74,39 +74,63 @@ object EvmFeeModule {
 interface IEvmFeeService {
     val transactionStatus: DataState<Transaction>
     val transactionStatusObservable: Observable<DataState<Transaction>>
+
+    fun reset()
 }
 
 interface IEvmGasPriceService {
     val state: DataState<GasPriceInfo>
     val stateObservable: Observable<DataState<GasPriceInfo>>
-    val isRecommendedGasPriceSelected: Boolean
+    /*val isRecommendedGasPriceSelected: Boolean*/
+
+    fun setRecommended()
 }
 
 abstract class FeeSettingsError : Throwable() {
     object InsufficientBalance : FeeSettingsError()
-    object LowMaxFee : FeeSettingsError()
+    object UsedNonce : FeeSettingsError()
     class InvalidGasPriceType(override val message: String) : FeeSettingsError()
 }
 
 abstract class FeeSettingsWarning : Warning() {
     object RiskOfGettingStuck : FeeSettingsWarning()
+    object RiskOfGettingStuckLegacy : FeeSettingsWarning()
     object Overpricing : FeeSettingsWarning()
 }
 
 data class GasPriceInfo(
     val gasPrice: GasPrice,
+    val gasPriceDefault: GasPrice,
+    val default: Boolean,
     val warnings: List<Warning>,
     val errors: List<Throwable>
 )
 
-open class GasData(val gasLimit: Long, val gasPrice: GasPrice) {
+open class GasData(
+    val gasLimit: Long,
+    val estimatedGasLimit: Long = gasLimit,
+    var gasPrice: GasPrice) {
 
     open val fee: BigInteger
         get() = gasLimit.toBigInteger() * gasPrice.max.toBigInteger()
 
+    open val estimatedFee: BigInteger
+        get() = estimatedGasLimit.toBigInteger() * gasPrice.max.toBigInteger()
+
+    val isSurcharged: Boolean
+        get() = gasLimit != estimatedGasLimit
 }
 
-class RollupGasData(gasLimit: Long, gasPrice: GasPrice, val l1Fee: BigInteger): GasData(gasLimit, gasPrice) {
+class RollupGasData(
+    gasLimit: Long,
+    estimatedGasLimit: Long = gasLimit,
+    gasPrice: GasPrice,
+    val l1Fee: BigInteger
+): GasData(
+    gasLimit,
+    estimatedGasLimit = estimatedGasLimit,
+    gasPrice
+) {
 
     override val fee: BigInteger
         get() = super.fee + l1Fee
@@ -116,6 +140,7 @@ class RollupGasData(gasLimit: Long, gasPrice: GasPrice, val l1Fee: BigInteger): 
 data class Transaction(
     val transactionData: TransactionData,
     val gasData: GasData,
+    val default: Boolean,
     val warnings: List<Warning> = listOf(),
     val errors: List<Throwable> = listOf()
 ) {
