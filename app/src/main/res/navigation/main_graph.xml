@@ -347,15 +347,15 @@
 
     <!--<dialog
         android:id="@+id/infoFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.transactionInfo.InfoFragment" />
+        android:name="io.horizontalsystems.bankwallet.modules.transactionInfo.InfoFragment" />-->
 
     <fragment
         android:id="@+id/transactionFragment"
         android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFragment" >
-        <action
+        <!--<action
             android:id="@+id/mainFragment_to_transactionInfoFragment"
-            app:destination="@id/transactionInfoFragment" />
-    </fragment>-->
+            app:destination="@id/transactionInfoFragment" />-->
+    </fragment>
 
     <fragment
         android:id="@+id/dappFragmentSearch"

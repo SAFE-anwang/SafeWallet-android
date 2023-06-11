@@ -73,7 +73,7 @@ import org.telegram.ui.LaunchActivity
 
 class MainFragment : BaseFragment() {
 
-    private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+//    private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     private val safe4ViewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
     private var startTelegramService: StartTelegramsService? = null
 
@@ -89,7 +89,7 @@ class MainFragment : BaseFragment() {
             setContent {
                 ComposeAppTheme {
                     MainScreenWithRootedDeviceCheck(
-                        transactionsViewModel = transactionsViewModel,
+//                        transactionsViewModel = transactionsViewModel,
                         deepLink = activity?.intent?.data?.toString(),
                         navController = findNavController(),
                         clearActivityData = { activity?.intent?.data = null },
@@ -158,7 +158,7 @@ class MainFragment : BaseFragment() {
 
 @Composable
 private fun MainScreenWithRootedDeviceCheck(
-    transactionsViewModel: TransactionsViewModel,
+//    transactionsViewModel: TransactionsViewModel,
     deepLink: String?,
     navController: NavController,
     clearActivityData: () -> Unit,
@@ -169,14 +169,14 @@ private fun MainScreenWithRootedDeviceCheck(
     if (rootedDeviceViewModel.showRootedDeviceWarning) {
         RootedDeviceScreen { rootedDeviceViewModel.ignoreRootedDeviceWarning() }
     } else {
-        MainScreen(transactionsViewModel, deepLink, navController, clearActivityData, safe4ViewModel = safe4ViewModel, openLink = openLink)
+        MainScreen(/*transactionsViewModel, */deepLink, navController, clearActivityData, safe4ViewModel = safe4ViewModel, openLink = openLink)
     }
 }
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 private fun MainScreen(
-    transactionsViewModel: TransactionsViewModel,
+//    transactionsViewModel: TransactionsViewModel,
     deepLink: String?,
     fragmentNavController: NavController,
     clearActivityData: () -> Unit,
@@ -280,10 +280,10 @@ private fun MainScreen(
                         when (uiState.mainNavItems[page].mainNavItem) {
                             MainNavigation.Market -> MarketScreen(fragmentNavController)
                             MainNavigation.Balance -> BalanceScreen(fragmentNavController)
-                            MainNavigation.Transactions -> TransactionsScreen(
+                            /*MainNavigation.Transactions -> TransactionsScreen(
                                 fragmentNavController,
                                 transactionsViewModel
-                            )
+                            )*/
                             MainNavigation.Safe4 -> Safe4Screen(safe4ViewModel, fragmentNavController, openLink)
                             MainNavigation.Tg -> {
                                 null

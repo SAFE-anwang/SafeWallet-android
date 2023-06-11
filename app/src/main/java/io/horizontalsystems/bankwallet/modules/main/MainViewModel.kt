@@ -58,7 +58,7 @@ class MainViewModel(
             listOf(
                 MainNavigation.Market,
                 MainNavigation.Balance,
-                MainNavigation.Transactions,
+//                MainNavigation.Transactions,
                 MainNavigation.Safe4,
                 MainNavigation.Tg,
                 MainNavigation.Settings,
@@ -67,7 +67,7 @@ class MainViewModel(
             listOf(
                 MainNavigation.Balance,
                 MainNavigation.Safe4,
-                MainNavigation.Transactions,
+//                MainNavigation.Transactions,
                 MainNavigation.Tg,
                 MainNavigation.Settings,
             )
@@ -230,13 +230,13 @@ class MainViewModel(
                 enabled = true,
             )
         }
-        MainNavigation.Transactions -> {
+        /*MainNavigation.Transactions -> {
             MainModule.NavigationViewItem(
                 mainNavItem = item,
                 selected = selected,
                 enabled = transactionsEnabled,
             )
-        }
+        }*/
         MainNavigation.Safe4 -> {
             MainModule.NavigationViewItem(
                 mainNavItem = item,
