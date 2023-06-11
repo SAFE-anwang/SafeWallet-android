@@ -219,7 +219,9 @@ private fun CoinCell(
             if (viewItem.item.token.coin.uid == "safe-coin") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                         .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                        .size(32.dp)
                 )
             } else {
                 Image(

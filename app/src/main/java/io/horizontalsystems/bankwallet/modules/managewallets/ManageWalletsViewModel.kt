@@ -38,7 +38,7 @@ class ManageWalletsViewModel(
     private fun sync(items: List<ManageWalletsService.Item>) {
         val viewItems = items.map { viewItem(it) }
         //自定义排序
-        safeSort(viewItems as ArrayList)
+//        safeSort(viewItems as ArrayList)
         viewItemsLiveData.postValue(viewItems)
     }
 

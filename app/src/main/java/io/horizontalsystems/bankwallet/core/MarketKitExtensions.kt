@@ -227,6 +227,7 @@ val BlockchainType.restoreSettingTypes: List<RestoreSettingType>
 private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
     val map = mutableMapOf<BlockchainType, Int>()
     listOf(
+        BlockchainType.Safe,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
@@ -237,7 +238,6 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
         BlockchainType.Dash,
-        BlockchainType.Safe,
         BlockchainType.BinanceChain,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
