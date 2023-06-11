@@ -71,7 +71,7 @@ class SafeSendActivity : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?): View {
         // prevent fragment recreations by passing null to onCreate
-        super.onCreate(null)
+        super.onCreate(savedInstanceState)
         _binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
 //        setContentView(view)
