@@ -45,7 +45,6 @@ class InputAddressFragment(
                     HSAddressInput(
                         modifier = Modifier.padding(top = 12.dp),
                         tokenQuery = token.tokenQuery,
-                        navController = findNavController(),
                         coinCode = token.coin.code,
                         error = viewModel.error
                     ) {

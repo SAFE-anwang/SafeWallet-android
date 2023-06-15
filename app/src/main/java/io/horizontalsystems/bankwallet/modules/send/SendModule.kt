@@ -73,7 +73,94 @@ object SendModule {
 
     }
 
-    class Factory(
+
+    class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+                /*is ISendBitcoinAdapter -> {
+                    val bitcoinInteractor = SendBitcoinInteractor(adapter, App.localStorage)
+                    val handler = SendBitcoinHandler(bitcoinInteractor, wallet.coinType)
+
+                    bitcoinInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+                    presenter.hodlerModuleDelegate = handler
+                    presenter.customPriorityUnit = CustomPriorityUnit.Satoshi
+
+                    handler
+                }
+                is ISendDashAdapter -> {
+                    val dashInteractor = SendDashInteractor(adapter)
+                    val handler = SendDashHandler(dashInteractor)
+
+                    dashInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }*/
+                is ISendSafeAdapter -> {
+                    val safeInteractor = SendSafeInteractor(adapter)
+                    val handler = SendSafeHandler(safeInteractor)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+                /*is ISendBinanceAdapter -> {
+                    val binanceInteractor = SendBinanceInteractor(adapter)
+                    val handler = SendBinanceHandler(binanceInteractor)
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }
+                is ISendZcashAdapter -> {
+                    val zcashInteractor = SendZcashInteractor(adapter)
+                    val handler = SendZcashHandler(zcashInteractor)
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }*/
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
+    class Factory2(
         private val safeAdapter: ISendSafeAdapter,
         private val handler: SendSafeHandler,
         private val safeInteractor: SendSafeInteractor
@@ -163,11 +250,7 @@ object SendModule {
         }
     }
 
-    class SafeConvertFactory(
-        private val safeAdapter: ISendSafeAdapter,
-        private val handler: SendSafeConvertHandler,
-        private val safeInteractor: SendSafeConvertInteractor
-    ) : ViewModelProvider.Factory {
+    class SafeConvertFactory(private val wallet: Wallet, private val ethAdapter: ISendEthereumAdapter) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -176,10 +259,10 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (safeAdapter) {
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
                 is ISendSafeAdapter -> {
-//                    val safeInteractor = SendSafeConvertInteractor(safeAdapter)
-//                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
+                    val safeInteractor = SendSafeConvertInteractor(adapter)
+                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
 
                     safeInteractor.delegate = handler
 
@@ -207,11 +290,8 @@ object SendModule {
         }
     }
 
-    class LineLockFactory(
-        private val safeAdapter: ISendSafeAdapter,
-        private val handler: LineLockSendHandler,
-        private val safeInteractor: LineLockSendInteractor
-        ) : ViewModelProvider.Factory {
+
+    class LineLockFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
@@ -220,10 +300,10 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (safeAdapter) {
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
                 is ISendSafeAdapter -> {
-//                    val safeInteractor = LineLockSendInteractor(adapter)
-//                    val handler = LineLockSendHandler(safeInteractor)
+                    val safeInteractor = LineLockSendInteractor(adapter)
+                    val handler = LineLockSendHandler(safeInteractor)
 
                     safeInteractor.delegate = handler
 

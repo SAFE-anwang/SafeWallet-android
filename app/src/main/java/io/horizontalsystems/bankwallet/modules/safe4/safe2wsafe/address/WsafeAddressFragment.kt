@@ -62,7 +62,6 @@ class WsafeAddressFragment(
                             modifier = Modifier.padding(top = 12.dp),
                             initial = Address(wsafeAddress),
                             tokenQuery = token.tokenQuery,
-                            navController = findNavController(),
                             coinCode = token.coin.code,
                             error = viewModel.error,
                             onStateChange = {

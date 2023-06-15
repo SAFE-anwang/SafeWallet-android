@@ -3,9 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.linelock
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,21 +11,16 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
-import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.address.DefaultAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertInteractor
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -46,48 +38,38 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.SnackbarDuration
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.FullCoin
 
-class LineLockSendActivity : BaseFragment() {
+class LineLockSendActivity : BaseActivity() {
 
-    private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
-    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
-    val safeInteractor by lazy { LineLockSendInteractor(safeAdapter) }
-    val safeConvertHandler by lazy { LineLockSendHandler(safeInteractor) }
-    private val vmFactory by lazy { SendModule.LineLockFactory(safeAdapter, safeConvertHandler, safeInteractor) }
-    private val mainPresenter by viewModels<SendPresenter>() { vmFactory }
-
+    private lateinit var mainPresenter: SendPresenter
     private lateinit var binding: ActivitySendBinding
 
     private var proceedButtonView: ProceedButtonView? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?): View {
+    override fun onCreate(savedInstanceState: Bundle?) {
         // prevent fragment recreations by passing null to onCreate
         super.onCreate(null)
 
         binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
-//        setContentView(view)
-//
-//        overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
-//
-//        val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
+        setContentView(view)
+
+        overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
+
+        val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
 
         setToolbar()
 
-//        mainPresenter =
-//            ViewModelProvider(this, SendModule.LineLockFactory(wallet)).get(SendPresenter::class.java)
+        mainPresenter =
+            ViewModelProvider(this, SendModule.LineLockFactory(wallet)).get(SendPresenter::class.java)
 
         subscribeToViewEvents(mainPresenter.view as SendView, wallet)
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
-        return view
+
     }
 
     private fun setToolbar() {
@@ -111,7 +93,7 @@ class LineLockSendActivity : BaseFragment() {
                             title = TranslatableString.ResString(R.string.Button_Close),
                             icon = R.drawable.ic_close,
                             onClick = {
-                                findNavController().popBackStack()
+                                finish()
                             }
                         )
                     )
@@ -121,28 +103,28 @@ class LineLockSendActivity : BaseFragment() {
     }
 
     private fun subscribeToRouterEvents(router: SendRouter) {
-        router.closeWithSuccess.observe(viewLifecycleOwner, Observer {
+        router.closeWithSuccess.observe(this, Observer {
             HudHelper.showSuccessMessage(
-                binding.root.findViewById(android.R.id.content),
+                findViewById(android.R.id.content),
                 R.string.Send_Success,
                 SnackbarDuration.LONG
             )
 
             //Delay 1200 millis to properly show message
-            Handler(Looper.getMainLooper()).postDelayed({ findNavController().popBackStack() }, 1200)
+            Handler(Looper.getMainLooper()).postDelayed({ finish() }, 1200)
         })
     }
 
     private fun subscribeToViewEvents(presenterView: SendView, wallet: Wallet) {
-        presenterView.inputItems.observe(viewLifecycleOwner, Observer { inputItems ->
+        presenterView.inputItems.observe(this, Observer { inputItems ->
             addInputItems(wallet, inputItems)
         })
 
 
-        presenterView.showSendConfirmation.observe(viewLifecycleOwner, Observer {
-            hideKeyboard()
+        presenterView.showSendConfirmation.observe(this, Observer {
+            hideSoftKeyboard()
 
-            childFragmentManager.commit {
+            supportFragmentManager.commit {
                 setCustomAnimations(
                     R.anim.slide_from_right,
                     R.anim.slide_to_left,
@@ -154,7 +136,7 @@ class LineLockSendActivity : BaseFragment() {
             }
         })
 
-        presenterView.sendButtonEnabled.observe(viewLifecycleOwner, Observer { actionState ->
+        presenterView.sendButtonEnabled.observe(this, Observer { actionState ->
             val defaultTitle = getString(R.string.Send_DialogProceed)
 
             when (actionState) {
@@ -171,9 +153,9 @@ class LineLockSendActivity : BaseFragment() {
     }
 
     fun showFeeInfo() {
-        hideKeyboard()
+        hideSoftKeyboard()
 
-        childFragmentManager.commit {
+        supportFragmentManager.commit {
             setCustomAnimations(
                 R.anim.slide_from_right,
                 R.anim.slide_to_left,
@@ -196,7 +178,7 @@ class LineLockSendActivity : BaseFragment() {
                         val sendAmountFragment =
                             SendAmountFragment(wallet, it, mainPresenter.handler)
                         fragments.add(sendAmountFragment)
-                        childFragmentManager.beginTransaction()
+                        supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAmountFragment).commitNow()
                         sendAmountFragment.setLockedTitle()
                     }
@@ -208,7 +190,7 @@ class LineLockSendActivity : BaseFragment() {
                         val sendAddressFragment =
                             DefaultAddressFragment(receiveAdapter.receiveAddress, wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)
-                        childFragmentManager.beginTransaction()
+                        supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAddressFragment)
                             .commitNow()
                     }
@@ -217,7 +199,7 @@ class LineLockSendActivity : BaseFragment() {
                     mainPresenter.hodlerModuleDelegate?.let {
                         val sendAddressFragment = SendHodlerFragment(it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)
-                        childFragmentManager.beginTransaction()
+                        supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendAddressFragment)
                             .commitNow()
                     }
@@ -232,7 +214,7 @@ class LineLockSendActivity : BaseFragment() {
                             mainPresenter.customPriorityUnit
                         )
                         fragments.add(sendFeeFragment)
-                        childFragmentManager.beginTransaction()
+                        supportFragmentManager.beginTransaction()
                             .add(R.id.sendLinearLayout, sendFeeFragment)
                             .commitNow()
                     }
@@ -242,12 +224,12 @@ class LineLockSendActivity : BaseFragment() {
                     val sendMemoFragment =
                         SendMemoFragment(input.maxLength, input.hidden, mainPresenter.handler)
                     fragments.add(sendMemoFragment)
-                    childFragmentManager.beginTransaction()
+                    supportFragmentManager.beginTransaction()
                         .add(R.id.sendLinearLayout, sendMemoFragment).commitNow()
                 }
                 SendModule.Input.ProceedButton -> {
                     //add send button
-                    proceedButtonView = ProceedButtonView(requireActivity())
+                    proceedButtonView = ProceedButtonView(this)
                     proceedButtonView?.bind {
                         if ((mainPresenter.handler as LineLockSendHandler).checkLineLock()){
                             mainPresenter.onProceedClicked()
@@ -263,11 +245,11 @@ class LineLockSendActivity : BaseFragment() {
         mainPresenter.onModulesDidLoad()
     }
 
-/*    override fun finish() {
+    override fun finish() {
         super.finish()
 
         overridePendingTransition(0, R.anim.slide_to_bottom)
-    }*/
+    }
 
     companion object {
         const val WALLET = "wallet_key"

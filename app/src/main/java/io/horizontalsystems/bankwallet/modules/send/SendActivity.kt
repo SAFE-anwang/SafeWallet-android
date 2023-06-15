@@ -57,7 +57,7 @@ class SendActivity : BaseFragment() {
     val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
     val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
     val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
-    private val vmFactory by lazy { SendModule.Factory(safeAdapter, safeConvertHandler, safeInteractor) }
+    private val vmFactory by lazy { SendModule.Factory2(safeAdapter, safeConvertHandler, safeInteractor) }
     private val mainPresenter by viewModels<SendPresenter>() { vmFactory }
 
     private lateinit var binding: ActivitySendBinding

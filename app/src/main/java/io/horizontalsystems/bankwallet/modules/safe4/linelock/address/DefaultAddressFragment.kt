@@ -47,7 +47,6 @@ class DefaultAddressFragment(
                         initial = Address(safeAddress),
                         tokenQuery = token.tokenQuery,
                         coinCode = token.coin.code,
-                        navController = findNavController(),
                         error = viewModel.error
                     ) {
                         viewModel.setAddress(it)

@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -28,7 +27,7 @@ object Safe4Module {
     }
 
     fun handlerSafe2eth(chainType: ChainType, navController: NavController) {
-        val context = App.instance
+        val context = navController.context
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         var wsafeWallet: Wallet? = null
@@ -64,22 +63,13 @@ object Safe4Module {
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val state =  balanceAdapterRepository.state(safeWallet)
         if (state is AdapterState.Synced){
-            navController.slideFromRight(
-                R.id.sendSafeToEthFragment,
-                bundleOf(
-                    SafeConvertSendActivity.WALLET_SAFE to safeWallet,
-                    SafeConvertSendActivity.WALLET_WSAFE to wsafeWallet,
-                    SafeConvertSendActivity.IS_ETH to (chainType == ChainType.ETH),
-                    SafeConvertSendActivity.IS_MATIC to (chainType == ChainType.MATIC)
-                )
-            )
-            /*context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
+            context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
                 putExtra(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
                 putExtra(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
                 putExtra(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
-            })*/
+            })
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
@@ -138,7 +128,7 @@ object Safe4Module {
 
 
     fun handlerLineLock(navController: NavController) {
-        val context = App.instance
+        val context = navController.context
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
@@ -153,16 +143,10 @@ object Safe4Module {
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val state =  balanceAdapterRepository.state(safeWallet)
         if (state is AdapterState.Synced){
-            navController.slideFromRight(
-                R.id.safeLineLockFragment,
-                bundleOf(
-                    LineLockSendActivity.WALLET to safeWallet
-                )
-            )
-            /*context.startActivity(Intent(context, LineLockSendActivity::class.java).apply {
+            context.startActivity(Intent(context, LineLockSendActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(LineLockSendActivity.WALLET, safeWallet)
-            })*/
+            })
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
+import android.content.Intent
 import android.view.View
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -52,6 +53,7 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
+import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
@@ -309,10 +311,13 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
-                        navController.slideFromBottom(
+                        val intent = Intent(navController.context, SafeSendActivity::class.java)
+                        intent.putExtra("walletKey", viewItem.wallet)
+                        navController.context.startActivity(intent)
+                        /*navController.slideFromBottom(
                             R.id.sendSafeFragment,
                             SendFragment.prepareParams(viewItem.wallet)
-                        )
+                        )*/
                     } else {
                         navController.slideFromBottom(
                             R.id.sendXFragment,

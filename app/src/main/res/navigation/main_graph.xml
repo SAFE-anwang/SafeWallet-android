@@ -328,7 +328,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.ConfirmationFragment" />
     <fragment
         android:id="@+id/sendSafeFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity" />
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendFragment" />
     <fragment
         android:id="@+id/sendConfirmation"
         android:name="io.horizontalsystems.bankwallet.modules.send.SendConfirmationFragment" />
