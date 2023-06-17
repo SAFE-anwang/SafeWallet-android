@@ -95,7 +95,6 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "appId", '\"com.anwang.safewallet.dev\"'
-            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         /*debugAsan {
@@ -156,6 +155,7 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "appId", '\"com.anwang.safewallet\"'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
     }
 
