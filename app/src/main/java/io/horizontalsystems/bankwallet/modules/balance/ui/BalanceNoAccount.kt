@@ -76,7 +76,7 @@ fun BalanceNoAccount(navController: NavController) {
                     .padding(horizontal = 48.dp),
                 title = stringResource(R.string.ManageAccounts_ImportWallet),
                 onClick = {
-                    val args = ManageAccountsModule.prepareParams(R.id.manageAccountsFragment, false)
+                    val args = ManageAccountsModule.prepareParams(R.id.mainFragment, false)
                     navController.navigateWithTermsAccepted {
                         navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment, args)
                     }

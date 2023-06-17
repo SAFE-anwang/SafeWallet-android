@@ -51,7 +51,7 @@ class AddressViewModel(
     init {
         availableBlockchains = if (contactAddress == null) {
             val allBlockchainTypes = evmBlockchainManager.allBlockchainTypes + listOf(
-                BlockchainType.Safe,
+//                BlockchainType.Safe,
                 BlockchainType.Bitcoin,
                 BlockchainType.BitcoinCash,
                 BlockchainType.Dash,
