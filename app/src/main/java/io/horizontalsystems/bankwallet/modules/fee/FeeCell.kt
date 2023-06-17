@@ -32,7 +32,7 @@ fun FeeCell(
 ) {
     RowUniversal(
         modifier = Modifier
-            .fillMaxSize()
+            .wrapContentHeight()
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

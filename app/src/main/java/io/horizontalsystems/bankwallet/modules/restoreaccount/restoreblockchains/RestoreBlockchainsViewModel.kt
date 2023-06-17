@@ -51,16 +51,26 @@ class RestoreBlockchainsViewModel(
     }
 
     private fun viewItem(
-        item: RestoreBlockchainsService.Item,
-    ) = CoinViewItem(
-        item = item.blockchain,
-        imageSource = ImageSource.Remote(item.blockchain.type.imageUrl, R.drawable.ic_platform_placeholder_32),
-        title = item.blockchain.name,
-        subtitle = item.blockchain.description,
-        enabled = item.enabled,
-        hasSettings = item.hasSettings,
-        hasInfo = false
-    )
+        item: RestoreBlockchainsService.Item
+    ):CoinViewItem<Blockchain> {
+        val imageSource = if (item.blockchain.uid == "safe-coin") {
+            ImageSource.Local(R.drawable.safe)
+        } else {
+            ImageSource.Remote(
+                item.blockchain.type.imageUrl,
+                R.drawable.ic_platform_placeholder_32
+            )
+        }
+        return CoinViewItem(
+            item = item.blockchain,
+            imageSource = imageSource,
+            title = item.blockchain.name,
+            subtitle = item.blockchain.description,
+            enabled = item.enabled,
+            hasSettings = item.hasSettings,
+            hasInfo = false
+        )
+    }
 
     fun enable(blockchain: Blockchain, purpose: Int? = null) {
         service.enable(blockchain, purpose)

@@ -144,7 +144,7 @@
     <string name="Restore_PrivateKeyHint">Enter EVM Private Key, BIP32 Root Key or Account Extended Private Key</string>
     <string name="Restore_PhraseHint">Enter Recovery Phrase</string>
     <string name="Restore_NonStandardRestore">Non-Standard Import</string>
-    <string name="Restore_NonStandard_Description">This page provides a special wallet restore mechanism to Unstoppable users who have a non-standard wallet. Such wallets might have been created in Unstoppable version 0.27 - 0.28 using a non-English recovery phrase and/or a special character in the wallet passphrase (i.e. diacritic symbol).\n\nIf you\'re an affected user then your wallet balance will be shown 0 after restoring such wallet in version 0.29 or above. This page will enable you to restore access to your non-standard wallet. Once restored you\'re recommended to create a new wallet (which will be standard compliant) and move funds there.</string>
+    <string name="Restore_NonStandard_Description">This page provides a special wallet restore mechanism to SafeWallet users who have a non-standard wallet. Such wallets might have been created in SafeWallet version 0.27 - 0.28 using a non-English recovery phrase and/or a special character in the wallet passphrase (i.e. diacritic symbol).\n\nIf you\'re an affected user then your wallet balance will be shown 0 after restoring such wallet in version 0.29 or above. This page will enable you to restore access to your non-standard wallet. Once restored you\'re recommended to create a new wallet (which will be standard compliant) and move funds there.</string>
 
     <string name="Restore_PrivateKey_InvalidKey">Invalid Key</string>
 
@@ -628,7 +628,7 @@
     <string name="Swap_SellPrice">Sell Price</string>
     <string name="Swap_BuyPrice">Buy Price</string>
     <string name="Swap_PriceImpact">Price Impact</string>
-    <string name="Swap_PriceImpactTooHigh">Unstoppable has disabled swap action for this trade because you\'re getting an extremely unfavorable price. This is due to extremely low liquidity.\nIf you still want to swap please use %s website instead.</string>
+    <string name="Swap_PriceImpactTooHigh">SafeWallet has disabled swap action for this trade because you\'re getting an extremely unfavorable price. This is due to extremely low liquidity.\nIf you still want to swap please use %s website instead.</string>
     <string name="Swap_PriceImpactWarning">Important! You\'re getting an extremely unfavorable price. This is due to extremely low liquidity.</string>
     <string name="Swap_MinimumReceived">Guaranteed Amount</string>
     <string name="Swap_EstimatedFee">Estimated Fee</string>
@@ -925,7 +925,7 @@
     <string name="BtcBlockchainSettings_TransactionInputsOutputsSettingsDescription">Make your BTC, LTC, BCH transactions harder to trace by changing the way transactions are structured.</string>
     <string name="BtcBlockchainSettings_TransactionInputsOutputsDescription">Most Bitcoin transactions, as well as transactions in alike cryptocurrencies including Bitcoin Cash, Dash, and Litecoin, generate two outputs. One output is the amount that goes to the receiver and the other is the change output that is returned to the sender. The way most wallets construct transactions makes it easy for a third party to understand which of the outputs went to the receiving party and which one was the change amount returned to the sender. As the output returned to the sender is later used in future transactions, a connection between these two transactions becomes apparent.
 \n\nThe SafeWallet implements measures to make it harder for someone to figure out which output goes where.
-\n\nThere are two options available to Unstoppable users:
+\n\nThere are two options available to SafeWallet users:
 \n\n1. Shuffle: The order of transaction outputs is randomized on every transaction. Sometimes change can be the first output, sometimes it can be the second. If a user trusts the developer of the app, then consider this a recommended option.
 \n\n2. Deterministic: There is a commonly agreed standard for ordering transaction outputs (known as BIP69). In open-source wallets, that standard ensures wallet users do not need to trust how developers of the app implement the ordering of the outputs. As this standard is new, not many wallets have implemented it yet. As a result, it\'s somewhat possible to see on the blockchain whether a transaction was sent from a wallet that uses that standard or not.</string>
 
@@ -1057,7 +1057,7 @@
 \n- TYPE0 (older)
 \n- TYPE145 (newer)
 \n
-\nWhile Unstoppable wallet supports both of them it recommends to use a Bitcoin Cash wallet operating in TYPE145 format.</string>
+\nWhile SafeWallet wallet supports both of them it recommends to use a Bitcoin Cash wallet operating in TYPE145 format.</string>
     <string name="ManageCoins_ContractAddress">CONTRACT ADDRESS</string>
 
     <!-- Experimental Feature -->
@@ -1218,7 +1218,7 @@
     <string name="PrivateKeys_Bip32RootKeyDescription">Grants full control over the assets on the respective wallet.</string>
     <string name="PrivateKeys_AccountExtendedPrivateKey">Account Extended Private Key</string>
     <string name="PrivateKeys_AccountExtendedPrivateKeyDescription">Grants full control over Bitcoin and other UTXO based crypto i.e. Litecoin, Bitcoin Cash, Dash etc. within respective wallet.</string>
-    <string name="PrivateKeys_NeverShareWarning">Never share this key with anyone. Unstoppable Wallet support team will never ask for it.</string>
+    <string name="PrivateKeys_NeverShareWarning">Never share this key with anyone. SafeWallet Wallet support team will never ask for it.</string>
 
     <!-- Public Keys -->
     <string name="PublicKeys_Title">Public Keys</string>
@@ -1501,7 +1501,7 @@
     <string name="CoinAnalytics_ProjectRevenue_Info2">Token\'s rank based on the revenue generated over 30-day period for token stakers.</string>
     <string name="CoinAnalytics_ProjectRevenue_Info3">List of all tokens ranked based on the revenue generated for token stakers over 24h / 7D / 1M intervals.</string>
 
-    <string name="CoinAnalytics_PageLocked">This page available only for Unstoppable Wallet premium users</string>
+    <string name="CoinAnalytics_PageLocked">This page available only for SafeWallet Wallet premium users</string>
     <string name="CoinAnalytics_ActivateSubscription">Activate your subscription for getting access to analytics</string>
     <string name="CoinAnalytics_ProjectNoAnalyticData">This project has no analytical data</string>
     <string name="CoinAnalytics_ThreeDots" translatable="false">•••</string>

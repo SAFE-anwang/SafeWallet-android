@@ -132,16 +132,23 @@ private fun BlockchainSettingCell(
     RowUniversal(
         onClick = onClick
     ) {
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp),
-            painter = rememberAsyncImagePainter(
-                model = item.imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-        )
+        if (item.blockchainItem.blockchain.uid == "safe-coin") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = null,
+                modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+            )
+        } else {
+            Image(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .size(32.dp),
+                painter = rememberAsyncImagePainter(
+                    model = item.imageUrl,
+                    error = painterResource(R.drawable.ic_platform_placeholder_32)
+                ),
+                contentDescription = null,
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = item.title)
             subhead2_grey(text = item.subtitle)

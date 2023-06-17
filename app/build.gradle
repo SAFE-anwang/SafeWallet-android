@@ -74,7 +74,7 @@ android {
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
             resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
-            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         appcenterdebug {
@@ -131,8 +131,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
@@ -144,7 +144,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
         freeCompilerArgs += [
                 "-Xjvm-default=all",
         ]

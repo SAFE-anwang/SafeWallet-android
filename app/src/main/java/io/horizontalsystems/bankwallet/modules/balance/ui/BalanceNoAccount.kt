@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.navigateWithTermsAccepted
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
@@ -75,8 +76,9 @@ fun BalanceNoAccount(navController: NavController) {
                     .padding(horizontal = 48.dp),
                 title = stringResource(R.string.ManageAccounts_ImportWallet),
                 onClick = {
+                    val args = ManageAccountsModule.prepareParams(R.id.manageAccountsFragment, false)
                     navController.navigateWithTermsAccepted {
-                        navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment)
+                        navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment, args)
                     }
                 }
             )

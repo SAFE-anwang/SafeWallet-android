@@ -108,21 +108,6 @@ class SwapMainFragment : BaseFragment() {
             }
         }
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val filter = IntentFilter()
-        filter.addAction("com.anwang.safe.switchSwap")
-        requireActivity()?.registerReceiver(receiver, filter)
-    }
-
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            isAutoSetProvider1Inch = true
-//            mainViewModel.autoSetProvider1Inch()
-        }
-    }
 }
 
 @Composable

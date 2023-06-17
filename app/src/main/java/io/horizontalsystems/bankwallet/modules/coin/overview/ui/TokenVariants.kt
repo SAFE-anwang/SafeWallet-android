@@ -38,14 +38,22 @@ fun TokenVariants(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
             ) {
-                Image(
-                    modifier = Modifier.size(32.dp),
-                    painter = rememberAsyncImagePainter(
-                        model = tokenVariant.imgUrl,
-                        error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    ),
-                    contentDescription = "platform"
-                )
+                if (tokenVariant.name == "SAFE") {
+                    Image(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = "platform"
+                    )
+                } else {
+                    Image(
+                        modifier = Modifier.size(32.dp),
+                        painter = rememberAsyncImagePainter(
+                            model = tokenVariant.imgUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                        ),
+                        contentDescription = "platform"
+                    )
+                }
                 Column(
                     modifier = Modifier
                         .weight(1f)

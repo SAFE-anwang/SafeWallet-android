@@ -225,6 +225,8 @@ fun BalanceItems(
                     }
                 )
             } else {
+                Spacer(modifier = Modifier.weight(1f))
+
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
                     contentDescription = stringResource(R.string.ManageCoins_title),
@@ -235,7 +237,7 @@ fun BalanceItems(
                     }
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.padding(start = 16.dp))
 
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_transactions,

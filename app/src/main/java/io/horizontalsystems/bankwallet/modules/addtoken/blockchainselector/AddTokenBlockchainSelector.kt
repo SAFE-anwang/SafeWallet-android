@@ -94,14 +94,22 @@ fun BlockchainCell(
             .fillMaxWidth(),
         backgroundColor = ComposeAppTheme.colors.lawrence
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = item.type.imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-            modifier = Modifier.size(32.dp)
-        )
+        if (item.type.uid == "safe-coin") {
+            Image(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(id = R.drawable.logo_safe_24),
+                contentDescription = "platform"
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = item.type.imageUrl,
+                    error = painterResource(R.drawable.ic_platform_placeholder_32)
+                ),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+        }
         body_leah(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

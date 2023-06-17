@@ -82,8 +82,10 @@ fun SendEvmTransactionView(
             NonceView(nonceViewModel)
 
             Spacer(Modifier.height(16.dp))
-            CellUniversalLawrenceSection(
-                listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+//                listOf {
                     FeeCell(
                         title = stringResource(R.string.FeeSettings_NetworkFee),
                         info = stringResource(R.string.FeeSettings_NetworkFee_Info),
@@ -92,7 +94,7 @@ fun SendEvmTransactionView(
                         navController = navController
                     )
                 }
-            )
+//            )
 
             val cautions by transactionViewModel.cautionsLiveData.observeAsState()
             cautions?.let {

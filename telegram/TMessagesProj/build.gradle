@@ -94,8 +94,8 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
             buildConfigField "String", "appId", '\"com.anwang.safewallet.dev\"'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         /*debugAsan {
@@ -155,7 +155,6 @@ android {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
             buildConfigField "String", "appId", '\"com.anwang.safewallet\"'
         }
     }

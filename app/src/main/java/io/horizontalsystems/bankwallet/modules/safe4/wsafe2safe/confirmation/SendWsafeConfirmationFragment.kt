@@ -46,7 +46,7 @@ class SendWsafeConfirmationFragment : BaseFragment() {
             SendEvmData(transactionData, additionalInfo)
         )
     }
-    private val sendEvmTransactionViewModel by viewModels<SendEvmTransactionViewModel> { vmFactory }
+    private val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(R.id.sendWsafeConfirmationFragment) { vmFactory }
     private val nonceServiceViewModel by viewModels< SendEvmNonceViewModel> { vmFactory }
     private val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(R.id.sendWsafeConfirmationFragment) { vmFactory }
 

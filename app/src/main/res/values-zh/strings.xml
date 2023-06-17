@@ -118,7 +118,7 @@
     <string name="Restore_PrivateKeyHint">輸入 EVM 私鑰、BIP32 Root Key 或  Account Extended Private Key</string>
     <string name="Restore_PhraseHint">输入12、15、18、21或24个单词</string>
     <string name="Restore_NonStandardRestore">非标准还原</string>
-    <string name="Restore_NonStandard_Description">此页面为拥有非标准钱包的 Unstoppable 用户提供了一种特殊的钱包恢复机制。 通常，此类钱包可以在 Unstoppable 版本 0.27 - 0.28 中使用非英语助记词列表和/或钱包密码短语中的特殊字符（即变音符号）创建。\n\n如果您是受影响的用户，那么在 0.29 或更高版本中恢复此类钱包后，您的钱包余额将显示为 0。 此页面将使您能够恢复对非标准钱包的访问。 恢复后，建议您创建一个新钱包（符合标准）并将资金转移到那里。</string>
+    <string name="Restore_NonStandard_Description">此页面为拥有非标准钱包的 SafeWallet 用户提供了一种特殊的钱包恢复机制。 通常，此类钱包可以在 SafeWallet 版本 0.27 - 0.28 中使用非英语助记词列表和/或钱包密码短语中的特殊字符（即变音符号）创建。\n\n如果您是受影响的用户，那么在 0.29 或更高版本中恢复此类钱包后，您的钱包余额将显示为 0。 此页面将使您能够恢复对非标准钱包的访问。 恢复后，建议您创建一个新钱包（符合标准）并将资金转移到那里。</string>
     <string name="Restore_PrivateKey_InvalidKey">错误密钥</string>
     <string name="Select_Coins">选择货币</string>
     <string name="Restore_BirthdayHeight">生日高度</string>
@@ -444,7 +444,7 @@
     <string name="FeeSettings_Info_IUnderstand">我理解</string>
     <string name="FeeSettings_FeeRate">费率(SAT/BYTE)</string>
     <string name="FeeSettings_FeeRate_RecommendedInfo">这是击中下2个区块的推荐值</string>
-    <string name="FeeSettings_FeeRate_Info">Blockchains require users to pay network fees when sending transactions. The fees are higher when a lot of transactions are taking place on the network.\n\nThe Unstoppable wallet estimates fee based on the current blockchain activity and recommends the optimal value in order for the transaction to be processed within a reasonable amount of time.\n\nThe recommended fee rate shown as the amount of satoshi user needs to pay for a single byte of the transaction. Thus, the total fee depends on the total size of the transaction which is measured in bytes.\n\nUsers may use provided controls to increase or decrease the fee rate value. The change in fee rate changes the total fee for the transaction the user will pay.\n\nSetting fee rate below recommended value may result in a transaction being held as pending for hours, or being rejected. The lower the value, the longer it will take for the transaction to confirm. For transactions where priority is important, we recommend setting higher fee rate.</string>
+    <string name="FeeSettings_FeeRate_Info">Blockchains require users to pay network fees when sending transactions. The fees are higher when a lot of transactions are taking place on the network.\n\nThe SafeWallet wallet estimates fee based on the current blockchain activity and recommends the optimal value in order for the transaction to be processed within a reasonable amount of time.\n\nThe recommended fee rate shown as the amount of satoshi user needs to pay for a single byte of the transaction. Thus, the total fee depends on the total size of the transaction which is measured in bytes.\n\nUsers may use provided controls to increase or decrease the fee rate value. The change in fee rate changes the total fee for the transaction the user will pay.\n\nSetting fee rate below recommended value may result in a transaction being held as pending for hours, or being rejected. The lower the value, the longer it will take for the transaction to confirm. For transactions where priority is important, we recommend setting higher fee rate.</string>
     <!--Fee Info -->
     <string name="FeeInfo_Title">交易速度</string>
     <string name="FeeInfo_Description">比特币和Etherum区块链都要求用户在发送交易时支付网络费用。当区块链上发生大量交易时费用较高；而区块链空闲时费用较低。</string>
@@ -778,7 +778,7 @@
     <string name="EvmNetwork_AddNew">添加新的</string>
     <string name="EvmNetwork_Added">已添加</string>
     <string name="EvmNetwork_SyncMode">同步模式</string>
-    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. Unstoppable pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
+    <string name="EvmNetwork_SyncModeDescription">This setting controls how this app interacts with blockchains when sending or receiving transactions.\n\nIn the case of Bitcoin, Bitcoin Cash, Litecoin, and Dash, the communication with blockchain network nodes is fully peer-to-peer. SafeWallet pings many nodes and communicates with one of them. Each time the app connects to a different node.\n\nIn the case of Ethereum, Binance Smart Chain, and other EVM blockchains, there are no alternatives for mobile wallets to interact with respective blockchains other than via third-party RPC service providers (i.e. Infura.io) or personal nodes. That essentially means your communication with that blockchain is not decentralized. This doesn\'t impact your funds in any way, only the ability to connect to the blockchain network.\n\nRest assured, we are keeping this on the radar and will soon try to provide a decentralized way to sync. Patience.</string>
     <!--Add RPC Source-->
     <string name="AddEvmSyncSource_RpcUrl">RPC Url</string>
     <string name="AddEvmSyncSource_AddRPCSource">添加 RPC 源</string>
@@ -923,8 +923,8 @@
     <string name="ManageCoins_Search">姓名、代码或合同地址</string>
     <string name="ManageCoins_AddToken">添加代币</string>
     <string name="ManageCoins_NoResults">找不到结果。如果您知道智能合约地址，请尝试手动添加代币。</string>
-    <string name="ManageCoins_BipsDescription">有4种%s钱包可用于接收应收款的常见地址格式：\n\n- BIP44（较旧）\n- BIP49\n- BIP84（较新）\n- BIP86（最新）\n\n虽然Unstoppable钱包支持全部4种格式，但是我们建议使用以BIP84格式运作的%s钱包。</string>
-    <string name="ManageCoins_BchTypeDescription">有2种比特币现金钱包可用于接收应收款的常见地址格式：\n\n- TYPE 0（较旧）\n- TYPE 145（较新）\n\n虽然Unstoppable钱包支持全部两种格式，但是我们建议使用以TYPE 145格式运作的比特币现金钱包。</string>
+    <string name="ManageCoins_BipsDescription">有4种%s钱包可用于接收应收款的常见地址格式：\n\n- BIP44（较旧）\n- BIP49\n- BIP84（较新）\n- BIP86（最新）\n\n虽然SafeWallet钱包支持全部4种格式，但是我们建议使用以BIP84格式运作的%s钱包。</string>
+    <string name="ManageCoins_BchTypeDescription">有2种比特币现金钱包可用于接收应收款的常见地址格式：\n\n- TYPE 0（较旧）\n- TYPE 145（较新）\n\n虽然SafeWallet钱包支持全部两种格式，但是我们建议使用以TYPE 145格式运作的比特币现金钱包。</string>
     <string name="ManageCoins_ContractAddress">联系地址</string>
     <!-- Experimental Feature -->
     <string name="ExperimentalFeatures_Title">实验功能</string>
@@ -1308,7 +1308,7 @@
     <string name="CoinAnalytics_ProjectRevenue_Info1">Total revenue generated for the token holders over 30-day period. Typically, fees are collected by token stakers or though a token burn mechanism.</string>
     <string name="CoinAnalytics_ProjectRevenue_Info2">Token\'s rank based on the revenue generated over 30-day period for token stakers.</string>
     <string name="CoinAnalytics_ProjectRevenue_Info3">List of all tokens ranked based on the revenue generated for token stakers over 24h / 7D / 1M intervals.</string>
-    <string name="CoinAnalytics_PageLocked">此页面仅对Unstoppable钱包的高级用户开放</string>
+    <string name="CoinAnalytics_PageLocked">此页面仅对SafeWallet钱包的高级用户开放</string>
     <string name="CoinAnalytics_ActivateSubscription">请激活您的订阅以获取分析权限</string>
     <string name="CoinAnalytics_ProjectNoAnalyticData">此项目没有分析数据</string>
     <string name="CoinAnalytics_CexVolume">CEX交易量</string>

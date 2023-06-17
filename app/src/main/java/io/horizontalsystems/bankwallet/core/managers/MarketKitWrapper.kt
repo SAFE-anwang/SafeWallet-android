@@ -68,8 +68,10 @@ class MarketKitWrapper(
     fun marketInfoDetailsSingle(coinUid: String, currencyCode: String) = marketKit.marketInfoDetailsSingle(coinUid, currencyCode)
 
     fun analyticsSingle(coinUid: String, currencyCode: String, authToken: String) = marketKit.analyticsSingle(coinUid, currencyCode, authToken)
+    fun safeAnalyticsSingle(coinUid: String, currencyCode: String, authToken: String) = marketKit.safeAnalyticsSingle(coinUid, currencyCode, authToken)
 
     fun analyticsPreviewSingle(coinUid: String, addresses: List<String>) = marketKit.analyticsPreviewSingle(coinUid, addresses)
+    fun safeAnalyticsPreviewSingle(coinUid: String, addresses: List<String>) = marketKit.safeAnalyticsPreviewSingle(coinUid, addresses)
 
     fun marketInfoTvlSingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod) =
         marketKit.marketInfoTvlSingle(coinUid, currencyCode, timePeriod)

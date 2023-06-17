@@ -78,15 +78,25 @@ class CoinAnalyticsService(
             preview()
         } else {
             stateSubject.onNext(DataState.Loading)
-
-            marketKit.analyticsSingle(fullCoin.coin.uid, currency.code, authToken)
-                .subscribeIO({ item ->
-                    stateSubject.onNext(DataState.Success(AnalyticData(analytics = item)))
-                }, {
-                    handleError(it)
-                }).let {
-                    disposables.add(it)
-                }
+            if (fullCoin.coin.uid == "safe-coin") {
+                marketKit.safeAnalyticsSingle("safe-anwang", currency.code, authToken)
+                    .subscribeIO({ item ->
+                        stateSubject.onNext(DataState.Success(AnalyticData(analytics = item)))
+                    }, {
+                        handleError(it)
+                    }).let {
+                        disposables.add(it)
+                    }
+            } else {
+                marketKit.analyticsSingle(fullCoin.coin.uid, currency.code, authToken)
+                    .subscribeIO({ item ->
+                        stateSubject.onNext(DataState.Success(AnalyticData(analytics = item)))
+                    }, {
+                        handleError(it)
+                    }).let {
+                        disposables.add(it)
+                    }
+            }
         }
     }
 
@@ -102,15 +112,25 @@ class CoinAnalyticsService(
         val addresses = accountManager.accounts.mapNotNull {
             it.type.evmAddress(App.evmBlockchainManager.getChain(BlockchainType.Ethereum))?.hex
         }
-
-        marketKit.analyticsPreviewSingle(fullCoin.coin.uid, addresses)
-            .subscribeIO({ item ->
-                stateSubject.onNext(DataState.Success(AnalyticData(analyticsPreview = item)))
-            }, {
-                stateSubject.onNext(DataState.Error(it))
-            }).let {
-                disposables.add(it)
-            }
+        if (fullCoin.coin.uid == "safe-coin") {
+            marketKit.safeAnalyticsPreviewSingle(fullCoin.coin.uid, addresses)
+                .subscribeIO({ item ->
+                    stateSubject.onNext(DataState.Success(AnalyticData(analyticsPreview = item)))
+                }, {
+                    stateSubject.onNext(DataState.Error(it))
+                }).let {
+                    disposables.add(it)
+                }
+        } else {
+            marketKit.analyticsPreviewSingle(fullCoin.coin.uid, addresses)
+                .subscribeIO({ item ->
+                    stateSubject.onNext(DataState.Success(AnalyticData(analyticsPreview = item)))
+                }, {
+                    stateSubject.onNext(DataState.Error(it))
+                }).let {
+                    disposables.add(it)
+                }
+        }
     }
 
     data class AnalyticData(

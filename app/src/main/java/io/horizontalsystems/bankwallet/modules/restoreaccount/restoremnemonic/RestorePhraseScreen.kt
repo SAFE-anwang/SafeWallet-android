@@ -418,7 +418,7 @@ private fun BottomSection(
 
     Spacer(Modifier.height(32.dp))
 
-    CellSingleLineLawrenceSection {
+    /*CellSingleLineLawrenceSection {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -437,7 +437,7 @@ private fun BottomSection(
             )
         }
     }
-    Spacer(Modifier.height(32.dp))
+    Spacer(Modifier.height(32.dp))*/
 }
 
 @Composable

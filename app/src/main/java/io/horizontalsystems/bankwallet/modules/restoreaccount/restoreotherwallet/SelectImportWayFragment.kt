@@ -32,10 +32,10 @@ class SelectImportWayFragment: BaseFragment() {
             findNavController().popBackStack()
         }
         binding.llPrivateKey.setOnClickListener {
-            findNavController().slideFromRight(R.id.restorePrivateKeyImportFragment)
+            findNavController().slideFromRight(R.id.restorePrivateKeyImportFragment, arguments)
         }
         binding.llPhrase.setOnClickListener {
-            findNavController().slideFromRight(R.id.restoreSelectWalletFragment)
+            findNavController().slideFromRight(R.id.restoreSelectWalletFragment, arguments)
         }
     }
 

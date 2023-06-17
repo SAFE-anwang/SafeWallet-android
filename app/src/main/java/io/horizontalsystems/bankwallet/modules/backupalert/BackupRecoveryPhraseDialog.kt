@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.manageaccount.backupkey.BackupKeyModule
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimary
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
@@ -111,7 +113,7 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
                 icon = R.drawable.ic_file_24,
                 iconTint = ComposeAppTheme.colors.claude,
                 buttonColors = ButtonPrimaryDefaults.textButtonColors(
-                    backgroundColor = ComposeAppTheme.colors.leah,
+                    backgroundColor = ComposeAppTheme.colors.yellowD,
                     contentColor = ComposeAppTheme.colors.claude,
                     disabledBackgroundColor = ComposeAppTheme.colors.steel20,
                     disabledContentColor = ComposeAppTheme.colors.grey50,

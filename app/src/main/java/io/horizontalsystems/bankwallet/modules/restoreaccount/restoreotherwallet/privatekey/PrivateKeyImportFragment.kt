@@ -150,11 +150,17 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
+                            val popUpToInclusiveId =
+                                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.manageAccountsFragment) ?: R.id.manageAccountsFragment
+                            val inclusive =
+                                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
                             viewModel.resolveAccountType(binding.wordsInput.text.toString())?.let { accountType ->
                                 findNavController().slideFromRight(
                                     R.id.restoreSelectCoinsFragment,
                                     bundleOf(
                                         RestoreBlockchainsFragment.ACCOUNT_NAME_KEY to viewModel.defaultName,
+                                        ManageAccountsModule.popOffOnSuccessKey to popUpToInclusiveId,
+                                        ManageAccountsModule.popOffInclusiveKey to inclusive,
                                         ACCOUNT_TYPE_KEY to accountType)
                                 )
 

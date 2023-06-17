@@ -76,7 +76,7 @@ private fun BottomSheetScreen(
                             onSelectListener?.invoke(item)
                             onCloseClick.invoke()
                         }
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(16.dp))

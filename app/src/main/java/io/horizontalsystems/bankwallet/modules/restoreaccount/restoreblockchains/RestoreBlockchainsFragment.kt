@@ -118,7 +118,17 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            if (isContainerManagerFragment()) {
+            val popUpToInclusiveId =
+                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.restoreAccountFragment) ?: R.id.restoreAccountFragment
+
+            val inclusive =
+                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: false
+            findNavController().popBackStack(
+                popUpToInclusiveId,
+                inclusive
+            )
+
+            /*if (isContainerManagerFragment()) {
                 findNavController().popBackStack(
                     R.id.manageAccountsFragment,
                     false
@@ -128,7 +138,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
                     R.id.mainFragment,
                     false
                 )
-            }
+            }*/
         }
 
         /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
