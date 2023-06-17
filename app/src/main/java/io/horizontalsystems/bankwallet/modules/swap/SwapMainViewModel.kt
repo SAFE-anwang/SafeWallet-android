@@ -329,7 +329,6 @@ class SwapMainViewModel(
 
         allErrors = errors
         errorShareService.updateErrors(errors)
-        Log.e("longwen", "error=${errors.map { it }}")
 
         val filtered = allErrors.filter { it !is GasDataError && it !is SwapError }
         error = filtered.firstOrNull()?.let { convert(it) }
@@ -340,7 +339,6 @@ class SwapMainViewModel(
         if (dex.provider.id == "safe") {
             val isTradeNotFound = errors.find { it is TradeError.TradeNotFound }
             if (isTradeNotFound != null) {
-                Log.e("longwen", "error ----")
                 autoSetProvider1Inch()
             }
         }
