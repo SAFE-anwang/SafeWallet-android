@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -30,7 +32,7 @@ data class MenuItem(
 fun AppBarMenuButton(
     @DrawableRes icon: Int,
     onClick: () -> Unit,
-    description: String? = null,
+    description: String,
     enabled: Boolean = true,
     tint: Color = Color.Unspecified,
 ) {
@@ -39,6 +41,7 @@ fun AppBarMenuButton(
         enabled = enabled,
     ) {
         Icon(
+            modifier = Modifier.size(24.dp),
             painter = painterResource(id = icon),
             contentDescription = description,
             tint = tint
@@ -51,20 +54,40 @@ fun AppBar(
     title: TranslatableString? = null,
     navigationIcon: @Composable (() -> Unit)? = null,
     menuItems: List<MenuItem> = listOf(),
-    showSpinner: Boolean = false
+    showSpinner: Boolean = false,
+    backgroundColor: Color = ComposeAppTheme.colors.tyler
+) {
+    val titleComposable: @Composable () -> Unit = {
+        title?.let {
+            title3_leah(
+                text = title.getString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+
+    AppBar(
+        title = titleComposable,
+        navigationIcon = navigationIcon,
+        menuItems = menuItems,
+        showSpinner = showSpinner,
+        backgroundColor = backgroundColor
+    )
+}
+
+@Composable
+fun AppBar(
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    menuItems: List<MenuItem> = listOf(),
+    showSpinner: Boolean = false,
+    backgroundColor: Color = ComposeAppTheme.colors.tyler
 ) {
     TopAppBar(
-        modifier = Modifier.height(56.dp),
-        title = {
-            title?.let {
-                title3_leah(
-                    text = title.getString(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        },
-        backgroundColor = ComposeAppTheme.colors.tyler,
+        modifier = Modifier.height(64.dp),
+        title = title,
+        backgroundColor = backgroundColor,
         navigationIcon = navigationIcon?.let {
             {
                 navigationIcon()
@@ -81,28 +104,32 @@ fun AppBar(
                 )
             }
             menuItems.forEach { menuItem ->
+                val color = if (menuItem.enabled) {
+                    if (menuItem.tint == Color.Unspecified)
+                        ComposeAppTheme.colors.jacob
+                    else
+                        menuItem.tint
+                } else {
+                    ComposeAppTheme.colors.grey50
+                }
+
                 if (menuItem.icon != null) {
                     AppBarMenuButton(
                         icon = menuItem.icon,
                         onClick = menuItem.onClick,
                         enabled = menuItem.enabled,
-                        tint = menuItem.tint,
+                        tint = color,
+                        description = menuItem.title.getString()
                     )
                 } else {
-                    val color = if (menuItem.enabled) {
-                        ComposeAppTheme.colors.jacob
-                    } else {
-                        ComposeAppTheme.colors.grey50
-                    }
-
                     Text(
                         modifier = Modifier
-                            .padding(end = 16.dp)
+                            .padding(horizontal = 16.dp)
                             .clickable(
                                 enabled = menuItem.enabled,
                                 onClick = menuItem.onClick
                             ),
-                        text = menuItem.title.getString(),
+                        text = menuItem.title.getString().toUpperCase(Locale.current),
                         style = ComposeAppTheme.typography.headline2,
                         color = color
                     )

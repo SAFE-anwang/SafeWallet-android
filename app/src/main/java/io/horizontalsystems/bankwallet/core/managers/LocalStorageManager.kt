@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import io.horizontalsystems.bankwallet.core.IChartTypeStorage
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.IMarketStorage
 import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.AppVersion
 import io.horizontalsystems.bankwallet.entities.LaunchPage
 import io.horizontalsystems.bankwallet.entities.SyncMode
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
@@ -21,16 +21,19 @@ import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.core.IPinStorage
 import io.horizontalsystems.core.IThirdKeyboard
-import io.horizontalsystems.core.entities.AppVersion
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.marketkit.models.HsTimePeriod
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-class LocalStorageManager(private val preferences: SharedPreferences) : ILocalStorage, IPinStorage, IChartTypeStorage,
-    IThirdKeyboard, IMarketStorage {
+class LocalStorageManager(
+    private val preferences: SharedPreferences
+) : ILocalStorage, IPinStorage, IThirdKeyboard, IMarketStorage {
 
     private val THIRD_KEYBOARD_WARNING_MSG = "third_keyboard_warning_msg"
     private val SEND_INPUT_TYPE = "send_input_type"
     private val BASE_CURRENCY_CODE = "base_currency_code"
+    private val AUTH_TOKEN = "auth_token"
     private val FAILED_ATTEMPTS = "failed_attempts"
     private val LOCKOUT_TIMESTAMP = "lockout_timestamp"
     private val BASE_BITCOIN_PROVIDER = "base_bitcoin_provider"
@@ -42,7 +45,6 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
     private val BASE_ZCASH_PROVIDER = "base_zcash_provider"
     private val SYNC_MODE = "sync_mode"
     private val SORT_TYPE = "balance_sort_type"
-    private val CHART_INTERVAL = "prev_chart_interval"
     private val APP_VERSIONS = "app_versions"
     private val ALERT_NOTIFICATION_ENABLED = "alert_notification"
     private val LOCK_TIME_ENABLED = "lock_time_enabled"
@@ -63,14 +65,16 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
     private val CHANGELOG_SHOWN_FOR_APP_VERSION = "changelog_shown_for_app_version"
     private val IGNORE_ROOTED_DEVICE_WARNING = "ignore_rooted_device_warning"
     private val SWAP_PROVIDER = "swap_provider_"
+    private val LIQUIDITY_PROVIDER = "liquidity_provider_"
     private val LAUNCH_PAGE = "launch_page"
     private val APP_ICON = "app_icon"
     private val MAIN_TAB = "main_tab"
-    private val FAVORITE_COIN_IDS_MIGRATED = "favorite_coins_ids_migrated"
-    private val FILL_WALLET_INFO_DONE = "fill_wallet_info_done"
     private val MARKET_FAVORITES_SORTING_FIELD = "market_favorites_sorting_field"
     private val MARKET_FAVORITES_MARKET_FIELD = "market_favorites_market_field"
     private val RELAUNCH_BY_SETTING_CHANGE = "relaunch_by_setting_change"
+    private val MARKETS_TAB_ENABLED = "markets_tab_enabled"
+    private val BALANCE_AUTO_HIDE_ENABLED = "balance_auto_hide_enabled"
+    private val NON_RECOMMENDED_ACCOUNT_ALERT_DISMISSED_ACCOUNTS = "non_recommended_account_alert_dismissed_accounts"
 
     private val gson by lazy { Gson() }
 
@@ -94,6 +98,12 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
         get() = preferences.getString(BASE_CURRENCY_CODE, null)
         set(value) {
             preferences.edit().putString(BASE_CURRENCY_CODE, value).apply()
+        }
+
+    override var authToken: String?
+        get() = preferences.getString(AUTH_TOKEN, null)
+        set(value) {
+            preferences.edit().putString(AUTH_TOKEN, value).apply()
         }
 
     override var baseBitcoinProvider: String?
@@ -283,14 +293,6 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
 
     //  IChartTypeStorage
 
-    override var chartInterval: HsTimePeriod
-        get() = HsTimePeriod.values().firstOrNull {
-            preferences.getString(CHART_INTERVAL, null) == it.value
-        } ?: HsTimePeriod.Day1
-        set(interval) {
-            preferences.edit().putString(CHART_INTERVAL, interval.value).apply()
-        }
-
     override var torEnabled: Boolean
         get() = preferences.getBoolean(TOR_ENABLED, false)
         @SuppressLint("ApplySharedPref")
@@ -315,6 +317,12 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
         get() = preferences.getBoolean(BALANCE_HIDDEN, false)
         set(value) {
             preferences.edit().putBoolean(BALANCE_HIDDEN, value).apply()
+        }
+
+    override var balanceAutoHideEnabled: Boolean
+        get() = preferences.getBoolean(BALANCE_AUTO_HIDE_ENABLED, false)
+        set(value) {
+            preferences.edit().putBoolean(BALANCE_AUTO_HIDE_ENABLED, value).commit()
         }
 
     override var balanceTotalCoinUid: String?
@@ -383,24 +391,12 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
             preferences.edit().putString(APP_ICON, value?.name).apply()
         }
 
-    override var mainTab: MainModule.MainTab?
+    override var mainTab: MainModule.MainNavigation?
         get() = preferences.getString(MAIN_TAB, null)?.let {
-            MainModule.MainTab.fromString(it)
+            MainModule.MainNavigation.fromString(it)
         }
         set(value) {
             preferences.edit().putString(MAIN_TAB, value?.name).apply()
-        }
-
-    override var favoriteCoinIdsMigrated: Boolean
-        get() = preferences.getBoolean(FAVORITE_COIN_IDS_MIGRATED, false)
-        set(value) {
-            preferences.edit().putBoolean(FAVORITE_COIN_IDS_MIGRATED, value).apply()
-        }
-
-    override var fillWalletInfoDone: Boolean
-        get() = preferences.getBoolean(FILL_WALLET_INFO_DONE, false)
-        set(value) {
-            preferences.edit().putBoolean(FILL_WALLET_INFO_DONE, value).apply()
         }
 
     override var marketFavoritesSortingField: SortingField?
@@ -425,6 +421,24 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
             preferences.edit().putBoolean(RELAUNCH_BY_SETTING_CHANGE, value).commit()
         }
 
+    override var marketsTabEnabled: Boolean
+        get() = preferences.getBoolean(MARKETS_TAB_ENABLED, true)
+        set(value) {
+            preferences.edit().putBoolean(MARKETS_TAB_ENABLED, value).commit()
+            _marketsTabEnabledFlow.update {
+                value
+            }
+        }
+
+    private val _marketsTabEnabledFlow = MutableStateFlow(marketsTabEnabled)
+    override val marketsTabEnabledFlow = _marketsTabEnabledFlow.asStateFlow()
+
+    override var nonRecommendedAccountAlertDismissedAccounts: Set<String>
+        get() = preferences.getStringSet(NON_RECOMMENDED_ACCOUNT_ALERT_DISMISSED_ACCOUNTS, setOf()) ?: setOf()
+        set(value) {
+            preferences.edit().putStringSet(NON_RECOMMENDED_ACCOUNT_ALERT_DISMISSED_ACCOUNTS, value).apply()
+        }
+
     override fun getSwapProviderId(blockchainType: BlockchainType): String? {
         return preferences.getString(getSwapProviderKey(blockchainType), null)
     }
@@ -433,8 +447,20 @@ class LocalStorageManager(private val preferences: SharedPreferences) : ILocalSt
         preferences.edit().putString(getSwapProviderKey(blockchainType), providerId).apply()
     }
 
+    override fun getLiquidityProviderId(blockchainType: BlockchainType): String? {
+        return preferences.getString(getLiquidityProviderKey(blockchainType), null)
+    }
+
+    override fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String) {
+        preferences.edit().putString(getLiquidityProviderKey(blockchainType), providerId).apply()
+    }
+
     private fun getSwapProviderKey(blockchainType: BlockchainType): String {
         return SWAP_PROVIDER + blockchainType.uid
+    }
+
+    private fun getLiquidityProviderKey(blockchainType: BlockchainType): String {
+        return LIQUIDITY_PROVIDER + blockchainType.uid
     }
 
 }

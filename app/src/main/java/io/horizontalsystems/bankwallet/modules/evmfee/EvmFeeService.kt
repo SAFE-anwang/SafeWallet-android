@@ -126,6 +126,7 @@ class EvmFeeService(
             }
         }
 
+
     private fun sync(transaction: Transaction) {
         transactionStatus = if (transaction.totalAmount > evmBalance) {
             DataState.Success(transaction.copy(errors = transaction.errors + FeeSettingsError.InsufficientBalance))

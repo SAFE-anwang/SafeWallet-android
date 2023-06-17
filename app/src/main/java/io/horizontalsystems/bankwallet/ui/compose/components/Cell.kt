@@ -7,11 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,25 +65,6 @@ fun <T> CellMultilineLawrenceSection(
 }
 
 @Composable
-fun <T> CellMultilineLawrenceSectionFramed(
-    items: Iterable<T>,
-    itemContent: @Composable (T) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
-    ) {
-        items.forEachIndexed { index, marketDataLine ->
-            CellMultilineLawrence(borderTop = index != 0) {
-                itemContent(marketDataLine)
-            }
-        }
-    }
-}
-
-@Composable
 fun CellMultilineLawrence(
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
@@ -128,26 +105,6 @@ fun <T> CellSingleLineLawrenceSection(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(12.dp))
-    ) {
-        items.forEachIndexed { index, marketDataLine ->
-            CellSingleLineLawrence(borderTop = index != 0) {
-                itemContent(marketDataLine)
-            }
-        }
-    }
-
-}
-
-@Composable
-fun <T> CellSingleLineLawrenceSectionFramed(
-    items: List<T>,
-    itemContent: @Composable (T) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
     ) {
         items.forEachIndexed { index, marketDataLine ->
             CellSingleLineLawrence(borderTop = index != 0) {
@@ -213,20 +170,6 @@ fun CellSingleLineLawrence(
         borderTop = borderTop,
         borderBottom = borderBottom,
         color = ComposeAppTheme.colors.lawrence,
-        content = content
-    )
-}
-
-@Composable
-fun CellSingleLineTyler(
-    borderTop: Boolean = false,
-    borderBottom: Boolean = false,
-    content: @Composable () -> Unit,
-) {
-    CellSingleLine(
-        borderTop = borderTop,
-        borderBottom = borderBottom,
-        color = ComposeAppTheme.colors.tyler,
         content = content
     )
 }
@@ -315,6 +258,7 @@ fun CellData2(content: @Composable () -> Unit) {
 fun CellMultilineClear(
     borderTop: Boolean = false,
     borderBottom: Boolean = false,
+    height: Dp = 60.dp,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
@@ -328,7 +272,7 @@ fun CellMultilineClear(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(height)
             .then(clickableModifier)
     ) {
         if (borderTop) {
@@ -414,48 +358,6 @@ fun CellFooterPreview() {
     ComposeAppTheme {
         CellFooter(text = stringResource(id = R.string.Market_PoweredByApi))
     }
-}
-
-@Composable
-fun CellLawrence(
-    borderTop: Boolean = false,
-    borderBottom: Boolean = false,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(ComposeAppTheme.colors.lawrence)
-            .clickable(
-                enabled = enabled,
-                onClick = onClick
-            )
-    ) {
-        if (borderTop) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-        }
-
-        if (borderBottom) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
-        }
-
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
-    }
-
 }
 
 @Composable

@@ -2,31 +2,33 @@ package io.horizontalsystems.bankwallet.modules.settings.main
 
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IBackupManager
 import io.horizontalsystems.bankwallet.core.ITermsManager
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.managers.LanguageManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SessionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SessionManager
-import io.horizontalsystems.core.ILanguageManager
 import io.horizontalsystems.core.IPinComponent
 import io.horizontalsystems.core.ISystemInfoManager
-import io.horizontalsystems.bankwallet.entities.Currency
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 class MainSettingsService(
     private val backupManager: IBackupManager,
-    private val languageManager: ILanguageManager,
+    private val languageManager: LanguageManager,
     private val systemInfoManager: ISystemInfoManager,
     private val currencyManager: CurrencyManager,
     private val termsManager: ITermsManager,
     private val pinComponent: IPinComponent,
     private val wc1SessionManager: WC1SessionManager,
     private val wc2SessionManager: WC2SessionManager,
-    private val wc1Manager: WC1Manager
+    private val wc1Manager: WC1Manager,
+    private val accountManager: IAccountManager
 ) {
 
     private val backedUpSubject = BehaviorSubject.create<Boolean>()
@@ -44,6 +46,9 @@ class MainSettingsService(
     private val walletConnectSessionCountSubject = BehaviorSubject.create<Int>()
     val walletConnectSessionCountObservable: Observable<Int> get() = walletConnectSessionCountSubject
 
+    val hasNonStandardAccount: Boolean
+        get() = accountManager.hasNonStandardAccount
+
     private var disposables: CompositeDisposable = CompositeDisposable()
 
     val appVersion: String
@@ -58,6 +63,8 @@ class MainSettingsService(
 
     val allBackedUp: Boolean
         get() = backupManager.allBackedUp
+
+    val pendingRequestCountFlow by wc2SessionManager::pendingRequestCountFlow
 
     val walletConnectSessionCount: Int
         get() = wc1SessionManager.sessions.count() + wc2SessionManager.sessions.count()

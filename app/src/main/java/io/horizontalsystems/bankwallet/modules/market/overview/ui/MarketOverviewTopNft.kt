@@ -15,8 +15,8 @@ import io.horizontalsystems.bankwallet.modules.market.topnftcollections.TopNftCo
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinFirstRow
 import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinSecondRow
-import io.horizontalsystems.bankwallet.ui.compose.components.MultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.NftIcon
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemBorderedRowUniversalClear
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
@@ -58,16 +58,14 @@ private fun TopNftCollectionView(
     collection: TopNftCollectionViewItem,
     onClick: () -> Unit
 ) {
-    MultilineClear(
+    SectionItemBorderedRowUniversalClear(
         onClick = onClick,
         borderBottom = true
     ) {
         NftIcon(
             iconUrl = collection.imageUrl ?: "",
             placeholder = R.drawable.coin_placeholder,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(24.dp)
+            modifier = Modifier.padding(end = 16.dp)
         )
         Column(modifier = Modifier.fillMaxWidth()) {
             MarketCoinFirstRow(collection.name, collection.volume)
@@ -78,6 +76,5 @@ private fun TopNftCollectionView(
                 "${collection.order}"
             )
         }
-
     }
 }

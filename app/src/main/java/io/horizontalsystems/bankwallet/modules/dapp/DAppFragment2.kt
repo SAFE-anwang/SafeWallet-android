@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.coin.overview.Loading
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
@@ -76,7 +76,7 @@ fun DAppFragment2(
             }
         }
     HSSwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
+        refreshing = isRefreshing,
         onRefresh = {
             viewModel.refresh()
         }

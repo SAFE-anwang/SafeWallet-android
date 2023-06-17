@@ -26,8 +26,8 @@ object Safe4Module {
         }
     }
 
-    fun handlerSafe2eth(chainType: ChainType) {
-        val context = App.instance
+    fun handlerSafe2eth(chainType: ChainType, navController: NavController) {
+        val context = navController.context
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         var wsafeWallet: Wallet? = null
@@ -127,8 +127,8 @@ object Safe4Module {
     }
 
 
-    fun handlerLineLock() {
-        val context = App.instance
+    fun handlerLineLock(navController: NavController) {
+        val context = navController.context
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {

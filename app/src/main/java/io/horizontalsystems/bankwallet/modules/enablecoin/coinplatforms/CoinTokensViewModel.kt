@@ -1,10 +1,21 @@
 package io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.copyableTypeInfo
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.protocolInfo
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.supportedTokens
+import io.horizontalsystems.bankwallet.core.supports
+import io.horizontalsystems.bankwallet.core.typeInfo
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultipleDialog
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorViewItem
@@ -15,10 +26,15 @@ import io.reactivex.disposables.Disposable
 
 class CoinTokensViewModel(
     private val service: CoinTokensService,
+    private val accountManager: IAccountManager,
     private val accountType: AccountType?
 ) : ViewModel() {
-    val openSelectorEvent = SingleLiveEvent<BottomSheetSelectorMultipleDialog.Config>()
 
+    var showBottomSheetDialog by mutableStateOf(false)
+        private set
+
+    var config: BottomSheetSelectorMultipleDialog.Config? = null
+        private set
     private var currentRequest: CoinTokensService.Request? = null
     private val disposable: Disposable
 
@@ -32,14 +48,24 @@ class CoinTokensViewModel(
     private fun handle(request: CoinTokensService.Request) {
         currentRequest = request
         val fullCoin = request.fullCoin
-        // 过滤不支持的币
-        val currentTokens = filterSupportTokens(request.currentTokens)
-        val tokens = filterSupportTokens(fullCoin.supportedTokens)
-        val selectedTokenIndexes = if (request.currentTokens.isEmpty()) listOf(0) else currentTokens.map { tokens.indexOf(it) }
+
+        val supportedTokens = fullCoin.supportedTokens.filter { token ->
+            accountManager.activeAccount?.type?.let {
+                token.blockchainType.supports(it)
+            } ?: false
+        }
+        val tokens = filterSupportTokens(supportedTokens)
+
+        val selectedTokenIndexes =
+            if (request.currentTokens.isEmpty())
+                listOf(0)
+            else
+                request.currentTokens.map { tokens.indexOf(it) }
+
         val imageSource = if (fullCoin.coin.uid == "safe-coin") {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
-            ImageSource.Remote(fullCoin.coin.iconUrl, fullCoin.iconPlaceholder)
+            ImageSource.Remote(fullCoin.coin.imageUrl, fullCoin.iconPlaceholder)
         }
 
         val config = BottomSheetSelectorMultipleDialog.Config(
@@ -57,7 +83,12 @@ class CoinTokensViewModel(
                 )
             }
         )
-        openSelectorEvent.postValue(config)
+        showBottomSheetDialog = true
+        this.config = config
+    }
+
+    fun bottomSheetDialogShown() {
+        showBottomSheetDialog = false
     }
 
     fun onSelect(indexes: List<Int>) {

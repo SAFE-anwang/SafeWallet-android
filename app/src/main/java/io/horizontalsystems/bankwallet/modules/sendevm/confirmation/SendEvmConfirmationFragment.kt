@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.databinding.FragmentConfirmationSendEvmBinding
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmViewModel
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
@@ -44,6 +45,7 @@ class SendEvmConfirmationFragment : BaseFragment() {
         )
     }
     private val sendEvmTransactionViewModel by viewModels<SendEvmTransactionViewModel> { vmFactory }
+    private val nonceServiceViewModel by viewModels<SendEvmNonceViewModel> { vmFactory }
     private val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(R.id.sendEvmConfirmationFragment) { vmFactory }
 
     private var snackbarInProcess: CustomSnackbar? = null
@@ -142,8 +144,9 @@ class SendEvmConfirmationFragment : BaseFragment() {
             SendEvmTransactionView(
                 sendEvmTransactionViewModel,
                 feeViewModel,
+                nonceServiceViewModel,
                 findNavController(),
-                R.id.sendWsafeConfirmationFragment,
+                /*R.id.sendWsafeConfirmationFragment,*/
             )
         }
         binding.buttonSendCompose.setContent {

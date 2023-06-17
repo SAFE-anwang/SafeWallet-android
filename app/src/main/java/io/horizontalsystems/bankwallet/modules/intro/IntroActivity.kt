@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +36,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaul
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
+import kotlinx.coroutines.launch
 
 class IntroActivity : BaseActivity() {
 
@@ -69,7 +71,7 @@ class IntroActivity : BaseActivity() {
 private fun IntroScreen(viewModel: IntroViewModel, nightMode: Boolean, closeActivity: () -> Unit) {
     val pagerState = rememberPagerState(initialPage = 0)
     ComposeAppTheme {
-        Box() {
+        Box {
             Image(
                 painter = painterResource(if (nightMode) R.drawable.ic_intro_background else R.drawable.ic_intro_background_light),
                 contentDescription = null,
@@ -102,6 +104,8 @@ private fun StaticContent(
     closeActivity: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -115,36 +119,47 @@ private fun StaticContent(
             modifier = Modifier
                 .height(120.dp)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val title = viewModel.slides[pagerState.currentPage].title
-            Crossfade(title) {
+            Crossfade(targetState = title) { titleRes ->
                 title3_leah(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    text = stringResource(title),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    text = stringResource(titleRes),
                     textAlign = TextAlign.Center
                 )
             }
             Spacer(Modifier.height(16.dp))
             val subtitle = viewModel.slides[pagerState.currentPage].subtitle
-            Crossfade(subtitle) {
+            Crossfade(targetState = subtitle) { subtitleRes ->
                 body_grey(
-                    text = stringResource(subtitle),
-                    modifier = Modifier.padding(horizontal = 48.dp),
+                    text = stringResource(subtitleRes),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 48.dp),
                     textAlign = TextAlign.Center
                 )
             }
         }
         Spacer(Modifier.weight(2f))
         ButtonPrimaryYellow(
-            modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
-            title = stringResource(R.string.Intro_Wallet_Screen1Description),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth(),
+            title = stringResource(R.string.Button_Next),
             onClick = {
-                viewModel.onStartClicked()
-                MainModule.start(context)
-                closeActivity()
-            }
-        )
+                if (pagerState.currentPage + 1 < pagerState.pageCount) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+                } else {
+                    viewModel.onStartClicked()
+                    MainModule.start(context)
+                    closeActivity()
+
+                }
+            })
         Spacer(Modifier.height(60.dp))
     }
 }

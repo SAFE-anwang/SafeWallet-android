@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,7 +33,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.zxing.client.android.Intents
-import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.CompoundBarcodeView
 import com.journeyapps.barcodescanner.ScanOptions
 import io.horizontalsystems.bankwallet.R
@@ -40,6 +40,7 @@ import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Dark
+import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.SteelLight
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
@@ -107,8 +108,6 @@ private fun QRScannerScreen(
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     var showPermissionNeededDialog by remember { mutableStateOf(cameraPermissionState.status != PermissionStatus.Granted) }
 
-    var scanFlag by remember { mutableStateOf(false) }
-
     if (showPermissionNeededDialog) {
         PermissionNeededDialog(
             onOkClick = {
@@ -130,32 +129,7 @@ private fun QRScannerScreen(
             contentAlignment = Alignment.Center
         ) {
             if (cameraPermissionState.status == PermissionStatus.Granted) {
-                AndroidView(
-                    factory = { context ->
-                        CompoundBarcodeView(context).apply {
-                            val capture = CaptureManager(context as Activity, this)
-                            capture.initializeFromIntent(context.intent, null)
-                            this.setStatusText("")
-                            capture.decode()
-                            this.decodeSingle { result ->
-                                if (scanFlag) {
-                                    return@decodeSingle
-                                }
-                                println("scanFlag true")
-                                scanFlag = true
-                                result.text?.let { barCodeOrQr ->
-                                    onScan.invoke(barCodeOrQr)
-                                    //Do something and when you finish this something
-                                    //put scanFlag = false to scan another item
-                                    scanFlag = false
-                                }
-                                //If you don't put this scanFlag = false, it will never work again.
-                                //you can put a delay over 2 seconds and then scanFlag = false to prevent multiple scanning
-                            }
-                            this.resume()
-                        }
-                    },
-                )
+                ScannerView(onScan)
             } else {
                 Spacer(
                     Modifier
@@ -202,6 +176,27 @@ private fun QRScannerScreen(
             }
         }
     }
+}
+
+@Composable
+private fun ScannerView(onScan: (String) -> Unit) {
+    val context = LocalContext.current
+    val barcodeView = remember {
+        CompoundBarcodeView(context).apply {
+            this.initializeFromIntent((context as Activity).intent)
+            this.setStatusText("")
+            this.decodeSingle { result ->
+                result.text?.let { barCodeOrQr ->
+                    onScan.invoke(barCodeOrQr)
+                }
+            }
+        }
+    }
+    AndroidView(factory = { barcodeView })
+    DisposableLifecycleCallbacks(
+        onResume = barcodeView::resume,
+        onPause = barcodeView::pause
+    )
 }
 
 @Composable

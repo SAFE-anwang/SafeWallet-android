@@ -16,6 +16,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceServi
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceService
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
@@ -23,8 +24,6 @@ import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.marketkit.models.TokenQuery
-import io.horizontalsystems.marketkit.models.TokenType
 
 object SendEvmConfirmationModule {
 
@@ -39,6 +38,8 @@ object SendEvmConfirmationModule {
             Chain.Avalanche -> BlockchainType.Avalanche
             Chain.Optimism -> BlockchainType.Optimism
             Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
+            Chain.Gnosis -> BlockchainType.Gnosis
+            Chain.Fantom -> BlockchainType.Fantom
             else -> BlockchainType.Ethereum
         }
 
@@ -56,11 +57,20 @@ object SendEvmConfirmationModule {
             }
         }
         private val feeService by lazy {
-            val gasLimitSurchargePercent = if (sendEvmData.transactionData.input.isEmpty()) 0 else 20
-            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, gasLimitSurchargePercent)
+            val gasDataService = EvmCommonGasDataService.instance(
+                evmKitWrapper.evmKit,
+                evmKitWrapper.blockchainType
+            )
             EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, sendEvmData.transactionData)
         }
-        private val coinServiceFactory by lazy { EvmCoinServiceFactory(feeToken, App.marketKit, App.currencyManager, App.coinManager) }
+        private val coinServiceFactory by lazy {
+            EvmCoinServiceFactory(
+                feeToken,
+                App.marketKit,
+                App.currencyManager,
+                App.coinManager
+            )
+        }
         private val cautionViewItemFactory by lazy { CautionViewItemFactory(coinServiceFactory.baseCoinService) }
         private val nonceService by lazy { SendEvmNonceService(evmKitWrapper.evmKit) }
         private val settingsService by lazy { SendEvmSettingsService(feeService, nonceService) }
@@ -72,10 +82,19 @@ object SendEvmConfirmationModule {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
                 SendEvmTransactionViewModel::class.java -> {
-                    SendEvmTransactionViewModel(sendService, coinServiceFactory, cautionViewItemFactory, App.evmLabelManager, blockchainType = blockchainType) as T
+                    SendEvmTransactionViewModel(
+                        sendService,
+                        coinServiceFactory,
+                        cautionViewItemFactory,
+                        blockchainType = blockchainType,
+                        contactsRepo = App.contactsRepository
+                    ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {
                     EvmFeeCellViewModel(feeService, gasPriceService, coinServiceFactory.baseCoinService) as T
+                }
+                SendEvmNonceViewModel::class.java -> {
+                    SendEvmNonceViewModel(nonceService) as T
                 }
                 else -> throw IllegalArgumentException()
             }

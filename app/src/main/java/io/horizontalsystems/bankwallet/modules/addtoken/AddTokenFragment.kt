@@ -4,20 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -26,12 +21,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.entities.DataState
-import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
+import io.horizontalsystems.bankwallet.modules.addtoken.blockchainselector.AddTokenBlockchainSelectorScreen
+import io.horizontalsystems.bankwallet.modules.addtoken.blockchainselector.BlockchainSelectorResult
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.ui.TitleValueCell
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -39,6 +40,8 @@ import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.Blockchain
+import kotlinx.coroutines.delay
 
 class AddTokenFragment : BaseFragment() {
 
@@ -52,8 +55,39 @@ class AddTokenFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
-                AddTokenScreen(findNavController())
+                AddTokenNavHost(findNavController())
             }
+        }
+    }
+}
+
+private const val AddTokenPage = "add_token"
+private const val BlockchainSelectorPage = "blockchain_selector"
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun AddTokenNavHost(
+    fragmentNavController: NavController,
+    viewModel: AddTokenViewModel = viewModel(factory = AddTokenModule.Factory())
+) {
+    val navController = rememberAnimatedNavController()
+    AnimatedNavHost(
+        navController = navController,
+        startDestination = AddTokenPage,
+    ) {
+        composable(AddTokenPage) {
+            AddTokenScreen(
+                navController = navController,
+                closeScreen = { fragmentNavController.popBackStack() },
+                viewModel = viewModel
+            )
+        }
+        composablePage(BlockchainSelectorPage) {
+            AddTokenBlockchainSelectorScreen(
+                blockchains = viewModel.blockchains,
+                selectedBlockchain = viewModel.selectedBlockchain,
+                navController = navController
+            )
         }
     }
 }
@@ -61,32 +95,46 @@ class AddTokenFragment : BaseFragment() {
 @Composable
 private fun AddTokenScreen(
     navController: NavController,
-    viewModel: AddTokenViewModel = viewModel(factory = AddTokenModule.Factory())
+    closeScreen: () -> Unit,
+    viewModel: AddTokenViewModel,
 ) {
+    navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<List<Blockchain>>(BlockchainSelectorResult, emptyList())
+        ?.collectAsState()?.value?.let { selectedItems ->
+            if (selectedItems.isNotEmpty()) {
+                viewModel.onBlockchainSelect(selectedItems.first())
+                navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set<List<Blockchain>>(BlockchainSelectorResult, emptyList())
+            }
+        }
+
     val uiState = viewModel.uiState
+    val view = LocalView.current
 
-    if (uiState.finished) {
-        HudHelper.showSuccessMessage(
-            LocalView.current, R.string.Hud_Text_Done, SnackbarDuration.LONG
-        )
-        navController.popBackStack()
+    LaunchedEffect(uiState.finished) {
+        if (uiState.finished) {
+            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Done, SnackbarDuration.LONG)
+            delay(300)
+            closeScreen.invoke()
+        }
     }
-
-    val dots = stringResource(R.string.AddToken_Dots)
 
     ComposeAppTheme {
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
                 title = TranslatableString.ResString(R.string.AddToken_Title),
                 navigationIcon = {
-                    HsIconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
-                }
+                    HsBackButton(onClick = closeScreen)
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Button_Add),
+                        onClick = viewModel::onAddClick,
+                        enabled = uiState.addButtonEnabled
+                    )
+                )
             )
             Column(
                 modifier = Modifier
@@ -94,6 +142,38 @@ private fun AddTokenScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.height(12.dp))
+
+                CellUniversalLawrenceSection(
+                    listOf {
+                        RowUniversal(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            onClick = { navController.navigate(BlockchainSelectorPage) }
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_blocks_24),
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            body_leah(
+                                text = stringResource(R.string.AddToken_Blockchain),
+                                modifier = Modifier.weight(1f)
+                            )
+                            subhead1_grey(
+                                text = viewModel.selectedBlockchain.name,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_down_arrow_20),
+                                contentDescription = null,
+                                tint = ComposeAppTheme.colors.grey
+                            )
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
 
                 FormsInput(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -104,90 +184,33 @@ private fun AddTokenScreen(
                 ) {
                     viewModel.onEnterText(it)
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    TitleValueCell(
-                        R.string.AddToken_CoinName,
-                        uiState.coinName ?: dots
-                    )
-                    TitleValueCell(
-                        R.string.AddToken_Symbol,
-                        uiState.coinCode ?: dots
-                    )
-                    TitleValueCell(
-                        R.string.AddToken_Decimals,
-                        uiState.decimals?.toString() ?: dots
-                    )
-                }
 
-                val tokens = uiState.tokens
+                Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                AnimatedVisibility(tokens.isNotEmpty()) {
-                    Column {
-                        HeaderText(text = stringResource(id = R.string.AddToken_CoinTypes))
-                        CellSingleLineLawrenceSection(tokens) { tokenInfoUiState ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(painter = painterResource(id = tokenInfoUiState.image), contentDescription = null)
-                                Spacer(modifier = Modifier.width(16.dp))
-                                D2(text = tokenInfoUiState.title)
-                                Spacer(modifier = Modifier.weight(1f))
-                                HsSwitch(
-                                    checked = tokenInfoUiState.checked,
-                                    enabled = tokenInfoUiState.enabled,
-                                    onCheckedChange = {
-                                        viewModel.onToggleToken(tokenInfoUiState)
-                                    }
+                uiState.tokenInfo?.let { tokenInfo ->
+                    CellUniversalLawrenceSection(
+                        listOf(
+                            {
+                                TitleValueCell(
+                                    stringResource(R.string.AddToken_CoinName),
+                                    tokenInfo.token.coin.name
+                                )
+                            }, {
+                                TitleValueCell(
+                                    stringResource(R.string.AddToken_CoinCode),
+                                    tokenInfo.token.coin.code
+                                )
+                            }, {
+                                TitleValueCell(
+                                    stringResource(R.string.AddToken_Decimals),
+                                    tokenInfo.token.decimals.toString()
                                 )
                             }
-                        }
-                    }
+                        )
+                    )
                 }
             }
-
-            ButtonsGroupWithShade {
-                ButtonPrimaryYellow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
-                    title = stringResource(R.string.Button_Add),
-                    onClick = { viewModel.onAddClick() },
-                    enabled = uiState.addEnabled
-                )
-            }
         }
-    }
-}
-
-@Composable
-private fun TitleValueCell(@StringRes title: Int, value: String, showTopBorder: Boolean = true) {
-    if (showTopBorder) {
-        Divider(
-            thickness = 1.dp,
-            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-        )
-    }
-    Row(
-        modifier = Modifier
-            .background(ComposeAppTheme.colors.lawrence)
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        D1(stringResource(title))
-        C2(value)
     }
 }
 

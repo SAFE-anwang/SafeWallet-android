@@ -68,8 +68,8 @@ object OneInchConfirmationModule {
                         sendService,
                         coinServiceFactory,
                         cautionViewItemFactory,
-                        App.evmLabelManager,
-                        blockchainType = blockchainType
+                        blockchainType = blockchainType,
+                        contactsRepo = App.contactsRepository
                     ) as T
                 }
 

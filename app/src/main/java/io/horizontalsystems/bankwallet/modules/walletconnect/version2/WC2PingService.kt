@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.walletconnect.version2
 
-import com.walletconnect.walletconnectv2.client.WalletConnect
-import com.walletconnect.walletconnectv2.client.WalletConnectClient
+/*import com.walletconnect.walletconnectv2.client.WalletConnect
+import com.walletconnect.walletconnectv2.client.WalletConnectClient*/
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -26,7 +26,7 @@ class WC2PingService {
 
     fun ping(topic: String) {
         state = State.Connecting
-        val ping = WalletConnect.Params.Ping(topic)
+        /*val ping = WalletConnect.Params.Ping(topic)
 
         WalletConnectClient.ping(ping, object : WalletConnect.Listeners.SessionPing {
             override fun onSuccess(topic: String) {
@@ -36,7 +36,7 @@ class WC2PingService {
             override fun onError(error: Throwable) {
                 state = State.Disconnected(error)
             }
-        })
+        })*/
     }
 
     fun receiveResponse() {

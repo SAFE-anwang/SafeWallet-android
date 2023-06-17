@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559GasPriceSer
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceService
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceService
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
@@ -39,11 +40,21 @@ object SendEvmConfirmationModule {
             Chain.Avalanche -> BlockchainType.Avalanche
             Chain.Optimism -> BlockchainType.Optimism
             Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
+            Chain.Gnosis -> BlockchainType.Gnosis
+            Chain.Fantom -> BlockchainType.Fantom
             else -> BlockchainType.Ethereum
         }
 
-        private val feeCoin by lazy {
+        private val feeToken by lazy {
             App.evmBlockchainManager.getBaseToken(blockchainType)!!
+        }
+
+        private val feeCoin by lazy {
+            when (evmKitWrapper.evmKit.chain) {
+                Chain.BinanceSmartChain -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
+                Chain.Polygon -> App.marketKit.token(TokenQuery(BlockchainType.Polygon, TokenType.Native))!!
+                else -> App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native))!!
+            }
         }
         private val gasPriceService: IEvmGasPriceService by lazy {
             val evmKit = evmKitWrapper.evmKit
@@ -56,30 +67,46 @@ object SendEvmConfirmationModule {
             }
         }
         private val feeService by lazy {
-            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, 20)
+            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType)
             EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, sendEvmData.transactionData)
         }
-        private val coinServiceFactory by lazy { EvmCoinServiceFactory(feeCoin, App.marketKit, App.currencyManager, App.coinManager)  }
+        private val coinServiceFactory by lazy {
+            EvmCoinServiceFactory(
+                feeToken,
+                App.marketKit,
+                App.currencyManager,
+                App.coinManager
+            )
+        }
         private val cautionViewItemFactory by lazy {
             coinServiceFactory.let {
                 CautionViewItemFactory(it.baseCoinService)
             }
         }
-
         private val nonceService by lazy { SendEvmNonceService(evmKitWrapper.evmKit) }
         private val settingsService by lazy { SendEvmSettingsService(feeService, nonceService) }
         private val sendService by lazy {
             SendEvmTransactionService(sendEvmData, evmKitWrapper, settingsService, App.evmLabelManager)
         }
 
+
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
                 SendEvmTransactionViewModel::class.java -> {
-                    SendEvmTransactionViewModel(sendService, coinServiceFactory, cautionViewItemFactory, App.evmLabelManager, blockchainType = blockchainType) as T
+                    SendEvmTransactionViewModel(
+                        sendService,
+                        coinServiceFactory,
+                        cautionViewItemFactory,
+                        blockchainType = blockchainType,
+                        contactsRepo = App.contactsRepository
+                    ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {
                     EvmFeeCellViewModel(feeService, gasPriceService, coinServiceFactory.baseCoinService) as T
+                }
+                SendEvmNonceViewModel::class.java -> {
+                    SendEvmNonceViewModel(nonceService) as T
                 }
                 else -> throw IllegalArgumentException()
             }

@@ -47,7 +47,6 @@ fun HsIconButton(
     }
 }
 
-
 @Composable
 fun HsBackButton(onClick: () -> Unit) {
     HsIconButton(onClick = onClick) {

@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,11 +29,9 @@ import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCell
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeSettingsFragment
-import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
@@ -45,6 +40,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.NftIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoAddressCell
+import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoContactCell
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
@@ -57,95 +53,6 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
-
-
-@Composable
-fun SendEvmTransactionView(
-    transactionViewModel: SendEvmTransactionViewModel,
-    feeCellViewModel: EvmFeeCellViewModel,
-    navController: NavController,
-    parentNavGraphId: Int,
-    description: String? = null
-) {
-    ComposeAppTheme {
-
-        val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
-        val fee by feeCellViewModel.feeLiveData.observeAsState(null)
-        val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
-        val loading by feeCellViewModel.loadingLiveData.observeAsState(false)
-
-        Column {
-            description?.let {
-                subhead2_grey(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                    text = it
-                )
-            }
-            items.forEach { sectionViewItem ->
-                SectionView(sectionViewItem.viewItems)
-            }
-
-            Spacer(Modifier.height(12.dp))
-            FeeCell(
-                title = stringResource(R.string.FeeSettings_NetworkFee),
-                info = stringResource(R.string.FeeSettings_NetworkFee_Info),
-                value = fee,
-                viewState = viewState,
-                navController = navController
-            )
-            /*EvmFeeCell(
-                title = stringResource(R.string.FeeSettings_Fee),
-                value = fee,
-                loading = loading,
-                highlightEditButton = feeCellViewModel.highlightEditButton,
-                viewState = viewState
-            ) {
-                navController.slideFromBottom(
-                    resId = R.id.sendEvmFeeSettingsFragment,
-                    args = EvmFeeSettingsFragment.prepareParams(parentNavGraphId)
-                )
-            }*/
-
-            val cautions by transactionViewModel.cautionsLiveData.observeAsState()
-            cautions?.let {
-                Cautions(it)
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionView(viewItems: List<ViewItem>) {
-    Spacer(Modifier.height(12.dp))
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(ComposeAppTheme.colors.lawrence)
-    ) {
-        viewItems.forEachIndexed { index, item ->
-            if (index != 0) {
-                Divider(
-                    thickness = 1.dp,
-                    color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                )
-            }
-            when (item) {
-                is ViewItem.Subhead -> Subhead(item)
-                is ViewItem.Value -> TitleValue(item)
-                is ViewItem.ValueMulti -> TitleValueMulti(item)
-                is ViewItem.AmountMulti -> AmountMulti(item)
-                is ViewItem.Amount -> Amount(item)
-                is ViewItem.NftAmount -> NftAmount(item)
-                is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.value, item.showAdd, item.blockchainType)
-                is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
-                is ViewItem.TokenItem -> Token(item)
-            }
-        }
-    }
-
-}
 
 @Composable
 fun SendEvmTransactionView(
@@ -175,8 +82,10 @@ fun SendEvmTransactionView(
             NonceView(nonceViewModel)
 
             Spacer(Modifier.height(16.dp))
-            CellUniversalLawrenceSection(
-                listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+//                listOf {
                     FeeCell(
                         title = stringResource(R.string.FeeSettings_NetworkFee),
                         info = stringResource(R.string.FeeSettings_NetworkFee_Info),
@@ -185,7 +94,7 @@ fun SendEvmTransactionView(
                         navController = navController
                     )
                 }
-            )
+//            )
 
             val cautions by transactionViewModel.cautionsLiveData.observeAsState()
             cautions?.let {
@@ -234,7 +143,7 @@ private fun SectionView(viewItems: List<ViewItem>, navController: NavController)
             is ViewItem.Amount -> Amount(item)
             is ViewItem.NftAmount -> NftAmount(item)
             is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.value, item.showAdd, item.blockchainType, navController)
-//            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
+            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
             is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
             is ViewItem.TokenItem -> Token(item)
         }

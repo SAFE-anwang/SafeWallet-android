@@ -22,11 +22,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:gravity="center_vertical"
                 android:imeOptions="actionNext"
                 android:inputType="numberDecimal"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:textSize="15sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -38,11 +38,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:gravity="center_vertical"
                 android:imeOptions="actionNext"
                 android:inputType="numberSigned"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:textSize="15sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -54,11 +54,11 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:gravity="center_vertical"
                 android:imeOptions="actionDone"
                 android:inputType="numberSigned"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:textSize="15sp" />
         </com.google.android.material.textfield.TextInputLayout>
 

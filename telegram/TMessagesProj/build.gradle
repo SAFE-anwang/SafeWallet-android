@@ -64,10 +64,6 @@ android {
         disable 'BlockedPrivateApi'
     }
 
-    dexOptions {
-        jumboMode = true
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -98,7 +94,6 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
             buildConfigField "String", "appId", '\"com.anwang.safewallet.dev\"'
         }
 
@@ -159,8 +154,8 @@ android {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
             buildConfigField "String", "appId", '\"com.anwang.safewallet\"'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
     }
 

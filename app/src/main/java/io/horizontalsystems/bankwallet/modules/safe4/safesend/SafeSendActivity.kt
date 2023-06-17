@@ -14,16 +14,20 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandler
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendInteractor
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.address.InputAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -32,6 +36,8 @@ import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
 import io.horizontalsystems.bankwallet.modules.send.SendRouter
 import io.horizontalsystems.bankwallet.modules.send.SendView
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinPluginService
+import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeHandler
+import io.horizontalsystems.bankwallet.modules.send.safe.SendSafeInteractor
 import io.horizontalsystems.bankwallet.modules.send.submodules.SendSubmoduleFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountFragment
 import io.horizontalsystems.bankwallet.modules.send.submodules.confirmation.ConfirmationFragment
@@ -60,9 +66,9 @@ class SafeSendActivity : BaseActivity() {
         _binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
+//
         overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
-
+//
         val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
 
         setToolbar(wallet)
@@ -108,6 +114,7 @@ class SafeSendActivity : BaseActivity() {
 
     private fun subscribeToRouterEvents(router: SendRouter) {
         router.closeWithSuccess.observe(this, Observer {
+            com.google.android.exoplayer2.util.Log.e("longwen", "closeWithSuccess")
             HudHelper.showSuccessMessage(
                 findViewById(android.R.id.content),
                 R.string.Send_Success,

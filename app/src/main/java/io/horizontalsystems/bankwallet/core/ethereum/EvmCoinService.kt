@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.ethereum
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
@@ -23,7 +24,6 @@ class EvmCoinService(
                 CurrencyValue(baseCurrency, it.value)
             }
         }
-
 
     fun amountData(value: BigInteger, approximate: Boolean = false): SendModule.AmountData {
         val decimalValue = BigDecimal(value, token.decimals)

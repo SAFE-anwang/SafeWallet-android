@@ -36,8 +36,8 @@ class EvmSyncSourceManager(
             BlockchainType.Avalanche -> TransactionSource.snowtrace(appConfigProvider.snowtraceApiKey)
             BlockchainType.Optimism -> TransactionSource.optimisticEtherscan(appConfigProvider.optimisticEtherscanApiKey)
             BlockchainType.ArbitrumOne -> TransactionSource.arbiscan(appConfigProvider.arbiscanApiKey)
-//            BlockchainType.Gnosis -> TransactionSource.gnosis(appConfigProvider.gnosisscanApiKey)
-//            BlockchainType.Fantom -> TransactionSource.fantom(appConfigProvider.ftmscanApiKey)
+            BlockchainType.Gnosis -> TransactionSource.gnosis(appConfigProvider.gnosisscanApiKey)
+            BlockchainType.Fantom -> TransactionSource.fantom(appConfigProvider.ftmscanApiKey)
             else -> throw Exception("Non-supported EVM blockchain")
         }
     }
@@ -152,7 +152,7 @@ class EvmSyncSourceManager(
                     defaultTransactionSource(type)
                 )
             )
-            /*BlockchainType.Gnosis -> listOf(
+            BlockchainType.Gnosis -> listOf(
                 evmSyncSource(
                     type,
                     "Gnosis Chain",
@@ -179,7 +179,7 @@ class EvmSyncSourceManager(
                     RpcSource.Http(listOf(URL("https://rpc.ankr.com/fantom")), null),
                     defaultTransactionSource(type)
                 )
-            )*/
+            )
             else -> listOf()
         }
     }

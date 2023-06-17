@@ -206,6 +206,7 @@ class SendWsafeFragment : BaseFragment() {
                     HSAddressInput(
                         initial = Address(receiveAdapter.receiveAddress),
                         tokenQuery = safeWallet.token.tokenQuery,
+                        navController = findNavController(),
                         coinCode = safeWallet.coin.code,
                         error = viewModel.error,
                         onValueChange = {

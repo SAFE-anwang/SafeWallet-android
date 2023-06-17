@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -74,14 +75,26 @@ private fun BtcBlockchainSettingsScreen(
             AppBar(
                 TranslatableString.PlainString(viewModel.title),
                 navigationIcon = {
-                    HsIconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = viewModel.blockchainIconUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 14.dp)
+                            .size(24.dp)
+                    )
                 },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Button_Close),
+                        icon = R.drawable.ic_close,
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                )
             )
 
             Column(
@@ -99,10 +112,6 @@ private fun BtcBlockchainSettingsScreen(
 
                 Spacer(Modifier.height(24.dp))
                 RestoreSourceSettings(viewModel, navController)
-
-                Spacer(Modifier.height(24.dp))
-                TransactionDataSortSettings(viewModel, navController)
-
                 Spacer(Modifier.height(32.dp))
             }
 
@@ -137,25 +146,10 @@ private fun RestoreSourceSettings(
 }
 
 @Composable
-private fun TransactionDataSortSettings(
-    viewModel: BtcBlockchainSettingsViewModel,
-    navController: NavController
-) {
-    BlockchainSettingSection(
-        restoreSources = viewModel.transactionSortModes,
-        infoScreenId = R.id.btcBlockchainTransactionInputOutputsInfoFragment,
-        settingTitleTextRes = R.string.BtcBlockchainSettings_TransactionInputsOutputs,
-        settingDescriptionTextRes = R.string.BtcBlockchainSettings_TransactionInputsOutputsSettingsDescription,
-        onItemClick = { viewItem -> viewModel.onSelectTransactionMode(viewItem) },
-        navController = navController
-    )
-}
-
-@Composable
 private fun BlockchainSettingSection(
     restoreSources: List<BtcBlockchainSettingsModule.ViewItem>,
     infoScreenId: Int,
-    settingTitleTextRes : Int,
+    settingTitleTextRes: Int,
     settingDescriptionTextRes: Int,
     onItemClick: (BtcBlockchainSettingsModule.ViewItem) -> Unit,
     navController: NavController
@@ -165,8 +159,8 @@ private fun BlockchainSettingSection(
         onInfoClick = {
             navController.slideFromBottom(infoScreenId)
         })
-    CellMultilineLawrenceSection(restoreSources) { item ->
-        SettingCell(item.title, item.subtitle, item.selected) {
+    CellUniversalLawrenceSection(restoreSources) { item ->
+        BlockchainSettingCell(item.title, item.subtitle, item.selected) {
             onItemClick(item)
         }
     }
@@ -176,17 +170,14 @@ private fun BlockchainSettingSection(
 }
 
 @Composable
-private fun SettingCell(
+fun BlockchainSettingCell(
     title: String,
     subtitle: String,
     checked: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(start = 16.dp).weight(1f)) {
             body_leah(

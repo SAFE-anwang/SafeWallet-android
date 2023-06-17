@@ -7,8 +7,6 @@ import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
-import io.horizontalsystems.bankwallet.modules.evmfee.IEvmFeeService
-import io.horizontalsystems.bankwallet.modules.evmfee.Transaction
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
@@ -18,9 +16,9 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigInteger
 
 interface ISendEvmTransactionService {
@@ -35,6 +33,7 @@ interface ISendEvmTransactionService {
     val ownAddress: Address
 
     val settingsService: SendEvmSettingsService
+
     suspend fun start()
     fun send(logger: AppLogger)
     fun methodName(input: ByteArray): String?
@@ -75,8 +74,8 @@ class SendEvmTransactionService(
 
     override val ownAddress: Address = evmKit.receiveAddress
 
-    override suspend fun start() {
-        GlobalScope.launch {
+    override suspend fun start() = withContext(Dispatchers.IO) {
+        launch {
             settingsService.stateFlow
                 .collect {
                     sync(it)
@@ -85,7 +84,6 @@ class SendEvmTransactionService(
 
         settingsService.start()
     }
-
 
     private fun sync(settingsState: DataState<SendEvmSettingsService.Transaction>) {
         when (settingsState) {
@@ -108,28 +106,6 @@ class SendEvmTransactionService(
             }
         }
     }
-
-    /*private fun sync(transactionStatus: DataState<Transaction>) {
-        when (transactionStatus) {
-            is DataState.Error -> {
-                state = State.NotReady(errors = listOf(transactionStatus.error))
-                syncTxDataState()
-            }
-            DataState.Loading -> {
-                state = State.NotReady()
-            }
-            is DataState.Success -> {
-                syncTxDataState(transactionStatus.data)
-
-                val warnings = transactionStatus.data.warnings + sendEvmData.warnings
-                state = if (transactionStatus.data.errors.isNotEmpty()) {
-                    State.NotReady(warnings, transactionStatus.data.errors)
-                } else {
-                    State.Ready(warnings)
-                }
-            }
-        }
-    }*/
 
     override fun send(logger: AppLogger) {
         if (state !is State.Ready) {

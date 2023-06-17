@@ -5,7 +5,6 @@ import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.*
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -31,7 +30,7 @@ class SendEvmSettingsService(
                 sync()
             }
         }
-        GlobalScope.launch {
+        launch {
             nonceService.stateFlow.collect {
                 sync()
             }

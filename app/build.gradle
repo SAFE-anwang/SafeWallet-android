@@ -10,8 +10,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 69
-        versionName "0.28.0.1.0330"
+        versionCode 78
+        versionName "0.32.0.1.0616"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -46,7 +46,6 @@ android {
             debuggable true
             minifyEnabled false
             applicationIdSuffix ".dev"
-            buildConfigField "boolean", "testMode", "false"
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAJgeNwEAAAAA6xVpR6xLKTrxIA3kkSyRA92LDpA%3Da6auybDwcymUyh2BcS6zZwicUdxGtrzJC0qvOSdRwKLeqBGhwB"
             resValue "string", "cryptoCompareApiKey", "2b08fe1dba559ca6acf5e1897b6de8749cee0ace6052d7aa7fccf6aa9f1b3255"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
@@ -62,6 +61,8 @@ android {
             resValue "string", "snowtraceApiKey", "DD8VX77TQ73KSNDFGBQQ31J7K5B51CXXPH"
             resValue "string", "optimisticEtherscanApiKey", "A4E6DAX46FFFW4CGZP6IMZ64ADI3TIRBTS"
             resValue "string", "arbiscanApiKey", "Z43JN5434XVNA5D73UGPWKF26G5D9MGDPZ"
+            resValue "string", "gnosisscanApiKey", "V2J8YU15ZX9S1W3GTUV2HXM11TP2TUBRW4"
+            resValue "string", "ftmscanApiKey", "57YQ2GIRAZNV6M5HIJYYG3XQGGNIPVV8MF"
             resValue "string", "defiyieldProviderApiKey", "b66ea1f5-f645-4e15-905a-65941580107d"
             resValue "string", "is_release", "false"
             resValue "string", "guidesUrl", "https://raw.githubusercontent.com/horizontalsystems/blockchain-crypto-guides/develop/index.json"
@@ -71,14 +72,9 @@ android {
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
-            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
-        }
-
-        apptestnet {
-            initWith debug
-            applicationIdSuffix ".dev.testnet"
-            buildConfigField "boolean", "testMode", "true"
-            matchingFallbacks = ['debug']
+            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
+            resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         appcenterdebug {
@@ -92,7 +88,6 @@ android {
         release {
             debuggable false
             minifyEnabled false
-            buildConfigField "boolean", "testMode", "false"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAJgeNwEAAAAA6xVpR6xLKTrxIA3kkSyRA92LDpA%3Da6auybDwcymUyh2BcS6zZwicUdxGtrzJC0qvOSdRwKLeqBGhwB"
             resValue "string", "cryptoCompareApiKey", ""
@@ -109,15 +104,19 @@ android {
             resValue "string", "snowtraceApiKey", "47IXTRAAFT1E1J4RNSPZPNB5EWUIQR16FG"
             resValue "string", "optimisticEtherscanApiKey", "745EUI4781T147M9QJRNS5G3Q5NFF2SJXP"
             resValue "string", "arbiscanApiKey", "4QWW522BV13BJCZMXH1JIB2ESJ7MZTSJYI"
+            resValue "string", "gnosisscanApiKey", "KEXFAQKDUENZ5U9CW3ZKYJEJ84ZIHH9QTY"
+            resValue "string", "ftmscanApiKey", "JAWRPW27KEMVXMJJ9UKY63CVPH3X5V9SMP"
             resValue "string", "defiyieldProviderApiKey", "b66ea1f5-f645-4e15-905a-65941580107d"
             resValue "string", "is_release", "true"
             resValue "string", "guidesUrl", "https://raw.githubusercontent.com/horizontalsystems/blockchain-crypto-guides/v1.2/index.json"
-            resValue "string", "faqUrl", "https://raw.githubusercontent.com/horizontalsystems/Unstoppable-Wallet-Website/v1.2/src/faq.json"
+            resValue "string", "faqUrl", "https://raw.githubusercontent.com/horizontalsystems/Unstoppable-Wallet-Website/v1.3/src/faq.json"
             resValue "string", "coinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/v0.21/coins.json"
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/v0.21/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
+            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
+            resValue "string", "trongridApiKey", "cec10562-8f2f-44a8-a0f6-245842bc6758"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -132,28 +131,47 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
         resources {
             pickFirsts += ['META-INF/atomicfu.kotlin_module']
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE.md', 'META-INF/NOTICE.md']
         }
         exclude 'google/protobuf/*.proto'
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
         freeCompilerArgs += [
                 "-Xjvm-default=all",
         ]
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.2'
+        kotlinCompilerExtensionVersion '1.4.0'
     }
     namespace 'io.horizontalsystems.bankwallet'
+    lint {
+        disable 'LogNotTimber'
+    }
+
+    configurations.all { c ->
+        c.resolutionStrategy.dependencySubstitution {
+            substitute module('org.bouncycastle:bcprov-jdk15to18:1.68') using module('org.bouncycastle:bcprov-jdk15on:1.65')
+            substitute module('com.google.protobuf:protobuf-java:3.6.1') using module('com.google.protobuf:protobuf-javalite:3.21.1')
+            substitute module('net.jcip:jcip-annotations:1.0') using module('com.github.stephenc.jcip:jcip-annotations:1.0-1')
+
+            substitute module('com.tinder.scarlet:scarlet:0.1.12') using module('com.github.WalletConnect.Scarlet:scarlet:1.0.0')
+            substitute module('com.tinder.scarlet:websocket-okhttp:0.1.12') using module('com.github.WalletConnect.Scarlet:websocket-okhttp:1.0.0')
+            substitute module('com.tinder.scarlet:stream-adapter-rxjava2:0.1.12') using module('com.github.WalletConnect.Scarlet:stream-adapter-rxjava2:1.0.0')
+            substitute module('com.tinder.scarlet:message-adapter-gson:0.1.12') using module('com.github.WalletConnect.Scarlet:message-adapter-gson:1.0.0')
+            substitute module('com.tinder.scarlet:lifecycle-android:0.1.12') using module('com.github.WalletConnect.Scarlet:lifecycle-android:1.0.0')
+        }
+    }
+
 }
 
 dependencies {
@@ -179,10 +197,10 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.0"
 
     //AppWidgets
-    implementation 'androidx.glance:glance-appwidget:1.0.0-alpha04'
+    implementation 'androidx.glance:glance-appwidget:1.0.0-alpha05'
 
     // Room
-    def room_version = '2.4.3'
+    def room_version = '2.5.1'
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
@@ -192,7 +210,7 @@ dependencies {
     // optional - ReactiveStreams support for LiveData
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
 
     implementation "com.google.android.material:material:$material_version"
 
@@ -218,35 +236,47 @@ dependencies {
     implementation 'me.relex:circleindicator:2.1.6'
 
     //Custom tabs, chrome
-    implementation "androidx.browser:browser:1.4.0"
+    implementation "androidx.browser:browser:1.5.0"
 
     // Navigation component
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_ktx_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_ktx_version"
 
+    //Compose Navigation
+    implementation "androidx.navigation:navigation-compose:$navigation_ktx_version"
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+
     api 'com.journeyapps:zxing-android-embedded:4.3.0'
 
     // WorkManager Kotlin
-    def work_version = "2.7.1"
+    def work_version = "2.8.1"
     implementation "androidx.work:work-runtime-ktx:$work_version"
     // WorkManager RxJava2 support
     implementation "androidx.work:work-rxjava2:$work_version"
 
-    def leakCanary = 'com.squareup.leakcanary:leakcanary-android:2.8'
+    def leakCanary = 'com.squareup.leakcanary:leakcanary-android:2.10'
     appcenterdebugImplementation leakCanary
-    apptestnetImplementation leakCanary
     debugImplementation leakCanary
 
     // Wallet kits
-//    implementation 'com.github.horizontalsystems:bitcoin-kit-android:eb33b43'
+//    implementation 'com.github.horizontalsystems:bitcoin-kit-android:098bed9'
+
     implementation project(':bitcoin-kit-android:bitcoincore')
     implementation project(':bitcoin-kit-android:bitcoinkit')
     implementation project(':bitcoin-kit-android:dashkit')
     implementation project(':bitcoin-kit-android:bitcoincashkit')
     implementation project(':bitcoin-kit-android:litecoinkit')
     implementation project(':bitcoin-kit-android:safekit')
+    implementation project(':bitcoin-kit-android:ecashkit')
 
-//    implementation 'com.github.horizontalsystems:ethereum-kit-android:fe01dfa'
+
+
+    implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
+    implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
+    implementation 'com.github.horizontalsystems:solana-kit-android:97dcdba'
+    implementation 'com.github.horizontalsystems:tron-kit-android:943f348'
+
+//    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
     implementation project(':ethereum-kit-android:ethereumkit')
     implementation project(':ethereum-kit-android:erc20kit')
     implementation project(':ethereum-kit-android:uniswapkit')
@@ -254,30 +284,28 @@ dependencies {
     implementation project(':ethereum-kit-android:nftkit')
     implementation project(':ethereum-kit-android:wsafekit')
 
-
-    implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:501cf1e'
-    implementation 'com.github.horizontalsystems:binance-chain-kit-android:fa4df60'
-
-//    implementation 'com.github.horizontalsystems:market-kit-android:62afe190'
+//    implementation 'com.github.horizontalsystems:market-kit-android:6d48ad0'
     implementation project(':market-kit-android:marketkit')
 
     // Zcash SDK
-    implementation "cash.z.ecc.android:zcash-android-sdk:1.9.0-beta03"
+    implementation "cash.z.ecc.android:zcash-android-sdk:1.14.0-beta01"
 
     // WalletConnect
     implementation 'com.github.horizontalsystems:wallet-connect-kotlin:b9a50b8'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     // WalletConnect V2
-    implementation "com.github.WalletConnect:WalletConnectKotlinV2:1.0.0-beta04"
+    implementation(platform("com.walletconnect:android-bom:1.3.0"))
+    implementation 'com.walletconnect:sign'
+    implementation 'com.walletconnect:android-core'
 
     // Unstoppable Domains
-    implementation 'com.unstoppabledomains:resolution:5.0.0'
+    implementation 'com.github.unstoppabledomains:resolution-java:v6.2.2'
 
     // Ethereum Name Service
     implementation "org.web3j:core:4.9.0"
 
     // in case native file tor.so not loading, do full gradle clean and build.
-    implementation 'com.github.horizontalsystems:tor-kit-android:6c775c1'
+    implementation 'com.github.horizontalsystems:tor-kit-android:13750c4'
     implementation 'com.twitter.twittertext:twitter-text:3.1.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
@@ -287,43 +315,45 @@ dependencies {
 
     implementation project(':core')
     implementation project(':components:views')
-    implementation project(':components:snackbar')
+//    implementation project(':components:snackbar')
     implementation project(':components:icons')
     implementation project(':components:chartview')
     implementation project(':components:seekbar')
 
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.6.0'
+    implementation 'androidx.activity:activity-compose:1.6.1'
     // Compose Material Design
-    implementation 'androidx.compose.material:material:1.2.1'
+    implementation 'androidx.compose.material:material:1.3.1'
     // Animations
-    implementation 'androidx.compose.animation:animation:1.2.1'
+    implementation "androidx.compose.animation:animation:$compose_version"
     // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.2.1'
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
     // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
-    implementation "androidx.compose.runtime:runtime-livedata:1.2.1"
-    implementation "io.coil-kt:coil-compose:2.1.0"
-    implementation "io.coil-kt:coil-svg:2.1.0"
-    implementation("io.coil-kt:coil-gif:2.1.0")
+    implementation "androidx.compose.runtime:runtime-livedata:1.4.0"
+
+    def coil_version = "2.2.2"
+    implementation "io.coil-kt:coil-compose:$coil_version"
+    implementation "io.coil-kt:coil-svg:$coil_version"
+    implementation("io.coil-kt:coil-gif:$coil_version")
 
     // When using a AppCompat theme
-    implementation "com.google.accompanist:accompanist-appcompat-theme:0.25.0"
-    implementation "com.google.accompanist:accompanist-pager:0.25.0"
-    implementation "com.google.accompanist:accompanist-flowlayout:0.25.0"
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.25.0"
-    implementation "com.google.accompanist:accompanist-permissions:0.25.0"
+    implementation "com.google.accompanist:accompanist-appcompat-theme:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-flowlayout:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.2.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.4.0'
 
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // optional - Test helpers for LiveData
     testImplementation "junit:junit:$junit_version"
-    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
     testImplementation "org.mockito:mockito-core:3.3.3"
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.7'
@@ -349,6 +379,9 @@ dependencies {
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy {
+        force 'org.bitcoinj:bitcoinj-core:0.14.3'
+    }
 
     exclude group: "com.google.protobuf", module: "protobuf-java"
 }

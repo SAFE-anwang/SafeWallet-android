@@ -121,7 +121,7 @@ fun TransactionInfoSection(
     navController: NavController,
     getRawTransaction: () -> String?
 ) {
-    CellSingleLineLawrenceSection(
+    CellUniversalLawrenceSection(
         buildList {
             for (viewItem in section) {
                 when (viewItem) {
@@ -132,7 +132,14 @@ fun TransactionInfoSection(
                     }
                     is TransactionInfoViewItem.Amount -> {
                         add {
-                            TransactionAmountCell(fiatAmount = viewItem.fiatValue, coinAmount = viewItem.coinValue, coinIconUrl = viewItem.coinIconUrl, coinIconPlaceholder = viewItem.coinIconPlaceholder)
+                            TransactionAmountCell(
+                                fiatAmount = viewItem.fiatValue,
+                                coinAmount = viewItem.coinValue,
+                                coinIconUrl = viewItem.coinIconUrl,
+                                coinIconPlaceholder = viewItem.coinIconPlaceholder,
+                                coinUid = viewItem.coinUid,
+                                navController = navController
+                            )
                         }
                     }
                     is TransactionInfoViewItem.NftAmount -> {
@@ -152,7 +159,13 @@ fun TransactionInfoSection(
                                 value = viewItem.value,
                                 showAdd = viewItem.showAdd,
                                 blockchainType = viewItem.blockchainType,
-                                navController = navController)
+                                navController = navController
+                            )
+                        }
+                    }
+                    is TransactionInfoViewItem.ContactItem -> {
+                        add {
+                            TransactionInfoContactCell(viewItem.contact.name)
                         }
                     }
                     is TransactionInfoViewItem.Status -> {
@@ -162,7 +175,10 @@ fun TransactionInfoSection(
                     }
                     is TransactionInfoViewItem.SpeedUpCancel -> {
                         add {
-                            TransactionInfoSpeedUpCancelCell(transactionHash = viewItem.transactionHash, navController = navController)
+                            TransactionInfoSpeedUpCell(transactionHash = viewItem.transactionHash, navController = navController)
+                        }
+                        add {
+                            TransactionInfoCancelCell(transactionHash = viewItem.transactionHash, navController = navController)
                         }
                     }
                     is TransactionInfoViewItem.TransactionHash -> {

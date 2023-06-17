@@ -23,7 +23,6 @@ import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.AmountTypeItem
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ExactType
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ISwapProvider
-import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderViewItem
@@ -46,6 +45,8 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.uniswapkit.Extensions
+import io.horizontalsystems.uniswapkit.TradeError
 import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
 import io.reactivex.disposables.CompositeDisposable
@@ -287,6 +288,7 @@ class SwapMainViewModel(
                             amountFrom = swapData.data.amountIn
                             fromTokenService.onChangeAmount(swapData.data.amountIn.toString(), true)
                         }
+                        checkPriceImpact(swapData)
                     }
                 }
             }
@@ -333,6 +335,22 @@ class SwapMainViewModel(
 
         syncUiState()
         syncButtonsState()
+
+        if (dex.provider.id == "safe") {
+            val isTradeNotFound = errors.find { it is TradeError.TradeNotFound }
+            if (isTradeNotFound != null) {
+                autoSetProvider1Inch()
+            }
+        }
+    }
+
+    private fun checkPriceImpact(trade: SwapData.UniswapData) {
+        trade.data.priceImpact?.let {
+            val intValue = it.toInt()
+            if(dex.provider.id == "safe" && (intValue > 5 || intValue < -5)) {
+                autoSetProvider1Inch()
+            }
+        }
     }
 
     private fun setLoading(state: SwapResultState) {
@@ -626,7 +644,7 @@ class SwapMainViewModel(
     }
 
     fun autoSetProvider1Inch() {
-        service.autoSetProvider1Inch(SwapMainModule.OneInchProvider)
+        setProvider(SwapMainModule.OneInchProvider)
     }
 
     fun onSetAmountInBalancePercent(percent: Int) {

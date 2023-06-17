@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 @Composable
 fun ButtonPrimaryCircle(
     @DrawableRes icon: Int = R.drawable.ic_arrow_down_left_24,
+    contentDescription: String? = null,
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
@@ -39,7 +40,7 @@ fun ButtonPrimaryCircle(
     ) {
         Icon(
             painter = painterResource(id = icon),
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = if (enabled) ComposeAppTheme.colors.claude else ComposeAppTheme.colors.grey50
         )
     }
@@ -48,7 +49,9 @@ fun ButtonPrimaryCircle(
 @Composable
 fun ButtonSecondaryCircle(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     @DrawableRes icon: Int = R.drawable.ic_arrow_down_20,
+    contentDescription: String? = null,
     tint: Color = ComposeAppTheme.colors.leah,
     onClick: () -> Unit,
 ) {
@@ -58,11 +61,12 @@ fun ButtonSecondaryCircle(
             .size(28.dp)
             .clip(CircleShape)
             .background(ComposeAppTheme.colors.steel20),
+        enabled = enabled,
         rippleColor = tint
     ) {
         Icon(
             painter = painterResource(id = icon),
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = tint
         )
     }

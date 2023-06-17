@@ -30,10 +30,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Request
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SendEthereumTransactionRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SignMessageRequest
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Request
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SendEthereumTransactionRequest
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SignMessageRequest
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.*
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.core.findNavController
@@ -292,7 +289,7 @@ class DAppBrowseFragment: BaseFragment(){
             }
         }
         App.wc2SessionManager.sessions.forEach {
-            if (it.accounts.contains(accountId) && cacheConnectLink == it.peerAppMetaData?.url) {
+            if (cacheConnectLink == it.metaData?.url) {
                 Log.e("connectWallet", "auto connect v2")
                 connectSession(it.topic, false)
             }
@@ -456,7 +453,7 @@ class DAppBrowseFragment: BaseFragment(){
             .let {
                 disposables.add(it)
             }
-        App.wc2SessionManager.pendingRequestObservable
+        App.wc2SessionManager.pendingRequestObservable2
             .subscribe{
                 openWalletConnectRequestLiveEvent.postValue(it)
             }.let {

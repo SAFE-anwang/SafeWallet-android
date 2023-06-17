@@ -4,6 +4,7 @@ import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.ethereumkit.models.Transaction
 import io.horizontalsystems.marketkit.models.Token
+import java.math.BigDecimal
 
 class ExternalContractCallTransactionRecord(
     transaction: Transaction,
@@ -12,9 +13,11 @@ class ExternalContractCallTransactionRecord(
     val incomingEvents: List<TransferEvent>,
     val outgoingEvents: List<TransferEvent>
 ) : EvmTransactionRecord(
-    transaction, baseToken, source, true,
-    !incomingEvents.any { it.value is TransactionValue.CoinValue || it.value is TransactionValue.NftValue } &&
-            !outgoingEvents.any { it.value is TransactionValue.CoinValue || it.value is TransactionValue.NftValue }
+    transaction = transaction,
+    baseToken = baseToken,
+    source = source,
+    foreignTransaction = true,
+    spam = isSpam(incomingEvents, outgoingEvents)
 ) {
 
     override val mainValue: TransactionValue?
@@ -28,4 +31,22 @@ class ExternalContractCallTransactionRecord(
             }
         }
 
+    companion object {
+        fun isSpam(
+            incomingEvents: List<TransferEvent>,
+            outgoingEvents: List<TransferEvent>
+        ): Boolean {
+            for (event in (incomingEvents + outgoingEvents)) {
+                val value = event.value
+                if (
+                    value is TransactionValue.CoinValue && value.value > BigDecimal.ZERO ||
+                    value is TransactionValue.NftValue && value.value > BigDecimal.ZERO ||
+                    value is TransactionValue.TokenValue && value.value > BigDecimal.ZERO
+                ) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
 }

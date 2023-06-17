@@ -28,20 +28,11 @@ import java.math.BigDecimal
 
 object SendModule {
 
-    data class AmountData(val primary: AmountInfo, val secondary: AmountInfo?) {
-        fun getFormatted(): String {
-            var formatted = primary.getFormattedPlain()
-
-            secondary?.let {
-                formatted += "  |  " + it.getFormattedPlain()
-            }
-
-            return formatted
-        }
-    }
+    data class AmountData(val primary: AmountInfo, val secondary: AmountInfo?)
 
     sealed class AmountInfo {
         abstract val approximate: Boolean
+
         data class CoinValueInfo(val coinValue: CoinValue, override val approximate: Boolean = false) : AmountInfo()
         data class CurrencyValueInfo(val currencyValue: CurrencyValue, override val approximate: Boolean = false) : AmountInfo()
 
@@ -57,28 +48,31 @@ object SendModule {
                 is CurrencyValueInfo -> currencyValue.currency.decimal
             }
 
-        fun getAmountName(): String = when (this) {
-            is CoinValueInfo -> coinValue.coin.name
-            is CurrencyValueInfo -> currencyValue.currency.code
-        }
-
-        fun getFormatted(): String = when (this) {
-            is CoinValueInfo -> coinValue.getFormattedFull()
-            is CurrencyValueInfo -> App.numberFormatter.formatFiatFull(
+        fun getFormatted(): String {
+            val prefix = if (approximate) "~" else ""
+            return prefix + when (this) {
+                is CoinValueInfo -> coinValue.getFormattedFull()
+                is CurrencyValueInfo -> App.numberFormatter.formatFiatFull(
                     currencyValue.value, currencyValue.currency.symbol
                 )
+            }
         }
 
-        fun getFormattedPlain(): String = when (this) {
-            is CoinValueInfo -> {
-                App.numberFormatter.format(value, 0, 8)
-            }
-            is CurrencyValueInfo -> {
-                App.numberFormatter.formatFiatFull(currencyValue.value, currencyValue.currency.symbol)
+        fun getFormattedPlain(): String {
+            val prefix = if (approximate) "~" else ""
+            return prefix + when (this) {
+                is CoinValueInfo -> {
+                    App.numberFormatter.formatCoinFull(value, coinValue.coin.code, coinValue.decimal)
+                }
+
+                is CurrencyValueInfo -> {
+                    App.numberFormatter.formatFiatFull(currencyValue.value, currencyValue.currency.symbol)
+                }
             }
         }
 
     }
+
 
     class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -166,6 +160,96 @@ object SendModule {
         }
     }
 
+    class Factory2(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: SendSafeHandler,
+        private val safeInteractor: SendSafeInteractor
+        ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (safeAdapter) {
+                /*is ISendBitcoinAdapter -> {
+                    val bitcoinInteractor = SendBitcoinInteractor(adapter, App.localStorage)
+                    val handler = SendBitcoinHandler(bitcoinInteractor, wallet.coinType)
+
+                    bitcoinInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+                    presenter.hodlerModuleDelegate = handler
+                    presenter.customPriorityUnit = CustomPriorityUnit.Satoshi
+
+                    handler
+                }
+                is ISendDashAdapter -> {
+                    val dashInteractor = SendDashInteractor(adapter)
+                    val handler = SendDashHandler(dashInteractor)
+
+                    dashInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }*/
+                is ISendSafeAdapter -> {
+//                    val safeInteractor = SendSafeInteractor(adapter)
+//                    val handler = SendSafeHandler(safeInteractor)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+                /*is ISendBinanceAdapter -> {
+                    val binanceInteractor = SendBinanceInteractor(adapter)
+                    val handler = SendBinanceHandler(binanceInteractor)
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }
+                is ISendZcashAdapter -> {
+                    val zcashInteractor = SendZcashInteractor(adapter)
+                    val handler = SendZcashHandler(zcashInteractor)
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    handler
+                }*/
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
     class SafeConvertFactory(private val wallet: Wallet, private val ethAdapter: ISendEthereumAdapter) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -205,6 +289,7 @@ object SendModule {
             return presenter as T
         }
     }
+
 
     class LineLockFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -285,10 +370,10 @@ object SendModule {
     }
 
     interface ISendHandler {
-        var amountModule: SendAmountModule.IAmountModule
-        var addressModule: SendAddressModule.IAddressModule
-        var feeModule: SendFeeModule.IFeeModule
-        var memoModule: SendMemoModule.IMemoModule
+        var amountModule: SendAmountModule.IAmountModule?
+        var addressModule: SendAddressModule.IAddressModule?
+        var feeModule: SendFeeModule.IFeeModule?
+        var memoModule: SendMemoModule.IMemoModule?
         var hodlerModule: SendHodlerModule.IHodlerModule?
 
         val inputItems: List<Input>
@@ -394,8 +479,4 @@ class SendErrorInsufficientBalance(coinCode: Any) : HSCaution(
 
 class SendErrorMinimumSendAmount(amount: Any) : HSCaution(
     TranslatableString.ResString(R.string.Send_Error_MinimumAmount, amount)
-)
-
-class SendErrorMaximumSendAmount(amount: Any) : HSCaution(
-    TranslatableString.ResString(R.string.Send_Error_MaximumAmount, amount)
 )

@@ -1,13 +1,16 @@
 package org.consenlabs.tokencore.wallet.validators;
 
-import com.google.common.base.Strings;
+//import com.google.common.base.Strings;
+
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import org.consenlabs.tokencore.wallet.model.ChainType;
 import org.consenlabs.tokencore.wallet.model.Metadata;
+import org.web3j.utils.Strings;
 
 import java.util.HashMap;
 
-import static com.google.common.base.Preconditions.checkState;
+//import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Created by xyz on 2018/4/10.
@@ -42,11 +45,11 @@ public final class MetadataValidator implements Validator<Metadata> {
       }
     }
 
-    checkState(!Strings.isNullOrEmpty(name), "Can't allow empty name");
+    checkState(!Strings.isEmpty(name), "Can't allow empty name");
     ChainType.validate(chainType);
 
     Metadata metadata = new Metadata(chainType, network, name, passwordHint);
-    if (!Strings.isNullOrEmpty(this.source)) {
+    if (!Strings.isEmpty(this.source)) {
       metadata.setSource(this.source);
     }
     metadata.setSegWit(segWit);

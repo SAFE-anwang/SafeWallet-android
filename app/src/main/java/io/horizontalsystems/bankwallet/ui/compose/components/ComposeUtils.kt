@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,7 +17,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.modules.coin.details.CoinDetailsModule
 import io.horizontalsystems.bankwallet.modules.market.Value
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import java.math.BigDecimal
@@ -31,14 +31,6 @@ fun diffColor(value: BigDecimal) =
         ComposeAppTheme.colors.remus
     } else {
         ComposeAppTheme.colors.lucian
-    }
-
-@Composable
-fun diffColor(trend: CoinDetailsModule.ChartMovementTrend) =
-    when (trend) {
-        CoinDetailsModule.ChartMovementTrend.Up -> ComposeAppTheme.colors.remus
-        CoinDetailsModule.ChartMovementTrend.Down -> ComposeAppTheme.colors.lucian
-        CoinDetailsModule.ChartMovementTrend.Neutral -> ComposeAppTheme.colors.grey
     }
 
 @Composable
@@ -86,9 +78,9 @@ fun CoinImage(
 
 @Composable
 fun NftIcon(
+    modifier: Modifier = Modifier,
     iconUrl: String?,
     placeholder: Int? = null,
-    modifier: Modifier,
     colorFilter: ColorFilter? = null
 ) {
     val fallback = placeholder ?: R.drawable.ic_platform_placeholder_24
@@ -99,14 +91,16 @@ fun NftIcon(
                 error = painterResource(fallback)
             ),
             contentDescription = null,
-            modifier = modifier.clip(RoundedCornerShape(4.dp)),
+            modifier = modifier
+                .clip(RoundedCornerShape(8.dp))
+                .size(32.dp),
             colorFilter = colorFilter,
             contentScale = ContentScale.Crop
         )
         else -> Image(
             painter = painterResource(fallback),
             contentDescription = null,
-            modifier = modifier,
+            modifier = modifier.size(32.dp),
             colorFilter = colorFilter
         )
     }

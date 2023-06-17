@@ -3,8 +3,8 @@ package io.horizontalsystems.bankwallet.modules.chart
 import androidx.annotation.CallSuper
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.chartview.models.ChartIndicator
 import io.horizontalsystems.bankwallet.entities.Currency
+import io.horizontalsystems.chartview.ChartViewType
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -13,44 +13,33 @@ import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 
 abstract class AbstractChartService {
-    abstract val chartIntervals: List<HsTimePeriod>
-    open val chartIndicators: List<ChartIndicator> = listOf()
+    open val hasVolumes = false
+    abstract val chartIntervals: List<HsTimePeriod?>
+    abstract val chartViewType: ChartViewType
 
     protected abstract val currencyManager: CurrencyManager
     protected abstract val initialChartInterval: HsTimePeriod
+    protected open fun getAllItems(currency: Currency): Single<ChartPointsWrapper> {
+        return Single.error(Exception("Not Implemented"))
+    }
     protected abstract fun getItems(chartInterval: HsTimePeriod, currency: Currency): Single<ChartPointsWrapper>
 
     protected var chartInterval: HsTimePeriod? = null
         set(value) {
             field = value
-            value?.let { chartTypeObservable.onNext(it) }
-            indicatorsEnabled = chartInterval != HsTimePeriod.Day1
-        }
-    var indicator: ChartIndicator? = null
-        private set(value) {
-            field = value
-            indicatorObservable.onNext(Optional.ofNullable(value))
-        }
-    private var indicatorsEnabled = true
-        set(value) {
-            field = value
-            indicatorsEnabledObservable.onNext(value)
+            chartTypeObservable.onNext(Optional.ofNullable(value))
         }
 
     val currency: Currency
         get() = currencyManager.baseCurrency
-    val chartTypeObservable = BehaviorSubject.create<HsTimePeriod>()
-    val indicatorObservable = BehaviorSubject.create<Optional<ChartIndicator>>()
-
-    val indicatorsEnabledObservable = BehaviorSubject.create<Boolean>()
+    val chartTypeObservable = BehaviorSubject.create<Optional<HsTimePeriod>>()
 
     val chartPointsWrapperObservable = BehaviorSubject.create<Result<ChartPointsWrapper>>()
 
     private var fetchItemsDisposable: Disposable? = null
     private val disposables = CompositeDisposable()
-    protected var forceRefresh = false
 
-    fun start() {
+    open suspend fun start() {
         currencyManager.baseCurrencyUpdatedSignal
             .subscribeIO {
                 fetchItems()
@@ -60,7 +49,6 @@ abstract class AbstractChartService {
             }
 
         chartInterval = initialChartInterval
-        indicator = null
         fetchItems()
     }
 
@@ -74,30 +62,26 @@ abstract class AbstractChartService {
     }
 
     @CallSuper
-    open fun updateChartInterval(chartInterval: HsTimePeriod) {
+    open fun updateChartInterval(chartInterval: HsTimePeriod?) {
         this.chartInterval = chartInterval
 
         fetchItems()
     }
 
-    fun updateIndicator(indicator: ChartIndicator?) {
-        this.indicator = indicator
-
-        fetchItems()
-    }
-
     fun refresh() {
-        forceRefresh = true
         fetchItems()
-        forceRefresh = false
     }
 
     @Synchronized
     private fun fetchItems() {
-        val tmpChartInterval = chartInterval ?: return
+        val tmpChartInterval = chartInterval
+        val itemsSingle = when {
+            tmpChartInterval == null -> getAllItems(currency)
+            else -> getItems(tmpChartInterval, currency)
+        }
 
         fetchItemsDisposable?.dispose()
-        fetchItemsDisposable = getItems(tmpChartInterval, currency)
+        fetchItemsDisposable = itemsSingle
             .subscribeIO({
                 chartPointsWrapperObservable.onNext(Result.success(it))
             }, {

@@ -9,7 +9,7 @@ class SendView : SendModule.IView {
 
     val error = SingleLiveEvent<Throwable>()
     val confirmationViewItems = MutableLiveData<List<SendModule.SendConfirmationViewItem>>()
-    val showSendConfirmation = SingleLiveEvent<Unit>()
+    val showSendConfirmation = SingleLiveEvent<Unit?>()
     val sendButtonEnabled = MutableLiveData<SendPresenter.ActionState>()
     val inputItems = SingleLiveEvent<List<SendModule.Input>>()
 

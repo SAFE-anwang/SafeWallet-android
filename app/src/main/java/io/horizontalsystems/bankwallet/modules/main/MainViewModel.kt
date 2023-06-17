@@ -1,20 +1,22 @@
 package io.horizontalsystems.bankwallet.modules.main
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.horizontalsystems.bankwallet.core.IAccountManager
-import io.horizontalsystems.bankwallet.core.IBackupManager
-import io.horizontalsystems.bankwallet.core.IRateAppManager
-import io.horizontalsystems.bankwallet.core.ITermsManager
-import io.horizontalsystems.bankwallet.core.managers.RateUsType
+import cash.z.ecc.android.sdk.ext.collectWith
+import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.LaunchPage
+import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
+import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SessionManager
 import io.horizontalsystems.core.IPinComponent
-import io.horizontalsystems.core.SingleLiveEvent
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -25,48 +27,112 @@ class MainViewModel(
     private val termsManager: ITermsManager,
     private val accountManager: IAccountManager,
     private val releaseNotesManager: ReleaseNotesManager,
-    private val service: MainService,
+    private val localStorage: ILocalStorage,
+    wc2SessionManager: WC2SessionManager,
+    private val wc1Manager: WC1Manager,
+    private val wcDeepLink: String?
 ) : ViewModel() {
 
-    val showRootedDeviceWarningLiveEvent = SingleLiveEvent<Unit>()
-    val showRateAppLiveEvent = SingleLiveEvent<Unit>()
-    val showWhatsNewLiveEvent = SingleLiveEvent<Unit>()
-    val openPlayMarketLiveEvent = SingleLiveEvent<Unit>()
-    val hideContentLiveData = MutableLiveData<Boolean>()
-    val setBadgeVisibleLiveData = MutableLiveData<Boolean>()
-    val transactionTabEnabledLiveData = MutableLiveData<Boolean>()
-    val openWalletSwitcherLiveEvent = SingleLiveEvent<Pair<List<Account>, Account?>>()
-
     private val disposables = CompositeDisposable()
-    private var contentHidden = pinComponent.isLocked
+    private var wc2PendingRequestsCount = 0
+    private var marketsTabEnabled = localStorage.marketsTabEnabledFlow.value
+    private var transactionsEnabled = !accountManager.isAccountsEmpty
+    private var settingsBadge: MainModule.BadgeType? = null
+    private val launchPage: LaunchPage
+        get() = localStorage.launchPage ?: LaunchPage.Auto
 
-    val initialTab = getTabToOpen()
-
-    init {
-
-        if (!service.ignoreRootCheck && service.isDeviceRooted) {
-            showRootedDeviceWarningLiveEvent.call()
+    private var currentMainTab: MainNavigation?
+        get() = localStorage.mainTab
+        set(value) {
+            localStorage.mainTab = value
         }
 
-        updateBadgeVisibility()
-        updateTransactionsTabEnabled()
+    private var relaunchBySettingChange: Boolean
+        get() = localStorage.relaunchBySettingChange
+        set(value) {
+            localStorage.relaunchBySettingChange = value
+        }
 
-        viewModelScope.launch {
-            termsManager.termsAcceptedSignalFlow.collect {
-                updateBadgeVisibility()
-            }
+    private val items: List<MainNavigation>
+        get() = if (marketsTabEnabled) {
+            listOf(
+                MainNavigation.Market,
+                MainNavigation.Balance,
+//                MainNavigation.Transactions,
+                MainNavigation.Safe4,
+                MainNavigation.Tg,
+                MainNavigation.Settings,
+            )
+        } else {
+            listOf(
+                MainNavigation.Balance,
+                MainNavigation.Safe4,
+//                MainNavigation.Transactions,
+                MainNavigation.Tg,
+                MainNavigation.Settings,
+            )
+        }
+
+    private var selectedPageIndex = getPageIndexToOpen()
+    private var mainNavItems = navigationItems()
+    private var showRateAppDialog = false
+    private var contentHidden = pinComponent.isLocked
+    private var showWhatsNew = false
+    private var activeWallet = accountManager.activeAccount
+    private var wcSupportState: WC1Manager.SupportState? = null
+    private var torEnabled = localStorage.torEnabled
+
+    val wallets: List<Account>
+        get() = accountManager.accounts.filter { !it.isWatchAccount }
+
+    val watchWallets: List<Account>
+        get() = accountManager.accounts.filter { it.isWatchAccount }
+
+    var uiState by mutableStateOf(
+        MainModule.UiState(
+            selectedPageIndex = selectedPageIndex,
+            mainNavItems = mainNavItems,
+            showRateAppDialog = showRateAppDialog,
+            contentHidden = contentHidden,
+            showWhatsNew = showWhatsNew,
+            activeWallet = activeWallet,
+            wcSupportState = wcSupportState,
+            torEnabled = torEnabled
+        )
+    )
+        private set
+
+    init {
+        localStorage.marketsTabEnabledFlow.collectWith(viewModelScope) {
+            marketsTabEnabled = it
+            syncNavigation()
+        }
+
+        termsManager.termsAcceptedSignalFlow.collectWith(viewModelScope) {
+            updateSettingsBadge()
+        }
+
+        wc2SessionManager.pendingRequestCountFlow.collectWith(viewModelScope) {
+            wc2PendingRequestsCount = it
+            updateSettingsBadge()
+        }
+
+        rateAppManager.showRateAppFlow.collectWith(viewModelScope) {
+            showRateAppDialog = it
+            syncState()
         }
 
         disposables.add(backupManager.allBackedUpFlowable.subscribe {
-            updateBadgeVisibility()
+            updateSettingsBadge()
         })
 
         disposables.add(pinComponent.pinSetFlowable.subscribe {
-            updateBadgeVisibility()
+            updateSettingsBadge()
         })
 
         disposables.add(accountManager.accountsFlowable.subscribe {
             updateTransactionsTabEnabled()
+            updateSettingsBadge()
         })
 
         /*rateAppManager.showRateAppObservable
@@ -75,74 +141,183 @@ class MainViewModel(
                 }
                 .let {
                     disposables.add(it)
-                }
+                }*/
 
-        showWhatsNew()*/
-    }
+        wcDeepLink?.let {
+            wcSupportState = wc1Manager.getWalletConnectSupportState()
+            syncState()
+        }
 
-    private fun getTabToOpen(): MainModule.MainTab {
-        if(service.relaunchBySettingChange){
-            service.relaunchBySettingChange = false
-            return MainModule.MainTab.Settings
+        accountManager.activeAccountStateFlow.collectWith(viewModelScope) {
+            (it as? ActiveAccountState.ActiveAccount)?.let { state ->
+                activeWallet = state.account
+                syncState()
+            }
         }
-        return when(service.launchPage){
-            LaunchPage.Market,
-            LaunchPage.Watchlist -> MainModule.MainTab.Market
-            LaunchPage.Balance -> MainModule.MainTab.Balance
-            LaunchPage.SAFE -> MainModule.MainTab.Safe4
-            LaunchPage.Auto -> service.currentMainTab ?: MainModule.MainTab.Market
-        }
+
+        updateSettingsBadge()
+        updateTransactionsTabEnabled()
+//        showWhatsNew()
     }
 
     override fun onCleared() {
         disposables.clear()
     }
 
-    fun onLongPressBalanceTab() {
-        openWalletSwitcherLiveEvent.postValue(Pair(accountManager.accounts, accountManager.activeAccount))
+    fun whatsNewShown() {
+        showWhatsNew = false
+        syncState()
+    }
+
+    fun closeRateDialog() {
+        showRateAppDialog = false
+        syncState()
     }
 
     fun onSelect(account: Account) {
         accountManager.setActiveAccountId(account.id)
+        activeWallet = account
+        syncState()
     }
 
     fun onResume() {
-        if (contentHidden != pinComponent.isLocked) {
-            hideContentLiveData.postValue(pinComponent.isLocked)
-        }
         contentHidden = pinComponent.isLocked
+        syncState()
     }
 
-    fun onTabSelect(tabIndex: Int) {
-        val mainTab = MainModule.MainTab.values()[tabIndex]
-        if(mainTab != MainModule.MainTab.Settings){
-            service.currentMainTab = mainTab
+    fun onSelect(mainNavItem: MainNavigation) {
+        if (mainNavItem != MainNavigation.Settings) {
+            currentMainTab = mainNavItem
         }
+        selectedPageIndex = items.indexOf(mainNavItem)
+        syncNavigation()
     }
 
     fun updateTransactionsTabEnabled() {
-        transactionTabEnabledLiveData.postValue(!accountManager.isAccountsEmpty)
+        transactionsEnabled = !accountManager.isAccountsEmpty
+        syncNavigation()
+    }
+
+    fun wcSupportStateHandled() {
+        wcSupportState = null
+        syncState()
+    }
+
+    private fun syncState() {
+        uiState = MainModule.UiState(
+            selectedPageIndex = selectedPageIndex,
+            mainNavItems = mainNavItems,
+            showRateAppDialog = showRateAppDialog,
+            contentHidden = contentHidden,
+            showWhatsNew = showWhatsNew,
+            activeWallet = activeWallet,
+            wcSupportState = wcSupportState,
+            torEnabled = torEnabled
+        )
+    }
+
+    private fun navigationItems(): List<MainModule.NavigationViewItem> {
+        return items.mapIndexed { index, mainNavItem ->
+            getNavItem(mainNavItem, index == selectedPageIndex)
+        }
+    }
+
+    private fun getNavItem(item: MainNavigation, selected: Boolean) = when (item) {
+        MainNavigation.Market -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
+        /*MainNavigation.Transactions -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = transactionsEnabled,
+            )
+        }*/
+        MainNavigation.Safe4 -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
+        MainNavigation.Tg -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
+        MainNavigation.Settings -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+                badge = settingsBadge
+            )
+        }
+        MainNavigation.Balance -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
+    }
+
+    private fun getPageIndexToOpen(): Int {
+        val page = when {
+            wcDeepLink != null -> {
+                MainNavigation.Settings
+            }
+            relaunchBySettingChange -> {
+                relaunchBySettingChange = false
+                MainNavigation.Settings
+            }
+            !marketsTabEnabled -> {
+                MainNavigation.Balance
+            }
+            else -> when (launchPage) {
+                LaunchPage.Market,
+                LaunchPage.Watchlist -> MainNavigation.Market
+                LaunchPage.Balance -> MainNavigation.Balance
+                LaunchPage.SAFE -> MainNavigation.Safe4
+                LaunchPage.Auto -> currentMainTab ?: MainNavigation.Balance
+            }
+        }
+        return items.indexOf(page)
+    }
+
+    private fun syncNavigation() {
+        mainNavItems = navigationItems()
+        syncState()
     }
 
     private fun showWhatsNew() {
-        viewModelScope.launch(Dispatchers.IO){
-            if (releaseNotesManager.shouldShowChangeLog()){
+        viewModelScope.launch {
+            if (releaseNotesManager.shouldShowChangeLog()) {
                 delay(2000)
-                showWhatsNewLiveEvent.postValue(Unit)
+                showWhatsNew = true
+                syncState()
             }
         }
     }
 
-    private fun showRateApp(showRateUs: RateUsType) {
-        when (showRateUs) {
-            RateUsType.OpenPlayMarket -> openPlayMarketLiveEvent.postValue(Unit)
-            RateUsType.ShowDialog -> showRateAppLiveEvent.postValue(Unit)
-        }
-    }
+    private fun updateSettingsBadge() {
+        val showDotBadge =
+            !(backupManager.allBackedUp && termsManager.allTermsAccepted && pinComponent.isPinSet) || accountManager.hasNonStandardAccount
 
-    private fun updateBadgeVisibility() {
-        val visible = !(backupManager.allBackedUp && termsManager.allTermsAccepted && pinComponent.isPinSet)
-        setBadgeVisibleLiveData.postValue(visible)
+        settingsBadge = if (wc2PendingRequestsCount > 0) {
+            MainModule.BadgeType.BadgeNumber(wc2PendingRequestsCount)
+        } else if (showDotBadge) {
+            MainModule.BadgeType.BadgeDot
+        } else {
+            null
+        }
+        syncNavigation()
     }
 
 }

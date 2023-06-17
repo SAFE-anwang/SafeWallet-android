@@ -12,18 +12,20 @@ import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
+import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 
 data class SendEvmData(
     val transactionData: TransactionData,
@@ -36,6 +38,9 @@ data class SendEvmData(
 
         @Parcelize
         class Uniswap(val info: UniswapInfo) : AdditionalInfo()
+
+        @Parcelize
+        class Liquidity(val info: UniswapLiquidityInfo) : AdditionalInfo()
 
         @Parcelize
         class OneInchSwap(val info: OneInchSwapInfo) : AdditionalInfo()
@@ -58,7 +63,6 @@ data class SendEvmData(
 
     @Parcelize
     data class SendInfo(
-        val domain: String?,
         val nftShortMeta: NftShortMeta? = null
     ) : Parcelable
 
@@ -81,7 +85,19 @@ data class SendEvmData(
         val deadline: String? = null,
         val recipientDomain: String? = null,
         val price: String? = null,
-        val priceImpact: SwapMainModule.PriceImpactViewItem? = null,
+        val priceImpact: PriceImpactViewItem? = null,
+        val gasPrice: String? = null,
+    ) : Parcelable
+
+    @Parcelize
+    data class UniswapLiquidityInfo(
+        val estimatedOut: BigDecimal,
+        val estimatedIn: BigDecimal,
+        val slippage: String? = null,
+        val deadline: String? = null,
+        val recipientDomain: String? = null,
+        val price: String? = null,
+        val priceImpact: PriceImpactViewItem? = null,
         val gasPrice: String? = null,
     ) : Parcelable
 
@@ -104,6 +120,7 @@ object SendEvmModule {
     const val blockchainTypeKey = "blockchainType"
     const val backButtonKey = "backButton"
     const val sendNavGraphIdKey = "sendNavGraphId_key"
+    const val transactionToken = "transactionToken"
 
     @Parcelize
     data class TransactionDataParcelable(
@@ -120,9 +137,7 @@ object SendEvmModule {
 
 
     class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
-        val adapter by lazy {
-            App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter
-        }
+        val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -134,11 +149,10 @@ object SendEvmModule {
                     val amountValidator = AmountValidator()
                     val coinMaxAllowedDecimals = wallet.token.decimals
 
-                    val amountService = SendEvmAmountService(
-                        adapter,
+                    val amountService = SendAmountAdvancedService(
+                        adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
                         wallet.token,
-                        amountValidator,
-                        coinMaxAllowedDecimals
+                        amountValidator
                     )
                     val addressService = SendEvmAddressService()
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)

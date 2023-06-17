@@ -3,8 +3,8 @@ package io.horizontalsystems.bankwallet.modules.coin.investments
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.Currency
+import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.marketkit.models.CoinInvestment
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable

@@ -5,7 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
@@ -21,22 +25,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
-import io.horizontalsystems.bankwallet.modules.restoreaccount.restore.ByMenu
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.ByMenu
+import io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains.SelectBlockchainsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputMultiline
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -57,8 +70,11 @@ class WatchAddressFragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    val popUpToInclusiveId = arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, -1) ?: -1
-                    WatchAddressScreen(findNavController(), popUpToInclusiveId)
+                    val popUpToInclusiveId =
+                        arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.watchAddressFragment) ?: R.id.watchAddressFragment
+                    val inclusive =
+                        arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
+                    WatchAddressScreen(findNavController(), popUpToInclusiveId, inclusive)
                 }
             }
         }
@@ -66,13 +82,15 @@ class WatchAddressFragment : BaseFragment() {
 }
 
 @Composable
-fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
+fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, inclusive: Boolean) {
     val view = LocalView.current
 
     val viewModel = viewModel<WatchAddressViewModel>(factory = WatchAddressModule.Factory())
     val uiState = viewModel.uiState
     val accountCreated = uiState.accountCreated
-    val submitEnabled = uiState.submitEnabled
+    val submitType = uiState.submitButtonType
+    val accountType = uiState.accountType
+    val accountName = uiState.accountName
     val type = uiState.type
 
     LaunchedEffect(accountCreated) {
@@ -84,99 +102,142 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                 iconTint = R.color.white
             )
             delay(300)
-
-            if (popUpToInclusiveId != -1) {
-                navController.popBackStack(popUpToInclusiveId, true)
-            } else {
-                navController.popBackStack()
-            }
+            navController.popBackStack(popUpToInclusiveId, inclusive)
         }
+    }
+
+    if (accountType != null) {
+        viewModel.blockchainSelectionOpened()
+
+        navController.slideFromRight(
+            R.id.selectBlockchainsFragment,
+            bundleOf(
+                SelectBlockchainsModule.accountTypeKey to accountType,
+                SelectBlockchainsModule.accountNameKey to accountName,
+                ManageAccountsModule.popOffOnSuccessKey to popUpToInclusiveId,
+                ManageAccountsModule.popOffInclusiveKey to inclusive,
+            )
+        )
     }
 
     ComposeAppTheme {
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
-                title = TranslatableString.ResString(R.string.Watch_Address_Title),
+                title = TranslatableString.ResString(R.string.ManageAccounts_WatchAddress),
                 navigationIcon = {
-                    HsIconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    HsBackButton(onClick = { navController.popBackStack() })
                 },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Watch_Address_Watch),
-                        onClick = {
-                            viewModel.onClickWatch()
-                        },
-                        enabled = submitEnabled
-                    )
-                )
-            )
-
-            Column {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    ByMenu(
-                        menuTitle = stringResource(R.string.Watch_By),
-                        menuValue = stringResource(type.titleResId),
-                        selectorDialogTitle = stringResource(R.string.Watch_WatchBy),
-                        selectorItems = WatchAddressViewModel.Type.values().map {
-                            TabItem(stringResource(it.titleResId), it == type, it)
-                        },
-                        onSelectItem = {
-                            viewModel.onSetType(it)
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-                    when (type) {
-                        WatchAddressViewModel.Type.Address -> {
-                            HSAddressInput(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                tokenQuery = TokenQuery(BlockchainType.Ethereum, TokenType.Native),
-                                coinCode = "ETH",
-                                onValueChange = viewModel::onEnterAddress
+                menuItems = buildList {
+                    when (submitType) {
+                        is SubmitButtonType.Watch -> {
+                            add(
+                                MenuItem(
+                                    title = TranslatableString.ResString(R.string.Watch_Address_Watch),
+                                    onClick = viewModel::onClickWatch,
+                                    enabled = submitType.enabled
+                                )
                             )
                         }
-                        WatchAddressViewModel.Type.XPubKey -> {
-                            FormsInputMultiline(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp),
-                                hint = stringResource(id = R.string.Watch_XPubKey_Hint),
-                                qrScannerEnabled = true,
-                            ) {
-                                viewModel.onEnterXPubKey(it)
-                            }
+                        is SubmitButtonType.Next -> {
+                            add(
+                                MenuItem(
+                                    title = TranslatableString.ResString(R.string.Button_Next),
+                                    onClick = viewModel::onClickNext,
+                                    enabled = submitType.enabled
+                                )
+                            )
                         }
                     }
+                }
+            )
 
-                    Text(
-                        text = Translator.getString(R.string.watch_address_hint),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        style = ComposeAppTheme.typography.caption,
-                        color = ComposeAppTheme.colors.jacob,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(Modifier.height(32.dp))
+                HeaderText(stringResource(id = R.string.ManageAccount_Name))
+                FormsInput(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    initial = viewModel.accountName,
+                    pasteEnabled = false,
+                    hint = viewModel.defaultAccountName,
+                    onValueChange = viewModel::onEnterAccountName
+                )
+                Spacer(Modifier.height(32.dp))
+
+                ByMenu(
+                    menuTitle = stringResource(R.string.Watch_By),
+                    menuValue = stringResource(type.titleResId),
+                    selectorDialogTitle = stringResource(R.string.Watch_WatchBy),
+                    selectorItems = WatchAddressViewModel.Type.values().map {
+                        TabItem(stringResource(it.titleResId), it == type, it)
+                    },
+                    onSelectItem = {
+                        viewModel.onSetType(it)
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                when (type) {
+                    WatchAddressViewModel.Type.EvmAddress -> {
+                        HSAddressInput(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            tokenQuery = TokenQuery(BlockchainType.Ethereum, TokenType.Native),
+                            coinCode = "ETH",
+                            navController = navController,
+                            onValueChange = viewModel::onEnterAddress
+                        )
+                    }
+                    WatchAddressViewModel.Type.SolanaAddress -> {
+                        HSAddressInput(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            tokenQuery = TokenQuery(BlockchainType.Solana, TokenType.Native),
+                            coinCode = "SOL",
+                            navController = navController,
+                            onValueChange = viewModel::onEnterAddress
+                        )
+                    }
+                    WatchAddressViewModel.Type.TronAddress -> {
+                        HSAddressInput(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            tokenQuery = TokenQuery(BlockchainType.Tron, TokenType.Native),
+                            coinCode = "TRX",
+                            navController = navController,
+                            onValueChange = viewModel::onEnterAddress
+                        )
+                    }
+                    WatchAddressViewModel.Type.XPubKey -> {
+                        FormsInputMultiline(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            hint = stringResource(id = R.string.Watch_XPubKey_Hint),
+                            qrScannerEnabled = true,
+                            state = if (uiState.invalidXPubKey)
+                                DataState.Error(Exception(stringResource(id = R.string.Watch_Error_InvalidXPubKey)))
+                            else
+                               null
+                        ) {
+                            viewModel.onEnterXPubKey(it)
+                        }
+                    }
                 }
 
-                ButtonsGroupWithShade {
+                Text(
+                    text = Translator.getString(R.string.watch_address_hint),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = ComposeAppTheme.typography.caption,
+                    color = ComposeAppTheme.colors.jacob,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(Modifier.height(32.dp))
+
+
+                /*ButtonsGroupWithShade {
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -188,6 +249,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int) {
                         enabled = submitEnabled
                     )
                 }
+                Spacer(Modifier.height(32.dp))*/
             }
         }
     }

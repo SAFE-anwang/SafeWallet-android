@@ -1,37 +1,54 @@
 package io.horizontalsystems.bankwallet.modules.send
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.iconUrl
-import io.horizontalsystems.bankwallet.core.shorten
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
+import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.fee.HSFeeInputRaw
-import io.horizontalsystems.bankwallet.modules.hodler.HSHodlerInput
+import io.horizontalsystems.bankwallet.modules.hodler.HSHodler
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionTitleCell
+import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoAddressCell
+import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoContactCell
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1Italic_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.hodler.LockTimeInterval
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
@@ -46,10 +63,12 @@ fun SendConfirmationScreen(
     rate: CurrencyValue?,
     feeCoinRate: CurrencyValue?,
     sendResult: SendResult?,
+    blockchainType: BlockchainType,
     coin: Coin,
     feeCoin: Coin,
     amount: BigDecimal,
     address: Address,
+    contact: Contact?,
     fee: BigDecimal,
     lockTimeInterval: LockTimeInterval?,
     memo: String?,
@@ -89,17 +108,7 @@ fun SendConfirmationScreen(
             AppBar(
                 title = TranslatableString.ResString(R.string.Send_Confirmation_Title),
                 navigationIcon = {
-                    HsIconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "back button",
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    }
+                    HsBackButton(onClick = { navController.popBackStack() })
                 },
                 menuItems = listOf(
                     MenuItem(
@@ -120,15 +129,15 @@ fun SendConfirmationScreen(
                         .padding(bottom = 106.dp)
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    HSSectionRounded {
-                        CellSingleLineLawrence {
+                    val topSectionItems = buildList<@Composable () -> Unit> {
+                        add {
                             SectionTitleCell(
                                 stringResource(R.string.Send_Confirmation_YouSend),
                                 coin.name,
                                 R.drawable.ic_arrow_up_right_12
                             )
                         }
-                        CellSingleLineLawrence(borderTop = true) {
+                        add {
                             val coinAmount = App.numberFormatter.formatCoinFull(
                                 amount,
                                 coin.code,
@@ -142,36 +151,50 @@ fun SendConfirmationScreen(
 
                             ConfirmAmountCell(currencyAmount, coinAmount, coin)
                         }
-                        CellSingleLineLawrence(borderTop = true) {
-                            AddressCell(address.hex)
+                        add {
+                            TransactionInfoAddressCell(
+                                title = stringResource(R.string.Send_Confirmation_To),
+                                value = address.hex,
+                                showAdd = contact == null,
+                                blockchainType = blockchainType,
+                                navController = navController
+                            )
+                        }
+                        contact?.let {
+                            add {
+                                TransactionInfoContactCell(name = contact.name)
+                            }
                         }
                         if (lockTimeInterval != null) {
-                            CellSingleLineLawrence(borderTop = true) {
-                                HSHodlerInput(lockTimeInterval = lockTimeInterval)
+                            add {
+                                HSHodler(lockTimeInterval = lockTimeInterval)
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HSSectionRounded {
-                        CellSingleLineLawrence {
+                    CellUniversalLawrenceSection(topSectionItems)
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    val bottomSectionItems = buildList<@Composable () -> Unit> {
+                        add {
                             HSFeeInputRaw(
                                 coinCode = feeCoin.code,
                                 coinDecimal = feeCoinMaxAllowedDecimals,
-                                fiatDecimal = fiatMaxAllowedDecimals,
                                 fee = fee,
                                 amountInputType = amountInputType,
                                 rate = feeCoinRate,
-                                enabled = false,
-                                onClick = {}
+                                navController = navController
                             )
                         }
                         if (!memo.isNullOrBlank()) {
-                            CellSingleLineLawrence(borderTop = true) {
+                            add {
                                 MemoCell(memo)
                             }
                         }
                     }
+
+                    CellUniversalLawrenceSection(bottomSectionItems)
                 }
 
                 SendButton(
@@ -219,16 +242,13 @@ private fun SendButton(modifier: Modifier, sendResult: SendResult?, onClickSend:
 
 @Composable
 fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, coin: Coin) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp),
     ) {
         CoinImage(
-            iconUrl = coin.iconUrl,
+            iconUrl = coin.imageUrl,
             placeholder = R.drawable.coin_placeholder,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(32.dp)
         )
         subhead2_leah(
             modifier = Modifier.padding(start = 16.dp),
@@ -242,37 +262,9 @@ fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, coin: Coin) {
 }
 
 @Composable
-fun AddressCell(address: String) {
-    val clipboardManager = LocalClipboardManager.current
-    val view = LocalView.current
-
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        subhead2_grey(text = stringResource(R.string.Send_Confirmation_To))
-        Spacer(Modifier.weight(1f))
-        ButtonSecondaryDefault(
-            modifier = Modifier
-                .padding(start = 8.dp),
-            title = address.shorten(),
-            onClick = {
-                clipboardManager.setText(AnnotatedString(address))
-                HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-            }
-        )
-    }
-}
-
-@Composable
 fun MemoCell(value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp),
     ) {
         subhead2_grey(
             modifier = Modifier.padding(end = 16.dp),

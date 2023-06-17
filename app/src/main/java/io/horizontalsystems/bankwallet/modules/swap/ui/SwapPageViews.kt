@@ -36,11 +36,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionState
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapButtons
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.BadgeStepCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.BoxTyler44
@@ -307,7 +309,7 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
         modifier = modifier,
         onClick = onClick,
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
-            backgroundColor = ComposeAppTheme.colors.leah,
+            backgroundColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.raina else ComposeAppTheme.colors.leah,
             contentColor = ComposeAppTheme.colors.claude,
             disabledBackgroundColor = ComposeAppTheme.colors.steel20,
             disabledContentColor = ComposeAppTheme.colors.grey50,
@@ -322,9 +324,9 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
                     HSCircularProgressIndicator()
                 } else {
                     step?.let {
-                        val background = if (enabled) ComposeAppTheme.colors.claude else ComposeAppTheme.colors.steel20
+                        val background = if (enabled) ComposeAppTheme.colors.steel10 else ComposeAppTheme.colors.steel20
                         val textColor = if (enabled) ComposeAppTheme.colors.leah else ComposeAppTheme.colors.grey
-                        BadgeStepCircle(text = "$it", background = background, textColor = textColor, active = true)
+                        BadgeStepCircle(text = "$it", background = background, textColor = textColor)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }

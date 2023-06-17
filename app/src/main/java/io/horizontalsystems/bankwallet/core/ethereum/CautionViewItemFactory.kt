@@ -40,11 +40,18 @@ class CautionViewItemFactory(
                     CautionViewItem.Type.Warning
                 )
             }
+            is UniswapWarnings.PriceImpactForbidden -> {
+                CautionViewItem(
+                    Translator.getString(R.string.Swap_PriceImpact),
+                    Translator.getString(R.string.Swap_PriceImpactTooHigh, warning.providerName),
+                    CautionViewItem.Type.Error
+                )
+            }
             UniswapWarnings.PriceImpactWarning -> {
                 CautionViewItem(
                     Translator.getString(R.string.Swap_PriceImpact),
-                    Translator.getString(R.string.Swap_PriceImpactTooHigh),
-                    CautionViewItem.Type.Warning
+                    Translator.getString(R.string.Swap_PriceImpactWarning),
+                    CautionViewItem.Type.Error
                 )
             }
             else -> {
@@ -59,13 +66,6 @@ class CautionViewItemFactory(
 
     private fun cautionViewItem(error: Throwable): CautionViewItem {
         return when (error) {
-            FeeSettingsError.UsedNonce -> {
-                CautionViewItem(
-                    Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit_Title),
-                    Translator.getString(R.string.EthereumTransaction_Error_LowerThanBaseGasLimit),
-                    CautionViewItem.Type.Error
-                )
-            }
             FeeSettingsError.InsufficientBalance -> {
                 CautionViewItem(
                     Translator.getString(R.string.EthereumTransaction_Error_InsufficientBalance_Title),
@@ -73,6 +73,13 @@ class CautionViewItemFactory(
                         R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
                         baseCoinService.token.coin.code
                     ),
+                    CautionViewItem.Type.Error
+                )
+            }
+            FeeSettingsError.UsedNonce -> {
+                CautionViewItem(
+                    Translator.getString(R.string.SendEvmSettings_Error_NonceUsed_Title),
+                    Translator.getString(R.string.SendEvmSettings_Error_NonceUsed),
                     CautionViewItem.Type.Error
                 )
             }

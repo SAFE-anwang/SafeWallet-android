@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic
 
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
@@ -23,7 +22,7 @@ class RestoreHDWalletViewModel(
 
     private val disposables = CompositeDisposable()
 
-    val inputsVisibleLiveData = LiveDataReactiveStreams.fromPublisher(service.passphraseEnabledObservable.toFlowable(BackpressureStrategy.BUFFER))
+//    val inputsVisibleLiveData = LiveDataReactiveStreams.fromPublisher(service.passphraseEnabledObservable.toFlowable(BackpressureStrategy.BUFFER))
     val passphraseCautionLiveData = MutableLiveData<Caution?>()
     val clearInputsLiveEvent = SingleLiveEvent<Unit>()
 

@@ -77,8 +77,8 @@ object SwapApproveConfirmationModule {
                         sendService,
                         coinServiceFactory,
                         cautionViewItemFactory,
-                        App.evmLabelManager,
-                        blockchainType = blockchainType
+                        blockchainType = blockchainType,
+                        contactsRepo = App.contactsRepository
                     ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {

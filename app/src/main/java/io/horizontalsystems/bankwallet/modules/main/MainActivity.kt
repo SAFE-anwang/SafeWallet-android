@@ -1,18 +1,22 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.graphics.Color
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
-import com.walletconnect.walletconnectv2.client.WalletConnectClient
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -22,27 +26,22 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
+import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SendEthereumTransactionRequest
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SignMessageRequest
-import io.horizontalsystems.bitcoincore.ReConnectVpn
-import io.horizontalsystems.hdwalletkit.HDExtendedKey
-import org.consenlabs.tokencore.wallet.WalletManager
-import org.consenlabs.tokencore.wallet.model.Metadata
 
 class MainActivity : BaseActivity() {
 
-    val viewModel by viewModels<MainActivityViewModel>(){
-        MainModule.FactoryForActivityViewModel()
+    private val wc2MainViewModel by viewModels<WC2MainViewModel> {
+        WC2MainViewModel.Factory()
     }
 
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            VpnConnectService.startVpn(this)
+            if (it.resultCode == RESULT_OK) {
+                VpnConnectService.startVpn(this)
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +51,22 @@ class MainActivity : BaseActivity() {
         }
         setContentView(R.layout.activity_main)
 
-        val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navHost =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
 
         navHost.navController.setGraph(R.navigation.main_graph, intent.extras)
         navHost.navController.addOnDestinationChangedListener(this)
+
+
+        wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
+            navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+        }
+        wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
+            navHost.navController.slideFromBottom(
+                R.id.wc2RequestFragment,
+                WC2RequestFragment.prepareParams(requestId)
+            )
+        }
 
         val filter = IntentFilter()
         filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
@@ -64,69 +75,27 @@ class MainActivity : BaseActivity() {
         registerReceiver(mMsgReceiver, filter)
 
         startVpn()
-
-        viewModel.openWalletConnectRequestLiveEvent.observe(this) { wcRequest ->
-            when (wcRequest) {
-                is WC2SignMessageRequest -> {
-                    navHost.navController.slideFromBottom(
-                        R.id.wc2SignMessageRequestFragment,
-                        WC2SignMessageRequestFragment.prepareParams(wcRequest.id)
-                    )
-                }
-                is WC2SendEthereumTransactionRequest -> {
-                    navHost.navController.slideFromBottom(
-                        R.id.wc2SendEthereumTransactionRequestFragment,
-                        WC2SendEthereumTransactionRequestFragment.prepareParams(wcRequest.id)
-                    )
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mMsgReceiver)
-        WalletConnectClient.shutdown()
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
     }
 
-//    override fun onTrimMemory(level: Int) {
-//        super.onTrimMemory(level)
-//        when (level) {
-//            TRIM_MEMORY_RUNNING_MODERATE,
-//            TRIM_MEMORY_RUNNING_LOW,
-//            TRIM_MEMORY_RUNNING_CRITICAL -> {
-//                /*
-//                   Release any memory that your app doesn't need to run.
-//
-//                   The device is running low on memory while the app is running.
-//                   The event raised indicates the severity of the memory-related event.
-//                   If the event is TRIM_MEMORY_RUNNING_CRITICAL, then the system will
-//                   begin killing background processes.
-//                */
-//                if (App.backgroundManager.inBackground) {
-//                    val logger = AppLogger("low memory")
-//                    logger.info("Kill activity due to low memory, level: $level")
-//                    finishAffinity()
-//                    Utils.stopVService(this)
-//                }
-//            }
-//            else -> {  /*do nothing*/
-//            }
-//        }
-//
-//        super.onTrimMemory(level)
-//    }
-
     fun openSend(wallet: Wallet) {
         /*startActivity(Intent(this, SendActivity::class.java).apply {
-            putExtra(SendActivity.WALLET, wallet)
-        })*/
+        putExtra(SendActivity.WALLET, wallet)
+    })*/
     }
 
     private fun startVpn() {
-        if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
+        if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean(
+                "vpnOpen",
+                true
+            )
+        ) {
             return
         }
         val intent = VpnService.prepare(this)
@@ -178,3 +147,4 @@ class MainActivity : BaseActivity() {
         }
     }
 }
+
