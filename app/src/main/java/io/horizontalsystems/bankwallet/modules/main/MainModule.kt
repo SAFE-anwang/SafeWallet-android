@@ -85,4 +85,7 @@ object MainModule {
         val torEnabled: Boolean,
         val wcSupportState: WC1Manager.SupportState?
     )
+
+    var isOpenDapp = false
+
 }

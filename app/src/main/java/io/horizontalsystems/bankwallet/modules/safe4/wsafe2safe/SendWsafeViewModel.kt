@@ -42,7 +42,6 @@ class SendWsafeViewModel(
 
     init {
         service.stateObservable.subscribeIO {
-            Log.e("longwen", "state=$it")
             sync(it) }.let { disposable.add(it) }
         service.amountCautionObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
 

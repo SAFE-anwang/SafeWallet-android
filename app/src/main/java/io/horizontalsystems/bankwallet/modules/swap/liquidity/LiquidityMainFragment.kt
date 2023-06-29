@@ -1,9 +1,6 @@
-package io.horizontalsystems.bankwallet.modules.swap
+package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,33 +31,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderTradeData
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionState
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation.LiquidityConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSettingsFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.UniswapSettingsFragment
-import io.horizontalsystems.bankwallet.modules.swap.ui.ActionButtons
-import io.horizontalsystems.bankwallet.modules.swap.ui.AvailableBalance
-import io.horizontalsystems.bankwallet.modules.swap.ui.Price
-import io.horizontalsystems.bankwallet.modules.swap.ui.SingleLineGroup
-import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
-import io.horizontalsystems.bankwallet.modules.swap.ui.SwapAllowance
-import io.horizontalsystems.bankwallet.modules.swap.ui.SwapError
-import io.horizontalsystems.bankwallet.modules.swap.ui.SwitchCoinsSection
+import io.horizontalsystems.bankwallet.modules.swap.ui.*
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard.Opened
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -72,7 +67,7 @@ import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.marketkit.models.*
 import kotlinx.coroutines.launch
 
-class SwapMainFragment : BaseFragment() {
+class LiquidityMainFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,9 +79,15 @@ class SwapMainFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
-                val factory = SwapMainModule.Factory(requireArguments())
-                val mainViewModel: SwapMainViewModel by viewModels { factory }
-                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
+                val factory = LiquidityMainModule.Factory(requireArguments())
+                val mainViewModel: LiquidityMainViewModel by viewModels { factory }
+                val allowanceViewModel: LiquidityAllowanceViewModel by viewModels { factory }
+                mainViewModel.sendStateObservable.observe(viewLifecycleOwner, Observer {
+                    if (it is SendEvmTransactionService.SendState.Sent) {
+                        Toast.makeText(requireActivity(), R.string.Liquidity_Add_Success, Toast.LENGTH_LONG).show()
+                        findNavController().popBackStack()
+                    }
+                })
                 setContent {
                     ComposeAppTheme {
                         SwapNavHost(
@@ -109,8 +110,8 @@ class SwapMainFragment : BaseFragment() {
 @Composable
 private fun SwapNavHost(
     fragmentNavController: NavController,
-    mainViewModel: SwapMainViewModel,
-    allowanceViewModel: SwapAllowanceViewModel,
+    mainViewModel: LiquidityMainViewModel,
+    allowanceViewModel: LiquidityAllowanceViewModel,
 ) {
     SwapMainScreen(
         navController = fragmentNavController,
@@ -124,8 +125,8 @@ private fun SwapNavHost(
 @Composable
 private fun SwapMainScreen(
     navController: NavController,
-    viewModel: SwapMainViewModel,
-    allowanceViewModel: SwapAllowanceViewModel,
+    viewModel: LiquidityMainViewModel,
+    allowanceViewModel: LiquidityAllowanceViewModel,
     onCloseClick: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -149,7 +150,7 @@ private fun SwapMainScreen(
         ) {
             Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Swap),
+                    title = TranslatableString.ResString(R.string.liquidity_title),
                     menuItems = listOf(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.Button_Close),
@@ -180,8 +181,8 @@ private fun SwapMainScreen(
 @Composable
 fun SwapCards(
     navController: NavController,
-    viewModel: SwapMainViewModel,
-    allowanceViewModel: SwapAllowanceViewModel
+    viewModel: LiquidityMainViewModel,
+    allowanceViewModel: LiquidityAllowanceViewModel
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -274,7 +275,7 @@ fun SwapCards(
                 }
 
                 if (allowanceViewModel.uiState.isVisible && !allowanceViewModel.uiState.revokeRequired) {
-                    infoItems.add { SwapAllowance(allowanceViewModel, navController) }
+                    infoItems.add { LiquidityAllowance(allowanceViewModel, navController) }
                 }
 
                 if (infoItems.isEmpty()) {
@@ -287,7 +288,15 @@ fun SwapCards(
                 }
             }
 
-            if (buttons.revoke is SwapActionState.Enabled && allowanceViewModel.uiState.revokeRequired) {
+            if (buttons.revoke1 is SwapMainModule.SwapActionState.Enabled && allowanceViewModel.uiState.revokeRequired) {
+                Spacer(modifier = Modifier.height(12.dp))
+                TextImportantWarning(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = stringResource(R.string.Approve_RevokeAndApproveInfo, allowanceViewModel.uiState.allowance ?: "")
+                )
+            }
+
+            if (buttons.revoke2 is SwapMainModule.SwapActionState.Enabled && allowanceViewModel.uiState.revokeRequired) {
                 Spacer(modifier = Modifier.height(12.dp))
                 TextImportantWarning(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -297,9 +306,9 @@ fun SwapCards(
 
             VSpacer(32.dp)
 
-            ActionButtons(
+            ActionButtons2(
                 buttons = buttons,
-                onTapRevoke = {
+                onTapRevoke1 = {
                     navController.getNavigationResult(SwapApproveModule.requestKey) {
                         if (it.getBoolean(SwapApproveModule.resultKey)) {
                             viewModel.didApprove()
@@ -313,7 +322,7 @@ fun SwapCards(
                         )
                     }
                 },
-                onTapApprove = {
+                onTapApprove1 = {
                     navController.getNavigationResult(SwapApproveModule.requestKey) {
                         if (it.getBoolean(SwapApproveModule.resultKey)) {
                             viewModel.didApprove()
@@ -327,9 +336,36 @@ fun SwapCards(
                         )
                     }
                 },
+                onTapRevoke2 = {
+                    navController.getNavigationResult(SwapApproveModule.requestKey) {
+                        if (it.getBoolean(SwapApproveModule.resultKey)) {
+                            viewModel.didApprove()
+                        }
+                    }
+                    viewModel.revokeEvmDataB?.let { revokeEvmData ->
+                        navController.slideFromBottom(
+                            R.id.swapApproveConfirmationFragment,
+                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false)
+                        )
+                    }
+                },
+                onTapApprove2 = {
+                    navController.getNavigationResult(SwapApproveModule.requestKey) {
+                        if (it.getBoolean(SwapApproveModule.resultKey)) {
+                            viewModel.didApproveB()
+                        }
+                    }
+
+                    viewModel.approveDataB?.let { data ->
+                        navController.slideFromBottom(
+                            R.id.swapApproveFragment,
+                            SwapApproveModule.prepareParams(data)
+                        )
+                    }
+                },
                 onTapProceed = {
                     when (val swapData = viewModel.proceedParams) {
-                        is SwapMainModule.SwapData.OneInchData -> {
+                        /*is LiquidityMainModule.SwapData.OneInchData -> {
                             navController.slideFromRight(
                                 R.id.oneInchConfirmationFragment,
                                 OneInchSwapConfirmationFragment.prepareParams(
@@ -337,22 +373,23 @@ fun SwapCards(
                                     swapData.data
                                 )
                             )
-                        }
+                        }*/
 
-                        is SwapMainModule.SwapData.UniswapData -> {
-                            viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
+                        is LiquidityMainModule.SwapData.UniswapData -> {
+                            viewModel.send(swapData)
+                            /*viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
                                 navController.slideFromRight(
                                     R.id.uniswapConfirmationFragment,
-                                    UniswapConfirmationFragment.prepareParams(
+                                    LiquidityConfirmationFragment.prepareParams(
                                         swapState.dex,
                                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                                         sendEvmData.additionalInfo,
+                                        viewModel.getFromToken
                                     )
                                 )
-                            }
+                            }*/
                         }
-
-                        null -> {}
+                        else -> {}
                     }
                 }
             )
@@ -371,7 +408,7 @@ fun SwapCards(
 
 @Composable
 private fun TopMenu(
-    viewModel: SwapMainViewModel,
+    viewModel: LiquidityMainViewModel,
     navController: NavController,
     showProviderSelector: () -> Unit,
 ) {
@@ -402,10 +439,10 @@ private fun TopMenu(
         ButtonSecondaryCircle(
             icon = R.drawable.ic_manage_2,
             onClick = {
-                navController.getNavigationResult(SwapMainModule.resultKey) {
-                    val recipient = it.getParcelable<Address>(SwapMainModule.swapSettingsRecipientKey)
-                    val slippage = it.getString(SwapMainModule.swapSettingsSlippageKey)
-                    val ttl = it.getLong(SwapMainModule.swapSettingsTtlKey)
+                navController.getNavigationResult(LiquidityMainModule.resultKey) {
+                    val recipient = it.getParcelable<Address>(LiquidityMainModule.swapSettingsRecipientKey)
+                    val slippage = it.getString(LiquidityMainModule.swapSettingsSlippageKey)
+                    val ttl = it.getLong(LiquidityMainModule.swapSettingsTtlKey)
                     viewModel.onUpdateSwapSettings(recipient, slippage?.toBigDecimal(), ttl)
                 }
                 when (state.dex.provider) {
@@ -451,7 +488,7 @@ private fun TopMenu(
 
 @Composable
 private fun BottomSheetProviderSelector(
-    items: List<SwapMainModule.ProviderViewItem>,
+    items: List<LiquidityMainModule.ProviderViewItem>,
     onSelect: (SwapMainModule.ISwapProvider) -> Unit,
     onCloseClick: () -> Unit
 ) {
@@ -504,7 +541,7 @@ private fun BottomSheetProviderSelector(
 
 @Composable
 fun PriceImpact(
-    priceImpact: SwapMainModule.PriceImpactViewItem,
+    priceImpact: LiquidityMainModule.PriceImpactViewItem,
     navController: NavController
 ) {
     Row(modifier = Modifier.height(40.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -544,7 +581,7 @@ fun PriceImpact(
 
 @Composable
 private fun getPriceImpactColor(
-    priceImpactLevel: PriceImpactLevel?
+    priceImpactLevel: LiquidityMainModule.PriceImpactLevel?
 ): Color {
     return when (priceImpactLevel) {
         PriceImpactLevel.Normal -> ComposeAppTheme.colors.jacob

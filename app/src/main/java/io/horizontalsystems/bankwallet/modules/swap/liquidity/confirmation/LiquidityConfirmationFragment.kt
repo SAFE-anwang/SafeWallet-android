@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap
+package io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation
 
 import androidx.core.os.bundleOf
 import androidx.navigation.navGraphViewModels
@@ -11,11 +11,12 @@ import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceVie
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
+import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationModule
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
 
-class UniswapConfirmationFragment(
+class LiquidityConfirmationFragment(
     override val navGraphId: Int = R.id.uniswapConfirmationFragment
 ) : BaseSwapConfirmationFragment() {
 
@@ -29,7 +30,7 @@ class UniswapConfirmationFragment(
             dex: SwapMainModule.Dex,
             transactionData: SendEvmModule.TransactionDataParcelable,
             additionalInfo: SendEvmData.AdditionalInfo?,
-            token: Token? = null
+            token: Token?
         ) = bundleOf(
             dexKey to dex,
             transactionDataKey to transactionData,

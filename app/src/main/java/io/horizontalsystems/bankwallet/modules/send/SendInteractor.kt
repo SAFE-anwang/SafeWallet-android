@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.send
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -16,12 +15,10 @@ class SendInteractor : SendModule.ISendInteractor {
         sendSingle.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Log.e("longwen", "send success")
                     logger.info("success")
 
                     delegate.didSend()
                 }, { error ->
-                    Log.e("longwen", "send error")
                     logger.warning("failed", error)
 
                     delegate.didFailToSend(error)

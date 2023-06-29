@@ -56,6 +56,7 @@ import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
@@ -346,17 +347,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     },
                     enabled = viewItem.swapEnabled
                 )
-                /*Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 ButtonPrimaryCircle(
-                    icon = R.drawable.icon_link_20,
+                    icon = R.drawable.ic_transactions,
                     onClick = {
                         navController.slideFromBottom(
                             R.id.liquidityFragment,
-                            LiquidityModule.prepareParams(viewItem.wallet.token)
+                            LiquidityMainModule.prepareParams(viewItem.wallet.token)
                         )
                     },
                     enabled = viewItem.swapEnabled
-                )*/
+                )
             } else {
                 ButtonPrimaryDefaultBlue(
                     modifier = Modifier.weight(1f),

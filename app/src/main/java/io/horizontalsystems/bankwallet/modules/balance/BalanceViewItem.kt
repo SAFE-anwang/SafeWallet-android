@@ -42,7 +42,8 @@ data class BalanceViewItem(
     val swapVisible: Boolean,
     val swapEnabled: Boolean = false,
     val errorMessage: String?,
-    val isWatchAccount: Boolean
+    val isWatchAccount: Boolean,
+    val isLpToken: Boolean = false
 )
 
 data class DeemedValue<T>(val value: T, val dimmed: Boolean = false, val visible: Boolean = true)
@@ -296,7 +297,8 @@ class BalanceViewItemFactory {
                 swapVisible = wallet.token.swappable,
                 swapEnabled = state is AdapterState.Synced,
                 errorMessage = (state as? AdapterState.NotSynced)?.error?.message,
-                isWatchAccount = watchAccount
+                isWatchAccount = watchAccount,
+                isLpToken = item.wallet.coin.name == "Pancake LPs"
         )
     }
 }

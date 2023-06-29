@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,15 +26,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.*
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
+import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun NoteWarning(
@@ -226,7 +231,17 @@ fun BalanceItems(
                 )
             } else {
                 Spacer(modifier = Modifier.weight(1f))
-
+                
+                ButtonPrimaryYellow(
+                    modifier = Modifier.wrapContentWidth(),
+                    title = stringResource(R.string.liquidity_title),
+                    onClick = {
+                        navController.slideFromRight(
+                            R.id.listLiquidity
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.padding(start = 16.dp))
                 ButtonSecondaryCircle(
                     icon = R.drawable.ic_manage_2,
                     contentDescription = stringResource(R.string.ManageCoins_title),
@@ -247,6 +262,7 @@ fun BalanceItems(
                         )
                     }
                 )
+
             }
 
             Spacer(modifier = Modifier.width(16.dp))

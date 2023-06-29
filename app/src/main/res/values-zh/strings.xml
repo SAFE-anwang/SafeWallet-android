@@ -1652,4 +1652,13 @@
     <string name="Zero_Transactions_Filter">过滤交易</string>
     <string name="liquidity_setting_price_min">最小价格</string>
     <string name="liquidity_setting_price_max">最大价格</string>
+    <string name="liquidity_remove_title">移除流动性</string>
+    <string name="Liquidity_NoAlert">您还没有添加流动性</string>
+    <string name="Liquidity_Num">流动性数量:</string>
+    <string name="Liquidity_Total">总共:</string>
+    <string name="Liquidity_Remove_Confirm">确定移除流动性吗?</string>
+    <string name="Liquidity_Remove_Confirm_OK">确定</string>
+    <string name="Liquidity_Remove_Confirm_Cancel">取消</string>
+    <string name="Liquidity_Add">添加</string>
+    <string name="Liquidity_Add_Success">添加成功</string>
 </resources>

@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
@@ -97,7 +98,7 @@ data class SendEvmData(
         val deadline: String? = null,
         val recipientDomain: String? = null,
         val price: String? = null,
-        val priceImpact: PriceImpactViewItem? = null,
+        val priceImpact: LiquidityMainModule.PriceImpactViewItem? = null,
         val gasPrice: String? = null,
     ) : Parcelable
 

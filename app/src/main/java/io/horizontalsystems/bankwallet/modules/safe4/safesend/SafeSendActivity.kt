@@ -114,7 +114,6 @@ class SafeSendActivity : BaseActivity() {
 
     private fun subscribeToRouterEvents(router: SendRouter) {
         router.closeWithSuccess.observe(this, Observer {
-            com.google.android.exoplayer2.util.Log.e("longwen", "closeWithSuccess")
             HudHelper.showSuccessMessage(
                 findViewById(android.R.id.content),
                 R.string.Send_Success,

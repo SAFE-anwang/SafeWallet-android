@@ -1878,4 +1878,14 @@
     <string name="Zero_Transactions_Filter">Filter by Transactions</string>
     <string name="liquidity_setting_price_min">Min price</string>
     <string name="liquidity_setting_price_max">Max price</string>
+
+    <string name="liquidity_remove_title">Remove Liquidity</string>
+    <string name="Liquidity_NoAlert">You don\'t have an added liquidity.</string>
+    <string name="Liquidity_Num">Liquidity Num:</string>
+    <string name="Liquidity_Total">Total:</string>
+    <string name="Liquidity_Remove_Confirm">Are you sure remove liquidity?</string>
+    <string name="Liquidity_Remove_Confirm_OK">Confirm</string>
+    <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
+    <string name="Liquidity_Add">Add</string>
+    <string name="Liquidity_Add_Success">Add success</string>
 </resources>

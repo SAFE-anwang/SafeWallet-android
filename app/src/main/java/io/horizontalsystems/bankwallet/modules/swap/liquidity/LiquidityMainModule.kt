@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.swap
+package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
 import android.os.Bundle
 import android.os.Parcelable
@@ -12,9 +12,11 @@ import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceService
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceService
+import io.horizontalsystems.bankwallet.modules.swap.*
+import io.horizontalsystems.bankwallet.modules.swap.allowance.*
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
@@ -29,82 +31,85 @@ import java.math.BigInteger
 import java.util.*
 import kotlin.math.absoluteValue
 
-object SwapMainModule {
+object LiquidityMainModule {
 
     private const val tokenFromKey = "token_from_key"
-    const val resultKey = "swap_settings_result"
-    const val swapSettingsRecipientKey = "swap_settings_recipient"
-    const val swapSettingsSlippageKey = "swap_settings_slippage"
-    const val swapSettingsTtlKey = "swap_settings_ttl"
+    const val resultKey = "liquidity_settings_result"
+    const val swapSettingsRecipientKey = "liquidity_settings_recipient"
+    const val swapSettingsSlippageKey = "liquidity_settings_slippage"
+    const val swapSettingsTtlKey = "liquidity_settings_ttl"
 
     fun prepareParams(tokenFrom: Token) = bundleOf(tokenFromKey to tokenFrom)
 
     data class ProviderViewItem(
-        val provider: ISwapProvider,
+        val provider: SwapMainModule.ISwapProvider,
         val selected: Boolean,
     )
 
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
         private val tokenFrom: Token? = arguments.getParcelable(tokenFromKey)
-        private val swapProviders: List<ISwapProvider> = listOf(
-            UniswapProvider,
-            UniswapV3Provider,
-            PancakeSwapProvider,
-            SafeSwapProvider,
-            OneInchProvider,
-            QuickSwapProvider
+        private val swapProviders: List<SwapMainModule.ISwapProvider> = listOf(
+            PancakeLiquidityProvider
         )
         private val switchService by lazy { AmountTypeSwitchService() }
-        private val swapMainXService by lazy { SwapMainService(tokenFrom, swapProviders, App.localStorage) }
-        private val evmKit: EthereumKit = App.evmBlockchainManager.getEvmKitManager(swapMainXService.dex.blockchainType).evmKitWrapper?.evmKit ?: throw Exception("EvmKit is not initialized")
-        private val allowanceService by lazy { SwapAllowanceService(App.adapterManager, evmKit) }
-        private val pendingAllowanceService by lazy { SwapPendingAllowanceService(App.adapterManager, allowanceService) }
+        private val swapMainXService by lazy { LiquidityMainService(tokenFrom, swapProviders, App.localStorage) }
+        private val evmKitWrapper by lazy { App.evmBlockchainManager.getEvmKitManager(swapMainXService.dex.blockchainType).evmKitWrapper }
+        private val evmKit: EthereumKit = evmKitWrapper?.evmKit ?: throw Exception("EvmKit is not initialized")
+        private val allowanceServiceA by lazy { LiquidityAllowanceService(App.adapterManager, evmKit) }
+        private val allowanceServiceB by lazy { LiquidityAllowanceService(App.adapterManager, evmKit) }
+        private val pendingAllowanceServiceA by lazy { LiquidityPendingAllowanceService(App.adapterManager, allowanceServiceA) }
+        private val pendingAllowanceServiceB by lazy { LiquidityPendingAllowanceService(App.adapterManager, allowanceServiceB) }
         private val errorShareService by lazy { ErrorShareService() }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
             return when (modelClass) {
-                SwapMainViewModel::class.java -> {
+                LiquidityMainViewModel::class.java -> {
                     val fromFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
                     switchService.fromListener = fromFiatService
                     val toFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
                     switchService.toListener = toFiatService
 
-                    val fromTokenService = SwapTokenService(
+                    val fromTokenService = LiquidityTokenService(
                         switchService = switchService,
                         fiatService = fromFiatService,
                         resetAmountOnCoinSelect = true,
                         initialToken = tokenFrom
                     )
-                    val toTokenService = SwapTokenService(
+                    val toTokenService = LiquidityTokenService(
                         switchService = switchService,
                         fiatService = toFiatService,
                         resetAmountOnCoinSelect = false,
                         initialToken = null
                     )
 
-                    val formatter = SwapViewItemHelper(App.numberFormatter)
-                    SwapMainViewModel(
+                    val formatter = LiquidityViewItemHelper(App.numberFormatter)
+                    LiquidityMainViewModel(
                         formatter,
                         swapMainXService,
                         switchService,
                         fromTokenService,
                         toTokenService,
-                        allowanceService,
-                        pendingAllowanceService,
+                        allowanceServiceA,
+                        allowanceServiceB,
+                        pendingAllowanceServiceA,
+                        pendingAllowanceServiceB,
                         errorShareService,
                         TimerService(evmKit),
                         App.currencyManager,
-                        App.adapterManager
+                        App.adapterManager,
+                        evmKitWrapper
                     ) as T
                 }
 
-                SwapAllowanceViewModel::class.java -> {
-                    SwapAllowanceViewModel(
+                LiquidityAllowanceViewModel::class.java -> {
+                    LiquidityAllowanceViewModel(
                         errorShareService,
-                        allowanceService,
-                        pendingAllowanceService,
+                        allowanceServiceA,
+                        allowanceServiceB,
+                        pendingAllowanceServiceA,
+                        pendingAllowanceServiceB,
                         SwapViewItemHelper(App.numberFormatter)
                     ) as T
                 }
@@ -135,9 +140,10 @@ object SwapMainModule {
     }
 
     data class SwapState(
-        val dex: Dex,
+        val dex: SwapMainModule.Dex,
         val providerViewItems: List<ProviderViewItem>,
         val availableBalance: String?,
+        val availableBalanceB: String?,
         val amountTypeSelect: Select<AmountTypeItem>,
         val amountTypeSelectEnabled: Boolean,
         val fromState: SwapCoinCardViewState,
@@ -145,7 +151,7 @@ object SwapMainModule {
         val tradeView: TradeViewX?,
         val tradePriceExpiration: Float?,
         val error: String?,
-        val buttons: SwapButtons,
+        val buttons: SwapMainModule.SwapButtons2,
         val hasNonZeroBalance: Boolean?,
         val recipient: Address?,
         val slippage: BigDecimal,
@@ -233,64 +239,23 @@ object SwapMainModule {
         ) : ProviderTradeData()
     }
 
-    @Parcelize
-    class Dex(val blockchain: Blockchain, val provider: ISwapProvider) : Parcelable {
+    /*@Parcelize
+    class Dex(val blockchain: Blockchain, val provider: ILiquidityProvider) : Parcelable {
         val blockchainType get() = blockchain.type
-    }
+    }*/
 
-    interface ISwapProvider : Parcelable {
+    /*interface ILiquidityProvider : Parcelable {
         val id: String
         val title: String
         val url: String
         val supportsExactOut: Boolean
 
         fun supports(blockchainType: BlockchainType): Boolean
-    }
+    }*/
 
     @Parcelize
-    object UniswapProvider : ISwapProvider {
-        override val id get() = "uniswap"
-        override val title get() = "Uniswap"
-        override val url get() = "https://uniswap.org/"
-        override val supportsExactOut get() = true
-
-        override fun supports(blockchainType: BlockchainType): Boolean {
-            return blockchainType == BlockchainType.Ethereum
-        }
-    }
-
-    @Parcelize
-    object UniswapV3Provider : ISwapProvider {
-        override val id get() = "uniswap_v3"
-        override val title get() = "Uniswap V3"
-        override val url get() = "https://uniswap.org/"
-        override val supportsExactOut get() = true
-
-        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
-            BlockchainType.Ethereum,
-            BlockchainType.ArbitrumOne,
-//            BlockchainType.Optimism,
-            BlockchainType.Polygon -> true
-
-            else -> false
-        }
-    }
-
-    @Parcelize
-    object SafeSwapProvider : ISwapProvider {
-        override val id get() = "safe"
-        override val title get()  = "SafeSwap"
-        override val url get()  = "https://safecoreswap.com/"
-        override val supportsExactOut get() = true
-
-        override fun supports(blockchain: BlockchainType): Boolean {
-            return  blockchain == BlockchainType.Ethereum || blockchain == BlockchainType.BinanceSmartChain
-        }
-    }
-
-    @Parcelize
-    object PancakeSwapProvider : ISwapProvider {
-        override val id get() = "pancake"
+    object PancakeLiquidityProvider : SwapMainModule.ISwapProvider {
+        override val id get() = "pancake_liquidity"
         override val title get() = "PancakeSwap"
         override val url get() = "https://pancakeswap.finance/"
         override val supportsExactOut get() = true
@@ -300,47 +265,14 @@ object SwapMainModule {
         }
     }
 
-    @Parcelize
-    object OneInchProvider : ISwapProvider {
-        override val id get() = "oneinch"
-        override val title get() = "1inch"
-        override val url get() = "https://app.1inch.io/"
-        override val supportsExactOut get() = false
-
-        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
-            BlockchainType.Ethereum,
-            BlockchainType.BinanceSmartChain,
-            BlockchainType.Polygon,
-            BlockchainType.Avalanche,
-            BlockchainType.Optimism,
-            BlockchainType.Gnosis,
-            BlockchainType.Fantom,
-            BlockchainType.ArbitrumOne -> true
-
-            else -> false
-        }
-    }
-
-    @Parcelize
-    object QuickSwapProvider : ISwapProvider {
-        override val id get() = "quickswap"
-        override val title get() = "QuickSwap"
-        override val url get() = "https://quickswap.exchange/"
-        override val supportsExactOut get() = true
-
-        override fun supports(blockchainType: BlockchainType): Boolean {
-            return blockchainType == BlockchainType.Polygon
-        }
-    }
-
-    @Parcelize
+/*    @Parcelize
     data class ApproveData(
-        val dex: Dex,
+        val dex: SwapMainModule.Dex,
         val token: Token,
         val spenderAddress: String,
         val amount: BigDecimal,
         val allowance: BigDecimal
-    ) : Parcelable
+    ) : Parcelable*/
 
     @Parcelize
     enum class PriceImpactLevel : Parcelable {
@@ -380,7 +312,7 @@ object SwapMainModule {
         ExactFrom, ExactTo
     }
 
-    sealed class SwapActionState {
+/*    sealed class SwapActionState {
         object Hidden : SwapActionState()
         class Enabled(val buttonTitle: String) : SwapActionState()
         class Disabled(val buttonTitle: String, val loading: Boolean = false) : SwapActionState()
@@ -394,21 +326,7 @@ object SwapMainModule {
 
         val showProgress: Boolean
             get() = this is Disabled && loading
-    }
-
-    data class SwapButtons(
-        val revoke: SwapActionState,
-        val approve: SwapActionState,
-        val proceed: SwapActionState
-    )
-
-    data class SwapButtons2(
-        val revoke1: SwapActionState,
-        val revoke2: SwapActionState,
-        val approve1: SwapActionState,
-        val approve2: SwapActionState,
-        val proceed: SwapActionState
-    )
+    }*/
 
 }
 

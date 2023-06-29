@@ -21,17 +21,19 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.marketkit.models.Token
 
 object UniswapConfirmationModule {
 
     class Factory(
         private val dex: SwapMainModule.Dex,
         private val transactionData: TransactionData,
-        private val additionalInfo: SendEvmData.AdditionalInfo?
+        private val additionalInfo: SendEvmData.AdditionalInfo?,
+        private val sendToken: Token? = null
     ) : ViewModelProvider.Factory {
 
         private val evmKitWrapper by lazy { App.evmBlockchainManager.getEvmKitManager(dex.blockchainType).evmKitWrapper!! }
-        private val token by lazy { App.evmBlockchainManager.getBaseToken(dex.blockchainType)!! }
+        private val token by lazy { sendToken ?: App.evmBlockchainManager.getBaseToken(dex.blockchainType)!! }
         private val gasPriceService: IEvmGasPriceService by lazy {
             val evmKit = evmKitWrapper.evmKit
             if (evmKit.chain.isEIP1559Supported) {

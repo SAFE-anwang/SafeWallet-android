@@ -207,6 +207,10 @@
         android:id="@+id/swapFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.SwapMainFragment"
         android:label="@string/Swap" />
+    <fragment
+        android:id="@+id/liquidityFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainFragment"
+        android:label="@string/Swap" />
 
     <fragment
         android:id="@+id/swapApproveFragment"
@@ -214,6 +218,9 @@
     <fragment
         android:id="@+id/uniswapConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment"/>
+    <fragment
+        android:id="@+id/liquidityConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation.LiquidityConfirmationFragment"/>
     <fragment
         android:id="@+id/oneInchConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment"/>
@@ -420,6 +427,13 @@
         android:id="@+id/restoreMnemonicFragmentHd"
         android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.RestoreMnemonicFragmentHD"
          />
+
+    <fragment
+        android:id="@+id/listLiquidity"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityListFragment"
+         />
+
+
 
     <dialog
         android:id="@+id/wcErrorNoAccountFragment"

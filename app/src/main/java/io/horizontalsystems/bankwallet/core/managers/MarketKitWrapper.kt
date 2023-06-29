@@ -215,4 +215,5 @@ class MarketKitWrapper(
         return marketKit.syncInfo()
     }
 
+    fun getTokenEntity(coinUids: List<String>, type: String) = marketKit.getTokenEntity(coinUids, type)
 }
