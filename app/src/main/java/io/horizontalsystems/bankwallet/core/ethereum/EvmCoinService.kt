@@ -26,6 +26,7 @@ class EvmCoinService(
         }
 
     fun amountData(value: BigInteger, approximate: Boolean = false): SendModule.AmountData {
+        Log.w("longwen", "value=$value, approximate=$approximate")
         val decimalValue = BigDecimal(value, token.decimals)
         val coinValue = CoinValue(token, decimalValue)
 

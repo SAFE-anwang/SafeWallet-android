@@ -1,14 +1,10 @@
-package io.horizontalsystems.bankwallet.modules.swap.confirmation
+package io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
@@ -27,11 +23,9 @@ import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment
-import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
-import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.send.AddLiquidityEvmTransactionView
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.send.AddLiquidityTransactionViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -43,12 +37,10 @@ import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 
-abstract class BaseSwapConfirmationFragment : BaseFragment() {
+abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
 
     protected abstract val logger: AppLogger
-    protected abstract val sendEvmTransactionViewModel: SendEvmTransactionViewModel
-    protected abstract val feeViewModel: EvmFeeCellViewModel
-    protected abstract val nonceViewModel: SendEvmNonceViewModel
+    protected abstract val sendEvmTransactionViewModel: AddLiquidityTransactionViewModel
     protected abstract val navGraphId: Int
 
     private var snackbarInProcess: CustomSnackbar? = null
@@ -65,15 +57,13 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
             )
 
             setContent {
-                BaseSwapConfirmationScreen(
+                BaseAddLiquidityConfirmationScreen(
                     sendEvmTransactionViewModel = sendEvmTransactionViewModel,
-                    feeViewModel = feeViewModel,
-                    nonceViewModel = nonceViewModel,
                     parentNavGraphId = navGraphId,
                     navController = findNavController(),
                     onSendClick = {
                         logger.info("click swap button")
-                        sendEvmTransactionViewModel.send(logger)
+                        sendEvmTransactionViewModel.addLiquidity(logger)
                     })
             }
         }
@@ -96,7 +86,7 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
                 R.string.Hud_Text_Done
             )
             lifecycleScope.launchWhenResumed {
-                findNavController().popBackStack(R.id.swapFragment, true)
+                findNavController().popBackStack(R.id.liquidityFragment, true)
             }
             /*Handler(Looper.getMainLooper()).postDelayed({
                 findNavController().popBackStack(R.id.swapFragment, true)
@@ -112,11 +102,10 @@ abstract class BaseSwapConfirmationFragment : BaseFragment() {
 
 }
 
+
 @Composable
-private fun BaseSwapConfirmationScreen(
-    sendEvmTransactionViewModel: SendEvmTransactionViewModel,
-    feeViewModel: EvmFeeCellViewModel,
-    nonceViewModel: SendEvmNonceViewModel,
+private fun BaseAddLiquidityConfirmationScreen(
+    sendEvmTransactionViewModel: AddLiquidityTransactionViewModel,
     parentNavGraphId: Int,
     navController: NavController,
     onSendClick: () -> Unit
@@ -154,10 +143,8 @@ private fun BaseSwapConfirmationScreen(
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    SendEvmTransactionView(
+                    AddLiquidityEvmTransactionView(
                         sendEvmTransactionViewModel,
-                        feeViewModel,
-                        nonceViewModel,
                         navController
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -167,7 +154,7 @@ private fun BaseSwapConfirmationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
-                        title = stringResource(R.string.Swap),
+                        title = stringResource(R.string.liquidity_add_title),
                         onClick = onSendClick,
                         enabled = enabled
                     )

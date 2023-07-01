@@ -35,6 +35,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.additionalInfoKey
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.backButtonKey
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.backNavGraphIdKey
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.blockchainTypeKey
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.transactionDataKey
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
@@ -74,6 +75,10 @@ class SwapApproveConfirmationFragment : BaseFragment() {
             blockchainType!!
         )
     }
+
+    private val popBackId: Int
+        get() = arguments?.getInt(backNavGraphIdKey) ?: R.id.swapFragment
+
     private val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
     private val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
     private val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
@@ -138,9 +143,9 @@ class SwapApproveConfirmationFragment : BaseFragment() {
                 findNavController().setNavigationResult(
                     SwapApproveModule.requestKey,
                     bundleOf(SwapApproveModule.resultKey to true),
-                    R.id.swapFragment
+                    popBackId
                 )
-                findNavController().popBackStack(R.id.swapFragment, false)
+                findNavController().popBackStack(popBackId, false)
             }, 1200)
         }
 

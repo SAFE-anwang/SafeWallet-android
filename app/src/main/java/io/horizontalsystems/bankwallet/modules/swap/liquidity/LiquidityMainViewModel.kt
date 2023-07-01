@@ -124,6 +124,7 @@ class LiquidityMainViewModel(
     private val uniswapKit by lazy { PancakeSwapKit.getInstance(evmKit) }
 //    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit) }
     private var tradeService: LiquidityMainModule.ISwapTradeService = getTradeService(dex.provider)
+    private var tradeServiceB: LiquidityMainModule.ISwapTradeService = getTradeService(dex.provider)
     private var tradeView: LiquidityMainModule.TradeViewX? = null
     private var tradePriceExpiration: Float? = null
 
@@ -200,6 +201,7 @@ class LiquidityMainViewModel(
             allowanceServiceA.set(getSpenderAddress(provider))
             allowanceServiceB.set(getSpenderAddress(provider))
             tradeService = getTradeService(provider)
+            tradeServiceB = getTradeService(provider)
             toTokenService.setAmountEnabled(provider.supportsExactOut)
             syncUiState()
         }
@@ -302,6 +304,9 @@ class LiquidityMainViewModel(
         tradeService.stateFlow.collectWith(viewModelScope) { state ->
             syncSwapDataState()
         }
+        tradeServiceB.stateFlow.collectWith(viewModelScope) { state ->
+            syncSwapDataState()
+        }
 
         timerService.reSyncFlow.collectWith(viewModelScope) {
             resyncSwapData()
@@ -328,7 +333,6 @@ class LiquidityMainViewModel(
             is SwapResultState.NotReady -> {
                 tradeView = null
                 errors.addAll(state.errors)
-                errorsB.addAll(state.errors)
             }
 
             is SwapResultState.Ready -> {
@@ -352,6 +356,42 @@ class LiquidityMainViewModel(
                     }
                 }
             }
+        }
+
+        when (val state = tradeServiceB.state) {
+            SwapResultState.Loading -> {
+                tradeView = tradeView?.copy(expired = true)
+            }
+
+            is SwapResultState.NotReady -> {
+                tradeView = null
+                errorsB.addAll(state.errors)
+            }
+            else -> {
+
+            }
+
+            /*is SwapResultState.Ready -> {
+                swapData = state.swapData
+                when (val swapData = state.swapData) {
+                    is SwapData.OneInchData -> {
+                        tradeView = oneInchTradeViewItem(swapData.data, fromTokenService.token, toTokenService.token)
+                        amountTo = swapData.data.amountTo
+                        toTokenService.onChangeAmount(swapData.data.amountTo.toString(), true)
+                    }
+
+                    is SwapData.UniswapData -> {
+                        tradeView = uniswapTradeViewItem(swapData, fromTokenService.token, toTokenService.token)
+                        if (exactType == ExactType.ExactFrom) {
+                            amountTo = swapData.data.amountOut
+                            toTokenService.onChangeAmount(swapData.data.amountOut.toString(), true)
+                        } else {
+                            amountFrom = swapData.data.amountIn
+                            fromTokenService.onChangeAmount(swapData.data.amountIn.toString(), true)
+                        }
+                    }
+                }
+            }*/
         }
 
         when (val state = allowanceServiceA.state) {
@@ -382,17 +422,17 @@ class LiquidityMainViewModel(
             is LiquidityAllowanceService.State.Ready -> {
                 amountTo?.let { amountFrom ->
                     if (amountFrom > state.allowance.value) {
-                        if (revokeRequired()) {
-                            errors.add(SwapError.RevokeAllowanceRequired)
+                        if (revokeRequiredB()) {
+                            errorsB.add(SwapError.RevokeAllowanceRequired)
                         } else {
-                            errors.add(SwapError.InsufficientAllowance)
+                            errorsB.add(SwapError.InsufficientAllowance)
                         }
                     }
                 }
             }
 
             is LiquidityAllowanceService.State.NotReady -> {
-                errors.add(state.error)
+                errorsB.add(state.error)
             }
 
             null -> {}
@@ -439,6 +479,8 @@ class LiquidityMainViewModel(
 
     private fun resyncSwapData() {
         tradeService.fetchSwapData(fromTokenService.token, toTokenService.token, amountFrom, amountTo, exactType)
+
+        tradeServiceB.fetchSwapData(toTokenService.token, fromTokenService.token, amountTo, amountFrom, exactType)
     }
 
     private fun syncButtonsState() {
@@ -462,9 +504,12 @@ class LiquidityMainViewModel(
             SwapMainModule.SwapActionState.Hidden
         }
 
-        tradeService.state is SwapResultState.Ready -> {
+        tradeService.state is SwapResultState.Ready && tradeServiceB.state is SwapResultState.Ready -> {
             when {
                 allErrors.any { it == SwapError.InsufficientBalanceFrom } -> {
+                    SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
+                }
+                allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
                     SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
                 }
 
@@ -474,7 +519,7 @@ class LiquidityMainViewModel(
                 }
 
                 else -> {
-                    if (allErrors.isEmpty()) {
+                    if (allErrors.isEmpty() && allErrorsB.isEmpty()) {
                         SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Liquidity_Add))
                     } else {
                         SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
@@ -550,7 +595,7 @@ class LiquidityMainViewModel(
         pendingAllowanceServiceB.state == SwapPendingAllowanceState.Approving -> {
             SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Approving), loading = true)
         }
-        tradeService.state is SwapResultState.NotReady || allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
+        tradeServiceB.state is SwapResultState.NotReady || allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
             SwapMainModule.SwapActionState.Hidden
         }
 
@@ -674,6 +719,12 @@ class LiquidityMainViewModel(
         return allowance.compareTo(BigDecimal.ZERO) != 0 && isUsdt(tokenFrom)
     }
 
+    private fun revokeRequiredB(): Boolean {
+        val tokenFrom = toTokenService.token ?: return false
+        val allowance = approveDataB?.allowance ?: return false
+        return allowance.compareTo(BigDecimal.ZERO) != 0 && isUsdt(tokenFrom)
+    }
+
     private fun isUsdt(token: Token): Boolean {
         val tokenType = token.type
 
@@ -709,6 +760,7 @@ class LiquidityMainViewModel(
         disposable.dispose()
         tradeDisposable.dispose()
         tradeService.stop()
+        tradeServiceB.stop()
         allowanceServiceA.onCleared()
         allowanceServiceB.onCleared()
         pendingAllowanceServiceA.onCleared()
@@ -790,6 +842,7 @@ class LiquidityMainViewModel(
 
     fun setProvider(provider: SwapMainModule.ISwapProvider) {
         tradeService.stop()
+        tradeServiceB.stop()
         service.setProvider(provider)
         Extensions.isSafeSwap = provider.id == "safe"
         subscribeToTradeService()
@@ -826,9 +879,6 @@ class LiquidityMainViewModel(
         } catch (e: Exception) {
             return null
         }
-        val gasPrice = Convert.toWei("5", Convert.Unit.GWEI).toBigInteger()
-        val gasLimit = BigInteger("200000")
-
 
         val (primaryPrice, _) = swapData.data.executionPrice?.let {
             val sellPrice = it
@@ -854,65 +904,8 @@ class LiquidityMainViewModel(
 
     fun onUpdateSwapSettings(recipient: Address?, slippage: BigDecimal?, ttl: Long?) {
         tradeService.updateSwapSettings(recipient, slippage, ttl)
+        tradeServiceB.updateSwapSettings(recipient, slippage, ttl)
         syncSwapDataState()
-    }
-
-    fun send(swapData: SwapData.UniswapData) {
-        if (evmKitWrapper == null)  return
-        val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return
-        val tradeOptions = uniswapTradeService.tradeOptions
-        val transactionData = try {
-            uniswapTradeService.transactionData(swapData.data)
-        } catch (e: Exception) {
-            return
-        }
-
-        sendStateObservable.value = SendEvmTransactionService.SendState.Sending
-        logger.info("sending tx")
-        GlobalScope.launch {
-            try {
-                val web3j: Web3j = Connect.connect()
-                val nonce = web3j.ethGetTransactionCount(
-                    evmKitWrapper.evmKit.receiveAddress.hex,
-                    DefaultBlockParameterName.LATEST
-                )
-                    .send().transactionCount
-                val hash = TransactionContractSend.send(
-                    web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
-                    transactionData.input.toHexString(),
-                    BigInteger.ZERO, nonce,
-                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
-                    BigInteger("500000") // GAS LIMIT
-                )
-                Log.e(
-                    "AddLiquidity",
-                    "send result=${SendEvmTransactionService.SendState.Sent(hash.toByteArray())}"
-                )
-                withContext(Dispatchers.Main) {
-                    sendStateObservable.value = SendEvmTransactionService.SendState.Sent(hash.toByteArray())
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    sendStateObservable.value = SendEvmTransactionService.SendState.Failed(e)
-                }
-            }
-        }
-        /*evmKitWrapper.sendSingle(
-            transactionData,
-            gasPrice,
-            gasLimit,
-            null
-        )
-            .subscribeIO({ fullTransaction ->
-                sendStateObservable.value = SendEvmTransactionService.SendState.Sent(fullTransaction.transaction.hash)
-                logger.info("success")
-            }, { error ->
-                Log.e("longwen", "send error=$error")
-                sendStateObservable.value = SendEvmTransactionService.SendState.Failed(error)
-                logger.warning("failed", error)
-            })
-            .let { disposable.add(it) }*/
     }
 
 }

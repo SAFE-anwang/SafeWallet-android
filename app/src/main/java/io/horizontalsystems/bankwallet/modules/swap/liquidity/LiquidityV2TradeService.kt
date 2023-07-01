@@ -77,7 +77,7 @@ class LiquidityV2TradeService(
             .subscribeOn(Schedulers.io())
             .subscribe({
                 swapData = it
-                syncTradeData(exactType, amountFrom, amountTo, tokenFrom, tokenTo)
+                syncTradeData(/*exactType,*/ amountFrom, amountTo, tokenFrom, tokenTo)
             }, { error ->
                 state = SwapResultState.NotReady(listOf(error))
             })
@@ -101,10 +101,10 @@ class LiquidityV2TradeService(
         swapDataDisposable = null
     }
 
-    private fun syncTradeData(exactType: ExactType, amountFrom: BigDecimal?, amountTo: BigDecimal?, tokenFrom: Token, tokenTo: Token) {
+    private fun syncTradeData(/*exactType: ExactType,*/ amountFrom: BigDecimal?, amountTo: BigDecimal?, tokenFrom: Token, tokenTo: Token) {
         val swapData = swapData ?: return
 
-        val amount = if (exactType == ExactType.ExactFrom) amountFrom else amountTo
+        val amount = /*if (exactType == ExactType.ExactFrom)*/ amountFrom /*else amountTo*/
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) == 0) {
             state = SwapResultState.NotReady()
@@ -112,11 +112,11 @@ class LiquidityV2TradeService(
         }
 
         try {
-            val tradeType = when (exactType) {
+            /*val tradeType = when (exactType) {
                 ExactType.ExactFrom -> TradeType.ExactIn
                 ExactType.ExactTo -> TradeType.ExactOut
-            }
-            val tradeData = tradeData(swapData, amount, tradeType, tradeOptions.tradeOptions)
+            }*/
+            val tradeData = tradeData(swapData, amount, /*TradeType.ExactIn,*/ tradeOptions.tradeOptions)
             state = SwapResultState.Ready(UniswapData(tradeData))
         } catch (e: Throwable) {
             val error = when {
@@ -138,15 +138,15 @@ class LiquidityV2TradeService(
         }
     }
 
-    private fun tradeData(swapData: SwapData, amount: BigDecimal, tradeType: TradeType, tradeOptions: TradeOptions): UniversalSwapTradeData {
-        val tradeData = when (tradeType) {
-            TradeType.ExactIn -> {
+    private fun tradeData(swapData: SwapData, amount: BigDecimal, /*tradeType: TradeType,*/ tradeOptions: TradeOptions): UniversalSwapTradeData {
+        val tradeData = /*when (tradeType) {
+            TradeType.ExactIn -> {*/
                 pancakeKit.bestTradeExactIn(swapData, amount, tradeOptions)
-            }
+            /*}
             TradeType.ExactOut -> {
                 pancakeKit.bestTradeExactOut(swapData, amount, tradeOptions)
             }
-        }
+        }*/
         return UniversalSwapTradeData.buildFromTradeDataV2(tradeData)
     }
 

@@ -30,6 +30,7 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.backNavGraphIdKey
 import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.dataKey
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -55,7 +56,8 @@ class SwapApproveFragment : BaseFragment() {
             )
             setContent {
                 val approveData = requireArguments().getParcelable<SwapMainModule.ApproveData>(dataKey)!!
-                SwapApproveScreen(findNavController(), approveData)
+                val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
+                SwapApproveScreen(findNavController(), approveData, backNavGraphId)
             }
         }
     }
@@ -64,7 +66,8 @@ class SwapApproveFragment : BaseFragment() {
 @Composable
 fun SwapApproveScreen(
     navController: NavController,
-    approveData: SwapMainModule.ApproveData
+    approveData: SwapMainModule.ApproveData,
+    backNavGraphId: Int
 ) {
     val swapApproveViewModel =
         viewModel<SwapApproveViewModel>(factory = SwapApproveModule.Factory(approveData))
@@ -129,7 +132,8 @@ fun SwapApproveScreen(
                         swapApproveViewModel.getSendEvmData()?.let { sendEvmData ->
                             navController.slideFromRight(
                                 R.id.swapApproveConfirmationFragment,
-                                SwapApproveConfirmationModule.prepareParams(sendEvmData, swapApproveViewModel.dex.blockchainType)
+                                SwapApproveConfirmationModule.prepareParams(sendEvmData, swapApproveViewModel.dex.blockchainType,
+                                backNavGraphId = backNavGraphId)
                             )
                         }
                     },

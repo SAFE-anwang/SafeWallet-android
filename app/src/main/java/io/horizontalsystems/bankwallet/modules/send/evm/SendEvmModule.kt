@@ -122,6 +122,7 @@ object SendEvmModule {
     const val backButtonKey = "backButton"
     const val sendNavGraphIdKey = "sendNavGraphId_key"
     const val transactionToken = "transactionToken"
+    const val backNavGraphIdKey = "backNavGraphId"
 
     @Parcelize
     data class TransactionDataParcelable(

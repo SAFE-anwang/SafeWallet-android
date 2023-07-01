@@ -1,14 +1,14 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
-import io.horizontalsystems.bankwallet.core.AppLogger
-import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.Warning
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsService
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -17,8 +17,13 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.web3j.crypto.Credentials
+import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.utils.Convert
 import java.math.BigInteger
 
 interface ISendEvmTransactionService {
@@ -36,6 +41,7 @@ interface ISendEvmTransactionService {
 
     suspend fun start()
     fun send(logger: AppLogger)
+    fun addLiqudity(logger: AppLogger)
     fun methodName(input: ByteArray): String?
 }
 
@@ -131,6 +137,45 @@ class SendEvmTransactionService(
                 logger.warning("failed", error)
             })
             .let { disposable.add(it) }
+    }
+
+    override fun addLiqudity(logger: AppLogger) {
+        /*if (state !is State.Ready) {
+            logger.info("state is not Ready: ${state.javaClass.simpleName}")
+            return
+        }*/
+//        val txConfig = settingsService.state.dataOrNull ?: return
+
+        sendState = SendState.Sending
+
+        logger.info("sending tx")
+        GlobalScope.launch {
+            try {
+                val web3j: Web3j = Connect.connect()
+                val nonce = web3j.ethGetTransactionCount(
+                    evmKitWrapper.evmKit.receiveAddress.hex,
+                    DefaultBlockParameterName.LATEST
+                )
+                    .send().transactionCount
+                val hash = TransactionContractSend.send(
+                    web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                    sendEvmData.transactionData.input.toHexString(),
+                    BigInteger.ZERO, nonce,
+                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    BigInteger("500000") // GAS LIMIT
+                )
+                withContext(Dispatchers.Main) {
+                    sendState = SendState.Sent(hash.toByteArray())
+                    logger.info("success")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    sendState = SendState.Failed(e)
+                    logger.warning("failed", e)
+                }
+            }
+        }
     }
 
     override fun methodName(input: ByteArray): String? =

@@ -12,13 +12,14 @@ import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransac
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.send.AddLiquidityTransactionViewModel
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
 
 class LiquidityConfirmationFragment(
-    override val navGraphId: Int = R.id.uniswapConfirmationFragment
-) : BaseSwapConfirmationFragment() {
+    override val navGraphId: Int = R.id.liquidityConfirmationFragment
+) : BaseAddLiquidityConfirmationFragment() {
 
     companion object {
         private const val transactionDataKey = "transactionDataKey"
@@ -60,7 +61,7 @@ class LiquidityConfirmationFragment(
         requireArguments().getParcelable<Token>(tokenKey)
     }
 
-    override val logger = AppLogger("swap_uniswap")
+    override val logger = AppLogger("add-liquidity")
 
     private val vmFactory by lazy {
         UniswapConfirmationModule.Factory(
@@ -70,8 +71,8 @@ class LiquidityConfirmationFragment(
             token
         )
     }
-    override val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(navGraphId) { vmFactory }
-    override val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(navGraphId) { vmFactory }
-    override val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(navGraphId) { vmFactory }
+    override val sendEvmTransactionViewModel by navGraphViewModels<AddLiquidityTransactionViewModel>(navGraphId) { vmFactory }
+//    override val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(navGraphId) { vmFactory }
+//    override val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(navGraphId) { vmFactory }
 
 }

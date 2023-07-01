@@ -318,7 +318,7 @@ fun SwapCards(
                     viewModel.revokeEvmData?.let { revokeEvmData ->
                         navController.slideFromBottom(
                             R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false)
+                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false, R.id.liquidityFragment)
                         )
                     }
                 },
@@ -332,7 +332,7 @@ fun SwapCards(
                     viewModel.approveData?.let { data ->
                         navController.slideFromBottom(
                             R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data)
+                            SwapApproveModule.prepareParams(data,  R.id.liquidityFragment)
                         )
                     }
                 },
@@ -345,7 +345,7 @@ fun SwapCards(
                     viewModel.revokeEvmDataB?.let { revokeEvmData ->
                         navController.slideFromBottom(
                             R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false)
+                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false, R.id.liquidityFragment)
                         )
                     }
                 },
@@ -359,7 +359,7 @@ fun SwapCards(
                     viewModel.approveDataB?.let { data ->
                         navController.slideFromBottom(
                             R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data)
+                            SwapApproveModule.prepareParams(data, R.id.liquidityFragment)
                         )
                     }
                 },
@@ -376,10 +376,10 @@ fun SwapCards(
                         }*/
 
                         is LiquidityMainModule.SwapData.UniswapData -> {
-                            viewModel.send(swapData)
-                            /*viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
+//                            viewModel.send(swapData)
+                            viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
                                 navController.slideFromRight(
-                                    R.id.uniswapConfirmationFragment,
+                                    R.id.liquidityConfirmationFragment,
                                     LiquidityConfirmationFragment.prepareParams(
                                         swapState.dex,
                                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
@@ -387,7 +387,7 @@ fun SwapCards(
                                         viewModel.getFromToken
                                     )
                                 )
-                            }*/
+                            }
                         }
                         else -> {}
                     }

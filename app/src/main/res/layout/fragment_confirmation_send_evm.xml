@@ -17,7 +17,7 @@
         app:title="@string/Send_Confirmation_Title"
         app:titleTextAppearance="@style/Title3" />
 
-    <!--<io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
+    <!--<io.horizontalsystems.bankwallet.modules.swap.liquidity.send.SendEvmTransactionView
         android:id="@+id/sendEvmTransactionView"
         android:layout_width="0dp"
         android:layout_height="0dp"

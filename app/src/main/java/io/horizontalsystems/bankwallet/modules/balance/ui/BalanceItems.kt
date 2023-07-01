@@ -231,10 +231,10 @@ fun BalanceItems(
                 )
             } else {
                 Spacer(modifier = Modifier.weight(1f))
-                
-                ButtonPrimaryYellow(
-                    modifier = Modifier.wrapContentWidth(),
-                    title = stringResource(R.string.liquidity_title),
+
+                ButtonSecondaryCircle(
+                    icon = R.drawable.ic_transactions,
+                    contentDescription = stringResource(R.string.ManageCoins_title),
                     onClick = {
                         navController.slideFromRight(
                             R.id.listLiquidity

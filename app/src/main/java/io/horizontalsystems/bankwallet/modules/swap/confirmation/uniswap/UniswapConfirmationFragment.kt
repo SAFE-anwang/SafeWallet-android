@@ -65,8 +65,8 @@ class UniswapConfirmationFragment(
         UniswapConfirmationModule.Factory(
             dex,
             transactionData,
-            additionalInfo,
-            token
+            additionalInfo/*,
+            token*/
         )
     }
     override val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(navGraphId) { vmFactory }

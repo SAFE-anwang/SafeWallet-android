@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.sendevmtransaction
+package io.horizontalsystems.bankwallet.modules.swap.liquidity.send
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,16 +9,24 @@ import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItemFactory
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.entities.CoinValue
+import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
+import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
+import io.horizontalsystems.bankwallet.modules.fee.FeeItem
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.*
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.ILiquidityTradeService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
 import io.horizontalsystems.bankwallet.modules.swap.scaleUp
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
 import io.horizontalsystems.core.toHexString
@@ -41,19 +49,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameter
 import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.tx.gas.DefaultGasProvider
 import org.web3j.utils.Convert
 import java.math.BigDecimal
 import java.math.BigInteger
 
-class SendEvmTransactionViewModel(
+class AddLiquidityTransactionViewModel(
     val service: ISendEvmTransactionService,
     private val coinServiceFactory: EvmCoinServiceFactory,
     private val cautionViewItemFactory: CautionViewItemFactory,
     private val contactsRepo: ContactsRepository,
-    private val blockchainType: BlockchainType
+    private val blockchainType: BlockchainType,
+    private val currencyManager: CurrencyManager,
+    private val marketKit: MarketKitWrapper,
+    private val chainToken: Token
 ) : ViewModel() {
     private val disposable = CompositeDisposable()
 
@@ -66,10 +78,12 @@ class SendEvmTransactionViewModel(
 
     val viewItemsLiveData = MutableLiveData<List<SectionViewItem>>()
 
+    val feeLiveData = MutableLiveData<FeeItem?>()
+    val feeViewStateLiveData = MutableLiveData<ViewState>()
+
     init {
         service.stateObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
         service.sendStateObservable.subscribeIO { sync(it) }.let { disposable.add(it) }
-
         sync(service.state)
         sync(service.sendState)
 
@@ -81,6 +95,46 @@ class SendEvmTransactionViewModel(
         viewModelScope.launch {
             service.start()
         }
+        getFee()
+    }
+
+    val rate: CurrencyValue?
+        get() {
+            val baseCurrency = currencyManager.baseCurrency
+            return marketKit.coinPrice(chainToken.coin.uid, baseCurrency.code)?.let {
+                CurrencyValue(baseCurrency, it.value)
+            }
+        }
+
+    private fun getFee() {
+        GlobalScope.launch {
+            try {
+                val web3j: Web3j = Connect.connect()
+                val gasPrice: BigInteger = web3j.ethGasPrice()
+                    .send()
+                    .getGasPrice()
+                val gasLimit: BigInteger = BigInteger("500000")
+                val transactionFee = gasPrice.multiply(gasLimit)
+                val balanceResponse = web3j.ethGetBalance(service.ownAddress.hex, DefaultBlockParameterName.LATEST).send()
+                val balance = balanceResponse.balance
+                Log.d("getFee", "gasPrice=$gasPrice, transactionFee=${transactionFee}, walletBalance=${balance}")
+
+                val feeAmountData = amountData(transactionFee, true)
+                Log.e("getFee", "getFee=$transactionFee, ${feeAmountData.primary}, ${feeAmountData.secondary}")
+                withContext(Dispatchers.Main) {
+                    val feeViewItem = FeeItem(
+                        primary = feeAmountData.primary.getFormattedPlain(),
+                        secondary = feeAmountData.secondary?.getFormattedPlain()
+                    )
+                    feeLiveData.postValue(feeViewItem)
+                    if (balance > transactionFee) {
+                        sendEnabledLiveData.value = true
+                    }
+                }
+            } catch (e: Exception) {
+                cautionsLiveData.postValue(cautionViewItemFactory.cautionViewItems(listOf(), listOf(e)))
+            }
+        }
     }
 
     fun send(logger: AppLogger) {
@@ -88,7 +142,7 @@ class SendEvmTransactionViewModel(
     }
 
     fun addLiquidity(logger: AppLogger) {
-        service.send(logger)
+        service.addLiqudity(logger)
     }
 
     override fun onCleared() {
@@ -97,7 +151,7 @@ class SendEvmTransactionViewModel(
 
     @Synchronized
     private fun sync(state: SendEvmTransactionService.State) {
-        when (state) {
+        /*when (state) {
             is SendEvmTransactionService.State.Ready -> {
                 val sendEnabled = service.txDataState.additionalInfo?.uniswapInfo?.priceImpact?.level != PriceImpactLevel.Forbidden
                 sendEnabledLiveData.postValue(sendEnabled)
@@ -107,7 +161,7 @@ class SendEvmTransactionViewModel(
                 sendEnabledLiveData.postValue(false)
                 cautionsLiveData.postValue(cautionViewItemFactory.cautionViewItems(state.warnings, state.errors))
             }
-        }
+        }*/
 
         viewItemsLiveData.postValue(getItems(service.txDataState))
     }
@@ -391,7 +445,12 @@ class SendEvmTransactionViewModel(
                 if (uniswapInfo?.estimatedOut != null) {
                     getEstimatedSwapAmount(coinServiceOut.amountData(uniswapInfo.estimatedOut)).let {
                         outViewItems.add(
-                            ViewItem.Amount(it.fiatAmount, it.coinAmount, ValueType.Incoming, coinServiceOut.token)
+                            ViewItem.Amount(
+                                it.fiatAmount,
+                                it.coinAmount,
+                                ValueType.Incoming,
+                                coinServiceOut.token
+                            )
                         )
                     }
                     otherViewItems.add(
@@ -478,7 +537,12 @@ class SendEvmTransactionViewModel(
             if (oneInchInfo?.estimatedAmountTo != null) {
                 getEstimatedSwapAmount(coinServiceOut.amountData(oneInchInfo.estimatedAmountTo)).let {
                     outViewItems.add(
-                        ViewItem.Amount(it.fiatAmount, it.coinAmount, ValueType.Incoming, coinServiceOut.token)
+                        ViewItem.Amount(
+                            it.fiatAmount,
+                            it.coinAmount,
+                            ValueType.Incoming,
+                            coinServiceOut.token
+                        )
                     )
                 }
                 guaranteed = ViewItem.ValueMulti(
@@ -740,7 +804,13 @@ class SendEvmTransactionViewModel(
             }
 
             methodName?.let {
-                add(ViewItem.Value(Translator.getString(R.string.Send_Confirmation_Method), it, ValueType.Regular))
+                add(
+                    ViewItem.Value(
+                        Translator.getString(R.string.Send_Confirmation_Method),
+                        it,
+                        ValueType.Regular
+                    )
+                )
             }
 
             add(ViewItem.Input(transactionData.input.toHexString()))
@@ -873,54 +943,66 @@ class SendEvmTransactionViewModel(
             else -> convertedError.message ?: convertedError.javaClass.simpleName
         }
 
+    fun amountData(value: BigInteger, approximate: Boolean = false): SendModule.AmountData {
+        val decimalValue = BigDecimal(value, chainToken.decimals)
+        val coinValue = CoinValue(chainToken, decimalValue)
+
+        val primaryAmountInfo = SendModule.AmountInfo.CoinValueInfo(coinValue, approximate)
+        val secondaryAmountInfo = rate?.let {
+            SendModule.AmountInfo.CurrencyValueInfo(CurrencyValue(it.currency, it.value * decimalValue), approximate)
+        }
+
+        return SendModule.AmountData(primaryAmountInfo, secondaryAmountInfo)
+    }
+
 }
 
-data class SectionViewItem(
+data class LiquiditySectionViewItem(
     val viewItems: List<ViewItem>
 )
 
-sealed class ViewItem {
-    class Subhead(val title: String, val value: String, val iconRes: Int? = null) : ViewItem()
+sealed class LiquidityViewItem {
+    class Subhead(val title: String, val value: String, val iconRes: Int? = null) : LiquidityViewItem()
     class Value(
         val title: String,
         val value: String,
         val type: ValueType,
-    ) : ViewItem()
+    ) : LiquidityViewItem()
 
     class ValueMulti(
         val title: String,
         val primaryValue: String,
         val secondaryValue: String,
         val type: ValueType,
-    ) : ViewItem()
+    ) : LiquidityViewItem()
 
     class AmountMulti(
         val amounts: List<AmountValues>,
         val type: ValueType,
         val token: Token
-    ) : ViewItem()
+    ) : LiquidityViewItem()
 
     class Amount(
         val fiatAmount: String?,
         val coinAmount: String,
         val type: ValueType,
         val token: Token
-    ) : ViewItem()
+    ) : LiquidityViewItem()
 
     class NftAmount(
         val iconUrl: String?,
         val amount: String,
         val type: ValueType,
-    ) : ViewItem()
+    ) : LiquidityViewItem()
 
-    class Address(val title: String, val value: String, val showAdd: Boolean, val blockchainType: BlockchainType) : ViewItem()
-    class Input(val value: String) : ViewItem()
-    class TokenItem(val token: Token) : ViewItem()
-    class ContactItem(val contact: Contact) : ViewItem()
+    class Address(val title: String, val value: String, val showAdd: Boolean, val blockchainType: BlockchainType) : LiquidityViewItem()
+    class Input(val value: String) : LiquidityViewItem()
+    class TokenItem(val token: Token) : LiquidityViewItem()
+    class ContactItem(val contact: Contact) : LiquidityViewItem()
 }
 
-data class AmountValues(val coinAmount: String, val fiatAmount: String?)
+data class LiquidityAmountValues(val coinAmount: String, val fiatAmount: String?)
 
-enum class ValueType {
+enum class LiquidityValueType {
     Regular, Disabled, Outgoing, Incoming, Warning, Forbidden
 }

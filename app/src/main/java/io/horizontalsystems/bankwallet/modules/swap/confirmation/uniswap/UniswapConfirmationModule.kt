@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettings
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.send.AddLiquidityTransactionViewModel
 import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -73,6 +74,18 @@ object UniswapConfirmationModule {
                         cautionViewItemFactory,
                         blockchainType = dex.blockchainType,
                         contactsRepo = App.contactsRepository
+                    ) as T
+                }
+                AddLiquidityTransactionViewModel::class.java -> {
+                    AddLiquidityTransactionViewModel(
+                        getSendService(),
+                        coinServiceFactory,
+                        cautionViewItemFactory,
+                        blockchainType = dex.blockchainType,
+                        contactsRepo = App.contactsRepository,
+                        currencyManager = App.currencyManager,
+                        marketKit = App.marketKit,
+                        chainToken = App.evmBlockchainManager.getBaseToken(dex.blockchainType)!!
                     ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {
