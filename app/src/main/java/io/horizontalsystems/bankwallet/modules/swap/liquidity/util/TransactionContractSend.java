@@ -40,7 +40,6 @@ public class TransactionContractSend {
         );
         byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction,credentials);
         String hexValue = Numeric.toHexString(signedMessage);
-        Log.d("longwen", "sendRawTransaction=" + hexValue);
         return admin.ethSendRawTransaction(hexValue).send().getTransactionHash();
     }
 
