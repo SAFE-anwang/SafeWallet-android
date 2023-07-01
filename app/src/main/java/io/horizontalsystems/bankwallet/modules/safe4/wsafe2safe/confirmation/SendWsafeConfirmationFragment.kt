@@ -43,7 +43,8 @@ class SendWsafeConfirmationFragment : BaseFragment() {
     private val vmFactory by lazy {
         SendEvmConfirmationModule.Factory(
             sendWsafeViewModel.service.adapter.evmKitWrapper,
-            SendEvmData(transactionData, additionalInfo)
+            SendEvmData(transactionData, additionalInfo),
+            100000
         )
     }
     private val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(R.id.sendWsafeConfirmationFragment) { vmFactory }
