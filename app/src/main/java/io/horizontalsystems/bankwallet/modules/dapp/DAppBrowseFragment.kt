@@ -208,8 +208,10 @@ class DAppBrowseFragment: BaseFragment(){
                 }
             }
         })
-        errorLiveEvent.observe(viewLifecycleOwner, Observer {
-            Toast.makeText(context, it ?: getString(R.string.connection_test_fail), Toast.LENGTH_SHORT).show()
+        errorLiveEvent.observe(viewLifecycleOwner, Observer { errorMsg ->
+            errorMsg?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
         })
 
         wc2MainViewModel.sessionProposalLiveEvent.observe(viewLifecycleOwner) {

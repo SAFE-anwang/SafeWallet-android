@@ -241,16 +241,6 @@ fun BalanceItems(
                         )
                     }.size(28.dp)
                 )
-                Spacer(modifier = Modifier.padding(start = 16.dp))
-                ButtonSecondaryCircle(
-                    icon = R.drawable.ic_manage_2,
-                    contentDescription = stringResource(R.string.ManageCoins_title),
-                    onClick = {
-                        navController.slideFromRight(R.id.manageWalletsFragment,
-                            ManageWalletsModule.prepareParams(accountViewItem.accountType)
-                        )
-                    }
-                )
 
                 Spacer(modifier = Modifier.padding(start = 16.dp))
 
@@ -259,6 +249,17 @@ fun BalanceItems(
                     onClick = {
                         navController.slideFromRight(
                             R.id.transactionFragment
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.padding(start = 16.dp))
+                ButtonSecondaryCircle(
+                    icon = R.drawable.ic_manage_2,
+                    contentDescription = stringResource(R.string.ManageCoins_title),
+                    onClick = {
+                        navController.slideFromRight(R.id.manageWalletsFragment,
+                            ManageWalletsModule.prepareParams(accountViewItem.accountType)
                         )
                     }
                 )
