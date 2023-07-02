@@ -598,6 +598,7 @@
     <string name="WalletConnect_UnsupportedRequest_Title">Unsupported Request</string>
     <string name="WalletConnect_UnsupportedRequest_WarningTitle">Unsupported</string>
     <string name="WalletConnect_UnsupportedRequest_WarningDescription">This request format is not supported by the wallet</string>
+    <string name="WalletConnect_Coonect_Fail">Connect fail</string>
 
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">Warning</string>

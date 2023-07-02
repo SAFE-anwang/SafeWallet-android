@@ -523,6 +523,7 @@
     <string name="WalletConnect_UnsupportedRequest_Title">不支持的请求</string>
     <string name="WalletConnect_UnsupportedRequest_WarningTitle">不支持</string>
     <string name="WalletConnect_UnsupportedRequest_WarningDescription">钱包不支持此请求格式</string>
+    <string name="WalletConnect_Coonect_Fail">连接失败</string>
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">警告</string>
     <string name="EthereumTransaction_Error_Title">出错</string>
@@ -1661,4 +1662,5 @@
     <string name="Liquidity_Remove_Confirm_Cancel">取消</string>
     <string name="Liquidity_Add">添加</string>
     <string name="Liquidity_Add_Success">添加成功</string>
+    <string name="Dapp">添加成功</string>
 </resources>

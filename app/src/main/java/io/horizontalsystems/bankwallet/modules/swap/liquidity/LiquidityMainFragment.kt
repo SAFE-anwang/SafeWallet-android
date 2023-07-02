@@ -436,7 +436,7 @@ private fun TopMenu(
             },
             enabled = state.amountTypeSelectEnabled
         )
-        ButtonSecondaryCircle(
+        /*ButtonSecondaryCircle(
             icon = R.drawable.ic_manage_2,
             onClick = {
                 navController.getNavigationResult(LiquidityMainModule.resultKey) {
@@ -482,7 +482,7 @@ private fun TopMenu(
                     }
                 }
             }
-        )
+        )*/
     }
 }
 

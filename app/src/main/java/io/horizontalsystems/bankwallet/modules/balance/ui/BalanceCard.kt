@@ -348,15 +348,15 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     enabled = viewItem.swapEnabled
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                ButtonPrimaryCircle(
-                    icon = R.drawable.ic_transactions,
-                    onClick = {
+                Image(
+                    painter = painterResource(R.drawable.ic_liquidity),
+                    contentDescription = stringResource(R.string.ManageCoins_title),
+                    modifier = Modifier.clickable(enabled = viewItem.swapEnabled) {
                         navController.slideFromBottom(
                             R.id.liquidityFragment,
                             LiquidityMainModule.prepareParams(viewItem.wallet.token)
                         )
-                    },
-                    enabled = viewItem.swapEnabled
+                    }.size(50.dp)
                 )
             } else {
                 ButtonPrimaryDefaultBlue(
