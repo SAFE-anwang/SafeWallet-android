@@ -20,6 +20,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bitcoincash.MainNetBitcoinCash
 import io.horizontalsystems.bitcoinkit.MainNet
 import io.horizontalsystems.dashkit.MainNetDash
+import io.horizontalsystems.dogecoinkit.MainNetDogecoin
 import io.horizontalsystems.ecash.MainNetECash
 import io.horizontalsystems.litecoinkit.MainNetLitecoin
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -56,6 +57,7 @@ class AddressViewModel(
                 BlockchainType.BitcoinCash,
                 BlockchainType.Dash,
                 BlockchainType.Litecoin,
+                BlockchainType.Dogecoin,
                 BlockchainType.Zcash,
                 BlockchainType.Solana,
                 BlockchainType.BinanceChain,
@@ -145,6 +147,11 @@ class AddressViewModel(
             }
             BlockchainType.Litecoin -> {
                 val network = MainNetLitecoin()
+                rawAddressHandlers.add(AddressHandlerBase58(network))
+                rawAddressHandlers.add(AddressHandlerBech32(network))
+            }
+            BlockchainType.Dogecoin -> {
+                val network = MainNetDogecoin()
                 rawAddressHandlers.add(AddressHandlerBase58(network))
                 rawAddressHandlers.add(AddressHandlerBech32(network))
             }

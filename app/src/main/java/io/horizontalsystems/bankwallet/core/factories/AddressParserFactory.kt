@@ -9,6 +9,7 @@ class AddressParserFactory {
         BlockchainType.BitcoinCash -> AddressParser("bitcoincash", false)
         BlockchainType.ECash -> AddressParser("ecash", false)
         BlockchainType.Litecoin -> AddressParser("litecoin", true)
+        BlockchainType.Dogecoin -> AddressParser("dogecoin", true)
         BlockchainType.Dash -> AddressParser("dash", true)
         BlockchainType.Safe -> AddressParser("safe", true)
         BlockchainType.Zcash -> AddressParser("zcash", true)

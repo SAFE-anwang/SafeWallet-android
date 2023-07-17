@@ -25,6 +25,7 @@ class BtcBlockchainManager(
         BlockchainType.Bitcoin,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
+        BlockchainType.Dogecoin,
         BlockchainType.Dash,
         BlockchainType.ECash,
         BlockchainType.Safe,

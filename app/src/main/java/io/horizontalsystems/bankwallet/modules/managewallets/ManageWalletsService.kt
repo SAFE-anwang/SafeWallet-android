@@ -165,6 +165,7 @@ class ManageWalletsService(
             is TokenType.Native -> when (configuredToken.token.blockchainType) {
                 is BlockchainType.Bitcoin,
                 is BlockchainType.Litecoin,
+                is BlockchainType.Dogecoin,
                 is BlockchainType.Safe,
                 is BlockchainType.BitcoinCash -> true
                 is BlockchainType.Zcash -> enabled
@@ -250,7 +251,7 @@ class ManageWalletsService(
     }
 
     private fun isBitcoins(type: BlockchainType):Boolean {
-        return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
+        return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin || type == BlockchainType.Dogecoin
                 || type == BlockchainType.Dash
     }
 

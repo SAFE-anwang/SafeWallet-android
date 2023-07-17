@@ -268,6 +268,7 @@ dependencies {
     implementation project(':bitcoin-kit-android:litecoinkit')
     implementation project(':bitcoin-kit-android:safekit')
     implementation project(':bitcoin-kit-android:ecashkit')
+    implementation project(':bitcoin-kit-android:dogecoinkit')
 
 
 

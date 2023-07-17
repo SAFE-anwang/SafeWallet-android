@@ -33,6 +33,10 @@ class FeeRateProvider(appConfig: AppConfigProvider) {
         return feeRateKit.litecoin()
     }
 
+    fun dogecoinFeeRate(): Single<BigInteger> {
+        return feeRateKit.litecoin()
+    }
+
     fun bitcoinCashFeeRate(): Single<BigInteger> {
         return feeRateKit.bitcoinCash()
     }
@@ -80,6 +84,12 @@ class BitcoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFe
 class LitecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
         feeRateProvider.litecoinFeeRate().blockingGet().toLong()
+    }
+}
+
+class DogecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
+    override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
+        feeRateProvider.dogecoinFeeRate().blockingGet().toLong()
     }
 }
 

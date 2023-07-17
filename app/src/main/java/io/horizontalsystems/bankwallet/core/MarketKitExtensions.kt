@@ -130,6 +130,7 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.BitcoinCash,
         BlockchainType.ECash,
         BlockchainType.Litecoin,
+        BlockchainType.Dogecoin,
         BlockchainType.Dash,
         BlockchainType.Safe,
         BlockchainType.Zcash -> {
@@ -164,6 +165,7 @@ val Blockchain.description: String
         BlockchainType.ECash -> "XEC"
         BlockchainType.Zcash -> "ZEC"
         BlockchainType.Litecoin -> "LTC (BIP44, BIP49, BIP84, BIP86)"
+        BlockchainType.Dogecoin -> "DOGE (BIP44, BIP49, BIP84, BIP86)"
         BlockchainType.Dash -> "DASH"
         BlockchainType.Safe -> "SAFE"
         BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
@@ -197,12 +199,14 @@ val BlockchainType.coinSettingType: CoinSettingType?
     get() = when (this) {
         BlockchainType.Bitcoin,
         BlockchainType.Litecoin -> CoinSettingType.derivation
+        BlockchainType.Dogecoin -> CoinSettingType.derivation
         BlockchainType.BitcoinCash -> CoinSettingType.bitcoinCashCoinType
         else -> null
     }
 
 fun BlockchainType.defaultSettingsArray(accountType: AccountType): List<CoinSettings> = when (this) {
     BlockchainType.Bitcoin,
+    BlockchainType.Dogecoin,
     BlockchainType.Litecoin -> {
         when (accountType) {
             is AccountType.Mnemonic -> listOf(CoinSettings(mapOf(CoinSettingType.derivation to AccountType.Derivation.bip84.value)))
@@ -237,6 +241,7 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Zcash,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
+        BlockchainType.Dogecoin,
         BlockchainType.Dash,
         BlockchainType.BinanceChain,
         BlockchainType.Gnosis,
@@ -304,6 +309,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
             when (this) {
                 BlockchainType.Bitcoin -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
                 BlockchainType.Litecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                BlockchainType.Dogecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
                 BlockchainType.BitcoinCash,
                 BlockchainType.Dash,
                 BlockchainType.Safe,

@@ -55,6 +55,7 @@ class RestorePrivateKeyService(
         BlockchainType.Safe,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
+        BlockchainType.Dogecoin,
         BlockchainType.BinanceChain,
     )
 

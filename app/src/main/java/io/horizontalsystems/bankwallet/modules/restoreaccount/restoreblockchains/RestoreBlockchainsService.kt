@@ -70,6 +70,7 @@ class RestoreBlockchainsService(
         BlockchainType.Safe,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
+        BlockchainType.Dogecoin,
         BlockchainType.BinanceChain,
         BlockchainType.Solana,
         BlockchainType.ECash,
