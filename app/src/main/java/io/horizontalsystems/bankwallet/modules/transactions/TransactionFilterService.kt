@@ -1,7 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,7 +21,20 @@ class TransactionFilterService {
     private val _resetEnabled = MutableStateFlow(false)
     val resetEnabled = _resetEnabled.asStateFlow()
 
-    private var blockchains: List<Blockchain?> = listOf(null)
+//    private var blockchains: List<Blockchain?> = listOf(null)
+
+    private var blockchains: List<Blockchain?> = listOf(
+        null,
+        Blockchain(BlockchainType.Bitcoin, App.instance.getString(R.string.Manage_Wallets_Bitcoin), null),
+        Blockchain(BlockchainType.Safe, "SAFE", null),
+        Blockchain(BlockchainType.Ethereum, "ETH", null),
+        Blockchain(BlockchainType.BinanceSmartChain, "BSC", null),
+        Blockchain(BlockchainType.Polygon, App.instance.getString(R.string.Manage_Wallets_L2), null),
+        Blockchain(BlockchainType.Avalanche, "Avalanche", null),
+        Blockchain(BlockchainType.Optimism, "Optimism", null),
+        Blockchain(BlockchainType.Tron, "TRON", null),
+        Blockchain(BlockchainType.Zcash, "ZCASH", null)
+    )
 
     fun setWallets(wallets: List<Wallet>) {
         transactionWallets = listOf(null) + wallets.sortedBy { it.coin.code }.map {
@@ -36,7 +52,7 @@ class TransactionFilterService {
             selectedBlockchain = null
         }
 
-        blockchains = listOf(null).plus(wallets.map { it.token.blockchain }.distinct())
+//        blockchains = listOf(null).plus(wallets.map { it.token.blockchain }.distinct())
         if (!blockchains.contains(selectedBlockchain)) {
             selectedBlockchain = null
         }

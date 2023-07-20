@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
@@ -44,7 +45,10 @@ class ManageWalletsService(
         Blockchain(BlockchainType.Ethereum, "ETH", null),
         Blockchain(BlockchainType.BinanceSmartChain, "BSC", null),
         Blockchain(BlockchainType.Polygon, App.instance.getString(R.string.Manage_Wallets_L2), null),
-        Blockchain(BlockchainType.Avalanche, "Avalanche", null)
+        Blockchain(BlockchainType.Avalanche, "Avalanche", null),
+        Blockchain(BlockchainType.Optimism, "Optimism", null),
+        Blockchain(BlockchainType.Tron, "TRON", null),
+        Blockchain(BlockchainType.Zcash, "ZCASH", null)
     )
 
     var selectedBlockchain: Blockchain? = null
@@ -83,7 +87,7 @@ class ManageWalletsService(
     private fun fetchFullCoins(): List<FullCoin> {
         return if (filter.isBlank()) {
             val account = this.account ?: return emptyList()
-            val featuredFullCoins = marketKit.fullCoins("", 100).toMutableList()
+            val featuredFullCoins = marketKit.fullCoins("", 140).toMutableList()
                 .filter { it.eligibleTokens(account.type).isNotEmpty() }
 
             val featuredCoins = featuredFullCoins.map { it.coin }
@@ -237,6 +241,7 @@ class ManageWalletsService(
     }
 
     private fun filterForBlockchain() {
+        Log.e("longwen", "selectedBlockchain=${selectedBlockchain?.type}")
         if (selectedBlockchain != null) {
             fullCoins = fullCoins.filter {
                 val tokens = it.tokens.filter {

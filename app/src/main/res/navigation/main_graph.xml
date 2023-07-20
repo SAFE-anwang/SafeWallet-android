@@ -46,14 +46,6 @@
             app:destination="@id/sendWsafeConfirmationFragment" />
     </fragment>
     <fragment
-        android:id="@+id/sendSafeToEthFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity">
-    </fragment>
-    <fragment
-        android:id="@+id/safeLineLockFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity">
-    </fragment>
-    <fragment
         android:id="@+id/sendEvmConfirmationFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment"/>
     <fragment
@@ -336,6 +328,12 @@
     <fragment
         android:id="@+id/sendSafeFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendFragment" />
+    <fragment
+        android:id="@+id/sendSafeLockFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendFragment" />
+    <fragment
+        android:id="@+id/sendWSafeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment" />
     <fragment
         android:id="@+id/sendConfirmation"
         android:name="io.horizontalsystems.bankwallet.modules.send.SendConfirmationFragment" />

@@ -1,12 +1,12 @@
 package io.horizontalsystems.bankwallet.modules.send
 
-import io.horizontalsystems.core.SingleLiveEvent
+import androidx.lifecycle.MutableLiveData
 
 class SendRouter : SendModule.IRouter {
 
-    val closeWithSuccess = SingleLiveEvent<Unit?>()
+    val closeWithSuccess = MutableLiveData<Boolean?>(false)
 
     override fun closeWithSuccess() {
-        closeWithSuccess.call()
+        closeWithSuccess.value = true
     }
 }

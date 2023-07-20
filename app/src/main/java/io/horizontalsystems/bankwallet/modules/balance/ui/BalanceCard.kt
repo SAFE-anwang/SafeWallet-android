@@ -312,13 +312,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
-                        val intent = Intent(navController.context, SafeSendActivity::class.java)
-                        intent.putExtra("walletKey", viewItem.wallet)
-                        navController.context.startActivity(intent)
+//                        val intent = Intent(navController.context, SafeSendActivity::class.java)
+//                        intent.putExtra("walletKey", viewItem.wallet)
+//                        navController.context.startActivity(intent)
                         /*navController.slideFromBottom(
-                            R.id.sendSafeFragment,
+                            R.id.sendSafeActivity,
                             SendFragment.prepareParams(viewItem.wallet)
                         )*/
+                        navController.slideFromBottom(
+                            R.id.sendSafeFragment,
+                            SendFragment.prepareParams(viewItem.wallet)
+                        )
                     } else {
                         navController.slideFromBottom(
                             R.id.sendXFragment,
