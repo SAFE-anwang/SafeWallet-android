@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -34,6 +36,8 @@ import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -231,8 +235,28 @@ fun BalanceItems(
                 )
             } else {
                 Spacer(modifier = Modifier.weight(1f))
-
-                Image(
+                HsIconButton(
+                    onClick = {
+                        navController.slideFromRight(R.id.listLiquidity)
+                    },
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (App.localStorage.currentTheme == ThemeType.Blue)
+                                ComposeAppTheme.colors.tyler
+                            else
+                                ComposeAppTheme.colors.leah
+                        ),
+                    rippleColor = ComposeAppTheme.colors.claude
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_liquidity),
+                        contentDescription = stringResource(R.string.ManageCoins_title),
+                        tint = ComposeAppTheme.colors.claude
+                    )
+                }
+                /*Image(
                     painter = painterResource(R.drawable.ic_liquidity),
                     contentDescription = stringResource(R.string.ManageCoins_title),
                     modifier = Modifier.clickable {
@@ -240,7 +264,7 @@ fun BalanceItems(
                             R.id.listLiquidity
                         )
                     }.size(28.dp)
-                )
+                )*/
 
                 Spacer(modifier = Modifier.padding(start = 16.dp))
 

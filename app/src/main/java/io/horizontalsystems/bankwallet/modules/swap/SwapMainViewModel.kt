@@ -554,7 +554,18 @@ class SwapMainViewModel(
             }
 
             else -> {
-                convertedError.message ?: convertedError.javaClass.simpleName
+                val message = convertedError.message
+                if (message.isNullOrEmpty()) {
+                    val errorName = convertedError.javaClass.simpleName
+                    val error = if (errorName == "TradeNotFound" && App.languageManager.currentLanguage == "zh") {
+                        "没有此交易对，请更换其它交易"
+                    } else {
+                        errorName
+                    }
+                    error
+                } else {
+                    message
+                }
             }
         }
 

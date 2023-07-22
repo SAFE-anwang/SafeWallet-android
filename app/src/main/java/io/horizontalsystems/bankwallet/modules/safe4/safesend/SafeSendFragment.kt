@@ -81,6 +81,8 @@ class SafeSendFragment : BaseFragment() {
 
         setToolbar(wallet)
 
+        subscribeToViewEvents(mainPresenter.view as SendView, wallet)
+        subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
         return view
@@ -88,8 +90,6 @@ class SafeSendFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        subscribeToViewEvents(mainPresenter.view as SendView, wallet)
-        subscribeToRouterEvents(mainPresenter.router as SendRouter)
     }
 
     private fun setToolbar(wallet: Wallet) {

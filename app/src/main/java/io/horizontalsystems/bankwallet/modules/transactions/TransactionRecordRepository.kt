@@ -45,7 +45,18 @@ class TransactionRecordRepository(
             val activeWallets = when {
                 tmpSelectedWallet != null -> listOf(tmpSelectedWallet)
                 tmpSelectedBlockchain != null -> walletsGroupedBySource.filter {
-                    it.source.blockchain == tmpSelectedBlockchain
+                    if (tmpSelectedBlockchain.type == BlockchainType.Bitcoin && (
+                            it.source.blockchain.type == BlockchainType.Bitcoin
+                                    || it.source.blockchain.type == BlockchainType.Dash
+                                    || it.source.blockchain.type == BlockchainType.BitcoinCash
+                                    || it.source.blockchain.type == BlockchainType.Litecoin
+                                )) {
+                        true
+                    } else if (tmpSelectedBlockchain.type == BlockchainType.Safe && it.token?.coin?.uid == "safe-coin") {
+                        true
+                    } else {
+                        it.source.blockchain == tmpSelectedBlockchain
+                    }
                 }
                 else -> walletsGroupedBySource
             }
@@ -77,7 +88,7 @@ class TransactionRecordRepository(
                 BlockchainType.Solana,
                 BlockchainType.Tron -> {
                     if (mergedWallets.none { it.source == wallet.source }) {
-                        mergedWallets.add(TransactionWallet(null, wallet.source, null))
+                        mergedWallets.add(TransactionWallet(wallet.token, wallet.source, null))
                     }
                 }
                 is BlockchainType.Unsupported -> Unit

@@ -29,9 +29,10 @@ class TransactionFilterService {
         Blockchain(BlockchainType.Safe, "SAFE", null),
         Blockchain(BlockchainType.Ethereum, "ETH", null),
         Blockchain(BlockchainType.BinanceSmartChain, "BSC", null),
-        Blockchain(BlockchainType.Polygon, App.instance.getString(R.string.Manage_Wallets_L2), null),
-        Blockchain(BlockchainType.Avalanche, "Avalanche", null),
+        Blockchain(BlockchainType.Polygon, "Polygon", null),
+        Blockchain(BlockchainType.ArbitrumOne, "Arbitrum", null),
         Blockchain(BlockchainType.Optimism, "Optimism", null),
+        Blockchain(BlockchainType.Avalanche, "Avalanche", null),
         Blockchain(BlockchainType.Tron, "TRON", null),
         Blockchain(BlockchainType.Zcash, "ZCASH", null)
     )
