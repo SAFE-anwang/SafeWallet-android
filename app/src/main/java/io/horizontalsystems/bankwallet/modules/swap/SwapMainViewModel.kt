@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.EvmError
@@ -351,7 +352,7 @@ class SwapMainViewModel(
     private fun checkPriceImpact(trade: SwapData.UniswapData) {
         trade.data.priceImpact?.let {
             val intValue = it.toInt()
-            if(dex.provider.id == "safe" && (intValue > 5 || intValue < -5)) {
+            if(dex.provider.id == "safe" && (intValue > 0 || intValue < -5)) {
                 autoSetProvider1Inch()
             }
         }

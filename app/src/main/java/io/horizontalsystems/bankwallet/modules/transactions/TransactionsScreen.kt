@@ -48,7 +48,7 @@ import io.horizontalsystems.core.findNavController
 class TransactionsFragment : BaseFragment() {
 
     private val viewModel by viewModels<TransactionsViewModel> { TransactionsModule.Factory() }
-
+//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

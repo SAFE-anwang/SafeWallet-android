@@ -256,15 +256,6 @@ fun BalanceItems(
                         tint = ComposeAppTheme.colors.claude
                     )
                 }
-                /*Image(
-                    painter = painterResource(R.drawable.ic_liquidity),
-                    contentDescription = stringResource(R.string.ManageCoins_title),
-                    modifier = Modifier.clickable {
-                        navController.slideFromRight(
-                            R.id.listLiquidity
-                        )
-                    }.size(28.dp)
-                )*/
 
                 Spacer(modifier = Modifier.padding(start = 16.dp))
 
