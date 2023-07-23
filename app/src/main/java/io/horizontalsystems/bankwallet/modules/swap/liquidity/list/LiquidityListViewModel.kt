@@ -108,6 +108,7 @@ class LiquidityListViewModel(
     }
 
     private fun getAllLiquidity() {
+        viewState = ViewState.Loading
         val activeWallets = accountManager.activeAccount?.let {
             storage.wallets(it).filter {
                 it.token.blockchainType is BlockchainType.BinanceSmartChain
@@ -126,9 +127,13 @@ class LiquidityListViewModel(
                 val tokenEntityA = tokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
-                    getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
-                        liquidityItems.add(it)
-                        list.add(liquidityViewItemFactory.viewItem(it))
+                    try {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
+                            liquidityItems.add(it)
+                            list.add(liquidityViewItemFactory.viewItem(it))
+                        }
+                    } catch (e: Exception) {
+                        viewState = ViewState.Error(e)
                     }
                 }
             }
@@ -152,70 +157,64 @@ class LiquidityListViewModel(
     }
 
     private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String): LiquidityListModule.LiquidityItem? {
-        try {
-            val adapterA = adapterManager.getReceiveAdapterForWallet(walletA) ?: return null
-            val tokenA = Token(
+        val adapterA = adapterManager.getReceiveAdapterForWallet(walletA) ?: return null
+        val tokenA = Token(
+            tokenAAddress,
+            walletA.coin.name,
+            walletA.coin.code,
+            walletA.decimal
+        )
+        val tokenB = Token(
+            tokenBAddress,
+            walletB.coin.name,
+            walletB.coin.code,
+            walletB.decimal
+        )
+        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return null
+
+        val pairAddress = pair.get(0) as String
+        val token0 = pair.get(1) as Token
+        val token1 = pair.get(2) as Token
+
+        val r0: BigInteger = pair[3] as BigInteger
+        val r1: BigInteger = pair[4] as BigInteger
+
+        // 查询 流动性代币的数量
+        val poolTokenTotalSupply = TotalSupply.getTotalSupply(web3j, pairAddress)
+        // 查询 当前用户拥有的流动性代币数量
+        val balanceOfAccount = BalanceOf.balanceOf(web3j, pairAddress, adapterA.receiveAddress)
+        Log.d("Pool Token TotalSupply = {}", "$poolTokenTotalSupply")
+        Log.d("BalanceOf {} = {}", "${adapterA.receiveAddress}, ${balanceOfAccount}")
+        // 计算用户在池子中的流动性占比
+        val shareRate = BigDecimal(balanceOfAccount).divide(
+            BigDecimal(poolTokenTotalSupply), 18, RoundingMode.DOWN
+        )
+        Log.d(
+            "用户流动性占比:{}",
+            shareRate.multiply(BigDecimal("100")).toString() + "%"
+        )
+        val pooledR0Amount = TokenAmount.toBigDecimal(
+            token0,
+            r0, token0.decimals
+        ).multiply(shareRate)
+        val pooledR1Amount = TokenAmount.toBigDecimal(
+            token1,
+            r1, token1.decimals
+        ).multiply(shareRate)
+
+        // 没有添加流动性
+        if (balanceOfAccount.equals(BigInteger.ZERO))   return null
+        return LiquidityListModule.LiquidityItem(
+                walletA,
+                walletB,
                 tokenAAddress,
-                walletA.coin.name,
-                walletA.coin.code,
-                walletA.decimal
-            )
-            val tokenB = Token(
                 tokenBAddress,
-                walletB.coin.name,
-                walletB.coin.code,
-                walletB.decimal
+                pooledR0Amount,
+                pooledR1Amount,
+                balanceOfAccount,
+                shareRate,
+                poolTokenTotalSupply
             )
-            val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return null
-
-            val pairAddress = pair.get(0) as String
-            val token0 = pair.get(1) as Token
-            val token1 = pair.get(2) as Token
-
-            val r0: BigInteger = pair[3] as BigInteger
-            val r1: BigInteger = pair[4] as BigInteger
-
-            // 查询 流动性代币的数量
-            val poolTokenTotalSupply = TotalSupply.getTotalSupply(web3j, pairAddress)
-            // 查询 当前用户拥有的流动性代币数量
-            val balanceOfAccount = BalanceOf.balanceOf(web3j, pairAddress, adapterA.receiveAddress)
-            Log.d("Pool Token TotalSupply = {}", "$poolTokenTotalSupply")
-            Log.d("BalanceOf {} = {}", "${adapterA.receiveAddress}, ${balanceOfAccount}")
-            // 计算用户在池子中的流动性占比
-            val shareRate = BigDecimal(balanceOfAccount).divide(
-                BigDecimal(poolTokenTotalSupply), 18, RoundingMode.DOWN
-            )
-            Log.d(
-                "用户流动性占比:{}",
-                shareRate.multiply(BigDecimal("100")).toString() + "%"
-            )
-            val pooledR0Amount = TokenAmount.toBigDecimal(
-                token0,
-                r0, token0.decimals
-            ).multiply(shareRate)
-            val pooledR1Amount = TokenAmount.toBigDecimal(
-                token1,
-                r1, token1.decimals
-            ).multiply(shareRate)
-
-            // 没有添加流动性
-            if (balanceOfAccount.equals(BigInteger.ZERO))   return null
-            return LiquidityListModule.LiquidityItem(
-                    walletA,
-                    walletB,
-                    tokenAAddress,
-                    tokenBAddress,
-                    pooledR0Amount,
-                    pooledR1Amount,
-                    balanceOfAccount,
-                    shareRate,
-                    poolTokenTotalSupply
-                )
-
-        } catch (e: Exception) {
-            Log.e("getLiquidity", "error=$e")
-        }
-        return null
     }
 
     private fun emitState() {
@@ -230,7 +229,18 @@ class LiquidityListViewModel(
         }
     }
 
-    fun removeLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String) {
+    private fun removeItem(removeIndex: Int) {
+        val list = mutableListOf<LiquidityViewItem>()
+        liquidityViewItems.forEachIndexed{ index, liquidityViewItem ->
+            if (removeIndex != index) {
+                list.add(liquidityViewItem)
+            }
+        }
+        liquidityViewItems = list
+        emitState()
+    }
+
+    fun removeLiquidity(index: Int, walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val evmKitWrapper =
@@ -400,8 +410,11 @@ class LiquidityListViewModel(
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", hash)
+                withContext(Dispatchers.Main) {
+                    removeItem(index)
+                }
                 refresh()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e("removeLiquidity", "error=$e")
                 withContext(Dispatchers.Main) {
                     removeErrorMessage.value = e.message

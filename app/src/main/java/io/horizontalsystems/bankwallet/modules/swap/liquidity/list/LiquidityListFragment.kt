@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.ui.LiquidityItemsEmpty
+import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityItems
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -44,8 +45,8 @@ class LiquidityListFragment : BaseFragment() {
                         LiquidityForAccount(
                             findNavController(),
                             mainViewModel
-                        ) {
-                            confirm(it, mainViewModel)
+                        ) { index, item ->
+                            confirm(index, item, mainViewModel)
                         }
                     }
                 }
@@ -58,7 +59,7 @@ class LiquidityListFragment : BaseFragment() {
         }
     }
 
-    private fun confirm(item: LiquidityViewItem, mainViewModel: LiquidityListViewModel) {
+    private fun confirm(index: Int, item: LiquidityViewItem, mainViewModel: LiquidityListViewModel) {
         ConfirmationDialog.show(
             title = getString(R.string.liquidity_remove_title),
             warningText = getString(R.string.Liquidity_Remove_Confirm),
@@ -67,7 +68,7 @@ class LiquidityListFragment : BaseFragment() {
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
-                    mainViewModel.removeLiquidity(item.walletA, item.addressA, item.walletB, item.addressB)
+                    mainViewModel.removeLiquidity(index, item.walletA, item.addressA, item.walletB, item.addressB)
                 }
 
                 override fun onTransparentButtonClick() {
@@ -88,7 +89,7 @@ class LiquidityListFragment : BaseFragment() {
 fun LiquidityForAccount(
     navController: NavController,
     viewModel: LiquidityListViewModel,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
@@ -125,7 +126,9 @@ fun LiquidityForAccount(
                         }
                     }
 
-                    ViewState.Loading,
+                    ViewState.Loading-> {
+                        Loading()
+                    }
                     is ViewState.Error -> {
                     }
                 }

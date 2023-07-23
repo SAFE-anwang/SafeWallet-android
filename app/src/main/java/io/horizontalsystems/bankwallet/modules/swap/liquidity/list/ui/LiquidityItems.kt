@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -112,7 +113,7 @@ fun LiquidityItems(
     viewModel: LiquidityListViewModel,
     navController: NavController,
     uiState: LiquidityUiState,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     val rateAppViewModel = viewModel<RateAppViewModel>(factory = RateAppModule.Factory())
     DisposableEffect(true) {
@@ -133,7 +134,7 @@ fun Wallets(
     viewModel: LiquidityListViewModel,
     navController: NavController,
     uiState: LiquidityUiState,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     var revealedCardId by remember { mutableStateOf<Int?>(null) }
 
@@ -155,8 +156,9 @@ fun Wallets(
             contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(liquidityViewItems, key = { item -> item.walletA.hashCode().or(item.walletB.hashCode()) }) { item ->
+            itemsIndexed(liquidityViewItems, key = { _, item -> item.walletA.hashCode().or(item.walletB.hashCode()) }) { index, item ->
                 LiquidityCardSwipable(
+                    index,
                     viewItem = item,
                     viewModel = viewModel,
                     navController = navController,
