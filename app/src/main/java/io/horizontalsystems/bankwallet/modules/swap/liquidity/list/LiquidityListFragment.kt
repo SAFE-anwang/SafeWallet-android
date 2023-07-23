@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -44,6 +45,12 @@ class LiquidityListFragment : BaseFragment() {
                     it?.let {
                         Toast.makeText(App.instance, it, Toast.LENGTH_SHORT).show()
                     }
+                })
+                mainViewModel.removeSuccessMessage.observe(viewLifecycleOwner, Observer {
+                    it?.let {
+                        Toast.makeText(App.instance, it, Toast.LENGTH_SHORT).show()
+                    }
+                    findNavController().popBackStack()
                 })
                 setContent {
                     ComposeAppTheme {
