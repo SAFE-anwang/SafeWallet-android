@@ -80,7 +80,7 @@ class LiquidityListViewModel(
     )
         private set
 
-    val removeErrorMessage = SingleLiveEvent<String>()
+    val removeErrorMessage = SingleLiveEvent<String?>()
 
     private fun getWethAddress(chain: BlockchainType): String {
         val wethAddressHex = when (chain) {
@@ -411,6 +411,11 @@ class LiquidityListViewModel(
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", hash)
                 withContext(Dispatchers.Main) {
+                    removeErrorMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                        "移除成功"
+                    } else {
+                        "Remove Success"
+                    }
                     removeItem(index)
                 }
                 refresh()

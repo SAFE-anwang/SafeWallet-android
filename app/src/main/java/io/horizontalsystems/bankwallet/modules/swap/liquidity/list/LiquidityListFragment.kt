@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -39,7 +40,11 @@ class LiquidityListFragment : BaseFragment() {
             )
             try {
                 val mainViewModel: LiquidityListViewModel by viewModels { LiquidityListModule.Factory()  }
-                mainViewModel
+                mainViewModel.removeErrorMessage.observe(viewLifecycleOwner, Observer {
+                    it?.let {
+                        Toast.makeText(App.instance, it, Toast.LENGTH_SHORT).show()
+                    }
+                })
                 setContent {
                     ComposeAppTheme {
                         LiquidityForAccount(
