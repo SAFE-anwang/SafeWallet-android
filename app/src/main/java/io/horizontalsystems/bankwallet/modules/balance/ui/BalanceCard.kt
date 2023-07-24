@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -312,13 +313,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
-                        val intent = Intent(navController.context, SafeSendActivity::class.java)
-                        intent.putExtra("walletKey", viewItem.wallet)
-                        navController.context.startActivity(intent)
+//                        val intent = Intent(navController.context, SafeSendActivity::class.java)
+//                        intent.putExtra("walletKey", viewItem.wallet)
+//                        navController.context.startActivity(intent)
                         /*navController.slideFromBottom(
-                            R.id.sendSafeFragment,
+                            R.id.sendSafeActivity,
                             SendFragment.prepareParams(viewItem.wallet)
                         )*/
+                        navController.slideFromBottom(
+                            R.id.sendSafeFragment,
+                            SendFragment.prepareParams(viewItem.wallet)
+                        )
                     } else {
                         navController.slideFromBottom(
                             R.id.sendXFragment,
@@ -348,16 +353,29 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     enabled = viewItem.swapEnabled
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Image(
-                    painter = painterResource(R.drawable.ic_liquidity),
-                    contentDescription = stringResource(R.string.ManageCoins_title),
-                    modifier = Modifier.clickable(enabled = viewItem.swapEnabled) {
-                        navController.slideFromBottom(
-                            R.id.liquidityFragment,
-                            LiquidityMainModule.prepareParams(viewItem.wallet.token)
-                        )
-                    }.size(50.dp)
-                )
+                HsIconButton(
+                    onClick = { navController.slideFromBottom(
+                        R.id.liquidityFragment,
+                        LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                    ) },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(if (viewItem.swapEnabled) {
+                            if (App.localStorage.currentTheme == ThemeType.Blue)
+                                ComposeAppTheme.colors.tyler
+                            else
+                                ComposeAppTheme.colors.leah
+                        } else ComposeAppTheme.colors.steel20),
+                    enabled = viewItem.swapEnabled,
+                    rippleColor = ComposeAppTheme.colors.claude
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_liquidity),
+                        contentDescription = stringResource(R.string.ManageCoins_title),
+                        tint = if (viewItem.swapEnabled) ComposeAppTheme.colors.claude else ComposeAppTheme.colors.grey50
+                    )
+                }
             } else {
                 ButtonPrimaryDefaultBlue(
                     modifier = Modifier.weight(1f),

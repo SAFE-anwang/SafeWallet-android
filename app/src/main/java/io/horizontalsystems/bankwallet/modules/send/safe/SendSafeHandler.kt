@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.send.safe
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.send.SendModule

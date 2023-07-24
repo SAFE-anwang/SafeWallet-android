@@ -13,8 +13,10 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
 import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
+import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendFragment
 import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
+import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 object Safe4Module {
@@ -63,13 +65,17 @@ object Safe4Module {
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val state =  balanceAdapterRepository.state(safeWallet)
         if (state is AdapterState.Synced){
-            context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
+            navController.navigate(
+                R.id.sendWSafeFragment,
+                SafeConvertSendFragment.prepareParams(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.MATIC)
+            )
+            /*context.startActivity(Intent(context, SafeConvertSendActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
                 putExtra(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
                 putExtra(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
                 putExtra(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
-            })
+            })*/
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
@@ -143,10 +149,16 @@ object Safe4Module {
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val state =  balanceAdapterRepository.state(safeWallet)
         if (state is AdapterState.Synced){
-            context.startActivity(Intent(context, LineLockSendActivity::class.java).apply {
+            val bundle = Bundle()
+            bundle.putParcelable(LineLockSendActivity.WALLET, safeWallet)
+            navController.navigate(
+                R.id.sendSafeLockFragment,
+                bundle
+            )
+            /*context.startActivity(Intent(context, LineLockSendActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(LineLockSendActivity.WALLET, safeWallet)
-            })
+            })*/
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }

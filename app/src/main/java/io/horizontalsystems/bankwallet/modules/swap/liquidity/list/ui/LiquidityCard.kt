@@ -70,13 +70,14 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun LiquidityCardSwipable(
+    index: Int,
     viewItem: LiquidityViewItem,
     viewModel: LiquidityListViewModel,
     navController: NavController,
     revealed: Boolean,
     onReveal: (Int) -> Unit,
     onConceal: () -> Unit,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
 
     Box(
@@ -90,7 +91,7 @@ fun LiquidityCardSwipable(
             onReveal = {  },
             onConceal = onConceal,
             content = {
-                LiquidityCard(viewItem, viewModel, navController, removeCallback)
+                LiquidityCard(index, viewItem, viewModel, navController, removeCallback)
             }
         )
     }
@@ -98,10 +99,11 @@ fun LiquidityCardSwipable(
 
 @Composable
 fun LiquidityCard(
+    index: Int,
     viewItem: LiquidityViewItem,
     viewModel: LiquidityListViewModel,
     navController: NavController,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -291,16 +293,17 @@ fun LiquidityCard(
             }
         }
 
-        ExpandableContent(viewItem, navController, viewModel, removeCallback)
+        ExpandableContent(index, viewItem, navController, viewModel, removeCallback)
     }
 }
 
 @Composable
 private fun ExpandableContent(
+    index: Int,
     viewItem: LiquidityViewItem,
     navController: NavController,
     viewModel: LiquidityListViewModel,
-    removeCallback: (LiquidityViewItem) -> Unit
+    removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     AnimatedVisibility(
         visible = true,
@@ -313,16 +316,17 @@ private fun ExpandableContent(
                 thickness = 1.dp,
                 color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
             )
-            ButtonsRow(viewItem, navController, viewModel, removeCallback)
+            ButtonsRow(index, viewItem, navController, viewModel, removeCallback)
         }
     }
 }
 
 @Composable
-private fun ButtonsRow(viewItem: LiquidityViewItem,
+private fun ButtonsRow(index: Int,
+                       viewItem: LiquidityViewItem,
                        navController: NavController,
                        viewModel: LiquidityListViewModel,
-                       removeCallback: (LiquidityViewItem) -> Unit
+                       removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
     Row(
         modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 12.dp),
@@ -332,7 +336,7 @@ private fun ButtonsRow(viewItem: LiquidityViewItem,
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.liquidity_remove_title),
             onClick = {
-                removeCallback.invoke(viewItem)
+                removeCallback.invoke(index, viewItem)
             },
             enabled = true
         )

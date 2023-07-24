@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.EvmError
@@ -49,6 +50,7 @@ import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.TradeError
 import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
+import io.horizontalsystems.uniswapkit.models.DexType
 import io.reactivex.disposables.CompositeDisposable
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -99,7 +101,8 @@ class SwapMainViewModel(
     private val evmKit: EthereumKit by lazy { App.evmBlockchainManager.getEvmKitManager(dex.blockchainType).evmKitWrapper?.evmKit!! }
     private val oneIncKitHelper by lazy { OneInchKitHelper(evmKit) }
     private val uniswapKit by lazy { UniswapKit.getInstance(evmKit) }
-    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit) }
+    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit, DexType.Uniswap) }
+    private val pancakeSwapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit, DexType.PancakeSwap) }
     private var tradeService: SwapMainModule.ISwapTradeService = getTradeService(dex.provider)
     private var tradeView: SwapMainModule.TradeViewX? = null
     private var tradePriceExpiration: Float? = null
@@ -209,12 +212,14 @@ class SwapMainViewModel(
     private fun getTradeService(provider: ISwapProvider): SwapMainModule.ISwapTradeService = when (provider) {
         SwapMainModule.OneInchProvider -> OneInchTradeService(oneIncKitHelper)
         SwapMainModule.UniswapV3Provider -> UniswapV3TradeService(uniswapV3Kit)
+        SwapMainModule.PancakeSwapV3Provider -> UniswapV3TradeService(pancakeSwapV3Kit)
         else -> UniswapV2TradeService(uniswapKit)
     }
 
     private fun getSpenderAddress(provider: ISwapProvider) = when (provider) {
         SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
         SwapMainModule.UniswapV3Provider -> uniswapV3Kit.routerAddress
+        SwapMainModule.PancakeSwapV3Provider -> pancakeSwapV3Kit.routerAddress
         else -> uniswapKit.routerAddress
     }
 
@@ -347,7 +352,7 @@ class SwapMainViewModel(
     private fun checkPriceImpact(trade: SwapData.UniswapData) {
         trade.data.priceImpact?.let {
             val intValue = it.toInt()
-            if(dex.provider.id == "safe" && (intValue > 5 || intValue < -5)) {
+            if(dex.provider.id == "safe" && (intValue > 0 || intValue < -5)) {
                 autoSetProvider1Inch()
             }
         }
@@ -550,7 +555,18 @@ class SwapMainViewModel(
             }
 
             else -> {
-                convertedError.message ?: convertedError.javaClass.simpleName
+                val message = convertedError.message
+                if (message.isNullOrEmpty()) {
+                    val errorName = convertedError.javaClass.simpleName
+                    val error = if (errorName == "TradeNotFound" && App.languageManager.currentLanguage == "zh") {
+                        "没有此交易对，请更换其它交易"
+                    } else {
+                        errorName
+                    }
+                    error
+                } else {
+                    message
+                }
             }
         }
 

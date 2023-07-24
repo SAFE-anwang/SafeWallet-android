@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.CustomSnackbar
 import io.horizontalsystems.core.SnackbarDuration
+import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import org.apache.commons.lang3.StringUtils
 import java.net.UnknownHostException
@@ -66,9 +67,10 @@ class ConfirmationFragment(sendPresenter: SendPresenter) : BaseFragment() {
                         viewModel,
                         { parentFragmentManager.popBackStack() },
                         {
-                            if (activity != null) {
+                            findNavController().popBackStack(R.id.sendSafeFragment, true)
+                            /*if (activity != null) {
                                 requireActivity().finish()
-                            }
+                            }*/
                         },
                         { onAddressCopy(it) },
                         { onSendClick() }

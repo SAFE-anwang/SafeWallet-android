@@ -38,7 +38,8 @@ import io.horizontalsystems.core.findNavController
 
 class FilterCoinFragment : BaseFragment() {
 
-    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+    val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
 
     override fun onCreateView(
         inflater: LayoutInflater,

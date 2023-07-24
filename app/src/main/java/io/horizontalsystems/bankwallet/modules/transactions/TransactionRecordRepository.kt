@@ -45,7 +45,7 @@ class TransactionRecordRepository(
             val activeWallets = when {
                 tmpSelectedWallet != null -> listOf(tmpSelectedWallet)
                 tmpSelectedBlockchain != null -> walletsGroupedBySource.filter {
-                    it.source.blockchain == tmpSelectedBlockchain
+                        it.source.blockchain == tmpSelectedBlockchain
                 }
                 else -> walletsGroupedBySource
             }
