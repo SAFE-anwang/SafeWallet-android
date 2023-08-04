@@ -182,6 +182,7 @@ fun TransactionInfoSection(
                         }
                     }
                     is TransactionInfoViewItem.TransactionHash -> {
+                        Log.e("longwen", "transactionHash=${viewItem.transactionHash}")
                         add {
                             TransactionInfoTransactionHashCell(transactionHash = viewItem.transactionHash)
                         }
