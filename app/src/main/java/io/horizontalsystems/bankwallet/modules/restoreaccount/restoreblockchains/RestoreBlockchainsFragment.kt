@@ -57,7 +57,9 @@ class RestoreBlockchainsFragment : BaseFragment() {
     val vmFactory by lazy {
         RestoreBlockchainsModule.Factory(
             arguments?.getString(ACCOUNT_NAME_KEY)!!,
-            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!
+            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!,
+            false,
+            false
         )
     }
 
@@ -116,7 +118,17 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            if (isContainerManagerFragment()) {
+            val popUpToInclusiveId =
+                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.restoreAccountFragment) ?: R.id.restoreAccountFragment
+
+            val inclusive =
+                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: false
+            findNavController().popBackStack(
+                popUpToInclusiveId,
+                inclusive
+            )
+
+            /*if (isContainerManagerFragment()) {
                 findNavController().popBackStack(
                     R.id.manageAccountsFragment,
                     false
@@ -126,10 +138,10 @@ class RestoreBlockchainsFragment : BaseFragment() {
                     R.id.mainFragment,
                     false
                 )
-            }
+            }*/
         }
 
-        coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
+        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
             showBottomSelectorDialog(
                 config,
                 onSelect = { indexes -> coinSettingsViewModel.onSelect(indexes) },
@@ -143,7 +155,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
                 onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
                 onCancel = { coinTokensViewModel.onCancelSelect() }
             )
-        }
+        }*/
     }
 
     private fun showBottomSelectorDialog(

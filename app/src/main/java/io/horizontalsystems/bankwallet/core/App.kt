@@ -103,6 +103,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var transactionAdapterManager: TransactionAdapterManager
         lateinit var walletManager: IWalletManager
         lateinit var walletActivator: WalletActivator
+        lateinit var tokenAutoEnableManager: TokenAutoEnableManager
         lateinit var walletStorage: IWalletStorage
         lateinit var accountManager: IAccountManager
         lateinit var accountFactory: IAccountFactory
@@ -116,6 +117,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var enabledWalletsStorage: IEnabledWalletStorage
         lateinit var binanceKitManager: BinanceKitManager
         lateinit var solanaKitManager: SolanaKitManager
+        lateinit var tronKitManager: TronKitManager
         lateinit var numberFormatter: IAppNumberFormatter
         lateinit var addressParserFactory: AddressParserFactory
         lateinit var feeCoinProvider: FeeTokenProvider
@@ -147,6 +149,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var marketWidgetManager: MarketWidgetManager
         lateinit var marketWidgetRepository: MarketWidgetRepository
         lateinit var contactsRepository: ContactsRepository
+        lateinit var subscriptionManager: SubscriptionManager
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager
@@ -189,13 +192,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         }
 
         torKitManager = TorManager(instance, localStorage)
+        subscriptionManager = SubscriptionManager(localStorage)
 
         marketKit = MarketKitWrapper(
             context = this,
             hsApiBaseUrl = appConfig.marketApiBaseUrl,
             hsApiKey = appConfig.marketApiKey,
             cryptoCompareApiKey = appConfig.cryptoCompareApiKey,
-            defiYieldApiKey = appConfig.defiyieldProviderApiKey
+            defiYieldApiKey = appConfig.defiyieldProviderApiKey,
+            subscriptionManager = App.subscriptionManager
         )
         marketKit.sync()
 
@@ -235,6 +240,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         val solanaWalletManager = SolanaWalletManager(walletManager, accountManager, marketKit)
         solanaKitManager = SolanaKitManager(appConfigProvider, solanaRpcSourceManager, solanaWalletManager, backgroundManager)
 
+        tronKitManager = TronKitManager(appConfigProvider, backgroundManager)
+
         blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
 
         wordsManager = WordsManager(Mnemonic())
@@ -255,12 +262,13 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         encryptionManager = EncryptionManager(keyProvider)
 
         walletActivator = WalletActivator(walletManager, marketKit)
+        tokenAutoEnableManager = TokenAutoEnableManager(appDatabase.tokenAutoEnabledBlockchainDao())
 
         val evmAccountManagerFactory = EvmAccountManagerFactory(
             accountManager,
             walletManager,
             marketKit,
-            appDatabase.evmAccountStateDao()
+            tokenAutoEnableManager
         )
         evmBlockchainManager = EvmBlockchainManager(
             backgroundManager,
@@ -268,6 +276,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             marketKit,
             evmAccountManagerFactory,
         )
+
+        val tronAccountManager = TronAccountManager(
+            accountManager,
+            walletManager,
+            marketKit,
+            tronKitManager,
+            tokenAutoEnableManager
+        )
+        tronAccountManager.start()
 
         systemInfoManager = SystemInfoManager()
 
@@ -287,8 +304,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             appDatabase.syncerStateDao()
         )
 
-        val adapterFactory = AdapterFactory(instance, btcBlockchainManager, evmBlockchainManager, evmSyncSourceManager, binanceKitManager, solanaKitManager, backgroundManager, restoreSettingsManager, coinManager, evmLabelManager)
-        adapterManager = AdapterManager(walletManager, adapterFactory, btcBlockchainManager, evmBlockchainManager, binanceKitManager, solanaKitManager)
+        val adapterFactory = AdapterFactory(instance, btcBlockchainManager, evmBlockchainManager, evmSyncSourceManager, binanceKitManager, solanaKitManager, tronKitManager, backgroundManager, restoreSettingsManager, coinManager, evmLabelManager)
+        adapterManager = AdapterManager(walletManager, adapterFactory, btcBlockchainManager, evmBlockchainManager, binanceKitManager, solanaKitManager, tronKitManager)
         transactionAdapterManager = TransactionAdapterManager(adapterManager, adapterFactory)
 
         feeCoinProvider = FeeTokenProvider(marketKit)

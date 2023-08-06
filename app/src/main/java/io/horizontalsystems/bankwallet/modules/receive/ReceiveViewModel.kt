@@ -12,6 +12,7 @@ class ReceiveViewModel(
     val receiveAddress  = receiveAdapter.receiveAddress
     val addressType = wallet.coinSettings.derivation?.addressType
     val watchAccount = wallet.account.isWatchAccount
+    val isAccountActive = receiveAdapter.isAccountActive
 
     class NoReceiverAdapter : Error("No Receiver Adapter")
 }

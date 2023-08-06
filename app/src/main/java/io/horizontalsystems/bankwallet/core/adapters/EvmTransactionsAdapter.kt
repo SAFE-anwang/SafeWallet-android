@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.adapters
 
 import android.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterState
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
@@ -13,7 +12,6 @@ import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionTyp
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
-import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionTag
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
@@ -107,24 +105,5 @@ class EvmTransactionsAdapter(
         }
 
         return listOfNotNull(filterCoin, filterTag).map { listOf(it) }
-    }
-
-    companion object {
-        const val decimal = 18
-
-        fun clear(walletId: String) {
-            val networkTypes = listOf(
-                Chain.Ethereum,
-                Chain.BinanceSmartChain,
-                Chain.Polygon,
-                Chain.Optimism,
-                Chain.ArbitrumOne,
-                Chain.Gnosis,
-            )
-
-            networkTypes.forEach {
-                EthereumKit.clear(App.instance, it, walletId)
-            }
-        }
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Common-->
+    <string name="Error_ParameterNotSet">매개 변수가 설정되지 않았습니다</string>
     <string name="LargeNumberFormat">%s%s</string>
     <string name="Alert_Cancel">취소</string>
     <string name="Alert_Copy">복사</string>
@@ -37,11 +38,15 @@
     <string name="Button_IAgree">동의함</string>
     <string name="Button_Continue">계속</string>
     <string name="Button_Send">전송</string>
-    <string name="Button_Search">Search</string>
+    <string name="Button_Search">검색</string>
     <string name="Button_Back">뒤로</string>
     <string name="Button_Copy">복사</string>
     <string name="Button_Browser">자동</string>
     <string name="Button_Delete">삭제</string>
+    <string name="Button_LearnMore">자세히 보기</string>
+    <string name="Button_Activate">활성화</string>
+    <string name="Button_Sign">가입</string>
+    <string name="Button_Activating">Activating</string>
     <string name="Error">오류</string>
     <string name="NotAvailable">해당 없음 </string>
     <string name="Any">어떤</string>
@@ -68,6 +73,7 @@
     <string name="CreateWallet_Mnemonic">복구 문구</string>
     <string name="CreateWallet_Wordlist">단어 목록</string>
     <string name="Passphrase">암호문구</string>
+    <string name="Password">비밀번호</string>
     <string name="ConfirmPassphrase">확인</string>
     <string name="CreateWallet_N_WordsRecommended">%s 단어 (권장)</string>
     <string name="CreateWallet_N_Words">%s 단어</string>
@@ -397,6 +403,8 @@
     <string name="FeeSettings_FeeLegacy_Info">주어진 거래에 대한 최대 예상 총 수수료입니다. 일반적으로 실제 거래 수수료는 더 낮습니다.</string>
     <string name="FeeSettings_Fee">최대 수수료</string>
     <string name="FeeSettings_Fee_Info">The maximum estimated transaction fee to be paid for this transaction, computed based on the gas limit, max fee rate and max priority fee values below. The actual fee paid will normally be lower.</string>
+    <string name="FeeSettings_NetworkFee">네트워크 수수료</string>
+    <string name="FeeSettings_NetworkFee_Info">The estimated cost of sending given transaction on the network.</string>
     <string name="FeeSettings_GasLimit">Gas Limit</string>
     <string name="FeeSettings_GasLimit_Info">Transaction complexity is measured in units called \"gas\". It varies depending on the smart contract being executed. The Gas Limit is the estimated maximum gas needed to execute it. The actual gas used will normally be lower.</string>
     <string name="FeeSettings_GasPrice">Gas Price (Gwei)</string>
@@ -430,6 +438,18 @@
     <string name="FeeInfo_AverageDescription">일반적으로 권장 수수료 값은 비트코인의 경우 분/시간 이내, 이더리움의 경우 몇 분 이내로 거래를 처리하기에 충분해야 합니다.</string>
     <string name="FeeInfo_Fast">빠르게</string>
     <string name="FeeInfo_FastDescription">우선 순위가 중요한 거래의 경우 높은 수수료 값을 사용하는 것이 좋습니다. 비트코인의 경우 10분 이내, 이더리움의 경우 1~2분 이내에 거래가 완료될 것으로 예상됩니다.</string>
+    <string name="FeeInfo_TronFee_Title">수수료</string>
+    <string name="FeeInfo_TronFee_Description">네트워크에서 거래하는 데 드는 예상 비용입니다. (energy, bandwidth 및 활성화 수수료 제외)</string>
+    <string name="FeeInfo_TronActivationFee_Title">활성화 수수료</string>
+    <string name="FeeInfo_TronActivationFee_Description">TRX나 TRC-10 토큰을 비활성화된 계정 주소로 이전하면 해당 계정이 활성화됩니다.</string>
+    <string name="FeeInfo_TronResourcesConsumed_Title">소모된 자원</string>
+    <string name="FeeInfo_TronResourcesConsumed_Description">Bandwidth 은 블록체인 데이터베이스에 저장된 트랜잭션 바이트 크기를 측정하는 단위입니다. 거래가 클수록 대역폭 자원이 더 많이 사용됩니다.\n\nEnergy 는 TRON 가상 머신이 TRON 네트워크에서 특정 작업을 수행하기 위해 필요한 계산 양을 측정하는 단위입니다. \n\n스마트 계약 트랜잭션은 실행에 계산 자원이 필요하기 때문에 각 스마트 계약 트랜잭션에는 energy 수수료를 지불해야합니다.</string>
+    <!--Tron-->
+    <string name="Tron_AddressNotActive_Warning">이 주소는 활성화되어 있지 않습니다</string>
+    <string name="Tron_AddressNotActive_Warning_Short">(비활성화됨)</string>
+    <string name="Tron_AddressNotActive_Title">비활성 주소</string>
+    <string name="Tron_AddressNotActive_Info">TRON 블록체인에 새로 생성된 계정은 비활성화되어 있어서 조회하거나 탐색할 수 없습니다. 이 계정은 활성화되어야 합니다.\n\n비활성화된 계정 주소로 TRX 또는 TRC-10 토큰을 전송하면 계정이 활성화됩니다. 새로운 TRON 체인 계정을 활성화하려면 1 TRX의 수수료가 필요합니다.</string>
+    <string name="Tron_SelfSendTrxNotAllowed">TRX를 자신에게 전송할 수 없습니다</string>
     <!--WalletConnect-->
     <string name="WalletConnect_Request">요청</string>
     <string name="WalletConnect_SendRequest_Title">전송</string>
@@ -442,7 +462,7 @@
     <string name="WalletConnect_Ready_Hint">브라우저로 이동하십시오. 브라우저에서 상호 작용하는 동안에는 이 페이지를 닫지 마십시오.</string>
     <string name="WalletConnect_Reconnect_Hint">연결을 설정하지 못했습니다. 다시 연결해 보세요.</string>
     <string name="WalletConnect_Error_InvalidUrl">잘못된 주소</string>
-    <string name="WalletConnect_NotSupportedV2">WalletConnect v2 is not supported</string>
+    <string name="WalletConnect_NotSupportedV2">WalletConnect v2는 지원되지 않습니다</string>
     <string name="WalletConnect_Requirement">요구 사항</string>
     <string name="WalletConnect_Alert">알림</string>
     <string name="WalletConnect_Status_Offline">오프라인</string>
@@ -459,7 +479,7 @@
     <string name="WalletConnect_Error_NoWallet">WalletConnect를 사용하려면 먼저 지갑을 생성하거나 가져와야 합니다</string>
     <string name="WalletConnect_Error_NeedBackup">WalletConnect를 사용하려면 %s을(를) 백업해야 합니다.</string>
     <string name="WalletConnect_Error_WatchAccount">이 기능은 시계 전용 지갑에서는 작동하지 않으므로 복원 또는 생성된 지갑으로 전환해야 합니다 </string>
-    <string name="WalletConnect_Error_UnsupportedChainId">Unsupported Blockchain</string>
+    <string name="WalletConnect_Error_UnsupportedChainId">지원되지 않는 블록체인입니다</string>
     <string name="WalletConnect_Error_NoSuitableAccount">적합한 계정이 없습니다.</string>
     <string name="WalletConnect_Error_NoSuitableEvmKit">적합한 evm 키트가 없습니다.</string>
     <string name="WalletConnect_Error_DataParsingError">데이터 파싱 오류</string>
@@ -500,6 +520,7 @@
     <string name="EthereumTransaction_Error_CannotEstimate_Title">추정 오류</string>
     <string name="EthereumTransaction_Error_CannotEstimate">잔액을 확인하여 수수료를 충당하기에 충분한 %s이 있는지 확인하십시오. 또는 가격 슬리피지 금액을 늘리고 다시 시도하십시오. 3초 후에 자동 재시도합니다</string>
     <string name="EthereumTransaction_Warning_CoinNeededForFee">향후 거래에 대해 지불할 수 있도록 일부 %s를 잔액으로 남겨두는 것이 좋습니다.</string>
+    <string name="EthereumTransaction_Error_ExecutionReverted">예기치 못한 오류: %s</string>
     <!--Swap-->
     <string name="Swap">스왑</string>
     <string name="Swap_FromAmountTitle">지불하기</string>
@@ -513,6 +534,7 @@
     <string name="Swap_BuyPrice">구매 가격</string>
     <string name="Swap_PriceImpact">가격 영향</string>
     <string name="Swap_PriceImpactTooHigh">시장 가격과 예상 결제 가격의 차이가 너무 큽니다.</string>
+    <string name="Swap_PriceImpactWarning">중요한 사항입니다! 매우 불리한 가격을 받고 있습니다. 이는 유동성이 극도로 낮기 때문입니다.</string>
     <string name="Swap_MinimumReceived">보증 금액</string>
     <string name="Swap_EstimatedFee">예상 수수료</string>
     <string name="Swap_MaxFee">최대 수수료</string>
@@ -708,6 +730,7 @@
     <string name="Appearance_BalanceValue">균형 가치</string>
     <string name="Appearance_Warning_CloseApplication">아이콘을 변경하면 애플리케이션이 종료됩니다.</string>
     <string name="Appearance_MarketsTab">시장 탭</string>
+    <string name="Appearance_BalanceAutoHide">밸런스 자동 숨기기</string>
     <string name="BalanceViewType_CoinValue">코인 가치</string>
     <string name="BalanceViewType_FiatValue">법정 가치</string>
     <string name="SettingsAboutApp_Title">앱 정보</string>
@@ -733,7 +756,7 @@
     <string name="AddEvmSyncSource_AddRPCSource">RPC 소스 추가</string>
     <string name="AddEvmSyncSource_Name">이름</string>
     <string name="AddEvmSyncSource_BasicAuthentication">기본 인증(선택 사항)</string>
-    <string name="AddEvmSyncSource_RpcSource">RPC Source</string>
+    <string name="AddEvmSyncSource_RpcSource">RPC 소스</string>
     <string name="AddEvmSyncSource_Warning_UrlExists">이 URL이 있는 RPC 소스가 이미 존재합니다.</string>
     <string name="AddEvmSyncSource_Error_InvalidUrl">입력한 URL이 잘못되었습니다. 유효한 URL은 http, https, ws, wss 스키마 중 하나여야 합니다.</string>
     <!--Btc Blockchain Settings -->
@@ -853,6 +876,21 @@
     <string name="ManageAccounts_CreateNewWallet">만들기</string>
     <string name="ManageAccounts_ImportWallet">다음에서 복원하기</string>
     <string name="ManageAccounts_WatchAddress">주소 관찰</string>
+    <!-- Import Wallet -->
+    <string name="ImportWallet_BackupFile">파일에서</string>
+    <string name="ImportWallet_BackupFile_Description">백업 파일에서 가져오기</string>
+    <string name="ImportWallet_RecoveryPhrase">복구 문구에서</string>
+    <string name="ImportWallet_RecoveryPhrase_Description">이 문구는 복구 문구 또는 개인 키를 사용하여 가져올 수 있습니다.</string>
+    <string name="ImportWallet_WatchAddress">주소 관찰</string>
+    <string name="ImportWallet_WatchAddress_Description">이더리움 가상머신 체인(EVM-Chain)과 BTC, LTC, DASH 주소들의 관찰 모드입니다</string>
+    <string name="ImportWallet_WarningInvalidJson">잘못된 Json 파일입니다.</string>
+    <string name="ImportWallet_WarningInvalidJsonDescription">이 파일은 지갑의 유효한 백업이 아니거나 파일이 손상되어 복원할 수 없습니다.</string>
+    <string name="ImportWallet_SelectAnotherFile">다른 파일 선택</string>
+    <!-- Import Backup File -->
+    <string name="ImportBackupFile_EnterPassword">암호를 입력하세요</string>
+    <string name="ImportBackupFile_EnterPassword_Description">백업 비밀번호를 입력하면 지갑을 가져올 수 있습니다.</string>
+    <string name="ImportBackupFile_Error_InvalidPassword">유효하지 않은 암호</string>
+    <string name="ImportBackupFile_BackupPassword">백업 비밀번호</string>
     <string name="Watch_Address_Hint">주소 또는 도메인</string>
     <string name="Watch_XPubKey_Hint">Account Extended Public Key 입력</string>
     <string name="Watch_Address_Description">Ethereum 및 기타 지원되는 EVM 블록체인에만 사용할 수 있습니다.</string>
@@ -863,15 +901,17 @@
     <string name="Watch_WatchBy">지켜보다</string>
     <string name="Watch_TypeEvmAddress">EVM 주소</string>
     <string name="Watch_TypeSolanaAddress">Solana 주소</string>
+    <string name="Watch_TypeTronAddress">TRON 주소</string>
     <string name="Watch_TypeXPubKey">Account xPubKey</string>
     <string name="Watch_Error_InvalidXPubKey">잘못된 xPubKey</string>
     <!--Manage Account-->
     <string name="ManageAccount_Name">이름</string>
     <string name="ManageAccount_Save">저장</string>
-    <string name="ManageAccount_RecoveryPhraseBackup">백업 문구</string>
+    <string name="ManageAccount_RecoveryPhraseBackup">수동으로 백업합니다</string>
+    <string name="ManageAccount_LocalBackup">로컬 백업</string>
     <string name="ManageAccount_RecoveryPhraseShow">문구 표시</string>
     <string name="ManageAccount_NetworkSettings">네트워크 설정</string>
-    <string name="ManageAccount_Unlink">연결되지 않은</string>
+    <string name="ManageAccount_Unlink">지갑 연결 해제</string>
     <string name="ManageAccount_BackupRequired_Title">백업이 필요합니다</string>
     <string name="ManageAccount_BackupRequired_Description">%2$s를 받기 전에 %1$s를 백업해야 합니다.</string>
     <string name="ManageAccount_Delete_ConfirmationRemove">장치에서 이 지갑을 삭제합니다.</string>
@@ -909,7 +949,21 @@
     <string name="BackupRecoveryPhrase_Title">백업용 지갑</string>
     <string name="BackupRecoveryPhrase_Description">복구 문구의 복사본을 생성하여 이 지갑을 백업하십시오. 휴대폰 분실, 도난, 파손 등의 경우 지갑에 액세스하기 위해 필요합니다.</string>
     <string name="BackupRecoveryPhrase_Backup">백업</string>
+    <string name="BackupRecoveryPhrase_ManualBackup">수동으로 백업합니다</string>
+    <string name="BackupRecoveryPhrase_LocalBackup">로컬 백업</string>
     <string name="BackupRecoveryPhrase_Later">나중에</string>
+    <string name="BackupRecoveryPhrase_BackupRequiredText">지갑 사용을 시작하려면 지갑 백업 옵션 중 하나를 완료하세요.</string>
+    <string name="BackupRecoveryPhrase_BackupRecomendedText">각 지갑에 대해 수동 백업을 하는 것이 좋습니다.</string>
+    <!-- Local Backup -->
+    <string name="LocalBackup_Title">로컬 백업</string>
+    <string name="LocalBackup_SaveAndBackup">저장 및 백업</string>
+    <string name="LocalBackup_SetPassword">암호를 설정하세요.</string>
+    <string name="LocalBackup_BackupSaved">백업이 저장되었습니다</string>
+    <string name="LocalBackup_PasswordInvalid">대문자 1개, 소문자 1개, 숫자 1개, 기호 1개를 포함하여 8자 이상.</string>
+    <string name="LocalBackup_DontForgetPasswordWarning">이 암호는 지갑의 백업 파일을 암호화하는 데 사용됩니다. 암호를 분실하거나 잊어버리면 복구하거나 재설정할 수 없습니다.</string>
+    <string name="LocalBackup_ProtextBackupWithPasswordInfo">백업에 대한 잠금 해제 암호를 설정하십시오. 최소 8개의 기호로 구성되어야 하며 소문자, 대문자, 숫자 및 특수 문자가 하나 이상 포함되어야 합니다.</string>
+    <string name="LocalBackup_TermsWarningText">하드 드라이브, USB 드라이브, 스마트폰 저장소 등의 저장 장치는 물리적인 손상, 도난 또는 예기치 않은 사건으로 인해 모두 손실의 위험이 있습니다.</string>
+    <string name="LocalBackup_Term1">백업 장치의 도난 또는 손상은 해당 지갑의 백업을 손실할 수 있음을 이해합니다.</string>
     <!-- Recovery Phrase -->
     <string name="RecoveryPhrase_Title">복구 문구</string>
     <string name="RecoveryPhrase_Description">이 단어들을 올바른 순서로 기록하고 안전한 장소에 보관하십시오</string>
@@ -1025,10 +1079,6 @@
     <string name="TorPage_ConnectionClosed">연결 해제</string>
     <string name="Tor_TorIsActive">Tor 활성화</string>
     <string name="Tor_PrerequisitesAlert_Content">토르를 활성화하면 Infura의 이더리움 블록체인 연결이 초기화됩니다.</string>
-    <!--Coin Option-->
-    <string name="CoinOption_bip44_Title">기존</string>
-    <string name="CoinOption_bip49_Title">좋은</string>
-    <string name="CoinOption_bip84_Title">최상의</string>
     <!--Coin Page-->
     <string name="Coin_Info">코인 정보</string>
     <string name="Coin_Tab_Overview">금액</string>
@@ -1167,6 +1217,7 @@
     <string name="CoinAnalytics_ProjectRevenue_Info2">Token\'s rank based on the revenue generated over 30-day period for token stakers.</string>
     <string name="CoinAnalytics_ProjectRevenue_Info3">List of all tokens ranked based on the revenue generated for token stakers over 24h / 7D / 1M intervals.</string>
     <string name="CoinAnalytics_PageLocked">This page available only for Unstoppable Wallet premium users</string>
+    <string name="CoinAnalytics_ActivateSubscription">Activate your subscription for getting access to analytics</string>
     <string name="CoinAnalytics_ProjectNoAnalyticData">This project has no analytical data</string>
     <string name="CoinAnalytics_CexVolume">CEX Volume</string>
     <string name="CoinAnalytics_CexVolumeRank">CEX Volume Rank</string>
@@ -1189,7 +1240,9 @@
     <string name="CoinAnalytics_TvlRatio">M.Cap / TVL Ratio</string>
     <string name="CoinAnalytics_ProjectRevenue">Project Revenue</string>
     <string name="CoinAnalytics_ProjectRevenueRank">Project Revenue Rank</string>
+    <string name="CoinAnalytics_HoldersRank">Holders Rank</string>
     <string name="CoinAnalytics_ProjectRevenueRank_Description">Tokens ranked by revenue generated for holders via mechanisms i.e. staking or token burns.</string>
+    <string name="CoinAnalytics_HoldersRank_Description">Ranking tokens by unique addresses holding them on multiple blockchains.</string>
     <string name="CoinAnalytics_OtherData">Other Data</string>
     <string name="CoinAnalytics_Reports">Reports</string>
     <string name="CoinAnalytics_Funding">Funding</string>
@@ -1201,6 +1254,11 @@
     <string name="Coin_Analytics_30DayRank">30-Day Rank</string>
     <string name="Coin_Analytics_30DayUniqueAddress">30-Day Unique Addresses</string>
     <string name="Coin_Analytics_30DayVolume">30-Day Volume</string>
+    <string name="ActivateSubscription_Title">Activate</string>
+    <string name="ActivateSubscription_Wallet">Wallet</string>
+    <string name="ActivateSubscription_Address">주소</string>
+    <string name="ActivateSubscription_MessageToSign">Message to Sign</string>
+    <string name="ActivateSubscription_SignMessageDescription">You need to sign this message to activate your subscription</string>
     <string name="Nfts_Title">NFT</string>
     <string name="Nfts_PriceType_Days_7">평균 7일</string>
     <string name="Nfts_PriceType_Days_30">평균 30일</string>

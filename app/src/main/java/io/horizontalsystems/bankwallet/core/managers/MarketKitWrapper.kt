@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
+import io.horizontalsystems.bankwallet.core.NoAuthTokenException
 import io.horizontalsystems.bankwallet.core.customCoinPrefix
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.SyncInfo
@@ -8,13 +9,13 @@ import io.horizontalsystems.marketkit.models.*
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.math.BigDecimal
-
 class MarketKitWrapper(
     context: Context,
     hsApiBaseUrl: String,
     hsApiKey: String,
     cryptoCompareApiKey: String? = null,
-    defiYieldApiKey: String? = null
+    defiYieldApiKey: String? = null,
+    private val subscriptionManager: SubscriptionManager
 ) {
     private val marketKit: MarketKit = MarketKit.getInstance(
         context = context,
@@ -23,6 +24,13 @@ class MarketKitWrapper(
         cryptoCompareApiKey = cryptoCompareApiKey,
         defiYieldApiKey = defiYieldApiKey
     )
+
+    private fun <T> requestWithAuthToken(f: (String) -> Single<T>) =
+        subscriptionManager.authToken?.let { authToken ->
+            f.invoke(authToken)
+        } ?: run {
+            Single.error(NoAuthTokenException())
+        }
 
     // Coins
 
@@ -61,9 +69,10 @@ class MarketKitWrapper(
 
     fun marketInfoDetailsSingle(coinUid: String, currencyCode: String) = marketKit.marketInfoDetailsSingle(coinUid, currencyCode)
 
-    fun analyticsSingle(coinUid: String, currencyCode: String) = marketKit.analyticsSingle(coinUid, currencyCode)
+    fun analyticsSingle(coinUid: String, currencyCode: String) =
+        requestWithAuthToken { marketKit.analyticsSingle(it, coinUid, currencyCode) }
 
-    fun analyticsPreviewSingle(coinUid: String) = marketKit.analyticsPreviewSingle(coinUid)
+    fun analyticsPreviewSingle(coinUid: String, addresses: List<String>) = marketKit.analyticsPreviewSingle(coinUid, addresses)
 
     fun marketInfoTvlSingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod) =
         marketKit.marketInfoTvlSingle(coinUid, currencyCode, timePeriod)
@@ -131,7 +140,8 @@ class MarketKitWrapper(
 
     // Details
 
-    fun tokenHoldersSingle(coinUid: String, blockchainUid: String) = marketKit.tokenHoldersSingle(coinUid, blockchainUid)
+    fun tokenHoldersSingle(coinUid: String, blockchainUid: String) =
+        requestWithAuthToken { marketKit.tokenHoldersSingle(it, coinUid, blockchainUid) }
 
     fun treasuriesSingle(coinUid: String, currencyCode: String) = marketKit.treasuriesSingle(coinUid, currencyCode)
 
@@ -146,24 +156,38 @@ class MarketKitWrapper(
     fun cexVolumesSingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod) =
         marketKit.cexVolumesSingle(coinUid, currencyCode, timePeriod)
 
-    fun dexLiquiditySingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod, sessionKey: String?) =
-        marketKit.dexLiquiditySingle(coinUid, currencyCode, timePeriod, sessionKey)
+    fun dexLiquiditySingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod) =
+        requestWithAuthToken { marketKit.dexLiquiditySingle(it, coinUid, currencyCode, timePeriod) }
 
-    fun dexVolumesSingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod, sessionKey: String?) =
-        marketKit.dexVolumesSingle(coinUid, currencyCode, timePeriod, sessionKey)
+    fun dexVolumesSingle(coinUid: String, currencyCode: String, timePeriod: HsTimePeriod) =
+        requestWithAuthToken { marketKit.dexVolumesSingle(it, coinUid, currencyCode, timePeriod) }
 
-    fun transactionDataSingle(coinUid: String, timePeriod: HsTimePeriod, platform: String?, sessionKey: String?) =
-        marketKit.transactionDataSingle(coinUid, timePeriod, platform, sessionKey)
+    fun transactionDataSingle(coinUid: String, timePeriod: HsTimePeriod, platform: String?) =
+        requestWithAuthToken { marketKit.transactionDataSingle(it, coinUid, timePeriod, platform) }
 
-    fun activeAddressesSingle(coinUid: String, timePeriod: HsTimePeriod, sessionKey: String?) =
-        marketKit.activeAddressesSingle(coinUid, timePeriod, sessionKey)
+    fun activeAddressesSingle(coinUid: String, timePeriod: HsTimePeriod) =
+        requestWithAuthToken { marketKit.activeAddressesSingle(it, coinUid, timePeriod) }
 
-    fun cexVolumeRanksSingle(currencyCode: String) = marketKit.cexVolumeRanksSingle(currencyCode)
-    fun dexVolumeRanksSingle(currencyCode: String) = marketKit.dexVolumeRanksSingle(currencyCode)
-    fun dexLiquidityRanksSingle(currencyCode: String) = marketKit.dexLiquidityRanksSingle(currencyCode)
-    fun activeAddressRanksSingle(currencyCode: String) = marketKit.activeAddressRanksSingle(currencyCode)
-    fun transactionCountsRanksSingle(currencyCode: String) = marketKit.transactionCountsRanksSingle(currencyCode)
-    fun revenueRanksSingle(currencyCode: String) = marketKit.revenueRanksSingle(currencyCode)
+    fun cexVolumeRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.cexVolumeRanksSingle(it, currencyCode) }
+
+    fun dexVolumeRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.dexVolumeRanksSingle(it, currencyCode) }
+
+    fun dexLiquidityRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.dexLiquidityRanksSingle(it, currencyCode) }
+
+    fun activeAddressRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.activeAddressRanksSingle(it, currencyCode) }
+
+    fun transactionCountsRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.transactionCountsRanksSingle(it, currencyCode) }
+
+    fun revenueRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.revenueRanksSingle(it, currencyCode) }
+
+    fun holdersRanksSingle(currencyCode: String) =
+        requestWithAuthToken { marketKit.holderRanksSingle(it, currencyCode) }
 
     // Overview
 
@@ -195,6 +219,10 @@ class MarketKitWrapper(
 
     suspend fun nftCollections(): List<NftTopCollection> =
         marketKit.nftTopCollections()
+
+    fun authKey(address: String) = marketKit.authGetSignMessage(address)
+    fun authenticate(signature: String, address: String) =
+        marketKit.authenticate(signature, address)
 
     // Misc
 

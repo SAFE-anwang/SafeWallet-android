@@ -40,6 +40,8 @@ class NoDataException() : Exception() {
     }
 }
 
+class NoAuthTokenException(override val message: String = "Auth Token is not set or empty") : Exception()
+
 sealed class EvmError(message: String? = null) : Throwable(message) {
     object InsufficientBalanceWithFee : EvmError()
     object CannotEstimateSwap : EvmError()
@@ -47,6 +49,10 @@ sealed class EvmError(message: String? = null) : Throwable(message) {
     object LowerThanBaseGasLimit : EvmError()
     class ExecutionReverted(message: String?) : EvmError(message)
     class RpcError(message: String?) : EvmError(message)
+}
+
+sealed class PasswordError : Throwable() {
+    object PasswordInvalid : PasswordError()
 }
 
 sealed class EvmAddressError : Throwable() {

@@ -22,6 +22,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         private const val EVM_PRIVATE_KEY = "evm_private_key"
         private const val ADDRESS = "address"
         private const val SOLANA_ADDRESS = "solana_address"
+        private const val TRON_ADDRESS = "tron_address"
         private const val HD_EXTENDED_LEY = "hd_extended_key"
     }
 
@@ -48,10 +49,18 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                             EVM_PRIVATE_KEY -> AccountType.EvmPrivateKey(record.key!!.value.toBigInteger())
                             ADDRESS -> AccountType.EvmAddress(record.key!!.value)
                             SOLANA_ADDRESS -> AccountType.SolanaAddress(record.key!!.value)
+                            TRON_ADDRESS -> AccountType.TronAddress(record.key!!.value)
                             HD_EXTENDED_LEY -> AccountType.HdExtendedKey(record.key!!.value)
                             else -> null
                         }
-                        Account(record.id, record.name, accountType!!, AccountOrigin.valueOf(record.origin), record.isBackedUp)
+                        Account(
+                            record.id,
+                            record.name,
+                            accountType!!,
+                            AccountOrigin.valueOf(record.origin),
+                            record.isBackedUp,
+                            record.isFileBackedUp
+                        )
                     } catch (ex: Exception) {
                         null
                     }
@@ -114,6 +123,10 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 key = SecretString(account.type.address)
                 accountType = SOLANA_ADDRESS
             }
+            is AccountType.TronAddress -> {
+                key = SecretString(account.type.address)
+                accountType = TRON_ADDRESS
+            }
             is AccountType.HdExtendedKey -> {
                 key = SecretString(account.type.keySerialized)
                 accountType = HD_EXTENDED_LEY
@@ -126,6 +139,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 type = accountType,
                 origin = account.origin.value,
                 isBackedUp = account.isBackedUp,
+                isFileBackedUp = account.isFileBackedUp,
                 words = words,
                 passphrase = passphrase,
                 key = key

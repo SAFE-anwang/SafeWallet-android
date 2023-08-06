@@ -48,7 +48,6 @@ class TransactionAdapterManager(
             if (txAdapter == null) {
                 txAdapter = when (val blockchainType = source.blockchain.type) {
                     BlockchainType.Ethereum,
-                    BlockchainType.EthereumGoerli,
                     BlockchainType.BinanceSmartChain,
                     BlockchainType.Polygon,
                     BlockchainType.Avalanche,
@@ -60,6 +59,9 @@ class TransactionAdapterManager(
                     }
                     BlockchainType.Solana -> {
                         adapterFactory.solanaTransactionsAdapter(wallet.transactionSource)
+                    }
+                    BlockchainType.Tron -> {
+                        adapterFactory.tronTransactionsAdapter(wallet.transactionSource)
                     }
                     else -> adapter as? ITransactionsAdapter
                 }

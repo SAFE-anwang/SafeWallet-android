@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_graph"
     app:startDestination="@id/mainFragment">
 
@@ -35,8 +34,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCDisplayTypedMessageFragment"/>
     <fragment
         android:id="@+id/sendEvmFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.sendevm.SendEvmFragment"
-        tools:layout="@layout/fragment_send_evm">
+        android:name="io.horizontalsystems.bankwallet.modules.sendevm.SendEvmFragment">
         <action
             android:id="@+id/sendEvmFragment_to_sendEvmConfirmationFragment"
             app:destination="@id/sendEvmConfirmationFragment" />
@@ -103,6 +101,9 @@
         android:id="@+id/backupConfirmationKeyFragment"
         android:name="io.horizontalsystems.bankwallet.modules.manageaccount.backupconfirmkey.BackupConfirmKeyFragment" />
     <fragment
+        android:id="@+id/backupLocalFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.backuplocal.BackupLocalFragment"/>
+    <fragment
         android:id="@+id/btcBlockchainRestoreSourceInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.info.BtcBlockchainRestoreSourceInfoFragment"/>
     <fragment
@@ -160,6 +161,9 @@
             app:uri="unstoppable://coin-page?uid={coinUid}" />
     </fragment>
     <fragment
+        android:id="@+id/activateSubscription"
+        android:name="io.horizontalsystems.bankwallet.modules.subscription.ActivateSubscriptionFragment" />
+    <fragment
         android:id="@+id/coinAnalyticsInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.info.CoinAnalyticsInfoFragment" />
     <fragment
@@ -195,8 +199,7 @@
     <fragment
         android:id="@+id/swapFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.SwapMainFragment"
-        android:label="@string/Swap"
-        tools:layout="@layout/fragment_swap"/>
+        android:label="@string/Swap" />
     <fragment
         android:id="@+id/swapApproveFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveFragment" />
@@ -249,14 +252,8 @@
         android:id="@+id/marketAdvancedSearchResultsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.market.filtersresult.MarketFiltersResultsFragment"/>
     <fragment
-        android:id="@+id/createAccountAdvancedFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.createaccount.CreateAccountAdvancedFragment" />
-    <fragment
         android:id="@+id/createAccountFragment"
         android:name="io.horizontalsystems.bankwallet.modules.createaccount.CreateAccountFragment" />
-    <fragment
-        android:id="@+id/restoreMnemonicNonStandardFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonicnonstandard.RestoreMnemonicNonStandardFragment" />
     <fragment
         android:id="@+id/restoreAccountFragment"
         android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountFragment" />
@@ -266,6 +263,12 @@
     <fragment
         android:id="@+id/restoreMnemonicFragment"
         android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreAccountFragment" />
+    <fragment
+        android:id="@+id/importWalletFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.importwallet.ImportWalletFragment" />
+    <fragment
+        android:id="@+id/restoreLocalFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.restorelocal.RestoreLocalFragment" />
     <fragment
         android:id="@+id/watchAddressFragment"
         android:name="io.horizontalsystems.bankwallet.modules.watchaddress.WatchAddressFragment" />
@@ -382,33 +385,27 @@
 
     <fragment
         android:id="@+id/restoreSelectWalletFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectWalletTypeFragment"
-        tools:layout="@layout/fragment_select_wallet_type" />
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectWalletTypeFragment" />
 
     <fragment
         android:id="@+id/restoreSelectImportWayFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectImportWayFragment"
-        tools:layout="@layout/fragment_select_wallet_type" />
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.SelectImportWayFragment"/>
 
     <fragment
         android:id="@+id/restorePrivateKeyImportFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.PrivateKeyImportFragment"
-        tools:layout="@layout/fragment_select_wallet_type" />
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.privatekey.PrivateKeyImportFragment"/>
 
     <fragment
         android:id="@+id/restorePhraseImportFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.PhraseImportFragment"
-        tools:layout="@layout/fragment_select_wallet_type" />
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.PhraseImportFragment"/>
 
     <fragment
         android:id="@+id/restoreSelectWalletNameFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletFragment"
-        tools:layout="@layout/fragment_select_wallet_type" />
+        android:name="io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletFragment"/>
 
     <fragment
         android:id="@+id/restoreMnemonicFragmentHd"
-        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.RestoreMnemonicFragmentHD"
-        tools:layout="@layout/fragment_restore_mnemonic" />
+        android:name="io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.RestoreMnemonicFragmentHD"/>
 
     <dialog
         android:id="@+id/wcErrorNoAccountFragment"

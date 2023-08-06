@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
-import androidx.annotation.ColorRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,9 +16,9 @@ import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.oneinch.scaleUp
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
+import io.horizontalsystems.bankwallet.modules.swap.scaleUp
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
-import io.horizontalsystems.bankwallet.modules.swap.uniswap.UniswapTradeService
 import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
@@ -87,7 +86,8 @@ class SendEvmTransactionViewModel(
     private fun sync(state: SendEvmTransactionService.State) {
         when (state) {
             is SendEvmTransactionService.State.Ready -> {
-                sendEnabledLiveData.postValue(true)
+                val sendEnabled = service.txDataState.additionalInfo?.uniswapInfo?.priceImpact?.level != PriceImpactLevel.Forbidden
+                sendEnabledLiveData.postValue(sendEnabled)
                 cautionsLiveData.postValue(cautionViewItemFactory.cautionViewItems(state.warnings, errors = listOf()))
             }
             is SendEvmTransactionService.State.NotReady -> {
@@ -316,18 +316,18 @@ class SendEvmTransactionViewModel(
             )
         }
         uniswapInfo?.priceImpact?.let {
-            val color = when (it.level) {
-                UniswapTradeService.PriceImpactLevel.Warning -> R.color.jacob
-                UniswapTradeService.PriceImpactLevel.Forbidden -> R.color.lucian
-                else -> null
+            val type = when (it.level) {
+                PriceImpactLevel.Normal -> ValueType.Warning
+                PriceImpactLevel.Warning,
+                PriceImpactLevel.Forbidden -> ValueType.Forbidden
+                else -> ValueType.Regular
             }
 
             otherViewItems.add(
                 ViewItem.Value(
                     Translator.getString(R.string.Swap_PriceImpact),
                     it.value,
-                    ValueType.Regular,
-                    color
+                    type
                 )
             )
         }
@@ -842,11 +842,16 @@ class SendEvmTransactionViewModel(
                         .getFormattedFull()
                 )
             }
-            is EvmError.InsufficientBalanceWithFee,
-            is EvmError.ExecutionReverted -> {
+            is EvmError.InsufficientBalanceWithFee -> {
                 Translator.getString(
                     R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
                     coinServiceFactory.baseCoinService.token.coin.code
+                )
+            }
+            is EvmError.ExecutionReverted -> {
+                Translator.getString(
+                    R.string.EthereumTransaction_Error_ExecutionReverted,
+                    convertedError.message ?: ""
                 )
             }
             is EvmError.CannotEstimateSwap -> {
@@ -872,7 +877,6 @@ sealed class ViewItem {
         val title: String,
         val value: String,
         val type: ValueType,
-        @ColorRes val color: Int? = null
     ) : ViewItem()
 
     class ValueMulti(
@@ -880,7 +884,6 @@ sealed class ViewItem {
         val primaryValue: String,
         val secondaryValue: String,
         val type: ValueType,
-        @ColorRes val color: Int? = null
     ) : ViewItem()
 
     class AmountMulti(
@@ -911,5 +914,5 @@ sealed class ViewItem {
 data class AmountValues(val coinAmount: String, val fiatAmount: String?)
 
 enum class ValueType {
-    Regular, Disabled, Outgoing, Incoming
+    Regular, Disabled, Outgoing, Incoming, Warning, Forbidden
 }

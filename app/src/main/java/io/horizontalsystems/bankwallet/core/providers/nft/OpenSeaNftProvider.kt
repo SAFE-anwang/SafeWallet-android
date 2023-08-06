@@ -3,19 +3,37 @@ package io.horizontalsystems.bankwallet.core.providers.nft
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
-import io.horizontalsystems.bankwallet.entities.nft.*
+import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftAssetShortMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftCollectionMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftCollectionShortMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftContractMetadata
+import io.horizontalsystems.bankwallet.entities.nft.NftEventMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftEventMetadata.EventType
-import io.horizontalsystems.marketkit.models.*
+import io.horizontalsystems.bankwallet.entities.nft.NftUid
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.NftPrice
+import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class OpenSeaNftProvider(
     private val marketKit: MarketKitWrapper,
     appConfigProvider: AppConfigProvider
 ) : INftProvider {
 
-    private val service: OpenSeaService = OpenSeaService(appConfigProvider.marketApiBaseUrl, appConfigProvider.marketApiKey)
+    private val service: OpenSeaService = OpenSeaService(
+        appConfigProvider.marketApiBaseUrl,
+        appConfigProvider.marketApiKey,
+        appConfigProvider.openSeaApiKey
+    )
     private val zeroAddress = "0x0000000000000000000000000000000000000000"
 
     override val title = "OpenSea"
@@ -96,10 +114,14 @@ class OpenSeaNftProvider(
 
     override suspend fun assetsBriefMetadata(blockchainType: BlockchainType, nftUids: List<NftUid>): List<NftAssetBriefMetadata> {
         val chunkedNftUids = nftUids.chunked(30)
-        val assetsBriefList =  mutableListOf<NftAssetBriefMetadata>()
+        val assetsBriefList = mutableListOf<NftAssetBriefMetadata>()
         for (nftUidsChunk in chunkedNftUids) {
-            val response = service.assets(contractAddresses = nftUidsChunk.map { it.contractAddress }, tokenIds = nftUidsChunk.map { it.tokenId })
-            assetsBriefList.addAll(assetsBrief(blockchainType, response.assets))
+            try {
+                val response = service.assets(contractAddresses = nftUidsChunk.map { it.contractAddress }, tokenIds = nftUidsChunk.map { it.tokenId })
+                assetsBriefList.addAll(assetsBrief(blockchainType, response.assets))
+            } catch (error: Throwable) {
+                continue
+            }
         }
         return assetsBriefList
     }

@@ -4,10 +4,22 @@ import androidx.compose.ui.graphics.Color
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingType
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.BitcoinCashCoinType
+import io.horizontalsystems.bankwallet.entities.CoinSettingType
+import io.horizontalsystems.bankwallet.entities.CoinSettings
+import io.horizontalsystems.bankwallet.entities.FeePriceScale
+import io.horizontalsystems.bankwallet.entities.derivation
 import io.horizontalsystems.hdwalletkit.ExtendedKeyCoinType
 import io.horizontalsystems.hdwalletkit.HDWallet
-import io.horizontalsystems.marketkit.models.*
+import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.FullCoin
+import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.marketkit.models.TopPlatform
 import io.horizontalsystems.nftkit.models.NftType
 
 val Token.protocolType: String?
@@ -90,8 +102,8 @@ val TokenQuery.protocolType: String?
         is TokenType.Eip20 -> {
             when (blockchainType) {
                 BlockchainType.Ethereum -> "ERC20"
-                BlockchainType.EthereumGoerli -> "Goerli ERC20"
                 BlockchainType.BinanceSmartChain -> "BEP20"
+                BlockchainType.Tron -> "TRC20"
                 BlockchainType.Polygon -> "Polygon"
                 BlockchainType.Avalanche -> "Avalanche"
                 BlockchainType.Optimism -> "Optimism"
@@ -124,7 +136,6 @@ val TokenQuery.isSupported: Boolean
             tokenType is TokenType.Native
         }
         BlockchainType.Ethereum,
-        BlockchainType.EthereumGoerli,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,
         BlockchainType.Optimism,
@@ -140,6 +151,9 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.Solana -> {
             tokenType is TokenType.Native || tokenType is TokenType.Spl
         }
+        BlockchainType.Tron -> {
+            tokenType is TokenType.Native || tokenType is TokenType.Eip20
+        }
         else -> false
     }
 
@@ -154,7 +168,6 @@ val Blockchain.description: String
         BlockchainType.Safe -> "SAFE"
         BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
         BlockchainType.Ethereum -> "ETH, ERC20 tokens"
-        BlockchainType.EthereumGoerli -> "ETH, ERC20 tokens"
         BlockchainType.BinanceSmartChain -> "BNB, BEP20 tokens"
         BlockchainType.Polygon -> "MATIC, ERC20 tokens"
         BlockchainType.Avalanche -> "AVAX, ERC20 tokens"
@@ -163,6 +176,7 @@ val Blockchain.description: String
         BlockchainType.Solana -> "SOL, SPL tokens"
         BlockchainType.Gnosis -> "xDAI, ERC20 tokens"
         BlockchainType.Fantom -> "FTM, ERC20 tokens"
+        BlockchainType.Tron -> "TRX, TRC20 tokens"
         else -> ""
     }
 
@@ -210,33 +224,39 @@ val BlockchainType.restoreSettingTypes: List<RestoreSettingType>
         else -> listOf()
     }
 
-val BlockchainType.order: Int
-    get() = when (this) {
-        BlockchainType.Bitcoin -> 1
-        BlockchainType.Ethereum -> 2
-        BlockchainType.BinanceSmartChain -> 3
-        BlockchainType.Polygon -> 4
-        BlockchainType.Avalanche -> 5
-        BlockchainType.Zcash -> 6
-        BlockchainType.BitcoinCash -> 7
-        BlockchainType.Litecoin -> 8
-        BlockchainType.Dash -> 9
-        BlockchainType.Safe -> 10
-        BlockchainType.BinanceChain -> 11
-        BlockchainType.Gnosis -> 12
-        BlockchainType.Fantom -> 13
-        BlockchainType.ArbitrumOne -> 14
-        BlockchainType.Optimism -> 15
-        BlockchainType.Solana -> 16
-        BlockchainType.EthereumGoerli -> 17
-        BlockchainType.ECash -> 18
-        else -> Int.MAX_VALUE
+private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
+    val map = mutableMapOf<BlockchainType, Int>()
+    listOf(
+        BlockchainType.Safe,
+        BlockchainType.Bitcoin,
+        BlockchainType.Ethereum,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Tron,
+        BlockchainType.Polygon,
+        BlockchainType.Avalanche,
+        BlockchainType.Zcash,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Litecoin,
+        BlockchainType.Dash,
+        BlockchainType.BinanceChain,
+        BlockchainType.Gnosis,
+        BlockchainType.Fantom,
+        BlockchainType.ArbitrumOne,
+        BlockchainType.Optimism,
+        BlockchainType.Solana,
+        BlockchainType.ECash,
+    ).forEachIndexed { index, blockchainType ->
+        map[blockchainType] = index
     }
+    map
+}
+
+val BlockchainType.order: Int
+    get() = blockchainOrderMap[this] ?: Int.MAX_VALUE
 
 val BlockchainType.tokenIconPlaceholder: Int
     get() = when (this) {
         BlockchainType.Ethereum -> R.drawable.erc20
-        BlockchainType.EthereumGoerli -> R.drawable.erc20_goerli
         BlockchainType.BinanceSmartChain -> R.drawable.bep20
         BlockchainType.BinanceChain -> R.drawable.bep2
         BlockchainType.Avalanche -> R.drawable.avalanche_erc20
@@ -245,6 +265,7 @@ val BlockchainType.tokenIconPlaceholder: Int
         BlockchainType.ArbitrumOne -> R.drawable.arbitrum_erc20
         BlockchainType.Gnosis -> R.drawable.gnosis_erc20
         BlockchainType.Fantom -> R.drawable.fantom_erc20
+        BlockchainType.Tron -> R.drawable.tron_trc20
         else -> R.drawable.coin_placeholder
     }
 
@@ -292,7 +313,6 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         }
         is AccountType.EvmAddress ->
             this == BlockchainType.Ethereum
-                    || this == BlockchainType.EthereumGoerli
                     || this == BlockchainType.BinanceSmartChain
                     || this == BlockchainType.Polygon
                     || this == BlockchainType.Avalanche
@@ -313,6 +333,9 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         }
         is AccountType.SolanaAddress ->
             this == BlockchainType.Solana
+
+        is AccountType.TronAddress ->
+            this == BlockchainType.Tron
     }
 }
 

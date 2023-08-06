@@ -12,8 +12,7 @@ class AddressParserFactory {
         BlockchainType.Dash -> AddressParser("dash", true)
         BlockchainType.Safe -> AddressParser("safe", true)
         BlockchainType.Zcash -> AddressParser("zcash", true)
-        BlockchainType.Ethereum,
-        BlockchainType.EthereumGoerli -> AddressParser("ethereum", true)
+        BlockchainType.Ethereum -> AddressParser("ethereum", true)
         BlockchainType.BinanceSmartChain -> AddressParser("", true)
         BlockchainType.BinanceChain -> AddressParser("binance", true)
         BlockchainType.Polygon,
@@ -23,6 +22,7 @@ class AddressParserFactory {
         BlockchainType.Solana,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
+        BlockchainType.Tron,
         is BlockchainType.Unsupported -> AddressParser("", false)
     }
 }

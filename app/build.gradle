@@ -1,3 +1,10 @@
+// NB: Android Studio can't find the imports; this does not affect the
+// actual build since Gradle can find them just fine.
+// remove after upgrading to 'com.android.tools.build:gradle:8.1.0' (AGP 8.1)
+import com.android.tools.profgen.ArtProfileKt
+import com.android.tools.profgen.ArtProfileSerializer
+import com.android.tools.profgen.DexFile
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
@@ -10,8 +17,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 77
-        versionName "0.32.1"
+        versionCode 84
+        versionName "0.33.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -63,7 +70,7 @@ android {
             resValue "string", "arbiscanApiKey", "Z43JN5434XVNA5D73UGPWKF26G5D9MGDPZ"
             resValue "string", "gnosisscanApiKey", "V2J8YU15ZX9S1W3GTUV2HXM11TP2TUBRW4"
             resValue "string", "ftmscanApiKey", "57YQ2GIRAZNV6M5HIJYYG3XQGGNIPVV8MF"
-            resValue "string", "defiyieldProviderApiKey", "b66ea1f5-f645-4e15-905a-65941580107d"
+            resValue "string", "defiyieldProviderApiKey", "bc3a9319-b115-4673-ace9-03228c11d026"
             resValue "string", "is_release", "false"
             resValue "string", "guidesUrl", "https://raw.githubusercontent.com/horizontalsystems/blockchain-crypto-guides/develop/index.json"
             resValue "string", "faqUrl", "https://raw.githubusercontent.com/horizontalsystems/Unstoppable-Wallet-Website/master/src/faq.json"
@@ -71,8 +78,10 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/master/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
+            resValue "string", "openSeaApiKey", "cc98f68d836b4c8c8ab8f894b6e2aae8"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
+            resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
         }
 
@@ -105,7 +114,7 @@ android {
             resValue "string", "arbiscanApiKey", "4QWW522BV13BJCZMXH1JIB2ESJ7MZTSJYI"
             resValue "string", "gnosisscanApiKey", "KEXFAQKDUENZ5U9CW3ZKYJEJ84ZIHH9QTY"
             resValue "string", "ftmscanApiKey", "JAWRPW27KEMVXMJJ9UKY63CVPH3X5V9SMP"
-            resValue "string", "defiyieldProviderApiKey", "b66ea1f5-f645-4e15-905a-65941580107d"
+            resValue "string", "defiyieldProviderApiKey", "bc3a9319-b115-4673-ace9-03228c11d026"
             resValue "string", "is_release", "true"
             resValue "string", "guidesUrl", "https://raw.githubusercontent.com/horizontalsystems/blockchain-crypto-guides/v1.2/index.json"
             resValue "string", "faqUrl", "https://raw.githubusercontent.com/horizontalsystems/Unstoppable-Wallet-Website/v1.3/src/faq.json"
@@ -113,8 +122,10 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/v0.21/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
+            resValue "string", "openSeaApiKey", "cc98f68d836b4c8c8ab8f894b6e2aae8"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
+            resValue "string", "trongridApiKey", "d1511874-1547-48df-9536-a32cc85949ac"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -129,13 +140,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
         resources {
             pickFirsts += ['META-INF/atomicfu.kotlin_module']
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE.md', 'META-INF/NOTICE.md']
         }
         exclude 'google/protobuf/*.proto'
         exclude 'META-INF/INDEX.LIST'
@@ -145,7 +157,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
         freeCompilerArgs += [
                 "-Xjvm-default=all",
         ]
@@ -155,6 +167,9 @@ android {
         kotlinCompilerExtensionVersion '1.4.0'
     }
     namespace 'io.horizontalsystems.bankwallet'
+    lint {
+        disable 'LogNotTimber'
+    }
 
     configurations.all { c ->
         c.resolutionStrategy.dependencySubstitution {
@@ -170,9 +185,6 @@ android {
         }
     }
 
-    lintOptions {
-        disable 'LogNotTimber'
-    }
 }
 
 dependencies {
@@ -273,6 +285,7 @@ dependencies {
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
     implementation 'com.github.horizontalsystems:solana-kit-android:97dcdba'
+    implementation 'com.github.horizontalsystems:tron-kit-android:1cc0ebe'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
     implementation project(':ethereum-kit-android:ethereumkit')
@@ -384,3 +397,32 @@ configurations.all {
     exclude group: "com.google.protobuf", module: "protobuf-java"
 }
 
+
+// fixes reproducible builds (fixes difference in assets/dexopt/baseline.profm)
+// more info https://issuetracker.google.com/issues/231837768
+// remove after upgrading to 'com.android.tools.build:gradle:8.1.0' (AGP 8.1)
+project.afterEvaluate {
+    tasks.each { task ->
+        if (task.name.startsWith("compile") && task.name.endsWith("ReleaseArtProfile")) {
+            task.doLast {
+                outputs.files.each { file ->
+                    if (file.name.endsWith(".profm")) {
+                        println("Sorting ${file} ...")
+                        def version = ArtProfileSerializer.valueOf("METADATA_0_0_2")
+                        def profile = ArtProfileKt.ArtProfile(file)
+                        def keys = new ArrayList(profile.profileData.keySet())
+                        def sortedData = new LinkedHashMap()
+                        // xxx ignore not resolved classes; gradle can manage
+                        Collections.sort keys, new DexFile.Companion()
+                        keys.each { key -> sortedData[key] = profile.profileData[key] }
+                        new FileOutputStream(file).with {
+                            write(version.magicBytes$profgen)
+                            write(version.versionBytes$profgen)
+                            version.write$profgen(it, sortedData, "")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -39,7 +39,8 @@ class SelectBlockchainsViewModel(
             is AccountType.Mnemonic,
             is AccountType.EvmPrivateKey,
             is AccountType.PrivateKey,
-            is AccountType.SolanaAddress -> Unit // N/A
+            is AccountType.SolanaAddress,
+            is AccountType.TronAddress -> Unit // N/A
             is AccountType.EvmAddress -> {
                 title = R.string.Watch_Select_Blockchains
                 coinViewItems = service.configuredTokens(accountType).map {

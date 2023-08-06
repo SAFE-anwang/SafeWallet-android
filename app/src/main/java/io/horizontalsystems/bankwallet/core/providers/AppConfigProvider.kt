@@ -9,6 +9,7 @@ class AppConfigProvider(val index: Int) {
 //     val companyWebPageLink: String = "https://horizontalsystems.io"
      val companyWebPageLink: String = "https://www.anwang.com"
 //     val appWebPageLink: String = "https://unstoppable.money"
+     val analyticsLink: String = "https://unstoppable.money/analytics"
      val appWebPageLink: String = "https://www.anwang.com"
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
@@ -20,7 +21,7 @@ class AppConfigProvider(val index: Int) {
     val appRedditLink: String = "https://www.reddit.com/user/safe_2018"
 //     val reportEmail = "support.unstoppable@protonmail.com"
     val reportEmail = "foundation@anwang.com"
-     val btcCoreRpcUrl: String = "https://btc.horizontalsystems.xyz/rpc"
+     val btcCoreRpcUrl: String = "https://btc.blocksdecoded.com/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
      val walletConnectUrl = "relay.walletconnect.com"
 
@@ -126,8 +127,16 @@ class AppConfigProvider(val index: Int) {
         Translator.getString(R.string.marketApiKey)
     }
 
+    val openSeaApiKey by lazy {
+        Translator.getString(R.string.openSeaApiKey)
+    }
+
     val solscanApiKey by lazy {
         Translator.getString(R.string.solscanApiKey)
+    }
+
+    val trongridApiKey by lazy {
+        Translator.getString(R.string.trongridApiKey)
     }
 
      val fiatDecimal: Int = 2
@@ -136,6 +145,7 @@ class AppConfigProvider(val index: Int) {
 
     val currencies: List<Currency> = listOf(
         Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
+        Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
         Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
         Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
         Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
@@ -143,9 +153,12 @@ class AppConfigProvider(val index: Int) {
         Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
         Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
         Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
+        Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
         Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
         Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
         Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
+        Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
+        Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
         Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
         Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
         Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
