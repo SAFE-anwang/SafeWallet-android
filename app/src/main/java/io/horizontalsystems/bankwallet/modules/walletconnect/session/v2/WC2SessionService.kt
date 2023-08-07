@@ -253,10 +253,13 @@ class WC2SessionService(
                 val accounts = session.namespaces.map { it.value.accounts }.flatten()
                 return getBlockchains(accounts, account)
             }
+            try {
+                proposal?.let { proposal ->
+                    val chains = proposal.requiredNamespaces.values.map { it.chains!! }.flatten()
+                    return getBlockchains(chains, account)
+                }
+            } catch (e: Exception) {
 
-            proposal?.let { proposal ->
-                val chains = proposal.requiredNamespaces.values.map { it.chains }.flatten()
-                return getBlockchains(chains, account)
             }
             return emptyList()
         }

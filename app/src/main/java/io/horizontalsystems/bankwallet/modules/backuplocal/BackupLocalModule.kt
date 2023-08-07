@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.backuplocal
 
 import com.google.gson.annotations.SerializedName
 import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.CexType
 import io.horizontalsystems.hdwalletkit.Base58
 import io.horizontalsystems.tronkit.toBigInteger
 
@@ -12,6 +13,7 @@ object BackupLocalModule {
     private const val SOLANA_ADDRESS = "solana_address"
     private const val TRON_ADDRESS = "tron_address"
     private const val HD_EXTENDED_LEY = "hd_extended_key"
+    private const val CEX = "cex"
 
     //Backup Json file data structure
 
@@ -54,6 +56,7 @@ object BackupLocalModule {
         is AccountType.SolanaAddress -> SOLANA_ADDRESS
         is AccountType.TronAddress -> TRON_ADDRESS
         is AccountType.HdExtendedKey -> HD_EXTENDED_LEY
+        is AccountType.Cex -> CEX
     }
 
     @Throws(IllegalStateException::class)
@@ -74,6 +77,15 @@ object BackupLocalModule {
             SOLANA_ADDRESS -> AccountType.SolanaAddress(String(data, Charsets.UTF_8))
             TRON_ADDRESS -> AccountType.TronAddress(String(data, Charsets.UTF_8))
             HD_EXTENDED_LEY -> AccountType.HdExtendedKey(Base58.encode(data))
+            CEX -> {
+                val cexType = CexType.deserialize(String(data, Charsets.UTF_8))
+                if (cexType != null) {
+                    AccountType.Cex(cexType)
+                } else {
+                    throw IllegalStateException("Unknown Cex account type")
+                }
+            }
+
             else -> throw IllegalStateException("Unknown account type")
         }
     }
@@ -95,6 +107,7 @@ object BackupLocalModule {
         is AccountType.SolanaAddress -> accountType.address.toByteArray(Charsets.UTF_8)
         is AccountType.TronAddress -> accountType.address.toByteArray(Charsets.UTF_8)
         is AccountType.HdExtendedKey -> Base58.decode(accountType.keySerialized)
+        is AccountType.Cex -> accountType.cexType.serialized().toByteArray(Charsets.UTF_8)
     }
 
     val kdfDefault = KdfParams(

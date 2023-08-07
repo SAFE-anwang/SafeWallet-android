@@ -6,11 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.IBackupManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
+import io.horizontalsystems.bankwallet.core.IRateAppManager
+import io.horizontalsystems.bankwallet.core.ITermsManager
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
+import io.horizontalsystems.bankwallet.core.managers.SubscriptionManager
 import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.LaunchPage
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
@@ -30,13 +35,14 @@ class MainViewModel(
     private val localStorage: ILocalStorage,
     wc2SessionManager: WC2SessionManager,
     private val wc1Manager: WC1Manager,
+    subscriptionManager: SubscriptionManager,
     private val wcDeepLink: String?
 ) : ViewModel() {
 
     private val disposables = CompositeDisposable()
     private var wc2PendingRequestsCount = 0
     private var marketsTabEnabled = localStorage.marketsTabEnabledFlow.value
-    private var transactionsEnabled = !accountManager.isAccountsEmpty
+    private var transactionsEnabled = isTransactionsTabEnabled()
     private var settingsBadge: MainModule.BadgeType? = null
     private val launchPage: LaunchPage
         get() = localStorage.launchPage ?: LaunchPage.Auto
@@ -76,6 +82,7 @@ class MainViewModel(
     private var selectedPageIndex = getPageIndexToOpen()
     private var mainNavItems = navigationItems()
     private var showRateAppDialog = false
+    private var showPremiumFeatureWarningDialog = false
     private var contentHidden = pinComponent.isLocked
     private var showWhatsNew = false
     private var activeWallet = accountManager.activeAccount
@@ -97,6 +104,7 @@ class MainViewModel(
             showWhatsNew = showWhatsNew,
             activeWallet = activeWallet,
             wcSupportState = wcSupportState,
+            showPremiumFeatureWarningDialog = showPremiumFeatureWarningDialog,
             torEnabled = torEnabled
         )
     )
@@ -122,6 +130,11 @@ class MainViewModel(
             syncState()
         }
 
+        subscriptionManager.showPremiumFeatureWarningFlow.collectWith(viewModelScope) {
+            showPremiumFeatureWarningDialog = true
+            syncState()
+        }
+
         disposables.add(backupManager.allBackedUpFlowable.subscribe {
             updateSettingsBadge()
         })
@@ -135,13 +148,9 @@ class MainViewModel(
             updateSettingsBadge()
         })
 
-        /*rateAppManager.showRateAppObservable
-                .subscribe {
-                    showRateApp(it)
-                }
-                .let {
-                    disposables.add(it)
-                }*/
+        disposables.add(accountManager.activeAccountObservable.subscribe {
+            updateTransactionsTabEnabled()
+        })
 
         wcDeepLink?.let {
             wcSupportState = wc1Manager.getWalletConnectSupportState()
@@ -160,12 +169,21 @@ class MainViewModel(
 //        showWhatsNew()
     }
 
+    private fun isTransactionsTabEnabled(): Boolean =
+        !accountManager.isAccountsEmpty && accountManager.activeAccount?.type !is AccountType.Cex
+
+
     override fun onCleared() {
         disposables.clear()
     }
 
     fun whatsNewShown() {
         showWhatsNew = false
+        syncState()
+    }
+
+    fun premiumFeatureWarningShown() {
+        showPremiumFeatureWarningDialog = false
         syncState()
     }
 
@@ -193,8 +211,8 @@ class MainViewModel(
         syncNavigation()
     }
 
-    fun updateTransactionsTabEnabled() {
-        transactionsEnabled = !accountManager.isAccountsEmpty
+    private fun updateTransactionsTabEnabled() {
+        transactionsEnabled = isTransactionsTabEnabled()
         syncNavigation()
     }
 
@@ -212,6 +230,7 @@ class MainViewModel(
             showWhatsNew = showWhatsNew,
             activeWallet = activeWallet,
             wcSupportState = wcSupportState,
+            showPremiumFeatureWarningDialog = showPremiumFeatureWarningDialog,
             torEnabled = torEnabled
         )
     }

@@ -63,9 +63,6 @@ class WsafeAddressFragment(
                             navController = findNavController(),
                             coinCode = token.coin.code,
                             error = viewModel.error,
-                            onStateChange = {
-                                viewModel.setAddressWithError(it?.dataOrNull, it?.errorOrNull)
-                            },
                             onValueChange = {
                                 viewModel.setAddress(it)
                             }
