@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData.AdditionalInfo
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.ILiquidityTradeService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
@@ -115,27 +116,26 @@ class SendEvmTransactionViewModel(
     private fun getItems(dataState: SendEvmTransactionService.TxDataState): List<SectionViewItem> {
         val additionalInfo = dataState.additionalInfo
 
-        if (dataState.decoration != null) {
-            val sections = getViewItems(dataState.decoration, additionalInfo)
-            if (sections != null) return sections
-        }
+        var sections: List<SectionViewItem> = dataState.decoration?.let {
+            getViewItems(it, additionalInfo)
+        } ?: listOf()
 
-        if (additionalInfo != null) {
-            val oneInchSwapInfo = additionalInfo.oneInchSwapInfo
-            if (oneInchSwapInfo != null) {
-                return getOneInchViewItems(oneInchSwapInfo)
+        if (sections.isEmpty()) {
+            if (additionalInfo?.oneInchSwapInfo != null) {
+                sections = getOneInchViewItems(additionalInfo.oneInchSwapInfo!!)
+            } else if (dataState.transactionData != null) {
+                sections = getUnknownMethodItems(
+                    dataState.transactionData,
+                    service.methodName(dataState.transactionData.input)
+                )
             }
         }
 
-        if (dataState.transactionData != null) {
-            return getUnknownMethodItems(
-                dataState.transactionData,
-                service.methodName(dataState.transactionData.input),
-                additionalInfo?.walletConnectInfo?.dAppName
-            )
+        additionalInfo?.walletConnectInfo?.let {
+            sections = sections + getWalletConnectSectionView(it)
         }
 
-        return listOf()
+        return sections
     }
 
     private fun sync(sendState: SendEvmTransactionService.SendState) =
@@ -153,7 +153,7 @@ class SendEvmTransactionViewModel(
 
     private fun getViewItems(
         decoration: TransactionDecoration,
-        additionalInfo: SendEvmData.AdditionalInfo?
+        additionalInfo: AdditionalInfo?
     ): List<SectionViewItem>? =
         when (decoration) {
             is OutgoingDecoration -> getSendBaseCoinItems(
@@ -710,10 +710,34 @@ class SendEvmTransactionViewModel(
         return listOf(SectionViewItem(viewItems))
     }
 
+    private fun getWalletConnectSectionView(
+        info: SendEvmData.WalletConnectInfo
+    ) = SectionViewItem(
+        buildList {
+            info.dAppName?.let {
+                add(
+                    ViewItem.Value(
+                        Translator.getString(R.string.WalletConnect_SignMessageRequest_dApp),
+                        it,
+                        ValueType.Regular
+                    )
+                )
+            }
+            info.chain?.let {
+                add(
+                    ViewItem.Value(
+                        it.name,
+                        it.address,
+                        ValueType.Regular
+                    )
+                )
+            }
+        }
+    )
+
     private fun getUnknownMethodItems(
         transactionData: TransactionData,
         methodName: String?,
-        dAppName: String?
     ): List<SectionViewItem> {
         val viewItems = buildList {
             add(
@@ -744,16 +768,6 @@ class SendEvmTransactionViewModel(
             }
 
             add(ViewItem.Input(transactionData.input.toHexString()))
-
-            dAppName?.let {
-                add(
-                    ViewItem.Value(
-                        Translator.getString(R.string.WalletConnect_SignMessageRequest_dApp),
-                        it,
-                        ValueType.Regular
-                    )
-                )
-            }
         }
 
         return listOf(SectionViewItem(viewItems))
@@ -855,11 +869,16 @@ class SendEvmTransactionViewModel(
                         .getFormattedFull()
                 )
             }
-            is EvmError.InsufficientBalanceWithFee,
-            is EvmError.ExecutionReverted -> {
+            is EvmError.InsufficientBalanceWithFee -> {
                 Translator.getString(
                     R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
                     coinServiceFactory.baseCoinService.token.coin.code
+                )
+            }
+            is EvmError.ExecutionReverted -> {
+                Translator.getString(
+                    R.string.EthereumTransaction_Error_ExecutionReverted,
+                    convertedError.message ?: ""
                 )
             }
             is EvmError.CannotEstimateSwap -> {

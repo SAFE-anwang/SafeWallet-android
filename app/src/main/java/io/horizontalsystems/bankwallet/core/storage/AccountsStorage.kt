@@ -1,12 +1,9 @@
 package io.horizontalsystems.bankwallet.core.storage
 
 import io.horizontalsystems.bankwallet.core.IAccountsStorage
+import io.horizontalsystems.bankwallet.core.hexToByteArray
 import io.horizontalsystems.bankwallet.core.toRawHexString
-import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.entities.AccountOrigin
-import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.ActiveAccount
-import io.horizontalsystems.core.hexToByteArray
+import io.horizontalsystems.bankwallet.entities.*
 import io.reactivex.Flowable
 
 class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
@@ -24,6 +21,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         private const val SOLANA_ADDRESS = "solana_address"
         private const val TRON_ADDRESS = "tron_address"
         private const val HD_EXTENDED_LEY = "hd_extended_key"
+        private const val CEX = "cex"
     }
 
     override var activeAccountId: String?
@@ -51,6 +49,11 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                             SOLANA_ADDRESS -> AccountType.SolanaAddress(record.key!!.value)
                             TRON_ADDRESS -> AccountType.TronAddress(record.key!!.value)
                             HD_EXTENDED_LEY -> AccountType.HdExtendedKey(record.key!!.value)
+                            CEX -> {
+                                CexType.deserialize(record.key!!.value)?.let {
+                                    AccountType.Cex(it)
+                                }
+                            }
                             else -> null
                         }
                         Account(
@@ -130,6 +133,10 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             is AccountType.HdExtendedKey -> {
                 key = SecretString(account.type.keySerialized)
                 accountType = HD_EXTENDED_LEY
+            }
+            is AccountType.Cex -> {
+                key = SecretString(account.type.cexType.serialized())
+                accountType = CEX
             }
         }
 

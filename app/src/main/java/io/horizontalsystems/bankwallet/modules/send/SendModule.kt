@@ -524,3 +524,7 @@ class SendErrorInsufficientBalance(coinCode: Any) : HSCaution(
 class SendErrorMinimumSendAmount(amount: Any) : HSCaution(
     TranslatableString.ResString(R.string.Send_Error_MinimumAmount, amount)
 )
+
+class SendErrorMaximumSendAmount(amount: Any): HSCaution(
+    TranslatableString.ResString(R.string.Send_Error_MaximumAmount, amount)
+)

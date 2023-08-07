@@ -21,6 +21,7 @@ class Colors(
     lawrence: Color,
     jeremy: Color,
     laguna: Color,
+    purple: Color,
     raina: Color,
     andy: Color,
 ) {
@@ -76,6 +77,8 @@ class Colors(
         private set
     var laguna by mutableStateOf(laguna)
         private set
+    var purple by mutableStateOf(purple)
+        private set
     var raina by mutableStateOf(raina)
         private set
     var andy by mutableStateOf(andy)
@@ -92,6 +95,7 @@ class Colors(
         lawrence = other.lawrence
         jeremy = other.jeremy
         laguna = other.laguna
+        purple = other.purple
         raina = other.raina
         andy = other.andy
     }
@@ -107,6 +111,7 @@ class Colors(
         lawrence = lawrence,
         jeremy = jeremy,
         laguna = laguna,
+        purple = purple,
         raina = raina,
         andy = andy,
     )

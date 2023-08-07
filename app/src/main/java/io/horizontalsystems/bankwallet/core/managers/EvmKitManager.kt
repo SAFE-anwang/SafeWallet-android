@@ -23,6 +23,7 @@ import io.horizontalsystems.nftkit.core.NftKit
 import io.horizontalsystems.nftkit.models.NftType
 import io.horizontalsystems.ethereumkit.spv.core.toBigInteger
 import io.horizontalsystems.oneinchkit.OneInchKit
+import io.horizontalsystems.uniswapkit.TokenFactory.UnsupportedChainError
 import io.horizontalsystems.uniswapkit.TokenFactory
 import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
@@ -144,7 +145,7 @@ class EvmKitManager(
         UniswapKit.addDecorators(evmKit)
         try {
             UniswapV3Kit.addDecorators(evmKit)
-        } catch (e: TokenFactory.UnsupportedChainError.NoWethAddress) {
+        } catch (e: UnsupportedChainError.NoWethAddress) {
             //do nothing
         }
         OneInchKit.addDecorators(evmKit)

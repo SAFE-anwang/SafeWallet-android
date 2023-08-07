@@ -51,8 +51,8 @@ object SwapMainModule {
             UniswapV3Provider,
             PancakeSwapProvider,
             PancakeSwapV3Provider,
-            SafeSwapProvider,
             OneInchProvider,
+            SafeSwapProvider,
             QuickSwapProvider
         )
         private val switchService by lazy { AmountTypeSwitchService() }
@@ -273,7 +273,6 @@ object SwapMainModule {
 //            BlockchainType.Optimism,
             BlockchainType.Polygon,
             BlockchainType.BinanceSmartChain -> true
-
             else -> false
         }
     }

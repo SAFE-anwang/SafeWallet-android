@@ -40,36 +40,12 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
     val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
 
     BackupAlert(navController)
+
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
             AppBar(
                 title = {
-                    Row(
-                        modifier = Modifier
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                navController.slideFromBottom(
-                                    R.id.manageAccountsFragment,
-                                    ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
-                                )
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        title3_leah(
-                            text = accountViewItem.name,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(weight = 1f, fill = false)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_down_24),
-                            contentDescription = null,
-                            tint = ComposeAppTheme.colors.grey
-                        )
-                    }
+                    BalanceTitleRow(navController, accountViewItem.name)
                 },
                 menuItems = listOf(
                     MenuItem(
@@ -102,12 +78,44 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
                             BalanceItemsEmpty(navController, accountViewItem)
                         }
                     }
-
                     ViewState.Loading,
-                    is ViewState.Error -> {
-                    }
+                    is ViewState.Error,
+                    null -> {}
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BalanceTitleRow(
+    navController: NavController,
+    title: String
+) {
+    Row(
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                navController.slideFromBottom(
+                    R.id.manageAccountsFragment,
+                    ManageAccountsModule.prepareParams(ManageAccountsModule.Mode.Switcher)
+                )
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        title3_leah(
+            text = title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(weight = 1f, fill = false)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Icon(
+            painter = painterResource(id = R.drawable.ic_down_24),
+            contentDescription = null,
+            tint = ComposeAppTheme.colors.grey
+        )
     }
 }

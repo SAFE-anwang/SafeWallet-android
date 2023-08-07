@@ -21,12 +21,28 @@ class SendAddressPresenter(
     override val initialAddress: Address? = null
     override val recipientAddressState = BehaviorSubject.create<DataState<Unit>>()
 
+    private var recipientError: Throwable? = null
+        set(value) {
+            field = value
+
+            val state = if (value == null) {
+                DataState.Success(Unit)
+            } else {
+                DataState.Error(value)
+            }
+            recipientAddressState.onNext(state)
+        }
+
     override fun setRecipientAddress(address: Address?) {
         onSetAddress(address)
     }
 
     override fun setRecipientAmount(amount: BigDecimal) {
         moduleDelegate.onUpdateAmount(amount)
+    }
+
+    override fun updateRecipientError(error: Throwable?) {
+        recipientError = error
     }
 
     private fun onSetAddress(address: Address?) {

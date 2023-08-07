@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.entities.Account
@@ -25,7 +24,7 @@ class BalanceViewModel(
 ) : ViewModel(), ITotalBalance by totalBalance {
 
     private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
-    private var viewState: ViewState = ViewState.Loading
+    private var viewState: ViewState? = null
     private var balanceViewItems = listOf<BalanceViewItem>()
     private var isRefreshing = false
 
@@ -56,8 +55,14 @@ class BalanceViewModel(
                         )
                     })
 
-                    items?.let { refreshViewItems(it) }
+                    refreshViewItems(items)
                 }
+        }
+
+        viewModelScope.launch {
+            totalBalance.stateFlow.collect {
+                refreshViewItems(service.balanceItemsFlow.value)
+            }
         }
 
         viewModelScope.launch {
@@ -99,22 +104,27 @@ class BalanceViewModel(
         return account.headerNote(nonRecommendedDismissed)
     }
 
-    private suspend fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>) {
+    private suspend fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>?) {
         withContext(Dispatchers.IO) {
-            viewState = ViewState.Success
-            // 解决列表key相同闪退bug，过滤相同的记录
-            val tmpBalanceViewItems = balanceItems.distinctBy {
-                it.wallet.hashCode()
-            }
-            balanceViewItems = tmpBalanceViewItems.map { balanceItem ->
-                balanceViewItemFactory.viewItem(
-                    balanceItem,
-                    service.baseCurrency,
-                    balanceItem.wallet == expandedWallet,
-                    balanceHidden,
-                    service.isWatchAccount,
-                    balanceViewType
-                )
+            if (balanceItems != null) {
+                viewState = ViewState.Success
+                // 解决列表key相同闪退bug，过滤相同的记录
+                val tmpBalanceViewItems = balanceItems.distinctBy {
+                    it.wallet.hashCode()
+                }
+                balanceViewItems = tmpBalanceViewItems.map { balanceItem ->
+                    balanceViewItemFactory.viewItem(
+                        balanceItem,
+                        service.baseCurrency,
+                        balanceItem.wallet == expandedWallet,
+                        balanceHidden,
+                        service.isWatchAccount,
+                        balanceViewType
+                    )
+                }
+            } else {
+                viewState = null
+                balanceViewItems = listOf()
             }
 
             emitState()
@@ -124,17 +134,6 @@ class BalanceViewModel(
     override fun onCleared() {
         totalBalance.stop()
         service.clear()
-    }
-
-    override fun toggleBalanceVisibility() {
-        totalBalance.toggleBalanceVisibility()
-        viewModelScope.launch {
-            service.balanceItemsFlow.value?.let { refreshViewItems(it) }
-        }
-    }
-
-    override fun toggleTotalType() {
-        totalBalance.toggleTotalType()
     }
 
     fun onItem(viewItem: BalanceViewItem) {
@@ -157,6 +156,7 @@ class BalanceViewModel(
         if (isRefreshing) {
             return
         }
+
         viewModelScope.launch {
             isRefreshing = true
             emitState()
@@ -201,7 +201,7 @@ class BackupRequiredError(val account: Account, val coinTitle: String) : Error("
 
 data class BalanceUiState(
     val balanceViewItems: List<BalanceViewItem>,
-    val viewState: ViewState,
+    val viewState: ViewState?,
     val isRefreshing: Boolean,
     val headerNote: HeaderNote
 )

@@ -19,7 +19,7 @@ object WC2Parser {
         return null
     }
 
-    fun parseTransactionRequest(
+    fun parseRequest(
         request: Sign.Model.PendingRequest,
         address: String,
         dAppName: String
@@ -66,7 +66,6 @@ object WC2Parser {
                         request.topic,
                         dAppName
                     )
-
                 val typeData = EIP712Encoder().parseTypedData(dataString)
                 val domain = typeData?.domain?.get("name")?.toString()
                 val sanitizedMessage = try {

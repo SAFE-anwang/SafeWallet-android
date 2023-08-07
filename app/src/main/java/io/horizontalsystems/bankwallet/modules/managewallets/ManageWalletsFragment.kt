@@ -110,7 +110,6 @@ private fun ManageWalletsScreen(
         SearchBar(
             title = stringResource(R.string.ManageCoins_title),
             searchHintText = stringResource(R.string.ManageCoins_Search),
-            navController = navController,
             menuItems = if (viewModel.addTokenEnabled) {
                 listOf(
                     MenuItem(
@@ -123,6 +122,7 @@ private fun ManageWalletsScreen(
             } else {
                 listOf()
             },
+            onClose = { navController.popBackStack() },
             onSearchTextChanged = { text ->
                 viewModel.updateFilter(text)
             }
