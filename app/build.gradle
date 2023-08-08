@@ -14,11 +14,11 @@ android {
     compileSdkVersion compile_sdk_version
 
     defaultConfig {
-        applicationId "io.horizontalsystems.bankwallet"
+        applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         versionCode 85
-        versionName "0.32.0.1.0616"
+        versionName "0.32.0.1.0802"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
