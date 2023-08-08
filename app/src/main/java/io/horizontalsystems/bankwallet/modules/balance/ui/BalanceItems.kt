@@ -264,7 +264,7 @@ fun BalanceItems(
                             contentDescription = stringResource(R.string.ManageCoins_title),
                             onClick = {
                                 navController.slideFromRight(R.id.manageWalletsFragment,
-                                    ManageWalletsModule.prepareParams(accountViewItem.accountType)
+                                    ManageWalletsModule.prepareParams(accountViewItem.type)
                                 )
                             }
                         )

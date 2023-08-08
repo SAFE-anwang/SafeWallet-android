@@ -1488,8 +1488,6 @@
     <string name="CoinPage_DetailsActiveAddresses_Description">The number of unique wallet addresses involved in transactions over various periods.</string>
     <string name="CoinPage_NftBannerTitle">SafeWallet NFT</string>
     <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding SafeWallet NFTs.</string>
-    <string name="CoinPage_NftBannerTitle">SafeWallet NFT</string>
-    <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding SafeWallet NFTs.</string>
     <string name="CoinPage_CoinNotFound">[%s]\nNot found</string>
     <string name="CoinPage_Indicators">Indicators</string>
     <string name="CoinPage_MovingAverages">Moving Averages</string>
