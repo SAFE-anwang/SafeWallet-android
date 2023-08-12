@@ -77,7 +77,7 @@ class SwapMainFragment : BaseFragment() {
 
     private var isAutoSetProvider1Inch = false
 
-    val factory = SwapMainModule.Factory(requireArguments())
+    val factory by lazy { SwapMainModule.Factory(requireArguments()) }
     val mainViewModel: SwapMainViewModel by viewModels { factory }
     val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
 
