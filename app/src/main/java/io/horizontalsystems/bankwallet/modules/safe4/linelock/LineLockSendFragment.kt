@@ -27,8 +27,6 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.address.DefaultAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertHandler
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SendSafeConvertInteractor
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -53,7 +51,10 @@ import io.horizontalsystems.marketkit.models.FullCoin
 class LineLockSendFragment : BaseFragment() {
 
     private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
-    private val vmFactory by lazy { SendModule.LineLockFactory(wallet) }
+    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
+    private val safeInteractor by lazy { LineLockSendInteractor(safeAdapter) }
+    private val safeConvertHandler by lazy { LineLockSendHandler(safeInteractor) }
+    private val vmFactory by lazy { SendModule.LineLockFactory2(safeAdapter, safeConvertHandler, safeInteractor) }
     private val mainPresenter by viewModels<SendPresenter>() { vmFactory }
 
     private lateinit var binding: ActivitySendBinding
@@ -65,7 +66,7 @@ class LineLockSendFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?): View {
         // prevent fragment recreations by passing null to onCreate
-        super.onCreate(null)
+        super.onCreate(savedInstanceState)
 
         binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root

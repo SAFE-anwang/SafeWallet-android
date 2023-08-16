@@ -151,7 +151,7 @@ object Safe4Module {
         if (state is AdapterState.Synced){
             val bundle = Bundle()
             bundle.putParcelable(LineLockSendActivity.WALLET, safeWallet)
-            navController.navigate(
+            navController.slideFromBottom(
                 R.id.sendSafeLockFragment,
                 bundle
             )
