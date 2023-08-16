@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.stringResId
@@ -22,7 +23,7 @@ class SendHodlerFragment(
     private val sendHandler: SendModule.ISendHandler
 ) : SendSubmoduleFragment() {
 
-    private val presenter by activityViewModels<SendHodlerPresenter> {
+    private val presenter by viewModels<SendHodlerPresenter> {
         SendHodlerModule.Factory(
             sendHandler,
             hodlerModuleDelegate

@@ -23,14 +23,15 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsScreen
 import io.horizontalsystems.bankwallet.modules.coin.coinmarkets.CoinMarketsScreen
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.CoinOverviewScreen
-import io.horizontalsystems.bankwallet.modules.coin.tweets.CoinTweetsScreen
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CoinFragment : BaseFragment() {
@@ -144,9 +145,16 @@ fun CoinTabs(
         val tabItems = tabs.map {
             TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
         }
-        ScrollableTabs(tabItems, onClick = {
+        Tabs(tabItems, onClick = { tab ->
             coroutineScope.launch {
-                pagerState.scrollToPage(it.ordinal)
+                pagerState.scrollToPage(tab.ordinal)
+
+                if (tab == CoinModule.Tab.Details && viewModel.shouldShowSubscriptionInfo()) {
+                    viewModel.subscriptionInfoShown()
+
+                    delay(1000)
+                    navController.slideFromBottom(R.id.subscriptionInfoFragment)
+                }
             }
         })
 
@@ -172,9 +180,9 @@ fun CoinTabs(
                         fragmentManager = fragmentManager
                     )
                 }
-                CoinModule.Tab.Tweets -> {
-                    CoinTweetsScreen(fullCoin = viewModel.fullCoin)
-                }
+//                CoinModule.Tab.Tweets -> {
+//                    CoinTweetsScreen(fullCoin = viewModel.fullCoin)
+//                }
             }
         }
 

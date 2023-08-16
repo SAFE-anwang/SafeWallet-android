@@ -81,8 +81,13 @@ class AdapterFactory(
                 DashAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Safe -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
-                SafeAdapter(wallet, syncMode, backgroundManager)
+                try {
+                    val syncMode =
+                        btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
+                    SafeAdapter(wallet, syncMode, backgroundManager)
+                } catch (e: Exception) {
+                    null
+                }
             }
             BlockchainType.Zcash -> {
                 ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType))

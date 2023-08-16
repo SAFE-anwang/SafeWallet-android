@@ -92,7 +92,7 @@ private fun WalletsScreen(
         SearchBar(
             title = stringResource(R.string.Restore_Import_Choose_Wallet),
             searchHintText = stringResource(R.string.Restore_Import_Wallet_Name_Hint),
-            navController = findNavController,
+            onClose = { findNavController.popBackStack() },
             onSearchTextChanged = { text ->
                 viewModel.updateFilter(text)
             }

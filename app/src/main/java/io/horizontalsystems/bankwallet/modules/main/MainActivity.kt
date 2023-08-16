@@ -59,7 +59,9 @@ class MainActivity : BaseActivity() {
 
 
         wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
-            navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+            if (!MainModule.isOpenDapp) {
+                navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+            }
         }
         wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
             navHost.navController.slideFromBottom(

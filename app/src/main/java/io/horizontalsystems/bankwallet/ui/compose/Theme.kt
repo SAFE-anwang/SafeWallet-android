@@ -22,6 +22,7 @@ val lightPalette = Colors(
     lawrence = Color.White,
     jeremy = SteelLight,
     laguna = LagunaL,
+    purple = PurpleL,
     raina = White50,
     andy = Steel20,
 )
@@ -37,6 +38,7 @@ val darkPalette = Colors(
     lawrence = SteelDark,
     jeremy = Steel20,
     laguna = LagunaD,
+    purple = PurpleD,
     raina = Steel10,
     andy = Black50,
 )
@@ -52,6 +54,7 @@ val bluePalette = Colors(
     lawrence = Color.White,
     jeremy = SteelLight,
     laguna = LagunaL,
+    purple = PurpleD,
     raina = White50,
     andy = Black50
 )

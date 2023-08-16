@@ -50,8 +50,9 @@ object SwapMainModule {
             UniswapProvider,
             UniswapV3Provider,
             PancakeSwapProvider,
-            SafeSwapProvider,
+            PancakeSwapV3Provider,
             OneInchProvider,
+            SafeSwapProvider,
             QuickSwapProvider
         )
         private val switchService by lazy { AmountTypeSwitchService() }
@@ -270,8 +271,8 @@ object SwapMainModule {
             BlockchainType.Ethereum,
             BlockchainType.ArbitrumOne,
 //            BlockchainType.Optimism,
-            BlockchainType.Polygon -> true
-
+            BlockchainType.Polygon,
+            BlockchainType.BinanceSmartChain -> true
             else -> false
         }
     }
@@ -297,6 +298,20 @@ object SwapMainModule {
 
         override fun supports(blockchainType: BlockchainType): Boolean {
             return blockchainType == BlockchainType.BinanceSmartChain
+        }
+    }
+
+    @Parcelize
+    object PancakeSwapV3Provider : ISwapProvider {
+        override val id get() = "pancake_v3"
+        override val title get() = "PancakeSwap V3"
+        override val url get() = "https://pancakeswap.finance/"
+        override val supportsExactOut get() = true
+
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.BinanceSmartChain,
+            BlockchainType.Ethereum -> true
+            else -> false
         }
     }
 
@@ -399,6 +414,14 @@ object SwapMainModule {
     data class SwapButtons(
         val revoke: SwapActionState,
         val approve: SwapActionState,
+        val proceed: SwapActionState
+    )
+
+    data class SwapButtons2(
+        val revoke1: SwapActionState,
+        val revoke2: SwapActionState,
+        val approve1: SwapActionState,
+        val approve2: SwapActionState,
         val proceed: SwapActionState
     )
 

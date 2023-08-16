@@ -13,6 +13,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.marketkit.models.Token
 
 class UniswapConfirmationFragment(
     override val navGraphId: Int = R.id.uniswapConfirmationFragment
@@ -22,15 +23,18 @@ class UniswapConfirmationFragment(
         private const val transactionDataKey = "transactionDataKey"
         private const val dexKey = "dexKey"
         private const val additionalInfoKey = "additionalInfoKey"
+        private const val tokenKey = "token"
 
         fun prepareParams(
             dex: SwapMainModule.Dex,
             transactionData: SendEvmModule.TransactionDataParcelable,
-            additionalInfo: SendEvmData.AdditionalInfo?
+            additionalInfo: SendEvmData.AdditionalInfo?,
+            token: Token? = null
         ) = bundleOf(
             dexKey to dex,
             transactionDataKey to transactionData,
-            additionalInfoKey to additionalInfo
+            additionalInfoKey to additionalInfo,
+            tokenKey to token
         )
     }
 
@@ -51,13 +55,18 @@ class UniswapConfirmationFragment(
         requireArguments().getParcelable<SendEvmData.AdditionalInfo>(additionalInfoKey)
     }
 
+    private val token by lazy {
+        requireArguments().getParcelable<Token>(tokenKey)
+    }
+
     override val logger = AppLogger("swap_uniswap")
 
     private val vmFactory by lazy {
         UniswapConfirmationModule.Factory(
             dex,
             transactionData,
-            additionalInfo
+            additionalInfo/*,
+            token*/
         )
     }
     override val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(navGraphId) { vmFactory }

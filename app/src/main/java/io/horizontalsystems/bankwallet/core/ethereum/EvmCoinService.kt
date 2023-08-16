@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.ethereum
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper

@@ -27,12 +27,10 @@ import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
 import io.horizontalsystems.bankwallet.core.factories.AddressParserFactory
 import io.horizontalsystems.bankwallet.core.factories.EvmAccountManagerFactory
 import io.horizontalsystems.bankwallet.core.managers.*
-import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
-import io.horizontalsystems.bankwallet.core.providers.EvmLabelProvider
-import io.horizontalsystems.bankwallet.core.providers.FeeRateProvider
-import io.horizontalsystems.bankwallet.core.providers.FeeTokenProvider
+import io.horizontalsystems.bankwallet.core.providers.*
 import io.horizontalsystems.bankwallet.core.storage.*
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewTypeManager
+import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorManager
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.launcher.LauncherActivity
@@ -150,6 +148,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var marketWidgetRepository: MarketWidgetRepository
         lateinit var contactsRepository: ContactsRepository
         lateinit var subscriptionManager: SubscriptionManager
+        lateinit var cexProviderManager: CexProviderManager
+        lateinit var cexAssetManager: CexAssetManager
+        lateinit var chartIndicatorManager: ChartIndicatorManager
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager
@@ -192,13 +193,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         }
 
         torKitManager = TorManager(instance, localStorage)
+        subscriptionManager = SubscriptionManager(localStorage)
 
         marketKit = MarketKitWrapper(
             context = this,
             hsApiBaseUrl = appConfig.marketApiBaseUrl,
             hsApiKey = appConfig.marketApiKey,
             cryptoCompareApiKey = appConfig.cryptoCompareApiKey,
-            defiYieldApiKey = appConfig.defiyieldProviderApiKey
+            defiYieldApiKey = appConfig.defiyieldProviderApiKey,
+            subscriptionManager = App.subscriptionManager
         )
         marketKit.sync()
 
@@ -368,7 +371,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         balanceHiddenManager = BalanceHiddenManager(localStorage, backgroundManager)
 
         contactsRepository = ContactsRepository(marketKit)
-        subscriptionManager = SubscriptionManager(localStorage)
+        cexProviderManager = CexProviderManager(accountManager)
+        cexAssetManager = CexAssetManager(marketKit, appDatabase.cexAssetsDao())
+        chartIndicatorManager = ChartIndicatorManager(appDatabase.chartIndicatorSettingsDao(), localStorage)
 
         ApplicationLoader.instance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)

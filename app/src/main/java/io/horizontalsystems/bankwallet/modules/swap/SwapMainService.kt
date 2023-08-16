@@ -23,7 +23,7 @@ class SwapMainService(
     val providerUpdatedFlow = _providerUpdatedFlow.asSharedFlow()
 
     val availableProviders: List<ISwapProvider>
-        get() = providers.filter { it.supports(dex.blockchainType) }
+        get() = providers.filter { it.supports(dex.blockchainType) }.sortedBy { it.title }
 
     fun setProvider(provider: ISwapProvider) {
         if (dex.provider.id != provider.id) {
@@ -31,6 +31,13 @@ class SwapMainService(
             _providerUpdatedFlow.tryEmit(provider)
 
             localStorage.setSwapProviderId(dex.blockchainType, provider.id)
+        }
+    }
+
+    fun autoSetProvider1Inch(provider: SwapMainModule.ISwapProvider) {
+        if (dex.provider.id != provider.id) {
+            dex = SwapMainModule.Dex(dex.blockchain, provider)
+            _providerUpdatedFlow.tryEmit(provider)
         }
     }
 
@@ -61,11 +68,4 @@ class SwapMainService(
         else -> throw IllegalStateException("Swap not supported for ${token.blockchainType}")
     }
 
-
-    fun autoSetProvider1Inch(provider: SwapMainModule.ISwapProvider) {
-        if (dex.provider.id != provider.id) {
-            dex = SwapMainModule.Dex(dex.blockchain, provider)
-//            providerObservable.onNext(provider)
-        }
-    }
 }

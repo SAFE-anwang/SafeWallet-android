@@ -15,10 +15,12 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCRequestChain
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
@@ -26,6 +28,7 @@ import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
+
 
 data class SendEvmData(
     val transactionData: TransactionData,
@@ -74,7 +77,8 @@ data class SendEvmData(
 
     @Parcelize
     data class WalletConnectInfo(
-        val dAppName: String?
+        val dAppName: String?,
+        val chain: WCRequestChain?
     ) : Parcelable
 
     @Parcelize
@@ -97,7 +101,7 @@ data class SendEvmData(
         val deadline: String? = null,
         val recipientDomain: String? = null,
         val price: String? = null,
-        val priceImpact: PriceImpactViewItem? = null,
+        val priceImpact: LiquidityMainModule.PriceImpactViewItem? = null,
         val gasPrice: String? = null,
     ) : Parcelable
 
@@ -121,6 +125,7 @@ object SendEvmModule {
     const val backButtonKey = "backButton"
     const val sendNavGraphIdKey = "sendNavGraphId_key"
     const val transactionToken = "transactionToken"
+    const val backNavGraphIdKey = "backNavGraphId"
 
     @Parcelize
     data class TransactionDataParcelable(

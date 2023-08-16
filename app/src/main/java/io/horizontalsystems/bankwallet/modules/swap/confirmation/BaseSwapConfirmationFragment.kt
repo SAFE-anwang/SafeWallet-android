@@ -1,8 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.confirmation
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -168,7 +166,7 @@ private fun BaseSwapConfirmationScreen(
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
+                            .padding(start = 16.dp, end = 16.dp),
                         title = stringResource(R.string.Swap),
                         onClick = onSendClick,
                         enabled = enabled

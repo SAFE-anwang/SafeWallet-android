@@ -291,6 +291,50 @@ object SendModule {
     }
 
 
+    class SafeConvertFactory2(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: SendSafeConvertHandler,
+        private val safeInteractor: SendSafeConvertInteractor) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (safeAdapter) {
+                is ISendSafeAdapter -> {
+//                    val safeInteractor = SendSafeConvertInteractor(safeAdapter)
+//                    val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
+
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
+
     class LineLockFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -479,4 +523,8 @@ class SendErrorInsufficientBalance(coinCode: Any) : HSCaution(
 
 class SendErrorMinimumSendAmount(amount: Any) : HSCaution(
     TranslatableString.ResString(R.string.Send_Error_MinimumAmount, amount)
+)
+
+class SendErrorMaximumSendAmount(amount: Any): HSCaution(
+    TranslatableString.ResString(R.string.Send_Error_MaximumAmount, amount)
 )

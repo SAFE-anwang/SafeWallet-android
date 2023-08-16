@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.isCustom
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -56,6 +58,7 @@ import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.ActionsRow
@@ -311,13 +314,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
-                        val intent = Intent(navController.context, SafeSendActivity::class.java)
-                        intent.putExtra("walletKey", viewItem.wallet)
-                        navController.context.startActivity(intent)
+//                        val intent = Intent(navController.context, SafeSendActivity::class.java)
+//                        intent.putExtra("walletKey", viewItem.wallet)
+//                        navController.context.startActivity(intent)
                         /*navController.slideFromBottom(
-                            R.id.sendSafeFragment,
+                            R.id.sendSafeActivity,
                             SendFragment.prepareParams(viewItem.wallet)
                         )*/
+                        navController.slideFromBottom(
+                            R.id.sendSafeFragment,
+                            SendFragment.prepareParams(viewItem.wallet)
+                        )
                     } else {
                         navController.slideFromBottom(
                             R.id.sendXFragment,
@@ -346,17 +353,30 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     },
                     enabled = viewItem.swapEnabled
                 )
-                /*Spacer(modifier = Modifier.width(8.dp))
-                ButtonPrimaryCircle(
-                    icon = R.drawable.icon_link_20,
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.liquidityFragment,
-                            LiquidityModule.prepareParams(viewItem.wallet.token)
-                        )
-                    },
-                    enabled = viewItem.swapEnabled
-                )*/
+                Spacer(modifier = Modifier.width(8.dp))
+                HsIconButton(
+                    onClick = { navController.slideFromBottom(
+                        R.id.liquidityFragment,
+                        LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                    ) },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(if (viewItem.swapEnabled) {
+                            if (App.localStorage.currentTheme == ThemeType.Blue)
+                                ComposeAppTheme.colors.tyler
+                            else
+                                ComposeAppTheme.colors.leah
+                        } else ComposeAppTheme.colors.steel20),
+                    enabled = viewItem.swapEnabled,
+                    rippleColor = ComposeAppTheme.colors.claude
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_liquidity),
+                        contentDescription = stringResource(R.string.ManageCoins_title),
+                        tint = if (viewItem.swapEnabled) ComposeAppTheme.colors.claude else ComposeAppTheme.colors.grey50
+                    )
+                }
             } else {
                 ButtonPrimaryDefaultBlue(
                     modifier = Modifier.weight(1f),

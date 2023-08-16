@@ -25,7 +25,7 @@ class RestoreBlockchainsViewModel(
 
     val viewItemsLiveData = MutableLiveData<List<CoinViewItem<Blockchain>>>()
     val disableBlockchainLiveData = MutableLiveData<String>()
-    val successLiveEvent = SingleLiveEvent<Boolean>()
+    val successLiveEvent = SingleLiveEvent<Boolean?>()
     var restored by mutableStateOf(false)
         private set
     val restoreEnabledLiveData: LiveData<Boolean>

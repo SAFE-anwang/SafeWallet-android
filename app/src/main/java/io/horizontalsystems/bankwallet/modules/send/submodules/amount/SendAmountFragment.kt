@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -21,7 +22,7 @@ class SendAmountFragment(
     private val sendHandler: SendModule.ISendHandler
 ) : SendSubmoduleFragment() {
 
-    private val presenter by activityViewModels<SendAmountPresenter> {
+    private val presenter by viewModels<SendAmountPresenter> {
         SendAmountModule.Factory(wallet, sendHandler)
     }
 

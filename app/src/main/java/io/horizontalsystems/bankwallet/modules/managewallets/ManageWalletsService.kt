@@ -43,8 +43,12 @@ class ManageWalletsService(
         Blockchain(BlockchainType.Safe, "SAFE", null),
         Blockchain(BlockchainType.Ethereum, "ETH", null),
         Blockchain(BlockchainType.BinanceSmartChain, "BSC", null),
-        Blockchain(BlockchainType.Polygon, App.instance.getString(R.string.Manage_Wallets_L2), null),
-        Blockchain(BlockchainType.Avalanche, "Avalanche", null)
+        Blockchain(BlockchainType.Polygon, "Polygon", null),
+        Blockchain(BlockchainType.ArbitrumOne, "Arbitrum", null),
+        Blockchain(BlockchainType.Optimism, "Optimism", null),
+        Blockchain(BlockchainType.Avalanche, "Avalanche", null),
+        Blockchain(BlockchainType.Tron, "TRON", null),
+        Blockchain(BlockchainType.Zcash, "ZCASH", null)
     )
 
     var selectedBlockchain: Blockchain? = null
@@ -83,7 +87,7 @@ class ManageWalletsService(
     private fun fetchFullCoins(): List<FullCoin> {
         return if (filter.isBlank()) {
             val account = this.account ?: return emptyList()
-            val featuredFullCoins = marketKit.fullCoins("", 100).toMutableList()
+            val featuredFullCoins = marketKit.fullCoins("", 140).toMutableList()
                 .filter { it.eligibleTokens(account.type).isNotEmpty() }
 
             val featuredCoins = featuredFullCoins.map { it.coin }
@@ -126,7 +130,9 @@ class ManageWalletsService(
 
         val items = mutableListOf<Item>()
         fullCoin.eligibleTokens(accountType).forEach { token ->
-            items.addAll(getItemsForToken(token, accountType))
+            if (isFilterToken(token)) {
+                items.addAll(getItemsForToken(token, accountType))
+            }
         }
 
         return items
@@ -193,7 +199,6 @@ class ManageWalletsService(
             sortItems()
         }
 
-        filterForBlockchain()
         syncState()
     }
 
@@ -231,32 +236,41 @@ class ManageWalletsService(
         this.selectedBlockchain = filter
 
         syncFullCoins()
-        filterForBlockchain()
         sortItems()
         syncState()
     }
 
-    private fun filterForBlockchain() {
-        if (selectedBlockchain != null) {
-            fullCoins = fullCoins.filter {
-                val tokens = it.tokens.filter {
-                    it.blockchain == selectedBlockchain
-                            || (selectedBlockchain != null && selectedBlockchain!!.type == BlockchainType.Bitcoin && isBitcoins(it.blockchain.type))
-                            || (selectedBlockchain != null && selectedBlockchain!!.type == BlockchainType.Polygon && isL2(it.blockchain.type))
-                }
-                tokens.isNotEmpty()
+    private fun isFilterToken(token: Token):Boolean {
+        if (selectedBlockchain == null) return true
+        return if (selectedBlockchain!!.type == BlockchainType.Bitcoin) {
+            isBitcoins(token.blockchain.type)
+        } else if (selectedBlockchain!!.type == BlockchainType.Safe && token.coin.uid == "safe-coin") {
+            true
+        } else if ((selectedBlockchain!!.type == BlockchainType.ArbitrumOne
+            || selectedBlockchain!!.type == BlockchainType.Optimism
+            || selectedBlockchain!!.type == BlockchainType.Avalanche
+            || selectedBlockchain!!.type == BlockchainType.Tron
+            || selectedBlockchain!!.type == BlockchainType.Zcash
+            || selectedBlockchain!!.type == BlockchainType.Polygon) && token.blockchainType == selectedBlockchain!!.type) {
+            true
+        }
+        else {
+            when(token.blockchain.name) {
+                "Ethereum" -> selectedBlockchain!!.name == "ETH"
+                "BNB Smart Chain" -> selectedBlockchain!!.name == "BSC"
+                "TRON" -> selectedBlockchain!!.name == "TRON"
+                "Avalanche" -> selectedBlockchain!!.name == "Avalanche"
+                "Polygon" -> selectedBlockchain!!.name == "Polygon"
+                "ZCASH" -> selectedBlockchain!!.name == "ZCASH"
+                "Optimism" -> selectedBlockchain!!.name == "Optimism"
+                else -> false
             }
         }
     }
 
     private fun isBitcoins(type: BlockchainType):Boolean {
         return type == BlockchainType.BitcoinCash || type == BlockchainType.Litecoin
-                || type == BlockchainType.Dash
-    }
-
-    private fun isL2(type: BlockchainType):Boolean {
-        return type == BlockchainType.Polygon || type == BlockchainType.ArbitrumOne
-                || type == BlockchainType.Optimism
+                || type == BlockchainType.Dash || type == BlockchainType.Bitcoin
     }
 
     fun enable(configuredToken: ConfiguredToken) {

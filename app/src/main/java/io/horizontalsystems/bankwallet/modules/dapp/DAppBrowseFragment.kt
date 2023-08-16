@@ -12,7 +12,9 @@ import android.webkit.*
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget1.LinearLayoutManager
@@ -21,11 +23,17 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
 import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
+import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.SafeWalletConnectViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestModule
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Request
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SendEthereumTransactionRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
@@ -44,6 +52,12 @@ import java.net.URLDecoder
 class DAppBrowseFragment: BaseFragment(){
 
 //    private lateinit  var baseViewModel : WalletConnectViewModel
+    private val wc2MainViewModel by viewModels<WC2MainViewModel> {
+        WC2MainViewModel.Factory()
+    }
+    private val viewModel by viewModels<WC2SessionViewModel> {
+        WC2SessionModule.Factory(arguments?.getString(WC2SessionModule.SESSION_TOPIC_KEY))
+    }
 
     private val HISTORY_KEY = "dapp_history"
     private var _binding: FragmentDappBrowseBinding? = null
@@ -61,7 +75,7 @@ class DAppBrowseFragment: BaseFragment(){
     private val disposables = CompositeDisposable()
     private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
     private val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
-    private val errorLiveEvent = SingleLiveEvent<String>()
+    private val errorLiveEvent = SingleLiveEvent<String?>()
 
     private var autoConnect = true
     private var isConnecting = false
@@ -74,6 +88,7 @@ class DAppBrowseFragment: BaseFragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        MainModule.isOpenDapp = true
         _binding = FragmentDappBrowseBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
@@ -193,9 +208,16 @@ class DAppBrowseFragment: BaseFragment(){
                 }
             }
         })
-        errorLiveEvent.observe(viewLifecycleOwner, Observer {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        errorLiveEvent.observe(viewLifecycleOwner, Observer { errorMsg ->
+            errorMsg?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
         })
+
+        wc2MainViewModel.sessionProposalLiveEvent.observe(viewLifecycleOwner) {
+            viewModel.connect()
+        }
+
         initHistoryView()
     }
 
@@ -289,6 +311,7 @@ class DAppBrowseFragment: BaseFragment(){
             }
         }
         App.wc2SessionManager.sessions.forEach {
+            Log.e("connectWallet", "auto connect v2 ${it.topic}, ${it.metaData?.url}, $cacheConnectLink")
             if (cacheConnectLink == it.metaData?.url) {
                 Log.e("connectWallet", "auto connect v2")
                 connectSession(it.topic, false)
@@ -415,7 +438,7 @@ class DAppBrowseFragment: BaseFragment(){
         )
         wc2Service!!.connectionStateObservable
             .subscribe {
-                Log.e("connectWallet", "connect state: $it")
+                Log.e("connectWallet", "connect state v2: $it")
                 if (it is WC2PingService.State.Disconnected) {
 //                    wc2Service?.reconnect()
                 }
@@ -463,6 +486,7 @@ class DAppBrowseFragment: BaseFragment(){
     }
 
     override fun onDestroy() {
+        viewModel.cancel()
         webView?.let {
             (webView.parent as ViewGroup).removeView(webView)
             it.destroy()
@@ -472,6 +496,7 @@ class DAppBrowseFragment: BaseFragment(){
         wc2Service?.disconnect()
         wc1Service = null
         wc2Service = null
+        MainModule.isOpenDapp = false
         super.onDestroy()
     }
 

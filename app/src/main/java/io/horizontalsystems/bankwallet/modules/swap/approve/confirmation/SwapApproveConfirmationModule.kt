@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.swap.approve.confirmation
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItemFactory
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
@@ -92,11 +93,12 @@ object SwapApproveConfirmationModule {
         }
     }
 
-    fun prepareParams(sendEvmData: SendEvmData, blockchainType: BlockchainType, backButton: Boolean = true) = bundleOf(
+    fun prepareParams(sendEvmData: SendEvmData, blockchainType: BlockchainType, backButton: Boolean = true, backNavGraphId: Int = R.id.swapFragment) = bundleOf(
         SendEvmModule.transactionDataKey to SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
         SendEvmModule.additionalInfoKey to sendEvmData.additionalInfo,
         SendEvmModule.blockchainTypeKey to blockchainType,
         SendEvmModule.backButtonKey to backButton,
+        SendEvmModule.backNavGraphIdKey to backNavGraphId,
     )
 
 }

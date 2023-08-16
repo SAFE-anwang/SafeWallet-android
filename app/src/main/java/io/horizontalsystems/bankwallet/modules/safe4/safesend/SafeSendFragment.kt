@@ -55,14 +55,14 @@ import io.horizontalsystems.core.helpers.HudHelper
 
 class SafeSendFragment : BaseFragment() {
 
-   /* private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
-    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
-    val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
-    val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
-    private val vmFactory by lazy { SendModule.Factory(safeAdapter, safeConvertHandler, safeInteractor) }
-    private val mainPresenter by viewModels<SendPresenter>() { vmFactory }*/
+    private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
+    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
+    private val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
+    private val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
+    private val vmFactory by lazy { SendModule.Factory2(safeAdapter, safeConvertHandler, safeInteractor) }
+    private val mainPresenter by viewModels<SendPresenter>() { vmFactory }
 
-    private lateinit var mainPresenter: SendPresenter
+//    private lateinit var mainPresenter: SendPresenter
     private var _binding: ActivitySendBinding? = null
     private val binding get() = _binding!!
 
@@ -76,22 +76,20 @@ class SafeSendFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         _binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
-//        setContentView(view)
-//
-//        overridePendingTransition(R.anim.slide_from_bottom, R.anim.slide_to_top)
 //
         val wallet: Wallet = requireArguments().getParcelable(WALLET) ?: run { findNavController().popBackStack(); return view}
 
         setToolbar(wallet)
-
-        mainPresenter =
-            ViewModelProvider(this, SendModule.Factory(wallet)).get(SendPresenter::class.java)
 
         subscribeToViewEvents(mainPresenter.view as SendView, wallet)
         subscribeToRouterEvents(mainPresenter.router as SendRouter)
 
         mainPresenter.onViewDidLoad()
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private fun setToolbar(wallet: Wallet) {
@@ -126,14 +124,17 @@ class SafeSendFragment : BaseFragment() {
 
     private fun subscribeToRouterEvents(router: SendRouter) {
         router.closeWithSuccess.observe(viewLifecycleOwner, Observer {
-            HudHelper.showSuccessMessage(
-                binding.root.findViewById(android.R.id.content),
-                R.string.Send_Success,
-                SnackbarDuration.LONG
-            )
-
-            //Delay 1200 millis to properly show message
-            Handler(Looper.getMainLooper()).postDelayed({ findNavController().popBackStack() }, 1200)
+            if (it == true) {
+                HudHelper.showSuccessMessage(
+                    binding.root,
+                    R.string.Send_Success,
+                    SnackbarDuration.LONG
+                )
+                //Delay 1200 millis to properly show message
+                Handler(Looper.getMainLooper()).postDelayed({
+                    findNavController().popBackStack()
+                }, 1200)
+            }
         })
     }
 
@@ -154,7 +155,6 @@ class SafeSendFragment : BaseFragment() {
                     R.anim.slide_to_right
                 )
                 add(R.id.rootView, ConfirmationFragment(mainPresenter))
-                addToBackStack(null)
             }
         })
 

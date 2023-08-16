@@ -41,7 +41,9 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionState
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapButtons
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapButtons2
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.BadgeStepCircle
@@ -116,6 +118,53 @@ fun SwapAllowance(
     }
 }
 
+
+@Composable
+fun LiquidityAllowance(
+    viewModel: LiquidityAllowanceViewModel,
+    navController: NavController
+) {
+    val uiState = viewModel.uiState
+    val isError = uiState.isError
+    val allowanceAmount = uiState.allowance
+    val visible = uiState.isVisible
+
+    if (visible) {
+        Row(modifier = Modifier.height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+            val infoTitle = stringResource(id = R.string.SwapInfo_AllowanceTitle)
+            val infoText = stringResource(id = R.string.SwapInfo_AllowanceDescription)
+            Row(
+                modifier = Modifier.clickable(
+                    onClick = {
+                        navController.slideFromBottom(
+                            R.id.feeSettingsInfoDialog,
+                            FeeSettingsInfoDialog.prepareParams(infoTitle, infoText)
+                        )
+                    },
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                subhead2_grey(text = stringResource(R.string.Swap_Allowance))
+
+                Image(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    painter = painterResource(id = R.drawable.ic_info_20),
+                    contentDescription = ""
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            allowanceAmount?.let { amount ->
+                if (isError) {
+                    subhead2_lucian(text = amount)
+                } else {
+                    subhead2_grey(text = amount)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun AvailableBalance(value: String) {
@@ -297,6 +346,96 @@ fun ActionButtons(
                     onClick = onTapProceed,
                     enabled = actionButtons.proceed is SwapActionState.Enabled,
                     step = if (actionButtons.approve != SwapActionState.Hidden) 2 else null
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ActionButtons2(
+    buttons: SwapButtons2?,
+    onTapRevoke1: () -> Unit,
+    onTapRevoke2: () -> Unit,
+    onTapApprove1: () -> Unit,
+    onTapApprove2: () -> Unit,
+    onTapProceed: () -> Unit,
+) {
+    buttons?.let { actionButtons ->
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+            if (actionButtons.revoke1 != SwapActionState.Hidden) {
+                ButtonPrimaryYellow(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.revoke1.title,
+                    onClick = onTapRevoke1,
+                    enabled = actionButtons.revoke1 is SwapActionState.Enabled
+                )
+            }
+
+            if (actionButtons.approve1 != SwapActionState.Hidden) {
+                ApproveButton(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.approve1.title,
+                    onClick = onTapApprove1,
+                    enabled = actionButtons.approve1 is SwapActionState.Enabled,
+                    step = if (actionButtons.proceed != SwapActionState.Hidden) 1 else null,
+                    showProgress = actionButtons.approve1.showProgress
+                )
+                if (actionButtons.proceed != SwapActionState.Hidden) {
+                    Spacer(Modifier.width(8.dp))
+                }
+            }
+
+            if (actionButtons.revoke2 != SwapActionState.Hidden) {
+                ButtonPrimaryYellow(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.revoke2.title,
+                    onClick = onTapRevoke2,
+                    enabled = actionButtons.revoke2 is SwapActionState.Enabled
+                )
+            }
+
+            if (actionButtons.approve2 != SwapActionState.Hidden) {
+                ApproveButton(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.approve2.title,
+                    onClick = onTapApprove2,
+                    enabled = actionButtons.approve2 is SwapActionState.Enabled,
+                    step = if (actionButtons.proceed != SwapActionState.Hidden) 1 else null,
+                    showProgress = actionButtons.approve1.showProgress
+                )
+                /*if (actionButtons.proceed != SwapActionState.Hidden) {
+                    Spacer(Modifier.width(8.dp))
+                }*/
+            }
+
+            /*if (actionButtons.proceed != SwapActionState.Hidden) {
+                ProceedButton(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.proceed.title,
+                    onClick = onTapProceed,
+                    enabled = actionButtons.proceed is SwapActionState.Enabled,
+                    step = if (actionButtons.approve1 != SwapActionState.Hidden && actionButtons.approve2 != SwapActionState.Hidden) 2 else null
+                )
+            }*/
+        }
+        if (actionButtons.proceed != SwapActionState.Hidden) {
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                ProceedButton(
+                    modifier = Modifier.weight(1f),
+                    title = actionButtons.proceed.title,
+                    onClick = onTapProceed,
+                    enabled = actionButtons.proceed is SwapActionState.Enabled,
+                    step = if (actionButtons.approve1 != SwapActionState.Hidden && actionButtons.approve2 != SwapActionState.Hidden) 2 else null
                 )
             }
         }

@@ -31,7 +31,8 @@ object SendEvmConfirmationModule {
 
     class Factory(
         private val evmKitWrapper: EvmKitWrapper,
-        private val sendEvmData: SendEvmData
+        private val sendEvmData: SendEvmData,
+        private val predefinedGasLimit: Long? = null
     ) : ViewModelProvider.Factory {
 
         private val blockchainType = when (evmKitWrapper.evmKit.chain) {
@@ -42,6 +43,7 @@ object SendEvmConfirmationModule {
             Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
             Chain.Gnosis -> BlockchainType.Gnosis
             Chain.Fantom -> BlockchainType.Fantom
+//            Chain.EthereumGoerli -> BlockchainType.EthereumGoerli
             else -> BlockchainType.Ethereum
         }
 
@@ -67,7 +69,7 @@ object SendEvmConfirmationModule {
             }
         }
         private val feeService by lazy {
-            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType)
+            val gasDataService = EvmCommonGasDataService.instance(evmKitWrapper.evmKit, evmKitWrapper.blockchainType, predefinedGasLimit)
             EvmFeeService(evmKitWrapper.evmKit, gasPriceService, gasDataService, sendEvmData.transactionData)
         }
         private val coinServiceFactory by lazy {

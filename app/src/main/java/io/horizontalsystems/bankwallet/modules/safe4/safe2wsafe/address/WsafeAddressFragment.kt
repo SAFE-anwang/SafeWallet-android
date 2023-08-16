@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import io.horizontalsystems.bankwallet.R
@@ -35,7 +36,7 @@ class WsafeAddressFragment(
     private val sendHandler: SendModule.ISendHandler
 ) : SendSubmoduleFragment() {
 
-    private val viewModel by activityViewModels<RecipientAddressViewModel> {
+    private val viewModel by viewModels<RecipientAddressViewModel> {
         SendAddressModule.Factory(sendHandler, addressModuleDelegate)
     }
 
@@ -62,11 +63,9 @@ class WsafeAddressFragment(
                             modifier = Modifier.padding(top = 12.dp),
                             initial = Address(wsafeAddress),
                             tokenQuery = token.tokenQuery,
+                            navController = findNavController(),
                             coinCode = token.coin.code,
                             error = viewModel.error,
-                            onStateChange = {
-                                viewModel.setAddressWithError(it?.dataOrNull, it?.errorOrNull)
-                            },
                             onValueChange = {
                                 viewModel.setAddress(it)
                             }

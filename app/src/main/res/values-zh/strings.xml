@@ -523,6 +523,7 @@
     <string name="WalletConnect_UnsupportedRequest_Title">不支持的请求</string>
     <string name="WalletConnect_UnsupportedRequest_WarningTitle">不支持</string>
     <string name="WalletConnect_UnsupportedRequest_WarningDescription">钱包不支持此请求格式</string>
+    <string name="WalletConnect_Coonect_Fail">连接失败</string>
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">警告</string>
     <string name="EthereumTransaction_Error_Title">出错</string>
@@ -536,6 +537,7 @@
     <string name="EthereumTransaction_Error_CannotEstimate_Title">估计错误</string>
     <string name="EthereumTransaction_Error_CannotEstimate">错误！检查余额并确保有足够的%s来支付费用。或者尝试增加价格下跌金额并重试。将在3秒后重试</string>
     <string name="EthereumTransaction_Warning_CoinNeededForFee">考虑留下%s作为余额以便能够支付未来的交易。</string>
+    <string name="EthereumTransaction_Error_ExecutionReverted">异常错误: %s</string>
     <!--Swap-->
     <string name="Swap">互兑交易</string>
     <string name="Swap_FromAmountTitle">您支付</string>
@@ -974,10 +976,11 @@
     <!--Manage Account-->
     <string name="ManageAccount_Name">名称</string>
     <string name="ManageAccount_Save">保存</string>
-    <string name="ManageAccount_RecoveryPhraseBackup">备份码</string>
+    <string name="ManageAccount_RecoveryPhraseBackup">进行手动备份</string>
+    <string name="ManageAccount_LocalBackup">本地备份</string>
     <string name="ManageAccount_RecoveryPhraseShow">显示恢复码</string>
     <string name="ManageAccount_NetworkSettings">网络设置</string>
-    <string name="ManageAccount_Unlink">取消链接</string>
+    <string name="ManageAccount_Unlink">取消链接钱包</string>
     <string name="ManageAccount_BackupRequired_Title">需要备份</string>
     <string name="ManageAccount_BackupRequired_Description">您必须备份%1$s才能收到%2$s。</string>
     <string name="ManageAccount_Delete_ConfirmationRemove">该操作将从此设备删除本钱包。</string>
@@ -1652,4 +1655,14 @@
     <string name="Zero_Transactions_Filter">过滤交易</string>
     <string name="liquidity_setting_price_min">最小价格</string>
     <string name="liquidity_setting_price_max">最大价格</string>
+    <string name="liquidity_remove_title">移除流动性</string>
+    <string name="Liquidity_NoAlert">您还没有添加流动性</string>
+    <string name="Liquidity_Num">流动性数量:</string>
+    <string name="Liquidity_Total">总共:</string>
+    <string name="Liquidity_Remove_Confirm">确定移除流动性吗?</string>
+    <string name="Liquidity_Remove_Confirm_OK">确定</string>
+    <string name="Liquidity_Remove_Confirm_Cancel">取消</string>
+    <string name="Liquidity_Add">添加</string>
+    <string name="Liquidity_Add_Success">添加成功</string>
+    <string name="Dapp">添加成功</string>
 </resources>
