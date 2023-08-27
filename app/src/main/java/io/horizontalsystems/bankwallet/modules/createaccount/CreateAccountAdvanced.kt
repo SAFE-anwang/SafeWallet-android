@@ -45,12 +45,15 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.hdwalletkit.Language
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountAdvancedScreen(
     onBackClick: () -> Unit,
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    coroutineScope: CoroutineScope
 ) {
     val viewModel = viewModel<CreateAccountViewModel>(factory = CreateAccountModule.Factory())
     val view = LocalView.current
@@ -71,6 +74,7 @@ fun CreateAccountAdvancedScreen(
 
     var showMnemonicSizeSelectorDialog by remember { mutableStateOf(false) }
     var hidePassphrase by remember { mutableStateOf(true) }
+    var showLanguageSelectorDialog by remember { mutableStateOf(false) }
 
     ComposeAppTheme {
         Surface(color = ComposeAppTheme.colors.tyler) {
@@ -85,6 +89,27 @@ fun CreateAccountAdvancedScreen(
                     },
                     onSelectItem = {
                         viewModel.setMnemonicKind(it)
+                    }
+                )
+            }
+
+            if (showLanguageSelectorDialog) {
+                SelectorDialogCompose(
+                    title = stringResource(R.string.CreateWallet_Wordlist),
+                    items = viewModel.mnemonicLanguages.map {
+                        TabItem(
+                            stringResource(it.displayNameStringRes),
+                            it == viewModel.languageType,
+                            it
+                        )
+                    },
+                    onDismissRequest = {
+                        coroutineScope.launch {
+                            showLanguageSelectorDialog = false
+                        }
+                    },
+                    onSelectItem = {
+                        viewModel.setMnemonicLanguage(it)
                     }
                 )
             }
@@ -130,12 +155,25 @@ fun CreateAccountAdvancedScreen(
                     )
 
                     Spacer(Modifier.height(32.dp))
-                    CellUniversalLawrenceSection(listOf {
-                        PassphraseCell(
-                            enabled = viewModel.passphraseEnabled,
-                            onCheckedChange = { viewModel.setPassphraseEnabledState(it) }
+                    CellUniversalLawrenceSection(
+                        listOf(
+                            {
+                                MnemonicLanguageCell(
+                                    language = viewModel.languageType,
+                                    showLanguageSelectorDialog = {
+                                        showLanguageSelectorDialog = true
+                                    }
+                                )
+                            },
+                            {
+                                PassphraseCell(
+                                    enabled = viewModel.passphraseEnabled,
+                                    onCheckedChange = { viewModel.setPassphraseEnabledState(it) }
+                                )
+                            }
+
                         )
-                    })
+                    )
 
                     if (viewModel.passphraseEnabled) {
                         Spacer(Modifier.height(24.dp))

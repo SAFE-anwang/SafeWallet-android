@@ -25,6 +25,7 @@ import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
@@ -194,7 +195,7 @@ interface IWordsManager {
     fun validateChecksumStrict(words: List<String>)
     fun isWordValid(word: String): Boolean
     fun isWordPartiallyValid(word: String): Boolean
-    fun generateWords(count: Int = 12): List<String>
+    fun generateWords(count: Int = 12, language: Language = Language.English): List<String>
 }
 
 sealed class AdapterState {
