@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -27,7 +28,7 @@ class DefaultAddressFragment(
     private val sendHandler: SendModule.ISendHandler
 ) : SendSubmoduleFragment() {
 
-    private val viewModel by activityViewModels<RecipientAddressViewModel> {
+    private val viewModel by viewModels<RecipientAddressViewModel> {
         SendAddressModule.Factory(sendHandler, addressModuleDelegate)
     }
 
