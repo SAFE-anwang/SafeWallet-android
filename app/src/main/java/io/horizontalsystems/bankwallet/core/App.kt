@@ -193,7 +193,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         }
 
         torKitManager = TorManager(instance, localStorage)
-        subscriptionManager = SubscriptionManager(localStorage)
+        subscriptionManager = SubscriptionManager()
 
         marketKit = MarketKitWrapper(
             context = this,
@@ -201,7 +201,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             hsApiKey = appConfig.marketApiKey,
             cryptoCompareApiKey = appConfig.cryptoCompareApiKey,
             defiYieldApiKey = appConfig.defiyieldProviderApiKey,
-            subscriptionManager = App.subscriptionManager
+            subscriptionManager = subscriptionManager
         )
         marketKit.sync()
 
@@ -403,10 +403,10 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         val serverUrl = "wss://${appConfig.walletConnectUrl}?projectId=$projectId"
         val connectionType = ConnectionType.AUTOMATIC
         val appMetaData = Core.Model.AppMetaData(
-            name = "Safe Wallet",
+            name = appConfig.walletConnectAppMetaDataName,
             description = "",
-            url = "example.wallet",
-            icons = listOf("https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"),
+            url = appConfig.walletConnectAppMetaDataUrl,
+            icons = listOf(appConfig.walletConnectAppMetaDataIcon),
             redirect = null,
         )
 

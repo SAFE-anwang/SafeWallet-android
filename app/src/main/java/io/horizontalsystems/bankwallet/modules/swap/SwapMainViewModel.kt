@@ -245,7 +245,7 @@ class SwapMainViewModel(
     }
 
     private fun subscribeToTradeService() {
-        tradeService.stateFlow.collectWith(viewModelScope) { state ->
+        tradeService.stateFlow.collectWith(viewModelScope) {
             syncSwapDataState()
         }
 

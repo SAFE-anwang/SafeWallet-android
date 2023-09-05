@@ -20,10 +20,18 @@ class AppConfigProvider(val index: Int) {
 //     val appRedditLink: String = "https://www.reddit.com/r/UNSTOPPABLEWallet/"
     val appRedditLink: String = "https://www.reddit.com/user/safe_2018"
 //     val reportEmail = "support.unstoppable@protonmail.com"
+    val mempoolSpaceUrl: String = "https://mempool.space"
     val reportEmail = "foundation@anwang.com"
      val btcCoreRpcUrl: String = "https://btc.blocksdecoded.com/rpc"
      val releaseNotesUrl: String = "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
      val walletConnectUrl = "relay.walletconnect.com"
+     val walletConnectProjectId by lazy { Translator.getString(R.string.walletConnectV2Key) }
+     val walletConnectAppMetaDataName by lazy { Translator.getString(R.string.walletConnectAppMetaDataName) }
+     val walletConnectAppMetaDataUrl by lazy { Translator.getString(R.string.walletConnectAppMetaDataUrl) }
+     val walletConnectAppMetaDataIcon by lazy { Translator.getString(R.string.walletConnectAppMetaDataIcon) }
+     val walletConnectV1PeerMetaName by lazy { Translator.getString(R.string.walletConnectV1PeerMetaName) }
+     val walletConnectV1PeerMetaUrl by lazy { Translator.getString(R.string.walletConnectV1PeerMetaUrl) }
+     val accountsBackupFileSalt by lazy { Translator.getString(R.string.accountsBackupFileSalt) }
 
 
     val safeBlockExplorer = "https://chain.anwang.com"
@@ -37,10 +45,6 @@ class AppConfigProvider(val index: Int) {
     val safeBSCContract = "https://bscscan.com/token/0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1"
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
-
-     val walletConnectProjectId by lazy {
-         Translator.getString(R.string.walletConnectV2Key)
-     }
 
      val twitterBearerToken by lazy {
         Translator.getString(R.string.twitterBearerToken)

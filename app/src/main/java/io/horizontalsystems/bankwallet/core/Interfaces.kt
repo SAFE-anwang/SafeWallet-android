@@ -1,12 +1,24 @@
 package io.horizontalsystems.bankwallet.core
 
 import com.google.gson.JsonObject
-import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.Bep2TokenInfoService
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.core.providers.FeeRates
+import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.entities.AccountOrigin
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.AddressData
+import io.horizontalsystems.bankwallet.entities.AppVersion
+import io.horizontalsystems.bankwallet.entities.CexType
+import io.horizontalsystems.bankwallet.entities.EnabledWallet
+import io.horizontalsystems.bankwallet.entities.LastBlockInfo
+import io.horizontalsystems.bankwallet.entities.LaunchPage
+import io.horizontalsystems.bankwallet.entities.RestoreSettingRecord
+import io.horizontalsystems.bankwallet.entities.SyncMode
+import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
+import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
@@ -150,7 +162,7 @@ interface IBackupManager {
 }
 
 interface IAccountFactory {
-    fun account(name: String, type: AccountType, origin: AccountOrigin, backedUp: Boolean, fileBackup: Boolean): Account
+    fun account(name: String, type: AccountType, origin: AccountOrigin, backedUp: Boolean, fileBackedUp: Boolean): Account
     fun watchAccount(name: String, type: AccountType): Account
     fun getNextWatchAccountName(): String
     fun getNextAccountName(): String
@@ -264,7 +276,7 @@ interface ISendBitcoinAdapter {
     val balanceData: BalanceData
     val blockchainType: BlockchainType
     fun availableBalance(
-        feeRate: Long,
+        feeRate: Int,
         address: String?,
         pluginData: Map<Byte, IPluginData>?
     ): BigDecimal
@@ -272,7 +284,7 @@ interface ISendBitcoinAdapter {
     fun minimumSendAmount(address: String?): BigDecimal?
     fun fee(
         amount: BigDecimal,
-        feeRate: Long,
+        feeRate: Int,
         address: String?,
         pluginData: Map<Byte, IPluginData>?
     ): BigDecimal?
@@ -281,7 +293,7 @@ interface ISendBitcoinAdapter {
     fun send(
         amount: BigDecimal,
         address: String,
-        feeRate: Long,
+        feeRate: Int,
         pluginData: Map<Byte, IPluginData>?,
         transactionSorting: TransactionDataSortMode?,
         logger: AppLogger
@@ -429,12 +441,8 @@ interface IAppNumberFormatter {
 }
 
 interface IFeeRateProvider {
-    val feeRatePriorityList: List<FeeRatePriority>
-        get() = listOf()
-    val defaultFeeRatePriority: FeeRatePriority
-        get() = FeeRatePriority.RECOMMENDED
-    fun getFeeRateRange(): ClosedRange<Long>? = null
-    suspend fun getFeeRate(feeRatePriority: FeeRatePriority): Long
+    val feeRateChangeable: Boolean get() = false
+    suspend fun getFeeRates() : FeeRates
 }
 
 interface IAddressParser {
@@ -471,14 +479,6 @@ interface ITermsManager {
     val terms: List<TermsModule.TermType>
     val allTermsAccepted: Boolean
     fun acceptTerms()
-}
-
-sealed class FeeRatePriority(val titleRes: Int) {
-    object LOW : FeeRatePriority(R.string.Send_TxSpeed_Low)
-    object RECOMMENDED : FeeRatePriority(R.string.Send_TxSpeed_Recommended)
-    object HIGH : FeeRatePriority(R.string.Send_TxSpeed_High)
-
-    class Custom(val value: Long) : FeeRatePriority(R.string.Send_TxSpeed_Custom)
 }
 
 interface Clearable {

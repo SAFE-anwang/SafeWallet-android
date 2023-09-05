@@ -64,7 +64,7 @@
     <string name="Button_Submit">Submit</string>
     <string name="Button_TryAgain">Try Again</string>
 
-    <string name="Error_OutOfRange">Can\'t be less than %s or more than %s</string>
+    <string name="Error_OutOfRange">Can\'t be less than %1$s or more than %2$s</string>
     <string name="Error_NotInteger">Wrong integer number</string>
     <string name="Error">Error</string>
     <string name="NotAvailable">N/A</string>
@@ -175,11 +175,8 @@
     <string name="ImportCexAccount_SelectCex">Select CEX</string>
     <string name="ImportCexAccount_SelectCexDescription">Select the centralized exchange to which you want to connect.</string>
     <string name="ImportCexAccountBinance_Description">Please provide the API Keys and API Secret to link your exchange.</string>
-    <string name="ImportCexAccountBinance_ApiKey">Api Key</string>
+    <string name="ImportCexAccountBinance_ApiKey">API Key</string>
     <string name="ImportCexAccountBinance_SecretKey">Secret Key</string>
-    <string name="ImportCexAccountConzix_Description">Enter your email and password from Coinzix Account.</string>
-    <string name="ImportCexAccountConzix_Email">Email</string>
-    <string name="ImportCexAccountConzix_Error_Title">Login Failed</string>
 
     <!--Backup-->
 
@@ -489,8 +486,11 @@
 
     <string name="Send_Token_InsufficientFeeAlert">Transaction fees for %1$s (%2$s) paid in %3$s. You need %4$s.</string>
     <string name="Send_Warning_LowFee">Warning! Risk of getting stuck</string>
+    <string name="Send_Error_LowFee">Fee Error</string>
+    <string name="Send_Error_LowFee_Description">Fee Rate is too low.</string>
     <string name="Send_Warning_LowFee_Description">The transaction may get stuck or fail</string>
-    <string name="Send_Error_FetchFeeRateFailed">Error while fetching fee rate</string>
+    <string name="Send_Error_FetchFeeRateFailed">Fee Error</string>
+    <string name="Send_Error_FetchFeeRateFailed_Description">The connection to the server has been lost. To proceed, set up the fees manually using the data on the site.</string>
 
     <!-- Send Evm Settings -->
 
@@ -559,6 +559,7 @@
     <string name="Tron_AddressNotActive_Title">Not Active Address</string>
     <string name="Tron_AddressNotActive_Info">Newly created accounts on the TRON blockchain are inactive and cannot be queried or explored. They need to be activated.\n\nTransferring TRX or TRC-10 tokens to an inactive account address will activate the account. Activating a new account on the Tron chain requires a fee of 1 TRX</string>
     <string name="Tron_SelfSendTrxNotAllowed">Cannot transfer TRX to yourself</string>
+    <string name="Tron_ZeroAmountTrxNotAllowed">Cannot transfer 0 %s</string>
 
     <!--WalletConnect-->
     <string name="WalletConnect_Title" translatable="false">WalletConnect</string>
@@ -880,9 +881,10 @@
     <string name="Settings_RateUs">Rate Us</string>
     <string name="Settings_LaunchScreen">Launch Screen</string>
     <string name="Settings_Appearance">Appearance</string>
+    <string name="Settings_Contact_ViaTelegram">via Telegram</string>
+    <string name="Settings_Contact_ViaEmail">via E-mail</string>
 
     <string name="Settings_PersonalSupport">Personal Support</string>
-    <string name="Settings_PersonalSupport_PremiumFeatureWarning">This feature only for Unstoppable Wallet premium users. More info in our official site.</string>
     <string name="Settings_PersonalSupport_EnterTelegramAccountDescription">Enter your Telegram account name to start a personal support chat with our team. We\'ll get back to you and start working on your problem as soon as we see it.</string>
     <string name="Settings_PersonalSupport_YouAlreadyRequestedSupportDescription">You\'ve already requested a private chat, find it on Telegram</string>
     <string name="Settings_PersonalSupport_Account">Account</string>
@@ -892,6 +894,10 @@
     <string name="Settings_PersonalSupport_NewRequest">New Request</string>
     <string name="Settings_PersonalSupport_Requestfailed">Request failed</string>
     <string name="Settings_PersonalSupport_OpenTelegram">Open Telegram</string>
+
+    <string name="Settings_Donate_Info">Together, with your support, we can make this app even better!</string>
+    <string name="Settings_Donate">Donate</string>
+    <string name="Settings_Donate_CoinAddress">%s address</string>
 
     <string name="Appearance_Theme">THEME</string>
     <string name="Appearance_Tab">TAB SETTINGS</string>
@@ -1080,14 +1086,14 @@
     <string name="ManageCoins_Search">Name, code or contract address</string>
     <string name="ManageCoins_AddToken">Add Token</string>
     <string name="ManageCoins_NoResults">No results found. Try to add token manually if you know its smart contract address.</string>
-    <string name="ManageCoins_BipsDescription">There are 4 common address formats %s wallets can use to receive incoming payments:
+    <string name="ManageCoins_BipsDescription">There are 4 common address formats %1$s wallets can use to receive incoming payments:
 \n
 \n- BIP-44 (older)
 \n- BIP-49
 \n- BIP-84 (recommended)
 \n- BIP-86 (newest)
 \n
-\nWhile SafeWallet supports all 4 of them it recommends to use a %s wallet operating in BIP-84 format. The wallets operating in this format get to pay lowest fees when sending %s transactions.</string>
+\nWhile SafeWallet supports all 4 of them it recommends to use a %2$s wallet operating in BIP-84 format. The wallets operating in this format get to pay lowest fees when sending %3$s transactions.</string>
     <string name="ManageCoins_BchTypeDescription">There are 2 address formats Bitcoin Cash wallets can use to receive incoming payments:
 \n
 \n- TYPE0 (older)
@@ -1472,7 +1478,7 @@
     <string name="CoinPage_Contract">%s Contract</string>
     <string name="CoinPage_Bep2Symbol">BEP2 Symbol</string>
     <string name="CoinPage_MajorHolders_TopWallets">Top Wallets</string>
-    <string name="CoinPage_MajorHolders_Description">The chart above shows the % of all tokens in circulation held by the top 10 wallets. The lower the % the more distributed the coin is.</string>
+    <string name="CoinPage_MajorHolders_Description">The chart above shows the \%% of all tokens in circulation held by the top 10 wallets. The lower the \%% the more distributed the coin is.</string>
     <string name="CoinPage_MajorHolders_InTopWallets">in Top 10 Holders</string>
     <string name="CoinPage_MajorHolders_HoldersNumber">Total Holders: %s</string>
     <string name="CoinPage_CoinInvestments_Lead">Lead</string>
@@ -1491,19 +1497,19 @@
     <string name="CoinPage_CoinNotFound">[%s]\nNot found</string>
     <string name="CoinPage_Indicators">Indicators</string>
     <string name="CoinPage_MovingAverages">Moving Averages</string>
-    <string name="CoinPage_OscillatorsSettings">Oscillators Settings</string>
-    <string name="CoinPage_EmaSettingsDescription">The EMA, SMA, and WMA are moving averages used in technical analysis:\n\nEMA emphasizes recent prices for quicker reactions.\nSMA averages price data for a general trend view.\nWMA balances sensitivity and noise reduction by linearly weighting recent data.The stochastic oscillator is a After the exchange operation, the </string>
-    <string name="CoinPage_RsiSettingsDescription">The Relative Strength Index (RSI) is a momentum oscillator that measures price speed and change, identifying overbought (above 70) or oversold (below 30) market conditions. It can also detect price reversals through divergences.The stochastic oscillator </string>
+    <string name="CoinPage_OscillatorsSettings">Oscillators</string>
+    <string name="CoinPage_EmaSettingsDescription">The EMA, SMA, and WMA are moving averages used in technical analysis:\n\nEMA emphasizes recent prices for quicker reactions.\nSMA averages price data for a general trend view.\nWMA balances sensitivity and noise reduction by linearly weighting recent data.</string>
+    <string name="CoinPage_RsiSettingsDescription">The Relative Strength Index (RSI) is a momentum oscillator that measures price speed and change, identifying overbought (above 70) or oversold (below 30) market conditions. It can also detect price reversals through divergences.</string>
     <string name="CoinPage_MacdSettingsDescription">The Moving Average Convergence Divergence (MACD) is a momentum indicator that tracks the relationship between two EMAs of a security\'s price. It signals buying or selling opportunities when the MACD line (12-period EMA minus 26-period EMA) crosses the 9-period EMA, known as the signal line.</string>
     <string name="CoinPage_InsufficientData">Insufficient Data</string>
-    <string name="CoinPage_InsufficientDataError">There are not enough data points to display the EMA 1 indicator. Please adjust the time period to generate a view of the moving average line.Not enough point to display EMA 1 </string>
+    <string name="CoinPage_InsufficientDataError">There are not enough data points to display the EMA 1 indicator. Please adjust the time period to generate a view of the moving average line.Not enough point to display EMA 1.</string>
     <string name="CoinPage_Type">Type</string>
     <string name="CoinPage_Period">Period</string>
-    <string name="CoinPage_RsiLength">Rsi Length</string>
+    <string name="CoinPage_RsiLength">RSI Length</string>
     <string name="CoinPage_FastLength">Fast Length</string>
     <string name="CoinPage_SlowLength">Slow Length</string>
     <string name="CoinPage_SignalSmoothing">Signal Smoothing</string>
-    <string name="CoinPage_IndicatorsAlertText">Indicators available only for Unstoppable Wallet premium users The minimum amount</string>
+    <string name="CoinPage_IndicatorsAlertText">Indicators available only for Unstoppable Wallet premium users.</string>
 
     // Coin Page -> Analytics
     <string name="CoinAnalytics_CexVolume_Info1">Total trading volume for the token on leading centralized exchanges over 30-day period.</string>
@@ -1557,6 +1563,10 @@
 
     <string name="CoinAnalytics_PageLocked">This page available only for SafeWallet premium users</string>
     <string name="CoinAnalytics_ActivateSubscription">Activate your subscription for getting access to analytics</string>
+    <string name="CoinAnalytics_TechIndicators_Info1">Summary: This is a general overview of an asset\'s technicals, considering a variety of technical indicators and timeframes. It provides a consensus viewpoint (Buy, Sell, or Neutral) based on these indicators.</string>
+    <string name="CoinAnalytics_TechIndicators_Info2">Moving Averages (MA): These are commonly used technical indicators that smooth out price data to create a trend-following indicator. They show the average price over a specific time period. There are several types of MAs:\n\nSimple Moving Average (SMA): This calculates the average of a selected range of prices, usually closing prices, by the number of periods in that range.\n\nExponential Moving Average (EMA): This gives more weight to recent prices, thereby responding more quickly to recent price changes.</string>
+    <string name="CoinAnalytics_TechIndicators_Info3">Oscillators: These are technical indicators that fluctuate over time within a band (above and below a center line, or between set levels). They are designed to help identify overbought and oversold conditions in a market. Here are some common oscillators:\n\nRelative Strength Index (RSI): This measures the speed and change of price movements. It is usually used to identify overbought or oversold conditions.\n\nMoving Average Convergence Divergence (MACD): This is used to identify potential buy and sell signals. It triggers technical signals when it crosses above (to buy) or below (to sell) its signal line.</string>
+
     <string name="CoinAnalytics_ProjectNoAnalyticData">This project has no analytical data</string>
     <string name="CoinAnalytics_ThreeDots" translatable="false">•••</string>
     <string name="CoinAnalytics_CexVolume">CEX Volume</string>
@@ -1600,22 +1610,39 @@
     <string name="Coin_Analytics_Blockchain1" translatable="false">Blockchain 1</string>
     <string name="Coin_Analytics_Blockchain2" translatable="false">Blockchain 2</string>
     <string name="Coin_Analytics_Blockchain3" translatable="false">Blockchain 3</string>
-    <string name="Coin_Analytics_RatingScale">Rating Scale</string>
-    <string name="Coin_Analytics_RatingExcellent">Excellent</string>
-    <string name="Coin_Analytics_RatingGood">Good</string>
-    <string name="Coin_Analytics_RatingFair">Fair</string>
-    <string name="Coin_Analytics_RatingPoor">Poor</string>
-    <string name="Coin_Analytics_RatingScaleDescription">The rating scale is derived from the top 250 tokens by market capitalisation and is proportionally adjusted by percentage to obtain the final rating scale.</string>
-    <string name="Coin_Analytics_RatingExcellentPercent">25%</string>
-    <string name="Coin_Analytics_RatingGoodPercent">25%-50%</string>
-    <string name="Coin_Analytics_RatingFairPercent">50%-75%</string>
-    <string name="Coin_Analytics_RatingPoorPercent">75%-100%</string>
+    <string name="Coin_Analytics_OverallScore">Overall Score</string>
+    <string name="Coin_Analytics_OverallScore_Excellent">Excellent</string>
+    <string name="Coin_Analytics_OverallScore_Good">Good</string>
+    <string name="Coin_Analytics_OverallScore_Fair">Fair</string>
+    <string name="Coin_Analytics_OverallScore_Poor">Poor</string>
+    <string name="Coin_Analytics_OverallScore_CexVolume">The overall score is based on the average daily trading volume on centralized exchanges over the last 7 days.</string>
+    <string name="Coin_Analytics_OverallScore_DexVolume">The overall score is based on the average daily trading volume on decentralized exchanges over the last 7 days.</string>
+    <string name="Coin_Analytics_OverallScore_DexLiquidity">The overall score is based on the total available liquidity on decentralized exchanges.</string>
+    <string name="Coin_Analytics_OverallScore_ActiveAddresses">The overall score is based on the average daily active addresses over the last 7 days.</string>
+    <string name="Coin_Analytics_OverallScore_ProjectTvl">The overall score is based on the total value locked (assets under management) on the project represented by the given token.</string>
+    <string name="Coin_Analytics_OverallScore_TransactionCount">The overall score is based on the average daily transaction count over the last 7 days.</string>
+    <string name="Coin_Analytics_OverallScore_Holders">The overall score is based on the total number of addresses holding respective token.</string>
+    <string name="Coin_Analytics_TechnicalIndicators">Technical Indicators</string>
+    <string name="Coin_Analytics_Details">Details</string>
+    <string name="Coin_Analytics_SelectPeriod">Select Period</string>
+    <string name="Coin_Analytics_Period_30m">30 minutes</string>
+    <string name="Coin_Analytics_Period_1h">1 hour</string>
+    <string name="Coin_Analytics_Period_4h">4 hours</string>
+    <string name="Coin_Analytics_Period_8h">8 hours</string>
+    <string name="Coin_Analytics_Period_1d">1 day</string>
+    <string name="Coin_Analytics_Period_1w">1 week</string>
+    <string name="Coin_Analytics_Indicators_StrongBuy">Strong Buy</string>
+    <string name="Coin_Analytics_Indicators_StrongSell">Strong Sell</string>
+    <string name="Coin_Analytics_Indicators_Sell">Sell</string>
+    <string name="Coin_Analytics_Indicators_Buy">Buy</string>
+    <string name="Coin_Analytics_Indicators_Neutral">Neutral</string>
+    <string name="Coin_Analytics_Indicators_NoData">No Data</string>
 
     <string name="ActivateSubscription_Title">Activate</string>
     <string name="ActivateSubscription_Wallet">Wallet</string>
     <string name="ActivateSubscription_Address">Address</string>
     <string name="ActivateSubscription_MessageToSign">Message to Sign</string>
-    <string name="ActivateSubscription_SignMessageDescription">You need to sign this message to activate your subscription</string>
+    <string name="ActivateSubscription_SignMessageDescription">You need to sign this message to activate your subscription.</string>
     <string name="ActivateSubscription_NoSubscriptionError">Your wallet address does not have a subscription to premium features, you need to purchase it to activate the subscription.</string>
 
     <string name="SubscriptionInfo_Title">Premium Features</string>
@@ -1823,7 +1850,7 @@
     <string name="CexDeposit_MemoWarning">Memo (tag) is required, or your will lose your coins.\n\nSend only %s to this address. Sending other types of tokens to this address will result in their ultimate loss.</string>
     <string name="CexDeposit_Important">Important</string>
     <string name="CexDeposit_MemoAlertText">Both a memo (tag) and the address are needed to ensure that assets are received. Otherwise your funds will be lost.</string>
-    <string name="Cex_Error_FailedToConnectApiKey">Failed to connect your Api Key</string>
+    <string name="Cex_Error_FailedToConnectApiKey">Failed to connect your API Key</string>
 
     <!--Cex Withdraw Module-->
     <string name="CexWithdraw_Title">Send %s</string>
@@ -1840,7 +1867,7 @@
     <string name="CexWithdraw_GoogleAuthenticationInfo">Enter code from your Google Authenticator App.</string>
     <string name="CexWithdraw_Withdraw">Withdraw</string>
     <string name="CexWithdraw_WithdrawSuccess">Success</string>
-    <string name="CexWithdraw_Error_NotEnoughBalance">Not enough available balance</string>
+    <string name="CexWithdraw_Error_NotEnoughBalance">Not enough available Balance</string>
     <string name="CexWithdraw_Error_MinimumAmount">The minimum amount you can withdraw is %s</string>
     <string name="CexWithdraw_Error_MaximumAmount">The maximum amount you can withdraw is %s</string>
     <string name="CexWithdraw_Error_WithdrawTitle">Withdraw Failed</string>

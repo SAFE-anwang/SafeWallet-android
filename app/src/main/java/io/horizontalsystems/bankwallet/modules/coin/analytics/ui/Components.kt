@@ -27,10 +27,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnLayout
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem
-import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.Rating
+import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.OverallScore
+import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.ScoreCategory
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.ChartBars
@@ -39,12 +42,14 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.StackBarSlice
 import io.horizontalsystems.bankwallet.ui.compose.components.StackedBarChart
+import io.horizontalsystems.bankwallet.ui.compose.components.TechnicalIndicatorsChart
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.headline1_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.chartview.ChartMinimal
+import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 
 @Composable
 fun AnalyticsBlockHeader(
@@ -57,7 +62,7 @@ fun AnalyticsBlockHeader(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        subhead2_grey(text = title)
+        subhead1_grey(text = title)
         onInfoClick?.let {
             HsIconButton(
                 modifier = Modifier.size(20.dp),
@@ -91,6 +96,7 @@ fun AnalyticsContentNumber(
             )
         }
     }
+    VSpacer(12.dp)
 }
 
 @Composable
@@ -158,8 +164,8 @@ private fun BoxItemCell(
             )
         }
 
-        is BoxItem.RatingValue -> {
-            RatingCell(boxItem.rating)
+        is BoxItem.OverallScoreValue -> {
+            RatingCell(boxItem.score)
         }
 
         is BoxItem.Title -> {
@@ -202,12 +208,12 @@ private fun BoxItemCell(
 }
 
 @Composable
-private fun RatingCell(rating: Rating) {
+private fun RatingCell(rating: OverallScore) {
     val color = when (rating) {
-        Rating.Excellent -> Color(0xFF05C46B)
-        Rating.Good -> Color(0xFFFFA800)
-        Rating.Fair -> Color(0xFFFF7A00)
-        Rating.Poor -> Color(0xFFFF3D00)
+        OverallScore.Excellent -> Color(0xFF05C46B)
+        OverallScore.Good -> Color(0xFFFFA800)
+        OverallScore.Fair -> Color(0xFFFF7A00)
+        OverallScore.Poor -> Color(0xFFFF3D00)
     }
     Text(
         text = stringResource(rating.title).uppercase(),
@@ -265,10 +271,13 @@ fun AnalyticsContainer(
 @Composable
 fun AnalyticsChart(
     analyticChart: CoinAnalyticsModule.AnalyticChart,
+    navController: NavController,
+    onPeriodChange: (HsPointTimePeriod) -> Unit,
 ) {
     when (analyticChart) {
         is CoinAnalyticsModule.AnalyticChart.StackedBars -> {
             StackedBarChart(analyticChart.data, modifier = Modifier.padding(horizontal = 16.dp))
+            VSpacer(12.dp)
         }
 
         is CoinAnalyticsModule.AnalyticChart.Bars -> {
@@ -279,6 +288,7 @@ fun AnalyticsChart(
                     .height(60.dp),
                 chartData = analyticChart.data
             )
+            VSpacer(12.dp)
         }
 
         is CoinAnalyticsModule.AnalyticChart.Line -> {
@@ -295,6 +305,16 @@ fun AnalyticsChart(
                         view.setData(analyticChart.data)
                     }
                 }
+            )
+            VSpacer(12.dp)
+        }
+
+        is CoinAnalyticsModule.AnalyticChart.TechIndicators -> {
+            TechnicalIndicatorsChart(
+                rows = analyticChart.data,
+                selectedPeriod = analyticChart.selectedPeriod,
+                navController = navController,
+                onPeriodChange = onPeriodChange
             )
         }
     }
@@ -350,6 +370,7 @@ private fun Preview_HoldersBlockLocked() {
 @Preview
 @Composable
 private fun Preview_AnalyticsBarChartDisabled() {
+    val navController = rememberNavController()
     ComposeAppTheme {
         AnalyticsContainer(
             titleRow = {
@@ -372,6 +393,8 @@ private fun Preview_AnalyticsBarChartDisabled() {
             )
             AnalyticsChart(
                 CoinAnalyticsModule.zigzagPlaceholderAnalyticChart(false),
+                navController,
+                {},
             )
             VSpacer(12.dp)
         }
@@ -381,6 +404,7 @@ private fun Preview_AnalyticsBarChartDisabled() {
 @Preview
 @Composable
 private fun Preview_AnalyticsLineChartDisabled() {
+    val navController = rememberNavController()
     ComposeAppTheme {
         AnalyticsContainer(
             titleRow = {
@@ -403,6 +427,8 @@ private fun Preview_AnalyticsLineChartDisabled() {
             )
             AnalyticsChart(
                 CoinAnalyticsModule.zigzagPlaceholderAnalyticChart(true),
+                navController,
+                {},
             )
             VSpacer(12.dp)
         }
@@ -455,6 +481,7 @@ private fun Preview_HoldersBlock() {
 @Preview
 @Composable
 private fun Preview_AnalyticsRatingScale() {
+    val navController = rememberNavController()
     ComposeAppTheme {
         AnalyticsContainer(
             titleRow = {
@@ -465,8 +492,11 @@ private fun Preview_AnalyticsRatingScale() {
             },
             bottomRows = {
                 AnalyticsFooterCell(
-                    title = BoxItem.TitleWithInfo(TranslatableString.PlainString("Rating Scale"), CoinAnalyticsModule.ActionType.OpenRatingScaleInfo),
-                    value = BoxItem.RatingValue(Rating.Fair),
+                    title = BoxItem.TitleWithInfo(
+                        TranslatableString.PlainString("Rating Scale"),
+                        CoinAnalyticsModule.ActionType.OpenOverallScoreInfo(ScoreCategory.CexScoreCategory)
+                    ),
+                    value = BoxItem.OverallScoreValue(OverallScore.Fair),
                     cellAction = null,
                     onActionClick = {}
                 )
@@ -477,6 +507,8 @@ private fun Preview_AnalyticsRatingScale() {
             )
             AnalyticsChart(
                 CoinAnalyticsModule.zigzagPlaceholderAnalyticChart(true),
+                navController,
+                {},
             )
             VSpacer(12.dp)
         }

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.fee
 
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.core.FeeRatePriority
+import io.horizontalsystems.bankwallet.core.providers.FeeRates
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -45,7 +46,7 @@ class SendFeePresenter(
         }
 
     private var fetchedFeeRate: BigInteger? = null
-    private var feeRatePriority: FeeRatePriority? = interactor.defaultFeeRatePriority
+    private var feeRatePriority: FeeRates? = interactor.defaultFeeRatePriority
     private var feeRateAdjustmentInfo: FeeRateAdjustmentInfo = FeeRateAdjustmentInfo(SendAmountInfo.NotEntered, null, baseCurrency, null)
     private var recommendedFeeRate: BigInteger? = null
 

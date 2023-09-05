@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.CoinIndicatorViewItemFactory
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorData
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorService
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.metricchart.ProChartModule
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -15,6 +18,7 @@ import io.horizontalsystems.chartview.models.ChartPoint
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.FullCoin
+import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import kotlinx.parcelize.Parcelize
 
 object CoinAnalyticsModule {
@@ -31,9 +35,16 @@ object CoinAnalyticsModule {
                 App.accountManager,
             )
 
+            val indicatorsService = TechnicalIndicatorService(
+                fullCoin.coin.uid,
+                App.marketKit,
+                App.currencyManager
+            )
 
             return CoinAnalyticsViewModel(
                 service,
+                indicatorsService,
+                CoinIndicatorViewItemFactory(),
                 App.numberFormatter,
                 fullCoin.coin.code
             ) as T
@@ -68,16 +79,17 @@ object CoinAnalyticsModule {
         class Line(val data: ChartData) : AnalyticChart()
         class Bars(val data: ChartData) : AnalyticChart()
         class StackedBars(val data: List<StackBarSlice>) : AnalyticChart()
+        class TechIndicators(val data: List<TechnicalIndicatorData>, val selectedPeriod: HsPointTimePeriod) : AnalyticChart()
     }
 
-    enum class Rating(val title: Int, val icon: Int, val percent: Int) {
-        Excellent(R.string.Coin_Analytics_RatingExcellent, R.drawable.ic_rating_excellent_24, R.string.Coin_Analytics_RatingExcellentPercent),
-        Good(R.string.Coin_Analytics_RatingGood, R.drawable.ic_rating_good_24, R.string.Coin_Analytics_RatingGoodPercent),
-        Fair(R.string.Coin_Analytics_RatingFair, R.drawable.ic_rating_fair_24, R.string.Coin_Analytics_RatingFairPercent),
-        Poor(R.string.Coin_Analytics_RatingPoor, R.drawable.ic_rating_poor_24, R.string.Coin_Analytics_RatingPoorPercent);
+    enum class OverallScore(val title: Int, val icon: Int) {
+        Excellent(R.string.Coin_Analytics_OverallScore_Excellent, R.drawable.ic_score_excellent_24),
+        Good(R.string.Coin_Analytics_OverallScore_Good, R.drawable.ic_score_good_24),
+        Fair(R.string.Coin_Analytics_OverallScore_Fair, R.drawable.ic_score_fair_24),
+        Poor(R.string.Coin_Analytics_OverallScore_Poor, R.drawable.ic_score_poor_24);
 
         companion object {
-            fun fromString(value: String?): Rating? = when(value) {
+            fun fromString(value: String?): OverallScore? = when (value) {
                 "excellent" -> Excellent
                 "good" -> Good
                 "fair" -> Fair
@@ -87,12 +99,23 @@ object CoinAnalyticsModule {
         }
     }
 
+    @Parcelize
+    enum class ScoreCategory(val title: Int, val description: Int) : Parcelable {
+        CexScoreCategory(R.string.CoinAnalytics_CexVolume, R.string.Coin_Analytics_OverallScore_CexVolume),
+        DexVolumeScoreCategory(R.string.CoinAnalytics_DexVolume, R.string.Coin_Analytics_OverallScore_DexVolume),
+        DexLiquidityScoreCategory(R.string.CoinAnalytics_DexLiquidity, R.string.Coin_Analytics_OverallScore_DexLiquidity),
+        AddressesScoreCategory(R.string.CoinAnalytics_ActiveAddresses, R.string.Coin_Analytics_OverallScore_ActiveAddresses),
+        TransactionCountScoreCategory(R.string.CoinAnalytics_TransactionCount, R.string.Coin_Analytics_OverallScore_TransactionCount),
+        HoldersScoreCategory(R.string.CoinAnalytics_Holders, R.string.Coin_Analytics_OverallScore_Holders),
+        TvlScoreCategory(R.string.CoinAnalytics_ProjectTvl, R.string.Coin_Analytics_OverallScore_ProjectTvl),
+    }
+
     sealed class BoxItem {
         class Title(val text: TranslatableString) : BoxItem()
         class TitleWithInfo(val text: TranslatableString, val action: ActionType) : BoxItem()
         class IconTitle(val image: ImageSource, val text: TranslatableString) : BoxItem()
         class Value(val text: String) : BoxItem()
-        class RatingValue(val rating: Rating) : BoxItem()
+        class OverallScoreValue(val score: OverallScore) : BoxItem()
         object Dots : BoxItem()
     }
 
@@ -119,6 +142,7 @@ object CoinAnalyticsModule {
         TransactionCountInfo(R.string.CoinAnalytics_TransactionCount),
         HoldersInfo(R.string.CoinAnalytics_Holders),
         TvlInfo(R.string.CoinAnalytics_ProjectTvl_FullTitle),
+        TechnicalIndicatorsInfo(R.string.Coin_Analytics_TechnicalIndicators),
     }
 
     @Parcelize
@@ -151,7 +175,8 @@ object CoinAnalyticsModule {
     sealed class ActionType {
         object Preview : ActionType()
         object OpenTvl : ActionType()
-        object OpenRatingScaleInfo : ActionType()
+        class OpenOverallScoreInfo(val scoreCategory: ScoreCategory) : ActionType()
+        class OpenTechnicalIndicatorsDetails(val coinUid: String, val period: HsPointTimePeriod) : ActionType()
         class OpenRank(val type: RankType) : ActionType()
         class OpenReports(val coinUid: String) : ActionType()
         class OpenInvestors(val coinUid: String) : ActionType()

@@ -32,11 +32,12 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ScreenMessageWithAction
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.parcelable
 
 class CoinAnalyticsInfoFragment : BaseFragment() {
 
     private val analyticsInfo by lazy {
-        requireArguments().getParcelable<AnalyticInfo>(analyticsInfoKey)
+        requireArguments().parcelable<AnalyticInfo>(analyticsInfoKey)
     }
 
     override fun onCreateView(
@@ -163,6 +164,11 @@ private fun AnalyticsInfoBody(info: AnalyticInfo) {
             BulletedText(R.string.CoinAnalytics_ProjectTVL_Info3)
             BulletedText(R.string.CoinAnalytics_ProjectTVL_Info4)
             BulletedText(R.string.CoinAnalytics_ProjectTVL_Info5)
+        }
+        AnalyticInfo.TechnicalIndicatorsInfo-> {
+            BulletedText(R.string.CoinAnalytics_TechIndicators_Info1)
+            BulletedText(R.string.CoinAnalytics_TechIndicators_Info2)
+            BulletedText(R.string.CoinAnalytics_TechIndicators_Info3)
         }
     }
 }

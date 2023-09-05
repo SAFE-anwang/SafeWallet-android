@@ -42,6 +42,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.parcelable
 
 class SwapApproveFragment : BaseFragment() {
 

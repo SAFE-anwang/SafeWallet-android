@@ -53,6 +53,7 @@ import io.horizontalsystems.core.CustomSnackbar
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.core.setNavigationResult
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -61,10 +62,10 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 class SwapApproveConfirmationFragment : BaseFragment() {
     private val logger = AppLogger("swap-approve")
     private val additionalItems: SendEvmData.AdditionalInfo?
-        get() = arguments?.getParcelable(additionalInfoKey)
+        get() = arguments?.parcelable(additionalInfoKey)
 
     private val blockchainType: BlockchainType?
-        get() = arguments?.getParcelable(blockchainTypeKey)
+        get() = arguments?.parcelable(blockchainTypeKey)
 
     private val backButton: Boolean
         get() = arguments?.getBoolean(backButtonKey) ?: true
@@ -85,7 +86,7 @@ class SwapApproveConfirmationFragment : BaseFragment() {
     private val transactionData: TransactionData
         get() {
             val transactionDataParcelable =
-                arguments?.getParcelable<SendEvmModule.TransactionDataParcelable>(transactionDataKey)!!
+                arguments?.parcelable<SendEvmModule.TransactionDataParcelable>(transactionDataKey)!!
             return TransactionData(
                 Address(transactionDataParcelable.toAddress),
                 transactionDataParcelable.value,

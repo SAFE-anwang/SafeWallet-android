@@ -53,6 +53,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.BadgeCount
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
@@ -107,6 +108,20 @@ private fun SettingSections(
     val wcCounter by viewModel.wcCounterLiveData.observeAsState()
     val baseCurrency by viewModel.baseCurrencyLiveData.observeAsState()
     val language by viewModel.languageLiveData.observeAsState()
+
+    CellUniversalLawrenceSection(
+        listOf {
+            HsSettingCell(
+                R.string.Settings_Donate,
+                R.drawable.ic_heart_jacob_48,
+                onClick = {
+                    navController.slideFromRight(R.id.donateFragment)
+                }
+            )
+        }
+    )
+
+    VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf({
@@ -184,19 +199,19 @@ private fun SettingSections(
             },
             {
                 HsSettingCell(
-                    R.string.Settings_Appearance,
-                    R.drawable.ic_brush_20,
+                    R.string.Contacts,
+                    R.drawable.ic_user_20,
                     onClick = {
-                        navController.slideFromRight(R.id.appearanceFragment)
+                        navController.slideFromRight(R.id.contactsFragment, ContactsFragment.prepareParams(Mode.Full))
                     }
                 )
             },
             {
                 HsSettingCell(
-                    R.string.Contacts,
-                    R.drawable.ic_user_20,
+                    R.string.Settings_Appearance,
+                    R.drawable.ic_brush_20,
                     onClick = {
-                        navController.slideFromRight(R.id.contactsFragment, ContactsFragment.prepareParams(Mode.Full))
+                        navController.slideFromRight(R.id.appearanceFragment)
                     }
                 )
             },
