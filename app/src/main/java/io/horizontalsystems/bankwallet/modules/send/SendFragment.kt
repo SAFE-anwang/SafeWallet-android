@@ -51,7 +51,7 @@ class SendFragment : BaseFragment() {
             try {
                 val wallet = requireArguments().getParcelable<Wallet>(walletKey) ?: throw IllegalStateException("Wallet is Null!")
                 val amountInputModeViewModel by navGraphViewModels<AmountInputModeViewModel>(R.id.sendXFragment) {
-                    AmountInputModeModule.Factory(wallet)
+                    AmountInputModeModule.Factory(wallet.coin.uid)
                 }
                 when (wallet.token.blockchainType) {
                     BlockchainType.Bitcoin,
@@ -59,7 +59,6 @@ class SendFragment : BaseFragment() {
                     BlockchainType.ECash,
                     BlockchainType.Litecoin,
                     BlockchainType.Dogecoin,
-                    BlockchainType.Safe,
                     BlockchainType.Dash -> {
                         val factory = SendBitcoinModule.Factory(wallet)
                         val sendBitcoinViewModel by navGraphViewModels<SendBitcoinViewModel>(R.id.sendXFragment) {

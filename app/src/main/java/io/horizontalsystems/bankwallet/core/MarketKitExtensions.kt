@@ -28,6 +28,9 @@ val Token.protocolType: String?
 val Token.isCustom: Boolean
     get() = coin.uid == tokenQuery.customCoinUid
 
+val Coin.isCustom: Boolean
+    get() = uid.startsWith(TokenQuery.customCoinPrefix)
+
 val Token.isSupported: Boolean
     get() = tokenQuery.isSupported
 
@@ -182,13 +185,7 @@ val Blockchain.description: String
         else -> ""
     }
 
-fun Blockchain.eip20TokenUrl(address: String): String? {
-    return when (uid) {
-        "ethereum" -> "https://etherscan.io/token/$address"
-        "binance-smart-chain" -> "https://bscscan.com/token/$address"
-        else -> eip3091url?.let { "$it/token/$address" }
-    }
-}
+fun Blockchain.eip20TokenUrl(address: String) = eip3091url?.replace("\$ref", address)
 
 fun Blockchain.bep2TokenUrl(symbol: String) = "https://explorer.binance.org/asset/$symbol"
 
@@ -342,6 +339,8 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
 
         is AccountType.TronAddress ->
             this == BlockchainType.Tron
+
+        is AccountType.Cex -> false
     }
 }
 

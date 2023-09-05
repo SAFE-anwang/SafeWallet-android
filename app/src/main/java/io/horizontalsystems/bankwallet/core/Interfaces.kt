@@ -6,18 +6,7 @@ import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.Bep2TokenInfoService
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
-import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.entities.AccountOrigin
-import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.AddressData
-import io.horizontalsystems.bankwallet.entities.AppVersion
-import io.horizontalsystems.bankwallet.entities.EnabledWallet
-import io.horizontalsystems.bankwallet.entities.LastBlockInfo
-import io.horizontalsystems.bankwallet.entities.LaunchPage
-import io.horizontalsystems.bankwallet.entities.RestoreSettingRecord
-import io.horizontalsystems.bankwallet.entities.SyncMode
-import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
-import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.entities.*
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
@@ -36,6 +25,7 @@ import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
@@ -68,6 +58,7 @@ interface IAdapterManager {
 }
 
 interface ILocalStorage {
+    var chartIndicatorsEnabled: Boolean
     var amountInputType: AmountInputType?
     var baseCurrencyCode: String?
     var authToken: String?
@@ -109,6 +100,7 @@ interface ILocalStorage {
     var marketsTabEnabled: Boolean
     val marketsTabEnabledFlow: StateFlow<Boolean>
     var nonRecommendedAccountAlertDismissedAccounts: Set<String>
+    var personalSupportEnabled: Boolean
 
     fun getSwapProviderId(blockchainType: BlockchainType): String?
     fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
@@ -162,6 +154,7 @@ interface IAccountFactory {
     fun watchAccount(name: String, type: AccountType): Account
     fun getNextWatchAccountName(): String
     fun getNextAccountName(): String
+    fun getNextCexAccountName(cexType: CexType): String
 }
 
 interface IWalletStorage {
@@ -202,7 +195,7 @@ interface IWordsManager {
     fun validateChecksumStrict(words: List<String>)
     fun isWordValid(word: String): Boolean
     fun isWordPartiallyValid(word: String): Boolean
-    fun generateWords(count: Int = 12): List<String>
+    fun generateWords(count: Int = 12, language: Language = Language.English): List<String>
 }
 
 sealed class AdapterState {

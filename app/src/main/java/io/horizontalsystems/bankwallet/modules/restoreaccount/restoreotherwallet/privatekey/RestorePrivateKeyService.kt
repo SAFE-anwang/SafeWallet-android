@@ -167,12 +167,12 @@ class RestorePrivateKeyService(
             enableCoinService.save(settings, account, token.blockchainType)
         }
 
-        items.filter { it.enabled }.forEach { item ->
+        /*items.filter { it.enabled }.forEach { item ->
             val isEvm = evmBlockchainManager.allBlockchainTypes.contains(item.blockchain.type)
             if (isEvm) {
 //                evmBlockchainManager.getEvmAccountManager(item.blockchain.type).markAutoEnable(account)
             }
-        }
+        }*/
 
         if (enabledCoins.isEmpty()) return
 

@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -74,6 +75,12 @@ import kotlinx.coroutines.launch
 
 class SwapMainFragment : BaseFragment() {
 
+    private var isAutoSetProvider1Inch = false
+
+    val factory by lazy { SwapMainModule.Factory(requireArguments()) }
+    val mainViewModel: SwapMainViewModel by viewModels { factory }
+    val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -84,16 +91,15 @@ class SwapMainFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
-                val factory = SwapMainModule.Factory(requireArguments())
-                val mainViewModel: SwapMainViewModel by viewModels { factory }
-                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
                 setContent {
                     ComposeAppTheme {
                         SwapNavHost(
                             findNavController(),
                             mainViewModel,
                             allowanceViewModel
-                        )
+                        ) {
+                            isAutoSetProvider1Inch = false
+                        }
                     }
                 }
             } catch (t: Throwable) {
@@ -104,6 +110,26 @@ class SwapMainFragment : BaseFragment() {
             }
         }
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val filter = IntentFilter()
+        filter.addAction("com.anwang.safe.switchSwap")
+        requireActivity()?.registerReceiver(receiver, filter)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        requireActivity()?.unregisterReceiver(receiver)
+    }
+
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            isAutoSetProvider1Inch = true
+            mainViewModel.autoSetProvider1Inch()
+        }
+    }
 }
 
 @Composable
@@ -111,12 +137,14 @@ private fun SwapNavHost(
     fragmentNavController: NavController,
     mainViewModel: SwapMainViewModel,
     allowanceViewModel: SwapAllowanceViewModel,
+    selectSwapTypeCallback: () -> Unit
 ) {
     SwapMainScreen(
         navController = fragmentNavController,
         viewModel = mainViewModel,
         allowanceViewModel = allowanceViewModel,
         onCloseClick = { fragmentNavController.popBackStack() },
+        selectSwapType = selectSwapTypeCallback
     )
 }
 
@@ -127,10 +155,12 @@ private fun SwapMainScreen(
     viewModel: SwapMainViewModel,
     allowanceViewModel: SwapAllowanceViewModel,
     onCloseClick: () -> Unit,
+    selectSwapType: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val providerViewItems = viewModel.swapState.providerViewItems
+    val focusManager = LocalFocusManager.current
 
     ComposeAppTheme {
         ModalBottomSheetLayout(
@@ -139,7 +169,10 @@ private fun SwapMainScreen(
             sheetContent = {
                 BottomSheetProviderSelector(
                     items = providerViewItems,
-                    onSelect = { viewModel.setProvider(it) }
+                    onSelect = {
+                        selectSwapType.invoke()
+                        viewModel.setProvider(it)
+                    }
                 ) {
                     coroutineScope.launch {
                         modalBottomSheetState.hide()
@@ -164,12 +197,18 @@ private fun SwapMainScreen(
                     TopMenu(
                         viewModel = viewModel,
                         navController = navController,
-                        showProviderSelector = { coroutineScope.launch { modalBottomSheetState.show() } },
+                        showProviderSelector = {
+                            focusManager.clearFocus(true)
+                            coroutineScope.launch {
+                                modalBottomSheetState.show()
+                            }
+                        }
                     )
                     SwapCards(
                         navController = navController,
                         viewModel = viewModel,
                         allowanceViewModel = allowanceViewModel,
+                        focusManager = focusManager
                     )
                 }
             }
@@ -181,9 +220,10 @@ private fun SwapMainScreen(
 fun SwapCards(
     navController: NavController,
     viewModel: SwapMainViewModel,
-    allowanceViewModel: SwapAllowanceViewModel
+    allowanceViewModel: SwapAllowanceViewModel,
+    focusManager: FocusManager
 ) {
-    val focusManager = LocalFocusManager.current
+
     val focusRequester = remember { FocusRequester() }
     val keyboardState by observeKeyboardState()
     var showSuggestions by remember { mutableStateOf(false) }

@@ -131,7 +131,6 @@ public class WalletManager {
 
   public static Wallet importWalletFromPrivateKey(Metadata metadata, String prvKeyHex, String password, boolean overwrite) {
     IMTKeystore keystore = V3Keystore.create(metadata, password, prvKeyHex);
-    Log.e("longwen", "private key: " + keystore.getAddress());
     Wallet wallet = flushWallet(keystore, overwrite);
     Identity.getCurrentIdentity().addWallet(wallet);
     return wallet;

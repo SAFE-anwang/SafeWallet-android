@@ -37,6 +37,7 @@ class SelectBlockchainsViewModel(
 
     init {
         when (accountType) {
+            is AccountType.Cex,
             is AccountType.Mnemonic,
             is AccountType.EvmPrivateKey,
             is AccountType.PrivateKey,

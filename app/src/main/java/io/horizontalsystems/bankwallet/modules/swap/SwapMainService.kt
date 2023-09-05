@@ -34,6 +34,13 @@ class SwapMainService(
         }
     }
 
+    fun autoSetProvider1Inch(provider: SwapMainModule.ISwapProvider) {
+        if (dex.provider.id != provider.id) {
+            dex = SwapMainModule.Dex(dex.blockchain, provider)
+            _providerUpdatedFlow.tryEmit(provider)
+        }
+    }
+
     private fun getDex(tokenFrom: Token?): Dex {
         val blockchain = getBlockchainForToken(tokenFrom)
         val provider = getSwapProvider(blockchain.type) ?: throw IllegalStateException("No provider found for ${blockchain.name}")
@@ -61,11 +68,4 @@ class SwapMainService(
         else -> throw IllegalStateException("Swap not supported for ${token.blockchainType}")
     }
 
-
-    fun autoSetProvider1Inch(provider: SwapMainModule.ISwapProvider) {
-        if (dex.provider.id != provider.id) {
-            dex = SwapMainModule.Dex(dex.blockchain, provider)
-//            providerObservable.onNext(provider)
-        }
-    }
 }

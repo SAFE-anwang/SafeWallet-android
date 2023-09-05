@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.EvmError
@@ -24,6 +23,9 @@ import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.AmountTypeItem
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ExactType
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ISwapProvider
+import io.horizontalsystems.uniswapkit.Extensions
+import io.horizontalsystems.uniswapkit.UniswapKit
+import io.reactivex.disposables.Disposable
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderViewItem
@@ -46,9 +48,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
-import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.TradeError
-import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
 import io.horizontalsystems.uniswapkit.models.DexType
 import io.reactivex.disposables.CompositeDisposable
@@ -649,7 +649,6 @@ class SwapMainViewModel(
     fun setProvider(provider: ISwapProvider) {
         tradeService.stop()
         service.setProvider(provider)
-        Extensions.isSafeSwap = provider.id == "safe"
         subscribeToTradeService()
 
         timerService.stop()
@@ -657,10 +656,7 @@ class SwapMainViewModel(
 
         refocusKey = UUID.randomUUID().leastSignificantBits
         syncUiState()
-    }
-
-    fun autoSetProvider1Inch() {
-        setProvider(SwapMainModule.OneInchProvider)
+        Extensions.isSafeSwap = provider.id == "safe"
     }
 
     fun onSetAmountInBalancePercent(percent: Int) {
@@ -712,4 +708,8 @@ class SwapMainViewModel(
         syncSwapDataState()
     }
 
+
+    fun autoSetProvider1Inch() {
+        service.autoSetProvider1Inch(SwapMainModule.OneInchProvider)
+    }
 }

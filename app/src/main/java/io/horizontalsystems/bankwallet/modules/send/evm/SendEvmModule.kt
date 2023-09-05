@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCRequestChain
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
@@ -27,6 +28,7 @@ import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
+
 
 data class SendEvmData(
     val transactionData: TransactionData,
@@ -75,7 +77,8 @@ data class SendEvmData(
 
     @Parcelize
     data class WalletConnectInfo(
-        val dAppName: String?
+        val dAppName: String?,
+        val chain: WCRequestChain?
     ) : Parcelable
 
     @Parcelize

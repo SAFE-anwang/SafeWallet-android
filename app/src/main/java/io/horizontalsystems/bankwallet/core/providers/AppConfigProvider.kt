@@ -9,9 +9,9 @@ class AppConfigProvider(val index: Int) {
 //     val companyWebPageLink: String = "https://horizontalsystems.io"
      val companyWebPageLink: String = "https://www.anwang.com"
 //     val appWebPageLink: String = "https://unstoppable.money"
+     val analyticsLink: String = "https://unstoppable.money/analytics"
      val appWebPageLink: String = "https://www.anwang.com"
 //     val appGithubLink: String = "https://github.com/horizontalsystems/unstoppable-wallet-android"
-val analyticsLink: String = "https://unstoppable.money/analytics"
      val appGithubLink: String = "https://github.com/SAFE-anwang/SafeWallet-android"
 //     val appTwitterLink: String = "https://twitter.com/UnstoppableByHS"
      val appTwitterLink: String = "https://twitter.com/safeanwang"
@@ -125,6 +125,10 @@ val analyticsLink: String = "https://unstoppable.money/analytics"
 
     val marketApiKey by lazy {
         Translator.getString(R.string.marketApiKey)
+    }
+
+    val openSeaApiKey by lazy {
+        Translator.getString(R.string.openSeaApiKey)
     }
 
     val solscanApiKey by lazy {

@@ -177,16 +177,17 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         if (walletType !is WalletType.SafeGem) {
             KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
         getNavigationResult("walletName") {
             val name = it.getString("name")
             binding.inputWalleName.setText(name)
 //            binding.walletName.setText(name)
             updateWalletPath(name)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private fun observeEvents() {
