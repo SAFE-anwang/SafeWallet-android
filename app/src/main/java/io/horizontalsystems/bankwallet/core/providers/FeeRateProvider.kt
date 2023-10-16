@@ -34,7 +34,7 @@ class FeeRateProvider(appConfig: AppConfigProvider) {
     }
 
     fun dogecoinFeeRate(): Single<BigInteger> {
-        return feeRateKit.litecoin()
+        return Single.just(BigInteger("100"))
     }
 
     fun bitcoinCashFeeRate(): Single<BigInteger> {

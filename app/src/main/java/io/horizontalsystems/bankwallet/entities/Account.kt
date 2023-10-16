@@ -295,6 +295,17 @@ sealed class AccountType : Parcelable {
             else -> emptyList()
         }
 
+    val dogeCoiSupportedDerivations: List<Derivation>
+        get() = when (this) {
+            is Mnemonic -> {
+                listOf(Derivation.bip44)
+            }
+            is HdExtendedKey -> {
+                hdExtendedKey.purposes.map { it.derivation }
+            }
+            else -> emptyList()
+        }
+
     val hideZeroBalances: Boolean
         get() = this is EvmAddress || this is SolanaAddress
 

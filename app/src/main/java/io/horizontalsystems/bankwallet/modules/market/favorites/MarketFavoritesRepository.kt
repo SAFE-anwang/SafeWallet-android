@@ -26,7 +26,6 @@ class MarketFavoritesRepository(
             var marketItems = listOf<MarketItem>()
             if (favoriteCoins.isNotEmpty()) {
                 val favoriteCoinUids = favoriteCoins.map { it.coinUid }
-                Log.e("longwen", "favoriteCoinUids: $favoriteCoinUids")
                 marketItems = marketKit.marketInfosSingle(favoriteCoinUids, currency.code).blockingGet()
                     .map { marketInfo ->
                         MarketItem.createFromCoinMarket(marketInfo, currency)

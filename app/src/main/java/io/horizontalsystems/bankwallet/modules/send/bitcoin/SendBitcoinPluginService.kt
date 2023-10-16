@@ -16,7 +16,6 @@ class SendBitcoinPluginService(localStorage: ILocalStorage, blockchainType: Bloc
             || blockchainType is BlockchainType.Safe
             || blockchainType is BlockchainType.Dash
             || blockchainType is BlockchainType.Litecoin
-            || blockchainType is BlockchainType.Dogecoin
             || blockchainType is BlockchainType.BitcoinCash)
     val lockTimeIntervals = listOf(null) + LockTimeInterval.values().toList()
 
