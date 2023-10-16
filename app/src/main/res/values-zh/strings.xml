@@ -1627,10 +1627,10 @@
 
     <string name="fallback_block">SAFE区块回退高度</string>
     <string name="fallback_block_title">SAFE区块回退</string>
-    <string name="fallback_block_time_1">高度: 4581517 (2023-2-1)</string>
-    <string name="fallback_block_time_2">高度: 4496731 (2023-1-1)</string>
-    <string name="fallback_block_time_3">高度: 4411940 (2022-12-1)</string>
-    <string name="fallback_block_time_4">高度: 4330516 (2022-11-1)</string>
+    <string name="fallback_block_time_1">高度: 4939318 (2023-6-15)</string>
+    <string name="fallback_block_time_2">高度: 5178101 (2023-9-15)</string>
+    <string name="fallback_block_time_3">高度: 4581517 (2023-2-1)</string>
+    <string name="fallback_block_time_4">高度: 4496731 (2023-1-1)</string>
     <string name="fallback_block_time_5">高度: 4246017 (2022-10-1)</string>
     <string name="fallback_block_time_6">高度: 4166829 (2022-9-1)</string>
     <string name="fallback_block_time_7">高度: 4656085 (2023-4-1)</string>

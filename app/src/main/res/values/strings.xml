@@ -1969,10 +1969,10 @@
 
     <string name="fallback_block">SAFE block fallback height</string>
     <string name="fallback_block_title">SAFE block fallback</string>
-    <string name="fallback_block_time_1">Height: 4581517 (2023-2-1)</string>
-    <string name="fallback_block_time_2">Height: 4496731 (2023-1-1)</string>
-    <string name="fallback_block_time_3">Height: 4411940 (2022-12-1)</string>
-    <string name="fallback_block_time_4">Height: 4330516 (2022-11-1)</string>
+    <string name="fallback_block_time_1">Height: 4939318 (2023-6-15)</string>
+    <string name="fallback_block_time_2">Height: 5178101 (2023-9-15)</string>
+    <string name="fallback_block_time_3">Height: 4581517 (2023-2-1)</string>
+    <string name="fallback_block_time_4">Height: 4496731 (2023-1-1)</string>
     <string name="fallback_block_time_5">Height: 4246017 (2022-10-1)</string>
     <string name="fallback_block_time_6">Height: 4166829 (2022-9-1)</string>
     <string name="fallback_block_time_7">Height: 4656085 (2023-4-1)</string>
