@@ -41,7 +41,7 @@ class DogecoinAdapter(
     //
 
     override val explorerTitle: String
-        get() = "dogecoin.com"
+        get() = "blockchair.com"
 
 
     override fun getTransactionUrl(transactionHash: String): String =
