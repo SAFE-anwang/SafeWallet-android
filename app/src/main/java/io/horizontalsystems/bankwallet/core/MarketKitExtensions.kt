@@ -190,12 +190,10 @@ fun Blockchain.eip20TokenUrl(address: String) = eip3091url?.replace("\$ref", add
 fun Blockchain.bep2TokenUrl(symbol: String) = "https://explorer.binance.org/asset/$symbol"
 
 val BlockchainType.imageUrl: String
-    get() = "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
-
-
-val BlockchainType.dogeImageUrl: String
-    get() = "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
-
+    get() = if (uid == "dogecoin")
+        "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
+    else
+        "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
 
 val BlockchainType.coinSettingType: CoinSettingType?
     get() = when (this) {

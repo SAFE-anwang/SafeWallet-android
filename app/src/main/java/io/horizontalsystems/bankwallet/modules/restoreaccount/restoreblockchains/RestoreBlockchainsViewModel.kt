@@ -54,11 +54,7 @@ class RestoreBlockchainsViewModel(
             ImageSource.Local(R.drawable.safe)
         } else {
             ImageSource.Remote(
-                if (item.blockchain.uid == "dogecoin") {
-                    item.blockchain.type.dogeImageUrl
-                } else {
-                    item.blockchain.type.imageUrl
-                },
+                item.blockchain.type.imageUrl,
                 R.drawable.ic_platform_placeholder_32
             )
         }
