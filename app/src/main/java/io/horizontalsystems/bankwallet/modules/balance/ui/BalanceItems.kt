@@ -291,7 +291,7 @@ fun BalanceItems(
                     }
 
                     HeaderNote.NonRecommendedAccount -> {
-                        NoteWarning(
+                        /*NoteWarning(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
                             text = stringResource(R.string.AccountRecovery_MigrationRecommended),
                             onClick = {
@@ -303,7 +303,7 @@ fun BalanceItems(
                             onClose = {
                                 viewModel.onCloseHeaderNote(HeaderNote.NonRecommendedAccount)
                             }
-                        )
+                        )*/
                     }
                 }
             }

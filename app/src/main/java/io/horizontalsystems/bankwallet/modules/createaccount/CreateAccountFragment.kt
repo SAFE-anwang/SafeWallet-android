@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -76,6 +77,7 @@ private fun CreateAccountNavHost(
     inclusive: Boolean
 ) {
     val navController = rememberAnimatedNavController()
+    val coroutineScope = rememberCoroutineScope()
     AnimatedNavHost(
         navController = navController,
         startDestination = "create_account_intro",
@@ -90,7 +92,8 @@ private fun CreateAccountNavHost(
         composablePage("create_account_advanced") {
             CreateAccountAdvancedScreen(
                 onBackClick = { navController.popBackStack() },
-                onFinish = { fragmentNavController.popBackStack(popUpToInclusiveId, inclusive) }
+                onFinish = { fragmentNavController.popBackStack(popUpToInclusiveId, inclusive) },
+                coroutineScope
             )
         }
     }

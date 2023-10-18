@@ -270,7 +270,7 @@ private fun CoinCell(
                 )
             }
             Spacer(Modifier.width(12.dp))
-            if (viewItem.hasInfo) {
+            if (viewItem.hasInfo && viewItem.title != "DOGE") {
                 HsIconButton(onClick = onInfoClick) {
                     Icon(
                         painter = painterResource(R.drawable.ic_info_20),

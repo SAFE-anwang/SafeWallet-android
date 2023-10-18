@@ -33,6 +33,7 @@ class ConfiguredTokenInfoViewModel(
             }
             TokenType.Native -> when (token.blockchainType) {
                 BlockchainType.Bitcoin,
+                BlockchainType.Dogecoin,
                 BlockchainType.Litecoin -> {
                     ConfiguredTokenInfoType.Bips(token.blockchain.name)
                 }

@@ -28,12 +28,12 @@ class FallbackBlockViewModel(
     val items = mutableListOf<FallbackViewItem>()
 
     init {
+        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_2, 2023,9))
+        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_1, 2023,6))
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_7, 2023,4))
-        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_1, 2023,2))
+        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_3, 2023,2))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_2, 2023,1))
-        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_3, 2022,12))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_4, 2022,11))
-        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_5, 2022,10))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_6, 2022,9))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_7, 2022,8))
 

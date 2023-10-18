@@ -21,7 +21,13 @@ class CoinSettingsService : Clearable {
                     AccountType.Derivation.fromString(it)
                 }
             }
-            val type = RequestType.Derivation(accountType.supportedDerivations, currentDerivations)
+            // dogecoin 只支持bip44
+            val supportDerivations = if (token.coin.uid == "dogecoin") {
+                accountType.dogeCoiSupportedDerivations
+            } else {
+                accountType.supportedDerivations
+            }
+            val type = RequestType.Derivation(supportDerivations, currentDerivations)
             val request = Request(token, type, allowEmpty)
             requestObservable.onNext(request)
             return

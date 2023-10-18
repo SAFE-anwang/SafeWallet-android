@@ -51,6 +51,9 @@ object Migration_45_46 : Migration(45, 46) {
             is CoinType.Litecoin -> {
                 TokenQuery(BlockchainType.Litecoin, TokenType.Native)
             }
+            is CoinType.Dogecoin -> {
+                TokenQuery(BlockchainType.Dogecoin, TokenType.Native)
+            }
             is CoinType.Dash -> {
                 TokenQuery(BlockchainType.Dash, TokenType.Native)
             }
@@ -138,6 +141,9 @@ private sealed class CoinType : Parcelable {
     object Litecoin : CoinType()
 
     @Parcelize
+    object Dogecoin : CoinType()
+
+    @Parcelize
     object Dash : CoinType()
 
     @Parcelize
@@ -220,6 +226,7 @@ private sealed class CoinType : Parcelable {
             is Bitcoin -> "bitcoin"
             is BitcoinCash -> "bitcoinCash"
             is Litecoin -> "litecoin"
+            is Dogecoin -> "dogecoin"
             is Dash -> "dash"
             is Safe -> "safe-coin"
             is Zcash -> "zcash"
@@ -260,6 +267,7 @@ private sealed class CoinType : Parcelable {
         Bitcoin -> "bitcoin"
         BitcoinCash -> "bitcoinCash"
         Litecoin -> "litecoin"
+        Dogecoin -> "dogecoin"
         Dash -> "dash"
         Safe -> "SAFE"
         Zcash -> "zcash"

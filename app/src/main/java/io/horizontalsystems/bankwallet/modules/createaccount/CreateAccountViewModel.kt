@@ -18,6 +18,8 @@ import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.normalizeNFKD
 import io.horizontalsystems.bankwallet.modules.createaccount.CreateAccountModule.Kind.Mnemonic12
+import io.horizontalsystems.hdwalletkit.Language
+import io.horizontalsystems.hdwalletkit.WordList
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
@@ -35,6 +37,9 @@ class CreateAccountViewModel(
     private var passphraseConfirmation = ""
 
     val mnemonicKinds = CreateAccountModule.Kind.values().toList()
+    val mnemonicLanguages = Language.values().toList()
+
+    private var language = Language.English
 
     val defaultAccountName = accountFactory.getNextAccountName()
     var accountName: String = defaultAccountName
@@ -54,6 +59,8 @@ class CreateAccountViewModel(
         private set
 
     var successMessage by mutableStateOf<Int?>(null)
+        private set
+    var languageType by mutableStateOf(Language.English)
         private set
 
     fun createAccount() {
@@ -153,8 +160,12 @@ class CreateAccountViewModel(
         // A new account can be created only using an English wordlist and limited chars in the passphrase.
         // Despite it, we add text normalizing.
         // It is to avoid potential issues if we allow non-English wordlists on account creation.
-        val words = wordsManager.generateWords(wordCount).map { it.normalizeNFKD() }
+        val words = wordsManager.generateWords(wordCount, language).map { it.normalizeNFKD() }
         return AccountType.Mnemonic(words, passphrase.normalizeNFKD())
     }
 
+    fun setMnemonicLanguage(language: Language) {
+        this.language = language
+        languageType = language
+    }
 }

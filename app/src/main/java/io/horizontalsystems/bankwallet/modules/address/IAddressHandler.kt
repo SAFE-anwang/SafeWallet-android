@@ -104,6 +104,7 @@ class AddressHandlerUdn(private val tokenQuery: TokenQuery, private val coinCode
             BlockchainType.BitcoinCash -> "BCH"
             BlockchainType.ECash -> "XEC"
             BlockchainType.Litecoin -> "LTC"
+            BlockchainType.Dogecoin -> "DOGE"
             BlockchainType.Dash -> "DASH"
             BlockchainType.Safe -> "DASH"
             BlockchainType.Zcash -> "ZEC"

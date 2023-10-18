@@ -133,7 +133,7 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
                     }
 
                     HeaderNote.NonRecommendedAccount -> {
-                        NoteWarning(
+                        /*NoteWarning(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
                             text = stringResource(R.string.AccountRecovery_MigrationRecommended),
                             onClick = {
@@ -143,7 +143,7 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
                                 )
                             },
                             onClose = null
-                        )
+                        )*/
                     }
 
                     HeaderNote.None -> Unit

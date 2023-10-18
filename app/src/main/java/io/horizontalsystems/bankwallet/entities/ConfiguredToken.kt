@@ -27,6 +27,7 @@ data class ConfiguredToken(
         get() = when (token.blockchainType) {
             BlockchainType.Bitcoin,
             BlockchainType.Litecoin,
+            BlockchainType.Dogecoin,
             -> coinSettings.derivation?.value?.uppercase()
             BlockchainType.BitcoinCash -> coinSettings.bitcoinCashCoinType?.value?.uppercase()
             else -> token.protocolType?.uppercase()

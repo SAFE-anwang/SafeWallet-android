@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.tronkit.TronKit
 import io.horizontalsystems.tronkit.models.Address
 import io.horizontalsystems.tronkit.network.Network
@@ -81,6 +82,7 @@ class TronKitManager(
             application = App.instance,
             walletId = account.id,
             words = accountType.words,
+            passphrase = accountType.passphrase,
             network = network,
             tronGridApiKey = appConfigProvider.trongridApiKey
         )

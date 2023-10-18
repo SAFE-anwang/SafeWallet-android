@@ -17,8 +17,8 @@ android {
         applicationId "com.anwang.safewallet"
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 85
-        versionName "0.32.0.1.0802"
+        versionCode 86
+        versionName "0.33.3.1.1017"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -281,6 +281,7 @@ dependencies {
     implementation project(':bitcoin-kit-android:litecoinkit')
     implementation project(':bitcoin-kit-android:safekit')
     implementation project(':bitcoin-kit-android:ecashkit')
+    implementation project(':bitcoin-kit-android:dogecoinkit')
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
