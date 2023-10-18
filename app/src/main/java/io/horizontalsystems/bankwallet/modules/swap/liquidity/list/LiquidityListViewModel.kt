@@ -189,7 +189,7 @@ class LiquidityListViewModel(
         // 计算用户在池子中的流动性占比
         var shareRate = BigDecimal(balanceOfAccount).divide(
             BigDecimal(poolTokenTotalSupply), 18, RoundingMode.DOWN
-        ).multiply(BigDecimal("100"))
+        )
 
         Log.d(
             "用户流动性占比:{}",
@@ -214,7 +214,7 @@ class LiquidityListViewModel(
                 pooledR0Amount,
                 pooledR1Amount,
                 balanceOfAccount,
-                shareRate,
+                shareRate.multiply(BigDecimal("100")),
                 poolTokenTotalSupply
             )
     }
