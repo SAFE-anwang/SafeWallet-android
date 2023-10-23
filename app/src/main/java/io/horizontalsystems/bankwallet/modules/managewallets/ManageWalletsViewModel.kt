@@ -36,7 +36,8 @@ class ManageWalletsViewModel(
     }
 
     private fun sync(items: List<ManageWalletsService.Item>) {
-        val viewItems = items.map { viewItem(it) }
+        // DOGE 币不支持49、84、86
+        val viewItems = items.map { viewItem(it) }.filter { !(it.title == "DOGE" && (it.label == "BIP49" || it.label == "BIP84" || it.label == "BIP86")) }
         //自定义排序
 //        safeSort(viewItems as ArrayList)
         viewItemsLiveData.postValue(viewItems)

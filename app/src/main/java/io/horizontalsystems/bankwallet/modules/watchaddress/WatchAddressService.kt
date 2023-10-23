@@ -70,6 +70,11 @@ class WatchAddressService(
                         add(ConfiguredToken(token, CoinSettings(mapOf(CoinSettingType.derivation to purpose.derivation.value))))
                     }
                 }
+                token(BlockchainType.Dogecoin, accountType)?.let { token ->
+                    accountType.hdExtendedKey.purposes.forEach { purpose ->
+                        add(ConfiguredToken(token, CoinSettings(mapOf(CoinSettingType.derivation to purpose.derivation.value))))
+                    }
+                }
                 token(BlockchainType.ECash, accountType)?.let { token ->
                     add(ConfiguredToken(token))
                 }

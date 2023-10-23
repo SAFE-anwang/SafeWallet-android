@@ -29,6 +29,10 @@ class FeeRateProvider(appConfig: AppConfigProvider) {
         return feeRateKit.litecoin()
     }
 
+    fun dogecoinFeeRate(): Single<BigInteger> {
+        return Single.just(BigInteger("2000"))
+    }
+
     fun bitcoinCashFeeRate(): Single<BigInteger> {
         return feeRateKit.bitcoinCash()
     }
@@ -56,6 +60,12 @@ class LitecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IF
     override suspend fun getFeeRates(): FeeRates {
         val feeRate = feeRateProvider.litecoinFeeRate().await()
         return FeeRates(feeRate.toInt())
+    }
+}
+
+class DogecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
+    override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
+        feeRateProvider.dogecoinFeeRate().blockingGet().toLong()
     }
 }
 

@@ -12,6 +12,7 @@ object FeeRateProviderFactory {
         return when (blockchainType) {
             is BlockchainType.Bitcoin -> BitcoinFeeRateProvider(feeRateProvider)
             is BlockchainType.Litecoin -> LitecoinFeeRateProvider(feeRateProvider)
+            is BlockchainType.Dogecoin -> DogecoinFeeRateProvider(feeRateProvider)
             is BlockchainType.BitcoinCash -> BitcoinCashFeeRateProvider(feeRateProvider)
             is BlockchainType.ECash -> ECashFeeRateProvider()
             is BlockchainType.Dash -> DashFeeRateProvider(feeRateProvider)

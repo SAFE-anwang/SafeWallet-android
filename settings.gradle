@@ -15,6 +15,7 @@ include 'bitcoin-kit-android:bitcoinkit'      // Bitcoin kit
 include 'bitcoin-kit-android:dashkit'         // Dash kit
 include 'bitcoin-kit-android:bitcoincashkit'  // Bitcoin Cash kit
 include 'bitcoin-kit-android:litecoinkit'     // Litecoin kit
+include 'bitcoin-kit-android:dogecoinkit'     // Litecoin kit
 include 'bitcoin-kit-android:hodler'          // Hodler
 include 'bitcoin-kit-android:tools'           // Checkpoint syncer
 include 'bitcoin-kit-android:safekit'

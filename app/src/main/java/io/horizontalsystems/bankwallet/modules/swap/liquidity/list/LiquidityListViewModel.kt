@@ -187,12 +187,13 @@ class LiquidityListViewModel(
         Log.d("Pool Token TotalSupply = {}", "$poolTokenTotalSupply")
         Log.d("BalanceOf {} = {}", "${adapterA.receiveAddress}, ${balanceOfAccount}")
         // 计算用户在池子中的流动性占比
-        val shareRate = BigDecimal(balanceOfAccount).divide(
+        var shareRate = BigDecimal(balanceOfAccount).divide(
             BigDecimal(poolTokenTotalSupply), 18, RoundingMode.DOWN
         )
+
         Log.d(
             "用户流动性占比:{}",
-            shareRate.multiply(BigDecimal("100")).toString() + "%"
+            shareRate.toString() + "%"
         )
         val pooledR0Amount = TokenAmount.toBigDecimal(
             token0,
@@ -213,7 +214,7 @@ class LiquidityListViewModel(
                 pooledR0Amount,
                 pooledR1Amount,
                 balanceOfAccount,
-                shareRate,
+                shareRate.multiply(BigDecimal("100")),
                 poolTokenTotalSupply
             )
     }

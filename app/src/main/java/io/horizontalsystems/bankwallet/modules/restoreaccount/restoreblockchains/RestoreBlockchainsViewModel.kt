@@ -8,10 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.description
-import io.horizontalsystems.bankwallet.core.imageUrl
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -65,7 +62,7 @@ class RestoreBlockchainsViewModel(
             item = item.blockchain,
             imageSource = imageSource,
             title = item.blockchain.name,
-            subtitle = item.blockchain.description,
+            subtitle = if (item.blockchain.uid == "dogecoin") "" else item.blockchain.description,
             enabled = item.enabled,
             hasSettings = item.hasSettings,
             hasInfo = false

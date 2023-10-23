@@ -25,6 +25,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -56,6 +57,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private var purpose = HDWallet.Purpose.BIP49
 
     val bip32Path = listOf<String>( "m/44'/0'/0'", "m/49'/0'/0'", "m/84'/0'/0'")
+    var selectWalletName: String? = null
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
@@ -178,16 +180,15 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             KeyboardHelper.showKeyboardDelayed(requireActivity(), binding.wordsInput, 200)
         }
 
+        selectWalletName?.let {
+            binding.walletName.setText(it)
+            updateWalletPath(it)
+        }
+
         getNavigationResult("walletName") {
             val name = it.getString("name")
-            binding.inputWalleName.setText(name)
-//            binding.walletName.setText(name)
-            updateWalletPath(name)
+            selectWalletName = name
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     private fun observeEvents() {

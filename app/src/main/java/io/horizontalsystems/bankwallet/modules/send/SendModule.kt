@@ -375,6 +375,49 @@ object SendModule {
         }
     }
 
+
+    class LineLockFactory2(
+        private val safeAdapter: ISendSafeAdapter,
+        private val handler: LineLockSendHandler,
+        private val safeInteractor: LineLockSendInteractor
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+            val view = SendView()
+            val interactor: ISendInteractor = SendInteractor()
+            val router = SendRouter()
+            val presenter = SendPresenter(interactor, router)
+
+            val handler: ISendHandler = when (safeAdapter) {
+                is ISendSafeAdapter -> {
+                    safeInteractor.delegate = handler
+
+                    presenter.amountModuleDelegate = handler
+                    presenter.addressModuleDelegate = handler
+                    presenter.feeModuleDelegate = handler
+
+                    presenter.hodlerModuleDelegate = handler
+
+                    handler
+                }
+                else -> {
+                    throw Exception("No adapter found!")
+                }
+            }
+
+            presenter.view = view
+            presenter.handler = handler
+
+            view.delegate = presenter
+            handler.delegate = presenter
+            interactor.delegate = presenter
+
+            return presenter as T
+        }
+    }
+
+
     interface IRouter {
         fun closeWithSuccess()
     }

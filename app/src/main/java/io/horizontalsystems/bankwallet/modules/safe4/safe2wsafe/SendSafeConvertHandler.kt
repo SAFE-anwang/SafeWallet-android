@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.entities.Address
@@ -158,9 +157,7 @@ class SendSafeConvertHandler(
              newFee = fee + BigDecimal(safeInfoPO.bsc.safe_fee)
         } else if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.Polygon) {
             newFee = fee + BigDecimal(safeInfoPO.matic.safe_fee)
-            Log.e("longwen", "matic fee=${safeInfoPO.matic.safe_fee}")
         }
-        Log.e("longwen", "fee=$fee, newFee=$newFee")
         feeModule?.setFee(newFee)
     }
 
