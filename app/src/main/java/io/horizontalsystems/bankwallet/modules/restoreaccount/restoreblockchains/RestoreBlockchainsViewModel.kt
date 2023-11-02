@@ -70,7 +70,7 @@ class RestoreBlockchainsViewModel(
     }
 
     fun enable(blockchain: Blockchain, purpose: Int? = null) {
-        service.enable(blockchain, purpose)
+        service.enable(blockchain)
     }
 
     fun disable(blockchain: Blockchain) {

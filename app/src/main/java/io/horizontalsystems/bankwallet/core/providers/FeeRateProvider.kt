@@ -52,7 +52,7 @@ class BitcoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFe
 
     override suspend fun getFeeRates(): FeeRates {
         val bitcoinFeeRate = feeRateProvider.bitcoinFeeRate().await()
-        return FeeRates(bitcoinFeeRate.economyFee, bitcoinFeeRate.minimumFee)
+        return FeeRates(bitcoinFeeRate.halfHourFee, bitcoinFeeRate.minimumFee)
     }
 }
 
@@ -64,8 +64,9 @@ class LitecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IF
 }
 
 class DogecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
-    override suspend fun getFeeRate(feeRatePriority: FeeRatePriority) = withContext(Dispatchers.IO) {
-        feeRateProvider.dogecoinFeeRate().blockingGet().toLong()
+    override suspend fun getFeeRates(): FeeRates {
+        val feeRate = feeRateProvider.dogecoinFeeRate().await()
+        return FeeRates(feeRate.toInt())
     }
 }
 

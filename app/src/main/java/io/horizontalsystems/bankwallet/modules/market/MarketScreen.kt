@@ -33,11 +33,11 @@ fun MarketScreen(navController: NavController) {
     val tabs = marketViewModel.tabs
     val selectedTab = marketViewModel.selectedTab
 
-    val pagerState = rememberPagerState(initialPage = selectedTab.ordinal)
+    val pagerState = rememberPagerState(initialPage = selectedTab.ordinal) { tabs.size }
 
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
-            title = TranslatableString.ResString(R.string.Market_Title),
+            title = stringResource(R.string.Market_Title),
             menuItems = listOf(
                 MenuItem(
                     title = TranslatableString.ResString(R.string.Market_Search),
@@ -60,7 +60,6 @@ fun MarketScreen(navController: NavController) {
         })
 
         HorizontalPager(
-            pageCount = tabs.size,
             state = pagerState,
             userScrollEnabled = false
         ) { page ->

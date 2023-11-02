@@ -37,6 +37,10 @@ class MainActivity : BaseActivity() {
         WC2MainViewModel.Factory()
     }
 
+    private val viewModel by viewModels<MainActivityViewModel> {
+        MainActivityViewModel.Factory()
+    }
+
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 VpnConnectService.startVpn(this)
@@ -51,23 +55,29 @@ class MainActivity : BaseActivity() {
         }
         setContentView(R.layout.activity_main)
 
-        val navHost =
-            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navController = navHost.navController
 
-        navHost.navController.setGraph(R.navigation.main_graph, intent.extras)
-        navHost.navController.addOnDestinationChangedListener(this)
-
+        navController.setGraph(R.navigation.main_graph, intent.extras)
+        navController.addOnDestinationChangedListener(this)
 
         wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
             if (!MainModule.isOpenDapp) {
-                navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+                navController.slideFromBottom(R.id.wc2SessionFragment)
             }
         }
         wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
-            navHost.navController.slideFromBottom(
+            navController.slideFromBottom(
                 R.id.wc2RequestFragment,
                 WC2RequestFragment.prepareParams(requestId)
             )
+        }
+
+        viewModel.navigateToMainLiveData.observe(this) {
+            if (it) {
+                navController.popBackStack(navController.graph.startDestinationId, false)
+                viewModel.onNavigatedToMain()
+            }
         }
 
         val filter = IntentFilter()

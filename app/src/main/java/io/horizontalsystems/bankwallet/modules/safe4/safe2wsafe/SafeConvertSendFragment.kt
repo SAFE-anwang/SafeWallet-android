@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.commit
@@ -22,7 +23,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.address.WsafeAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.fee.WsafeFeeFragment
@@ -102,22 +103,24 @@ class SafeConvertSendFragment : BaseFragment() {
             }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(titleRes),
-                    navigationIcon = {
-                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                            contentDescription = null,
-                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                        title = stringResource(titleRes),
+                        navigationIcon = {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .size(24.dp)
+                            )
+                        },
+                        menuItems = listOf(
+                                MenuItem(
+                                        title = TranslatableString.ResString(R.string.Button_Close),
+                                        icon = R.drawable.ic_close,
+                                        onClick = {
+                                            findNavController().popBackStack()
+                                        }
+                                )
                         )
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
-                            onClick = {
-                                findNavController().popBackStack()
-                            }
-                        )
-                    )
                 )
             }
         }
@@ -209,7 +212,7 @@ class SafeConvertSendFragment : BaseFragment() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
-                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
+                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
                         val wsafeAddressFragment =
                             WsafeAddressFragment(receiveAdapter.receiveAddress, wsafeWallet.token, it, mainPresenter.handler)
                         fragments.add(wsafeAddressFragment)

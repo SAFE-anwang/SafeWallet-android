@@ -149,7 +149,7 @@ class FiatServiceSendEvm(
             syncLatestRate(marketKit.coinPrice(platformCoin.coin.uid, currency.code))
 
             if (platformCoin.isCustom) {
-                marketKit.coinPriceObservable(platformCoin.coin.uid, currency.code)
+                marketKit.coinPriceObservable("fiat-service", platformCoin.coin.uid, currency.code)
                     .subscribeIO { latestRate ->
                         syncLatestRate(latestRate)
                     }.let { disposable.add(it) }

@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.settings.main
 
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -30,6 +32,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -45,9 +48,8 @@ import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModu
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.settings.main.MainSettingsModule.CounterType
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.BadgeCount
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
@@ -84,7 +86,7 @@ fun SettingsScreen(
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
             AppBar(
-                TranslatableString.ResString(R.string.Settings_Title),
+                stringResource(R.string.Settings_Title),
             )
 
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -108,6 +110,7 @@ private fun SettingSections(
     val wcCounter by viewModel.wcCounterLiveData.observeAsState()
     val baseCurrency by viewModel.baseCurrencyLiveData.observeAsState()
     val language by viewModel.languageLiveData.observeAsState()
+    val context = LocalContext.current
 
     CellUniversalLawrenceSection(
         listOf {
@@ -115,7 +118,7 @@ private fun SettingSections(
                 R.string.Settings_Donate,
                 R.drawable.ic_heart_jacob_48,
                 onClick = {
-                    navController.slideFromRight(R.id.donateFragment)
+                    navController.slideFromRight(R.id.donateTokenSelectFragment)
                 }
             )
         }
@@ -144,10 +147,19 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.blockchainSettingsFragment)
                 }
             )
-        })
+        },{
+            HsSettingCell(
+                R.string.BackupManager_Title,
+                R.drawable.ic_file_24,
+                onClick = {
+                    navController.slideFromRight(R.id.backupManagerFragment)
+                }
+            )
+        }
+            )
     )
 
-    Spacer(Modifier.height(32.dp))
+    VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf {
@@ -158,20 +170,20 @@ private fun SettingSections(
                 counterBadge = (wcCounter as? CounterType.PendingRequestCounter)?.number?.toString(),
                 onClick = {
                     when (val state = viewModel.getWalletConnectSupportState()) {
-                        WC1Manager.SupportState.Supported -> {
+                        WC2Manager.SupportState.Supported -> {
                             navController.slideFromRight(R.id.wallet_connect_graph)
                         }
-                        WC1Manager.SupportState.NotSupportedDueToNoActiveAccount -> {
+                        WC2Manager.SupportState.NotSupportedDueToNoActiveAccount -> {
                             navController.slideFromBottom(R.id.wcErrorNoAccountFragment)
                         }
-                        is WC1Manager.SupportState.NotSupportedDueToNonBackedUpAccount -> {
-                            val text = Translator.getString(R.string.WalletConnect_Error_NeedBackup, state.account.name)
+                        is WC2Manager.SupportState.NotSupportedDueToNonBackedUpAccount -> {
+                            val text = Translator.getString(R.string.WalletConnect_Error_NeedBackup)
                             navController.slideFromBottom(
                                 R.id.backupRequiredDialog,
                                 BackupRequiredDialog.prepareParams(state.account, text)
                             )
                         }
-                        is WC1Manager.SupportState.NotSupported -> {
+                        is WC2Manager.SupportState.NotSupported -> {
                             navController.slideFromBottom(
                                 R.id.wcAccountTypeNotSupportedDialog,
                                 WCAccountTypeNotSupportedDialog.prepareParams(state.accountTypeDescription)
@@ -183,7 +195,7 @@ private fun SettingSections(
         }
     )
 
-    Spacer(Modifier.height(32.dp))
+    VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf(
@@ -238,7 +250,7 @@ private fun SettingSections(
         )
     )
 /*
-    Spacer(Modifier.height(32.dp))
+    VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf {
@@ -252,7 +264,8 @@ private fun SettingSections(
         }
     )*/
 
-    /*Spacer(Modifier.height(32.dp))
+
+    /*VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf({
@@ -274,7 +287,7 @@ private fun SettingSections(
         })
     )*/
 
-    Spacer(Modifier.height(32.dp))
+    VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf {
@@ -289,7 +302,31 @@ private fun SettingSections(
         }
     )
 
-    Spacer(Modifier.height(32.dp))
+    VSpacer(32.dp)
+
+    CellUniversalLawrenceSection(
+        listOf({
+            HsSettingCell(
+                R.string.Settings_RateUs,
+                R.drawable.ic_star_20,
+                onClick = { RateAppManager.openPlayMarket(context) }
+            )
+        }, {
+            HsSettingCell(
+                R.string.Settings_ShareThisWallet,
+                R.drawable.ic_share_20,
+                onClick = { shareAppLink(viewModel.appWebPageLink, context) }
+            )
+        }, {
+            HsSettingCell(
+                R.string.SettingsContact_Title,
+                R.drawable.ic_mail_24,
+                onClick = { navController.slideFromBottom(R.id.contactOptionsDialog) },
+            )
+        })
+    )
+
+    VSpacer(32.dp)
 }
 
 @Composable
@@ -381,6 +418,19 @@ private fun SettingsFooter(appVersion: String, companyWebPage: String) {
             text = stringResource(R.string.Settings_CompanyName),
         )
     }
+}
+
+private fun shareAppLink(appLink: String, context: Context) {
+    val shareMessage = Translator.getString(R.string.SettingsShare_Text) + "\n" + appLink + "\n"
+    val shareIntent = Intent(Intent.ACTION_SEND)
+    shareIntent.type = "text/plain"
+    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
+    context.startActivity(
+        Intent.createChooser(
+            shareIntent,
+            Translator.getString(R.string.SettingsShare_Title)
+        )
+    )
 }
 
 @Preview

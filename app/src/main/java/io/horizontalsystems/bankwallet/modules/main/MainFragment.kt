@@ -5,9 +5,6 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -35,9 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -48,6 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
@@ -71,8 +67,8 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsScreen
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager.SupportState
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager.SupportState
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
@@ -84,35 +80,25 @@ import org.telegram.ui.LaunchActivity
 
 //import org.drinkless.td.libcore.telegram.TdAuthManager
 
-class MainFragment : BaseFragment() {
+class MainFragment : BaseComposeFragment() {
 
 //    private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     private val safe4ViewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
     private var startTelegramService: StartTelegramsService? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                ComposeAppTheme {
-                    MainScreenWithRootedDeviceCheck(
-//                        transactionsViewModel = transactionsViewModel,
-                        deepLink = activity?.intent?.data?.toString(),
-                        navController = findNavController(),
-                        clearActivityData = { activity?.intent?.data = null },
-                        safe4ViewModel = safe4ViewModel,
-                        openLink = {
-                            openLink(it)
-                        }
-                    )
+    @Composable
+    override fun GetContent() {
+        ComposeAppTheme {
+            MainScreenWithRootedDeviceCheck(
+//                transactionsViewModel = transactionsViewModel,
+                deepLink = activity?.intent?.data?.toString(),
+                navController = findNavController(),
+                clearActivityData = { activity?.intent?.data = null },
+                safe4ViewModel = safe4ViewModel,
+                openLink = {
+                    openLink(it)
                 }
-            }
+            )
         }
     }
 
@@ -200,7 +186,7 @@ private fun MainScreen(
 
     val uiState = viewModel.uiState
     val selectedPage = uiState.selectedPageIndex
-    val pagerState = rememberPagerState(initialPage = selectedPage)
+    val pagerState = rememberPagerState(initialPage = selectedPage) { uiState.mainNavItems.size }
 
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -285,7 +271,6 @@ private fun MainScreen(
 
                     HorizontalPager(
                         modifier = Modifier.weight(1f),
-                        pageCount = uiState.mainNavItems.size,
                         state = pagerState,
                         userScrollEnabled = false,
                         verticalAlignment = Alignment.Top
@@ -342,10 +327,7 @@ private fun MainScreen(
             }
             is SupportState.NotSupportedDueToNonBackedUpAccount -> {
                 clearActivityData.invoke()
-                val text = stringResource(
-                    R.string.WalletConnect_Error_NeedBackup,
-                    wcSupportState.account.name
-                )
+                val text = stringResource(R.string.WalletConnect_Error_NeedBackup)
                 fragmentNavController.slideFromBottom(
                     R.id.backupRequiredDialog,
                     BackupRequiredDialog.prepareParams(wcSupportState.account, text)

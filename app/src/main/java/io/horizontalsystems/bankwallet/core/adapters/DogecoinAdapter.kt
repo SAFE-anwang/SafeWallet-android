@@ -4,6 +4,7 @@ import io.horizontalsystems.bankwallet.core.AdapterErrorWrongParameters
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
+import io.horizontalsystems.bankwallet.core.purpose
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
@@ -15,6 +16,7 @@ import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.dogecoinkit.DogecoinKit
 import io.horizontalsystems.dogecoinkit.DogecoinKit.NetworkType
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
 
 class DogecoinAdapter(
@@ -24,7 +26,12 @@ class DogecoinAdapter(
     wallet: Wallet,
 ) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), DogecoinKit.Listener, ISendBitcoinAdapter {
 
-    constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, backgroundManager: BackgroundManager) : this(createKit(wallet, syncMode), syncMode, backgroundManager, wallet)
+    constructor(
+            wallet: Wallet, syncMode:
+            BitcoinCore.SyncMode,
+            backgroundManager: BackgroundManager,
+            derivation: TokenType.Derivation
+    ) : this(createKit(wallet, syncMode, derivation), syncMode, backgroundManager, wallet)
 
     init {
         kit.listener = this
@@ -83,12 +90,15 @@ class DogecoinAdapter(
     companion object {
         private const val confirmationsThreshold = 3
 
-        private fun createKit(wallet: Wallet, syncMode: BitcoinCore.SyncMode): DogecoinKit {
+        private fun createKit(
+                wallet: Wallet,
+                syncMode: BitcoinCore.SyncMode,
+                derivation: TokenType.Derivation
+        ): DogecoinKit {
             val account = wallet.account
 
             when (val accountType = account.type) {
                 is AccountType.HdExtendedKey -> {
-                    val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
                     return DogecoinKit(
                         context = App.instance,
                         extendedKey = accountType.hdExtendedKey,
@@ -100,7 +110,6 @@ class DogecoinAdapter(
                     )
                 }
                 is AccountType.Mnemonic -> {
-                    val derivation = wallet.coinSettings.derivation ?: throw AdapterErrorWrongParameters("Derivation not set")
                     return DogecoinKit(
                         context = App.instance,
                         words = accountType.words,

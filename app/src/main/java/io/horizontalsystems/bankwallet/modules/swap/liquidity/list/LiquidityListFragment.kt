@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
@@ -106,7 +107,7 @@ fun LiquidityForAccount(
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
             AppBar(
-                title = TranslatableString.ResString(R.string.liquidity_title),
+                title = stringResource(R.string.liquidity_title),
                 menuItems = listOf(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Close),

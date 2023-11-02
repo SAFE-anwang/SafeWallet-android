@@ -23,7 +23,7 @@ import io.horizontalsystems.bankwallet.databinding.FragmentSendEvmBinding
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
@@ -148,7 +148,7 @@ class SendWsafeFragment : BaseFragment() {
             }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(titleRes),
+                    title = stringResource(titleRes),
                     navigationIcon = {
                         Image(painter = painterResource(id = R.drawable.logo_safe_24),
                             contentDescription = null,
@@ -193,7 +193,7 @@ class SendWsafeFragment : BaseFragment() {
        binding.buttonProceedCompose.setContent {
             ComposeAppTheme {
                 val proceedEnabled by viewModel.proceedEnabledLiveData.observeAsState(false)
-                val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(safeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
+                val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(safeWallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
                 Column {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(

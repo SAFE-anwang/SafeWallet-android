@@ -40,6 +40,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
@@ -82,7 +83,7 @@ fun CreateAccountAdvancedScreen(
                 SelectorDialogCompose(
                     title = stringResource(R.string.CreateWallet_Mnemonic),
                     items = viewModel.mnemonicKinds.map {
-                        TabItem(it.titleLong, it == viewModel.selectedKind, it)
+                        SelectorItem(it.titleLong, it == viewModel.selectedKind, it)
                     },
                     onDismissRequest = {
                         showMnemonicSizeSelectorDialog = false
@@ -97,7 +98,7 @@ fun CreateAccountAdvancedScreen(
                 SelectorDialogCompose(
                     title = stringResource(R.string.CreateWallet_Wordlist),
                     items = viewModel.mnemonicLanguages.map {
-                        TabItem(
+                        SelectorItem(
                             stringResource(it.displayNameStringRes),
                             it == viewModel.languageType,
                             it
@@ -115,7 +116,7 @@ fun CreateAccountAdvancedScreen(
             }
             Column {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.CreateWallet_Advanced_Title),
+                    title = stringResource(R.string.CreateWallet_Advanced_Title),
                     navigationIcon = {
                         HsBackButton(onClick = onBackClick)
                     },

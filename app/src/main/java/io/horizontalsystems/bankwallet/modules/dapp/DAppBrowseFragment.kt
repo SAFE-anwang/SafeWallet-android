@@ -21,11 +21,8 @@ import androidx.recyclerview.widget1.LinearLayoutManager
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
 import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
 import io.horizontalsystems.bankwallet.modules.main.MainModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.SafeWalletConnectViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestViewModel
@@ -34,10 +31,6 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainV
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Request
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SendEthereumTransactionRequest
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1SignMessageRequest
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.*
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.SingleLiveEvent
@@ -69,11 +62,9 @@ class DAppBrowseFragment: BaseFragment(){
     private lateinit var webRootView: LinearLayout*/
     private lateinit var urlString: String
 
-    private var wc1Service: WC1Service? = null
     private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
-    private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
     private val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
     private val errorLiveEvent = SingleLiveEvent<String?>()
 
@@ -168,30 +159,6 @@ class DAppBrowseFragment: BaseFragment(){
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             callback)
-        openRequestLiveEvent.observe(viewLifecycleOwner, Observer {
-            /*val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
-                WalletConnectModule.Factory2(
-                    wc1Service!!
-                )
-            }*/
-            when (it) {
-                is WC1SendEthereumTransactionRequest -> {
-//                    baseViewModel.sharedSendEthereumTransactionRequest = it
-
-                    findNavController().slideFromRight(
-                        R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
-                    )
-                }
-                is WC1SignMessageRequest -> {
-                    Log.e("connectWallet", "navigation sign message")
-//                    baseViewModel.sharedSignMessageRequest = it
-
-                    findNavController().slideFromRight(
-                        R.id.mainFragment_to_wcSignMessageRequestFragment
-                    )
-                }
-            }
-        })
         openWalletConnectRequestLiveEvent.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is WC2SignMessageRequest -> {
@@ -304,12 +271,7 @@ class DAppBrowseFragment: BaseFragment(){
         val accountId = App.accountManager.activeAccount?.id ?: return
         val cacheConnectLink = App.preferences.getString(getKey(urlString), null) ?: return
         Log.e("connectWallet", "auto connect $cacheConnectLink")
-        App.wc1SessionManager.sessions.forEach {
-            if (it.accountId == accountId && cacheConnectLink == it.session.toUri()) {
-                Log.e("connectWallet", "auto connect v1 $cacheConnectLink")
-                connectSession(it.remotePeerId, true)
-            }
-        }
+
         App.wc2SessionManager.sessions.forEach {
             Log.e("connectWallet", "auto connect v2 ${it.topic}, ${it.metaData?.url}, $cacheConnectLink")
             if (cacheConnectLink == it.metaData?.url) {
@@ -328,7 +290,9 @@ class DAppBrowseFragment: BaseFragment(){
         if (isConnecting) return
         isConnecting = true
         when {
-            connectionLink.contains("@1?") -> wc1Connect(null, connectionLink)
+            connectionLink.contains("@1?") -> {
+
+            }
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
         }
     }
@@ -337,91 +301,10 @@ class DAppBrowseFragment: BaseFragment(){
         if (isConnecting) return
         isConnecting = true
         if (isV1) {
-            wc1Connect(session, null)
+
         } else {
             wc2Connect(session, null)
         }
-    }
-
-    private fun wc1Connect(remotePeerId: String?, connectionLink: String?) {
-        Log.e("connectWallet", "v1 connect")
-        wc1Service = WC1Service(
-            remotePeerId,
-            connectionLink,
-            App.wc1Manager,
-            App.wc1SessionManager,
-            App.wc1RequestManager,
-            App.connectivityManager,
-            App.evmBlockchainManager,
-        )
-        val baseViewModel by navGraphViewModels<SafeWalletConnectViewModel>(R.id.mainFragment) {
-            WalletConnectModule.Factory2(
-                wc1Service!!
-            )
-        }
-        baseViewModel.service = wc1Service!!
-
-        wc1Service!!.connectionStateObservable
-            .subscribe {
-                Log.e("connectWallet", "connect state: $it, ${wc1Service?.state}")
-                if (it is WalletConnectInteractor.State.Disconnected) {
-//                    wc1Service?.reconnect()
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service!!.stateObservable
-            .subscribe {
-                Log.e("connectWallet", "service state: $it")
-                isConnecting = false
-
-                when(it) {
-                    WC1Service.State.WaitingForApproveSession -> {
-                        wc1Service?.approveSession()
-                        // 保存连接钱包链接， 下次进入时自动连接
-                        connectionLink?.let {
-                            val decodeUrl = URLDecoder.decode(connectionLink)
-                            Log.e("connectWallet", "decode: $decodeUrl")
-                            App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
-                        }
-                    }
-                    is WC1Service.State.Invalid -> {
-                        errorLiveEvent.postValue(it.error.message)
-                        disposables.clear()
-                        wc1Service?.clear()
-                        wc1Service = null
-                    }
-                    WC1Service.State.Killed -> {
-                        disposables.clear()
-                        wc1Service?.clear()
-                        wc1Service = null
-                    }
-                    else -> {}
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service!!.requestObservable
-            .subscribe {
-                Log.e("connectWallet", "requestObservable: $it, ${Thread.currentThread().name}")
-
-                when (it.wC1Request) {
-                    is WC1SendEthereumTransactionRequest -> {
-                        baseViewModel.sharedSendEthereumTransactionRequest = it.wC1Request
-                    }
-                    is WC1SignMessageRequest -> {
-                        Log.e("connectWallet", "navigation sign message")
-                        baseViewModel.sharedSignMessageRequest = it.wC1Request
-                    }
-                }
-                openRequestLiveEvent.postValue(it.wC1Request)
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service?.start()
     }
 
     private fun wc2Connect(topic: String?, connectionLink: String?) {
@@ -492,9 +375,7 @@ class DAppBrowseFragment: BaseFragment(){
             it.destroy()
         }
         disposables.dispose()
-        wc1Service?.clear()
         wc2Service?.disconnect()
-        wc1Service = null
         wc2Service = null
         MainModule.isOpenDapp = false
         super.onDestroy()

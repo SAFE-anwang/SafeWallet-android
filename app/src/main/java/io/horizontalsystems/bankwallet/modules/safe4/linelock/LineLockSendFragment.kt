@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -24,7 +25,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.address.DefaultAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -86,24 +87,24 @@ class LineLockSendFragment : BaseFragment() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Safe4_Line_Locked),
-                    navigationIcon = {
-                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .size(24.dp)
+                        title = stringResource(R.string.Safe4_Line_Locked),
+                        navigationIcon = {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .size(24.dp)
+                            )
+                        },
+                        menuItems = listOf(
+                                MenuItem(
+                                        title = TranslatableString.ResString(R.string.Button_Close),
+                                        icon = R.drawable.ic_close,
+                                        onClick = {
+                                            findNavController().popBackStack()
+                                        }
+                                )
                         )
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
-                            onClick = {
-                                findNavController().popBackStack()
-                            }
-                        )
-                    )
                 )
             }
         }
@@ -197,7 +198,7 @@ class LineLockSendFragment : BaseFragment() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
-                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
+                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
                         val sendAddressFragment =
                             DefaultAddressFragment(receiveAdapter.receiveAddress, wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)

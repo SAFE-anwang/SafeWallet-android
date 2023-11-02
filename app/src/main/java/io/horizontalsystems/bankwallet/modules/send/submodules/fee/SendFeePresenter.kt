@@ -2,17 +2,13 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.fee
 
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.core.FeeRatePriority
-import io.horizontalsystems.bankwallet.core.providers.FeeRates
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.FeeRateState
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
-import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountInfo
 import io.horizontalsystems.marketkit.models.Token
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -37,18 +33,18 @@ class SendFeePresenter(
 
     private var error: Exception? = null
 
-    private var customFeeRate: BigInteger? = null
+    private var customFeeRate: Int? = null
         set(value) {
             field = value
             value?.let {
-                view.showLowFeeWarning(value < recommendedFeeRate ?: BigInteger.ZERO)
+                view.showLowFeeWarning(value < recommendedFeeRate ?: 0)
             }
         }
 
-    private var fetchedFeeRate: BigInteger? = null
-    private var feeRatePriority: FeeRates? = interactor.defaultFeeRatePriority
+    private var fetchedFeeRate: Int? = null
+    private var feeRatePriority: FeeRatePriority? = interactor.defaultFeeRatePriority
     private var feeRateAdjustmentInfo: FeeRateAdjustmentInfo = FeeRateAdjustmentInfo(SendAmountInfo.NotEntered, null, baseCurrency, null)
-    private var recommendedFeeRate: BigInteger? = null
+    private var recommendedFeeRate: Int? = null
 
     private val platformCoin: Token
         get() = feeCoinData?.first ?: baseCoin
@@ -97,7 +93,7 @@ class SendFeePresenter(
         val range = IntRange(customPriorityUnit.fromBaseUnit(priority.value).toInt(), customPriorityUnit.fromBaseUnit(priority.value).toInt())
         val feeRateValue = (feeRate ?: priority.value).let { customPriorityUnit.fromBaseUnit(it) }
         val adjustedFeeRateValue = feeRateValue.coerceAtMost(customPriorityUnit.fromBaseUnit(priority.value)).toInt()   // value can't be more than slider upper range
-        this.customFeeRate = adjustedFeeRateValue.toBigInteger()
+        this.customFeeRate = adjustedFeeRateValue
 
         view.setCustomFeeParams(adjustedFeeRateValue, range, customPriorityUnit.getLabel())
     }
@@ -230,13 +226,13 @@ class SendFeePresenter(
         customPriorityUnit ?: return
 
         val converted = customPriorityUnit.convertToBaseUnit(value.toLong())
-        this.customFeeRate = converted.toBigInteger()
+        this.customFeeRate = converted.toInt()
         moduleDelegate?.onUpdateFeeRate()
     }
 
     // IInteractorDelegate
 
-    override fun didUpdate(feeRate: BigInteger, feeRatePriority: FeeRatePriority) {
+    override fun didUpdate(feeRate: Int, feeRatePriority: FeeRatePriority) {
         when (feeRatePriority) {
             FeeRatePriority.HIGH -> {
                 view.showLowFeeWarning(false)

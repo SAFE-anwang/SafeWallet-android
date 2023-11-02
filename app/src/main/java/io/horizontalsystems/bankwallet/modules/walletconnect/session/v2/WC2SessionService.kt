@@ -5,7 +5,6 @@ import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v1.WCSessionModule.PeerMetaItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

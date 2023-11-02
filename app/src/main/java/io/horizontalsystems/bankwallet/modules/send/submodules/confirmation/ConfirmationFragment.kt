@@ -174,7 +174,7 @@ fun SendConfirmScreen(
 
     Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
-            title = TranslatableString.ResString(R.string.Send_Confirmation_Title),
+            title = stringResource(R.string.Send_Confirmation_Title),
             navigationIcon = {
                 IconButton(onClick = onBackButtonClick) {
                     Icon(

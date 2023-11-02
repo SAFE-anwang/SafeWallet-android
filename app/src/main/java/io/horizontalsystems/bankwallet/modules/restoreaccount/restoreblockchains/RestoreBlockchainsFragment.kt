@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,8 +33,6 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensViewModel
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsFragment
@@ -66,9 +65,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
     var purpose: Int? = null
 
     private val viewModel by viewModels<RestoreBlockchainsViewModel> { vmFactory }
-    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
-    private val coinTokensViewModel by viewModels<CoinTokensViewModel> { vmFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -234,21 +231,19 @@ private fun ManageWalletsScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
-    ) {
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
-            title = TranslatableString.ResString(R.string.Restore_Title),
+            title = stringResource(R.string.Restore_Title),
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
             },
             menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.Button_Restore),
-                    onClick = { viewModel.onRestore() },
-                    enabled = doneButtonEnabled
-                )
-            ),
+                    MenuItem(
+                            title = TranslatableString.ResString(R.string.Button_Add),
+                            onClick = viewModel::onRestore,
+                            enabled = doneButtonEnabled
+                    )
+            )
         )
 
         LazyColumn {

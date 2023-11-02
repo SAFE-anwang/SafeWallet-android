@@ -150,7 +150,7 @@ private fun SwapMainScreen(
         ) {
             Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.liquidity_title),
+                    title = stringResource(R.string.liquidity_title),
                     menuItems = listOf(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.Button_Close),

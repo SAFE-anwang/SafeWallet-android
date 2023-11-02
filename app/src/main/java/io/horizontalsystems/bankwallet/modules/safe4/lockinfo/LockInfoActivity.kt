@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.util.Log
@@ -28,6 +29,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
+import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import java.math.BigDecimal
 import java.util.*
@@ -73,22 +75,24 @@ class LockInfoActivity : BaseActivity() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Safe4_Lock_Info),
-                    navigationIcon = {
-                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                            contentDescription = null,
-                            modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+                        title = stringResource(R.string.Safe4_Lock_Info),
+                        navigationIcon = {
+                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .size(24.dp)
+                            )
+                        },
+                        menuItems = listOf(
+                                MenuItem(
+                                        title = TranslatableString.ResString(R.string.Button_Close),
+                                        icon = R.drawable.ic_close,
+                                        onClick = {
+                                            finish()
+                                        }
+                                )
                         )
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
-                            onClick = {
-                                finish()
-                            }
-                        )
-                    )
                 )
             }
         }

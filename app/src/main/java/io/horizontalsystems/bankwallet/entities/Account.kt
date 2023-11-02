@@ -14,6 +14,7 @@ import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.hdwalletkit.WordList
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.consenlabs.tokencore.wallet.WalletManager
@@ -27,19 +28,17 @@ data class Account(
     val name: String,
     val type: AccountType,
     val origin: AccountOrigin,
+    val level: Int,
     val isBackedUp: Boolean = false,
     val isFileBackedUp: Boolean = false,
 ) : Parcelable {
 
     @IgnoredOnParcel
+    val hasAnyBackup = isBackedUp || isFileBackedUp
+
+    @IgnoredOnParcel
     val isWatchAccount: Boolean
-        get() = when (this.type) {
-            is AccountType.EvmAddress -> true
-            is AccountType.SolanaAddress -> true
-            is AccountType.TronAddress -> true
-            is AccountType.HdExtendedKey -> this.type.hdExtendedKey.isPublic
-            else -> false
-        }
+        get() = type.isWatchAccountType
 
     @IgnoredOnParcel
     val nonStandard: Boolean by lazy {
@@ -241,6 +240,7 @@ sealed class AccountType : Parcelable {
             }
 
         companion object {
+            val default = bip84
             private val map = values().associateBy(Derivation::value)
 
             fun fromString(value: String?): Derivation? = map[value]
@@ -324,6 +324,15 @@ sealed class AccountType : Parcelable {
             else -> false
         }
 
+    val isWatchAccountType: Boolean
+        get() = when (this) {
+            is EvmAddress -> true
+            is SolanaAddress -> true
+            is TronAddress -> true
+            is HdExtendedKey -> hdExtendedKey.isPublic
+            else -> false
+        }
+
     fun evmAddress(chain: Chain) = when (this) {
         is Mnemonic -> Signer.address(seed, chain)
         is EvmPrivateKey -> Signer.address(key)
@@ -355,6 +364,14 @@ val HDWallet.Purpose.derivation: AccountType.Derivation
         HDWallet.Purpose.BIP49 -> AccountType.Derivation.bip49
         HDWallet.Purpose.BIP84 -> AccountType.Derivation.bip84
         HDWallet.Purpose.BIP86 -> AccountType.Derivation.bip86
+    }
+
+val HDWallet.Purpose.tokenTypeDerivation: TokenType.Derivation
+    get() = when (this) {
+        HDWallet.Purpose.BIP44 -> TokenType.Derivation.Bip44
+        HDWallet.Purpose.BIP49 -> TokenType.Derivation.Bip49
+        HDWallet.Purpose.BIP84 -> TokenType.Derivation.Bip84
+        HDWallet.Purpose.BIP86 -> TokenType.Derivation.Bip86
     }
 
 @Parcelize

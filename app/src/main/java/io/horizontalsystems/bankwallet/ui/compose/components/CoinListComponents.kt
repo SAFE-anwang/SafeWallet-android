@@ -90,6 +90,7 @@ fun CoinList(
                     )
                 }
                 DraggableCardSimple(
+                    key = item.coinUid,
                     isRevealed = revealedCardId == item.coinUid,
                     cardOffset = 100f,
                     onReveal = {
@@ -164,20 +165,27 @@ fun ListErrorView(
 
 @Composable
 fun ListEmptyView(
+    paddingValues: PaddingValues = PaddingValues(),
     text: String,
     @DrawableRes icon: Int
 ) {
-    ScreenMessageWithAction(text = text, icon = icon)
+    ScreenMessageWithAction(
+        paddingValues = paddingValues,
+        text = text,
+        icon = icon
+    )
 }
 
 @Composable
 fun ScreenMessageWithAction(
     text: String,
     @DrawableRes icon: Int,
+    paddingValues: PaddingValues = PaddingValues(),
     actionsComposable: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
+            .padding(paddingValues)
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,

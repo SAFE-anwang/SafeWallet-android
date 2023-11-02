@@ -7,6 +7,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 
@@ -107,9 +109,11 @@ fun ProvideLocalAssets(
         colors.copy()
     }
     colorPalette.update(colors)
+    val currentDensity = LocalDensity.current
     CompositionLocalProvider(
         LocalColors provides colorPalette,
         LocalTypography provides typography,
+        LocalDensity provides Density(currentDensity.density, fontScale = 1f),
         content = content
     )
 }

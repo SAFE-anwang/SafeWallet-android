@@ -15,7 +15,6 @@ import io.horizontalsystems.bankwallet.modules.send.SendModule.AmountInfo
 import io.horizontalsystems.bankwallet.modules.send.submodules.amount.SendAmountInfo
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
-import java.math.BigInteger
 
 
 object SendFeeModule {
@@ -57,7 +56,7 @@ object SendFeeModule {
     }
 
     interface IInteractorDelegate {
-        fun didUpdate(feeRate: BigInteger, feeRatePriority: FeeRatePriority)
+        fun didUpdate(feeRate: Int, feeRatePriority: FeeRatePriority)
         fun didReceiveError(error: Exception)
         fun didUpdateExchangeRate(rate: BigDecimal)
     }

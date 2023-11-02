@@ -1,12 +1,16 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
@@ -28,36 +32,30 @@ import androidx.navigation.navGraphViewModels
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.B2
+import io.horizontalsystems.bankwallet.ui.compose.components.Badge
+import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
+import io.horizontalsystems.bankwallet.ui.compose.components.D1
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.core.findNavController
 
-class FilterCoinFragment : BaseFragment() {
+class FilterCoinFragment : BaseComposeFragment() {
 
 //    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
     val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-//        val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                ComposeAppTheme {
-                    FilterCoinScreen(findNavController(), viewModel)
-                }
-            }
+    @Composable
+    override fun GetContent() {
+        ComposeAppTheme {
+            FilterCoinScreen(findNavController(), viewModel)
         }
     }
+
 }
 
 
@@ -69,7 +67,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
         Surface(color = ComposeAppTheme.colors.tyler) {
             Column {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Transactions_Filter_ChooseCoin),
+                    title = stringResource(R.string.Transactions_Filter_ChooseCoin),
                     navigationIcon = {
                         HsBackButton(onClick = navController::popBackStack)
                     }

@@ -20,6 +20,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -41,6 +42,7 @@ import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.findNavController
@@ -115,17 +117,9 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Restore_Enter_Key_Title_HD),
+                    title = stringResource(R.string.Restore_Enter_Key_Title_HD),
                     navigationIcon = {
-                        IconButton(onClick = { findNavController().popBackStack() }) {
-                            Image(painter = painterResource(id = R.drawable.ic_back),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .size(24.dp)
-                            )
-                        }
-
+                        HsBackButton(onClick = { findNavController().popBackStack() })
                     },
                     menuItems = menus
                 )

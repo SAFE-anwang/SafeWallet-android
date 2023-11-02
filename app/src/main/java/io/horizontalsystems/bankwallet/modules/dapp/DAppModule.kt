@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.dapp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.entities.CoinSettings
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppApiService
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppService
 import java.math.BigDecimal
@@ -57,8 +56,7 @@ sealed class TransactionStatus {
 
 data class TransactionSource(
     val blockchain: Blockchain,
-    val account: Account,
-    val coinSettings: CoinSettings
+    val account: Account
 ) {
 
     sealed class Blockchain {

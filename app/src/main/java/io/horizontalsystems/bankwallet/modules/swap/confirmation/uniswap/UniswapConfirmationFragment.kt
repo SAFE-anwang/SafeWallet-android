@@ -30,11 +30,13 @@ class UniswapConfirmationFragment(
             dex: SwapMainModule.Dex,
             transactionData: SendEvmModule.TransactionDataParcelable,
             additionalInfo: SendEvmData.AdditionalInfo?,
+            swapEntryPointDestId: Int,
             token: Token? = null
         ) = bundleOf(
             dexKey to dex,
             transactionDataKey to transactionData,
             additionalInfoKey to additionalInfo,
+            swapEntryPointDestIdKey to swapEntryPointDestId,
             tokenKey to token
         )
     }

@@ -1,6 +1,10 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.IAdapter
+import io.horizontalsystems.bankwallet.core.IBalanceAdapter
+import io.horizontalsystems.bankwallet.core.ICoinManager
+import io.horizontalsystems.bankwallet.core.IReceiveAdapter
+import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -16,6 +20,9 @@ abstract class BaseEvmAdapter(
     override val debugInfo: String
         get() = evmKit.debugInfo()
 
+    val statusInfo: Map<String, Any>
+        get() = evmKit.statusInfo()
+
     // ISendEthereumAdapter
 
     protected fun scaleDown(amount: BigDecimal, decimals: Int = decimal): BigDecimal {
@@ -30,6 +37,9 @@ abstract class BaseEvmAdapter(
 
     override val receiveAddress: String
         get() = evmKit.receiveAddress.eip55
+
+    override val isMainNet: Boolean
+        get() = evmKit.chain.isMainNet
 
     protected fun balanceInBigDecimal(balance: BigInteger?, decimal: Int): BigDecimal {
         balance?.toBigDecimal()?.let {
