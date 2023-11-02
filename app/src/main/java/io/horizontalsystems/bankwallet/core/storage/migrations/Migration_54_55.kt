@@ -32,7 +32,6 @@ object Migration_54_55 : Migration(54, 55) {
             val tokenQueryId = "bitcoin-cash|native"
             val coinSettingsId = "bitcoinCashCoinType:$bchType"
             val newTokenQueryId = "bitcoin-cash|address_type:${bchType.replaceFirstChar(Char::titlecase)}"
-            Log.e("longwen", "newTokenQueryId=$newTokenQueryId, tokenQueryId=$tokenQueryId")
             database.execSQL("UPDATE `EnabledWallet` SET tokenQueryId = '$newTokenQueryId' WHERE tokenQueryId = '$tokenQueryId' AND coinSettingsId = '$coinSettingsId'")
         }
 
