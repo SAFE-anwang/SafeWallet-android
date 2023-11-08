@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.isCustom
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -69,6 +70,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 
 @Composable
@@ -137,7 +139,8 @@ private fun onTransactionClick(
     navController: NavController
 ) {
     val transactionItem = tokenBalanceViewModel.getTransactionItem(transactionViewItem) ?: return
-    transactionsViewModel.tmpItemToShow = transactionItem
+//    transactionsViewModel.tmpItemToShow = transactionItem
+    App.tmpItemToShow = transactionItem
 
     navController.slideFromBottom(R.id.transactionInfoFragment)
 }
@@ -346,10 +349,17 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     val sendTitle = Translator.getString(R.string.Send_Title, viewItem.wallet.token.fullCoin.coin.code)
-                    navController.slideFromRight(
-                        R.id.sendXFragment,
-                        SendFragment.prepareParams(viewItem.wallet, sendTitle)
-                    )
+                    if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
+                        navController.slideFromBottom(
+                                R.id.sendSafeFragment,
+                                SendFragment.prepareParams(viewItem.wallet, sendTitle)
+                        )
+                    } else {
+                        navController.slideFromRight(
+                                R.id.sendXFragment,
+                                SendFragment.prepareParams(viewItem.wallet, sendTitle)
+                        )
+                    }
                 },
                 enabled = viewItem.sendEnabled
             )

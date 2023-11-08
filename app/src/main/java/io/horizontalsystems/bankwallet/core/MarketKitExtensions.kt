@@ -131,7 +131,6 @@ val TokenQuery.customCoinUid: String
 val TokenQuery.isSupported: Boolean
     get() = when (blockchainType) {
         BlockchainType.Bitcoin,
-        BlockchainType.Dogecoin,
         BlockchainType.Litecoin -> {
             tokenType is TokenType.Derived
         }
@@ -141,6 +140,7 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.ECash,
         BlockchainType.Dash,
         BlockchainType.Safe,
+        BlockchainType.Dogecoin,
         BlockchainType.Zcash -> {
             tokenType is TokenType.Native
         }
@@ -173,7 +173,7 @@ val Blockchain.description: String
         BlockchainType.ECash -> "XEC"
         BlockchainType.Zcash -> "ZEC"
         BlockchainType.Litecoin -> "LTC (BIP44, BIP49, BIP84, BIP86)"
-        BlockchainType.Dogecoin -> "DOGE (BIP44, BIP49, BIP84, BIP86)"
+        BlockchainType.Dogecoin -> "DOGE"
         BlockchainType.Dash -> "DASH"
         BlockchainType.Safe -> "SAFE"
         BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
@@ -338,7 +338,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
             when (this) {
                 BlockchainType.Bitcoin -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
                 BlockchainType.Litecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
-                BlockchainType.Dogecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                BlockchainType.Dogecoin, /*-> coinTypes.contains(ExtendedKeyCoinType.Litecoin)*/
                 BlockchainType.BitcoinCash,
                 BlockchainType.Dash,
                 BlockchainType.Safe,
@@ -469,6 +469,7 @@ val Token.badge: String?
 val BlockchainType.nativeTokenQueries: List<TokenQuery>
     get() = when (this) {
         BlockchainType.Bitcoin,
+        BlockchainType.Dogecoin,
         BlockchainType.Litecoin -> {
             TokenType.Derivation.values().map {
                 TokenQuery(this, TokenType.Derived(it))
@@ -518,6 +519,7 @@ val TokenType.meta: String?
 
 val BlockchainType.Companion.supported: List<BlockchainType>
     get() = listOf(
+        BlockchainType.Safe,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
@@ -535,4 +537,5 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Solana,
         BlockchainType.ECash,
         BlockchainType.Tron,
+        BlockchainType.Dogecoin
     )

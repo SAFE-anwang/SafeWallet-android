@@ -7,12 +7,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.tokenselect.TokenSelectScreen
 import io.horizontalsystems.bankwallet.modules.tokenselect.TokenSelectViewModel
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 class SendTokenSelectFragment : BaseComposeFragment() {
 
@@ -27,14 +29,21 @@ class SendTokenSelectFragment : BaseComposeFragment() {
                 when {
                     it.sendEnabled -> {
                         val sendTitle = Translator.getString(R.string.Send_Title, it.wallet.token.fullCoin.coin.code)
-                        navController.slideFromRight(
-                            R.id.sendXFragment,
-                            SendFragment.prepareParams(
-                                it.wallet,
-                                R.id.sendTokenSelectFragment,
-                                sendTitle
+                        if (it.wallet.coin.uid == "safe-coin" && it.wallet.token.blockchain.type is BlockchainType.Safe) {
+                            navController.slideFromBottom(
+                                    R.id.sendSafeFragment,
+                                    SendFragment.prepareParams(it.wallet, sendTitle)
                             )
-                        )
+                        } else {
+                            navController.slideFromRight(
+                                    R.id.sendXFragment,
+                                    SendFragment.prepareParams(
+                                            it.wallet,
+                                            R.id.sendTokenSelectFragment,
+                                            sendTitle
+                                    )
+                            )
+                        }
                     }
 
                     it.syncingProgress.progress != null -> {

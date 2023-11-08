@@ -77,7 +77,7 @@ private fun ContactOptionsScreen(
                     sendEmail(reportEmail, context)
                 }
             )
-            VSpacer(12.dp)
+            /*VSpacer(12.dp)
             ButtonPrimaryDefault(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,7 +86,7 @@ private fun ContactOptionsScreen(
                 onClick = {
                     navController.slideFromRight(R.id.personalSupportFragment)
                 }
-            )
+            )*/
             VSpacer(24.dp)
         }
     }

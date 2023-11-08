@@ -112,7 +112,7 @@ private fun SettingSections(
     val language by viewModel.languageLiveData.observeAsState()
     val context = LocalContext.current
 
-    CellUniversalLawrenceSection(
+    /*CellUniversalLawrenceSection(
         listOf {
             HsSettingCell(
                 R.string.Settings_Donate,
@@ -124,7 +124,7 @@ private fun SettingSections(
         }
     )
 
-    VSpacer(32.dp)
+    VSpacer(32.dp)*/
 
     CellUniversalLawrenceSection(
         listOf({
@@ -147,7 +147,7 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.blockchainSettingsFragment)
                 }
             )
-        },{
+        }/*,{
             HsSettingCell(
                 R.string.BackupManager_Title,
                 R.drawable.ic_file_24,
@@ -155,8 +155,8 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.backupManagerFragment)
                 }
             )
-        }
-            )
+        }*/
+        )
     )
 
     VSpacer(32.dp)

@@ -266,7 +266,7 @@ private fun SecurityCenterScreen(
             )
 
 //            item {
-                VSpacer(height = 24.dp)
+//                VSpacer(height = 24.dp)
                 HeaderText(stringResource(R.string.SecurityCenter_Internet))
                 VpnBlock(
                         vpnViewModel,
@@ -284,7 +284,7 @@ private fun SecurityCenterScreen(
                 )
                 InfoText(text = stringResource(R.string.SettingsSecurity_DuressPinDescription))
 
-                VSpacer(height = 32.dp)
+//                VSpacer(height = 32.dp)
 //            }
 
 //            item {
