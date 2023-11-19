@@ -17,7 +17,6 @@ class WalletManager(
     private val accountManager: IAccountManager,
     private val storage: IWalletStorage,
 ) : IWalletManager {
-    val time = System.currentTimeMillis()
     override val activeWallets get() = walletsSet.toList()
     override val activeWalletsUpdatedObservable = PublishSubject.create<List<Wallet>>()
 
@@ -27,7 +26,6 @@ class WalletManager(
     init {
         coroutineScope.launch {
             accountManager.activeAccountStateFlow.collect { activeAccountState ->
-                Log.i("longwen", "wallet manager = ${System.currentTimeMillis() - time}")
                 if (activeAccountState is ActiveAccountState.ActiveAccount) {
                     handleUpdated(activeAccountState.account)
                 }
