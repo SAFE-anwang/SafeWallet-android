@@ -32,21 +32,21 @@ android {
             checkReleaseBuilds false
         }
 
-        resValue "string", "companyWebPageLink", "https://horizontalsystems.io"
-        resValue "string", "appWebPageLink", "https://unstoppable.money"
+        resValue "string", "companyWebPageLink", "https://www.anwang.com"
+        resValue "string", "appWebPageLink", "https://www.anwang.com"
         resValue "string", "analyticsLink", "https://unstoppable.money/analytics"
-        resValue "string", "appGithubLink", "https://github.com/horizontalsystems/unstoppable-wallet-android"
-        resValue "string", "appTwitterLink", "https://twitter.com/UnstoppableByHS"
-        resValue "string", "appTelegramLink", "https://t.me/unstoppable_announcements"
-        resValue "string", "appRedditLink", "https://www.reddit.com/r/UNSTOPPABLEWallet/"
-        resValue "string", "reportEmail", "support.unstoppable@protonmail.com"
+        resValue "string", "appGithubLink", "https://github.com/SAFE-anwang/SafeWallet-android"
+        resValue "string", "appTwitterLink", "https://twitter.com/safeanwang"
+        resValue "string", "appTelegramLink", "https://t.me/safeanwang"
+        resValue "string", "appRedditLink", "https://www.reddit.com/user/safe_2018"
+        resValue "string", "reportEmail", "foundation@anwang.com"
         resValue "string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
         resValue "string", "walletConnectAppMetaDataName", "Safe Wallet"
-        resValue "string", "walletConnectAppMetaDataUrl", "unstoppable.money"
-        resValue "string", "walletConnectAppMetaDataIcon", "https://raw.githubusercontent.com/horizontalsystems/HS-Design/master/PressKit/UW-AppIcon-on-light.png"
-        resValue "string", "walletConnectV1PeerMetaName", "Safe Wallet"
+        resValue "string", "walletConnectAppMetaDataUrl", "example.wallet"
+        resValue "string", "walletConnectAppMetaDataIcon", "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
+        resValue "string", "walletConnectV1PeerMetaName", "SafeWallet"
         resValue "string", "walletConnectV1PeerMetaUrl", "https://unstoppable.money"
-        resValue "string", "accountsBackupFileSalt", "SafeWallet"
+        resValue "string", "accountsBackupFileSalt", "Safe Wallet"
     }
 
     buildFeatures {
@@ -305,7 +305,6 @@ dependencies {
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
-    implementation 'com.github.horizontalsystems:market-kit-android:0059cac'
     implementation 'com.github.horizontalsystems:solana-kit-android:5cc6e81'
     implementation 'com.github.horizontalsystems:tron-kit-android:67f8d53'
 

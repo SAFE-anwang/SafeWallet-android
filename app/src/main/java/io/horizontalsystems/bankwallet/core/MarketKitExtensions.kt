@@ -469,7 +469,7 @@ val Token.badge: String?
 val BlockchainType.nativeTokenQueries: List<TokenQuery>
     get() = when (this) {
         BlockchainType.Bitcoin,
-        BlockchainType.Dogecoin,
+//        BlockchainType.Dogecoin,
         BlockchainType.Litecoin -> {
             TokenType.Derivation.values().map {
                 TokenQuery(this, TokenType.Derived(it))
@@ -508,6 +508,9 @@ val TokenType.isDefault
 
 val TokenType.isNative: Boolean
     get() = this is TokenType.Native || this is TokenType.Derived || this is TokenType.AddressTyped
+
+val TokenType.isCustom: Boolean
+    get() = this is TokenType.Bep2 || this is TokenType.Eip20 || this is TokenType.Spl
 
 val TokenType.meta: String?
     get() = when (this) {

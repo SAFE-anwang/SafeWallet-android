@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.IWalletStorage
@@ -16,7 +17,7 @@ class WalletManager(
     private val accountManager: IAccountManager,
     private val storage: IWalletStorage,
 ) : IWalletManager {
-
+    val time = System.currentTimeMillis()
     override val activeWallets get() = walletsSet.toList()
     override val activeWalletsUpdatedObservable = PublishSubject.create<List<Wallet>>()
 
@@ -26,6 +27,7 @@ class WalletManager(
     init {
         coroutineScope.launch {
             accountManager.activeAccountStateFlow.collect { activeAccountState ->
+                Log.i("longwen", "wallet manager = ${System.currentTimeMillis() - time}")
                 if (activeAccountState is ActiveAccountState.ActiveAccount) {
                     handleUpdated(activeAccountState.account)
                 }
@@ -65,6 +67,7 @@ class WalletManager(
 
     private fun notifyActiveWallets() {
         activeWalletsUpdatedObservable.onNext(walletsSet.toList())
+        Log.i("longwen", "wallet manager 2 = ${System.currentTimeMillis() - time}")
     }
 
     @Synchronized

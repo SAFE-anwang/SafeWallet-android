@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.walletconnect.version2
 
+import com.google.android.exoplayer2.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.walletconnect.sign.client.Sign
@@ -25,7 +26,7 @@ object WC2Parser {
         dAppName: String
     ): WC2Request {
         val params = JsonParser.parseString(request.params).asJsonArray
-
+        Log.e("longwen", "rquest method=${request.method}")
         when (request.method) {
             "eth_sendTransaction" -> {
                 val transaction =

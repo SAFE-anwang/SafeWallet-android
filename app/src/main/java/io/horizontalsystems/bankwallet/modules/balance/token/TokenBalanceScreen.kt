@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance.token
 
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -285,12 +286,21 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            CoinImage(
-                iconUrl = viewItem.coinIconUrl,
-                placeholder = viewItem.coinIconPlaceholder,
-                modifier = Modifier
-                    .size(32.dp)
-            )
+            Log.e("longwen", "coin code=${viewItem.coinCode}")
+            if (viewItem.coinCode == "SAFE") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                                .size(32.dp)
+                )
+            } else {
+                CoinImage(
+                        iconUrl = viewItem.coinIconUrl,
+                        placeholder = viewItem.coinIconPlaceholder,
+                        modifier = Modifier
+                                .size(32.dp)
+                )
+            }
         }
     }
 }

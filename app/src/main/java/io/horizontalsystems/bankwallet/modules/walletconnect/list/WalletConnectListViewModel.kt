@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import com.walletconnect.sign.client.Sign
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -66,6 +67,7 @@ class WalletConnectListViewModel(
     }
 
     fun setConnectionUri(uri: String) {
+        Log.e("connectWallet", "setConnectionUri=$uri")
         connectionResult = when (WalletConnectListModule.getVersionFromUri(uri)) {
             2 -> {
                 wc2Service.pair(uri)

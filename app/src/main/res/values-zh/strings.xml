@@ -323,7 +323,7 @@
     <string name="Balance_Withdraw">提取</string>
     <string name="Balance_Title">余额</string>
     <string name="Balance_Send">发送​​</string>
-    <string name="Balance_Swap">掉期交易</string>
+    <string name="Balance_Swap">互兑交易</string>
     <string name="Balance_Deposit">接收</string>
     <string name="Balance_Receive">接收</string>
     <string name="Balance_Address">地址</string>
@@ -589,13 +589,13 @@
     <string name="Swap_MaximumPaid">最大支付金额</string>
     <string name="Swap_MinimumGot">保证金额</string>
     <string name="Swap_PoweredBy">技术支持：</string>
-    <string name="Swap_SelectSwapProvider_Title">掉期供应商</string>
+    <string name="Swap_SelectSwapProvider_Title">互兑供应商</string>
     <string name="Swap_AmountEstimated">(预估金额)</string>
     <string name="Swap_AmountMin">(最小金额)</string>
     <string name="Swap_AmountMax">(最大金额)</string>
     <string name="Swap_AmountTypeCoin">硬币</string>
     <!-- Swap Settings -->
-    <string name="SwapSettings_Title">掉期设置</string>
+    <string name="SwapSettings_Title">互兑设置</string>
     <string name="SwapSettings_Service">服务</string>
     <string name="SwapSettings_SlippageTitle">下跌容忍度</string>
     <string name="SwapSettings_SlippageDescription">如果价格的不利变化超出此百分比，您的交易将退回。</string>
@@ -674,7 +674,7 @@
     <string name="Transactions_Filter_ChooseCoin">选择代币</string>
     <string name="Transactions_Incoming">已收到</string>
     <string name="Transactions_Outgoing">已发送</string>
-    <string name="Transactions_Swaps">掉期交易</string>
+    <string name="Transactions_Swaps">互兑交易</string>
     <string name="Transactions_Approvals">批准</string>
     <string name="Transactions_Unknown">未知交易</string>
     <string name="Transactions_Unknown_Description">无法解析交易</string>

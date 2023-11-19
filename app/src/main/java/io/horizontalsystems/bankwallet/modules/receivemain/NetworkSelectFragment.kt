@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.receivemain
 
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -122,6 +123,7 @@ fun NetworkSelectScreen(
                                 title = blockchain.name,
                                 subtitle = blockchain.description,
                                 imageUrl = blockchain.type.imageUrl,
+                                uid = token.coin.uid,
                                 onClick = {
                                     coroutineScope.launch {
                                         val wallet = viewModel.getOrCreateWallet(token)
@@ -150,21 +152,32 @@ fun NetworkCell(
     title: String,
     subtitle: String,
     imageUrl: String,
+    uid: String,
     onClick: (() -> Unit)? = null
 ) {
     RowUniversal(
         onClick = onClick
     ) {
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp),
-            painter = rememberAsyncImagePainter(
-                model = imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-        )
+        Log.e("longwen", "title=$title, subtitle=$subtitle, uid=$uid")
+        if (uid == "safe-coin") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(32.dp)
+            )
+        } else {
+            Image(
+                    modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(32.dp),
+                    painter = rememberAsyncImagePainter(
+                            model = imageUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                    ),
+                    contentDescription = null,
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = title)
             subhead2_grey(text = subtitle)

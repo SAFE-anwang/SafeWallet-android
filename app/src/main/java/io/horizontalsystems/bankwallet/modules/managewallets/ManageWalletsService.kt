@@ -106,7 +106,7 @@ class ManageWalletsService(
 
     private fun sortItems() {
         var comparator = compareByDescending<Item> {
-            it.enabled
+            it.token.coin.uid == "safe-coin" || it.enabled
         }
 
         if (filter.isBlank()) {
@@ -133,7 +133,7 @@ class ManageWalletsService(
         ) {
             eligibleTokens.filter { isEnabled(it) || it.type.isDefault }
         } else {
-            eligibleTokens.filter { isEnabled(it) || it.type.isNative }
+            eligibleTokens.filter { isEnabled(it) || it.type.isNative || it.type.isCustom }
         }.filter {
             isFilterToken(it)
         }

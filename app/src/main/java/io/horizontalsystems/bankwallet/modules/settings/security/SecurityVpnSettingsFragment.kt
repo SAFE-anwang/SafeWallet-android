@@ -278,11 +278,11 @@ private fun SecurityCenterScreen(
                         showAppRestartAlert,
                 )
 
-                DuressPasscodeBlock(
-                        securitySettingsViewModel,
-                        navController
-                )
-                InfoText(text = stringResource(R.string.SettingsSecurity_DuressPinDescription))
+//                DuressPasscodeBlock(
+//                        securitySettingsViewModel,
+//                        navController
+//                )
+//                InfoText(text = stringResource(R.string.SettingsSecurity_DuressPinDescription))
 
 //                VSpacer(height = 32.dp)
 //            }

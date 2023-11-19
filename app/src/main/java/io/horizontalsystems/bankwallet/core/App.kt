@@ -222,11 +222,11 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             //Disable logging for lower levels in Release build
             Logger.getLogger("").level = Level.SEVERE
         }
-        Schedulers.from(
+        /*Schedulers.from(
             ThreadPoolExecutor(200, 200,
             60L, TimeUnit.MILLISECONDS,
             LinkedBlockingQueue<Runnable>())
-        )
+        )*/
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             Log.w("RxJava ErrorHandler", e)
         }
@@ -288,8 +288,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         val proFeaturesStorage = ProFeaturesStorage(appDatabase)
         proFeatureAuthorizationManager = ProFeaturesAuthorizationManager(proFeaturesStorage, accountManager, appConfigProvider)
-
-        vpnServerStorage = VpnServerStorage(appDatabase)
 
         enabledWalletsStorage = EnabledWalletsStorage(appDatabase)
         walletStorage = WalletStorage(marketKit, enabledWalletsStorage)
@@ -400,7 +398,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         }
 
         rateAppManager = RateAppManager(walletManager, adapterManager, localStorage)
-
         wc2Manager = WC2Manager(accountManager, evmBlockchainManager)
 
         termsManager = TermsManager(localStorage)
@@ -420,14 +417,14 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         releaseNotesManager = ReleaseNotesManager(systemInfoManager, localStorage, appConfigProvider)
 
-        binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
-
         setAppTheme()
 
         val nftStorage = NftStorage(appDatabase.nftDao(), marketKit)
         nftMetadataManager = NftMetadataManager(marketKit, appConfigProvider, nftStorage)
         nftAdapterManager = NftAdapterManager(walletManager, evmBlockchainManager)
         nftMetadataSyncer = NftMetadataSyncer(nftAdapterManager, nftMetadataManager, nftStorage)
+        contactsRepository = ContactsRepository(marketKit)
+        startTasks()
 
         initializeWalletConnectV2(appConfig)
 
@@ -438,7 +435,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         balanceViewTypeManager = BalanceViewTypeManager(localStorage)
         balanceHiddenManager = BalanceHiddenManager(localStorage, backgroundManager)
 
-        contactsRepository = ContactsRepository(marketKit)
         cexProviderManager = CexProviderManager(accountManager)
         cexAssetManager = CexAssetManager(marketKit, appDatabase.cexAssetsDao())
         chartIndicatorManager = ChartIndicatorManager(appDatabase.chartIndicatorSettingsDao(), localStorage)
@@ -471,13 +467,18 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             contactsRepository = contactsRepository
         )
 
+//        startTasks()
+
+        vpnServerStorage = VpnServerStorage(appDatabase)
+
+        binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
+
         ApplicationLoader.instance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
         SafeInfoManager.startNet()
 
-        startTasks()
     }
 
     override fun newImageLoader(): ImageLoader {

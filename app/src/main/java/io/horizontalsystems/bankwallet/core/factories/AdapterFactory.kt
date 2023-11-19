@@ -78,10 +78,6 @@ class AdapterFactory(
                     val syncMode = btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
                     LitecoinAdapter(wallet, syncMode, backgroundManager, tokenType.derivation)
                 }
-                BlockchainType.Dogecoin -> {
-                    val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dogecoin, wallet.account.origin)
-                    DogecoinAdapter(wallet, syncMode, backgroundManager, tokenType.derivation)
-                }
                 else -> null
             }
         }
@@ -109,6 +105,10 @@ class AdapterFactory(
                 } catch (e: Exception) {
                     null
                 }
+            }
+            BlockchainType.Dogecoin -> {
+                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dogecoin, wallet.account.origin)
+                DogecoinAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Zcash -> {
                 ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType), localStorage)

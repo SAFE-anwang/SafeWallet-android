@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
@@ -94,6 +95,7 @@ class TokenBalanceViewModel(
     }
 
     private fun updateTransactions(items: List<TransactionItem>) {
+        Log.e("longwen", "updateTransactions item=${items.size}")
         transactions = items
             .map { transactionViewItem2Factory.convertToViewItemCached(it) }
             .groupBy { it.formattedDate }

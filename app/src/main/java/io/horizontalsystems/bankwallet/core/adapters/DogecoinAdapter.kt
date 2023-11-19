@@ -15,6 +15,7 @@ import io.horizontalsystems.bitcoincore.models.TransactionInfo
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.dogecoinkit.DogecoinKit
 import io.horizontalsystems.dogecoinkit.DogecoinKit.NetworkType
+import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
@@ -29,9 +30,8 @@ class DogecoinAdapter(
     constructor(
             wallet: Wallet, syncMode:
             BitcoinCore.SyncMode,
-            backgroundManager: BackgroundManager,
-            derivation: TokenType.Derivation
-    ) : this(createKit(wallet, syncMode, derivation), syncMode, backgroundManager, wallet)
+            backgroundManager: BackgroundManager
+    ) : this(createKit(wallet, syncMode), syncMode, backgroundManager, wallet)
 
     init {
         kit.listener = this
@@ -92,8 +92,7 @@ class DogecoinAdapter(
 
         private fun createKit(
                 wallet: Wallet,
-                syncMode: BitcoinCore.SyncMode,
-                derivation: TokenType.Derivation
+                syncMode: BitcoinCore.SyncMode
         ): DogecoinKit {
             val account = wallet.account
 
@@ -102,7 +101,7 @@ class DogecoinAdapter(
                     return DogecoinKit(
                         context = App.instance,
                         extendedKey = accountType.hdExtendedKey,
-                        purpose = derivation.purpose,
+                        purpose = HDWallet.Purpose.BIP44,
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = NetworkType.MainNet,
@@ -118,7 +117,7 @@ class DogecoinAdapter(
                         syncMode = syncMode,
                         networkType = NetworkType.MainNet,
                         confirmationsThreshold = confirmationsThreshold,
-                        purpose = derivation.purpose
+                        purpose = HDWallet.Purpose.BIP44
                     )
                 }
                 else -> throw UnsupportedAccountException()
