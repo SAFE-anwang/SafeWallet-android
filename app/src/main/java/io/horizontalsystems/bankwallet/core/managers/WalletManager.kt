@@ -65,7 +65,6 @@ class WalletManager(
 
     private fun notifyActiveWallets() {
         activeWalletsUpdatedObservable.onNext(walletsSet.toList())
-        Log.i("longwen", "wallet manager 2 = ${System.currentTimeMillis() - time}")
     }
 
     @Synchronized
