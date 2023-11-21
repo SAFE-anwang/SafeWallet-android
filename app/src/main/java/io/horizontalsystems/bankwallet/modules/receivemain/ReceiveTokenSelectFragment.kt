@@ -93,6 +93,7 @@ fun ReceiveTokenSelectScreen(navController: NavController, activeAccount: Accoun
                         ReceiveCoin(
                             coinName = coin.name,
                             coinCode = coin.code,
+                            uid = coin.uid,
                             coinIconUrl = coin.imageUrl,
                             coinIconPlaceholder = coin.imagePlaceholder,
                             onClick = {
@@ -147,6 +148,7 @@ fun ReceiveTokenSelectScreen(navController: NavController, activeAccount: Accoun
 fun ReceiveCoin(
     coinName: String,
     coinCode: String,
+    uid: String,
     coinIconUrl: String,
     coinIconPlaceholder: Int,
     onClick: (() -> Unit)? = null
@@ -155,7 +157,7 @@ fun ReceiveCoin(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (coinCode == "SAFE") {
+        if (uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

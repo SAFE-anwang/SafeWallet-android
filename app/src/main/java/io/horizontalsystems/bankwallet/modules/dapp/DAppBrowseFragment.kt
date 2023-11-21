@@ -298,7 +298,7 @@ class DAppBrowseFragment: BaseFragment(){
             connectionLink.contains("@1?") -> {
 
             }
-            connectionLink.contains("@2/wc?") -> {}
+//            connectionLink.contains("@2/wc?") -> {}
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
         }
     }
@@ -367,6 +367,7 @@ class DAppBrowseFragment: BaseFragment(){
             }
         App.wc2SessionManager.pendingRequestObservable
             .subscribe{
+                Log.e("connectWallet", "pendingRequestObservable: $it")
                 openWalletConnectRequestLiveEvent.postValue(it)
             }.let {
                 disposables.add(it)

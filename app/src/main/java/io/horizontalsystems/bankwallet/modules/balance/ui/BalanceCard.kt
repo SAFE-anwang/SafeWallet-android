@@ -301,7 +301,7 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.coinCode == "SAFE") {
+            if (viewItem.wallet.coin.uid == "safe-coin") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

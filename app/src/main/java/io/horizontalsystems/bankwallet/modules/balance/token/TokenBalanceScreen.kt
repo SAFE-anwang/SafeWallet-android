@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.balance.token
 import android.util.Log
 import android.view.View
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -52,6 +54,7 @@ import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressFra
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.modules.transactions.transactionList
@@ -60,6 +63,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithIcon
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
@@ -286,8 +290,7 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            Log.e("longwen", "coin code=${viewItem.coinCode}")
-            if (viewItem.coinCode == "SAFE") {
+            if (viewItem.wallet.coin.uid == "safe-coin") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                         contentDescription = null,
                         modifier = Modifier
@@ -374,14 +377,36 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 enabled = viewItem.sendEnabled
             )
             Spacer(modifier = Modifier.width(8.dp))
-            ButtonPrimaryCircle(
+            ButtonSecondaryCircle(
                 icon = R.drawable.ic_arrow_down_left_24,
                 contentDescription = stringResource(R.string.Balance_Receive),
                 onClick = onClickReceive,
             )
             if (viewItem.swapVisible) {
                 Spacer(modifier = Modifier.width(8.dp))
-                ButtonPrimaryCircle(
+                HsIconButton(
+                        onClick = {
+                            navController.slideFromRight(R.id.listLiquidity)
+                        },
+                        modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(
+                                        if (App.localStorage.currentTheme == ThemeType.Blue)
+                                            ComposeAppTheme.colors.tyler
+                                        else
+                                            ComposeAppTheme.colors.leah
+                                ),
+                        rippleColor = ComposeAppTheme.colors.claude
+                ) {
+                    Icon(
+                            painter = painterResource(id = R.drawable.ic_liquidity),
+                            contentDescription = stringResource(R.string.ManageCoins_title),
+                            tint = ComposeAppTheme.colors.claude
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                ButtonSecondaryCircle(
                     icon = R.drawable.ic_swap_24,
                     contentDescription = stringResource(R.string.Swap),
                     onClick = {
@@ -395,7 +420,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             }
         }
         Spacer(modifier = Modifier.width(8.dp))
-        ButtonPrimaryCircle(
+        ButtonSecondaryCircle(
             icon = R.drawable.ic_chart_24,
             contentDescription = stringResource(R.string.Coin_Info),
             enabled = !viewItem.wallet.token.isCustom,

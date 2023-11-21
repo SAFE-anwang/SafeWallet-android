@@ -354,6 +354,7 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                 .fillMaxSize()
                 .then(clipModifier)
                 .then(borderModifier)
+                .background(ComposeAppTheme.colors.lawrence)
                 .clickable(onClick = onClick),
         ) {
             Box(

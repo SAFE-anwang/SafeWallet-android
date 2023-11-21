@@ -208,7 +208,7 @@ fun BalanceItems(
                             }
                         )
                         HSpacer(8.dp)
-                        ButtonPrimaryCircle(
+                        ButtonSecondaryCircle(
                             icon = R.drawable.ic_arrow_down_left_24,
                             contentDescription = stringResource(R.string.Balance_Receive),
                             onClick = {
@@ -234,7 +234,7 @@ fun BalanceItems(
                             },
                         )
                         HSpacer(8.dp)
-                        ButtonPrimaryCircle(
+                        ButtonSecondaryCircle(
                             icon = R.drawable.ic_swap_24,
                             contentDescription = stringResource(R.string.Swap),
                             onClick = {

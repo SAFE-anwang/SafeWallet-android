@@ -95,7 +95,6 @@ class TokenBalanceViewModel(
     }
 
     private fun updateTransactions(items: List<TransactionItem>) {
-        Log.e("longwen", "updateTransactions item=${items.size}")
         transactions = items
             .map { transactionViewItem2Factory.convertToViewItemCached(it) }
             .groupBy { it.formattedDate }

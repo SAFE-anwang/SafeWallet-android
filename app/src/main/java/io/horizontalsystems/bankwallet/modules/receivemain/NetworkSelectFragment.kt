@@ -158,7 +158,6 @@ fun NetworkCell(
     RowUniversal(
         onClick = onClick
     ) {
-        Log.e("longwen", "title=$title, subtitle=$subtitle, uid=$uid")
         if (uid == "safe-coin") {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,

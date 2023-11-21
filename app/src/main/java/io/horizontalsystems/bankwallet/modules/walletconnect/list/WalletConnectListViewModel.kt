@@ -67,7 +67,6 @@ class WalletConnectListViewModel(
     }
 
     fun setConnectionUri(uri: String) {
-        Log.e("connectWallet", "setConnectionUri=$uri")
         connectionResult = when (WalletConnectListModule.getVersionFromUri(uri)) {
             2 -> {
                 wc2Service.pair(uri)
