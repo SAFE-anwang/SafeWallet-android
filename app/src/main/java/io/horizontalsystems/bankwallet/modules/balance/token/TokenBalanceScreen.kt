@@ -53,6 +53,7 @@ import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequi
 import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
@@ -64,6 +65,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonThirdCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
@@ -357,7 +359,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             )
         } else {
             ButtonPrimaryYellowWithIcon(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(40.dp),
                 icon = R.drawable.ic_arrow_up_right_24,
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
@@ -377,7 +379,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 enabled = viewItem.sendEnabled
             )
             Spacer(modifier = Modifier.width(8.dp))
-            ButtonSecondaryCircle(
+            ButtonThirdCircle(
                 icon = R.drawable.ic_arrow_down_left_24,
                 contentDescription = stringResource(R.string.Balance_Receive),
                 onClick = onClickReceive,
@@ -386,10 +388,13 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 Spacer(modifier = Modifier.width(8.dp))
                 HsIconButton(
                         onClick = {
-                            navController.slideFromRight(R.id.listLiquidity)
+                            navController.slideFromRight(
+                                R.id.liquidityFragment,
+                                LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                            )
                         },
                         modifier = Modifier
-                                .size(28.dp)
+                                .size(40.dp)
                                 .clip(CircleShape)
                                 .background(
                                         if (App.localStorage.currentTheme == ThemeType.Blue)
@@ -406,7 +411,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                ButtonSecondaryCircle(
+                ButtonThirdCircle(
                     icon = R.drawable.ic_swap_24,
                     contentDescription = stringResource(R.string.Swap),
                     onClick = {
@@ -420,7 +425,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             }
         }
         Spacer(modifier = Modifier.width(8.dp))
-        ButtonSecondaryCircle(
+        ButtonThirdCircle(
             icon = R.drawable.ic_chart_24,
             contentDescription = stringResource(R.string.Coin_Info),
             enabled = !viewItem.wallet.token.isCustom,

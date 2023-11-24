@@ -66,7 +66,8 @@ class DAppBrowseFragment: BaseFragment(){
     private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
-    private val openWalletConnectRequestLiveEvent = SingleLiveEvent<Long>()
+//    private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
+    private val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
     private val errorLiveEvent = SingleLiveEvent<String?>()
 
     private var autoConnect = true
@@ -160,12 +161,32 @@ class DAppBrowseFragment: BaseFragment(){
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             callback)
-        openWalletConnectRequestLiveEvent.observe(viewLifecycleOwner, Observer {requestId ->
-            findNavController().slideFromBottom(
-                    R.id.wc2RequestFragment,
-                    WC2RequestFragment.prepareParams(requestId)
-            )
-            /*when (it) {
+        /*openRequestLiveEvent.observe(viewLifecycleOwner, Observer {
+            *//*val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
+                WalletConnectModule.Factory2(
+                    wc1Service!!
+                )
+            }*//*
+            when (it) {
+                is WC1SendEthereumTransactionRequest -> {
+//                    baseViewModel.sharedSendEthereumTransactionRequest = it
+
+                    findNavController().slideFromRight(
+                        R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
+                    )
+                }
+                is WC1SignMessageRequest -> {
+                    Log.e("connectWallet", "navigation sign message")
+//                    baseViewModel.sharedSignMessageRequest = it
+
+                    findNavController().slideFromRight(
+                        R.id.mainFragment_to_wcSignMessageRequestFragment
+                    )
+                }
+            }
+        })*/
+        openWalletConnectRequestLiveEvent.observe(viewLifecycleOwner, Observer {
+            when (it) {
                 is WC2SignMessageRequest -> {
                     findNavController().slideFromBottom(
                         R.id.wc2SignMessageRequestFragment,
@@ -178,7 +199,7 @@ class DAppBrowseFragment: BaseFragment(){
                         WC2SendEthereumTransactionRequestFragment.prepareParams(it.id)
                     )
                 }
-            }*/
+            }
         })
         errorLiveEvent.observe(viewLifecycleOwner, Observer { errorMsg ->
             errorMsg?.let {
@@ -295,10 +316,7 @@ class DAppBrowseFragment: BaseFragment(){
         if (isConnecting) return
         isConnecting = true
         when {
-            connectionLink.contains("@1?") -> {
-
-            }
-//            connectionLink.contains("@2/wc?") -> {}
+            connectionLink.contains("@1?") -> {}
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
         }
     }
@@ -365,7 +383,7 @@ class DAppBrowseFragment: BaseFragment(){
             .let {
                 disposables.add(it)
             }
-        App.wc2SessionManager.pendingRequestObservable
+        App.wc2SessionManager.pendingRequestObservable2
             .subscribe{
                 Log.e("connectWallet", "pendingRequestObservable: $it")
                 openWalletConnectRequestLiveEvent.postValue(it)

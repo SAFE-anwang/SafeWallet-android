@@ -134,14 +134,14 @@ fun PasscodeBlock(
                         modifier = Modifier.size(24.dp),
                     )
                 },
-                center = {
+                /*center = {
                     body_leah(
                         text = stringResource(R.string.SettingsSecurity_Biometric_Authentication),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                },
-                end = {
+                },*/
+                    center = {
                     HsSwitch(
                         checked = uiState.biometricsEnabled,
                         onCheckedChange = { enabled ->
