@@ -208,7 +208,7 @@ fun BalanceItems(
                             }
                         )
                         HSpacer(8.dp)
-                        ButtonSecondaryCircle(
+                        ButtonThirdCircle(
                             icon = R.drawable.ic_arrow_down_left_24,
                             contentDescription = stringResource(R.string.Balance_Receive),
                             onClick = {
@@ -232,14 +232,16 @@ fun BalanceItems(
                                     null -> Unit
                                 }
                             },
+                                height = ButtonPrimaryDefaults.MinHeight
                         )
                         HSpacer(8.dp)
-                        ButtonSecondaryCircle(
+                        ButtonThirdCircle(
                             icon = R.drawable.ic_swap_24,
                             contentDescription = stringResource(R.string.Swap),
                             onClick = {
                                 navController.slideFromRight(R.id.swapTokenSelectFragment)
-                            }
+                            },
+                                height = ButtonPrimaryDefaults.MinHeight
                         )
                     }
                     VSpacer(12.dp)
