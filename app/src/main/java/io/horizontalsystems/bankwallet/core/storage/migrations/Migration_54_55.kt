@@ -23,7 +23,7 @@ object Migration_54_55 : Migration(54, 55) {
         val tokenQueryId = "$blockchainTypeId|native"
         val coinSettingsId = "derivation:$derivation"
         val newTokenQueryId = "$blockchainTypeId|derived:${derivation.replaceFirstChar(Char::titlecase)}"
-        database.execSQL("UPDATE `EnabledWallet` SET tokenQueryId = '$newTokenQueryId' WHERE tokenQueryId = '$tokenQueryId' AND coinSettingsId = '$coinSettingsId'")
+//        database.execSQL("UPDATE `EnabledWallet` SET tokenQueryId = '$newTokenQueryId' WHERE tokenQueryId = '$tokenQueryId' AND coinSettingsId = '$coinSettingsId'")
 
 
 
