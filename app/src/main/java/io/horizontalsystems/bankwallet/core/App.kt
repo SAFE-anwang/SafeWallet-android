@@ -289,6 +289,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         val proFeaturesStorage = ProFeaturesStorage(appDatabase)
         proFeatureAuthorizationManager = ProFeaturesAuthorizationManager(proFeaturesStorage, accountManager, appConfigProvider)
 
+        vpnServerStorage = VpnServerStorage(appDatabase)
+
         enabledWalletsStorage = EnabledWalletsStorage(appDatabase)
         walletStorage = WalletStorage(marketKit, enabledWalletsStorage)
 
@@ -300,6 +302,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         solanaKitManager = SolanaKitManager(appConfigProvider, solanaRpcSourceManager, solanaWalletManager, backgroundManager)
 
         tronKitManager = TronKitManager(appConfigProvider, backgroundManager)
+
+        blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
 
         wordsManager = WordsManager(Mnemonic())
         networkManager = NetworkManager()
@@ -417,14 +421,14 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         releaseNotesManager = ReleaseNotesManager(systemInfoManager, localStorage, appConfigProvider)
 
+        binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
+
         setAppTheme()
 
         val nftStorage = NftStorage(appDatabase.nftDao(), marketKit)
         nftMetadataManager = NftMetadataManager(marketKit, appConfigProvider, nftStorage)
         nftAdapterManager = NftAdapterManager(walletManager, evmBlockchainManager)
         nftMetadataSyncer = NftMetadataSyncer(nftAdapterManager, nftMetadataManager, nftStorage)
-        contactsRepository = ContactsRepository(marketKit)
-        startTasks()
 
         initializeWalletConnectV2(appConfig)
 
@@ -435,6 +439,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         balanceViewTypeManager = BalanceViewTypeManager(localStorage)
         balanceHiddenManager = BalanceHiddenManager(localStorage, backgroundManager)
 
+        contactsRepository = ContactsRepository(marketKit)
         cexProviderManager = CexProviderManager(accountManager)
         cexAssetManager = CexAssetManager(marketKit, appDatabase.cexAssetsDao())
         chartIndicatorManager = ChartIndicatorManager(appDatabase.chartIndicatorSettingsDao(), localStorage)
@@ -479,6 +484,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
         SafeInfoManager.startNet()
 
+        startTasks()
     }
 
     override fun newImageLoader(): ImageLoader {
