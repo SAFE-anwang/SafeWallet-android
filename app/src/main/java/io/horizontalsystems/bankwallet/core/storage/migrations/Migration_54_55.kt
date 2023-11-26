@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.util.Log
 object Migration_54_55 : Migration(54, 55) {
     override fun migrate(database: SupportSQLiteDatabase) {
         val derivations = listOf("bip44", "bip49", "bip84", "bip86")
-        val blockchainTypes = listOf("bitcoin", "litecoin", "safe-coin")
+        val blockchainTypes = listOf("bitcoin", "litecoin")
 
         blockchainTypes.forEach { blockchainTypeId ->
             derivations.forEach { derivation ->
