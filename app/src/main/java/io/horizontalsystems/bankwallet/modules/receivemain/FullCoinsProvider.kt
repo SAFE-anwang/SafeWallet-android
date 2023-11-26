@@ -45,38 +45,42 @@ class FullCoinsProvider(
     }
 
     fun getItems(): List<FullCoin> {
-        val tmpQuery = query
+        try {
+            val tmpQuery = query
 
-        val (customTokens, regularTokens) = predefinedTokens.partition { it.isCustom }
+            val (customTokens, regularTokens) = predefinedTokens.partition { it.isCustom }
 
-        val fullCoins = if (tmpQuery.isNullOrBlank()) {
-            val coinUids = regularTokens.map { it.coin.uid }
-            customTokens.map { it.fullCoin } + marketKit.fullCoins(coinUids)
-        } else if (isContractAddress(tmpQuery)) {
-            val customFullCoins = customTokens
-                .filter {
-                    val type = it.type
-                    type is TokenType.Eip20 && type.address.contains(tmpQuery, true)
-                }
-                .map { it.fullCoin }
+            val fullCoins = if (tmpQuery.isNullOrBlank()) {
+                val coinUids = regularTokens.map { it.coin.uid }
+                customTokens.map { it.fullCoin } + marketKit.fullCoins(coinUids)
+            } else if (isContractAddress(tmpQuery)) {
+                val customFullCoins = customTokens
+                    .filter {
+                        val type = it.type
+                        type is TokenType.Eip20 && type.address.contains(tmpQuery, true)
+                    }
+                    .map { it.fullCoin }
 
-            customFullCoins + marketKit.tokens(tmpQuery).map { it.fullCoin }
-        } else {
-            val customFullCoins = customTokens
-                .filter {
-                    val coin = it.coin
-                    coin.name.contains(tmpQuery, true) || coin.code.contains(tmpQuery, true)
-                }
-                .map { it.fullCoin }
+                customFullCoins + marketKit.tokens(tmpQuery).map { it.fullCoin }
+            } else {
+                val customFullCoins = customTokens
+                    .filter {
+                        val coin = it.coin
+                        coin.name.contains(tmpQuery, true) || coin.code.contains(tmpQuery, true)
+                    }
+                    .map { it.fullCoin }
 
-            customFullCoins + marketKit.fullCoins(tmpQuery, 100)
-        }
-
-        return fullCoins
-            .sortedByFilter(tmpQuery ?: "")
-            .sortedByDescending { fullCoin ->
-                activeWallets.any { it.coin == fullCoin.coin }
+                customFullCoins + marketKit.fullCoins(tmpQuery, 100)
             }
+
+            return fullCoins
+                .sortedByFilter(tmpQuery ?: "")
+                .sortedByDescending { fullCoin ->
+                    activeWallets.any { it.coin == fullCoin.coin }
+                }
+        } catch (e: Exception) {
+        }
+        return listOf()
     }
 
     private fun isContractAddress(filter: String) = try {
