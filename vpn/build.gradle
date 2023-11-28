@@ -39,6 +39,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.v2ray.ang'
 }
 
 dependencies {

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsModule
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.ContactsViewModel
@@ -277,7 +278,9 @@ fun ContactsScreen(
                 if (showMoreSelectorDialog) {
                     SelectorDialogCompose(
                         title = stringResource(R.string.Contacts_ActionMore),
-                        items = ContactsModule.ContactsAction.values().map { (TabItem(stringResource(it.title), false, it)) },
+                        items = ContactsModule.ContactsAction.values().map {
+                            (SelectorItem(stringResource(it.title), false, it))
+                        },
                         onDismissRequest = {
                             showMoreSelectorDialog = false
                         },
@@ -294,6 +297,7 @@ fun ContactsScreen(
                                     }
                                 }
                                 ContactsModule.ContactsAction.Backup -> {
+                                    App.pinComponent.keepUnlocked()
                                     backupLauncher.launch(viewModel.backupFileName)
                                 }
                             }

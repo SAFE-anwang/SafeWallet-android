@@ -14,7 +14,7 @@ object FeeRateProviderFactory {
             is BlockchainType.Litecoin -> LitecoinFeeRateProvider(feeRateProvider)
             is BlockchainType.Dogecoin -> DogecoinFeeRateProvider(feeRateProvider)
             is BlockchainType.BitcoinCash -> BitcoinCashFeeRateProvider(feeRateProvider)
-            is BlockchainType.ECash -> ECashFeeRateProvider(feeRateProvider)
+            is BlockchainType.ECash -> ECashFeeRateProvider()
             is BlockchainType.Dash -> DashFeeRateProvider(feeRateProvider)
             is BlockchainType.Safe -> SafeFeeRateProvider(feeRateProvider)
             else -> null

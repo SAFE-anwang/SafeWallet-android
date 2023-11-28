@@ -22,7 +22,7 @@ import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModul
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BlockViewItem
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.IconTitle
-import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.RatingValue
+import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.OverallScoreValue
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.Title
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.TitleWithInfo
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.BoxItem.Value
@@ -31,6 +31,11 @@ import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModul
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.PreviewBlockViewItem
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.PreviewChartType
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.RankType
+import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.ScoreCategory
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.CoinIndicatorViewItemFactory
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorData
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorService
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorService.SectionItem
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.metricchart.ProChartModule
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -42,14 +47,19 @@ import io.horizontalsystems.marketkit.models.Analytics
 import io.horizontalsystems.marketkit.models.AnalyticsPreview
 import io.horizontalsystems.marketkit.models.ChartPoint
 import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class CoinAnalyticsViewModel(
     private val service: CoinAnalyticsService,
+    private val indicatorsService: TechnicalIndicatorService,
+    private val indicatorFactory: CoinIndicatorViewItemFactory,
     private val numberFormatter: IAppNumberFormatter,
     private val code: String
 ) : ViewModel() {
@@ -62,7 +72,10 @@ class CoinAnalyticsViewModel(
 
     private var viewState: ViewState = ViewState.Loading
     private var analyticsViewItem: AnalyticsViewItem? = null
+    private var cachedAnalyticData: CoinAnalyticsService.AnalyticData? = null
     private var isRefreshing = false
+    private var technicalIndicators = listOf<TechnicalIndicatorData>()
+    private var techIndicatorPeriod: HsPointTimePeriod = HsPointTimePeriod.Day1
 
     var uiState by mutableStateOf(CoinAnalyticsModule.UiState(viewState))
         private set
@@ -78,6 +91,7 @@ class CoinAnalyticsViewModel(
 
                     is DataState.Success -> {
                         viewState = ViewState.Success
+                        cachedAnalyticData = state.data
                         analyticsViewItem = viewItem(state.data)
                         syncState()
                     }
@@ -95,6 +109,8 @@ class CoinAnalyticsViewModel(
         viewModelScope.launch {
             service.start()
         }
+
+        fetchTechnicalIndicators()
     }
 
     fun refresh() {
@@ -110,6 +126,39 @@ class CoinAnalyticsViewModel(
 
     override fun onCleared() {
         disposables.clear()
+    }
+
+    fun onPeriodChange(period: HsPointTimePeriod) {
+        techIndicatorPeriod = period
+        syncState()
+        fetchTechnicalIndicators()
+    }
+
+    private fun fetchTechnicalIndicators() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = indicatorsService.fetch(techIndicatorPeriod)
+            handle(result)
+        }
+    }
+
+    private suspend fun handle(result: DataState<List<SectionItem>>?) {
+        when (result) {
+            is DataState.Success -> {
+                technicalIndicators = indicatorFactory.viewItems(result.data)
+            }
+
+            is DataState.Error -> {
+            }
+
+            DataState.Loading -> {}
+            null -> {}
+        }
+        withContext(Dispatchers.Main) {
+            cachedAnalyticData?.let {
+                analyticsViewItem = viewItem(it)
+            }
+            syncState()
+        }
     }
 
     private fun syncState() {
@@ -140,10 +189,30 @@ class CoinAnalyticsViewModel(
 
     private fun getViewItems(analytics: Analytics): List<BlockViewItem> {
         val blocks = mutableListOf<BlockViewItem>()
+
+        if (technicalIndicators.isNotEmpty()) {
+            blocks.add(
+                BlockViewItem(
+                    title = R.string.Coin_Analytics_TechnicalIndicators,
+                    info = AnalyticInfo.TechnicalIndicatorsInfo,
+                    analyticChart = ChartViewItem(
+                        AnalyticChart.TechIndicators(technicalIndicators, techIndicatorPeriod),
+                        coin.uid,
+                    ),
+                    footerItems = listOf(
+                        FooterItem(
+                            title = Title(ResString(R.string.Coin_Analytics_Details)),
+                            action = ActionType.OpenTechnicalIndicatorsDetails(coin.uid, techIndicatorPeriod)
+                        )
+                    )
+                )
+            )
+        }
+
         analytics.cexVolume?.let { data ->
             val footerItems = mutableListOf<FooterItem>()
             data.rating?.let { rating ->
-                getRatingFooterItem(rating)?.let {
+                getRatingFooterItem(rating, ScoreCategory.CexScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -168,7 +237,7 @@ class CoinAnalyticsViewModel(
         analytics.dexVolume?.let { data ->
             val footerItems = mutableListOf<FooterItem>()
             data.rating?.let { rating ->
-                getRatingFooterItem(rating)?.let {
+                getRatingFooterItem(rating, ScoreCategory.DexVolumeScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -190,10 +259,39 @@ class CoinAnalyticsViewModel(
                 )
             )
         }
+        analytics.tvl?.let { data ->
+            val footerItems = mutableListOf<FooterItem>()
+            data.ratio?.let {
+                footerItems.add(
+                    FooterItem(
+                        title = Title(ResString(R.string.Coin_Analytics_Rank)),
+                        value = data.rank?.let { Value(getRank(it)) },
+                        action = ActionType.OpenTvl
+                    ),
+                )
+                footerItems.add(
+                    FooterItem(
+                        title = Title(ResString(R.string.CoinAnalytics_TvlRatio)),
+                        value = Value(numberFormatter.format(it, 2, 2))
+                    )
+                )
+            }
+            blocks.add(
+                BlockViewItem(
+                    title = R.string.CoinAnalytics_ProjectTvl,
+                    info = AnalyticInfo.TvlInfo,
+                    value = getFormattedValue(data.points.last().tvl, currency),
+                    valuePeriod = getValuePeriod(true),
+                    analyticChart = getChartViewItem(data.chartPoints(), ChartViewType.Line, ProChartModule.ChartType.Tvl),
+                    footerItems = footerItems
+                )
+            )
+        }
+
         analytics.dexLiquidity?.let { data ->
             val footerItems = mutableListOf<FooterItem>()
             data.rating?.let { rating ->
-                getRatingFooterItem(rating)?.let {
+                getRatingFooterItem(rating, ScoreCategory.DexLiquidityScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -219,7 +317,7 @@ class CoinAnalyticsViewModel(
             val chartValue = formatNumberShort(data.points.last().count.toBigDecimal())
             val footerItems = mutableListOf<FooterItem>()
             data.rating?.let { rating ->
-                getRatingFooterItem(rating)?.let {
+                getRatingFooterItem(rating, ScoreCategory.AddressesScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -250,7 +348,7 @@ class CoinAnalyticsViewModel(
         analytics.transactions?.let { data ->
             val footerItems = mutableListOf<FooterItem>()
             data.rating?.let { rating ->
-                getRatingFooterItem(rating)?.let {
+                getRatingFooterItem(rating, ScoreCategory.TransactionCountScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -284,7 +382,7 @@ class CoinAnalyticsViewModel(
             val footerItems = mutableListOf<FooterItem>()
             val chartSlices = mutableListOf<StackBarSlice>()
             analytics.holdersRating?.let { holdersRating ->
-                getRatingFooterItem(holdersRating)?.let {
+                getRatingFooterItem(holdersRating, ScoreCategory.HoldersScoreCategory)?.let {
                     footerItems.add(it)
                 }
             }
@@ -326,34 +424,6 @@ class CoinAnalyticsViewModel(
                     value = getFormattedSum(listOf(total)),
                     valuePeriod = getValuePeriod(true),
                     analyticChart = ChartViewItem(AnalyticChart.StackedBars(chartSlices), coin.uid),
-                    footerItems = footerItems
-                )
-            )
-        }
-        analytics.tvl?.let { data ->
-            val footerItems = mutableListOf<FooterItem>()
-            data.ratio?.let {
-                footerItems.add(
-                    FooterItem(
-                        title = Title(ResString(R.string.Coin_Analytics_Rank)),
-                        value = data.rank?.let { Value(getRank(it)) },
-                        action = ActionType.OpenTvl
-                    ),
-                )
-                footerItems.add(
-                    FooterItem(
-                        title = Title(ResString(R.string.CoinAnalytics_TvlRatio)),
-                        value = Value(numberFormatter.format(it, 2, 2))
-                    )
-                )
-            }
-            blocks.add(
-                BlockViewItem(
-                    title = R.string.CoinAnalytics_ProjectTvl,
-                    info = AnalyticInfo.TvlInfo,
-                    value = getFormattedValue(data.points.last().tvl, currency),
-                    valuePeriod = getValuePeriod(true),
-                    analyticChart = getChartViewItem(data.chartPoints(), ChartViewType.Line, ProChartModule.ChartType.Tvl),
                     footerItems = footerItems
                 )
             )
@@ -448,11 +518,11 @@ class CoinAnalyticsViewModel(
         return blocks
     }
 
-    private fun getRatingFooterItem(ratingString: String?): FooterItem? {
-        return CoinAnalyticsModule.Rating.fromString(ratingString)?.let { rating ->
+    private fun getRatingFooterItem(ratingString: String?, scoreCategory: ScoreCategory): FooterItem? {
+        return CoinAnalyticsModule.OverallScore.fromString(ratingString)?.let { rating ->
             FooterItem(
-                title = TitleWithInfo(ResString(R.string.Coin_Analytics_RatingScale), ActionType.OpenRatingScaleInfo),
-                value = RatingValue(rating),
+                title = TitleWithInfo(ResString(R.string.Coin_Analytics_OverallScore), ActionType.OpenOverallScoreInfo(scoreCategory)),
+                value = OverallScoreValue(rating),
             )
         }
     }
@@ -821,7 +891,7 @@ class CoinAnalyticsViewModel(
     }
 
     private val ratingPreviewFooterItem = FooterItem(
-        title = TitleWithInfo(ResString(R.string.Coin_Analytics_RatingScale), ActionType.OpenRatingScaleInfo),
+        title = TitleWithInfo(ResString(R.string.Coin_Analytics_OverallScore), ActionType.OpenOverallScoreInfo(ScoreCategory.HoldersScoreCategory)),
         value = BoxItem.Dots,
         action = null
     )

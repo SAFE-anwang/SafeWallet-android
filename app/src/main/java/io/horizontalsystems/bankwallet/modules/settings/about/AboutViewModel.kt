@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ITermsManager
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
@@ -22,12 +21,11 @@ class AboutViewModel(
     val githubLink = appConfigProvider.appGithubLink
     val appWebPageLink = appConfigProvider.appWebPageLink
     val twitterLink = appConfigProvider.appTwitterLink
-    val reportEmail = appConfigProvider.reportEmail
     val appVersion: String
         get() {
             var appVersion = systemInfoManager.appVersion
             if (Translator.getString(R.string.is_release) == "false") {
-                appVersion += " (${BuildConfig.VERSION_CODE})"
+                appVersion += " (${appConfigProvider.appBuild})"
             }
 
             return appVersion

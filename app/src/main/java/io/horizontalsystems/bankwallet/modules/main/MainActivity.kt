@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
@@ -37,6 +39,10 @@ class MainActivity : BaseActivity() {
         WC2MainViewModel.Factory()
     }
 
+    private val viewModel by viewModels<MainActivityViewModel> {
+        MainActivityViewModel.Factory()
+    }
+
     private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 VpnConnectService.startVpn(this)
@@ -51,30 +57,40 @@ class MainActivity : BaseActivity() {
         }
         setContentView(R.layout.activity_main)
 
-        val navHost =
-            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navController = navHost.navController
 
-        navHost.navController.setGraph(R.navigation.main_graph, intent.extras)
-        navHost.navController.addOnDestinationChangedListener(this)
-
+        navController.setGraph(R.navigation.main_graph, intent.extras)
+        navController.addOnDestinationChangedListener(this)
 
         wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
             if (!MainModule.isOpenDapp) {
-                navHost.navController.slideFromBottom(R.id.wc2SessionFragment)
+                navController.slideFromBottom(R.id.wc2SessionFragment)
             }
         }
         wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
-            navHost.navController.slideFromBottom(
+            navController.slideFromBottom(
                 R.id.wc2RequestFragment,
                 WC2RequestFragment.prepareParams(requestId)
             )
+        }
+
+        viewModel.navigateToMainLiveData.observe(this) {
+            if (it) {
+                navController.popBackStack(navController.graph.startDestinationId, false)
+                viewModel.onNavigatedToMain()
+            }
         }
 
         val filter = IntentFilter()
         filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
         filter.addAction("com.anwang.safe.connect")
         filter.addAction("com.anwang.safe.reconnect")
-        registerReceiver(mMsgReceiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(mMsgReceiver, filter, RECEIVER_NOT_EXPORTED)
+        }else {
+            registerReceiver(mMsgReceiver, filter)
+        }
 
         startVpn()
     }

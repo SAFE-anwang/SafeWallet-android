@@ -34,8 +34,10 @@ import io.horizontalsystems.bankwallet.modules.coin.majorholders.CoinMajorHolder
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.coin.ranks.CoinRankFragment
 import io.horizontalsystems.bankwallet.modules.coin.reports.CoinReportsFragment
+import io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorsDetailsFragment
 import io.horizontalsystems.bankwallet.modules.coin.treasuries.CoinTreasuriesFragment
 import io.horizontalsystems.bankwallet.modules.info.CoinAnalyticsInfoFragment
+import io.horizontalsystems.bankwallet.modules.info.OverallScoreInfoFragment
 import io.horizontalsystems.bankwallet.modules.metricchart.ProChartFragment
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
@@ -46,6 +48,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.StackedBarChart
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.marketkit.models.FullCoin
+import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 
 @Composable
 fun CoinAnalyticsScreen(
@@ -83,7 +86,12 @@ fun CoinAnalyticsScreen(
                         }
 
                         is AnalyticsViewItem.Analytics -> {
-                            AnalyticsData(item.blocks, navController, fragmentManager)
+                            AnalyticsData(
+                                item.blocks,
+                                navController,
+                                fragmentManager,
+                                { viewModel.onPeriodChange(it) }
+                            )
                         }
 
                         null -> {
@@ -104,14 +112,16 @@ fun CoinAnalyticsScreen(
 private fun AnalyticsData(
     blocks: List<CoinAnalyticsModule.BlockViewItem>,
     navController: NavController,
-    fragmentManager: FragmentManager
+    fragmentManager: FragmentManager,
+    onPeriodChange: (HsPointTimePeriod) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(blocks) { block ->
             AnalyticsBlock(
                 block,
                 navController,
-                fragmentManager
+                fragmentManager,
+                onPeriodChange
             )
         }
         item {
@@ -139,7 +149,8 @@ private fun AnalyticsDataPreview(
 private fun AnalyticsBlock(
     block: CoinAnalyticsModule.BlockViewItem,
     navController: NavController,
-    fragmentManager: FragmentManager
+    fragmentManager: FragmentManager,
+    onPeriodChange: (HsPointTimePeriod) -> Unit
 ) {
     AnalyticsContainer(
         showFooterDivider = block.showFooterDivider,
@@ -197,10 +208,11 @@ private fun AnalyticsBlock(
             }
             block.analyticChart?.let { chartViewItem ->
                 VSpacer(12.dp)
-                AnalyticsChart(chartViewItem.analyticChart)
-            }
-            if (block.value != null || block.analyticChart != null) {
-                VSpacer(12.dp)
+                AnalyticsChart(
+                    chartViewItem.analyticChart,
+                    navController,
+                    onPeriodChange
+                )
             }
         }
     }
@@ -250,16 +262,22 @@ private fun FooterCell(
                     navController.slideFromBottom(R.id.coinRankFragment, arguments)
                 }
 
+                is CoinAnalyticsModule.ActionType.OpenOverallScoreInfo -> {
+                    val params = OverallScoreInfoFragment.prepareParams(action.scoreCategory)
+                    navController.slideFromRight(R.id.overallScoreInfoFragment, params)
+                }
+
                 CoinAnalyticsModule.ActionType.OpenTvl -> {
                     navController.slideFromBottom(R.id.tvlFragment)
                 }
 
-                CoinAnalyticsModule.ActionType.OpenRatingScaleInfo -> {
-                    navController.slideFromRight(R.id.ratingScaleInfoFragment)
-                }
-
                 CoinAnalyticsModule.ActionType.Preview -> {
                     navController.slideFromBottom(R.id.subscriptionInfoFragment)
+                }
+
+                is CoinAnalyticsModule.ActionType.OpenTechnicalIndicatorsDetails -> {
+                    val params = TechnicalIndicatorsDetailsFragment.prepareParams(action.coinUid, action.period)
+                    navController.slideFromRight(R.id.technicalIndicatorsDetailsFragment, params)
                 }
             }
         }
@@ -314,6 +332,8 @@ private fun AnalyticsPreviewBlock(block: CoinAnalyticsModule.PreviewBlockViewIte
             } else {
                 AnalyticsChart(
                     CoinAnalyticsModule.zigzagPlaceholderAnalyticChart(chartType == CoinAnalyticsModule.PreviewChartType.Line),
+                    navController,
+                    {},
                 )
             }
         }

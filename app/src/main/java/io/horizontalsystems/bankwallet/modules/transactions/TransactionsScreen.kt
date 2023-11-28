@@ -86,7 +86,7 @@ fun TransactionsScreen(
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
             AppBar(
-                title = TranslatableString.ResString(R.string.Transactions_Title),
+                title = stringResource(R.string.Transactions_Title),
                 showSpinner = syncing,
                 navigationIcon = {
                     IconButton(onClick = {
@@ -123,7 +123,7 @@ fun TransactionsScreen(
                         SelectorDialogCompose(
                             title = stringResource(R.string.Transactions_Filter_Blockchain),
                             items = filterBlockchains.map {
-                                TabItem(it.item?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains), it.selected, it)
+                                SelectorItem(it.item?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains), it.selected, it)
                             },
                             onDismissRequest = {
                                 showFilterBlockchainDialog = false
@@ -137,7 +137,7 @@ fun TransactionsScreen(
                             SelectorDialogCompose(
                                 title = stringResource(R.string.Zero_Transactions_Filter),
                                 items = filterZeroTransactions.map {
-                                    TabItem(it.item, it.selected, it)
+                                    SelectorItem(it.item, it.selected, it)
                                 },
                                 onDismissRequest = {
                                     showFilterTransaction = false
@@ -192,7 +192,7 @@ fun TransactionsScreen(
                 }
             }
 
-            Crossfade(viewState) { viewState ->
+            Crossfade(viewState, label = "") { viewState ->
                 when (viewState) {
                     ViewState.Success -> {
                         transactions?.let { transactionItems ->
@@ -222,14 +222,17 @@ fun TransactionsScreen(
                                 ) {
                                     LazyListState(0, 0)
                                 }
-
-                                TransactionList(
-                                    listState = listState,
-                                    transactionsMap = transactionItems,
-                                    willShow = { viewModel.willShow(it) },
-                                    onClick = { onTransactionClick(it, viewModel, navController) },
-                                    onBottomReached = { viewModel.onBottomReached() }
-                                )
+                                LazyColumn(state = listState,
+                                        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+                                                .clip(RoundedCornerShape(16.dp))
+                                                .background(ComposeAppTheme.colors.lawrence)) {
+                                    transactionList(
+                                        transactionsMap = transactionItems,
+                                        willShow = { viewModel.willShow(it) },
+                                        onClick = { onTransactionClick(it, viewModel, navController) },
+                                        onBottomReached = { viewModel.onBottomReached() }
+                                    )
+                                }
                             }
                         }
                     }
@@ -257,9 +260,7 @@ private fun onTransactionClick(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun TransactionList(
-    listState: LazyListState = rememberLazyListState(),
+fun LazyListScope.transactionList(
     transactionsMap: Map<String, List<TransactionViewItem>>,
     willShow: (TransactionViewItem) -> Unit,
     onClick: (TransactionViewItem) -> Unit,
@@ -267,45 +268,40 @@ fun TransactionList(
 ) {
     val bottomReachedUid = getBottomReachedUid(transactionsMap)
 
-    LazyColumn(state = listState,
-        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(ComposeAppTheme.colors.lawrence)) {
-        transactionsMap.forEach { (dateHeader, transactions) ->
-            stickyHeader {
-                DateHeader(dateHeader)
+    transactionsMap.forEach { (dateHeader, transactions) ->
+        stickyHeader {
+            DateHeader(dateHeader)
+        }
+
+        val itemsCount = transactions.size
+        val singleElement = itemsCount == 1
+
+        itemsIndexed(transactions) { index, item ->
+            val position: SectionItemPosition = when {
+                singleElement -> SectionItemPosition.Single
+                index == 0 -> SectionItemPosition.First
+                index == itemsCount - 1 -> SectionItemPosition.Last
+                else -> SectionItemPosition.Middle
             }
 
-            val itemsCount = transactions.size
-            val singleElement = itemsCount == 1
-
-            itemsIndexed(transactions) { index, item ->
-                val position: SectionItemPosition = when {
-                    singleElement -> SectionItemPosition.Single
-                    index == 0 -> SectionItemPosition.First
-                    index == itemsCount - 1 -> SectionItemPosition.Last
-                    else -> SectionItemPosition.Middle
-                }
-
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    TransactionCell(item, position) { onClick.invoke(item) }
-                }
-
-                willShow.invoke(item)
-
-                if (item.uid == bottomReachedUid) {
-                    onBottomReached.invoke()
-                }
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                TransactionCell(item, position) { onClick.invoke(item) }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
+            willShow.invoke(item)
+
+            if (item.uid == bottomReachedUid) {
+                onBottomReached.invoke()
             }
         }
 
         item {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
+    }
+
+    item {
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -358,6 +354,7 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                 .fillMaxSize()
                 .then(clipModifier)
                 .then(borderModifier)
+                .background(ComposeAppTheme.colors.lawrence)
                 .clickable(onClick = onClick),
         ) {
             Box(
@@ -467,15 +464,18 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         maxLines = 1,
                     )
                     Spacer(Modifier.weight(1f))
-                    item.primaryValue?.let { coloredValue ->
-                        Text(
-                            text = coloredValue.value,
-                            style = ComposeAppTheme.typography.body,
-                            color = coloredValue.color.compose(),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        )
+                    if (item.showAmount) {
+                        item.primaryValue?.let { coloredValue ->
+                            Text(
+                                text = coloredValue.value,
+                                style = ComposeAppTheme.typography.body,
+                                color = coloredValue.color.compose(),
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            )
+                        }
                     }
+
                     if (item.doubleSpend) {
                         Image(
                             modifier = Modifier.padding(start = 6.dp),
@@ -507,13 +507,15 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                             .padding(end = 8.dp),
                         maxLines = 2,
                     )
-                    item.secondaryValue?.let { coloredValue ->
-                        Text(
-                            text = coloredValue.value,
-                            style = ComposeAppTheme.typography.subhead2,
-                            color = coloredValue.color.compose(),
-                            maxLines = 1,
-                        )
+                    if (item.showAmount) {
+                        item.secondaryValue?.let { coloredValue ->
+                            Text(
+                                text = coloredValue.value,
+                                style = ComposeAppTheme.typography.subhead2,
+                                color = coloredValue.color.compose(),
+                                maxLines = 1,
+                            )
+                        }
                     }
                 }
             }

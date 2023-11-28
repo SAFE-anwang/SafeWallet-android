@@ -50,6 +50,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionSta
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
+import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSettingsFragment
@@ -64,12 +65,12 @@ import io.horizontalsystems.bankwallet.modules.swap.ui.SwapError
 import io.horizontalsystems.bankwallet.modules.swap.ui.SwitchCoinsSection
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard.Opened
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
+import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.marketkit.models.*
 import kotlinx.coroutines.launch
 
@@ -91,12 +92,18 @@ class SwapMainFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
+                val arguments = requireArguments()
+                val swapEntryPointDestId = arguments.getInt(BaseSwapConfirmationFragment.swapEntryPointDestIdKey)
+                val factory = SwapMainModule.Factory(arguments)
+                val mainViewModel: SwapMainViewModel by viewModels { factory }
+                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
                 setContent {
                     ComposeAppTheme {
                         SwapNavHost(
                             findNavController(),
                             mainViewModel,
-                            allowanceViewModel
+                            allowanceViewModel,
+                            swapEntryPointDestId
                         ) {
                             isAutoSetProvider1Inch = false
                         }
@@ -137,6 +144,7 @@ private fun SwapNavHost(
     fragmentNavController: NavController,
     mainViewModel: SwapMainViewModel,
     allowanceViewModel: SwapAllowanceViewModel,
+    swapEntryPointDestId: Int,
     selectSwapTypeCallback: () -> Unit
 ) {
     SwapMainScreen(
@@ -144,6 +152,7 @@ private fun SwapNavHost(
         viewModel = mainViewModel,
         allowanceViewModel = allowanceViewModel,
         onCloseClick = { fragmentNavController.popBackStack() },
+        swapEntryPointDestId = swapEntryPointDestId,
         selectSwapType = selectSwapTypeCallback
     )
 }
@@ -155,6 +164,7 @@ private fun SwapMainScreen(
     viewModel: SwapMainViewModel,
     allowanceViewModel: SwapAllowanceViewModel,
     onCloseClick: () -> Unit,
+    swapEntryPointDestId: Int,
     selectSwapType: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -182,14 +192,11 @@ private fun SwapMainScreen(
         ) {
             Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Swap),
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
-                            onClick = onCloseClick
-                        )
-                    )
+                    title = stringResource(R.string.Swap),
+                    navigationIcon = {
+                        HsBackButton(onClick = { navController.popBackStack() })
+                    },
+                    menuItems = listOf()
                 )
                 Column(
                     modifier = Modifier.weight(1f)
@@ -208,7 +215,8 @@ private fun SwapMainScreen(
                         navController = navController,
                         viewModel = viewModel,
                         allowanceViewModel = allowanceViewModel,
-                        focusManager = focusManager
+                        focusManager = focusManager,
+                        swapEntryPointDestId = swapEntryPointDestId
                     )
                 }
             }
@@ -221,7 +229,8 @@ fun SwapCards(
     navController: NavController,
     viewModel: SwapMainViewModel,
     allowanceViewModel: SwapAllowanceViewModel,
-    focusManager: FocusManager
+    focusManager: FocusManager,
+    swapEntryPointDestId: Int
 ) {
 
     val focusRequester = remember { FocusRequester() }
@@ -374,7 +383,8 @@ fun SwapCards(
                                 R.id.oneInchConfirmationFragment,
                                 OneInchSwapConfirmationFragment.prepareParams(
                                     swapState.dex.blockchainType,
-                                    swapData.data
+                                    swapData.data,
+                                    swapEntryPointDestId
                                 )
                             )
                         }
@@ -387,6 +397,7 @@ fun SwapCards(
                                         swapState.dex,
                                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                                         sendEvmData.additionalInfo,
+                                        swapEntryPointDestId
                                     )
                                 )
                             }
@@ -443,7 +454,7 @@ private fun TopMenu(
             icon = R.drawable.ic_manage_2,
             onClick = {
                 navController.getNavigationResult(SwapMainModule.resultKey) {
-                    val recipient = it.getParcelable<Address>(SwapMainModule.swapSettingsRecipientKey)
+                    val recipient = it.parcelable<Address>(SwapMainModule.swapSettingsRecipientKey)
                     val slippage = it.getString(SwapMainModule.swapSettingsSlippageKey)
                     val ttl = it.getLong(SwapMainModule.swapSettingsTtlKey)
                     viewModel.onUpdateSwapSettings(recipient, slippage?.toBigDecimal(), ttl)

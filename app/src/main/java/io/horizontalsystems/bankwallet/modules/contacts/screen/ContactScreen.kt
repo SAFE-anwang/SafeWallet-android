@@ -32,6 +32,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
 enum class ContactScreenBottomSheetType {
@@ -129,7 +130,7 @@ fun ContactScreen(
                     .background(color = ComposeAppTheme.colors.tyler)
             ) {
                 AppBar(
-                    title = uiState.headerTitle,
+                    title = uiState.headerTitle.getString(),
                     navigationIcon = {
                         HsBackButton {
                             confirmNavigateToBack()
@@ -150,7 +151,7 @@ fun ContactScreen(
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .padding(horizontal = 16.dp),
-                        initial = uiState.contactName,
+                        initial = viewModel.contact.name,
                         pasteEnabled = false,
                         state = uiState.error?.let { DataState.Error(it) },
                         hint = stringResource(R.string.Contacts_NameHint),
@@ -325,16 +326,24 @@ private fun ContactAddress(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClickEdit
     ) {
-        Image(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(32.dp),
-            painter = rememberAsyncImagePainter(
-                model = addressViewItem.blockchain.type.imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-        )
+        if (addressViewItem.blockchain.type is BlockchainType.Safe) {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                            .size(32.dp)
+            )
+        } else {
+            Image(
+                    modifier = Modifier
+                            .padding(end = 16.dp)
+                            .size(32.dp),
+                    painter = rememberAsyncImagePainter(
+                            model = addressViewItem.blockchain.type.imageUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                    ),
+                    contentDescription = null,
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = addressViewItem.blockchain.name)
             subhead2_grey(text = addressViewItem.contactAddress.address)

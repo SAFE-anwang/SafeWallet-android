@@ -11,14 +11,14 @@ apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion compile_sdk_version
 
     defaultConfig {
         applicationId "com.anwang.safewallet"
+        compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 86
-        versionName "0.33.3.1.1017"
+        versionCode 91
+        versionName "0.36.0.1.1128"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -31,6 +31,22 @@ android {
         lintOptions {
             checkReleaseBuilds false
         }
+
+        resValue "string", "companyWebPageLink", "https://www.anwang.com"
+        resValue "string", "appWebPageLink", "https://www.anwang.com"
+        resValue "string", "analyticsLink", "https://unstoppable.money/analytics"
+        resValue "string", "appGithubLink", "https://github.com/SAFE-anwang/SafeWallet-android"
+        resValue "string", "appTwitterLink", "https://twitter.com/safeanwang"
+        resValue "string", "appTelegramLink", "https://t.me/safeanwang"
+        resValue "string", "appRedditLink", "https://www.reddit.com/user/safe_2018"
+        resValue "string", "reportEmail", "foundation@anwang.com"
+        resValue "string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
+        resValue "string", "walletConnectAppMetaDataName", "Safe Wallet"
+        resValue "string", "walletConnectAppMetaDataUrl", "example.wallet"
+        resValue "string", "walletConnectAppMetaDataIcon", "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media"
+        resValue "string", "walletConnectV1PeerMetaName", "SafeWallet"
+        resValue "string", "walletConnectV1PeerMetaUrl", "https://unstoppable.money"
+        resValue "string", "accountsBackupFileSalt", "Safe Wallet"
     }
 
     buildFeatures {
@@ -78,10 +94,12 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/master/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
-            resValue "string", "openSeaApiKey", "cc98f68d836b4c8c8ab8f894b6e2aae8"
+            resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
             resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
+            resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
+            resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -122,10 +140,12 @@ android {
             resValue "string", "providerCoinsJsonUrl", "https://raw.githubusercontent.com/horizontalsystems/cryptocurrencies/v0.21/provider.coins.json"
             resValue "string", "marketApiBaseUrl", "https://api.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
-            resValue "string", "openSeaApiKey", "cc98f68d836b4c8c8ab8f894b6e2aae8"
+            resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
-            resValue "string", "trongridApiKey", "d1511874-1547-48df-9536-a32cc85949ac"
+            resValue "string", "trongridApiKey", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29"
+            resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
+            resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -203,17 +223,17 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.fragment:fragment-ktx:$fragment_ktx_version"
-    implementation "androidx.preference:preference-ktx:1.2.0"
+    implementation "androidx.preference:preference-ktx:1.2.1"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     //Splash screen
     implementation "androidx.core:core-splashscreen:1.0.1"
 
     //AppWidgets
-    implementation 'androidx.glance:glance-appwidget:1.0.0-beta01'
+    implementation 'androidx.glance:glance-appwidget:1.0.0-rc01'
 
     // Room
-    def room_version = '2.5.1'
+    def room_version = '2.5.2'
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
@@ -223,7 +243,7 @@ dependencies {
     // optional - ReactiveStreams support for LiveData
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
-    implementation 'androidx.recyclerview:recyclerview:1.3.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
 
     implementation "com.google.android.material:material:$material_version"
 
@@ -236,7 +256,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation "androidx.biometric:biometric:$biometric_version"
 
@@ -249,7 +269,7 @@ dependencies {
     implementation 'me.relex:circleindicator:2.1.6'
 
     //Custom tabs, chrome
-    implementation "androidx.browser:browser:1.5.0"
+    implementation "androidx.browser:browser:1.6.0"
 
     // Navigation component
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_ktx_version"
@@ -283,10 +303,10 @@ dependencies {
     implementation project(':bitcoin-kit-android:ecashkit')
     implementation project(':bitcoin-kit-android:dogecoinkit')
 
-    implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1.0.0'
+    implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
-    implementation 'com.github.horizontalsystems:solana-kit-android:97dcdba'
-    implementation 'com.github.horizontalsystems:tron-kit-android:1cc0ebe'
+    implementation 'com.github.horizontalsystems:solana-kit-android:5cc6e81'
+    implementation 'com.github.horizontalsystems:tron-kit-android:67f8d53'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
     implementation project(':ethereum-kit-android:ethereumkit')
@@ -300,7 +320,7 @@ dependencies {
     implementation project(':market-kit-android:marketkit')
 
     // Zcash SDK
-    implementation "cash.z.ecc.android:zcash-android-sdk:1.14.0-beta01"
+    implementation "cash.z.ecc.android:zcash-android-sdk:2.0.1"
     implementation("io.github.binance:binance-connector-java:3.0.0rc2") {
         exclude group: "org.bouncycastle", module: "bcprov-jdk18on"
     }
@@ -314,17 +334,15 @@ dependencies {
     implementation 'com.walletconnect:android-core'
 
     // Unstoppable Domains
-    implementation 'com.github.unstoppabledomains:resolution-java:v6.2.2'
+    implementation 'com.github.unstoppabledomains:resolution-java:v7.1.0'
 
     // Ethereum Name Service
     implementation "org.web3j:core:4.9.0"
 
-    // in case native file tor.so not loading, do full gradle clean and build.
-    implementation 'com.github.horizontalsystems:tor-kit-android:13750c4'
     implementation 'com.twitter.twittertext:twitter-text:3.1.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.7.1'
 
     // UI modules
 
@@ -336,9 +354,9 @@ dependencies {
     implementation project(':components:seekbar')
 
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     // Compose Material Design
-    implementation 'androidx.compose.material:material:1.3.1'
+    implementation "androidx.compose.material:material:$compose_version"
     // Animations
     implementation "androidx.compose.animation:animation:$compose_version"
     // Tooling support (Previews, etc.)
@@ -346,22 +364,20 @@ dependencies {
     // Integration with ViewModels
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
-    implementation "androidx.compose.runtime:runtime-livedata:1.4.0"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
-    def coil_version = "2.2.2"
+    def coil_version = "2.4.0"
     implementation "io.coil-kt:coil-compose:$coil_version"
     implementation "io.coil-kt:coil-svg:$coil_version"
     implementation("io.coil-kt:coil-gif:$coil_version")
 
     // When using a AppCompat theme
     implementation "com.google.accompanist:accompanist-appcompat-theme:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "com.google.accompanist:accompanist-flowlayout:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.4.0'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
 
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -378,6 +394,13 @@ dependencies {
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:2.0.9"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:2.0.9"
     testRuntimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    //Android Tor
+    implementation 'info.guardianproject:tor-android:0.4.7.14'
+    implementation 'info.guardianproject:jtorctl:0.4.5.7'
+
+    api 'com.jaredrummler:android-shell:1.0.0'
+    api 'com.offbynull.portmapper:portmapper:2.0.5'
 
     // VPN
     implementation project(':vpn')

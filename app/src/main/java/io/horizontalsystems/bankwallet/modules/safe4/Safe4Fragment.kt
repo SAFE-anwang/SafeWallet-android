@@ -35,6 +35,8 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
 /*
@@ -115,7 +117,7 @@ fun Safe4Screen(
         Surface(color = ComposeAppTheme.colors.tyler) {
             Column {
                 AppBar(
-                    TranslatableString.ResString(R.string.Safe4_Title),
+                        title = stringResource(R.string.Safe4_Title),
                 )
 
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

@@ -15,12 +15,7 @@ import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.core.managers.WalletConnectInteractor
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.WalletConnectViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v1.WCSessionModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Service
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingService
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
 import io.reactivex.disposables.CompositeDisposable
@@ -36,7 +31,6 @@ class DAppBrowseActivity: BaseActivity(){
     private lateinit var webRootView: LinearLayout
     private lateinit var urlString: String
 
-    private var wc1Service: WC1Service? = null
     private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
@@ -110,12 +104,6 @@ class DAppBrowseActivity: BaseActivity(){
         val accountId = App.accountManager.activeAccount?.id ?: return
         val cacheConnectLink = App.preferences.getString(getKey(urlString), null) ?: return
 
-        App.wc1SessionManager.sessions.forEach {
-            if (it.accountId == accountId && cacheConnectLink == it.session.toUri()) {
-                Log.e("connectWallet", "auto connect")
-                wc1Connect(it.remotePeerId, null)
-            }
-        }
         App.wc2SessionManager.sessions.forEach {
             if (cacheConnectLink == it.metaData?.url) {
                 Log.e("connectWallet", "auto connect")
@@ -130,54 +118,11 @@ class DAppBrowseActivity: BaseActivity(){
 
     private fun connectWallet(connectionLink: String) {
         when {
-            connectionLink.contains("@1?") -> wc1Connect(null, connectionLink)
+            connectionLink.contains("@1?") -> {
+
+            }
             connectionLink.contains("@2?") -> wc2Connect(null, connectionLink)
         }
-    }
-
-    private fun wc1Connect(remotePeerId: String?, connectionLink: String?) {
-        wc1Service = WC1Service(
-            remotePeerId,
-            connectionLink,
-            App.wc1Manager,
-            App.wc1SessionManager,
-            App.wc1RequestManager,
-            App.connectivityManager,
-            App.evmBlockchainManager
-        )
-        wc1Service!!.connectionStateObservable
-            .subscribe {
-                Log.e("connectWallet", "connect state: $it")
-                if (it == WalletConnectInteractor.State.Connected) {
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service!!.stateObservable
-            .subscribe {
-                Log.e("connectWallet", "service state: $it")
-                if (it == WC1Service.State.WaitingForApproveSession) {
-                    wc1Service?.approveSession()
-                    // 保存连接钱包链接， 下次进入时自动连接
-                    connectionLink?.let {
-                        val decodeUrl = URLDecoder.decode(connectionLink)
-                        Log.e("connectWallet", "decode: $decodeUrl")
-                        App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
-                    }
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service!!.requestObservable
-            .subscribe {
-
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc1Service?.start()
     }
 
     private fun wc2Connect(topic: String?, connectionLink: String?) {

@@ -30,7 +30,6 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestorePrivateKeyImportBinding
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinsettings.CoinSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
@@ -40,6 +39,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.findNavController
@@ -98,27 +98,19 @@ class PrivateKeyImportFragment: BaseFragment() {
             }
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
-                    navigationIcon = {
-                        IconButton(onClick = { findNavController().popBackStack() }) {
-                            Image(painter = painterResource(id = R.drawable.ic_back),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .size(24.dp)
-                            )
-                        }
-
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
-                            icon = R.drawable.ic_qr_scan_24px,
-                            onClick = {
-                                qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(requireContext()))
-                            }
+                        title = stringResource(R.string.Restore_Import_Private_Key),
+                        navigationIcon = {
+                            HsBackButton(onClick = { findNavController().popBackStack() })
+                        },
+                        menuItems = listOf(
+                                MenuItem(
+                                        title = TranslatableString.ResString(R.string.Restore_Import_Private_Key),
+                                        icon = R.drawable.ic_qr_scan_24px,
+                                        onClick = {
+                                            qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(requireContext()))
+                                        }
+                                )
                         )
-                    )
                 )
             }
         }

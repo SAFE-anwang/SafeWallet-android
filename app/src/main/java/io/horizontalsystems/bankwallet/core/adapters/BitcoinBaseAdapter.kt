@@ -1,6 +1,13 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.AdapterState
+import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.BalanceData
+import io.horizontalsystems.bankwallet.core.IAdapter
+import io.horizontalsystems.bankwallet.core.IBalanceAdapter
+import io.horizontalsystems.bankwallet.core.IReceiveAdapter
+import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.UnsupportedFilterException
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -12,7 +19,12 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionLockInfo
 import io.horizontalsystems.bitcoincore.AbstractKit
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.core.IPluginData
-import io.horizontalsystems.bitcoincore.models.*
+import io.horizontalsystems.bitcoincore.models.TransactionDataSortType
+import io.horizontalsystems.bitcoincore.models.TransactionFilterType
+import io.horizontalsystems.bitcoincore.models.TransactionInfo
+import io.horizontalsystems.bitcoincore.models.TransactionOutputInfo
+import io.horizontalsystems.bitcoincore.models.TransactionStatus
+import io.horizontalsystems.bitcoincore.models.TransactionType
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.hdwalletkit.HDWallet.Purpose
 import io.horizontalsystems.hdwalletkit.HDWallet
@@ -28,7 +40,8 @@ import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
+import java.util.Collections
+import java.util.Date
 
 abstract class BitcoinBaseAdapter(
     open val kit: AbstractKit,
@@ -78,6 +91,8 @@ abstract class BitcoinBaseAdapter(
 
     override val receiveAddress: String
         get() = kit.receiveAddress()
+
+    override val isMainNet: Boolean = true
 
     protected val balanceUpdatedSubject: PublishSubject<Unit> = PublishSubject.create()
     protected val lastBlockUpdatedSubject: PublishSubject<Unit> = PublishSubject.create()
@@ -201,12 +216,12 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun send(amount: BigDecimal, address: String, feeRate: Long, pluginData: Map<Byte, IPluginData>?, transactionSorting: TransactionDataSortMode?, logger: AppLogger): Single<Unit> {
+    fun send(amount: BigDecimal, address: String, feeRate: Int, pluginData: Map<Byte, IPluginData>?, transactionSorting: TransactionDataSortMode?, logger: AppLogger): Single<Unit> {
         val sortingType = getTransactionSortingType(transactionSorting)
         return Single.create { emitter ->
             try {
                 logger.info("call btc-kit.send")
-                kit.send(address, (amount * satoshisInBitcoin).toLong(), true, feeRate.toInt(), sortingType, pluginData
+                kit.send(address, (amount * satoshisInBitcoin).toLong(), true, feeRate, sortingType, pluginData
                         ?: mapOf())
                 emitter.onSuccess(Unit)
             } catch (ex: Exception) {
@@ -215,9 +230,9 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun availableBalance(feeRate: Long, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal {
+    fun availableBalance(feeRate: Int, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal {
         return try {
-            val maximumSpendableValue = kit.maximumSpendableValue(address, feeRate.toInt(), pluginData
+            val maximumSpendableValue = kit.maximumSpendableValue(address, feeRate, pluginData
                     ?: mapOf())
             satoshiToBTC(maximumSpendableValue, RoundingMode.CEILING)
         } catch (e: Exception) {
@@ -233,10 +248,10 @@ abstract class BitcoinBaseAdapter(
         }
     }
 
-    fun fee(amount: BigDecimal, feeRate: Long, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal? {
+    fun fee(amount: BigDecimal, feeRate: Int, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal? {
         return try {
             val satoshiAmount = (amount * satoshisInBitcoin).toLong()
-            val fee = kit.fee(satoshiAmount, address, senderPay = true, feeRate = feeRate.toInt(), pluginData = pluginData
+            val fee = kit.fee(satoshiAmount, address, senderPay = true, feeRate = feeRate, pluginData = pluginData
                     ?: mapOf())
             satoshiToBTC(fee, RoundingMode.CEILING)
         } catch (e: Exception) {

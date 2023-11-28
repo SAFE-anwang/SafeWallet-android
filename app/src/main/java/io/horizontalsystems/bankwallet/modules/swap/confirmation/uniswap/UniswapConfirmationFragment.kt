@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceVie
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
+import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
@@ -29,21 +30,23 @@ class UniswapConfirmationFragment(
             dex: SwapMainModule.Dex,
             transactionData: SendEvmModule.TransactionDataParcelable,
             additionalInfo: SendEvmData.AdditionalInfo?,
+            swapEntryPointDestId: Int,
             token: Token? = null
         ) = bundleOf(
             dexKey to dex,
             transactionDataKey to transactionData,
             additionalInfoKey to additionalInfo,
+            swapEntryPointDestIdKey to swapEntryPointDestId,
             tokenKey to token
         )
     }
 
     private val dex by lazy {
-        requireArguments().getParcelable<SwapMainModule.Dex>(dexKey)!!
+        requireArguments().parcelable<SwapMainModule.Dex>(dexKey)!!
     }
 
     private val transactionData by lazy {
-        val transactionDataParcelable = requireArguments().getParcelable<SendEvmModule.TransactionDataParcelable>(transactionDataKey)!!
+        val transactionDataParcelable = requireArguments().parcelable<SendEvmModule.TransactionDataParcelable>(transactionDataKey)!!
         TransactionData(
             Address(transactionDataParcelable.toAddress),
             transactionDataParcelable.value,
@@ -52,7 +55,7 @@ class UniswapConfirmationFragment(
     }
 
     private val additionalInfo by lazy {
-        requireArguments().getParcelable<SendEvmData.AdditionalInfo>(additionalInfoKey)
+        requireArguments().parcelable<SendEvmData.AdditionalInfo>(additionalInfoKey)
     }
 
     private val token by lazy {

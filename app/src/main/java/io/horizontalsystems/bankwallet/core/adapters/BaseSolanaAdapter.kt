@@ -17,10 +17,16 @@ abstract class BaseSolanaAdapter(
     override val debugInfo: String
         get() = solanaKit.debugInfo()
 
+    val statusInfo: Map<String, Any>
+        get() = solanaKit.statusInfo()
+
     // IReceiveAdapter
 
     override val receiveAddress: String
         get() = solanaKit.receiveAddress
+
+    override val isMainNet: Boolean
+        get() = solanaKit.isMainnet
 
     companion object {
         const val confirmationsThreshold: Int = 12

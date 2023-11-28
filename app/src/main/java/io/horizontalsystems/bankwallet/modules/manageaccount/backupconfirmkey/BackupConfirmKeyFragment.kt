@@ -1,11 +1,17 @@
 package io.horizontalsystems.bankwallet.modules.manageaccount.backupconfirmkey
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
@@ -13,48 +19,38 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.core.parcelable
 import kotlinx.coroutines.delay
 
-class BackupConfirmKeyFragment : BaseFragment() {
+class BackupConfirmKeyFragment : BaseComposeFragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-
-            setContent {
-                RecoveryPhraseVerifyScreen(
-                    findNavController(),
-                    arguments?.getParcelable(BackupConfirmKeyModule.ACCOUNT)!!,
-                )
-            }
-        }
+    @Composable
+    override fun GetContent() {
+        RecoveryPhraseVerifyScreen(
+            findNavController(),
+            arguments?.parcelable(BackupConfirmKeyModule.ACCOUNT)!!,
+        )
     }
+
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecoveryPhraseVerifyScreen(navController: NavController, account: Account) {
     val viewModel = viewModel<BackupConfirmKeyViewModel>(factory = BackupConfirmKeyModule.Factory(account))
@@ -84,7 +80,7 @@ fun RecoveryPhraseVerifyScreen(navController: NavController, account: Account) {
             backgroundColor = ComposeAppTheme.colors.tyler,
             topBar = {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.RecoveryPhraseVerify_Title),
+                    title = stringResource(R.string.RecoveryPhraseVerify_Title),
                     navigationIcon = {
                         HsBackButton(onClick = { navController.popBackStack() })
                     }
@@ -126,8 +122,7 @@ fun RecoveryPhraseVerifyScreen(navController: NavController, account: Account) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 24.dp),
-                    mainAxisAlignment = FlowMainAxisAlignment.Center,
-                    crossAxisSpacing = 16.dp
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                 ) {
                     uiState.wordOptions.forEach { wordOption ->
                         Box(modifier = Modifier.height(28.dp)) {

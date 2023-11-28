@@ -151,7 +151,11 @@ fun Wallets(
         }
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(ComposeAppTheme.colors.lawrence),
             state = listState,
             contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)

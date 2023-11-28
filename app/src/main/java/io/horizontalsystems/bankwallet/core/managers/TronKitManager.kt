@@ -81,8 +81,7 @@ class TronKitManager(
         val kit = TronKit.getInstance(
             application = App.instance,
             walletId = account.id,
-            words = accountType.words,
-            passphrase = accountType.passphrase,
+            seed = seed,
             network = network,
             tronGridApiKey = appConfigProvider.trongridApiKey
         )

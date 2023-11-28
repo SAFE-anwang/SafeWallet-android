@@ -28,7 +28,7 @@ class SendAmountInteractor(
         backgroundManager.registerListener(this)
 
         if (!token.isCustom) {
-            marketKit.coinPriceObservable(token.coin.uid, baseCurrency.code)
+            marketKit.coinPriceObservable("xrate-service", token.coin.uid, baseCurrency.code)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe { marketInfo ->

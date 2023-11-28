@@ -48,6 +48,8 @@ android {
     buildToolsVersion '31.0.0'
     ndkVersion "21.4.7075529"
 
+    namespace 'org.telegram.messenger'
+
 //    defaultConfig.applicationId = "com.anwang.safewallet"
 
     sourceSets.main.jniLibs.srcDirs = ['./jni/']
@@ -95,6 +97,7 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "appId", '\"com.anwang.safewallet.dev\"'
+            ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
         /*debugAsan {

@@ -49,6 +49,7 @@ fun SendBtcAdvancedSettingsScreen(
     val lockTimeEnabled = sendBitcoinViewModel.isLockTimeEnabled
     val lockTimeInterval = sendUiState.lockTimeInterval
     val feeRate = sendUiState.feeRate
+    val feeRateCaution = sendUiState.feeRateCaution
 
     val viewModel: SendBtcAdvancedSettingsViewModel =
         viewModel(factory = SendBtcAdvancedSettingsModule.Factory(blockchainType))
@@ -76,7 +77,7 @@ fun SendBtcAdvancedSettingsScreen(
         ) {
             Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Send_Advanced),
+                    title = stringResource(R.string.Send_Advanced),
                     navigationIcon = {
                         HsBackButton(onClick = { navController.popBackStack() })
                     },
@@ -113,11 +114,10 @@ fun SendBtcAdvancedSettingsScreen(
                             info = stringResource(R.string.FeeSettings_FeeRate_Info),
                             value = feeRate?.toBigDecimal() ?: BigDecimal.ZERO,
                             decimals = 0,
-                            warnings = listOf(),
-                            errors = listOf(),
+                            caution = feeRateCaution,
                             navController = fragmentNavController,
                             onValueChange = {
-                                sendBitcoinViewModel.updateFeeRate(it.toLong())
+                                sendBitcoinViewModel.updateFeeRate(it.toInt())
                             },
                             onClickIncrement = {
                                 sendBitcoinViewModel.incrementFeeRate()
@@ -159,7 +159,7 @@ fun SendBtcAdvancedSettingsScreen(
                         )
                     }
 
-                    sendUiState.feeRateCaution?.let {
+                    feeRateCaution?.let {
                         FeeRateCaution(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
                             feeRateCaution = it

@@ -5,11 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.modules.enablecoin.EnableCoinService
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensService
-import io.horizontalsystems.bankwallet.modules.enablecoin.coinplatforms.CoinTokensViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
+import io.horizontalsystems.bankwallet.modules.receivemain.FullCoinsProvider
 
 object ManageWalletsModule {
     const val ACCOUNT_TYPE_KEY = "account_type_key"
@@ -21,17 +19,17 @@ object ManageWalletsModule {
         }
 
         private val manageWalletsService by lazy {
+            val activeAccount = App.accountManager.activeAccount
             ManageWalletsService(
-                App.marketKit,
                 App.walletManager,
-                App.accountManager,
-                restoreSettingsService
+                restoreSettingsService,
+                App.accountManager.activeAccount?.let { account ->
+                    FullCoinsProvider(App.marketKit, account)
+                },
+                activeAccount
             )
         }
 
-        private val coinTokensService by lazy {
-            CoinTokensService()
-        }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -41,9 +39,6 @@ object ManageWalletsModule {
                 }
                 ManageWalletsViewModel::class.java -> {
                     ManageWalletsViewModel(manageWalletsService, listOf(manageWalletsService)) as T
-                }
-                CoinTokensViewModel::class.java -> {
-                    CoinTokensViewModel(coinTokensService, App.accountManager, accountType) as T
                 }
                 else -> throw IllegalArgumentException()
             }

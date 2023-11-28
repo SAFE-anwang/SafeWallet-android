@@ -1,9 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.swap.approve
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +13,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
@@ -42,25 +36,17 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.parcelable
 
-class SwapApproveFragment : BaseFragment() {
+class SwapApproveFragment : BaseComposeFragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                val approveData = requireArguments().getParcelable<SwapMainModule.ApproveData>(dataKey)!!
-                val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
-                SwapApproveScreen(findNavController(), approveData, backNavGraphId)
-            }
-        }
+    @Composable
+    override fun GetContent() {
+        val approveData = requireArguments().parcelable<SwapMainModule.ApproveData>(dataKey)!!
+        val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
+        SwapApproveScreen(findNavController(), approveData, backNavGraphId)
     }
+
 }
 
 @Composable
@@ -78,7 +64,7 @@ fun SwapApproveScreen(
     ComposeAppTheme {
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
-                title = TranslatableString.ResString(R.string.Approve_Title),
+                title = stringResource(R.string.Approve_Title),
                 menuItems = listOf(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Close),

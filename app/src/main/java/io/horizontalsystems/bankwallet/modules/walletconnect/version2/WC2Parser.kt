@@ -25,7 +25,6 @@ object WC2Parser {
         dAppName: String
     ): WC2Request {
         val params = JsonParser.parseString(request.params).asJsonArray
-
         when (request.method) {
             "eth_sendTransaction" -> {
                 val transaction =

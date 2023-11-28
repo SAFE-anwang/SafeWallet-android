@@ -43,6 +43,7 @@ interface ISendEvmTransactionService {
     fun send(logger: AppLogger)
     fun addLiqudity(logger: AppLogger)
     fun methodName(input: ByteArray): String?
+    fun clear()
 }
 
 class SendEvmTransactionService(
@@ -183,6 +184,7 @@ class SendEvmTransactionService(
 
     override fun clear() {
         disposable.clear()
+        settingsService.clear()
     }
 
     private fun syncTxDataState(transaction: SendEvmSettingsService.Transaction? = null) {

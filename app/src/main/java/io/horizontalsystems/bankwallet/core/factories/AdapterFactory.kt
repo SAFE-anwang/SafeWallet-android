@@ -3,10 +3,18 @@ package io.horizontalsystems.bankwallet.core.factories
 import android.content.Context
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.ICoinManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.*
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
-import io.horizontalsystems.bankwallet.core.managers.*
+import io.horizontalsystems.bankwallet.core.managers.BinanceKitManager
+import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
+import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
+import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
+import io.horizontalsystems.bankwallet.core.managers.EvmSyncSourceManager
+import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
+import io.horizontalsystems.bankwallet.core.managers.SolanaKitManager
+import io.horizontalsystems.bankwallet.core.managers.TronKitManager
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.core.BackgroundManager
@@ -26,6 +34,7 @@ class AdapterFactory(
     private val restoreSettingsManager: RestoreSettingsManager,
     private val coinManager: ICoinManager,
     private val evmLabelManager: EvmLabelManager,
+    private val localStorage: ILocalStorage,
 ) {
 
     private fun getEvmAdapter(wallet: Wallet): IAdapter? {
@@ -59,26 +68,30 @@ class AdapterFactory(
     }
 
     fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
-        TokenType.Native -> when (wallet.token.blockchainType) {
-            BlockchainType.Bitcoin -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Bitcoin, wallet.account.origin)
-                BitcoinAdapter(wallet, syncMode, backgroundManager)
+        is TokenType.Derived -> {
+            when (wallet.token.blockchainType) {
+                BlockchainType.Bitcoin -> {
+                    val syncMode = btcBlockchainManager.syncMode(BlockchainType.Bitcoin, wallet.account.origin)
+                    BitcoinAdapter(wallet, syncMode, backgroundManager, tokenType.derivation)
+                }
+                BlockchainType.Litecoin -> {
+                    val syncMode = btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
+                    LitecoinAdapter(wallet, syncMode, backgroundManager, tokenType.derivation)
+                }
+                else -> null
             }
-            BlockchainType.BitcoinCash -> {
+        }
+        is TokenType.AddressTyped -> {
+            if (wallet.token.blockchainType == BlockchainType.BitcoinCash) {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.BitcoinCash, wallet.account.origin)
-                BitcoinCashAdapter(wallet, syncMode, backgroundManager)
+                BitcoinCashAdapter(wallet, syncMode, backgroundManager, tokenType.type)
             }
+            else null
+        }
+        TokenType.Native -> when (wallet.token.blockchainType) {
             BlockchainType.ECash -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.ECash, wallet.account.origin)
                 ECashAdapter(wallet, syncMode, backgroundManager)
-            }
-            BlockchainType.Litecoin -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Litecoin, wallet.account.origin)
-                LitecoinAdapter(wallet, syncMode, backgroundManager)
-            }
-            BlockchainType.Dogecoin -> {
-                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dogecoin, wallet.account.origin)
-                DogecoinAdapter(wallet, syncMode, backgroundManager)
             }
             BlockchainType.Dash -> {
                 val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dash, wallet.account.origin)
@@ -93,8 +106,12 @@ class AdapterFactory(
                     null
                 }
             }
+            BlockchainType.Dogecoin -> {
+                val syncMode = btcBlockchainManager.syncMode(BlockchainType.Dogecoin, wallet.account.origin)
+                DogecoinAdapter(wallet, syncMode, backgroundManager)
+            }
             BlockchainType.Zcash -> {
-                ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType))
+                ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType), localStorage)
             }
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,

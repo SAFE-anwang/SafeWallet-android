@@ -8,6 +8,7 @@
     <string name="Alert_Loading">درحال بارگذاری...</string>
     <string name="Alert_Restart">راه اندازی مجدد</string>
     <string name="Action_Undo">بازگرد</string>
+    <string name="Button_Show">نمایش</string>
     <string name="Button_Cancel">کنسل</string>
     <string name="Button_Next">بعدي</string>
     <string name="Button_Enable">فعال کردن</string>
@@ -177,7 +178,7 @@
     <string name="Balance_Send">ارسال</string>
     <string name="Balance_Receive">دريافت</string>
     <string name="Balance_Address">آدرس</string>
-    <string name="Balance_RatePerCoin">%sدر هر%s</string>
+    <string name="Balance_RatePerCoin">%1$sدر هر%2$s</string>
     <string name="Balance_SyncedUntil">تا %s</string>
     <string name="Balance_Syncing">همزمانی…</string>
     <string name="Balance_SearchingTransactions">در جستجوی تراکنش ها…</string>
@@ -228,7 +229,6 @@
     <string name="Send_TxSpeed_High">بالا</string>
     <string name="Send_TxSpeed_Recommended">توصیه شده</string>
     <string name="Send_TxSpeed_Custom">شخصی سازی</string>
-    <string name="Send_TxSpeed_CustomFeeHint">شنبه/بایت</string>
     <string name="Send_DialogFee">قیمت:</string>
     <string name="Send_DialogProceed">بعدي</string>
     <string name="Send_LockTime_Off">خاموش</string>
@@ -245,7 +245,6 @@
     <!-- Fee Settings -->
     <string name="FeeSettings_Title">تنظیمات قیمت</string>
     <string name="FeeSettings_Reset">تنظیم مجدد</string>
-    <string name="FeeSettings_GasLimit">محدودیت گاز</string>
     <string name="FeeSettings_GasPrice_Info">کارمزد تراکنش در شبکه بر حسب واحد گاز سنجیده می شود. قیمت گاز مبلغی است که کاربر مایل است برای هر واحد گاز هزینه کند. وقتی شبکه شلوغ است، قیمت گاز بالاست و وقتی خلوت است پایین. قیمت ناکافی گاز اغلب دلیلی برای معلق ماندن یک معامله برای مدت طولانی است.</string>
     <string name="FeeSettings_RiskOfGettingStuckLegacy_Title">پرمخاطره</string>
     <string name="FeeSettings_RiskOfGettingStuck_Title">پرمخاطره</string>
@@ -499,6 +498,8 @@
     <string name="Settings_RateUs">به ما امتیاز بدهید</string>
     <string name="Settings_LaunchScreen">صفحه شروع</string>
     <string name="Settings_Appearance">ظاهر</string>
+    <string name="Settings_PersonalSupport_Request">درخواست</string>
+    <string name="SettingsSecurity_AutoLock_After1Hour">۱ ساعت</string>
     <string name="Appearance_Theme">موضوع</string>
     <string name="Appearance_LaunchScreen">صفحه راه اندازی</string>
     <string name="Appearance_AppIcon">نماد برنامه</string>
@@ -509,6 +510,9 @@
     <string name="SettingsAboutApp_Site">وب سایت پروژه</string>
     <string name="SettingsAboutApp_WhatsNew">تغییرات جدید</string>
     <!-- Blockchain Settings  -->
+    <!-- Backup Manager -->
+    <string name="BackupManager_Other">غیره</string>
+    <string name="BackupManager_MergeTitle">هشدار</string>
     <!-- Privacy  -->
     <!-- Security Center -->
     <string name="SecurityCenter_Internet">اینترنت</string>
@@ -546,6 +550,7 @@
     <string name="SettingsSecurity_SyncModeAPIDescription">توصیه شده</string>
     <string name="SettingsSecurity_SyncModeBlockchain">از زنجیره بلوکی</string>
     <string name="SettingsSecurity_SyncModeBlockchainDescription">خصوصی تر</string>
+    <string name="DuressPin_Notes_Biometrics_Title">احراز هویت بیومتریک</string>
     <!--Setting_Terms-->
     <string name="SettingsTerms_Text">The SafeWallet is built for those looking to invest and store cryptocurrencies in a private and independent manner.
 \n\nIt\'s a non-custodial, peer-to-peer wallet where only the user has control over the funds. It doesn\'t collect any data and keeps the user independent by not locking the user\'s funds to a specific wallet app.
@@ -597,7 +602,6 @@
     <string name="Hud_Text_EmailAddressCopied">آدرس ایمیل کپی شد</string>
     <string name="Hud_Added_To_Watchlist">به فهرست تماشا افزوده شد</string>
     <string name="Hud_Removed_from_Watchlist">از فهرست تماشا برداشته شد</string>
-    <string name="Hud_UnknownError">s%</string>
     <!--Manage Coins-->
     <string name="ManageCoins_title">مدیر سكه</string>
     <string name="ManageCoins_AddToken">اضافه کردن نشان</string>
@@ -747,15 +751,16 @@
     <string name="CoinPage_SecurityParams_Privacy">حریم خصوصی</string>
     <string name="CoinPage_SecurityParams_Low">پایین</string>
     <string name="CoinPage_SecurityParams_High">بالا</string>
+    <string name="CoinPage_Overview">نمای کلی</string>
     <string name="CoinPage_Website">وب سایت پروژه</string>
     <string name="CoinPage_Twitter_NoTweets">هنوز توییتی وجود ندارد</string>
     <string name="CoinPage_MarketCap_TvlRation">M.cap / TVL ratio</string>
     <string name="CoinPage_AddToWallet">Added To Wallet</string>
     <string name="CoinPage_Performance_Week">1Week</string>
     <string name="CoinPage_Performance_Month"> 1Month </string>
-    <string name="CoinPage_MajorHolders_Description">Chart above shows the % of all tokens in circulation held by top 10 wallets. The lower the % the more distributed the coin is.</string>
+    <string name="Coin_Analytics_Details">جزئیات</string>
+    <string name="Coin_Analytics_Period_1h">۱ ساعت</string>
     <string name="ActivateSubscription_Address">آدرس</string>
-    <string name="Nfts_Title">NFTها</string>
     <string name="Nfts_PriceType_Days_7">7 دی اوت</string>
     <string name="Nfts_PriceType_Days_30">30 دی اوت</string>
     <string name="Nfts_PriceType_LastSale">آخرین فروش</string>
@@ -856,4 +861,13 @@
     <!--Contacts-->
     <string name="Contacts_NameHint">نام</string>
     <string name="Contacts_AddressHint">آدرس یا دامنه</string>
+    <string name="Hud_Text_Connected">ارتباط برقرار شد</string>
+    <!--Cex Deposit Module-->
+    <string name="Cex_ChooseCoin">سکه را انتخاب کنید</string>
+    <string name="CexDeposit_Network">خالص</string>
+    <!--Cex Withdraw Module-->
+    <string name="CexWithdraw_Title">ارسال %s</string>
+    <string name="CexWithdraw_Network">خالص</string>
+    <string name="CexWithdraw_Fee">هزينه</string>
+    <string name="CexWithdraw_GetCode">ارسال مجدد</string>
 </resources>

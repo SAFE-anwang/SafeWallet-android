@@ -9,9 +9,11 @@ import io.horizontalsystems.binancechainkit.core.IStorage
 import io.horizontalsystems.binancechainkit.storage.KitDatabase
 import io.horizontalsystems.binancechainkit.storage.Storage
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -21,6 +23,7 @@ class BinanceRefreshManager(
     private val binanceKitManager: BinanceKitManager,
     private val networkType: BinanceChainKit.NetworkType = BinanceChainKit.NetworkType.MainNet
 ): Clearable {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val disposable = CompositeDisposable()
 
@@ -30,14 +33,13 @@ class BinanceRefreshManager(
     private var storage: IStorage? = null
 
     init {
-        accountManager.activeAccountObservable
-            .subscribeIO {
+        coroutineScope.launch {
+            accountManager.activeAccountStateFlow.collect {
                 binanceKitManager.binanceKit?.let {
                     startRefreshBinance()
                 }
-            }.let {
-                disposable.add(it)
             }
+        }
     }
 
     fun startRefreshBinance() {

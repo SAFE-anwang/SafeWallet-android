@@ -1,9 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.watchaddress
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,6 +26,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -49,7 +44,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputMultiline
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -57,28 +52,19 @@ import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.delay
 
-class WatchAddressFragment : BaseFragment() {
+class WatchAddressFragment : BaseComposeFragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                ComposeAppTheme {
-                    val popUpToInclusiveId =
-                        arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.watchAddressFragment) ?: R.id.watchAddressFragment
-                    val inclusive =
-                        arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
-                    WatchAddressScreen(findNavController(), popUpToInclusiveId, inclusive)
-                }
-            }
+    @Composable
+    override fun GetContent() {
+        ComposeAppTheme {
+            val popUpToInclusiveId =
+                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.watchAddressFragment) ?: R.id.watchAddressFragment
+            val inclusive =
+                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
+            WatchAddressScreen(findNavController(), popUpToInclusiveId, inclusive)
         }
     }
+
 }
 
 @Composable
@@ -123,7 +109,7 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
     ComposeAppTheme {
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
-                title = TranslatableString.ResString(R.string.ManageAccounts_WatchAddress),
+                title = stringResource(R.string.ManageAccounts_WatchAddress),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 },
@@ -174,7 +160,12 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
                     menuValue = stringResource(type.titleResId),
                     selectorDialogTitle = stringResource(R.string.Watch_WatchBy),
                     selectorItems = WatchAddressViewModel.Type.values().map {
-                        TabItem(stringResource(it.titleResId), it == type, it)
+                        SelectorItem(
+                            title = stringResource(it.titleResId),
+                            selected = it == type,
+                            item = it,
+                            subtitle = stringResource(it.subtitleResId)
+                        )
                     },
                     onSelectItem = {
                         viewModel.onSetType(it)
@@ -235,21 +226,6 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
                 )
 
                 Spacer(Modifier.height(32.dp))
-
-
-                /*ButtonsGroupWithShade {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        title = stringResource(R.string.Watch_Address_Watch),
-                        onClick = {
-                            viewModel.onClickWatch()
-                        },
-                        enabled = submitEnabled
-                    )
-                }
-                Spacer(Modifier.height(32.dp))*/
             }
         }
     }

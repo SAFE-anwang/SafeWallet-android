@@ -189,7 +189,7 @@ class SafeAdapter(
     companion object {
         private const val confirmationsThreshold = 6
 
-        private const val feeRate = 10L
+        private const val feeRate = 10
 
         private fun getNetworkType(testMode: Boolean) =
                 if (testMode) SafeKit.NetworkType.TestNet else SafeKit.NetworkType.MainNet

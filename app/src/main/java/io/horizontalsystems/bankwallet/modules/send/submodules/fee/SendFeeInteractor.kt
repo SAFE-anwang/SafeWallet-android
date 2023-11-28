@@ -26,7 +26,7 @@ class SendFeeInteractor(
 
     init {
         if (!platformCoin.isCustom) {
-            marketKit.coinPriceObservable(platformCoin.coin.uid, baseCurrency.code)
+            marketKit.coinPriceObservable("xrate-service", platformCoin.coin.uid, baseCurrency.code)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe { marketInfo ->
@@ -52,9 +52,9 @@ class SendFeeInteractor(
 
         GlobalScope.launch {
             try {
-                val feeRate = feeRateProvider.getFeeRate(feeRatePriority)
+                val feeRate = feeRateProvider.getFeeRates()
                 withContext(Dispatchers.Main) {
-                    delegate?.didUpdate(feeRate.toBigInteger(), feeRatePriority)
+                    delegate?.didUpdate(feeRate.recommended, feeRatePriority)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

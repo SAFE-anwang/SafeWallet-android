@@ -45,7 +45,6 @@ import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
@@ -86,6 +85,7 @@ fun LiquidityCardSwipable(
     ) {
 
         DraggableCardSimple(
+            key = index,
             isRevealed = revealed,
             cardOffset = 72f,
             onReveal = {  },

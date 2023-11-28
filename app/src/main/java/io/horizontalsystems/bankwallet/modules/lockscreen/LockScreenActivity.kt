@@ -3,23 +3,32 @@ package io.horizontalsystems.bankwallet.modules.lockscreen
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.navigation.findNavController
-import io.horizontalsystems.bankwallet.R
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.setContent
 import io.horizontalsystems.bankwallet.core.BaseActivity
+import io.horizontalsystems.bankwallet.modules.pin.ui.PinUnlock
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 class LockScreenActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lock_screen)
-    }
 
-    override fun onBackPressed() {
-        val navController = findNavController(R.id.lockScreenNavHost)
-        if (navController.currentDestination?.id == navController.graph.startDestinationId) {
-            finishAffinity()
+        setContent {
+            ComposeAppTheme {
+                PinUnlock(
+                    onSuccess = {
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                )
+            }
         }
 
-        super.onBackPressed()
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity()
+            }
+        })
     }
 
     companion object {

@@ -13,7 +13,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
-import io.horizontalsystems.bankwallet.modules.receive.ReceiveViewModel
+import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
@@ -96,7 +96,7 @@ class SendWsafeViewModel(
     }
 
     fun onEnterAddress(wsafeWallet: Wallet, safeWallet: Wallet, address: Address?) {
-        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveViewModel.NoReceiverAdapter()
+        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
         Log.i("safe4", "---receiveAdapter = ${receiveAdapter.receiveAddress}")
         val ethAddr = Address(receiveAdapter.receiveAddress, null)
         // 设置钱包的ETH地址为交易的接收地址

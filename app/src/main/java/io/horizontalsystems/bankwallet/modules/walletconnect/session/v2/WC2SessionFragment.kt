@@ -32,6 +32,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
@@ -59,9 +60,9 @@ class WC2SessionFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
 
         return ComposeView(requireContext()).apply {
@@ -104,7 +105,7 @@ fun WCSessionPage(
             modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
         ) {
             AppBar(
-                TranslatableString.ResString(R.string.WalletConnect_Title),
+                title = stringResource(R.string.WalletConnect_Title),
                 showSpinner = uiState.connecting,
                 menuItems = listOf(
                     MenuItem(

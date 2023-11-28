@@ -7,7 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.HSCaution
+import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
+import io.horizontalsystems.bankwallet.core.LocalizedException
 import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -48,6 +52,7 @@ class SendBitcoinViewModel(
     private var addressState = addressService.stateFlow.value
     private var pluginState = pluginService.stateFlow.value
     private var fee = feeService.feeFlow.value
+    private val showAddressInput = addressService.predefinedAddress == null
 
     private val logger = AppLogger("Send-${wallet.coin.code}")
 
@@ -56,7 +61,6 @@ class SendBitcoinViewModel(
     var uiState by mutableStateOf(
         SendBitcoinUiState(
             availableBalance = amountState.availableBalance,
-            feeRatePriority = feeRateState.feeRatePriority,
             feeRate = feeRateState.feeRate,
             fee = fee,
             lockTimeInterval = pluginState.lockTimeInterval,
@@ -64,6 +68,7 @@ class SendBitcoinViewModel(
             amountCaution = amountState.amountCaution,
             feeRateCaution = feeRateState.feeRateCaution,
             canBeSend = amountState.canBeSend && addressState.canBeSend && feeRateState.canBeSend,
+            showAddressInput = showAddressInput,
         )
     )
         private set
@@ -99,7 +104,6 @@ class SendBitcoinViewModel(
     private fun emitState() {
         val newUiState = SendBitcoinUiState(
             availableBalance = amountState.availableBalance,
-            feeRatePriority = feeRateState.feeRatePriority,
             feeRate = feeRateState.feeRate,
             fee = fee,
             lockTimeInterval = pluginState.lockTimeInterval,
@@ -107,6 +111,7 @@ class SendBitcoinViewModel(
             amountCaution = amountState.amountCaution,
             feeRateCaution = feeRateState.feeRateCaution,
             canBeSend = amountState.canBeSend && addressState.canBeSend && feeRateState.canBeSend,
+            showAddressInput = showAddressInput,
         )
 
         viewModelScope.launch {
@@ -123,27 +128,23 @@ class SendBitcoinViewModel(
     }
 
     fun reset() {
-        viewModelScope.launch {
-            feeRateService.setFeeRatePriority(FeeRatePriority.RECOMMENDED)
-        }
+        feeRateService.reset()
         onEnterLockTimeInterval(null)
     }
 
-    fun updateFeeRate(value: Long) {
-        viewModelScope.launch {
-            feeRateService.setFeeRatePriority(FeeRatePriority.Custom(value))
-        }
+    fun updateFeeRate(value: Int) {
+        feeRateService.setFeeRate(value)
     }
 
     fun incrementFeeRate() {
-        val incremented = (feeRateState.feeRate ?: 0L) + 1
+        val incremented = (feeRateState.feeRate ?: 0) + 1
         updateFeeRate(incremented)
     }
 
     fun decrementFeeRate() {
-        var incremented = (feeRateState.feeRate ?: 0L) - 1
+        var incremented = (feeRateState.feeRate ?: 0) - 1
         if (incremented < 0) {
-            incremented = 0L
+            incremented = 0
         }
         updateFeeRate(incremented)
     }
@@ -252,11 +253,11 @@ class SendBitcoinViewModel(
 data class SendBitcoinUiState(
     val availableBalance: BigDecimal?,
     val fee: BigDecimal?,
-    val feeRate: Long?,
-    val feeRatePriority: FeeRatePriority,
+    val feeRate: Int?,
     val lockTimeInterval: LockTimeInterval?,
     val addressError: Throwable?,
     val amountCaution: HSCaution?,
     val feeRateCaution: HSCaution?,
     val canBeSend: Boolean,
+    val showAddressInput: Boolean,
 )

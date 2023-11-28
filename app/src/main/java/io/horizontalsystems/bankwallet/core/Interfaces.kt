@@ -6,7 +6,20 @@ import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.Bep2TokenInfoService
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.core.providers.FeeRates
+import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.entities.AccountOrigin
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.AddressData
+import io.horizontalsystems.bankwallet.entities.AppVersion
+import io.horizontalsystems.bankwallet.entities.CexType
+import io.horizontalsystems.bankwallet.entities.EnabledWallet
+import io.horizontalsystems.bankwallet.entities.LastBlockInfo
+import io.horizontalsystems.bankwallet.entities.LaunchPage
+import io.horizontalsystems.bankwallet.entities.RestoreSettingRecord
+import io.horizontalsystems.bankwallet.entities.SyncMode
+import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
+import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
@@ -17,6 +30,7 @@ import io.horizontalsystems.bankwallet.modules.market.MarketModule
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.Value
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
+import io.horizontalsystems.bankwallet.modules.settings.security.autolock.AutoLockInterval
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.TorStatus
 import io.horizontalsystems.bankwallet.modules.settings.terms.TermsModule
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -41,7 +55,6 @@ import kotlinx.coroutines.flow.StateFlow
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Date
-import java.util.Optional
 import io.horizontalsystems.solanakit.models.Address as SolanaAddress
 import io.horizontalsystems.tronkit.models.Address as TronAddress
 
@@ -58,10 +71,13 @@ interface IAdapterManager {
 }
 
 interface ILocalStorage {
+    var zcashAccountIds: Set<String>
+    var autoLockInterval: AutoLockInterval
     var chartIndicatorsEnabled: Boolean
     var amountInputType: AmountInputType?
     var baseCurrencyCode: String?
     var authToken: String?
+    val appId: String?
 
     var baseBitcoinProvider: String?
     var baseLitecoinProvider: String?
@@ -126,7 +142,6 @@ interface IAccountManager {
     val hasNonStandardAccount: Boolean
     val activeAccount: Account?
     val activeAccountStateFlow: Flow<ActiveAccountState>
-    val activeAccountObservable: Flowable<Optional<Account>>
     val isAccountsEmpty: Boolean
     val accounts: List<Account>
     val accountsFlowable: Flowable<List<Account>>
@@ -135,13 +150,16 @@ interface IAccountManager {
 
     fun setActiveAccountId(activeAccountId: String?)
     fun account(id: String): Account?
-    fun loadAccounts()
     fun save(account: Account)
+    fun import(accounts: List<Account>)
     fun update(account: Account)
     fun delete(id: String)
     fun clear()
     fun clearAccounts()
     fun onHandledBackupRequiredNewAccount()
+    fun setLevel(level: Int)
+    fun updateAccountLevels(accountIds: List<String>, level: Int)
+    fun updateMaxLevel(level: Int)
 }
 
 interface IBackupManager {
@@ -150,7 +168,13 @@ interface IBackupManager {
 }
 
 interface IAccountFactory {
-    fun account(name: String, type: AccountType, origin: AccountOrigin, backedUp: Boolean, fileBackup: Boolean): Account
+    fun account(
+        name: String,
+        type: AccountType,
+        origin: AccountOrigin,
+        backedUp: Boolean,
+        fileBackedUp: Boolean
+    ): Account
     fun watchAccount(name: String, type: AccountType): Account
     fun getNextWatchAccountName(): String
     fun getNextAccountName(): String
@@ -203,7 +227,16 @@ sealed class AdapterState {
     data class Syncing(val progress: Int? = null, val lastBlockDate: Date? = null) : AdapterState()
     data class SearchingTxs(val count: Int) : AdapterState()
     data class NotSynced(val error: Throwable) : AdapterState()
-    data class Zcash(val zcashState: ZcashAdapter.ZcashState) : AdapterState()
+
+    override fun toString(): String {
+        return when (this) {
+            is Synced -> "Synced"
+            is Syncing -> "Syncing ${progress?.let { "${it * 100}" } ?: ""} lastBlockDate: $lastBlockDate"
+            is SearchingTxs -> "SearchingTxs count: $count"
+            is NotSynced -> "NotSynced ${error.javaClass.simpleName} - message: ${error.message}"
+            else -> ""
+        }
+    }
 }
 
 interface IBinanceKitManager {
@@ -247,6 +280,8 @@ interface IBalanceAdapter {
 
     val balanceData: BalanceData
     val balanceUpdatedFlowable: Flowable<Unit>
+
+    fun sendAllowed() = balanceState is AdapterState.Synced
 }
 
 data class BalanceData(val available: BigDecimal, val locked: BigDecimal = BigDecimal.ZERO) {
@@ -255,6 +290,7 @@ data class BalanceData(val available: BigDecimal, val locked: BigDecimal = BigDe
 
 interface IReceiveAdapter {
     val receiveAddress: String
+    val isMainNet: Boolean
 
     val isAccountActive: Boolean
         get() = true
@@ -264,7 +300,7 @@ interface ISendBitcoinAdapter {
     val balanceData: BalanceData
     val blockchainType: BlockchainType
     fun availableBalance(
-        feeRate: Long,
+        feeRate: Int,
         address: String?,
         pluginData: Map<Byte, IPluginData>?
     ): BigDecimal
@@ -272,7 +308,7 @@ interface ISendBitcoinAdapter {
     fun minimumSendAmount(address: String?): BigDecimal?
     fun fee(
         amount: BigDecimal,
-        feeRate: Long,
+        feeRate: Int,
         address: String?,
         pluginData: Map<Byte, IPluginData>?
     ): BigDecimal?
@@ -281,7 +317,7 @@ interface ISendBitcoinAdapter {
     fun send(
         amount: BigDecimal,
         address: String,
-        feeRate: Long,
+        feeRate: Int,
         pluginData: Map<Byte, IPluginData>?,
         transactionSorting: TransactionDataSortMode?,
         logger: AppLogger
@@ -327,7 +363,7 @@ interface ISendZcashAdapter {
     val fee: BigDecimal
 
     suspend fun validate(address: String): ZcashAdapter.ZCashAddressType
-    fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger): Single<Unit>
+    suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger): Long
 }
 
 interface IAdapter {
@@ -357,7 +393,7 @@ interface IAccountsStorage {
     var activeAccountId: String?
     val isAccountsEmpty: Boolean
 
-    fun allAccounts(): List<Account>
+    fun allAccounts(accountsMinLevel: Int): List<Account>
     fun save(account: Account)
     fun update(account: Account)
     fun delete(id: String)
@@ -365,6 +401,8 @@ interface IAccountsStorage {
     fun clear()
     fun getDeletedAccountIds(): List<String>
     fun clearDeleted()
+    fun updateLevels(accountIds: List<String>, level: Int)
+    fun updateMaxLevel(level: Int)
 }
 
 interface IEnabledWalletStorage {
@@ -379,7 +417,6 @@ interface IWalletManager {
     val activeWallets: List<Wallet>
     val activeWalletsUpdatedObservable: Observable<List<Wallet>>
 
-    fun loadWallets()
     fun save(wallets: List<Wallet>)
     fun saveEnabledWallets(enabledWallets: List<EnabledWallet>)
     fun delete(wallets: List<Wallet>)
@@ -433,8 +470,8 @@ interface IFeeRateProvider {
         get() = listOf()
     val defaultFeeRatePriority: FeeRatePriority
         get() = FeeRatePriority.RECOMMENDED
-    fun getFeeRateRange(): ClosedRange<Long>? = null
-    suspend fun getFeeRate(feeRatePriority: FeeRatePriority): Long
+    val feeRateChangeable: Boolean get() = false
+    suspend fun getFeeRates() : FeeRates
 }
 
 interface IAddressParser {
@@ -480,7 +517,6 @@ sealed class FeeRatePriority(val titleRes: Int) {
 
     class Custom(val value: Long) : FeeRatePriority(R.string.Send_TxSpeed_Custom)
 }
-
 interface Clearable {
     fun clear()
 }

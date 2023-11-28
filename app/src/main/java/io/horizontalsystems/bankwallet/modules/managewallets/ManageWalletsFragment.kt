@@ -1,9 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,8 +15,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,9 +23,9 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.entities.ConfiguredToken
 import io.horizontalsystems.bankwallet.modules.configuredtoken.ConfiguredTokenInfoDialog
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
@@ -44,8 +38,10 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
+import io.horizontalsystems.core.parcelable
+import io.horizontalsystems.marketkit.models.Token
 
-class ManageWalletsFragment : BaseFragment() {
+class ManageWalletsFragment : BaseComposeFragment() {
 
     private val vmFactory by lazy { ManageWalletsModule.Factory(
         arguments?.getParcelable(RestoreBlockchainsFragment.ACCOUNT_TYPE_KEY)
@@ -53,26 +49,17 @@ class ManageWalletsFragment : BaseFragment() {
     private val viewModel by viewModels<ManageWalletsViewModel> { vmFactory }
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+    @Composable
+    override fun GetContent() {
+        ComposeAppTheme {
+            ManageWalletsScreen(
+                findNavController(),
+                viewModel,
+                restoreSettingsViewModel
             )
-            setContent {
-                ComposeAppTheme {
-                    ManageWalletsScreen(
-                        findNavController(),
-                        viewModel,
-                        restoreSettingsViewModel
-                    )
-                }
-            }
         }
     }
+
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -92,7 +79,7 @@ private fun ManageWalletsScreen(
             val requestResult = bundle.getInt(ZcashConfigure.requestResultKey)
 
             if (requestResult == ZcashConfigure.RESULT_OK) {
-                val zcashConfig = bundle.getParcelable<ZCashConfig>(ZcashConfigure.zcashConfigKey)
+                val zcashConfig = bundle.parcelable<ZCashConfig>(ZcashConfigure.zcashConfigKey)
                 zcashConfig?.let { config ->
                     restoreSettingsViewModel.onEnter(config)
                 }
@@ -134,7 +121,7 @@ private fun ManageWalletsScreen(
                     SelectorDialogCompose(
                         title = stringResource(R.string.Transactions_Filter_Blockchain),
                         items = filterBlockchains.map {
-                            TabItem(
+                            SelectorItem(
                                 it.item?.name
                                     ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
                                 it.selected,
@@ -198,6 +185,9 @@ private fun ManageWalletsScreen(
                             }
                         )
                     }
+                    item {
+                        VSpacer(height = 32.dp)
+                    }
                 }
             }
         }
@@ -206,7 +196,7 @@ private fun ManageWalletsScreen(
 
 @Composable
 private fun CoinCell(
-    viewItem: CoinViewItem<ConfiguredToken>,
+    viewItem: CoinViewItem<Token>,
     onItemClick: () -> Unit,
     onInfoClick: () -> Unit
 ) {
@@ -216,7 +206,7 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            if (viewItem.item.token.coin.uid == "safe-coin") {
+            if (viewItem.item.coin.uid == "safe-coin") {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

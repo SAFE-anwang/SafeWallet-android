@@ -221,40 +221,21 @@ private fun SwapAmountInput(
             },
             decorationBox = { innerTextField ->
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
                 ) {
                     if (textState.text.isEmpty()) {
                         Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = state.primaryPrefix ?: "0",
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = ComposeAppTheme.colors.grey,
-                            style = ComposeAppTheme.typography.headline1,
-                            textAlign = TextAlign.Start
+                                modifier = Modifier.fillMaxWidth(),
+                                text = state.primaryPrefix ?: "0",
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                color = ComposeAppTheme.colors.grey,
+                                style = ComposeAppTheme.typography.headline1,
+                                textAlign = TextAlign.Start
                         )
-                        innerTextField()
-                    } else if (!focused) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "${state.primaryPrefix ?: ""}${textState.text}",
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = if (state.dimAmount) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.leah,
-                            style = ComposeAppTheme.typography.headline1,
-                            textAlign = TextAlign.Start
-                        )
-                        Box(
-                            modifier = Modifier
-                                .height(0.dp)
-                                .fillMaxWidth()
-                        ) {
-                            innerTextField()
-                        }
-                    } else {
-                        innerTextField()
                     }
+                    innerTextField()
                 }
             }
         )

@@ -33,14 +33,16 @@ import io.horizontalsystems.bankwallet.modules.manageaccount.backupkey.BackupKey
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimary
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaultWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.extensions.BaseComposableBottomSheetFragment
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.parcelable
 
 class BackupRecoveryPhraseDialog : BaseComposableBottomSheetFragment() {
 
@@ -54,7 +56,7 @@ class BackupRecoveryPhraseDialog : BaseComposableBottomSheetFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
-                val account = requireArguments().getParcelable<Account>(accountKey)!!
+                val account = requireArguments().parcelable<Account>(accountKey)!!
                 BackupRecoveryPhraseScreen(findNavController(), account)
             }
         }
@@ -85,19 +87,13 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
             )
 
             VSpacer(32.dp)
-            PrimaryButtonWithIcon(
+            ButtonPrimaryYellowWithIcon(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
                 title = stringResource(R.string.BackupRecoveryPhrase_ManualBackup),
                 icon = R.drawable.ic_edit_24,
                 iconTint = ComposeAppTheme.colors.dark,
-                buttonColors = ButtonPrimaryDefaults.textButtonColors(
-                    backgroundColor = ComposeAppTheme.colors.yellowD,
-                    contentColor = ComposeAppTheme.colors.dark,
-                    disabledBackgroundColor = ComposeAppTheme.colors.steel20,
-                    disabledContentColor = ComposeAppTheme.colors.grey50,
-                ),
                 onClick = {
                     navController.slideFromBottom(
                         R.id.backupKeyFragment,
@@ -106,19 +102,13 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
                 }
             )
             VSpacer(12.dp)
-            PrimaryButtonWithIcon(
+            ButtonPrimaryDefaultWithIcon(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
                 title = stringResource(R.string.BackupRecoveryPhrase_LocalBackup),
                 icon = R.drawable.ic_file_24,
                 iconTint = ComposeAppTheme.colors.claude,
-                buttonColors = ButtonPrimaryDefaults.textButtonColors(
-                    backgroundColor = ComposeAppTheme.colors.yellowD,
-                    contentColor = ComposeAppTheme.colors.claude,
-                    disabledBackgroundColor = ComposeAppTheme.colors.steel20,
-                    disabledContentColor = ComposeAppTheme.colors.grey50,
-                ),
                 onClick = {
                     navController.slideFromBottom(
                         R.id.backupLocalFragment,

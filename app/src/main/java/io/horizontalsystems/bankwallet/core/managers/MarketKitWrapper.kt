@@ -4,11 +4,13 @@ import android.content.Context
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
 import io.horizontalsystems.bankwallet.core.customCoinPrefix
+import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.SyncInfo
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.HsPeriodType
+import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.horizontalsystems.marketkit.models.MarketInfo
 import io.horizontalsystems.marketkit.models.NftTopCollection
@@ -25,6 +27,7 @@ class MarketKitWrapper(
     hsApiKey: String,
     cryptoCompareApiKey: String? = null,
     defiYieldApiKey: String? = null,
+    appConfigProvider: AppConfigProvider,
     private val subscriptionManager: SubscriptionManager
 ) {
     private val marketKit: MarketKit = MarketKit.getInstance(
@@ -32,7 +35,9 @@ class MarketKitWrapper(
         hsApiBaseUrl = hsApiBaseUrl,
         hsApiKey = hsApiKey,
         cryptoCompareApiKey = cryptoCompareApiKey,
-        defiYieldApiKey = defiYieldApiKey
+        defiYieldApiKey = defiYieldApiKey,
+        appVersion = appConfigProvider.appVersion,
+        appId = appConfigProvider.appId
     )
 
     private fun <T> requestWithAuthToken(f: (String) -> Single<T>) =
@@ -135,14 +140,14 @@ class MarketKitWrapper(
         }
     }
 
-    fun coinPriceObservable(coinUid: String, currencyCode: String): Observable<CoinPrice> =
-        if (coinUid.isCustomCoin) Observable.never() else marketKit.coinPriceObservable(coinUid, currencyCode)
+    fun coinPriceObservable(tag: String, coinUid: String, currencyCode: String): Observable<CoinPrice> =
+        if (coinUid.isCustomCoin) Observable.never() else marketKit.coinPriceObservable(tag, coinUid, currencyCode)
 
-    fun coinPriceMapObservable(coinUids: List<String>, currencyCode: String): Observable<Map<String, CoinPrice>> {
+    fun coinPriceMapObservable(tag: String, coinUids: List<String>, currencyCode: String): Observable<Map<String, CoinPrice>> {
         val coinUidsNoCustom = coinUids.removeCustomCoins()
         return when {
             coinUidsNoCustom.isEmpty() -> Observable.never()
-            else -> marketKit.coinPriceMapObservable(coinUidsNoCustom, currencyCode)
+            else -> marketKit.coinPriceMapObservable(tag, coinUidsNoCustom, currencyCode)
         }
     }
 
@@ -228,6 +233,9 @@ class MarketKitWrapper(
 
     fun chartPointsSingle(coinUid: String, currencyCode: String, periodType: HsPeriodType) =
         marketKit.chartPointsSingle(coinUid, currencyCode, periodType)
+
+    fun chartPointsSingle(coinUid: String, currencyCode: String, period: HsPointTimePeriod, pointCount: Int) =
+        marketKit.chartPointsSingle(coinUid, currencyCode, period, pointCount)
 
     // Global Market Info
 

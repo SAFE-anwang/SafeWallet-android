@@ -13,12 +13,11 @@ import io.horizontalsystems.bankwallet.core.IRateAppManager
 import io.horizontalsystems.bankwallet.core.ITermsManager
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
-import io.horizontalsystems.bankwallet.core.managers.SubscriptionManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.LaunchPage
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
-import io.horizontalsystems.bankwallet.modules.walletconnect.version1.WC1Manager
+import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2SessionManager
 import io.horizontalsystems.core.IPinComponent
 import io.reactivex.disposables.CompositeDisposable
@@ -34,8 +33,7 @@ class MainViewModel(
     private val releaseNotesManager: ReleaseNotesManager,
     private val localStorage: ILocalStorage,
     wc2SessionManager: WC2SessionManager,
-    private val wc1Manager: WC1Manager,
-    subscriptionManager: SubscriptionManager,
+    wc2Manager: WC2Manager,
     private val wcDeepLink: String?
 ) : ViewModel() {
 
@@ -82,11 +80,10 @@ class MainViewModel(
     private var selectedPageIndex = getPageIndexToOpen()
     private var mainNavItems = navigationItems()
     private var showRateAppDialog = false
-    private var showPremiumFeatureWarningDialog = false
     private var contentHidden = pinComponent.isLocked
     private var showWhatsNew = false
     private var activeWallet = accountManager.activeAccount
-    private var wcSupportState: WC1Manager.SupportState? = null
+    private var wcSupportState: WC2Manager.SupportState? = null
     private var torEnabled = localStorage.torEnabled
 
     val wallets: List<Account>
@@ -104,7 +101,6 @@ class MainViewModel(
             showWhatsNew = showWhatsNew,
             activeWallet = activeWallet,
             wcSupportState = wcSupportState,
-            showPremiumFeatureWarningDialog = showPremiumFeatureWarningDialog,
             torEnabled = torEnabled
         )
     )
@@ -130,11 +126,6 @@ class MainViewModel(
             syncState()
         }
 
-        subscriptionManager.showPremiumFeatureWarningFlow.collectWith(viewModelScope) {
-            showPremiumFeatureWarningDialog = true
-            syncState()
-        }
-
         disposables.add(backupManager.allBackedUpFlowable.subscribe {
             updateSettingsBadge()
         })
@@ -148,12 +139,16 @@ class MainViewModel(
             updateSettingsBadge()
         })
 
-        disposables.add(accountManager.activeAccountObservable.subscribe {
-            updateTransactionsTabEnabled()
-        })
+        viewModelScope.launch {
+            accountManager.activeAccountStateFlow.collect {
+                if (it is ActiveAccountState.ActiveAccount) {
+                    updateTransactionsTabEnabled()
+                }
+            }
+        }
 
         wcDeepLink?.let {
-            wcSupportState = wc1Manager.getWalletConnectSupportState()
+            wcSupportState = wc2Manager.getWalletConnectSupportState()
             syncState()
         }
 
@@ -179,11 +174,6 @@ class MainViewModel(
 
     fun whatsNewShown() {
         showWhatsNew = false
-        syncState()
-    }
-
-    fun premiumFeatureWarningShown() {
-        showPremiumFeatureWarningDialog = false
         syncState()
     }
 
@@ -230,7 +220,6 @@ class MainViewModel(
             showWhatsNew = showWhatsNew,
             activeWallet = activeWallet,
             wcSupportState = wcSupportState,
-            showPremiumFeatureWarningDialog = showPremiumFeatureWarningDialog,
             torEnabled = torEnabled
         )
     }
@@ -312,6 +301,9 @@ class MainViewModel(
 
     private fun syncNavigation() {
         mainNavItems = navigationItems()
+        if (selectedPageIndex >= mainNavItems.size) {
+            selectedPageIndex = mainNavItems.size - 1
+        }
         syncState()
     }
 

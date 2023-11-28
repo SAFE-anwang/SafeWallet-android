@@ -38,8 +38,12 @@ class AddressHandlerEns(private val ensResolver: EnsResolver) : IAddressHandler 
     }
 }
 
-class AddressHandlerUdn(private val tokenQuery: TokenQuery, private val coinCode: String?) : IAddressHandler {
-    private val resolution = Resolution()
+class AddressHandlerUdn(
+    private val tokenQuery: TokenQuery,
+    private val coinCode: String?,
+    apiKey: String
+) : IAddressHandler {
+    private val resolution = Resolution(apiKey)
     private val chain by lazy { chain(tokenQuery) }
     private val chainCoinCode by lazy { chainCoinCode(tokenQuery.blockchainType) }
     private val cache = mutableMapOf<String, Address>()
@@ -106,7 +110,7 @@ class AddressHandlerUdn(private val tokenQuery: TokenQuery, private val coinCode
             BlockchainType.Litecoin -> "LTC"
             BlockchainType.Dogecoin -> "DOGE"
             BlockchainType.Dash -> "DASH"
-            BlockchainType.Safe -> "DASH"
+            BlockchainType.Safe -> "SAFE"
             BlockchainType.Zcash -> "ZEC"
             BlockchainType.Solana -> "SOL"
             BlockchainType.Tron -> "TRX"

@@ -31,7 +31,7 @@ class TransactionsService(
     private val transactionAdapterManager: TransactionAdapterManager,
     private val walletManager: IWalletManager,
     private val transactionFilterService: TransactionFilterService,
-    private val nftMetadataService: NftMetadataService
+    private val nftMetadataService: NftMetadataService,
 ) : Clearable {
     val filterResetEnabled by transactionFilterService::resetEnabled
 
@@ -229,11 +229,11 @@ class TransactionsService(
 
         if (newRecords.isNotEmpty() && newRecords.all { it.spam }) {
             loadNext()
-        } else {
-            transactionItems.clear()
-            transactionItems.addAll(tmpList)
-            itemsSubject.onNext(transactionItems)
         }
+
+        transactionItems.clear()
+        transactionItems.addAll(tmpList)
+        itemsSubject.onNext(transactionItems)
     }
 
     private fun getCurrencyValue(record: TransactionRecord): CurrencyValue? {
@@ -273,6 +273,10 @@ class TransactionsService(
     }
 
     private val executorService = Executors.newCachedThreadPool()
+
+    fun refreshList() {
+        itemsSubject.onNext(transactionItems)
+    }
 
     fun setFilterType(f: FilterTransactionType) {
         executorService.submit {

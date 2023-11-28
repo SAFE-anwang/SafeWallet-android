@@ -3,19 +3,18 @@ package io.horizontalsystems.bankwallet.modules.nft.asset
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -42,11 +41,8 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -74,25 +70,15 @@ import kotlinx.coroutines.launch
 import java.net.URL
 
 
-class NftAssetFragment : BaseFragment() {
+class NftAssetFragment : BaseComposeFragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    @Composable
+    override fun GetContent() {
         val collectionUid = requireArguments().getString(NftAssetModule.collectionUidKey)
         val nftUid = requireArguments().getString(NftAssetModule.nftUidKey)?.let { NftUid.fromUid(it) }
-
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
-            )
-            setContent {
-                NftAssetScreen(findNavController(), collectionUid, nftUid)
-            }
-        }
+        NftAssetScreen(findNavController(), collectionUid, nftUid)
     }
+
 }
 
 @Composable
@@ -127,16 +113,16 @@ fun NftAssetScreen(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NftAsset(
     viewModel: NftAssetViewModel,
     navController: NavController
 ) {
-    val pagerState = rememberPagerState(initialPage = 0)
+    val tabs = viewModel.tabs
+    val pagerState = rememberPagerState(initialPage = 0) { tabs.size }
     val coroutineScope = viewModel.viewModelScope
 
-    val tabs = viewModel.tabs
     val selectedTab = tabs[pagerState.currentPage]
     val tabItems = tabs.map {
         TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
@@ -150,7 +136,6 @@ private fun NftAsset(
         })
 
         HorizontalPager(
-            count = tabs.size,
             state = pagerState,
             userScrollEnabled = false
         ) { page ->
@@ -492,7 +477,9 @@ private fun AssetContent(
 
     if (showActionSelectorDialog) {
         SelectorDialogCompose(
-            items = NftAssetModule.NftAssetAction.values().map { (TabItem(stringResource(it.title), false, it)) },
+            items = NftAssetModule.NftAssetAction.values().map {
+                (SelectorItem(stringResource(it.title), false, it))
+            },
             onDismissRequest = {
                 showActionSelectorDialog = false
             },

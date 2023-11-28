@@ -14,14 +14,14 @@ import io.horizontalsystems.bankwallet.entities.nft.NftCollectionRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftMetadataSyncRecord
 import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorSetting
 import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorSettingsDao
+import io.horizontalsystems.bankwallet.modules.pin.core.Pin
+import io.horizontalsystems.bankwallet.modules.pin.core.PinDao
 import io.horizontalsystems.bankwallet.modules.profeatures.storage.ProFeaturesDao
 import io.horizontalsystems.bankwallet.modules.profeatures.storage.ProFeaturesSessionKey
-import io.horizontalsystems.bankwallet.modules.walletconnect.entity.WalletConnectSession
 import io.horizontalsystems.bankwallet.modules.walletconnect.entity.WalletConnectV2Session
-import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC1SessionDao
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionDao
 
-@Database(version = 54, exportSchema = false, entities = [
+@Database(version = 58, exportSchema = false, entities = [
     EnabledWallet::class,
     EnabledWalletCache::class,
     AccountRecord::class,
@@ -29,7 +29,6 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionD
     EvmSyncSourceRecord::class,
     LogEntry::class,
     FavoriteCoin::class,
-    WalletConnectSession::class,
     WalletConnectV2Session::class,
     RestoreSettingRecord::class,
     ActiveAccount::class,
@@ -45,6 +44,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WC2SessionD
     TokenAutoEnabledBlockchain::class,
     CexAssetRaw::class,
     ChartIndicatorSetting::class,
+    Pin::class,
 ])
 
 @TypeConverters(DatabaseConverters::class)
@@ -60,7 +60,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun restoreSettingDao(): RestoreSettingDao
     abstract fun logsDao(): LogsDao
     abstract fun marketFavoritesDao(): MarketFavoritesDao
-    abstract fun wc1SessionDao(): WC1SessionDao
     abstract fun wc2SessionDao(): WC2SessionDao
     abstract fun nftDao(): NftDao
     abstract fun proFeaturesDao(): ProFeaturesDao
@@ -68,6 +67,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun evmMethodLabelDao(): EvmMethodLabelDao
     abstract fun syncerStateDao(): SyncerStateDao
     abstract fun tokenAutoEnabledBlockchainDao(): TokenAutoEnabledBlockchainDao
+    abstract fun pinDao(): PinDao
     abstract fun vpnServerDao(): VpnServerInfoDao
 
     companion object {
@@ -83,7 +83,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "dbBankWallet")
-                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration()
                     .allowMainThreadQueries()
                     .addMigrations(
                             Migration_31_32,
@@ -109,6 +109,10 @@ abstract class AppDatabase : RoomDatabase() {
                             Migration_51_52,
                             Migration_52_53,
                             Migration_53_54,
+                            Migration_54_55,
+                            Migration_55_56,
+                            Migration_56_57,
+                            Migration_57_58,
                     )
                     .build()
         }

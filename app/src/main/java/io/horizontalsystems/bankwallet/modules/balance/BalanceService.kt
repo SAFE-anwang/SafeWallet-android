@@ -1,14 +1,16 @@
 package io.horizontalsystems.bankwallet.modules.balance
 
-import android.util.Log
-import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
+import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +52,7 @@ class BalanceService(
 
     /* getBalanceItems should return new immutable list */
     private fun getBalanceItems(): List<BalanceModule.BalanceItem> = if (hideZeroBalances) {
-        allBalanceItems.filter { it.wallet.token.type == TokenType.Native || it.balanceData.total > BigDecimal.ZERO }
+        allBalanceItems.filter { it.wallet.token.type.isNative || it.balanceData.total > BigDecimal.ZERO }
     } else {
         allBalanceItems.toList()
     }
@@ -117,7 +119,8 @@ class BalanceService(
 
             allBalanceItems[i] = balanceItem.copy(
                 balanceData = adapterRepository.balanceData(balanceItem.wallet),
-                state = adapterRepository.state(balanceItem.wallet)
+                state = adapterRepository.state(balanceItem.wallet),
+                sendAllowed = adapterRepository.sendAllowed(balanceItem.wallet),
             )
         }
 
@@ -132,7 +135,8 @@ class BalanceService(
 
             allBalanceItems[indexOfFirst] = itemToUpdate.copy(
                 balanceData = adapterRepository.balanceData(wallet),
-                state = adapterRepository.state(wallet)
+                state = adapterRepository.state(wallet),
+                sendAllowed = adapterRepository.sendAllowed(wallet),
             )
 
             sortAndEmitItems()
@@ -163,10 +167,11 @@ class BalanceService(
 
         val balanceItems = wallets.map { wallet ->
             BalanceModule.BalanceItem(
-                wallet,
-                adapterRepository.balanceData(wallet),
-                adapterRepository.state(wallet),
-                latestRates[wallet.coin.uid]
+                wallet = wallet,
+                balanceData = adapterRepository.balanceData(wallet),
+                state = adapterRepository.state(wallet),
+                sendAllowed = adapterRepository.sendAllowed(wallet),
+                coinPrice = latestRates[wallet.coin.uid]
             )
         }
 
@@ -195,5 +200,20 @@ class BalanceService(
 
     fun enable(wallet: Wallet) {
         activeWalletRepository.enable(wallet)
+    }
+
+    companion object {
+        fun getInstance(tag: String): BalanceService {
+            return BalanceService(
+                BalanceActiveWalletRepository(App.walletManager, App.evmSyncSourceManager),
+                BalanceXRateRepository(tag, App.currencyManager, App.marketKit),
+                BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao())),
+                App.localStorage,
+                App.connectivityManager,
+                BalanceSorter(),
+                App.accountManager
+            )
+
+        }
     }
 }

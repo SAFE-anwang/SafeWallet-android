@@ -94,6 +94,7 @@ class SendEvmTransactionViewModel(
 
     override fun onCleared() {
         disposable.clear()
+        service.clear()
     }
 
     @Synchronized

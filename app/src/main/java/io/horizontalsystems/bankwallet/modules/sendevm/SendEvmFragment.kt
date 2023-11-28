@@ -11,6 +11,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -130,7 +131,7 @@ class SendEvmFragment : BaseFragment() {
         binding.toolbarCompose.setContent {
             ComposeAppTheme {
                 AppBar(
-                    title = TranslatableString.ResString(R.string.Send_Title, fullCoin.coin.code),
+                    title = stringResource(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
                         if (fullCoin.coin.uid == "safe-coin") {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),

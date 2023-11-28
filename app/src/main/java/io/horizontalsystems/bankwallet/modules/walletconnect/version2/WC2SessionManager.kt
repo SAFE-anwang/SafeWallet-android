@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.walletconnect.version2
 
 import com.walletconnect.sign.client.Sign
 import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.walletconnect.entity.WalletConnectV2Session
@@ -10,9 +11,12 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class WC2SessionManager(
     private val accountManager: IAccountManager,
@@ -25,6 +29,7 @@ class WC2SessionManager(
 
     var pendingRequestDataToOpen = mutableMapOf<Long, RequestData>()
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val disposable = CompositeDisposable()
     private val sessionsSubject = PublishSubject.create<List<Sign.Model.Session>>()
     val sessionsObservable: Flowable<List<Sign.Model.Session>>
@@ -57,11 +62,13 @@ class WC2SessionManager(
         service.start()
         syncSessions()
 
-        accountManager.activeAccountObservable
-            .subscribeIO {
-                syncSessions()
+        coroutineScope.launch {
+            accountManager.activeAccountStateFlow.collect { activeAccountState ->
+                if (activeAccountState is ActiveAccountState.ActiveAccount) {
+                    syncSessions()
+                }
             }
-            .let { disposable.add(it) }
+        }
 
         accountManager.accountsDeletedFlowable
             .subscribeIO {
