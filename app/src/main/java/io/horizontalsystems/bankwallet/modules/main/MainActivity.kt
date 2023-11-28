@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
@@ -84,7 +86,11 @@ class MainActivity : BaseActivity() {
         filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
         filter.addAction("com.anwang.safe.connect")
         filter.addAction("com.anwang.safe.reconnect")
-        registerReceiver(mMsgReceiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(mMsgReceiver, filter, RECEIVER_NOT_EXPORTED)
+        }else {
+            registerReceiver(mMsgReceiver, filter)
+        }
 
         startVpn()
     }
