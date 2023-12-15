@@ -260,8 +260,14 @@ object LiquidityMainModule {
         override val url get() = "https://pancakeswap.finance/"
         override val supportsExactOut get() = true
 
-        override fun supports(blockchainType: BlockchainType): Boolean {
+        /*override fun supports(blockchainType: BlockchainType): Boolean {
             return blockchainType == BlockchainType.BinanceSmartChain
+        }*/
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.BinanceSmartChain,
+            BlockchainType.Polygon,
+            BlockchainType.Ethereum -> true
+            else -> false
         }
     }
 
