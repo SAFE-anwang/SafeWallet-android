@@ -48,8 +48,8 @@ val Token.swappable: Boolean
         BlockchainType.Optimism,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
+        BlockchainType.Polygon,
         BlockchainType.ArbitrumOne -> true
-        BlockchainType.Polygon -> coin.uid != "safe-coin"
         else -> false
     }
 

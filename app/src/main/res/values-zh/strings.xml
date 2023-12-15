@@ -1804,8 +1804,8 @@
     <string name="CexWithdraw_Error_MaximumAmount">您可以提取的最大金额是 %s</string>
     <string name="CexWithdraw_Error_WithdrawTitle">提取失败</string>
 
-    <string name="fallback_block">SAFE区块回退高度</string>
-    <string name="fallback_block_title">SAFE区块回退</string>
+    <string name="fallback_block">%s区块回退高度</string>
+    <string name="fallback_block_title">%s区块回退</string>
     <string name="fallback_block_time_1">高度: 4939318 (2023-6)</string>
     <string name="fallback_block_time_2">高度: 5178101 (2023-9)</string>
     <string name="fallback_block_time_3">高度: 4581517 (2023-2)</string>

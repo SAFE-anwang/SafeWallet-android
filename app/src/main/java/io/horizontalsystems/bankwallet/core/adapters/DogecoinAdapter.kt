@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRe
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.models.BalanceInfo
 import io.horizontalsystems.bitcoincore.models.BlockInfo
+import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.dogecoinkit.DogecoinKit
@@ -19,6 +20,7 @@ import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
+import java.util.Calendar
 
 class DogecoinAdapter(
     override val kit: DogecoinKit,
@@ -86,6 +88,28 @@ class DogecoinAdapter(
 
     override val blockchainType = BlockchainType.Dogecoin
 
+
+    fun fallbackBlock(year: Int, month: Int) {
+        lastBlockInfo?.let {
+            kit.bitcoinCore.stop2()
+            kit.bitcoinCore.stopDownload()
+            val checkpoint = Checkpoint("${kit.networkName}.checkpoint")
+            val lastBlockInfo = kit.bitcoinCore.storage.getLastBlockHash()
+            val lastBlockHeight = if (lastBlockInfo != null) {
+                it.height - 2000
+            } else {
+                checkpoint.block.height
+            }
+            val blocksList = kit.bitcoinCore.storage.getBlocksChunk(lastBlockHeight)
+            if (blocksList.isNotEmpty()) {
+                kit.bitcoinCore.storage.deleteBlocks(blocksList)
+            }
+            kit.mainNetDogecoin?.let {
+                kit.bitcoinCore.updateLastBlockInfo(syncMode, it)
+            }
+            kit.bitcoinCore.start()
+        }
+    }
 
     companion object {
         private const val confirmationsThreshold = 3

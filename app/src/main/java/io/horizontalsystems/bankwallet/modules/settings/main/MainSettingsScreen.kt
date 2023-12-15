@@ -74,9 +74,6 @@ fun SettingsScreen(
         try {
             if (isFallback) {
                 mainViewModel.onSelect(MainModule.MainNavigation.Balance)
-                /*if (isAdded) {
-                    (requireParentFragment() as MainFragment).openBalanceFragment()
-                }*/
             }
         } catch (e: Exception) {
 

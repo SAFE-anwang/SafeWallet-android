@@ -27,11 +27,11 @@ import io.horizontalsystems.marketkit.models.Blockchain
 @Composable
 fun FallBlockBlock(
     blockchainSettingsViewModel: FallbackBlockViewModel,
-    onClick: (Blockchain) -> Unit
+    onClick: (FallbackBlockViewModel.FallbackViewItem) -> Unit
 ) {
     CellMultilineLawrenceSection(blockchainSettingsViewModel.items) { item ->
         BlockchainSettingCell(item) {
-            onClick.invoke(item.blockchain)
+            onClick.invoke(item)
         }
     }
 }
