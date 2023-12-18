@@ -145,11 +145,11 @@ class SecuritySettingsFragment : BaseComposeFragment() {
     }
 
     private fun showFallbackBlockAlert(item: FallbackBlockViewModel.FallbackViewItem, year: Int, month: Int) {
-        val warningTitle = getString(R.string.fallback_block_title, item.blockchain.name)
+        val warningTitle = getString(R.string.fallback_block_title)
 
         ConfirmationDialog.show(
             icon = item.icon,
-            title = getString(R.string.fallback_block_title, item.blockchain.name),
+            title = getString(R.string.fallback_block_alert_title, item.blockchain.name),
             warningTitle = warningTitle,
             warningText = getString(R.string.fallback_Warning),
             actionButtonTitle = getString(R.string.Alert_fallback),
@@ -176,6 +176,7 @@ class SecuritySettingsFragment : BaseComposeFragment() {
 
     private fun showFallbackSelectorDialog(blockchain: FallbackBlockViewModel.FallbackViewItem) {
         val dialog = BottomSheetFallbackBlockSelectDialog()
+        dialog.coinName = blockchain.blockchain.name
         dialog.items = fallbackBlockViewModel.itemsTime
         dialog.onSelectListener = {
             showFallbackBlockAlert(blockchain, it.year, it.month)

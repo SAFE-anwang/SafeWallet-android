@@ -25,6 +25,7 @@ import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 
 class BottomSheetFallbackBlockSelectDialog() : BaseComposableBottomSheetFragment() {
 
+    var coinName: String = "SAFE"
     var items: List<FallbackBlockViewModel.FallbackTimeViewItem>? = null
     var selectedItem: FallbackBlockViewModel.FallbackTimeViewItem? = null
     var onSelectListener: ((FallbackBlockViewModel.FallbackTimeViewItem) -> Unit)? = null
@@ -41,6 +42,7 @@ class BottomSheetFallbackBlockSelectDialog() : BaseComposableBottomSheetFragment
             setContent {
                 ComposeAppTheme {
                     BottomSheetScreen(
+                        coinName = coinName,
                         swapProviders = items,
                         selectedItem = selectedItem,
                         onSelectListener = onSelectListener,
@@ -55,6 +57,7 @@ class BottomSheetFallbackBlockSelectDialog() : BaseComposableBottomSheetFragment
 
 @Composable
 private fun BottomSheetScreen(
+    coinName: String,
     swapProviders: List<FallbackBlockViewModel.FallbackTimeViewItem>?,
     selectedItem: FallbackBlockViewModel.FallbackTimeViewItem?,
     onSelectListener: ((FallbackBlockViewModel.FallbackTimeViewItem) -> Unit)?,
@@ -62,7 +65,7 @@ private fun BottomSheetScreen(
 ) {
     BottomSheetHeader(
         iconPainter = painterResource(R.drawable.ic_back),
-        title = stringResource(R.string.fallback_block),
+        title = stringResource(R.string.fallback_block, coinName),
         onCloseClick = onCloseClick,
         iconTint = ColorFilter.tint(ComposeAppTheme.colors.jacob)
     ) {

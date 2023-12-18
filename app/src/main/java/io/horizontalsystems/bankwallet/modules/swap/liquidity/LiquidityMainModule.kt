@@ -265,7 +265,6 @@ object LiquidityMainModule {
         }*/
         override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
             BlockchainType.BinanceSmartChain,
-            BlockchainType.Polygon,
             BlockchainType.Ethereum -> true
             else -> false
         }

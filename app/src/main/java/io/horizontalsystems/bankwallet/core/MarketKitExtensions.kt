@@ -53,6 +53,18 @@ val Token.swappable: Boolean
         else -> false
     }
 
+val Token.liquidity: Boolean
+    get() = when (blockchainType) {
+        BlockchainType.Ethereum,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Avalanche,
+        BlockchainType.Optimism,
+        BlockchainType.Gnosis,
+        BlockchainType.Fantom,
+        BlockchainType.ArbitrumOne -> true
+        else -> false
+    }
+
 val Token.protocolInfo: String
     get() = when (type) {
         TokenType.Native -> {

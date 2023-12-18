@@ -384,13 +384,13 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                 contentDescription = stringResource(R.string.Balance_Receive),
                 onClick = onClickReceive,
             )
-            if (viewItem.swapVisible) {
+            if (viewItem.liquidityVisible) {
                 Spacer(modifier = Modifier.width(8.dp))
                 HsIconButton(
                         onClick = {
                             navController.slideFromRight(
-                                R.id.liquidityFragment,
-                                LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                                    R.id.liquidityFragment,
+                                    LiquidityMainModule.prepareParams(viewItem.wallet.token)
                             )
                         },
                         modifier = Modifier
@@ -410,6 +410,8 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                             tint = ComposeAppTheme.colors.claude
                     )
                 }
+            }
+            if (viewItem.swapVisible) {
                 Spacer(modifier = Modifier.width(8.dp))
                 ButtonThirdCircle(
                     icon = R.drawable.ic_swap_24,

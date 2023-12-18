@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.liquidity
 import io.horizontalsystems.bankwallet.core.providers.CexAsset
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.swappable
@@ -41,7 +42,8 @@ data class BalanceViewItem(
     val swapEnabled: Boolean = false,
     val errorMessage: String?,
     val isWatchAccount: Boolean,
-    val isLpToken: Boolean = false
+    val isLpToken: Boolean = false,
+    val liquidityVisible: Boolean = false
 )
 
 @Immutable
@@ -64,7 +66,8 @@ data class BalanceViewItem2(
     val swapEnabled: Boolean = false,
     val errorMessage: String?,
     val isWatchAccount: Boolean,
-    val isLpToken: Boolean = false
+    val isLpToken: Boolean = false,
+    val liquidityVisible: Boolean = false
 )
 
 data class DeemedValue<T>(val value: T, val dimmed: Boolean = false, val visible: Boolean = true)
@@ -230,7 +233,8 @@ class BalanceViewItemFactory {
             swapEnabled = state is AdapterState.Synced,
             errorMessage = (state as? AdapterState.NotSynced)?.error?.message,
             isWatchAccount = watchAccount,
-            isLpToken = item.wallet.coin.name == "Pancake LPs"
+            isLpToken = item.wallet.coin.name == "Pancake LPs",
+            liquidityVisible = wallet.token.liquidity
         )
     }
 
@@ -285,7 +289,8 @@ class BalanceViewItemFactory {
             swapEnabled = state is AdapterState.Synced,
             errorMessage = errorMessage,
             isWatchAccount = watchAccount,
-            isLpToken = item.wallet.coin.name == "Pancake LPs"
+            isLpToken = item.wallet.coin.name == "Pancake LPs",
+            liquidityVisible = wallet.token.liquidity
         )
     }
 
