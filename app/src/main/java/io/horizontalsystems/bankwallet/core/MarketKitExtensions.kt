@@ -55,7 +55,7 @@ val Token.swappable: Boolean
 
 val Token.liquidity: Boolean
     get() = when (blockchainType) {
-        BlockchainType.Ethereum,
+//        BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain -> true
         else -> false
     }
@@ -508,7 +508,12 @@ val TokenType.description: String
 
 val TokenType.isDefault
     get() = when (this) {
-        is TokenType.Derived -> derivation.accountTypeDerivation == AccountType.Derivation.default
+        is TokenType.Derived ->{
+            derivation.accountTypeDerivation == AccountType.Derivation.default ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip44 ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip49 ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip86
+        }
         is TokenType.AddressTyped -> type.bitcoinCashCoinType == BitcoinCashCoinType.default
         else -> false
     }

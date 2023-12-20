@@ -106,7 +106,7 @@ class ManageWalletsService(
 
     private fun sortItems() {
         var comparator = compareByDescending<Item> {
-            it.token.coin.uid == "safe-coin" || it.enabled
+            it.enabled || it.token.coin.uid == "safe-coin" || it.token.coin.uid == "bitcoin"
         }
 
         if (filter.isBlank()) {
