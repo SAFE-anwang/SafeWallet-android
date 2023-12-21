@@ -207,8 +207,8 @@ class LiquidityListViewModel(
         // 没有添加流动性
         if (balanceOfAccount.equals(BigInteger.ZERO))   return null
         return LiquidityListModule.LiquidityItem(
-                walletA,
                 walletB,
+                walletA,
                 tokenAAddress,
                 tokenBAddress,
                 pooledR0Amount,
