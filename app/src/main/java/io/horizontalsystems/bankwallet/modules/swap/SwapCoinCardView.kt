@@ -164,8 +164,10 @@ private fun SwapAmountInput(
 
 //    LaunchedEffect(amountData?.first) {
     if (!amountsEqual(state.amount.toBigDecimalOrNull(), textState.text.toBigDecimalOrNull())) {
-        if (!state.dimAmount || state.amount.isNotEmpty())
-            textState = textState.copy(text = state.amount, selection = TextRange(state.amount.length))
+        if (!state.dimAmount || state.amount.isNotEmpty()) {
+            val amount = SwapMainModule.format(state.amount)
+            textState = textState.copy(text = amount, selection = TextRange(amount.length))
+        }
     }
 //    }
 
@@ -184,7 +186,7 @@ private fun SwapAmountInput(
             onValueChange = { textFieldValue ->
                 if (isValid(textFieldValue.text, state.validDecimals)) {
                     textState = textFieldValue
-                    onChangeAmount.invoke(textFieldValue.text)
+                    onChangeAmount.invoke(SwapMainModule.format(textFieldValue.text))
                 }
             },
             textStyle = ColoredTextStyle(
