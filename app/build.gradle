@@ -18,7 +18,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         versionCode 91
-        versionName "0.36.0.1.1222"
+        versionName "0.36.0.1.1225"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -97,7 +97,7 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
-            resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
+            resValue "string", "trongridApiKey", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
             resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -143,7 +143,7 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
-            resValue "string", "trongridApiKey", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29"
+            resValue "string", "trongridApiKey", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
             resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
