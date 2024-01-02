@@ -144,8 +144,13 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val oneInchApiKey by lazy {
-        Translator.getString(R.string.oneInchApiKey)
-    }
+        val projectKey = when(index) {
+            0 -> Translator.getString(R.string.oneInchApiKey)
+            1 -> Translator.getString(R.string.oneInchApiKey2)
+            else -> Translator.getString(R.string.oneInchApiKey3)
+        }
+        projectKey
+      }
 
     val fiatDecimal: Int = 2
     val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
