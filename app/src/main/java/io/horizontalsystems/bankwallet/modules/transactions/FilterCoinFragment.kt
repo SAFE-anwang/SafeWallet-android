@@ -42,7 +42,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
-import io.horizontalsystems.core.findNavController
 
 class FilterCoinFragment : BaseComposeFragment() {
 
@@ -50,10 +49,8 @@ class FilterCoinFragment : BaseComposeFragment() {
     val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            FilterCoinScreen(findNavController(), viewModel)
-        }
+    override fun GetContent(navController: NavController) {
+        FilterCoinScreen(navController, viewModel)
     }
 
 }

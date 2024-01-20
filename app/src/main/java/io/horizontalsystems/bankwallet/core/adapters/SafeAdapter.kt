@@ -140,7 +140,7 @@ class SafeAdapter(
                     newReverseHex = JsonUtils.objToString(lineLock)
                     Log.i("safe4", "---线性锁仓信息: $lineLock")
                 }
-                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, mapOf(), unlockedHeight, newReverseHex)
+                kit.sendSafe(address, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, null, mapOf(), unlockedHeight, newReverseHex)
                 emitter.onSuccess(Unit)
             } catch (ex: Exception) {
                 ex.printStackTrace()

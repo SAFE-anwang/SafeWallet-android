@@ -135,8 +135,8 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         Translator.getString(R.string.solscanApiKey)
     }
 
-    val trongridApiKey by lazy {
-        Translator.getString(R.string.trongridApiKey)
+    val trongridApiKeys: List<String> by lazy {
+        Translator.getString(R.string.trongridApiKeys).split(",")
     }
 
     val udnApiKey by lazy {
@@ -145,6 +145,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
 
     val oneInchApiKey by lazy {
         Translator.getString(R.string.oneInchApiKey)
+    }
+
+    val blockchairApiKey by lazy {
+        Translator.getString(R.string.blockchairApiKey)
     }
 
     val fiatDecimal: Int = 2
@@ -191,7 +195,8 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             BlockchainType.Solana to "ELFQmFXqdS6C1zVqZifs7WAmLKovdEPbWSnqomhZoK3B",
             BlockchainType.Gnosis to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Fantom to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Tron to "TXKA3SxjLsUL4n6j3v2h85fzb4V7Th6yh6"
+            BlockchainType.Ton to "UQDgkDkU_3Mtujk2FukZEsiXV9pOhVzkdvvYH8es0tZylTZY",
+            BlockchainType.Tron to "TXKA3SxjLsUL4n6j3v2h85fzb4V7Th6yh6",
         ).toList().sortedBy { (key, _) -> key.order }.toMap()
     }
 

@@ -65,14 +65,14 @@ class SendAddressPresenter(
     override var currentAddress: Address? = null
 
     override fun validAddress(): Address {
-        return currentAddress ?: throw AddressValidationException.Blank()
+        return currentAddress ?: throw AddressValidationException.Blank
     }
 
     override fun validateAddress() {
         val address = enteredAddress
         if (address == null) {
             currentAddress = null
-            throw AddressValidationException.Blank()
+            throw AddressValidationException.Blank
         }
 
         try {

@@ -482,6 +482,7 @@ private fun TopMenu(
                             )
                         )
                     }
+
                     SwapMainModule.PancakeSwapV3Provider -> {
                         navController.slideFromBottom(
                             R.id.uniswapSettingsFragment,
@@ -493,6 +494,7 @@ private fun TopMenu(
                             )
                         )
                     }
+
                     else -> {
                         navController.slideFromBottom(
                             R.id.uniswapSettingsFragment,
@@ -612,6 +614,7 @@ private fun getPriceImpactColor(
         PriceImpactLevel.Normal -> ComposeAppTheme.colors.jacob
         PriceImpactLevel.Warning,
         PriceImpactLevel.Forbidden -> ComposeAppTheme.colors.lucian
+
         else -> ComposeAppTheme.colors.grey
     }
 }

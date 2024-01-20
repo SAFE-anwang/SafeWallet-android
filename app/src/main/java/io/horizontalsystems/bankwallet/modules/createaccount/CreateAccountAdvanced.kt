@@ -62,10 +62,10 @@ fun CreateAccountAdvancedScreen(
     LaunchedEffect(viewModel.successMessage) {
         viewModel.successMessage?.let {
             HudHelper.showSuccessMessage(
-                contenView = view,
-                resId = it,
-                icon = R.drawable.icon_add_to_wallet_24,
-                iconTint = R.color.white
+                    contenView = view,
+                    resId = it,
+                    icon = R.drawable.icon_add_to_wallet_24,
+                    iconTint = R.color.white
             )
             delay(300)
             onFinish.invoke()
@@ -81,130 +81,130 @@ fun CreateAccountAdvancedScreen(
         Surface(color = ComposeAppTheme.colors.tyler) {
             if (showMnemonicSizeSelectorDialog) {
                 SelectorDialogCompose(
-                    title = stringResource(R.string.CreateWallet_Mnemonic),
-                    items = viewModel.mnemonicKinds.map {
-                        SelectorItem(it.titleLong, it == viewModel.selectedKind, it)
-                    },
-                    onDismissRequest = {
-                        showMnemonicSizeSelectorDialog = false
-                    },
-                    onSelectItem = {
-                        viewModel.setMnemonicKind(it)
-                    }
+                        title = stringResource(R.string.CreateWallet_Mnemonic),
+                        items = viewModel.mnemonicKinds.map {
+                            SelectorItem(it.titleLong, it == viewModel.selectedKind, it)
+                        },
+                        onDismissRequest = {
+                            showMnemonicSizeSelectorDialog = false
+                        },
+                        onSelectItem = {
+                            viewModel.setMnemonicKind(it)
+                        }
                 )
             }
 
             if (showLanguageSelectorDialog) {
                 SelectorDialogCompose(
-                    title = stringResource(R.string.CreateWallet_Wordlist),
-                    items = viewModel.mnemonicLanguages.map {
-                        SelectorItem(
-                            stringResource(it.displayNameStringRes),
-                            it == viewModel.languageType,
-                            it
-                        )
-                    },
-                    onDismissRequest = {
-                        coroutineScope.launch {
-                            showLanguageSelectorDialog = false
+                        title = stringResource(R.string.CreateWallet_Wordlist),
+                        items = viewModel.mnemonicLanguages.map {
+                            SelectorItem(
+                                    stringResource(it.displayNameStringRes),
+                                    it == viewModel.languageType,
+                                    it
+                            )
+                        },
+                        onDismissRequest = {
+                            coroutineScope.launch {
+                                showLanguageSelectorDialog = false
+                            }
+                        },
+                        onSelectItem = {
+                            viewModel.setMnemonicLanguage(it)
                         }
-                    },
-                    onSelectItem = {
-                        viewModel.setMnemonicLanguage(it)
-                    }
                 )
             }
             Column {
                 AppBar(
-                    title = stringResource(R.string.CreateWallet_Advanced_Title),
-                    navigationIcon = {
-                        HsBackButton(onClick = onBackClick)
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Create),
-                            onClick = { viewModel.createAccount() },
+                        title = stringResource(R.string.CreateWallet_Advanced_Title),
+                        navigationIcon = {
+                            HsBackButton(onClick = onBackClick)
+                        },
+                        menuItems = listOf(
+                                MenuItem(
+                                        title = TranslatableString.ResString(R.string.Button_Create),
+                                        onClick = { viewModel.createAccount() },
+                                )
                         )
-                    )
                 )
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(Modifier.height(12.dp))
                     HeaderText(stringResource(id = R.string.ManageAccount_Name))
                     FormsInput(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        initial = viewModel.accountName,
-                        pasteEnabled = false,
-                        hint = viewModel.defaultAccountName,
-                        onValueChange = viewModel::onChangeAccountName
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            initial = viewModel.accountName,
+                            pasteEnabled = false,
+                            hint = viewModel.defaultAccountName,
+                            onValueChange = viewModel::onChangeAccountName
                     )
                     Spacer(Modifier.height(32.dp))
                     CellUniversalLawrenceSection(
-                        listOf {
-                            MnemonicNumberCell(
-                                kind = viewModel.selectedKind,
-                                showMnemonicSizeSelectorDialog = {
-                                    showMnemonicSizeSelectorDialog = true
-                                }
-                            )
-                        }
-                    )
-
-                    Spacer(Modifier.height(32.dp))
-                    CellUniversalLawrenceSection(
-                        listOf(
-                            {
-                                MnemonicLanguageCell(
-                                    language = viewModel.languageType,
-                                    showLanguageSelectorDialog = {
-                                        showLanguageSelectorDialog = true
-                                    }
-                                )
-                            },
-                            {
-                                PassphraseCell(
-                                    enabled = viewModel.passphraseEnabled,
-                                    onCheckedChange = { viewModel.setPassphraseEnabledState(it) }
+                            listOf {
+                                MnemonicNumberCell(
+                                        kind = viewModel.selectedKind,
+                                        showMnemonicSizeSelectorDialog = {
+                                            showMnemonicSizeSelectorDialog = true
+                                        }
                                 )
                             }
+                    )
 
-                        )
+                    Spacer(Modifier.height(32.dp))
+                    CellUniversalLawrenceSection(
+                            listOf(
+                                    {
+                                        MnemonicLanguageCell(
+                                                language = viewModel.languageType,
+                                                showLanguageSelectorDialog = {
+                                                    showLanguageSelectorDialog = true
+                                                }
+                                        )
+                                    },
+                                    {
+                                        PassphraseCell(
+                                                enabled = viewModel.passphraseEnabled,
+                                                onCheckedChange = { viewModel.setPassphraseEnabledState(it) }
+                                        )
+                                    }
+
+                            )
                     )
 
                     if (viewModel.passphraseEnabled) {
                         Spacer(Modifier.height(24.dp))
                         FormsInputPassword(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            hint = stringResource(R.string.Passphrase),
-                            state = viewModel.passphraseState,
-                            onValueChange = viewModel::onChangePassphrase,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            hide = hidePassphrase,
-                            onToggleHide = {
-                                hidePassphrase = !hidePassphrase
-                            }
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                hint = stringResource(R.string.Passphrase),
+                                state = viewModel.passphraseState,
+                                onValueChange = viewModel::onChangePassphrase,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                hide = hidePassphrase,
+                                onToggleHide = {
+                                    hidePassphrase = !hidePassphrase
+                                }
                         )
                         Spacer(Modifier.height(16.dp))
                         FormsInputPassword(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            hint = stringResource(R.string.ConfirmPassphrase),
-                            state = viewModel.passphraseConfirmState,
-                            onValueChange = viewModel::onChangePassphraseConfirmation,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            hide = hidePassphrase,
-                            onToggleHide = {
-                                hidePassphrase = !hidePassphrase
-                            }
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                hint = stringResource(R.string.ConfirmPassphrase),
+                                state = viewModel.passphraseConfirmState,
+                                onValueChange = viewModel::onChangePassphraseConfirmation,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                hide = hidePassphrase,
+                                onToggleHide = {
+                                    hidePassphrase = !hidePassphrase
+                                }
                         )
                         Spacer(Modifier.height(12.dp))
                         D1(
-                            modifier = Modifier.padding(horizontal = 24.dp),
-                            text = stringResource(R.string.CreateWallet_PassphraseDescription)
+                                modifier = Modifier.padding(horizontal = 24.dp),
+                                text = stringResource(R.string.CreateWallet_PassphraseDescription)
                         )
                     }
                     Spacer(Modifier.height(32.dp))
@@ -215,7 +215,7 @@ fun CreateAccountAdvancedScreen(
 }
 
 @Composable
-private fun MnemonicNumberCell(
+fun MnemonicNumberCell(
     kind: CreateAccountModule.Kind,
     showMnemonicSizeSelectorDialog: () -> Unit
 ) {

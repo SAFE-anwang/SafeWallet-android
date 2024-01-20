@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.modules.chart.ChartPointsWrapper
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.chartview.ChartViewType
 import io.horizontalsystems.chartview.models.ChartPoint
+import io.horizontalsystems.marketkit.models.HsPeriodType
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
 
@@ -17,15 +18,15 @@ class PlatformChartService(
     private val marketKit: MarketKitWrapper,
 ) : AbstractChartService() {
 
-    override val initialChartInterval = HsTimePeriod.Day1
-    override val chartIntervals = listOf(HsTimePeriod.Day1, HsTimePeriod.Week1, HsTimePeriod.Month1)
+    override val initialChartInterval = HsTimePeriod.Week1
+    override val chartIntervals = listOf(HsTimePeriod.Week1, HsTimePeriod.Month1, HsTimePeriod.Month3)
     override val chartViewType = ChartViewType.Line
 
     override fun getItems(
         chartInterval: HsTimePeriod,
         currency: Currency
     ): Single<ChartPointsWrapper> = try {
-        marketKit.topPlatformMarketCapPointsSingle(platform.uid, chartInterval, currency.code)
+        marketKit.topPlatformMarketCapPointsSingle(platform.uid, currency.code, HsPeriodType.ByPeriod(chartInterval))
             .map { info -> info.map { ChartPoint(it.marketCap.toFloat(), it.timestamp) } }
             .map { ChartPointsWrapper(it) }
     } catch (e: Exception) {

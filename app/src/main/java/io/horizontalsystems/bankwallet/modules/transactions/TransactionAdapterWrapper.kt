@@ -27,6 +27,13 @@ class TransactionAdapterWrapper(
         subscribeForUpdates()
     }
 
+    fun reload() {
+        unsubscribeFromUpdates()
+        transactionRecords.clear()
+        allLoaded = false
+        subscribeForUpdates()
+    }
+
     fun setTransactionType(transactionType: FilterTransactionType) {
         unsubscribeFromUpdates()
 

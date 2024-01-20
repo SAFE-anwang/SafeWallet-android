@@ -35,16 +35,15 @@ import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.parcelable
 
 class SwapApproveFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         val approveData = requireArguments().parcelable<SwapMainModule.ApproveData>(dataKey)!!
         val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
-        SwapApproveScreen(findNavController(), approveData, backNavGraphId)
+        SwapApproveScreen(navController, approveData, backNavGraphId)
     }
 
 }
@@ -61,51 +60,50 @@ fun SwapApproveScreen(
     val approveAllowed = swapApproveViewModel.approveAllowed
     val amountError = swapApproveViewModel.amountError
 
-    ComposeAppTheme {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = stringResource(R.string.Approve_Title),
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Close),
-                        icon = R.drawable.ic_close,
-                        onClick = navController::popBackStack
-                    )
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+        AppBar(
+            title = stringResource(R.string.Approve_Title),
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Button_Close),
+                    icon = R.drawable.ic_close,
+                    onClick = navController::popBackStack
                 )
             )
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            TextImportantWarning(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                text = stringResource(R.string.Approve_Info)
-            )
+        Spacer(modifier = Modifier.height(12.dp))
+        TextImportantWarning(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.Approve_Info)
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            val state = amountError?.let {
-                DataState.Error(it)
-            }
-            var validAmount by rememberSaveable { mutableStateOf(swapApproveViewModel.initialAmount) }
-            FormsInput(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                initial = swapApproveViewModel.initialAmount,
-                hint = "",
-                state = state,
-                pasteEnabled = false,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textPreprocessor = object : TextPreprocessor {
-                    override fun process(text: String): String {
-                        if (swapApproveViewModel.validateAmount(text)) {
-                            validAmount = text
-                        } else {
-                            // todo: shake animation
-                        }
-                        return validAmount
+        Spacer(modifier = Modifier.height(12.dp))
+        val state = amountError?.let {
+            DataState.Error(it)
+        }
+        var validAmount by rememberSaveable { mutableStateOf(swapApproveViewModel.initialAmount) }
+        FormsInput(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            initial = swapApproveViewModel.initialAmount,
+            hint = "",
+            state = state,
+            pasteEnabled = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            textPreprocessor = object : TextPreprocessor {
+                override fun process(text: String): String {
+                    if (swapApproveViewModel.validateAmount(text)) {
+                        validAmount = text
+                    } else {
+                        // todo: shake animation
                     }
-                },
-                onValueChange = {
-                    swapApproveViewModel.onEnterAmount(it)
+                    return validAmount
                 }
-            )
+            },
+            onValueChange = {
+                swapApproveViewModel.onEnterAmount(it)
+            }
+        )
 
             Spacer(modifier = Modifier.weight(1f))
             ButtonsGroupWithShade {
@@ -128,4 +126,4 @@ fun SwapApproveScreen(
             }
         }
     }
-}
+

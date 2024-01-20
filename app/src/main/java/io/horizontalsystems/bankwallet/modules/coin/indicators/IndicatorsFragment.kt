@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.fragment.findNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -36,12 +35,10 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 class IndicatorsFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            IndicatorsScreen(
-                navController = findNavController(),
-            )
-        }
+    override fun GetContent(navController: NavController) {
+        IndicatorsScreen(
+            navController = navController,
+        )
     }
 
 }

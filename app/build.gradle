@@ -17,8 +17,8 @@ android {
         compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 91
-        versionName "0.36.0"
+        versionCode 95
+        versionName "0.37.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -97,9 +97,10 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
-            resValue "string", "trongridApiKey", "33374494-8060-447e-8367-90c5efd4ed95"
+            resValue "string", "trongridApiKeys", "33374494-8060-447e-8367-90c5efd4ed95"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
             resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
+            resValue "string", "blockchairApiKey", "M___unstoppn7jfFpe40X___________"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -143,9 +144,10 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
-            resValue "string", "trongridApiKey", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29"
+            resValue "string", "trongridApiKeys", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29,578aa64f-a79f-4ee8-86e9-e9860e2d050a,1e92f1fc-41f8-401f-a7f6-5b719b6f1280"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
             resValue "string", "oneInchApiKey", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
+            resValue "string", "blockchairApiKey", "M___unstoppn7jfFpe40X___________"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -230,7 +232,7 @@ dependencies {
     implementation "androidx.core:core-splashscreen:1.0.1"
 
     //AppWidgets
-    implementation 'androidx.glance:glance-appwidget:1.0.0-rc01'
+    implementation 'androidx.glance:glance-appwidget:1.0.0'
 
     // Room
     def room_version = '2.5.2'
@@ -257,7 +259,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
     implementation "androidx.biometric:biometric:$biometric_version"
 
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -303,11 +305,11 @@ dependencies {
     implementation project(':bitcoin-kit-android:ecashkit')
     implementation project(':bitcoin-kit-android:dogecoinkit')
 
+    implementation 'com.github.horizontalsystems:ton-kit-kmm:18bc110'
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
-    implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
-    implementation 'com.github.horizontalsystems:market-kit-android:0059cac'
-    implementation 'com.github.horizontalsystems:solana-kit-android:5cc6e81'
-    implementation 'com.github.horizontalsystems:tron-kit-android:67f8d53'
+    implementation 'com.github.horizontalsystems:binance-chain-kit-android:c1509a2'
+    implementation 'com.github.horizontalsystems:solana-kit-android:34ef394'
+    implementation 'com.github.horizontalsystems:tron-kit-android:f2f7c9a'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
     implementation project(':ethereum-kit-android:ethereumkit')
@@ -339,8 +341,8 @@ dependencies {
 
     implementation 'com.twitter.twittertext:twitter-text:3.1.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.7.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.7.3'
 
     // UI modules
 
@@ -352,7 +354,7 @@ dependencies {
     implementation project(':components:seekbar')
 
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.7.2'
+    implementation 'androidx.activity:activity-compose:1.8.0'
     // Compose Material Design
     implementation "androidx.compose.material:material:$compose_version"
     // Animations
@@ -360,7 +362,7 @@ dependencies {
     // Tooling support (Previews, etc.)
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
     // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
 
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
@@ -414,7 +416,9 @@ dependencies {
 }
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
     resolutionStrategy {
         force 'org.bitcoinj:bitcoinj-core:0.14.3'
     }

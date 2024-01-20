@@ -9,10 +9,11 @@ import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
+import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
-import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
+import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCRequestChain
@@ -155,10 +156,11 @@ object SendEvmModule {
                     val amountValidator = AmountValidator()
                     val coinMaxAllowedDecimals = wallet.token.decimals
 
-                    val amountService = SendAmountAdvancedService(
+                    val amountService = SendAmountService(
+                        amountValidator,
+                        wallet.token.coin.code,
                         adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
-                        wallet.token,
-                        amountValidator
+                        wallet.token.type.isNative
                     )
                     val addressService = SendEvmAddressService(predefinedAddress)
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
@@ -170,7 +172,9 @@ object SendEvmModule {
                         xRateService,
                         amountService,
                         addressService,
-                        coinMaxAllowedDecimals
+                        coinMaxAllowedDecimals,
+                        predefinedAddress == null,
+                        App.connectivityManager,
                     ) as T
                 }
                 else -> throw IllegalArgumentException()

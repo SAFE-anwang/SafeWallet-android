@@ -3,10 +3,10 @@ package io.horizontalsystems.bankwallet.modules.market.favorites
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.managers.MarketFavoritesManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.sort
-import io.horizontalsystems.bankwallet.entities.Currency
 import io.reactivex.Single
 
 class MarketFavoritesRepository(
@@ -26,7 +26,7 @@ class MarketFavoritesRepository(
             var marketItems = listOf<MarketItem>()
             if (favoriteCoins.isNotEmpty()) {
                 val favoriteCoinUids = favoriteCoins.map { it.coinUid }
-                marketItems = marketKit.marketInfosSingle(favoriteCoinUids, currency.code).blockingGet()
+                marketItems = marketKit.marketInfosSingle(favoriteCoinUids, currency.code, "watchlist").blockingGet()
                     .map { marketInfo ->
                         MarketItem.createFromCoinMarket(marketInfo, currency)
                     }

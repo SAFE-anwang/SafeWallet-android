@@ -5,6 +5,24 @@ import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.BinanceAdapter
+import io.horizontalsystems.bankwallet.core.adapters.BitcoinAdapter
+import io.horizontalsystems.bankwallet.core.adapters.BitcoinCashAdapter
+import io.horizontalsystems.bankwallet.core.adapters.DashAdapter
+import io.horizontalsystems.bankwallet.core.adapters.ECashAdapter
+import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
+import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
+import io.horizontalsystems.bankwallet.core.adapters.EvmTransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.LitecoinAdapter
+import io.horizontalsystems.bankwallet.core.adapters.SolanaAdapter
+import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionConverter
+import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.SplAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TonAdapter
+import io.horizontalsystems.bankwallet.core.adapters.Trc20Adapter
+import io.horizontalsystems.bankwallet.core.adapters.TronAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TronTransactionConverter
+import io.horizontalsystems.bankwallet.core.adapters.TronTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.*
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.BinanceKitManager
@@ -134,6 +152,9 @@ class AdapterFactory(
             }
             BlockchainType.Tron -> {
                 TronAdapter(tronKitManager.getTronKitWrapper(wallet.account))
+            }
+            BlockchainType.Ton -> {
+                TonAdapter(wallet)
             }
 
             else -> null

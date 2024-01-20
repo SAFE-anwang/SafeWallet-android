@@ -8,15 +8,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.main.MainFragment">
-        <deepLink
-            app:action=""
-            android:id="@+id/deepLink"
-            app:uri="wc:{topic}"/>
-        <argument android:name="topic" app:argType="string"/>
-        <argument android:name="bridge" app:argType="string"/>
-        <argument android:name="key" app:argType="string"/>
-    </fragment>
+        android:name="io.horizontalsystems.bankwallet.modules.main.MainFragment"/>
     <fragment
         android:id="@+id/depositCexFragment"
         android:name="io.horizontalsystems.bankwallet.modules.depositcex.DepositCexFragment"/>
@@ -61,6 +53,12 @@
     <fragment
         android:id="@+id/filterCoinFragment"
         android:name="io.horizontalsystems.bankwallet.modules.transactions.FilterCoinFragment" />
+   <fragment
+        android:id="@+id/filterBlockchainFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.transactions.FilterBlockchainFragment" />
+   <fragment
+        android:id="@+id/transactionFilterFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.transactions.TransactionsFilterFragment" />
     <fragment
         android:id="@+id/transactionInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoFragment" />
@@ -106,12 +104,6 @@
     <fragment
         android:id="@+id/backupLocalFragment"
         android:name="io.horizontalsystems.bankwallet.modules.backuplocal.BackupLocalFragment"/>
-    <fragment
-        android:id="@+id/btcBlockchainRestoreSourceInfoFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.info.BtcBlockchainRestoreSourceInfoFragment"/>
-    <fragment
-        android:id="@+id/evmBlockchainSyncModeInfoFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.info.EvmBlockchainSyncModeInfoFragment"/>
      <fragment
         android:id="@+id/transactionLockTimeInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.info.TransactionLockTimeInfoFragment"/>
@@ -120,7 +112,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.info.TransactionDoubleSpendInfoFragment"/>
     <fragment
         android:id="@+id/securitySettingsFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.settings.security.SecuritySettingsFragment"/>
+        android:name="io.horizontalsystems.bankwallet.modules.settings.security.SecurityVpnSettingsFragment"/>
     <fragment
         android:id="@+id/blockchainSettingsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.blockchainsettings.BlockchainSettingsFragment"/>
@@ -173,11 +165,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.market.metricspage.MetricsPageFragment" />
     <fragment
         android:id="@+id/coinFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.coin.CoinFragment" >
-        <deepLink
-            app:action="android.intent.action.VIEW"
-            app:uri="unstoppable://coin-page?uid={coinUid}" />
-    </fragment>
+        android:name="io.horizontalsystems.bankwallet.modules.coin.CoinFragment" />
     <fragment
         android:id="@+id/technicalIndicatorsDetailsFragment"
         android:name="io.horizontalsystems.bankwallet.modules.coin.technicalindicators.TechnicalIndicatorsDetailsFragment" />
@@ -287,11 +275,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.market.topplatforms.TopPlatformsFragment"/>
     <fragment
         android:id="@+id/marketPlatformFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.market.platform.MarketPlatformFragment">
-        <deepLink
-            app:action="android.intent.action.VIEW"
-            app:uri="unstoppable://top-platforms?uid={platformUid}&amp;title={platformName}" />
-    </fragment>
+        android:name="io.horizontalsystems.bankwallet.modules.market.platform.MarketPlatformFragment"/>
     <fragment
         android:id="@+id/marketAdvancedSearchFragment"
         android:name="io.horizontalsystems.bankwallet.modules.market.filters.MarketFiltersFragment"/>
@@ -386,11 +370,7 @@
         android:name="io.horizontalsystems.bankwallet.modules.nft.send.SendNftFragment" />
     <fragment
         android:id="@+id/nftCollectionFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.nft.collection.NftCollectionFragment">
-        <deepLink
-            app:action="android.intent.action.VIEW"
-            app:uri="unstoppable://nft-collection?uid={collectionUid}" />
-    </fragment>
+        android:name="io.horizontalsystems.bankwallet.modules.nft.collection.NftCollectionFragment"/>
     <fragment
         android:id="@+id/sendXFragment"
         android:name="io.horizontalsystems.bankwallet.modules.send.SendFragment" />
