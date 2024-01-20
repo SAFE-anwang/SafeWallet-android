@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.IWalletStorage
@@ -16,7 +17,6 @@ class WalletManager(
     private val accountManager: IAccountManager,
     private val storage: IWalletStorage,
 ) : IWalletManager {
-
     override val activeWallets get() = walletsSet.toList()
     override val activeWalletsUpdatedObservable = PublishSubject.create<List<Wallet>>()
 

@@ -301,8 +301,9 @@ object SwapMainModule {
         override val url get() = "https://pancakeswap.finance/"
         override val supportsExactOut get() = true
 
-        override fun supports(blockchainType: BlockchainType): Boolean {
-            return blockchainType == BlockchainType.BinanceSmartChain
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.BinanceSmartChain -> true
+            else -> false
         }
     }
 
@@ -430,6 +431,16 @@ object SwapMainModule {
         val proceed: SwapActionState
     )
 
+
+    fun format(amount: String):String {
+        if (amount.isEmpty())   return amount
+        try {
+            return String.format("%.8f", amount.toDouble())
+        } catch (e: Exception) {
+
+        }
+        return amount
+    }
 }
 
 fun BigDecimal.scaleUp(scale: Int): BigInteger {

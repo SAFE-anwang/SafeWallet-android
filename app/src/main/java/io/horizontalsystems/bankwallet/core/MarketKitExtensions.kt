@@ -48,8 +48,15 @@ val Token.swappable: Boolean
         BlockchainType.Optimism,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
+        BlockchainType.Polygon,
         BlockchainType.ArbitrumOne -> true
-        BlockchainType.Polygon -> coin.uid != "safe-coin"
+        else -> false
+    }
+
+val Token.liquidity: Boolean
+    get() = when (blockchainType) {
+//        BlockchainType.Ethereum,
+        BlockchainType.BinanceSmartChain -> true
         else -> false
     }
 
@@ -522,7 +529,7 @@ val Token.badge: String?
 val BlockchainType.nativeTokenQueries: List<TokenQuery>
     get() = when (this) {
         BlockchainType.Bitcoin,
-        BlockchainType.Dogecoin,
+//        BlockchainType.Dogecoin,
         BlockchainType.Litecoin -> {
             TokenType.Derivation.values().map {
                 TokenQuery(this, TokenType.Derived(it))
@@ -554,13 +561,21 @@ val TokenType.description: String
 
 val TokenType.isDefault
     get() = when (this) {
-        is TokenType.Derived -> derivation.accountTypeDerivation == AccountType.Derivation.default
+        is TokenType.Derived ->{
+            derivation.accountTypeDerivation == AccountType.Derivation.default ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip44 ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip49 ||
+            derivation.accountTypeDerivation == AccountType.Derivation.bip86
+        }
         is TokenType.AddressTyped -> type.bitcoinCashCoinType == BitcoinCashCoinType.default
         else -> false
     }
 
 val TokenType.isNative: Boolean
     get() = this is TokenType.Native || this is TokenType.Derived || this is TokenType.AddressTyped
+
+val TokenType.isCustom: Boolean
+    get() = this is TokenType.Bep2 || this is TokenType.Eip20 || this is TokenType.Spl
 
 val TokenType.meta: String?
     get() = when (this) {

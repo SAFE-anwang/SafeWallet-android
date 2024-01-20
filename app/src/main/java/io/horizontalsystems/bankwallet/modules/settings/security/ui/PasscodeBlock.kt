@@ -122,7 +122,7 @@ fun PasscodeBlock(
         )
     }
 
-    if (viewModel.biometricSettingsVisible) {
+    /*if (viewModel.biometricSettingsVisible) {
         Spacer(Modifier.height(32.dp))
         CellUniversalLawrenceSection {
             SecurityCenterCell(
@@ -141,7 +141,7 @@ fun PasscodeBlock(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
-                end = {
+                    end = {
                     HsSwitch(
                         checked = uiState.biometricsEnabled,
                         onCheckedChange = { enabled ->
@@ -157,5 +157,5 @@ fun PasscodeBlock(
                 }
             )
         }
-    }
+    }*/
 }

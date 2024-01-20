@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule.AccountViewItem
+import io.horizontalsystems.marketkit.providers.CoinPriceSchedulerProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 
@@ -60,6 +61,7 @@ class ManageAccountsViewModel(
         )
 
     fun onSelect(accountViewItem: AccountViewItem) {
+        CoinPriceSchedulerProvider.isFirstLoad = true
         accountManager.setActiveAccountId(accountViewItem.accountId)
 
         if (mode == ManageAccountsModule.Mode.Switcher) {

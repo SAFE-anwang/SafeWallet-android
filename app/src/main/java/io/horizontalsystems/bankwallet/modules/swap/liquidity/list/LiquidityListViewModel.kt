@@ -176,6 +176,7 @@ class LiquidityListViewModel(
         val pairAddress = pair.get(0) as String
         val token0 = pair.get(1) as Token
         val token1 = pair.get(2) as Token
+        val isChange = token0.address != tokenAAddress
 
         val r0: BigInteger = pair[3] as BigInteger
         val r1: BigInteger = pair[4] as BigInteger
@@ -207,8 +208,8 @@ class LiquidityListViewModel(
         // 没有添加流动性
         if (balanceOfAccount.equals(BigInteger.ZERO))   return null
         return LiquidityListModule.LiquidityItem(
-                walletA,
-                walletB,
+                if (isChange) walletB else walletA,
+                if (isChange) walletA else walletB,
                 tokenAAddress,
                 tokenBAddress,
                 pooledR0Amount,

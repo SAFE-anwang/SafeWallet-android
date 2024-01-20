@@ -2082,12 +2082,13 @@
     <string name="Restore_Import_Wallet_Path_Des">The BIP32 path is an important factor in wallet recovery. Please contact your wallet supplier to find out the BIP32 path of the wallet. An incorrect BIP32 path will result in incorrect addresses.</string>
     <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of ETH could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
 
-    <string name="fallback_block">SAFE block fallback height</string>
-    <string name="fallback_block_title">SAFE block fallback</string>
+    <string name="fallback_block">%s block fallback height</string>
+    <string name="fallback_block_title">block fallback</string>
+    <string name="fallback_block_alert_title">%s block fallback</string>
     <string name="fallback_block_time_1">Height: 4939318 (2023-6)</string>
     <string name="fallback_block_time_2">Height: 5178101 (2023-9)</string>
-    <string name="fallback_block_time_3">Height: 4581517 (2023-2)</string>
-    <string name="fallback_block_time_4">Height: 4496731 (2023-1)</string>
+    <string name="fallback_block_time_3">Height: 5400104 (2023-12)</string>
+    <string name="fallback_block_time_4">Height: 5400104 (2023-12)</string>
     <string name="fallback_block_time_5">Height: 4246017 (2022-10)</string>
     <string name="fallback_block_time_6">Height: 4166829 (2022-9)</string>
     <string name="fallback_block_time_7">Height: 4656085 (2023-4)</string>

@@ -59,6 +59,7 @@ import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.setNavigationResult
 import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlin.system.exitProcess
 
 class SecurityVpnSettingsFragment : BaseComposeFragment() {
@@ -95,7 +96,12 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
                 navController = findNavController(),
                 showAppRestartAlert = { showAppRestartAlert() },
                 restartApp = { restartApp() },fallbackClick = {
-                    showFallbackSelectorDialog(it)
+                    if (it.blockchain.type is BlockchainType.Safe) {
+                        showFallbackSelectorDialog(it)
+                    } else {
+                        showFallbackBlockAlert(it, 0, 0)
+//                        fallbackBlockViewModel.fallback(it, 0, 0)
+                    }
                 }
             )
         }
@@ -138,12 +144,12 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
         )
     }
 
-    private fun showFallbackBlockAlert(blockchain: Blockchain, year: Int, month: Int) {
+    private fun showFallbackBlockAlert(item: FallbackBlockViewModel.FallbackViewItem, year: Int, month: Int) {
         val warningTitle = getString(R.string.fallback_block_title)
 
         ConfirmationDialog.show(
-            icon = R.drawable.ic_safe_20,
-            title = getString(R.string.fallback_block_title),
+            icon = item.icon,
+            title = getString(R.string.fallback_block_alert_title, item.blockchain.name),
             warningTitle = warningTitle,
             warningText = getString(R.string.fallback_Warning),
             actionButtonTitle = getString(R.string.Alert_fallback),
@@ -151,7 +157,7 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
-                    fallbackBlockViewModel.fallback(blockchain, year, month)
+                    fallbackBlockViewModel.fallback(item.blockchain, year, month)
                     setNavigationResult("fallbackHeight", bundleOf("isFallback" to true))
                     findNavController().popBackStack()
 
@@ -168,8 +174,9 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
         )
     }
 
-    private fun showFallbackSelectorDialog(blockchain: Blockchain) {
+    private fun showFallbackSelectorDialog(blockchain: FallbackBlockViewModel.FallbackViewItem) {
         val dialog = BottomSheetFallbackBlockSelectDialog()
+        dialog.coinName = blockchain.blockchain.name
         dialog.items = fallbackBlockViewModel.itemsTime
         dialog.onSelectListener = {
             showFallbackBlockAlert(blockchain, it.year, it.month)
@@ -195,7 +202,7 @@ private fun SecurityCenterScreen(
     navController: NavController,
     showAppRestartAlert: () -> Unit,
     restartApp: () -> Unit,
-    fallbackClick: (Blockchain) -> Unit
+    fallbackClick: (FallbackBlockViewModel.FallbackViewItem) -> Unit
 ) {
 
     DisposableLifecycleCallbacks(
@@ -278,11 +285,11 @@ private fun SecurityCenterScreen(
                         showAppRestartAlert,
                 )
 
-                DuressPasscodeBlock(
-                        securitySettingsViewModel,
-                        navController
-                )
-                InfoText(text = stringResource(R.string.SettingsSecurity_DuressPinDescription))
+//                DuressPasscodeBlock(
+//                        securitySettingsViewModel,
+//                        navController
+//                )
+//                InfoText(text = stringResource(R.string.SettingsSecurity_DuressPinDescription))
 
 //                VSpacer(height = 32.dp)
 //            }

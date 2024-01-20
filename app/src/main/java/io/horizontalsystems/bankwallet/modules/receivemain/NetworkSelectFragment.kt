@@ -83,46 +83,48 @@ fun NetworkSelectScreen(
     val viewModel = viewModel<NetworkSelectViewModel>(factory = NetworkSelectViewModel.Factory(activeAccount, fullCoin))
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        backgroundColor = ComposeAppTheme.colors.tyler,
-        topBar = {
-            AppBar(
-                title = stringResource(R.string.Balance_Network),
-                navigationIcon = {
-                    HsBackButton(onClick = { navController.popBackStack() })
-                },
-                menuItems = listOf()
-            )
-        }
-    ) {
-        Column(Modifier.padding(it)) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                InfoText(
-                    text = stringResource(R.string.Balance_NetworkSelectDescription)
+    ComposeAppTheme {
+        Scaffold(
+            backgroundColor = ComposeAppTheme.colors.tyler,
+            topBar = {
+                AppBar(
+                    title = stringResource(R.string.Balance_Network),
+                    navigationIcon = {
+                        HsBackButton(onClick = { navController.popBackStack() })
+                    },
+                    menuItems = listOf()
                 )
-                VSpacer(20.dp)
-                CellUniversalLawrenceSection(viewModel.eligibleTokens) { token ->
-                    val blockchain = token.blockchain
-                    SectionUniversalItem {
-                        NetworkCell(
-                            title = blockchain.name,
-                            subtitle = blockchain.description,
-                            imageUrl = blockchain.type.imageUrl,
-                            onClick = {
-                                coroutineScope.launch {
-                                    val wallet = viewModel.getOrCreateWallet(token)
-
-                                    navController.slideFromRight(
-                                        R.id.receiveFragment,
-                                        bundleOf(ReceiveAddressFragment.WALLET_KEY to wallet)
-                                    )
-                                }
-                            }
-                        )
+            }
+        ) {
+            Column(Modifier.padding(it)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    InfoText(
+                        text = stringResource(R.string.Balance_NetworkSelectDescription)
+                    )
+                    VSpacer(20.dp)
+                    CellUniversalLawrenceSection(viewModel.eligibleTokens) { token ->
+                        val blockchain = token.blockchain
+                        SectionUniversalItem {
+                            NetworkCell(
+                                    title = blockchain.name,
+                                    subtitle = blockchain.description,
+                                    imageUrl = blockchain.type.imageUrl,
+                                    uid = token.coin.uid,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            val wallet = viewModel.getOrCreateWallet(token)
+                                            navController.slideFromRight(
+                                                    R.id.receiveFragment,
+                                                    bundleOf(ReceiveAddressFragment.WALLET_KEY to wallet)
+                                            )
+                                        }
+                                    }
+                            )
+                        }
                     }
                 }
                 VSpacer(32.dp)
@@ -136,21 +138,31 @@ fun NetworkCell(
     title: String,
     subtitle: String,
     imageUrl: String,
+    uid: String,
     onClick: (() -> Unit)? = null
 ) {
     RowUniversal(
         onClick = onClick
     ) {
-        Image(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp),
-            painter = rememberAsyncImagePainter(
-                model = imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-        )
+        if (uid == "safe-coin") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(32.dp)
+            )
+        } else {
+            Image(
+                    modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .size(32.dp),
+                    painter = rememberAsyncImagePainter(
+                            model = imageUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                    ),
+                    contentDescription = null,
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = title)
             subhead2_grey(text = subtitle)

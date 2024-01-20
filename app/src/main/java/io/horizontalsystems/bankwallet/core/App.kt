@@ -222,11 +222,11 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             //Disable logging for lower levels in Release build
             Logger.getLogger("").level = Level.SEVERE
         }
-        Schedulers.from(
+        /*Schedulers.from(
             ThreadPoolExecutor(200, 200,
             60L, TimeUnit.MILLISECONDS,
             LinkedBlockingQueue<Runnable>())
-        )
+        )*/
         RxJavaPlugins.setErrorHandler { e: Throwable? ->
             Log.w("RxJava ErrorHandler", e)
         }
@@ -302,6 +302,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         solanaKitManager = SolanaKitManager(appConfigProvider, solanaRpcSourceManager, solanaWalletManager, backgroundManager)
 
         tronKitManager = TronKitManager(appConfigProvider, backgroundManager)
+
+        blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
 
         wordsManager = WordsManager(Mnemonic())
         networkManager = NetworkManager()
@@ -398,7 +400,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         }
 
         rateAppManager = RateAppManager(walletManager, adapterManager, localStorage)
-
         wc2Manager = WC2Manager(accountManager, evmBlockchainManager)
 
         termsManager = TermsManager(localStorage)
@@ -470,6 +471,10 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         )
 
         spamManager = SpamManager(localStorage)
+
+        vpnServerStorage = VpnServerStorage(appDatabase)
+
+        binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
 
         ApplicationLoader.instance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)

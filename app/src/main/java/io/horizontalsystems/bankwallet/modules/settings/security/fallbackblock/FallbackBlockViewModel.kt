@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.adapters.DogecoinAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -28,16 +29,16 @@ class FallbackBlockViewModel(
     val items = mutableListOf<FallbackViewItem>()
 
     init {
+        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_3, 2023,12))
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_2, 2023,9))
         itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_1, 2023,6))
-        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_7, 2023,4))
-        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_3, 2023,2))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_2, 2023,1))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_4, 2022,11))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_6, 2022,9))
 //        itemsTime.add(FallbackTimeViewItem(R.string.fallback_block_time_7, 2022,8))
 
-        items.add(FallbackViewItem(Blockchain(BlockchainType.Safe, App.instance.getString(R.string.fallback_block_type, "SAFE"), null)))
+        items.add(FallbackViewItem(Blockchain(BlockchainType.Safe, App.instance.getString(R.string.fallback_block_type, "SAFE"), null), R.drawable.ic_safe_20))
+        items.add(FallbackViewItem(Blockchain(BlockchainType.Dogecoin, App.instance.getString(R.string.fallback_block_type, "DOGE"), null), R.drawable.ic_dogecoin))
     }
 
     override fun onCleared() {
@@ -47,16 +48,34 @@ class FallbackBlockViewModel(
     fun fallback(block: Blockchain, year: Int, month: Int) {
         disposables.add(Observable.create(object : ObservableOnSubscribe<String> {
             override fun subscribe(emitter: ObservableEmitter<String>) {
-                walletManager.activeWallets.find { it.coin.uid == "safe-coin" && it.token.blockchainType == BlockchainType.Safe }?.let {
-                    try {
-                        adapterManager.getAdapterForWallet(it)?.let {
-                            (it as SafeAdapter).fallbackBlock(year, month)
+                if (block.type is BlockchainType.Safe) {
+                    walletManager.activeWallets.find {
+                        it.coin.uid == "safe-coin" && it.token.blockchainType == BlockchainType.Safe
+                    }?.let {
+                        try {
+                            adapterManager.getAdapterForWallet(it)?.let {
+                                (it as SafeAdapter).fallbackBlock(year, month)
+                            }
+                            App.adapterManager.preloadAdapters()
+                        } catch (e: Exception) {
+
                         }
-                        App.adapterManager.preloadAdapters()
-                    }catch (e: Exception) {
 
                     }
+                } else {
+                    walletManager.activeWallets.find {
+                        it.token.blockchainType == BlockchainType.Dogecoin
+                    }?.let {
+                        try {
+                            adapterManager.getAdapterForWallet(it)?.let {
+                                (it as DogecoinAdapter).fallbackBlock(year, month)
+                            }
+                            App.adapterManager.preloadAdapters()
+                        } catch (e: Exception) {
 
+                        }
+
+                    }
                 }
             }
 
@@ -66,7 +85,8 @@ class FallbackBlockViewModel(
     }
 
     data class FallbackViewItem(
-        val blockchain: Blockchain
+        val blockchain: Blockchain,
+            val icon: Int
     )
 
     data class FallbackTimeViewItem(

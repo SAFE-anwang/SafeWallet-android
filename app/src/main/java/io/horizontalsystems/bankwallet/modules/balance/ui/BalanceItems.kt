@@ -69,9 +69,11 @@ import io.horizontalsystems.bankwallet.modules.sendtokenselect.SendTokenSelectFr
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonThirdCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.DoubleText
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
@@ -239,7 +241,7 @@ fun BalanceItems(
                             }
                         )
                         HSpacer(8.dp)
-                        ButtonPrimaryCircle(
+                        ButtonThirdCircle(
                             icon = R.drawable.ic_arrow_down_left_24,
                             contentDescription = stringResource(R.string.Balance_Receive),
                             onClick = {
@@ -263,14 +265,16 @@ fun BalanceItems(
                                     null -> Unit
                                 }
                             },
+                                height = ButtonPrimaryDefaults.MinHeight
                         )
                         HSpacer(8.dp)
-                        ButtonPrimaryCircle(
+                        ButtonThirdCircle(
                             icon = R.drawable.ic_swap_24,
                             contentDescription = stringResource(R.string.Swap),
                             onClick = {
                                 navController.slideFromRight(R.id.swapTokenSelectFragment)
-                            }
+                            },
+                                height = ButtonPrimaryDefaults.MinHeight
                         )
                     }
                     VSpacer(12.dp)
