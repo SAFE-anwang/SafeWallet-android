@@ -9,12 +9,15 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IWalletStorage
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityPair
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.BalanceOf
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
@@ -71,6 +74,11 @@ class LiquidityListViewModel(
     private var viewState: ViewState = ViewState.Loading
     private var isRefreshing = false
 
+    private val amountValidator = AmountValidator()
+    var amountCaution: HSCaution? = null
+    private var inputRemoveAmount: BigDecimal? = null
+    var tempItem: LiquidityViewItem? = null
+    var tempIndex: Int? = null
     var uiState by mutableStateOf(
         LiquidityUiState(
             liquidityViewItems = liquidityViewItems,
@@ -82,6 +90,22 @@ class LiquidityListViewModel(
 
     val removeErrorMessage = SingleLiveEvent<String?>()
     val removeSuccessMessage = SingleLiveEvent<String>()
+
+    private var amount = ""
+    private var secondaryInfo: String = ""
+    private var isEstimated = false
+    private var isLoading = false
+    private var amountEnabled = true
+    private var validDecimals: Int = 0
+    val state: SwapMainModule.SwapAmountInputState
+        get() = SwapMainModule.SwapAmountInputState(
+                    amount = amount,
+                    secondaryInfo = secondaryInfo,
+                    primaryPrefix = null,
+                    validDecimals = validDecimals,
+                    amountEnabled = amountEnabled,
+                    dimAmount = isLoading && isEstimated,
+                )
 
     private fun getWethAddress(chain: BlockchainType): String {
         val wethAddressHex = when (chain) {
@@ -98,6 +122,25 @@ class LiquidityListViewModel(
 
     init {
         getAllLiquidity()
+    }
+
+    fun onEnterAmount(amount: BigDecimal?, availableBalance: BigDecimal) {
+        amountCaution = amountValidator.validate(
+                coinAmount = amount,
+                coinCode = "",
+                availableBalance = availableBalance,
+                leaveSomeBalanceForFee = false
+        )
+        Log.e("longwen", "amountCaution=$amountCaution")
+        inputRemoveAmount = amount
+        emitState()
+    }
+
+    fun reset() {
+        amountCaution = null
+        inputRemoveAmount = null
+        emitState()
+        Log.e("longwen", "reset------")
     }
 
     fun refresh() {
@@ -224,7 +267,8 @@ class LiquidityListViewModel(
         val newUiState = LiquidityUiState(
             liquidityViewItems = liquidityViewItems,
             viewState = viewState,
-            isRefreshing = isRefreshing
+            isRefreshing = isRefreshing,
+            amountCaution = amountCaution
         )
 
         viewModelScope.launch {
@@ -244,6 +288,7 @@ class LiquidityListViewModel(
     }
 
     fun removeLiquidity(index: Int, walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String) {
+        if (amountCaution != null) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val evmKitWrapper =
@@ -264,8 +309,11 @@ class LiquidityListViewModel(
                 val pair =
                     LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return@launch
                 val pairAddress = pair.get(0) as String
-                val token0 = pair.get(1) as Token
-                val token1 = pair.get(2) as Token
+                val token00 = pair.get(1) as Token
+                val token11 = pair.get(2) as Token
+                val isChange = token00.address != tokenAAddress
+                val token0 = if (isChange) token11 else token00
+                val token1 = if (isChange) token00 else token11
 
                 val r0: BigInteger = pair[3] as BigInteger
                 val r1: BigInteger = pair[4] as BigInteger
@@ -281,7 +329,7 @@ class LiquidityListViewModel(
                 Log.d("Pool Token TotalSupply = {}", "$poolTokenTotalSupply")
                 Log.d(
                     "BalanceOf {} = {}",
-                    "${evmKitWrapper!!.evmKit.receiveAddress.hex}, ${balanceOfAccount}"
+                    "${evmKitWrapper!!.evmKit.receiveAddress.hex}, ${balanceOfAccount}}"
                 )
 
                 // 计算用户在池子中的流动性占比
@@ -298,17 +346,18 @@ class LiquidityListViewModel(
                     TokenAmount.toBigDecimal(token1, r1, token1.decimals).multiply(shareRate)
                 Log.i("用户在池子中抵押:{} ({})", "$pooledR0Amount, ${token0.symbol}")
                 Log.i("用户在池子中抵押:{} ({})", "$pooledR1Amount, ${token1.symbol}")
+                val inputAmount = inputRemoveAmount?.multiply(BigDecimal.TEN.pow(18))?.toBigInteger() ?: balanceOfAccount
 
-
-                // 假设用户期望移除抵押的 25% 的代币;
+                // 用户期望移除抵押 的代币 的百分比;
+                val removePercent = inputAmount.toBigDecimal().divide(balanceOfAccount.toBigDecimal(), 2, RoundingMode.DOWN)
                 val removeLiquidityAmount =
-                    BigDecimal(balanceOfAccount).multiply(BigDecimal("1")).toBigInteger()
+                    BigDecimal(balanceOfAccount).multiply(BigDecimal("$removePercent")).toBigInteger()
                 // 将会得到的 token0 和 token1 的数量
-                val removeToken0Amount = pooledR0Amount.multiply(BigDecimal("1"))
-                val removeToken1Amount = pooledR1Amount.multiply(BigDecimal("1"))
+                val removeToken0Amount = pooledR0Amount.multiply(BigDecimal("$removePercent"))
+                val removeToken1Amount = pooledR1Amount.multiply(BigDecimal("$removePercent"))
                 Log.i(
                     "Receive {} Amount : {}",
-                    "${token0.symbol}, $removeToken0Amount"
+                    "${token0.symbol}, $removeToken0Amount, percent=$removePercent, removeLiquidityAmount=$removeLiquidityAmount"
                 )
                 Log.i(
                     "Receive {} Amount : {}",
@@ -412,7 +461,7 @@ class LiquidityListViewModel(
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
-                Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", hash)
+                Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", "result=$hash")
                 withContext(Dispatchers.Main) {
                     removeItem(index)
                     removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
@@ -421,7 +470,7 @@ class LiquidityListViewModel(
                         "Remove Success"
                     }
                 }
-//                refresh()
+                refresh()
             } catch (e: Throwable) {
                 Log.e("removeLiquidity", "error=$e")
                 withContext(Dispatchers.Main) {
@@ -465,7 +514,8 @@ class LiquidityListViewModel(
 data class LiquidityUiState(
     val liquidityViewItems: List<LiquidityViewItem>,
     val viewState: ViewState,
-    val isRefreshing: Boolean
+    val isRefreshing: Boolean,
+    val amountCaution: HSCaution? = null
 )
 
 

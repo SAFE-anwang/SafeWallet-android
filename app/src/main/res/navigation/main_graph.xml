@@ -482,6 +482,11 @@
         android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityListFragment"
          />
 
+    <fragment
+        android:id="@+id/removeLiquidity"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.list.RemoveLiquidityFragment"
+         />
+
 
 
     <dialog
