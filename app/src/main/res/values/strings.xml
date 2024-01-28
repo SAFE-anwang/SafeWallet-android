@@ -1053,7 +1053,7 @@
     <string name="SettingsSecurity_SortingBip69Description">Lexicographical Indexing</string>
     <string name="SettingsSecurity_SyncModeBlockchair">Blockchair API</string>
     <string name="SettingsSecurity_SyncModeBlockchairDescription">Fast, Not Private</string>
-    <string name="SettingsSecurity_SyncModeHybrid" translatable="false">Hybrid</string>
+    <string name="SettingsSecurity_SyncModeHybrid" translatable="false">API</string>
     <string name="SettingsSecurity_SyncModeHybridDescription">Slow, Not Private</string>
     <string name="SettingsSecurity_SyncModeBlockchain">Blockchain</string>
     <string name="SettingsSecurity_SyncModeBlockchainDescription">Slow, Private</string>

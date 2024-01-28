@@ -92,8 +92,8 @@ class LiquidityListFragment : BaseFragment() {
                         ) { index, item ->
                             mainViewModel.tempItem = item
                             mainViewModel.tempIndex = index
-                            findNavController().slideFromRight(R.id.removeLiquidity)
-//                            confirm(index, item, mainViewModel)
+//                            findNavController().slideFromRight(R.id.removeLiquidity)
+                            confirm(index, item, mainViewModel)
                         }
                     }
                 }

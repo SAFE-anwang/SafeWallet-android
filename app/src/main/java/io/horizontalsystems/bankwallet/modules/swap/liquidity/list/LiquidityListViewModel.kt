@@ -349,7 +349,8 @@ class LiquidityListViewModel(
                 val inputAmount = inputRemoveAmount?.multiply(BigDecimal.TEN.pow(18))?.toBigInteger() ?: balanceOfAccount
 
                 // 用户期望移除抵押 的代币 的百分比;
-                val removePercent = inputAmount.toBigDecimal().divide(balanceOfAccount.toBigDecimal(), 2, RoundingMode.DOWN)
+//                val removePercent = inputAmount.toBigDecimal().divide(balanceOfAccount.toBigDecimal(), 2, RoundingMode.DOWN)
+                val removePercent = "1"
                 val removeLiquidityAmount =
                     BigDecimal(balanceOfAccount).multiply(BigDecimal("$removePercent")).toBigInteger()
                 // 将会得到的 token0 和 token1 的数量

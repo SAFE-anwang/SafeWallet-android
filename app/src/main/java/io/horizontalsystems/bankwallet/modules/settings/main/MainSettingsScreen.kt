@@ -284,7 +284,7 @@ private fun SettingSections(
         })
     )*/
 
-    VSpacer(32.dp)
+    /*VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
         listOf {
@@ -296,7 +296,7 @@ private fun SettingSections(
                 }
             )
         }
-    )
+    )*/
 
     VSpacer(32.dp)
 
