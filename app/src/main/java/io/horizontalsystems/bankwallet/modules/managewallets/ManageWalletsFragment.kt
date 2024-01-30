@@ -36,7 +36,6 @@ import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.marketkit.models.Token
@@ -50,14 +49,12 @@ class ManageWalletsFragment : BaseComposeFragment() {
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            ManageWalletsScreen(
-                findNavController(),
-                viewModel,
-                restoreSettingsViewModel
-            )
-        }
+    override fun GetContent(navController: NavController) {
+        ManageWalletsScreen(
+            navController,
+            viewModel,
+            restoreSettingsViewModel
+        )
     }
 
 }

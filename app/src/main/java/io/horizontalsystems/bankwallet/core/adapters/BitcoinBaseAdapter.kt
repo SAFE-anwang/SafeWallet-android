@@ -209,7 +209,7 @@ abstract class BitcoinBaseAdapter(
             }
             is BitcoinCore.KitState.Syncing -> {
                 val progress = (kitState.progress * 100).toInt()
-                val lastBlockDate = kit.lastBlockInfo?.timestamp?.let { Date(it * 1000) }
+                val lastBlockDate = if (syncMode is BitcoinCore.SyncMode.Blockchair) null else kit.lastBlockInfo?.timestamp?.let { Date(it * 1000) }
 
                 AdapterState.Syncing(progress, lastBlockDate)
             }
@@ -232,7 +232,7 @@ abstract class BitcoinBaseAdapter(
 
     fun availableBalance(feeRate: Int, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal {
         return try {
-            val maximumSpendableValue = kit.maximumSpendableValue(address, feeRate, pluginData
+            val maximumSpendableValue = kit.maximumSpendableValue(address, feeRate, null,pluginData
                     ?: mapOf())
             satoshiToBTC(maximumSpendableValue, RoundingMode.CEILING)
         } catch (e: Exception) {
@@ -251,9 +251,9 @@ abstract class BitcoinBaseAdapter(
     fun fee(amount: BigDecimal, feeRate: Int, address: String?, pluginData: Map<Byte, IPluginData>?): BigDecimal? {
         return try {
             val satoshiAmount = (amount * satoshisInBitcoin).toLong()
-            val fee = kit.fee(satoshiAmount, address, senderPay = true, feeRate = feeRate, pluginData = pluginData
+            val fee = kit.sendInfo(satoshiAmount, address, senderPay = true, feeRate = feeRate, null, pluginData = pluginData
                     ?: mapOf())
-            satoshiToBTC(fee, RoundingMode.CEILING)
+            satoshiToBTC(fee.fee, RoundingMode.CEILING)
         } catch (e: Exception) {
             null
         }

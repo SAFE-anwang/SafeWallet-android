@@ -170,7 +170,10 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.Tron -> {
             tokenType is TokenType.Native || tokenType is TokenType.Eip20
         }
-        else -> false
+        BlockchainType.Ton -> {
+            tokenType is TokenType.Native
+        }
+        is BlockchainType.Unsupported -> false
     }
 
 val Blockchain.description: String
@@ -194,6 +197,7 @@ val Blockchain.description: String
         BlockchainType.Gnosis -> "xDAI, ERC20 tokens"
         BlockchainType.Fantom -> "FTM, ERC20 tokens"
         BlockchainType.Tron -> "TRX, TRC20 tokens"
+        BlockchainType.Ton -> "TON"
         else -> ""
     }
 
@@ -248,6 +252,7 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Tron,
+        BlockchainType.Ton,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Zcash,
@@ -307,6 +312,7 @@ val BlockchainType.title: String
     BlockchainType.Gnosis -> "Gnosis"
     BlockchainType.Fantom -> "Fantom"
     BlockchainType.Tron -> "Tron"
+    BlockchainType.Ton -> "Ton"
     is BlockchainType.Unsupported -> this.uid
 }
 
@@ -353,6 +359,11 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                 else -> false
             }
         }
+
+        is AccountType.BitcoinAddress -> {
+            this === accountType.blockchainType
+        }
+
         is AccountType.EvmAddress ->
             this == BlockchainType.Ethereum
                     || this == BlockchainType.BinanceSmartChain
@@ -378,6 +389,9 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
 
         is AccountType.TronAddress ->
             this == BlockchainType.Tron
+
+        is AccountType.TonAddress ->
+            this == BlockchainType.Ton
 
         is AccountType.Cex -> false
     }
@@ -418,8 +432,47 @@ val FullCoin.iconPlaceholder: Int
         R.drawable.coin_placeholder
     }
 
+fun Token.supports(accountType: AccountType): Boolean {
+    return when (accountType) {
+        is AccountType.BitcoinAddress -> {
+            tokenQuery.tokenType == accountType.tokenType
+        }
+
+        is AccountType.HdExtendedKey -> {
+            when (blockchainType) {
+                BlockchainType.Bitcoin,
+                BlockchainType.Litecoin -> {
+                    val type = type
+                    if (type is TokenType.Derived) {
+                        if (!accountType.hdExtendedKey.purposes.contains(type.derivation.purpose)) {
+                            false
+                        } else if (blockchainType == BlockchainType.Bitcoin) {
+                            accountType.hdExtendedKey.coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
+                        } else {
+                            accountType.hdExtendedKey.coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                        }
+                    } else {
+                        false
+                    }
+                }
+
+                BlockchainType.BitcoinCash,
+                BlockchainType.ECash,
+                BlockchainType.Dash -> {
+                    accountType.hdExtendedKey.purposes.contains(HDWallet.Purpose.BIP44)
+                }
+
+                else -> false
+            }
+        }
+
+        else -> true
+    }
+}
+
 fun FullCoin.eligibleTokens(accountType: AccountType): List<Token> {
-    return supportedTokens.filter { it.blockchainType.supports(accountType) }
+    return supportedTokens
+        .filter { it.supports(accountType) && it.blockchainType.supports(accountType) }
 }
 
 val HsPointTimePeriod.title: Int
@@ -495,7 +548,7 @@ val BlockchainType.nativeTokenQueries: List<TokenQuery>
 val TokenType.title: String
     get() = when (this) {
         is TokenType.Derived -> derivation.accountTypeDerivation.rawName
-        is TokenType.AddressTyped -> Translator.getString(type.bitcoinCashCoinType.title)
+        is TokenType.AddressTyped -> type.bitcoinCashCoinType.title
         else -> ""
     }
 
@@ -552,5 +605,6 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Solana,
         BlockchainType.ECash,
         BlockchainType.Tron,
-        BlockchainType.Dogecoin
+        BlockchainType.Dogecoin,
+        BlockchainType.Ton
     )

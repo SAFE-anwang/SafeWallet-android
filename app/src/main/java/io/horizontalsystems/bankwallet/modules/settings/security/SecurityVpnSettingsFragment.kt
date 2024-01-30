@@ -62,7 +62,7 @@ import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlin.system.exitProcess
 
-class SecuritySettingsFragment : BaseComposeFragment() {
+class SecurityVpnSettingsFragment : BaseComposeFragment() {
 
     private val torViewModel by viewModels<SecurityTorSettingsViewModel> {
         SecurityTorSettingsModule.Factory()
@@ -77,7 +77,7 @@ class SecuritySettingsFragment : BaseComposeFragment() {
     }
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         val vpnViewModel = SecurityVpnSettingsViewModel(requireContext().getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)) { connectState ->
             context?.let {
                 if (connectState) {

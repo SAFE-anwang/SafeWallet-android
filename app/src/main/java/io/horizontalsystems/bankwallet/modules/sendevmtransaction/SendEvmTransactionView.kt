@@ -65,24 +65,23 @@ fun SendEvmTransactionView(
     navController: NavController,
     description: String? = null
 ) {
-    ComposeAppTheme {
 
-        val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
-        val fee by feeCellViewModel.feeLiveData.observeAsState(null)
-        val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
+    val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
+    val fee by feeCellViewModel.feeLiveData.observeAsState(null)
+    val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
 
-        Column {
-            description?.let {
-                subhead2_grey(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                    text = it
-                )
-            }
-            items.forEach { sectionViewItem ->
-                SectionView(sectionViewItem.viewItems, navController)
-            }
+    Column {
+        description?.let {
+            subhead2_grey(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                text = it
+            )
+        }
+        items.forEach { sectionViewItem ->
+            SectionView(sectionViewItem.viewItems, navController)
+        }
 
-            NonceView(nonceViewModel)
+        NonceView(nonceViewModel)
 
             Spacer(Modifier.height(16.dp))
             RowUniversal(
@@ -99,10 +98,9 @@ fun SendEvmTransactionView(
                 }
 //            )
 
-            val cautions by transactionViewModel.cautionsLiveData.observeAsState()
-            cautions?.let {
-                Cautions(it)
-            }
+        val cautions by transactionViewModel.cautionsLiveData.observeAsState()
+        cautions?.let {
+            Cautions(it)
         }
     }
 }

@@ -108,6 +108,16 @@ class DashAdapter(
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
+                is AccountType.BitcoinAddress -> {
+                    return DashKit(
+                        context = App.instance,
+                        watchAddress = accountType.address,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = NetworkType.MainNet,
+                        confirmationsThreshold = confirmationsThreshold
+                    )
+                }
                 else -> throw UnsupportedAccountException()
             }
         }

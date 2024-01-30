@@ -284,6 +284,20 @@ private fun SettingSections(
         })
     )*/
 
+    /*VSpacer(32.dp)
+
+    CellUniversalLawrenceSection(
+        listOf {
+            HsSettingCell(
+                R.string.Settings_ExperimentalFeatures,
+                R.drawable.ic_experimental,
+                onClick = {
+                    navController.slideFromRight(R.id.experimentalFeaturesFragment)
+                }
+            )
+        }
+    )*/
+
     VSpacer(32.dp)
 
     CellUniversalLawrenceSection(

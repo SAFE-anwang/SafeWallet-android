@@ -40,6 +40,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
@@ -74,7 +75,7 @@ import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigationItem
 import io.horizontalsystems.bankwallet.ui.extensions.WalletSwitchBottomSheet
-import io.horizontalsystems.core.findNavController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.telegram.ui.LaunchActivity
 
@@ -85,14 +86,15 @@ class MainFragment : BaseComposeFragment() {
 //    private val transactionsViewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     private val safe4ViewModel by viewModels<Safe4ViewModel> { Safe4Module.Factory() }
     private var startTelegramService: StartTelegramsService? = null
+    private var intentUri: Uri? = null
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         ComposeAppTheme {
             MainScreenWithRootedDeviceCheck(
 //                transactionsViewModel = transactionsViewModel,
-                deepLink = activity?.intent?.data?.toString(),
-                navController = findNavController(),
+                deepLink = intentUri,
+                navController = navController,
                 clearActivityData = { activity?.intent?.data = null },
                 safe4ViewModel = safe4ViewModel,
                 openLink = {
@@ -104,6 +106,8 @@ class MainFragment : BaseComposeFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intentUri = activity?.intent?.data
+        activity?.intent?.data = null //clear intent data
 
         requireActivity().onBackPressedDispatcher.addCallback(
             this,
@@ -158,7 +162,7 @@ class MainFragment : BaseComposeFragment() {
 @Composable
 private fun MainScreenWithRootedDeviceCheck(
 //    transactionsViewModel: TransactionsViewModel,
-    deepLink: String?,
+    deepLink: Uri?,
     navController: NavController,
     clearActivityData: () -> Unit,
     rootedDeviceViewModel: RootedDeviceViewModel = viewModel(factory = RootedDeviceModule.Factory()),
@@ -176,7 +180,7 @@ private fun MainScreenWithRootedDeviceCheck(
 @Composable
 private fun MainScreen(
 //    transactionsViewModel: TransactionsViewModel,
-    deepLink: String?,
+    deepLink: Uri?,
     fragmentNavController: NavController,
     clearActivityData: () -> Unit,
     viewModel: MainViewModel = viewModel(factory = MainModule.Factory(deepLink)),
@@ -185,7 +189,7 @@ private fun MainScreen(
 ) {
 
     val uiState = viewModel.uiState
-    val selectedPage = uiState.selectedPageIndex
+    val selectedPage = uiState.selectedTabIndex
     val pagerState = rememberPagerState(initialPage = selectedPage) { uiState.mainNavItems.size }
 
     val coroutineScope = rememberCoroutineScope()
@@ -318,31 +322,39 @@ private fun MainScreen(
 
     if (uiState.wcSupportState != null) {
         when (val wcSupportState = uiState.wcSupportState) {
-            SupportState.Supported -> {
-                fragmentNavController.slideFromRight(R.id.wallet_connect_graph)
-            }
             SupportState.NotSupportedDueToNoActiveAccount -> {
-                clearActivityData.invoke()
                 fragmentNavController.slideFromBottom(R.id.wcErrorNoAccountFragment)
             }
+
             is SupportState.NotSupportedDueToNonBackedUpAccount -> {
-                clearActivityData.invoke()
                 val text = stringResource(R.string.WalletConnect_Error_NeedBackup)
                 fragmentNavController.slideFromBottom(
                     R.id.backupRequiredDialog,
                     BackupRequiredDialog.prepareParams(wcSupportState.account, text)
                 )
             }
+
             is SupportState.NotSupported -> {
-                clearActivityData.invoke()
                 fragmentNavController.slideFromBottom(
                     R.id.wcAccountTypeNotSupportedDialog,
                     WCAccountTypeNotSupportedDialog.prepareParams(wcSupportState.accountTypeDescription)
                 )
             }
-            null -> {}
+
+            else -> {}
         }
         viewModel.wcSupportStateHandled()
+    }
+
+    uiState.deeplinkPage?.let { deepLinkPage ->
+        LaunchedEffect(Unit) {
+            delay(500)
+            fragmentNavController.slideFromRight(
+                deepLinkPage.navigationId,
+                deepLinkPage.bundle
+            )
+            viewModel.deeplinkPageHandled()
+        }
     }
 
     DisposableLifecycleCallbacks(
@@ -381,6 +393,7 @@ private fun BadgedIcon(
                 },
                 content = icon
             )
+
         MainModule.BadgeType.BadgeDot ->
             BadgedBox(
                 badge = {
@@ -395,6 +408,7 @@ private fun BadgedIcon(
                 },
                 content = icon
             )
+
         else -> {
             Box {
                 icon()

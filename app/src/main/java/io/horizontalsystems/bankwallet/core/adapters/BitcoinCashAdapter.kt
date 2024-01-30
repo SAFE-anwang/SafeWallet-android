@@ -20,10 +20,10 @@ import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
 
 class BitcoinCashAdapter(
-        override val kit: BitcoinCashKit,
-        syncMode: BitcoinCore.SyncMode,
-        backgroundManager: BackgroundManager,
-        wallet: Wallet,
+    override val kit: BitcoinCashKit,
+    syncMode: BitcoinCore.SyncMode,
+    backgroundManager: BackgroundManager,
+    wallet: Wallet,
 ) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), BitcoinCashKit.Listener, ISendBitcoinAdapter {
 
     constructor(
@@ -108,6 +108,7 @@ class BitcoinCashAdapter(
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
+
                 is AccountType.Mnemonic -> {
                     return BitcoinCashKit(
                         context = App.instance,
@@ -120,6 +121,18 @@ class BitcoinCashAdapter(
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
+
+                is AccountType.BitcoinAddress -> {
+                    return BitcoinCashKit(
+                        context = App.instance,
+                        watchAddress = accountType.address,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = networkType,
+                        confirmationsThreshold = confirmationsThreshold,
+                    )
+                }
+
                 else -> throw UnsupportedAccountException()
             }
 

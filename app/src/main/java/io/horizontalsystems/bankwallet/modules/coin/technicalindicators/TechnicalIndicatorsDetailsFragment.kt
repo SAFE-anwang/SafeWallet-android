@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -33,7 +34,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.ScreenMessageWithAction
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 
 class TechnicalIndicatorsDetailsFragment : BaseComposeFragment() {
@@ -48,32 +48,30 @@ class TechnicalIndicatorsDetailsFragment : BaseComposeFragment() {
     }
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            if (coinUid == null || period == null) {
-                ScreenMessageWithAction(
-                    text = stringResource(R.string.Error),
-                    icon = R.drawable.ic_error_48
-                ) {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .padding(horizontal = 48.dp)
-                            .fillMaxWidth(),
-                        title = stringResource(R.string.Button_Close),
-                        onClick = {
-                            findNavController().popBackStack()
-                        }
-                    )
-                }
-            } else {
-                TechnicalIndicatorsDetailsScreen(
-                    coinUid = coinUid!!,
-                    period = period!!,
-                    onBackPress = {
-                        findNavController().popBackStack()
+    override fun GetContent(navController: NavController) {
+        if (coinUid == null || period == null) {
+            ScreenMessageWithAction(
+                text = stringResource(R.string.Error),
+                icon = R.drawable.ic_error_48
+            ) {
+                ButtonPrimaryYellow(
+                    modifier = Modifier
+                        .padding(horizontal = 48.dp)
+                        .fillMaxWidth(),
+                    title = stringResource(R.string.Button_Close),
+                    onClick = {
+                        navController.popBackStack()
                     }
                 )
             }
+        } else {
+            TechnicalIndicatorsDetailsScreen(
+                coinUid = coinUid!!,
+                period = period!!,
+                onBackPress = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 

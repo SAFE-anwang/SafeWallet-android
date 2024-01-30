@@ -83,7 +83,7 @@ class TronKitManager(
             walletId = account.id,
             seed = seed,
             network = network,
-            tronGridApiKey = appConfigProvider.trongridApiKey
+            tronGridApiKeys = appConfigProvider.trongridApiKeys
         )
 
         return TronKitWrapper(kit, signer)
@@ -100,7 +100,7 @@ class TronKitManager(
             address = Address.fromBase58(address),
             network = network,
             walletId = account.id,
-            tronGridApiKey = appConfigProvider.trongridApiKey
+            tronGridApiKeys = appConfigProvider.trongridApiKeys
         )
 
         return TronKitWrapper(kit, null)
