@@ -8,29 +8,15 @@ import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -41,26 +27,28 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.ui.LiquidityItemsEmpty
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityCardSwipable
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityItems
-import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.RemoveLiquidityCard
+import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.Keyboard
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.findNavController
 import java.math.BigDecimal
 
-class LiquidityListFragment : BaseFragment() {
+class RemoveLiquidityFragment : BaseFragment() {
 
     val mainViewModel by navGraphViewModels<LiquidityListViewModel>(R.id.listLiquidity) {
         LiquidityListModule.Factory()
     }
-//    val mainViewModel: LiquidityListViewModel by viewModels { LiquidityListModule.Factory()  }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,14 +73,13 @@ class LiquidityListFragment : BaseFragment() {
                 })
                 setContent {
                     ComposeAppTheme {
-                        LiquidityForAccount(
+                        RemoveLiquidityForAccount(
                             findNavController(),
                             mainViewModel
                         ) { index, item ->
-                            mainViewModel.tempItem = item
-                            mainViewModel.tempIndex = index
-                            findNavController().slideFromRight(R.id.removeLiquidity)
-//                            confirm(index, item, mainViewModel)
+                            if (mainViewModel.amountCaution == null) {
+                                confirm(index, item, mainViewModel)
+                            }
                         }
                     }
                 }
@@ -103,6 +90,11 @@ class LiquidityListFragment : BaseFragment() {
                 findNavController().popBackStack()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainViewModel.reset()
     }
 
     private fun confirm(index: Int, item: LiquidityViewItem, mainViewModel: LiquidityListViewModel) {
@@ -122,7 +114,7 @@ class LiquidityListFragment : BaseFragment() {
                 }
 
                 override fun onCancelButtonClick() {
-//                    mainViewModel.reset()
+
                 }
             }
         )
@@ -132,15 +124,17 @@ class LiquidityListFragment : BaseFragment() {
 
 
 @Composable
-fun LiquidityForAccount(
+fun RemoveLiquidityForAccount(
     navController: NavController,
     viewModel: LiquidityListViewModel,
     removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
+
+
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
             AppBar(
-                title = stringResource(R.string.liquidity_title),
+                title = stringResource(R.string.liquidity_remove_title),
                 menuItems = listOf(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Button_Close),
@@ -153,29 +147,78 @@ fun LiquidityForAccount(
             )
 
             val uiState = viewModel.uiState
+            val amountCaution = uiState.amountCaution
 
-            Crossfade(uiState.viewState) { viewState ->
-                when (viewState) {
-                    ViewState.Success -> {
-                        val liquidityViewItems = uiState.liquidityViewItems
+            RemoveLiquidityCard(
+                viewItem = viewModel.tempItem!!
+            )
 
-                        if (liquidityViewItems.isNotEmpty()) {
-                            LiquidityItems(
-                                liquidityViewItems,
-                                viewModel,
-                                navController,
-                                uiState,
-                                removeCallback
-                            )
-                        } else {
-                            LiquidityItemsEmpty(navController)
-                        }
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            /*LiquidityAmountInput(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    focusRequester = focusRequester,
+                    availableBalance = BigDecimal(viewModel.tempItem!!.liquidity),
+                    caution = amountCaution,
+                    coinCode = "",
+                    coinDecimal = 18,
+                    fiatDecimal = 2,
+                    onValueChange = {
+                        viewModel.onEnterAmount(it, BigDecimal(viewModel.tempItem!!.liquidity))
                     }
+            )*/
 
-                    ViewState.Loading-> {
-                        Loading()
+            Spacer(modifier = Modifier.width(8.dp))
+
+            PercentBar(modifier = Modifier.align(Alignment.Start), select = uiState.selectPercent) {
+                viewModel.setRemovePercent(it)
+            }
+            Row(
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+            ) {
+                ButtonPrimaryYellow(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.liquidity_remove_title),
+                        onClick = {
+                            removeCallback.invoke(viewModel.tempIndex!!, viewModel.tempItem!!)
+                        },
+                        enabled = true
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            VSpacer(32.dp)
+        }
+    }
+}
+
+
+@Composable
+private fun PercentBar(
+        modifier: Modifier = Modifier,
+        select: Int = 25,
+        percents: List<Int> = listOf(25, 50, 75, 100),
+        onClick: (Int) -> Unit
+) {
+    Box(modifier = modifier) {
+        BoxTyler44(borderTop = true) {
+            Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                percents.forEach { percent ->
+                    val buttonColors = if (percent == select) {
+                        SecondaryButtonDefaults.buttonColors(backgroundColor = ComposeAppTheme.colors.yellowD)
+                    } else {
+                        SecondaryButtonDefaults.buttonColors()
                     }
-                    is ViewState.Error -> {
+                    ButtonSecondary(
+                            onClick = { onClick.invoke(percent) },
+                            buttonColors = buttonColors
+                    ) {
+                        subhead1_leah(text = "$percent%")
                     }
                 }
             }
