@@ -42,7 +42,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
-     val twitterBearerToken by lazy {
+    val twitterBearerToken by lazy {
         Translator.getString(R.string.twitterBearerToken)
     }
     val cryptoCompareApiKey by lazy {
@@ -52,21 +52,21 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         Translator.getString(R.string.defiyieldProviderApiKey)
     }
 
-     val infuraProjectId by lazy {
-         val projectId = when(index) {
-             0 -> Translator.getString(R.string.infuraProjectId)
-             1 -> infuraProjectId2
-             else -> infuraProjectId3
-         }
+    val infuraProjectId by lazy {
+        val projectId = when(index) {
+            0 -> Translator.getString(R.string.infuraProjectId)
+            1 -> infuraProjectId2
+            else -> infuraProjectId3
+        }
         projectId
     }
-     val infuraProjectSecret by lazy {
-         val projectKey = when(index) {
-             0 -> Translator.getString(R.string.infuraSecretKey)
-             1 -> infuraProjectSecret2
-             else -> infuraProjectSecret3
-         }
-         projectKey
+    val infuraProjectSecret by lazy {
+        val projectKey = when(index) {
+            0 -> Translator.getString(R.string.infuraSecretKey)
+            1 -> infuraProjectSecret2
+            else -> infuraProjectSecret3
+        }
+        projectKey
     }
 
     val infuraProjectId2 by lazy {
@@ -144,7 +144,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val oneInchApiKey by lazy {
-        Translator.getString(R.string.oneInchApiKey)
+        val projectKey = when(index) {
+            0 -> Translator.getString(R.string.oneInchApiKey)
+            1 -> Translator.getString(R.string.oneInchApiKey2)
+            else -> Translator.getString(R.string.oneInchApiKey3)
+        }
+        projectKey
     }
 
     val fiatDecimal: Int = 2
@@ -152,46 +157,46 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val maxDecimal: Int = 8
 
     val currencies: List<Currency> = listOf(
-        Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
-        Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
-        Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
-        Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
-        Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
-        Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
-        Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
-        Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
-        Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
-        Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
-        Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
-        Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
-        Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
-        Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
-        Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
-        Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
-        Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
-        Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
-        Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
+            Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
+            Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
+            Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
+            Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
+            Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
+            Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
+            Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
+            Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
+            Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
+            Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
+            Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
+            Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
+            Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
+            Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
+            Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
+            Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
+            Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
+            Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
+            Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
     )
 
     val donateAddresses: Map<BlockchainType, String> by lazy {
         mapOf(
-            BlockchainType.Bitcoin to "bc1qy0dy3ufpup9eyeprnd8a6fe2scg2m4rr4peasy",
-            BlockchainType.BitcoinCash to "bitcoincash:qqlwaf0vrvq722pta5jfc83m6cv7569nzya0ry6prk",
-            BlockchainType.ECash to "ecash:qp9cqsjfttdv2x9y0el3ghk7xy4dy07p6saz7w2xvq",
-            BlockchainType.Litecoin to "ltc1qtnyd4vq4yvu4g00jd3nl25w8qftj32dvfanyfx",
-            BlockchainType.Dash to "XqCrPRKwBeW4pNPbNUTQTsnKQ626RNz4no",
-            BlockchainType.Zcash to "zs1r9gf53xg3206g7wlhwwq7lcdrtzalepnvk7kwpm8yxr0z3ng0y898scd505rsekj8c4xgwddz4m",
-            BlockchainType.Ethereum to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.BinanceSmartChain to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.BinanceChain to "bnb14ll2wtw7xezkhdmh9n4khlydsua5kf74q5r6vg",
-            BlockchainType.Polygon to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Avalanche to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Optimism to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.ArbitrumOne to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Solana to "ELFQmFXqdS6C1zVqZifs7WAmLKovdEPbWSnqomhZoK3B",
-            BlockchainType.Gnosis to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Fantom to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.Tron to "TXKA3SxjLsUL4n6j3v2h85fzb4V7Th6yh6"
+                BlockchainType.Bitcoin to "bc1qy0dy3ufpup9eyeprnd8a6fe2scg2m4rr4peasy",
+                BlockchainType.BitcoinCash to "bitcoincash:qqlwaf0vrvq722pta5jfc83m6cv7569nzya0ry6prk",
+                BlockchainType.ECash to "ecash:qp9cqsjfttdv2x9y0el3ghk7xy4dy07p6saz7w2xvq",
+                BlockchainType.Litecoin to "ltc1qtnyd4vq4yvu4g00jd3nl25w8qftj32dvfanyfx",
+                BlockchainType.Dash to "XqCrPRKwBeW4pNPbNUTQTsnKQ626RNz4no",
+                BlockchainType.Zcash to "zs1r9gf53xg3206g7wlhwwq7lcdrtzalepnvk7kwpm8yxr0z3ng0y898scd505rsekj8c4xgwddz4m",
+                BlockchainType.Ethereum to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.BinanceSmartChain to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.BinanceChain to "bnb14ll2wtw7xezkhdmh9n4khlydsua5kf74q5r6vg",
+                BlockchainType.Polygon to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.Avalanche to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.Optimism to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.ArbitrumOne to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.Solana to "ELFQmFXqdS6C1zVqZifs7WAmLKovdEPbWSnqomhZoK3B",
+                BlockchainType.Gnosis to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.Fantom to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+                BlockchainType.Tron to "TXKA3SxjLsUL4n6j3v2h85fzb4V7Th6yh6"
         ).toList().sortedBy { (key, _) -> key.order }.toMap()
     }
 
