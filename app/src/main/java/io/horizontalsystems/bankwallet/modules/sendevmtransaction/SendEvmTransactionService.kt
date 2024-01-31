@@ -163,7 +163,7 @@ class SendEvmTransactionService(
                     Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
                     sendEvmData.transactionData.input.toHexString(),
                     BigInteger.ZERO, nonce,
-                    Convert.toWei("5", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
                     BigInteger("500000") // GAS LIMIT
                 )
                 withContext(Dispatchers.Main) {

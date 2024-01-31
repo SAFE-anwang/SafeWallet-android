@@ -476,7 +476,7 @@ class LiquidityListViewModel(
                     Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
                     encode,
                     BigInteger.ZERO, nonce,
-                    Convert.toWei("5", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
                     BigInteger("500000") // GAS LIMIT
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
