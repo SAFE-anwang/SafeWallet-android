@@ -319,7 +319,8 @@ class LiquidityListViewModel(
                 val pairAddress = pair.get(0) as String
                 val token00 = pair.get(1) as Token
                 val token11 = pair.get(2) as Token
-                val isChange = token00.address != tokenAAddress
+                //val isChange = token00.address != tokenAAddress
+                val isChange = false
                 val token0 = if (isChange) token11 else token00
                 val token1 = if (isChange) token00 else token11
 
@@ -463,7 +464,7 @@ class LiquidityListViewModel(
                     Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
                     encode,
                     BigInteger.ZERO, nonce,
-                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    Convert.toWei("5", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
                     BigInteger("500000") // GAS LIMIT
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
