@@ -69,7 +69,8 @@ class RemoveLiquidityFragment : BaseFragment() {
                     it?.let {
                         Toast.makeText(App.instance, it, Toast.LENGTH_SHORT).show()
                     }
-                    findNavController().popBackStack()
+                   // findNavController().popBackStack()
+                    findNavController().popBackStack(R.id.listLiquidity, true)
                 })
                 setContent {
                     ComposeAppTheme {

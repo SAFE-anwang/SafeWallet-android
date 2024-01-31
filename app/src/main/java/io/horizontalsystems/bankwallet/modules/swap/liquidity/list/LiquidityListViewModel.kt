@@ -478,7 +478,7 @@ class LiquidityListViewModel(
                         "Remove Success"
                     }
                 }
-                refresh()
+             //   refresh()
             } catch (e: Throwable) {
                 Log.e("removeLiquidity", "error=$e")
                 withContext(Dispatchers.Main) {
