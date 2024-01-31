@@ -81,7 +81,8 @@ class LiquidityListViewModel(
     var tempIndex: Int? = null
 
     private var removePercent = 25
-
+    private var requestCount = 1
+    private val Max_Request_Count = 5
     var uiState by mutableStateOf(
         LiquidityUiState(
             liquidityViewItems = liquidityViewItems,
@@ -173,8 +174,11 @@ class LiquidityListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
+            var requestError = false
             val list = mutableListOf<LiquidityViewItem>()
             getAllPair(activeWallets).forEach { pair ->
+                requestCount = 1
+                requestError = false
                 val tokenEntityA = tokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
@@ -184,9 +188,17 @@ class LiquidityListViewModel(
                             list.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
-                        viewState = ViewState.Error(e)
+                        if (requestCount == Max_Request_Count) {
+                            viewState = ViewState.Error(e)
+                        } else {
+                            requestCount ++
+                        }
+                        requestError = true
                     }
                 }
+            }
+            if (requestError && requestCount == Max_Request_Count) {
+                refresh()
             }
             viewState = ViewState.Success
             liquidityViewItems = list.map { it }
