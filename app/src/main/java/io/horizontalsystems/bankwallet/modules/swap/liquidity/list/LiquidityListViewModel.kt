@@ -35,6 +35,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenEntity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
@@ -65,7 +66,6 @@ class LiquidityListViewModel(
 ) : ViewModel() {
 
     val logger = AppLogger("LiquidityListViewModel")
-    private val web3j = Connect.connect()
 
     private val disposable = CompositeDisposable()
 
@@ -93,6 +93,11 @@ class LiquidityListViewModel(
     )
         private set
 
+    val tabs = LiquidityListModule.Tab.values()
+    var selectedTab by mutableStateOf(LiquidityListModule.Tab.BSC)
+        private set
+
+    private var web3j = Connect.connect(selectedTab == LiquidityListModule.Tab.ETH)
 
     val removeErrorMessage = SingleLiveEvent<String?>()
     val removeSuccessMessage = SingleLiveEvent<String>()
@@ -112,6 +117,8 @@ class LiquidityListViewModel(
                     amountEnabled = amountEnabled,
                     dimAmount = isLoading && isEstimated,
                 )
+
+    private var getLiquidityJob: Job? = null
 
     private fun getWethAddress(chain: BlockchainType): String {
         val wethAddressHex = when (chain) {
@@ -159,19 +166,37 @@ class LiquidityListViewModel(
         return marketKit.getTokenEntity(uids, type)
     }
 
+    fun onSelect(tab: LiquidityListModule.Tab) {
+        getLiquidityJob?.cancel()
+        selectedTab = tab
+        web3j = Connect.connect(selectedTab == LiquidityListModule.Tab.ETH)
+        liquidityViewItems = listOf()
+        refresh()
+    }
+
     private fun getAllLiquidity() {
         viewState = ViewState.Loading
         val activeWallets = accountManager.activeAccount?.let {
             storage.wallets(it).filter {
-                it.token.blockchainType is BlockchainType.BinanceSmartChain
-                        && it.token.coin.code != "Cake-LP"
+                if (selectedTab == LiquidityListModule.Tab.BSC) {
+                    it.token.blockchainType is BlockchainType.BinanceSmartChain
+                            && it.token.coin.code != "Cake-LP"
+                } else {
+                    it.token.blockchainType is BlockchainType.Ethereum
+                            && it.token.coin.code != "UNI-V2"
+                }
             }
         } ?: listOf()
         if (activeWallets.isEmpty()) return
         val uids = activeWallets.map { it.coin.uid }
-        val tokenEntityList = getTokenEntity(uids, "binance-smart-chain")
+        val tokenEntityList = getTokenEntity(uids,
+                if (selectedTab == LiquidityListModule.Tab.BSC)
+                    "binance-smart-chain"
+                else
+                    "ethereum"
+        )
         liquidityItems.clear()
-        viewModelScope.launch(Dispatchers.IO) {
+        getLiquidityJob = viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
             var requestError = false
@@ -233,7 +258,7 @@ class LiquidityListViewModel(
             walletB.coin.code,
             walletB.decimal
         )
-        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return null
+        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, selectedTab == LiquidityListModule.Tab.ETH) ?: return null
 
         val pairAddress = pair.get(0) as String
         val token0 = pair.get(1) as Token
@@ -327,7 +352,7 @@ class LiquidityListViewModel(
                     walletB.decimal
                 )
                 val pair =
-                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return@launch
+                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB,selectedTab == LiquidityListModule.Tab.ETH) ?: return@launch
                 val pairAddress = pair.get(0) as String
                 val token00 = pair.get(1) as Token
                 val token11 = pair.get(2) as Token
@@ -403,12 +428,22 @@ class LiquidityListViewModel(
                     evmKitWrapper!!.evmKit.receiveAddress.hex
                 )
                 val deadline = Constants.getDeadLine()
+                val routerAddress = if (selectedTab == LiquidityListModule.Tab.BSC) {
+                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                } else {
+                    Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+                }
+                val chainId = if (selectedTab == LiquidityListModule.Tab.BSC) {
+                    56
+                } else {
+                    1
+                }
                 val json = buildSignJson(
                     name,
-                    56,
+                    chainId,
                     pairAddress,
                     evmKitWrapper!!.evmKit.receiveAddress.hex,
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                    routerAddress,
                     removeLiquidityAmount,
                     nonces,
                     deadline
@@ -470,13 +505,15 @@ class LiquidityListViewModel(
                         DefaultBlockParameterName.LATEST
                     )
                         .send().transactionCount
-
+                val gasPrice: BigInteger = web3j.ethGasPrice()
+                        .send()
+                        .getGasPrice()
                 val hash = TransactionContractSend.send(
                     web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                        routerAddress,
                     encode,
                     BigInteger.ZERO, nonce,
-                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    gasPrice,  // GAS PRICE : 5GWei
                     BigInteger("500000") // GAS LIMIT
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d

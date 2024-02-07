@@ -2119,4 +2119,6 @@
     <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
     <string name="Liquidity_Add">Add</string>
     <string name="Liquidity_Add_Success">Add success</string>
+    <string name="Liquidity_Tab_BSC">BSC</string>
+    <string name="Liquidity_Tab_ETH">ETH</string>
 </resources>

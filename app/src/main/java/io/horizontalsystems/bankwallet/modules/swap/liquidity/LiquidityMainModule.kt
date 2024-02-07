@@ -49,7 +49,8 @@ object LiquidityMainModule {
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
         private val tokenFrom: Token? = arguments.getParcelable(tokenFromKey)
         private val swapProviders: List<SwapMainModule.ISwapProvider> = listOf(
-            PancakeLiquidityProvider
+            PancakeLiquidityProvider,
+            UniswapLiquidityProvider
         )
         private val switchService by lazy { AmountTypeSwitchService() }
         private val swapMainXService by lazy { LiquidityMainService(tokenFrom, swapProviders, App.localStorage) }
@@ -260,11 +261,21 @@ object LiquidityMainModule {
         override val url get() = "https://pancakeswap.finance/"
         override val supportsExactOut get() = true
 
-        /*override fun supports(blockchainType: BlockchainType): Boolean {
-            return blockchainType == BlockchainType.BinanceSmartChain
-        }*/
         override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
             BlockchainType.BinanceSmartChain -> true
+            else -> false
+        }
+    }
+
+    @Parcelize
+    object UniswapLiquidityProvider : SwapMainModule.ISwapProvider {
+        override val id get() = "uniswap_liquidity"
+        override val title get() = "Uniswap V2"
+        override val url get() = "https://uniswap.org/"
+        override val supportsExactOut get() = true
+
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.Ethereum -> true
             else -> false
         }
     }
@@ -315,22 +326,6 @@ object LiquidityMainModule {
     enum class ExactType {
         ExactFrom, ExactTo
     }
-
-/*    sealed class SwapActionState {
-        object Hidden : SwapActionState()
-        class Enabled(val buttonTitle: String) : SwapActionState()
-        class Disabled(val buttonTitle: String, val loading: Boolean = false) : SwapActionState()
-
-        val title: String
-            get() = when (this) {
-                is Enabled -> this.buttonTitle
-                is Disabled -> this.buttonTitle
-                else -> ""
-            }
-
-        val showProgress: Boolean
-            get() = this is Disabled && loading
-    }*/
 
 }
 

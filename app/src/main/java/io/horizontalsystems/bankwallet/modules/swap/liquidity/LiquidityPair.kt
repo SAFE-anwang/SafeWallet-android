@@ -10,8 +10,12 @@ import org.web3j.protocol.Web3j
 object LiquidityPair {
 
     @Throws(Exception::class)
-    fun getPairReservesForPancakeSwap(web3j: Web3j?, tokenA: Token, tokenB: Token): Array<Any>? {
-        val pairAddress = PairAddress.getPairAddressForPancakeSwap(tokenA.address, tokenB.address)
+    fun getPairReservesForPancakeSwap(web3j: Web3j?, tokenA: Token, tokenB: Token, isEth: Boolean = false): Array<Any>? {
+        val pairAddress = if (isEth) {
+            PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
+        } else {
+            PairAddress.getPairAddressForPancakeSwap(tokenA.address, tokenB.address)
+        }
         Log.i(
             "getPairReservesForPancakeSwap",
             "${tokenA.symbol} ${tokenB.symbol} ${pairAddress}"
