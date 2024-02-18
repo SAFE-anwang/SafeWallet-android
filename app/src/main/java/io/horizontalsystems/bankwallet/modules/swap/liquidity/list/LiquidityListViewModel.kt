@@ -518,13 +518,21 @@ class LiquidityListViewModel(
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
-                Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", hash)
+                Log.i("Execute Router.removeLiquidityWithPermit Hash ", "= $hash")
                 withContext(Dispatchers.Main) {
-                    removeItem(index)
-                    removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
-                        "移除成功"
+                    if (hash != null) {
+                        removeItem(index)
+                        removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "移除成功"
+                        } else {
+                            "Remove Success"
+                        }
                     } else {
-                        "Remove Success"
+                        removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "移除失败"
+                        } else {
+                            "Remove Fail"
+                        }
                     }
                 }
              //   refresh()
