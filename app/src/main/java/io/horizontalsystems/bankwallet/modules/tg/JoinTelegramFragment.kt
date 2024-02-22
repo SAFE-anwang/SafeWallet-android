@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceScreen
@@ -74,7 +75,7 @@ class JoinTelegramFragment: BaseFragment() {
                                 .padding(horizontal = 16.dp),
                             title = stringResource(R.string.Join_Telegram_Group1),
                             onClick = {
-                                startTelegramService?.join("https://t.me/safeanwang")
+                                startTelegramService?.join(App.appConfigProvider.appTelegramLink)
                             }
                         )
 
