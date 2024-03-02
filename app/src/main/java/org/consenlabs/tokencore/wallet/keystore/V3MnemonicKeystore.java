@@ -1,7 +1,8 @@
+/*
 package org.consenlabs.tokencore.wallet.keystore;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
+import com.google.common.base.org.consenlabs.tokencore.Strings;
 
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.DeterministicKeyChain;
@@ -18,9 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+*/
 /**
  * Created by xyz on 2018/2/5.
- */
+ *//*
+
 
 public class V3MnemonicKeystore extends IMTKeystore implements EncMnemonicKeystore, ExportableKeystore {
   private static final int VERSION = 3;
@@ -73,7 +76,7 @@ public class V3MnemonicKeystore extends IMTKeystore implements EncMnemonicKeysto
     metadata.setWalletType(Metadata.V3);
     this.metadata = metadata;
     this.version = VERSION;
-    this.id = Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
+    this.id = org.consenlabs.tokencore.Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
   }
 
 
@@ -85,3 +88,4 @@ public class V3MnemonicKeystore extends IMTKeystore implements EncMnemonicKeysto
     return new V3MnemonicKeystore(this.metadata, newPassword, mnemonicCodes, this.mnemonicPath, this.id);
   }
 }
+*/

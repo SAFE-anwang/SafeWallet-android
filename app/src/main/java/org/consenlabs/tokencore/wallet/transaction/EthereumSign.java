@@ -1,9 +1,10 @@
 package org.consenlabs.tokencore.wallet.transaction;
 
 
-import com.subgraph.orchid.encoders.Hex;
+import static io.horizontalsystems.bitcoincash.blocks.Utils.checkState;
 
 import org.bitcoinj.core.Sha256Hash;
+import org.bouncycastle.util.encoders.Hex;
 import org.consenlabs.tokencore.foundation.crypto.Hash;
 import org.consenlabs.tokencore.foundation.utils.ByteUtil;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
@@ -15,8 +16,6 @@ import java.nio.charset.Charset;
 import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Locale;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Created by xyz on 2017/12/20.

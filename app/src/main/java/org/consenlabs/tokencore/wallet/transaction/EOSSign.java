@@ -6,10 +6,7 @@ import org.bitcoinj.core.Sha256Hash;
 import org.consenlabs.tokencore.foundation.utils.ByteUtil;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
 import org.consenlabs.tokencore.wallet.model.TokenException;
-import org.spongycastle.crypto.digests.RIPEMD160Digest;
-import org.spongycastle.crypto.digests.SHA256Digest;
-import org.spongycastle.crypto.params.ECPrivateKeyParameters;
-import org.spongycastle.crypto.signers.HMacDSAKCalculator;
+
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -18,7 +15,7 @@ import static org.bitcoinj.core.ECKey.CURVE;
 
 public class EOSSign {
 
-  @Deprecated
+  /*@Deprecated
   public static String sign(byte[] dataSha256, String wif) {
     SignatureData signatureData = signAsRecoverable(dataSha256, EOSKey.fromWIF(wif).getECKey());
     byte[] sigResult = ByteUtil.concat(NumericUtil.intToBytes(signatureData.getV()), signatureData.getR());
@@ -32,10 +29,10 @@ public class EOSSign {
     byte[] sigResult = ByteUtil.concat(NumericUtil.intToBytes(signatureData.getV()), signatureData.getR());
     sigResult = ByteUtil.concat(sigResult, signatureData.getS());
     return serialEOSSignature(sigResult);
-  }
+  }*/
 
 
-  private static SignatureData signAsRecoverable(byte[] value, ECKey ecKey) {
+  /*private static SignatureData signAsRecoverable(byte[] value, ECKey ecKey) {
     int recId = -1;
     ECKey.ECDSASignature sig = eosSign(value, ecKey.getPrivKey());
     for (int i = 0; i < 4; i++) {
@@ -57,9 +54,9 @@ public class EOSSign {
 
     return new SignatureData(v, r, s);
 
-  }
+  }*/
 
-  private static ECKey.ECDSASignature eosSign(byte[] input, BigInteger privateKeyForSigning) {
+/*  private static ECKey.ECDSASignature eosSign(byte[] input, BigInteger privateKeyForSigning) {
     EOSECDSASigner signer = new EOSECDSASigner(new MyHMacDSAKCalculator(new SHA256Digest()));
     ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(privateKeyForSigning, CURVE);
     signer.init(true, privKey);
@@ -76,5 +73,5 @@ public class EOSSign {
     byte[] checksumBytes = Arrays.copyOfRange(out, 0, 4);
     data = ByteUtil.concat(data, checksumBytes);
     return "SIG_K1_" + Base58.encode(data);
-  }
+  }*/
 }

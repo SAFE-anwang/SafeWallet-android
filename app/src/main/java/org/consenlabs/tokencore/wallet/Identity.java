@@ -1,3 +1,4 @@
+/*
 package org.consenlabs.tokencore.wallet;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,11 +16,7 @@ import org.consenlabs.tokencore.foundation.crypto.Multihash;
 import org.consenlabs.tokencore.foundation.utils.ByteUtil;
 import org.consenlabs.tokencore.foundation.utils.MnemonicUtil;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
-import org.consenlabs.tokencore.wallet.keystore.EOSKeystore;
-import org.consenlabs.tokencore.wallet.keystore.HDMnemonicKeystore;
 import org.consenlabs.tokencore.wallet.keystore.IMTKeystore;
-import org.consenlabs.tokencore.wallet.keystore.IdentityKeystore;
-import org.consenlabs.tokencore.wallet.keystore.V3MnemonicKeystore;
 import org.consenlabs.tokencore.wallet.model.BIP44Util;
 import org.consenlabs.tokencore.wallet.model.ChainType;
 import org.consenlabs.tokencore.wallet.model.Messages;
@@ -37,9 +34,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+*/
 /**
  * Created by xyz on 2017/12/11.
- */
+ *//*
+
 
 public class Identity {
 
@@ -338,3 +337,4 @@ public class Identity {
     return EthereumSign.sign(data, decrypted);
   }
 }
+*/

@@ -1,6 +1,7 @@
+/*
 package org.consenlabs.tokencore.wallet.keystore;
 
-import com.google.common.base.Strings;
+import com.google.common.base.org.consenlabs.tokencore.Strings;
 
 import org.consenlabs.tokencore.foundation.crypto.Crypto;
 import org.consenlabs.tokencore.wallet.model.ChainType;
@@ -46,6 +47,7 @@ public class LegacyEOSKeystore extends V3Keystore {
         metadata.setWalletType(Metadata.V3);
         this.metadata = metadata;
         this.version = VERSION;
-        this.id = Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
+        this.id = org.consenlabs.tokencore.Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
     }
 }
+*/

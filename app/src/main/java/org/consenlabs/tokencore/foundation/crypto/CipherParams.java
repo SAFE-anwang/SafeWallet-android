@@ -1,7 +1,6 @@
 package org.consenlabs.tokencore.foundation.crypto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
@@ -25,7 +24,7 @@ public class CipherParams {
 
   @JsonIgnore
   public void validate() {
-    if (Strings.isNullOrEmpty(iv)) {
+    if (iv == null || iv.isEmpty()) {
       throw new TokenException(Messages.CIPHER_FAIL);
     }
   }

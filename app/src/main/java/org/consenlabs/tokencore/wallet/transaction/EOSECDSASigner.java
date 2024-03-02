@@ -1,3 +1,4 @@
+/*
 package org.consenlabs.tokencore.wallet.transaction;
 
 import org.bitcoinj.core.ECKey;
@@ -19,22 +20,26 @@ import java.security.SecureRandom;
 import static java.math.BigDecimal.ZERO;
 import static java.math.BigInteger.ONE;
 
+*/
 /**
  * !!! We copy the code from BitcoinJ !!!
  * EOS extends the data and then hash it by rcf6979  to generate Canonical Signatures.
  * The BitcoinJ doesn't expose the same api as libsecp256k1, we can't overwrite it by inheriting
- */
+ *//*
+
 public class EOSECDSASigner {
   private final DSAKCalculator kCalculator;
 
   private ECKeyParameters key;
   private SecureRandom random;
 
-  /**
+  */
+/**
    * Configuration with an alternate, possibly deterministic calculator of K.
    *
    * @param kCalculator a K value calculator.
-   */
+   *//*
+
   public EOSECDSASigner(DSAKCalculator kCalculator) {
     this.kCalculator = kCalculator;
   }
@@ -62,13 +67,15 @@ public class EOSECDSASigner {
 
   // 5.3 pg 28
 
-  /**
+  */
+/**
    * generate a signature for the given message using the key we were
    * initialised with. For conventional DSA the message should be a SHA-1
    * hash of the message of interest.
    *
    * @param message the message that will be verified later.
-   */
+   *//*
+
   public BigInteger[] generateSignature(
       byte[] message) {
     ECDomainParameters ec = key.getParameters();
@@ -121,11 +128,13 @@ public class EOSECDSASigner {
 
   // 5.4 pg 29
 
-  /**
+  */
+/**
    * return true if the value r and s represent a DSA signature for
    * the passed in message (for standard DSA the message should be
    * a SHA-1 hash of the real message to be verified).
-   */
+   *//*
+
   public boolean verifySignature(
       byte[] message,
       BigInteger r,
@@ -183,3 +192,4 @@ public class EOSECDSASigner {
     return !needed ? null : (provided != null) ? provided : new SecureRandom();
   }
 }
+*/

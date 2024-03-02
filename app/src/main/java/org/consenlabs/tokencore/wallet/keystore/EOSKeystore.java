@@ -1,10 +1,9 @@
+/*
 package org.consenlabs.tokencore.wallet.keystore;
 
 import android.text.TextUtils;
 import android.util.Pair;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.wallet.DeterministicKeyChain;
@@ -139,11 +138,11 @@ public class EOSKeystore extends IMTKeystore implements EncMnemonicKeystore {
     metadata.setWalletType(Metadata.RANDOM);
     this.metadata = metadata;
     this.version = VERSION;
-    if (!Strings.isNullOrEmpty(accountName)) {
+    if (!org.consenlabs.tokencore.Strings.isNullOrEmpty(accountName)) {
       setAccountName(accountName);
     }
 
-    this.id = Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
+    this.id = org.consenlabs.tokencore.Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
   }
 
 
@@ -166,11 +165,11 @@ public class EOSKeystore extends IMTKeystore implements EncMnemonicKeystore {
     this.derivedKeyPath(allDefaultKeys, permissions, password);
     this.crypto.clearCachedDerivedKey();
 
-    if (!Strings.isNullOrEmpty(accountName)) {
+    if (!org.consenlabs.tokencore.Strings.isNullOrEmpty(accountName)) {
       setAccountName(accountName);
     }
     this.version = VERSION;
-    this.id = Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
+    this.id = org.consenlabs.tokencore.Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
   }
 
   private void derivedKeyPath(List<KeyPath> keyPaths, List<PermissionObject> permissions, String password) {
@@ -178,7 +177,7 @@ public class EOSKeystore extends IMTKeystore implements EncMnemonicKeystore {
     for (KeyPath keyPath : keyPaths) {
       EncPair encPair = crypto.deriveEncPair(password, keyPath.getPrivateKey());
       String publicKey = EOSKey.fromPrivate(keyPath.getPrivateKey()).getPublicKeyAsHex();
-      String derivedMode = Strings.isNullOrEmpty(keyPath.getPath()) ? KeyPathPrivate.HD_SHA256 : KeyPathPrivate.PATH_DIRECTLY;
+      String derivedMode = org.consenlabs.tokencore.Strings.isNullOrEmpty(keyPath.getPath()) ? KeyPathPrivate.HD_SHA256 : KeyPathPrivate.PATH_DIRECTLY;
       KeyPathPrivate keyPathPrivate = new KeyPathPrivate(encPair, publicKey, keyPath.getPath(), derivedMode);
       mKeyPathPrivates.add(keyPathPrivate);
     }
@@ -214,7 +213,7 @@ public class EOSKeystore extends IMTKeystore implements EncMnemonicKeystore {
   }
 
   public void setAccountName(String accountName) {
-    if (!Strings.isNullOrEmpty(this.address) && !this.address.equals(accountName)) {
+    if (!org.consenlabs.tokencore.Strings.isNullOrEmpty(this.address) && !this.address.equals(accountName)) {
       throw new TokenException("Only can set accountName once in eos wallet");
     }
     if (!Pattern.matches("[1-5a-z.]{1,12}", accountName)) {
@@ -372,3 +371,4 @@ public class EOSKeystore extends IMTKeystore implements EncMnemonicKeystore {
 
 
 }
+*/

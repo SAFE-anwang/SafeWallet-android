@@ -1,7 +1,7 @@
 package org.consenlabs.tokencore.foundation.crypto;
 
-import com.google.common.base.Strings;
 
+import org.consenlabs.tokencore.Strings;
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
 

@@ -1,6 +1,5 @@
 package org.consenlabs.tokencore.wallet.address;
 
-import com.google.common.base.Strings;
 
 import org.bitcoinj.core.ECKey;
 import org.consenlabs.tokencore.foundation.crypto.Hash;
@@ -10,7 +9,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkState;
 
 
 public class EthereumAddressCreator implements AddressCreator {

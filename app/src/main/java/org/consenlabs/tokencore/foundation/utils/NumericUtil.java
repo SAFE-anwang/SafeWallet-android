@@ -1,7 +1,7 @@
 package org.consenlabs.tokencore.foundation.utils;
 
 
-import com.google.common.base.Strings;
+import org.web3j.utils.Strings;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -90,7 +90,7 @@ public class NumericUtil {
     }
 
     if (length < size) {
-      result = Strings.repeat("0", size - length) + result;
+      result = Strings.repeat('0', size - length) + result;
     }
     return result;
   }
