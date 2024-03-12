@@ -120,8 +120,8 @@ android {
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
             resValue "string", "cryptoCompareApiKey", ""
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "99e0b89d9f3d45c98cc95c0a47aeb837"
-            resValue "string", "infuraSecretKey", "f66154c66d024b5e80a7165d09d5fb6d"
+            resValue "string", "infuraProjectId", "5bf760228fcd47bb8d277dba49b7b369"
+            resValue "string", "infuraSecretKey", "7b81c992c98d4e60aaa8a0ef9acff2be"
             resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
             resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
             resValue "string", "infuraProjectId3", "0c91eab4cc774d3887f218376a725da2"
@@ -309,7 +309,7 @@ dependencies {
 
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:7e4d7c0'
-    implementation 'com.github.horizontalsystems:solana-kit-android:6401968'
+    implementation 'com.github.horizontalsystems:solana-kit-android:8e21040'
     implementation 'com.github.horizontalsystems:tron-kit-android:67f8d53'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
