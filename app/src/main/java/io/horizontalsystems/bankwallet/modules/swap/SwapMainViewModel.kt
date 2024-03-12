@@ -100,9 +100,9 @@ class SwapMainViewModel(
 
     private val evmKit: EthereumKit by lazy { App.evmBlockchainManager.getEvmKitManager(dex.blockchainType).evmKitWrapper?.evmKit!! }
     private val oneIncKitHelper by lazy { OneInchKitHelper(evmKit, App.appConfigProvider.oneInchApiKey) }
-    private val uniswapKit by lazy { UniswapKit.getInstance(evmKit) }
-    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit, DexType.Uniswap) }
-    private val pancakeSwapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit, DexType.PancakeSwap) }
+    private val uniswapKit by lazy { UniswapKit.getInstance() }
+    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(DexType.Uniswap) }
+    private val pancakeSwapV3Kit by lazy { UniswapV3Kit.getInstance(DexType.PancakeSwap) }
     private var tradeService: SwapMainModule.ISwapTradeService = getTradeService(dex.provider)
     private var tradeView: SwapMainModule.TradeViewX? = null
     private var tradePriceExpiration: Float? = null
@@ -218,9 +218,9 @@ class SwapMainViewModel(
 
     private fun getSpenderAddress(provider: ISwapProvider) = when (provider) {
         SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
-        SwapMainModule.UniswapV3Provider -> uniswapV3Kit.routerAddress
-        SwapMainModule.PancakeSwapV3Provider -> pancakeSwapV3Kit.routerAddress
-        else -> uniswapKit.routerAddress
+        SwapMainModule.UniswapV3Provider -> uniswapV3Kit.routerAddress(evmKit.chain)
+        SwapMainModule.PancakeSwapV3Provider -> pancakeSwapV3Kit.routerAddress(evmKit.chain)
+        else -> uniswapKit.routerAddress(evmKit.chain)
     }
 
     private fun syncUiState() {

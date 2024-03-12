@@ -274,8 +274,8 @@ class LiquidityMainViewModel(
 
     private fun getSpenderAddress(provider: SwapMainModule.ISwapProvider) = when (provider) {
 //        SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
-        LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress
-        else -> uniswapKit.routerAddress
+        LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
+        else -> uniswapKit.routerAddress(evmKit.chain)
     }
 
     private fun syncUiState() {
