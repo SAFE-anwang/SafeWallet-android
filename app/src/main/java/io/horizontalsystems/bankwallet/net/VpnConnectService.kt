@@ -219,12 +219,13 @@ object VpnConnectService {
     fun refreshData(activity: Activity) {
         // 连接成功后，刷新钱包，连接VPN过程中有可能导致同步失败
         // 先修改同步状态，再刷新，不然会出现刷新不成功的情况
-        App.binanceKitManager.binanceKit?.syncState = BinanceChainKit.SyncState.NotSynced(Throwable("Initial State"))
-        App.adapterManager.refresh()
+//        App.binanceKitManager.binanceKit?.syncState = BinanceChainKit.SyncState.NotSynced(Throwable("Initial State"))
+//        App.adapterManager.refresh()
         // 刷新Bitcoin系列
-        App.bitCoinConnectionManager.onEnterForeground()
-        App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit?.refresh()
-        App.binanceKitManager.binanceKit?.refresh()
+//        App.bitCoinConnectionManager.onEnterForeground()
+//        App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit?.refresh()
+//        App.binanceKitManager.binanceKit?.refresh()
+        App.adapterManager.preloadAdapters()
 //        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
 //        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         val mainActivity = activity as MainActivity
