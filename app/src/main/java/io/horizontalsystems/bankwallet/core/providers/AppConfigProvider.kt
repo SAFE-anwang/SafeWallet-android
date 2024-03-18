@@ -53,20 +53,22 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val infuraProjectId by lazy {
-        /*val projectId = when(index) {
+        val projectId = when(index) {
             0 -> Translator.getString(R.string.infuraProjectId)
             1 -> infuraProjectId2
             else -> infuraProjectId3
-        }*/
-        Translator.getString(R.string.infuraProjectId)
+        }
+//        Translator.getString(R.string.infuraProjectId)
+        projectId
     }
     val infuraProjectSecret by lazy {
-        /*val projectKey = when(index) {
+        val projectKey = when(index) {
             0 -> Translator.getString(R.string.infuraSecretKey)
             1 -> infuraProjectSecret2
             else -> infuraProjectSecret3
-        }*/
-        Translator.getString(R.string.infuraSecretKey)
+        }
+//        Translator.getString(R.string.infuraSecretKey)
+        projectKey
     }
 
     val infuraProjectId2 by lazy {
