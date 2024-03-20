@@ -24,7 +24,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val releaseNotesUrl by lazy { Translator.getString(R.string.releaseNotesUrl) }
     val mempoolSpaceUrl: String = "https://mempool.space"
     val walletConnectUrl = "relay.walletconnect.com"
-    val walletConnectProjectId by lazy { Translator.getString(R.string.walletConnectV2Key) }
+    val walletConnectProjectId by lazy {
+        when(index) {
+            0 -> Translator.getString(R.string.walletConnectV2Key)
+            else -> Translator.getString(R.string.walletConnectV2Key1)
+        }
+    }
     val walletConnectAppMetaDataName by lazy { Translator.getString(R.string.walletConnectAppMetaDataName) }
     val walletConnectAppMetaDataUrl by lazy { Translator.getString(R.string.walletConnectAppMetaDataUrl) }
     val walletConnectAppMetaDataIcon by lazy { Translator.getString(R.string.walletConnectAppMetaDataIcon) }
