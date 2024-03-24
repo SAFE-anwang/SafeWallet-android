@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -51,7 +52,7 @@ private fun MarkdownScreen(
     onUrlClick: (String) -> Unit,
     viewModel: MarkdownViewModel = viewModel(factory = MarkdownModule.Factory(markdownUrl))
 ) {
-
+    Log.e("longwen", "markdownUrl=$markdownUrl")
     Scaffold(
         backgroundColor = ComposeAppTheme.colors.tyler,
         topBar = {

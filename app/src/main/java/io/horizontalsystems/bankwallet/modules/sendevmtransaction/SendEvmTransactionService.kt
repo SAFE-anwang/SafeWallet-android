@@ -167,13 +167,16 @@ class SendEvmTransactionService(
                         routerAddress,
                     sendEvmData.transactionData.input.toHexString(),
                     BigInteger.ZERO, nonce.toBigInteger(),
-//                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
                         gasPrice,
                     BigInteger("500000") // GAS LIMIT
                 )
                 withContext(Dispatchers.Main) {
-                    sendState = SendState.Sent(hash.toByteArray())
-                    logger.info("success")
+                    if (hash != null) {
+                        sendState = SendState.Sent(hash.toByteArray())
+                        logger.info("success")
+                    } else {
+                        sendState = SendState.Failed(Exception("Failed"))
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
