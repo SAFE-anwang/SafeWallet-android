@@ -222,7 +222,8 @@ object VpnConnectService {
 //        App.binanceKitManager.binanceKit?.syncState = BinanceChainKit.SyncState.NotSynced(Throwable("Initial State"))
 //        App.adapterManager.refresh()
         // 刷新Bitcoin系列
-//        App.bitCoinConnectionManager.onEnterForeground()
+        App.bitCoinConnectionManager.isConnected = false
+        App.bitCoinConnectionManager.onEnterForeground()
 //        App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit?.refresh()
 //        App.binanceKitManager.binanceKit?.refresh()
         App.adapterManager.preloadAdapters()
