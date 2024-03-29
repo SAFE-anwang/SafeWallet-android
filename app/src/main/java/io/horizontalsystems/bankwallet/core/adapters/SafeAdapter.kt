@@ -64,6 +64,9 @@ class SafeAdapter(
 
     override fun onKitStateUpdate(state: BitcoinCore.KitState) {
         setState(state)
+        if (state is BitcoinCore.KitState.NotSynced) {
+            refresh()
+        }
     }
 
     override fun onTransactionsUpdate(inserted: List<DashTransactionInfo>, updated: List<DashTransactionInfo>) {
@@ -180,7 +183,7 @@ class SafeAdapter(
                 kit.bitcoinCore.storage.deleteBlocks(blocksList)
             }
             kit.mainNetSafe?.let {
-                kit.bitcoinCore.updateLastBlockInfo(syncMode, it)
+                kit.bitcoinCore.updateLastBlockInfo(syncMode, it, checkpoint)
             }
             kit.bitcoinCore.start()
         }
@@ -204,7 +207,8 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold
+                        confirmationsThreshold = confirmationsThreshold,
+                        connectionManager = App.bitCoinConnectionManager
                     )
                 }
                 is AccountType.Mnemonic -> {
@@ -214,7 +218,9 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold)
+                        confirmationsThreshold = confirmationsThreshold,
+                        connectionManager = App.bitCoinConnectionManager
+                    )
                 }
                 else -> throw UnsupportedAccountException()
             }

@@ -24,7 +24,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val releaseNotesUrl by lazy { Translator.getString(R.string.releaseNotesUrl) }
     val mempoolSpaceUrl: String = "https://mempool.space"
     val walletConnectUrl = "relay.walletconnect.com"
-    val walletConnectProjectId by lazy { Translator.getString(R.string.walletConnectV2Key) }
+    val walletConnectProjectId by lazy {
+        when(index) {
+            0 -> Translator.getString(R.string.walletConnectV2Key)
+            else -> Translator.getString(R.string.walletConnectV2Key1)
+        }
+    }
     val walletConnectAppMetaDataName by lazy { Translator.getString(R.string.walletConnectAppMetaDataName) }
     val walletConnectAppMetaDataUrl by lazy { Translator.getString(R.string.walletConnectAppMetaDataUrl) }
     val walletConnectAppMetaDataIcon by lazy { Translator.getString(R.string.walletConnectAppMetaDataIcon) }
@@ -53,20 +58,22 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val infuraProjectId by lazy {
-        /*val projectId = when(index) {
+        val projectId = when(index) {
             0 -> Translator.getString(R.string.infuraProjectId)
             1 -> infuraProjectId2
             else -> infuraProjectId3
-        }*/
-        Translator.getString(R.string.infuraProjectId)
+        }
+//        Translator.getString(R.string.infuraProjectId)
+        projectId
     }
     val infuraProjectSecret by lazy {
-        /*val projectKey = when(index) {
+        val projectKey = when(index) {
             0 -> Translator.getString(R.string.infuraSecretKey)
             1 -> infuraProjectSecret2
             else -> infuraProjectSecret3
-        }*/
-        Translator.getString(R.string.infuraSecretKey)
+        }
+//        Translator.getString(R.string.infuraSecretKey)
+        projectKey
     }
 
     val infuraProjectId2 by lazy {

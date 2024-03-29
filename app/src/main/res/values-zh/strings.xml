@@ -32,7 +32,7 @@
     <string name="Button_Disconnect">断连</string>
     <string name="Button_Start">开始</string>
     <string name="Button_Create">创建</string>
-    <string name="Button_Advanced">高级</string>
+    <string name="Button_Advanced">高级模式</string>
     <string name="Button_Restore">恢复</string>
     <string name="Button_WatchAddress">导入地址</string>
     <string name="Button_Reset">重置</string>
@@ -84,7 +84,7 @@
     <string name="Welcome_PrivacySettings">隐私设置</string>
     <!--Create Wallet-->
     <string name="CreateWallet_Advanced_Title">高级</string>
-    <string name="CreateWallet_Mnemonic">恢复码</string>
+    <string name="CreateWallet_Mnemonic">助记词</string>
     <string name="CreateWallet_Wordlist">字符列表</string>
     <string name="Passphrase">密码</string>
     <string name="Password">密码</string>
@@ -95,7 +95,7 @@
     <string name="CreateWallet_Error_EmptyPassphrase">助记词不能为空</string>
     <string name="CreateWallet_Error_PassphraseForbiddenSymbols">请只使用支持的符号： <![CDATA[A-Z a-z 0-9 \' " & / ? ！: ; 。 ，~ * $ = + - [ ](){} <> \ _ # @ | % ]]></string>
     <string name="CreateWallet_Error_InvalidConfirmation">确认密码不匹配</string>
-    <string name="CreateWallet_PassphraseDescription">密码为钱包添加一个额外的安全层。要恢复这个钱包，用户既需要密码，也需要密码。\n\n密码也使得用户可以轻松地使用单一的密钥但不同的密码来拥有许多多币钱包。</string>
+    <string name="CreateWallet_PassphraseDescription">密码为钱包添加一个额外的安全层。要恢复这个钱包，用户既需要助记词，也需要密码。\n\n密码也使得用户可以轻松地使用单一的密钥但不同的密码来拥有许多多币钱包。</string>
     <!--Languages-->
     <string name="Language_English">英语</string>
     <string name="Language_Japanese">日语</string>
@@ -114,7 +114,7 @@
     <string name="RateApp_Button_NotNow">暂不</string>
     <!--Restore-->
     <string name="Restore_Advanced_Title">高级</string>
-    <string name="Restore_Mnemonic_Description">输入包含12、15、18、21或24个字的钱包恢复短语(又名mnemonic)，可能包含额外的字母和数字密码。</string>
+    <string name="Restore_Mnemonic_Description">输入包含12、15、18、21或24个字的钱包助记词(又名mnemonic)，可能包含额外的字母和数字密码。</string>
     <string name="Restore_ValidationFailed">错误密钥</string>
     <string name="Restore_Error_MnemonicWordCount">个数有误。必须为12到24个单词。您输入了：%d</string>
     <string name="Restore_Error_EmptyPassphrase">助记词不能为空</string>
@@ -125,7 +125,7 @@
     <string name="Restore_Key">密钥</string>
     <string name="Restore_By">由</string>
     <string name="Restore_RestoreBy">还原方式</string>
-    <string name="Restore_RecoveryPhrase">恢复码</string>
+    <string name="Restore_RecoveryPhrase">助记词</string>
     <string name="Restore_PrivateKey">私钥</string>
     <string name="Restore_PrivateKeyHint">輸入 EVM 私鑰、BIP32 Root Key 或  Account Extended Private Key</string>
     <string name="Restore_PhraseHint">输入12、15、18、21或24个单词</string>
@@ -512,7 +512,7 @@
     <string name="WalletConnect_SignMessageRequest_SignMessageHint">请对消息签名以便进行验证</string>
     <string name="WalletConnect_SignMessageRequest_ButtonSign">签名</string>
     <string name="WalletConnect_Error_NoWallet">您需要先创建或导入钱包才能使用 WaletConnect。</string>
-    <string name="WalletConnect_Error_NeedBackup">通过创建一个恢复短语来备份这个钱包。 如果您的手机丢失、被盗、损坏等等，将需要它来访问钱包。</string>
+    <string name="WalletConnect_Error_NeedBackup">通过创建一个助记词来备份这个钱包。 如果您的手机丢失、被盗、损坏等等，将需要它来访问钱包。</string>
     <string name="WalletConnect_Error_WatchAccount">此功能不适用于观察中的钱包，您需要切换到恢复或创建的钱包 </string>
     <string name="WalletConnect_Error_UnsupportedChainId">不支持的Blockchain</string>
     <string name="WalletConnect_Error_NoSuitableAccount">没有合适的帐户</string>
@@ -737,7 +737,7 @@
     <string name="TransactionInfoOptions_Warning_TransactionInBlock">交易已在区块中</string>
     <!-- Info -->
     <string name="Info_LockTime_Description">汇款人通过将在%s失效的消费锁定汇出这些资金。\n\n无需担心，收到的加密货币已经属于您，但在锁定期限结束前，您无法在网络上消费它们。</string>
-    <string name="Info_LockTime_Description_Static">汇款人通过将在所显示日期失效的消费锁定汇出这些资金。\n\n无需担心，收到的比特币已经属于您，但在锁定期限结束前，您无法在比特币网络上消费它们。</string>
+    <string name="Info_LockTime_Description_Static">汇款人通过将在所显示日期失效的消费锁定汇出这些资金。\n\n无需担心，收到的加密货币已经属于您，但在锁定期限结束前，您无法在加密货币网络上消费它们。</string>
     <string name="Info_LockTime_Title">时间锁定</string>
     <string name="Info_DoubleSpend_Title">双复支付</string>
     <string name="Info_DoubleSpend_Description">双重支付风险！区块链上还有另一笔交易试图支付这笔交易所使用的投入。 网络只接受一笔交易。</string>
@@ -804,7 +804,7 @@
     <string name="Appearance_Warning_CloseApplication">更改图标将关闭应用程序</string>
     <string name="Appearance_MarketsTab">市场选项卡</string>
     <string name="Appearance_BalanceAutoHide">自动隐藏余额</string>
-    <string name="Appearance_BalanceAutoHide_Description">每次打开应用程序时自动隐藏平衡，不管先前的偏好设置。</string>
+    <string name="Appearance_BalanceAutoHide_Description">每次打开应用程序时自动隐藏余额，不管先前的偏好设置。</string>
     <string name="BalanceViewType_CoinValue">币值</string>
     <string name="BalanceViewType_FiatValue">纤维值</string>
     <string name="SettingsAboutApp_Title">关于应用</string>
@@ -831,10 +831,10 @@
     <string name="BackupManager_AppSettingsTitle">应用设置</string>
     <string name="BackupManager_AppSettingsDescription">语言、 货币、 外观 ...</string>
     <!-- Privacy  -->
-    <string name="Privacy_Information">SafeWallet不会收集任何数据，也不会使用可能会暴露任何用户数据的分析工具。 钱包的设计是为了确保用户高度的隐私。</string>
+    <string name="Privacy_Information">SafeWallet不会收集用户任何数据，也不会使用可能会暴露任何用户数据的分析工具。 钱包的设计是为了确保用户高度的隐私。</string>
     <string name="Privacy_BulletedText1">用户数据总是保留在用户的设备上。</string>
     <string name="Privacy_BulletedText2">钱包没有收集任何有关用户的数据。</string>
-    <string name="Privacy_BulletedText3">钱包没有收集任何有关用户的数据。</string>
+    <string name="Privacy_BulletedText3">钱包没有分享任何有关用户的数据。</string>
     <string name="Privacy_BulletedText4">没有用户帐户或数据库存放其他地方的用户数据。</string>
     <!-- Security Center -->
     <string name="SecurityCenter_BlockchainSettings">区块链设置</string>
@@ -947,9 +947,9 @@
 \n\nSafeWallet钱包完全开源且任何人都可以确定应用按照其宣称的方式运行。
 
 \n\n我们为我们自己创立了SafeWallet作为符合标准的可用的解决方案。从工程和可用性角度而言，我们相信此钱包远远领先于其他产品。\n</string>
-    <string name="SettingsTerms_Backup">安全地备份每个钱包的恢复短语。这是在应用程序发生故障时重新获得资金的唯一途径。</string>
-    <string name="SettingsTerms_PrivateKeys">钱包恢复短语在安装过程中在设备上随机生成，并且不存储在其他地方。</string>
-    <string name="SettingsTerms_DisablingPin">在智能手机上禁用解锁 PIN (代码)会删除应用程序中的所有钱包。恢复资金访问将需要恢复短语。</string>
+    <string name="SettingsTerms_Backup">安全地备份每个钱包的助记词。这是在应用程序发生故障时重新获得资金的唯一途径。</string>
+    <string name="SettingsTerms_PrivateKeys">钱包助记词在安装过程中在设备上随机生成，并且不存储在其他地方。</string>
+    <string name="SettingsTerms_DisablingPin">在智能手机上禁用解锁 PIN (代码)会删除应用程序中的所有钱包。恢复资金访问将需要助记词。</string>
     <string name="SettingsTerms_JailBraking">使用过时的 OS，安装来自未知来源的应用可能危及资金安全。</string>
     <string name="SettingsTerms_Bugs">这个应用程序的代码可能会出现未发现的软件问题，可能导致应用程序故障。</string>
     <!--Setting_Tell Friends-->
@@ -1037,13 +1037,13 @@
     <string name="ManageAccounts_CreateNewWallet">创建</string>
     <string name="ManageAccounts_ImportWallet">恢复自</string>
     <string name="ManageAccounts_WatchAddress">导入地址</string>
-    <string name="ManageAccounts_Hint">注意：使用一个新密码恢复现有的钱包将生成一个全新的钱包。如果您希望对多个钱包使用单个12-24个单词的助记词恢复码，这将非常方便。</string>
+    <string name="ManageAccounts_Hint">注意：使用一个新密码恢复现有的钱包将生成一个全新的钱包。如果您希望对多个钱包使用单个12-24个单词的助记词助记词，这将非常方便。</string>
     <string name="Watch_Address_Title">观察地址</string>
     <!-- Import Wallet -->
     <string name="ImportWallet_BackupFile">从文件</string>
     <string name="ImportWallet_BackupFile_Description">从备份文件导入.</string>
-    <string name="ImportWallet_RecoveryPhrase">恢复短语</string>
-    <string name="ImportWallet_RecoveryPhrase_Description">使用恢复短语或私钥导入。</string>
+    <string name="ImportWallet_RecoveryPhrase">助记词</string>
+    <string name="ImportWallet_RecoveryPhrase_Description">使用助记词或私钥导入。</string>
     <string name="ImportWallet_ExchangeWallet">来自Exchange 钱包</string>
     <string name="ImportWallet_ExchangeWallet_Description">在集中交易所上连接到钱包。</string>
     <string name="ImportWallet_WatchAddress">观察地址</string>
@@ -1074,7 +1074,7 @@
     <string name="ManageAccount_Save">保存</string>
     <string name="ManageAccount_RecoveryPhraseBackup">进行手动备份</string>
     <string name="ManageAccount_LocalBackup">本地备份</string>
-    <string name="ManageAccount_RecoveryPhraseShow">显示恢复码</string>
+    <string name="ManageAccount_RecoveryPhraseShow">显示助记词</string>
     <string name="ManageAccount_NetworkSettings">网络设置</string>
     <string name="ManageAccount_Unlink">取消链接钱包</string>
     <string name="ManageAccount_BackupRequired_Title">需要备份</string>
@@ -1098,11 +1098,11 @@
     <string name="NetworkSettings_TestNetDisclaimer">除非您了解什么是Testnet选项以及其工作原理，否则请不要选择该选项。\n\nTestnet是一个使用自己的货币进行测试的并行区块链。如果有人向您的Testnet地址发送定期付款，付款将会丢失。</string>
     <!-- Show Key -->
     <string name="ShowKey_Title">密钥</string>
-    <string name="ShowKey_Description">如果您的手机出现丢失、被盗或损坏等情况，那么在下一步显示的恢复码将是恢复您资金的唯一方法。\n\n确保不会有任何人看到您的屏幕。</string>
+    <string name="ShowKey_Description">如果您的手机出现丢失、被盗或损坏等情况，那么在下一步显示的助记词将是恢复您资金的唯一方法。\n\n确保不会有任何人看到您的屏幕。</string>
     <string name="ShowKey_ButtonShow">查看</string>
     <string name="ShowKey_Passphrase">密码</string>
     <string name="ShowKey_ButtonClose">关闭</string>
-    <string name="ShowKey_TabMnemonicPhrase">恢复码</string>
+    <string name="ShowKey_TabMnemonicPhrase">助记词</string>
     <string name="ShowKey_TabPrivateKey">私钥</string>
     <string name="ShowKey_TabPublicKeys">公钥</string>
     <string name="ShowKey_PrivateKeyCopyWarning_Title">警告</string>
@@ -1113,7 +1113,7 @@
     <string name="ShowKey_PrivateKey_Warning">此密钥适用于所有EVM兼容的区块链。\n\n作为一项安全措施，我们建议不要在私钥上使用复制操作。</string>
     <!-- Backup Recovery Phrase -->
     <string name="BackupRecoveryPhrase_Title">备份钱包</string>
-    <string name="BackupRecoveryPhrase_Description">通过创建一个恢复短语来备份这个钱包。 如果您的手机丢失、被盗、损坏等等，将需要它来访问钱包。</string>
+    <string name="BackupRecoveryPhrase_Description">通过创建一个助记词来备份这个钱包。 如果您的手机丢失、被盗、损坏等等，将需要它来访问钱包。</string>
     <string name="BackupRecoveryPhrase_Backup">备份</string>
     <string name="BackupRecoveryPhrase_ManualBackup">进行手动备份</string>
     <string name="BackupRecoveryPhrase_LocalBackup">本地备份</string>
@@ -1128,14 +1128,15 @@
     <string name="LocalBackup_PasswordInvalid">密码需要至少8个字符，包括一个大写字母、一个小写字母、一个数字和一个符号。</string>
     <string name="LocalBackup_DontForgetPasswordWarning">此密码用于加密您的钱包备份文件。一旦丢失或遗忘，将无法恢复或重置。</string>
     <string name="LocalBackup_ProtextBackupWithPasswordInfo">为您的备份设置解锁密码。密码长度必须至少为8个字符，并且包含至少一个小写字母、大写字母、数字和特殊字符。</string>
-    <string name="LocalBackup_TermsWarningText">存储设备包括硬盘驱动器、USB驱动器以及智能手机上的存储等。由于有形损害、盗窃或其他无法预见的情况，所有人都容易遭受损失。</string>
+    <string name="LocalBackup_TermsWarningText">存储设备包括硬盘驱动器、USB驱动器、智能手机上的存储等，由于容易因物理损坏、盗窃或其他无法预见的情况，所以都容易遭受损失。</string>
     <string name="LocalBackup_Term1">我的理解是，备份设备被盗或损坏将导致备份丢失，进而导致钱包丢失。</string>
     <!-- Recovery Phrase -->
-    <string name="RecoveryPhrase_Title">恢复码</string>
-    <string name="RecoveryPhrase_Description">按正确顺序写下这些单词，并将其保留在一个安全的地方</string>
+    <string name="RecoveryPhrase_Title">助记词</string>
+    <string name="RecoveryPhrase_Description">按正确顺序写下这些单词，并将其保存在一个安全的地方</string>
     <string name="RecoveryPhrase_ShowPhrase">点击显示恢复密语</string>
     <string name="RecoveryPhrase_Verify">验证</string>
     <string name="RecoveryPhrase_CopyWarning_Title">复制的风险</string>
+    <string name="RecoveryPhrase_NeverShareWarning">永远不会与任何人分享您的助记词。SafeWallet的团队将永远不会要求您的助记词。</string>
     <!-- Evm Private Key -->
     <string name="EvmPrivateKey_Title">EVM 私钥</string>
     <string name="EvmPrivateKey_Warning">此密钥适用于所有EVM兼容的区块链。请不要与任何人分享。</string>
@@ -1149,22 +1150,22 @@
     <string name="PrivateKeys_EvmPrivateKey">EVM 私钥</string>
     <string name="PrivateKeys_EvmPrivateKeyDescription">授予对基于加密货币的EVM的完全控制，即在相应钱包内的以太坊、币安智能链等。</string>
     <string name="PrivateKeys_Bip32RootKeyDescription">授予对相应钱包上的资产的完全控制。</string>
-    <string name="PrivateKeys_AccountExtendedPrivateKey">Account Extended Private Key</string>
+    <string name="PrivateKeys_AccountExtendedPrivateKey">账户扩展公钥</string>
     <string name="PrivateKeys_AccountExtendedPrivateKeyDescription">授予对比特币和基于加密货币的其他未花费交易输出（UTXO）的完全控制，即在相应钱包内的莱特币、比特币现金、达世币等。</string>
-    <string name="PrivateKeys_NeverShareWarning">永远不会与任何人分享您的恢复短语。无法阻止的团队将永远不会要求您的恢复短语。</string>
+    <string name="PrivateKeys_NeverShareWarning">永远不要与任何人分享您的私钥。SafeWallet开发团队永远不会索要您的私钥。</string>
     <!-- Public Keys -->
     <string name="PublicKeys_Title">公钥</string>
     <string name="PublicKeys_EvmAddress">EVM 地址</string>
     <string name="PublicKeys_EvmAddress_Description">允许只读监视持有Etherum、 Binance Smart Chain和其他基于 EVM 的区块链的钱包。</string>
-    <string name="PublicKeys_AccountExtendedPublicKeyDescription">允许只读监视持有比特币和其他基于 UTXO 的加密钱包(即Liteco、 比特币现金、 破折号等)。</string>
+    <string name="PublicKeys_AccountExtendedPublicKeyDescription">允许只读监视持有比特币和其他基于 UTXO 的加密钱包(即莱特币、比特币现金、达世币等)。</string>
     <!-- Recovery Phrase Verify -->
     <string name="RecoveryPhraseVerify_Title">验证</string>
-    <string name="RecoveryPhraseVerify_Description">从你的钱包恢复短语中选择两个请求的单词</string>
+    <string name="RecoveryPhraseVerify_Description">从你的钱包助记词中选择两个请求的单词</string>
     <!-- Backup Key -->
     <string name="BackupKey_Title">备份</string>
-    <string name="BackupKey_Description">如果您的手机出现丢失、被盗或损坏等情况，那么在下一步显示的恢复码将是恢复您资金的唯一方法。\n\n确保不会有任何人看到您的屏幕。</string>
+    <string name="BackupKey_Description">如果您的手机出现丢失、被盗或损坏等情况，那么在下一步显示的助记词将是恢复您资金的唯一方法。\n\n确保不会有任何人看到您的屏幕。</string>
     <string name="BackupKey_ButtonBackup">备份</string>
-    <string name="BackupConfirmKey_Description">以正确顺序输入恢复码进行确认</string>
+    <string name="BackupConfirmKey_Description">以正确顺序输入助记词进行确认</string>
     <string name="BackupConfirmKey_EmptyOrInvalidWords">输入的单词为空或无效</string>
     <string name="BackupConfirmKey_Error_EmptyWord">空单词</string>
     <string name="BackupConfirmKey_Error_InvalidWord">无效单词</string>
@@ -1807,7 +1808,7 @@
     <string name="fallback_block">%s区块回退高度</string>
     <string name="fallback_block_title">区块回退</string>
     <string name="fallback_block_alert_title">%s区块回退</string>
-    <string name="fallback_block_time_1">高度: 4939318 (2023-6)</string>
+    <string name="fallback_block_time_1">高度: 5639934 (2024-3)</string>
     <string name="fallback_block_time_2">高度: 5178101 (2023-9)</string>
     <string name="fallback_block_time_3">高度: 5400104 (2023-12)</string>
     <string name="fallback_block_time_4">高度: 5400104 (2023-12)</string>
