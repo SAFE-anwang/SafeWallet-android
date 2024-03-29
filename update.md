@@ -1,3 +1,23 @@
+2024年3月29日，v0.36.0.1.0329版本,主要功能：
+
+1、支持SOL链；
+
+2、优化WalletConnect兼容最新协议，支持多ID随机调用；
+
+3、解决Dapp连接PancakeSwap交易异常问题（Miss or invaild request() method eth_sendTransaction）；
+
+4、优化恢复钱包SAFE同步超时问题；
+
+5、优化SAFE区块回退不准确问题，更新区块回退选择高度；
+
+6、解决Android 14版本兼容性问题；
+
+7、解决交易互兑等若干闪退问题；
+
+8、优化更新Bsc和Eth接口；
+
+9、优化界面显示文字；
+
 2024年2月28日，0.36.0.1.0131版本，主要功能：
 
 1、支持Uniswap v2下ERC20代币添加和移除流动性；
