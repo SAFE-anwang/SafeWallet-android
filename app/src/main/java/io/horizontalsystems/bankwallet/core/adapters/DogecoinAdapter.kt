@@ -105,7 +105,7 @@ class DogecoinAdapter(
                 kit.bitcoinCore.storage.deleteBlocks(blocksList)
             }
             kit.mainNetDogecoin?.let {
-                kit.bitcoinCore.updateLastBlockInfo(syncMode, it)
+                kit.bitcoinCore.updateLastBlockInfo(syncMode, it, checkpoint)
             }
             kit.bitcoinCore.start()
         }

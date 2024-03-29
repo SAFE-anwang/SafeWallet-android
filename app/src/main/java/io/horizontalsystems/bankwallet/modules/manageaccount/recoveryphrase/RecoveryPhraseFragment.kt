@@ -98,7 +98,7 @@ private fun RecoveryPhraseScreen(
                 Spacer(Modifier.height(12.dp))
                 TextImportantWarning(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.PrivateKeys_NeverShareWarning)
+                    text = stringResource(R.string.RecoveryPhrase_NeverShareWarning)
                 )
                 Spacer(Modifier.height(24.dp))
                 var hidden by remember { mutableStateOf(true) }

@@ -1,6 +1,5 @@
 package org.consenlabs.tokencore.foundation.utils;
 
-import com.google.common.base.Strings;
 
 import org.consenlabs.tokencore.foundation.crypto.Hash;
 

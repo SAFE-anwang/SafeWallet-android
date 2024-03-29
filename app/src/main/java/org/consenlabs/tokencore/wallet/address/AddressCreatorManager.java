@@ -1,7 +1,5 @@
 package org.consenlabs.tokencore.wallet.address;
 
-import com.google.common.base.Strings;
-
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -17,14 +15,14 @@ public class AddressCreatorManager {
   public static AddressCreator getInstance(String type, boolean isMainnet, String segWit) {
     if (ChainType.ETHEREUM.equals(type)) {
       return new EthereumAddressCreator();
-    } else if (ChainType.BITCOIN.equals(type)) {
+    } /*else if (ChainType.BITCOIN.equals(type)) {
 
       NetworkParameters network = isMainnet ? MainNetParams.get() : TestNet3Params.get();
       if (Metadata.P2WPKH.equals(segWit)) {
         return new SegWitBitcoinAddressCreator(network);
       }
       return new BitcoinAddressCreator(network);
-    } else {
+    }*/ else {
       throw new TokenException(Messages.WALLET_INVALID_TYPE);
     }
   }

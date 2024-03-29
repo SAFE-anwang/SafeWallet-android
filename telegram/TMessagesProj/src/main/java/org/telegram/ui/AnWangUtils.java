@@ -41,7 +41,7 @@ public class AnWangUtils {
         if (!isInAnWang) {
             Intent intent = new Intent(activity, LaunchActivity.class);
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://t.me/safeanwang"));
+            intent.setData(Uri.parse("https://t.me/safeanwang4"));
             activity.startActivity(intent);
         }
         isCheckInAnwangGroup = true;

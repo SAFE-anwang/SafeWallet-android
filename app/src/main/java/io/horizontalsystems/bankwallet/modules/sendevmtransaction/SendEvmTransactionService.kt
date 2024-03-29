@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -146,29 +147,36 @@ class SendEvmTransactionService(
             return
         }*/
 //        val txConfig = settingsService.state.dataOrNull ?: return
-
+        val nonce = settingsService.nonce ?: return
         sendState = SendState.Sending
 
         logger.info("sending tx")
         GlobalScope.launch {
             try {
-                val web3j: Web3j = Connect.connect()
-                val nonce = web3j.ethGetTransactionCount(
-                    evmKitWrapper.evmKit.receiveAddress.hex,
-                    DefaultBlockParameterName.LATEST
-                )
-                    .send().transactionCount
+                val web3j: Web3j = Connect.connect(evmKitWrapper.evmKit.chain == Chain.Ethereum)
+                val routerAddress = if (evmKitWrapper.evmKit.chain == Chain.Ethereum) {
+                    Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+                } else {
+                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                }
+                val gasPrice: BigInteger = web3j.ethGasPrice()
+                        .send()
+                        .getGasPrice()
                 val hash = TransactionContractSend.send(
                     web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                        routerAddress,
                     sendEvmData.transactionData.input.toHexString(),
-                    BigInteger.ZERO, nonce,
-                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    BigInteger.ZERO, nonce.toBigInteger(),
+                        gasPrice,
                     BigInteger("500000") // GAS LIMIT
                 )
                 withContext(Dispatchers.Main) {
-                    sendState = SendState.Sent(hash.toByteArray())
-                    logger.info("success")
+                    if (hash != null) {
+                        sendState = SendState.Sent(hash.toByteArray())
+                        logger.info("success")
+                    } else {
+                        sendState = SendState.Failed(Exception("Failed"))
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget1.LinearLayoutManager
 import com.google.android.exoplayer2.util.Log
+import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
@@ -256,6 +257,13 @@ class DAppBrowseFragment: BaseFragment(){
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
         webView = WebView(requireActivity().applicationContext)
         binding.webRootView.addView(webView, layoutParams)
+        // clear webview cache
+        if (MMKV.defaultMMKV()?.decodeBool("isClearCache", false) == false) {
+            MMKV.defaultMMKV()?.encode("isClearCache", true)
+            webView.clearCache(true)
+            CookieManager.getInstance().removeAllCookies(null)
+            CookieManager.getInstance().flush()
+        }
         setting()
     }
 

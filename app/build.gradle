@@ -17,8 +17,8 @@ android {
         compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 97
-        versionName "0.37.3"
+        versionCode 91
+        versionName "0.36.0.1.0329"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -37,7 +37,7 @@ android {
         resValue "string", "analyticsLink", "https://unstoppable.money/analytics"
         resValue "string", "appGithubLink", "https://github.com/SAFE-anwang/SafeWallet-android"
         resValue "string", "appTwitterLink", "https://twitter.com/safeanwang"
-        resValue "string", "appTelegramLink", "https://t.me/safeanwang"
+        resValue "string", "appTelegramLink", "https://t.me/safeanwang4"
         resValue "string", "appRedditLink", "https://www.reddit.com/user/safe_2018"
         resValue "string", "reportEmail", "foundation@anwang.com"
         resValue "string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
@@ -72,12 +72,12 @@ android {
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
             resValue "string", "cryptoCompareApiKey", "2b08fe1dba559ca6acf5e1897b6de8749cee0ace6052d7aa7fccf6aa9f1b3255"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "2a1306f1d12f4c109a4d4fb9be46b02e"
-            resValue "string", "infuraSecretKey", "fc479a9290b64a84a15fa6544a130218"
-            resValue "string", "infuraProjectId2", "2a1306f1d12f4c109a4d4fb9be46b02e"
-            resValue "string", "infuraSecretKey2", "fc479a9290b64a84a15fa6544a130218"
-            resValue "string", "infuraProjectId3", "2a1306f1d12f4c109a4d4fb9be46b02e"
-            resValue "string", "infuraSecretKey3", "fc479a9290b64a84a15fa6544a130218"
+            resValue "string", "infuraProjectId", "99e0b89d9f3d45c98cc95c0a47aeb837"
+            resValue "string", "infuraSecretKey", "f66154c66d024b5e80a7165d09d5fb6d"
+            resValue "string", "infuraProjectId2", "5bf760228fcd47bb8d277dba49b7b369"
+            resValue "string", "infuraSecretKey2", "7b81c992c98d4e60aaa8a0ef9acff2be"
+            resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
+            resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "GKNHXT22ED7PRVCKZATFZQD1YI7FK9AAYE"
             resValue "string", "bscscanKey", "5ZGSHWYHZVA8XZHB8PF6UUTRNNB4KT43ZZ"
             resValue "string", "polygonscanKey", "TNQ44BCF1MS3S75Y6A2B6SN88I8UYFJFRM"
@@ -95,7 +95,8 @@ android {
             resValue "string", "marketApiBaseUrl", "https://api-dev.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
-            resValue "string", "walletConnectV2Key", "8b4f41c60880a3e3ad57d82fddb30568"
+            resValue "string", "walletConnectV2Key", "d98d5186f513a943fbbff4a755957fbf"
+            resValue "string", "walletConnectV2Key1", "45b825481aab1907c73ff9499f199070"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
@@ -123,10 +124,10 @@ android {
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
             resValue "string", "infuraProjectId", "99e0b89d9f3d45c98cc95c0a47aeb837"
             resValue "string", "infuraSecretKey", "f66154c66d024b5e80a7165d09d5fb6d"
-            resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
-            resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
-            resValue "string", "infuraProjectId3", "0c91eab4cc774d3887f218376a725da2"
-            resValue "string", "infuraSecretKey3", "8adb3155a2df42dd9db26ce311ec74b3"
+            resValue "string", "infuraProjectId2", "5bf760228fcd47bb8d277dba49b7b369"
+            resValue "string", "infuraSecretKey2", "7b81c992c98d4e60aaa8a0ef9acff2be"
+            resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
+            resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "TTH1114D5VD5ZMCJZ4B74SGIDRCGSKWGX9"
             resValue "string", "bscscanKey", "HBQQN4GTKCHYSRZCKFVQJ3FWGPY4T8237Y"
             resValue "string", "polygonscanKey", "2JM7USE5YRI59RWFZQI2RECAZSNI5QEQGV"
@@ -144,7 +145,8 @@ android {
             resValue "string", "marketApiBaseUrl", "https://api.blocksdecoded.com"
             resValue "string", "marketApiKey", "IQf1uAjkthZp1i2pYzkXFDom"
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
-            resValue "string", "walletConnectV2Key", "0c5ca155c2f165a7d0c88686f2113a72"
+            resValue "string", "walletConnectV2Key", "d98d5186f513a943fbbff4a755957fbf"
+            resValue "string", "walletConnectV2Key1", "45b825481aab1907c73ff9499f199070"
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
@@ -312,7 +314,7 @@ dependencies {
     implementation 'com.github.horizontalsystems:ton-kit-kmm:18bc110'
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:c1509a2'
-    implementation 'com.github.horizontalsystems:solana-kit-android:6401968'
+    implementation 'com.github.horizontalsystems:solana-kit-android:8e21040'
     implementation 'com.github.horizontalsystems:tron-kit-android:f2f7c9a'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
@@ -333,10 +335,10 @@ dependencies {
     }
 
     // WalletConnect
-    implementation 'com.github.horizontalsystems:wallet-connect-kotlin:b9a50b8'
+//    implementation 'com.github.horizontalsystems:wallet-connect-kotlin:b9a50b8'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     // WalletConnect V2
-    implementation(platform("com.walletconnect:android-bom:1.13.0"))
+    implementation(platform("com.walletconnect:android-bom:1.15.0"))
     implementation 'com.walletconnect:sign'
     implementation 'com.walletconnect:android-core'
 
@@ -420,6 +422,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.+'
 //    implementation 'com.google.protobuf:protobuf-java:3.5.1'
+
+    implementation 'com.lambdaworks:scrypt:1.4.0'
 }
 
 configurations.all {
@@ -427,7 +431,7 @@ configurations.all {
         cacheChangingModulesFor 0, 'seconds'
     }
     resolutionStrategy {
-        force 'org.bitcoinj:bitcoinj-core:0.14.3'
+        force 'org.bitcoinj:bitcoinj-core:0.15.10'
     }
 
     exclude group: "com.google.protobuf", module: "protobuf-java"

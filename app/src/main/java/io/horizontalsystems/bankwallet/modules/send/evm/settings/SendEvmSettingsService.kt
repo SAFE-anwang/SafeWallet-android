@@ -23,7 +23,8 @@ class SendEvmSettingsService(
         }
     private val _stateFlow = MutableStateFlow(state)
     val stateFlow: Flow<DataState<Transaction>> = _stateFlow
-
+    var nonce: Long? = null
+    var gasData: GasData? = null
     suspend fun start() = withContext(Dispatchers.IO) {
         launch {
             feeService.transactionStatusObservable.asFlow().collect {
@@ -46,6 +47,8 @@ class SendEvmSettingsService(
     private fun sync() {
         val feeState = feeService.transactionStatus
         val nonceState = nonceService.state
+        nonce = nonceState.dataOrNull?.nonce
+        gasData = feeState.dataOrNull?.gasData
 
         state = when {
             feeState == DataState.Loading -> DataState.Loading

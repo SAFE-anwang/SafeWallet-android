@@ -71,6 +71,18 @@ public class PairAddress {
         );
     }
 
+    public static String getPairAddressForUniswap(
+            String tokenA,
+            String tokenB
+    ){
+        return getPairAddress(
+                Constants.DEX.UNISWAP_V2_FACTORY_ADDRESS ,
+                Constants.INIT_CODE_HASH.UNI_SWAP_FACTORY_INIT_CODE_HASH,
+                tokenA,
+                tokenB
+        );
+    }
+
     public static String getPairAddressForSafeSwap(
             String tokenA,
             String tokenB

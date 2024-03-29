@@ -1,3 +1,4 @@
+/*
 package org.consenlabs.tokencore.wallet.keystore;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -27,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+*/
 /**
  * Created by xyz on 2017/12/11.
- */
+ *//*
+
 
 public class IdentityKeystore extends Keystore implements EncMnemonicKeystore {
   private static final int VERSION = 10000;
@@ -113,7 +116,7 @@ public class IdentityKeystore extends Keystore implements EncMnemonicKeystore {
     Crypto crypto = Crypto.createPBKDF2CryptoWithKDFCached(password, masterPrivateKey.serializePrivB58(networkParameters).getBytes(Charset.forName("UTF-8")));
 
     this.encAuthKey = crypto.deriveEncPair(password, authenticationKey);
-    this.encMnemonic = crypto.deriveEncPair(password, Joiner.on(" ").join(mnemonicCodes).getBytes());
+    this.encMnemonic = crypto.deriveEncPair(password, Joiner.on(" ".join(mnemonicCodes).getBytes());
     crypto.clearCachedDerivedKey();
     metadata.setTimestamp(DateUtil.getUTCTime());
 
@@ -165,3 +168,4 @@ public class IdentityKeystore extends Keystore implements EncMnemonicKeystore {
     return encAuthKey;
   }
 }
+*/

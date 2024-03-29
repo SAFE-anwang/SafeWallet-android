@@ -70,11 +70,11 @@ class RemoveLiquidityFragment : BaseFragment() {
                     it?.let {
                         Toast.makeText(App.instance, it, Toast.LENGTH_SHORT).show()
                     }
-                    findNavController().popBackStack()
+                   // findNavController().popBackStack()
+                    findNavController().popBackStack(R.id.listLiquidity, true)
                 })
                 setContent {
                     ComposeAppTheme {
-                        Log.e("longwen", "update----2")
                         RemoveLiquidityForAccount(
                             findNavController(),
                             mainViewModel
@@ -100,7 +100,6 @@ class RemoveLiquidityFragment : BaseFragment() {
     }
 
     private fun confirm(index: Int, item: LiquidityViewItem, mainViewModel: LiquidityListViewModel) {
-        Log.e("longwen", "update----")
         ConfirmationDialog.show(
             title = getString(R.string.liquidity_remove_title),
             warningText = getString(R.string.Liquidity_Remove_Confirm),
@@ -132,10 +131,7 @@ fun RemoveLiquidityForAccount(
     viewModel: LiquidityListViewModel,
     removeCallback: (Int, LiquidityViewItem) -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-    val keyboardState by observeKeyboardState()
-    var showSuggestions by remember { mutableStateOf(false) }
+
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
@@ -161,7 +157,7 @@ fun RemoveLiquidityForAccount(
 
             Spacer(modifier = Modifier.padding(top = 8.dp))
 
-            LiquidityAmountInput(
+            /*LiquidityAmountInput(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     focusRequester = focusRequester,
                     availableBalance = BigDecimal(viewModel.tempItem!!.liquidity),
@@ -172,10 +168,13 @@ fun RemoveLiquidityForAccount(
                     onValueChange = {
                         viewModel.onEnterAmount(it, BigDecimal(viewModel.tempItem!!.liquidity))
                     }
-            )
+            )*/
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            PercentBar(modifier = Modifier.align(Alignment.Start), select = uiState.selectPercent) {
+                viewModel.setRemovePercent(it)
+            }
             Row(
                     modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -192,6 +191,39 @@ fun RemoveLiquidityForAccount(
             }
 
             VSpacer(32.dp)
+        }
+    }
+}
+
+
+@Composable
+private fun PercentBar(
+        modifier: Modifier = Modifier,
+        select: Int = 25,
+        percents: List<Int> = listOf(25, 50, 75, 100),
+        onClick: (Int) -> Unit
+) {
+    Box(modifier = modifier) {
+        BoxTyler44(borderTop = true) {
+            Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                percents.forEach { percent ->
+                    val buttonColors = if (percent == select) {
+                        SecondaryButtonDefaults.buttonColors(backgroundColor = ComposeAppTheme.colors.yellowD)
+                    } else {
+                        SecondaryButtonDefaults.buttonColors()
+                    }
+                    ButtonSecondary(
+                            onClick = { onClick.invoke(percent) },
+                            buttonColors = buttonColors
+                    ) {
+                        subhead1_leah(text = "$percent%")
+                    }
+                }
+            }
         }
     }
 }

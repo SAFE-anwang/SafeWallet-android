@@ -92,8 +92,8 @@ class LiquidityListFragment : BaseFragment() {
                         ) { index, item ->
                             mainViewModel.tempItem = item
                             mainViewModel.tempIndex = index
-//                            findNavController().slideFromRight(R.id.removeLiquidity)
-                            confirm(index, item, mainViewModel)
+                            findNavController().slideFromRight(R.id.removeLiquidity)
+//                            confirm(index, item, mainViewModel)
                         }
                     }
                 }
@@ -123,7 +123,7 @@ class LiquidityListFragment : BaseFragment() {
                 }
 
                 override fun onCancelButtonClick() {
-                    mainViewModel.reset()
+//                    mainViewModel.reset()
                 }
             }
         )
@@ -154,6 +154,14 @@ fun LiquidityForAccount(
             )
 
             val uiState = viewModel.uiState
+            val tabs = viewModel.tabs
+            val selectedTab = viewModel.selectedTab
+            val tabItems = tabs.map {
+                TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
+            }
+            Tabs(tabItems, onClick = {
+                viewModel.onSelect(it)
+            })
 
             Crossfade(uiState.viewState) { viewState ->
                 when (viewState) {

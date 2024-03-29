@@ -10,6 +10,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Numeric;
 
 import java.io.IOException;
@@ -40,7 +41,9 @@ public class TransactionContractSend {
         );
         byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction,credentials);
         String hexValue = Numeric.toHexString(signedMessage);
-        return admin.ethSendRawTransaction(hexValue).send().getTransactionHash();
+        EthSendTransaction sendResult = admin.ethSendRawTransaction(hexValue).send();
+//        Log.e("Send", "send error=" + sendResult.getError().getMessage());
+        return sendResult.getTransactionHash();
     }
 
 }

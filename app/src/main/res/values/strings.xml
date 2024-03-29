@@ -1312,6 +1312,7 @@
     <string name="RecoveryPhrase_Verify">Verify</string>
     <string name="RecoveryPhrase_Warning">Never share your recovery phrase with anyone.  SafeWallet Wallet team will never ask for your recovery phrase.</string>
     <string name="RecoveryPhrase_CopyWarning_Title">Risk of Copying</string>
+    <string name="RecoveryPhrase_NeverShareWarning">Never share this key with anyone. SafeWallet support team will never ask for it.</string>
 
     <!-- Evm Private Key -->
     <string name="EvmPrivateKey_Title">EVM Private Key</string>
@@ -2085,7 +2086,7 @@
     <string name="fallback_block">%s block fallback height</string>
     <string name="fallback_block_title">block fallback</string>
     <string name="fallback_block_alert_title">%s block fallback</string>
-    <string name="fallback_block_time_1">Height: 4939318 (2023-6)</string>
+    <string name="fallback_block_time_1">Height: 5639934 (2024-3)</string>
     <string name="fallback_block_time_2">Height: 5178101 (2023-9)</string>
     <string name="fallback_block_time_3">Height: 5400104 (2023-12)</string>
     <string name="fallback_block_time_4">Height: 5400104 (2023-12)</string>
@@ -2123,4 +2124,6 @@
     <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
     <string name="Liquidity_Add">Add</string>
     <string name="Liquidity_Add_Success">Add success</string>
+    <string name="Liquidity_Tab_BSC">BSC</string>
+    <string name="Liquidity_Tab_ETH">ETH</string>
 </resources>

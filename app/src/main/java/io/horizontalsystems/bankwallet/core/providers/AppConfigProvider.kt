@@ -24,7 +24,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val releaseNotesUrl by lazy { Translator.getString(R.string.releaseNotesUrl) }
     val mempoolSpaceUrl: String = "https://mempool.space"
     val walletConnectUrl = "relay.walletconnect.com"
-    val walletConnectProjectId by lazy { Translator.getString(R.string.walletConnectV2Key) }
+    val walletConnectProjectId by lazy {
+        when(index) {
+            0 -> Translator.getString(R.string.walletConnectV2Key)
+            else -> Translator.getString(R.string.walletConnectV2Key1)
+        }
+    }
     val walletConnectAppMetaDataName by lazy { Translator.getString(R.string.walletConnectAppMetaDataName) }
     val walletConnectAppMetaDataUrl by lazy { Translator.getString(R.string.walletConnectAppMetaDataUrl) }
     val walletConnectAppMetaDataIcon by lazy { Translator.getString(R.string.walletConnectAppMetaDataIcon) }
@@ -42,7 +47,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
-     val twitterBearerToken by lazy {
+    val twitterBearerToken by lazy {
         Translator.getString(R.string.twitterBearerToken)
     }
     val cryptoCompareApiKey by lazy {
@@ -52,21 +57,23 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         Translator.getString(R.string.defiyieldProviderApiKey)
     }
 
-     val infuraProjectId by lazy {
-         val projectId = when(index) {
-             0 -> Translator.getString(R.string.infuraProjectId)
-             1 -> infuraProjectId2
-             else -> infuraProjectId3
-         }
+    val infuraProjectId by lazy {
+        val projectId = when(index) {
+            0 -> Translator.getString(R.string.infuraProjectId)
+            1 -> infuraProjectId2
+            else -> infuraProjectId3
+        }
+//        Translator.getString(R.string.infuraProjectId)
         projectId
     }
-     val infuraProjectSecret by lazy {
-         val projectKey = when(index) {
-             0 -> Translator.getString(R.string.infuraSecretKey)
-             1 -> infuraProjectSecret2
-             else -> infuraProjectSecret3
-         }
-         projectKey
+    val infuraProjectSecret by lazy {
+        val projectKey = when(index) {
+            0 -> Translator.getString(R.string.infuraSecretKey)
+            1 -> infuraProjectSecret2
+            else -> infuraProjectSecret3
+        }
+//        Translator.getString(R.string.infuraSecretKey)
+        projectKey
     }
 
     val infuraProjectId2 by lazy {
@@ -150,7 +157,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             else -> Translator.getString(R.string.oneInchApiKey3)
         }
         projectKey
-      }
+    }
 
     val blockchairApiKey by lazy {
         Translator.getString(R.string.blockchairApiKey)
@@ -161,25 +168,25 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val maxDecimal: Int = 8
 
     val currencies: List<Currency> = listOf(
-        Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
-        Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
-        Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
-        Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
-        Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
-        Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
-        Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
-        Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
-        Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
-        Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
-        Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
-        Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
-        Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
-        Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
-        Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
-        Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
-        Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
-        Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
-        Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
+            Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
+            Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
+            Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
+            Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
+            Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
+            Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
+            Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
+            Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
+            Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
+            Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
+            Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
+            Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
+            Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
+            Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
+            Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
+            Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
+            Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
+            Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
+            Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
     )
 
     val donateAddresses: Map<BlockchainType, String> by lazy {

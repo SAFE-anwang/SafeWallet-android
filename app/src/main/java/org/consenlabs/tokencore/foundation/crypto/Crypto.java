@@ -4,12 +4,12 @@ import org.consenlabs.tokencore.foundation.utils.CachedDerivedKey;
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
+import org.web3j.utils.Strings;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.base.Strings;
 
 import java.util.Arrays;
 
@@ -140,7 +140,7 @@ public class Crypto<T extends KDFParams> {
 
   public void validate() {
     if ((!CTR.equals(cipher) && !CBC.equals(cipher)) || cipherparams == null
-        || Strings.isNullOrEmpty(mac) || Strings.isNullOrEmpty(ciphertext)
+        || Strings.isEmpty(mac) || Strings.isEmpty(ciphertext)
         || kdfparams == null) {
       throw new TokenException(Messages.WALLET_INVALID);
     }

@@ -3,7 +3,6 @@ package org.consenlabs.tokencore.wallet.validators;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.WrongNetworkException;
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
 
@@ -31,9 +30,9 @@ public final class WIFValidator implements Validator<String> {
   public String validate() {
     try {
       DumpedPrivateKey.fromBase58(network, wif);
-    } catch (WrongNetworkException addressException) {
+    } /*catch (WrongNetworkException addressException) {
       throw new TokenException(Messages.WIF_WRONG_NETWORK);
-    } catch (AddressFormatException addressFormatException) {
+    }*/ catch (AddressFormatException addressFormatException) {
       throw new TokenException(Messages.WIF_INVALID);
     }
     if (requireCompressed && !DumpedPrivateKey.fromBase58(network, wif).getKey().isCompressed()) {

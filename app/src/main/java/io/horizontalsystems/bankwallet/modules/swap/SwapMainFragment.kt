@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
@@ -123,7 +125,11 @@ class SwapMainFragment : BaseFragment() {
 
         val filter = IntentFilter()
         filter.addAction("com.anwang.safe.switchSwap")
-        requireActivity()?.registerReceiver(receiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireActivity()?.registerReceiver(receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        }else {
+            requireActivity()?.registerReceiver(receiver, filter)
+        }
     }
 
     override fun onDestroy() {

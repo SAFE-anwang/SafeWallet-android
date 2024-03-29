@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.managers.NumberRounding
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.swappable
 import io.horizontalsystems.bankwallet.entities.Currency
@@ -66,7 +67,7 @@ class LiquidityViewItemFactory {
             item.addressB,
             df.format(item.walletAmount),
             df.format(item.walletBmount),
-            BigDecimal(item.liquidity).divide(BigDecimal.TEN.pow(18), 5, RoundingMode.DOWN).toString(),
+            App.numberFormatter.formatCoinFull(BigDecimal(item.liquidity).divide(BigDecimal.TEN.pow(18), 8, RoundingMode.FLOOR), null, 18),
             df.format(item.shareRate),
             item.poolTokenTotalSupply
         )

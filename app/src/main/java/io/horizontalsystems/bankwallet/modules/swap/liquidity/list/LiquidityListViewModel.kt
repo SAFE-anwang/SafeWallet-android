@@ -35,6 +35,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenEntity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
@@ -49,7 +50,6 @@ import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
 import org.web3j.crypto.StructuredDataEncoder
 import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -65,12 +65,13 @@ class LiquidityListViewModel(
 ) : ViewModel() {
 
     val logger = AppLogger("LiquidityListViewModel")
-    private val web3j = Connect.connect()
 
     private val disposable = CompositeDisposable()
 
-    private var liquidityItems = mutableListOf<LiquidityListModule.LiquidityItem>()
-    private var liquidityViewItems = listOf<LiquidityViewItem>()
+    private var liquidityItemsBSC = mutableListOf<LiquidityListModule.LiquidityItem>()
+    private var liquidityItemsEth = mutableListOf<LiquidityListModule.LiquidityItem>()
+    private var liquidityViewItemsBSC = listOf<LiquidityViewItem>()
+    private var liquidityViewItemsEth = listOf<LiquidityViewItem>()
     private var viewState: ViewState = ViewState.Loading
     private var isRefreshing = false
 
@@ -79,14 +80,26 @@ class LiquidityListViewModel(
     private var inputRemoveAmount: BigDecimal? = null
     var tempItem: LiquidityViewItem? = null
     var tempIndex: Int? = null
+
+    private var removePercent = 25
+    private var requestCount = 1
+    private val Max_Request_Count = 5
     var uiState by mutableStateOf(
         LiquidityUiState(
-            liquidityViewItems = liquidityViewItems,
+            liquidityViewItems = liquidityViewItemsBSC,
             viewState = viewState,
-            true
+            true,
+                removePercent
         )
     )
         private set
+
+    val tabs = LiquidityListModule.Tab.values()
+    var selectedTab by mutableStateOf(LiquidityListModule.Tab.BSC)
+        private set
+
+    private var web3jBsc = Connect.connect(false)
+    private var web3jEth = Connect.connect(true)
 
     val removeErrorMessage = SingleLiveEvent<String?>()
     val removeSuccessMessage = SingleLiveEvent<String>()
@@ -107,6 +120,8 @@ class LiquidityListViewModel(
                     dimAmount = isLoading && isEstimated,
                 )
 
+    private var getLiquidityJob: Job? = null
+
     private fun getWethAddress(chain: BlockchainType): String {
         val wethAddressHex = when (chain) {
             BlockchainType.Ethereum -> "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
@@ -121,7 +136,7 @@ class LiquidityListViewModel(
     }
 
     init {
-        getAllLiquidity()
+        getAllLiquidity(isSelectBSC())
     }
 
     fun onEnterAmount(amount: BigDecimal?, availableBalance: BigDecimal) {
@@ -131,7 +146,6 @@ class LiquidityListViewModel(
                 availableBalance = availableBalance,
                 leaveSomeBalanceForFee = false
         )
-        Log.e("longwen", "amountCaution=$amountCaution")
         inputRemoveAmount = amount
         emitState()
     }
@@ -140,49 +154,105 @@ class LiquidityListViewModel(
         amountCaution = null
         inputRemoveAmount = null
         emitState()
-        Log.e("longwen", "reset------")
+    }
+
+    fun setRemovePercent(percent: Int) {
+        removePercent = percent
+        emitState()
     }
 
     fun refresh() {
-        getAllLiquidity()
+        getAllLiquidity(isSelectBSC())
     }
 
     private fun getTokenEntity(uids: List<String>, type: String):List<TokenEntity> {
         return marketKit.getTokenEntity(uids, type)
     }
 
-    private fun getAllLiquidity() {
+    fun onSelect(tab: LiquidityListModule.Tab) {
+        getLiquidityJob?.cancel()
+        selectedTab = tab
+//        web3j = Connect.connect(!isSelectBSC())
+//        liquidityViewItemsBSC = listOf()
+//        refresh()
+        emitState()
+    }
+
+    private fun getAllLiquidity(isBSC: Boolean) {
         viewState = ViewState.Loading
         val activeWallets = accountManager.activeAccount?.let {
             storage.wallets(it).filter {
-                it.token.blockchainType is BlockchainType.BinanceSmartChain
-                        && it.token.coin.code != "Cake-LP"
+                    it.token.blockchainType is BlockchainType.BinanceSmartChain
+                            && it.token.coin.code != "Cake-LP"
             }
         } ?: listOf()
-        if (activeWallets.isEmpty()) return
+        val activeETHWallets = accountManager.activeAccount?.let {
+            storage.wallets(it).filter {
+                    it.token.blockchainType is BlockchainType.Ethereum
+                            && it.token.coin.code != "UNI-V2"
+            }
+        } ?: listOf()
+        if (activeWallets.isEmpty() && activeETHWallets.isEmpty()) return
         val uids = activeWallets.map { it.coin.uid }
-        val tokenEntityList = getTokenEntity(uids, "binance-smart-chain")
-        liquidityItems.clear()
-        viewModelScope.launch(Dispatchers.IO) {
+        val uidsEth = activeETHWallets.map { it.coin.uid }
+        val tokenEntityList = getTokenEntity(uids,"binance-smart-chain")
+        val ethTokenEntityList = getTokenEntity(uidsEth,"ethereum")
+        liquidityItemsBSC.clear()
+        liquidityItemsEth.clear()
+        /*getLiquidityJob = */viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
+            var requestError = false
             val list = mutableListOf<LiquidityViewItem>()
+            val listEth = mutableListOf<LiquidityViewItem>()
             getAllPair(activeWallets).forEach { pair ->
+                requestCount = 1
+                requestError = false
                 val tokenEntityA = tokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
-                            liquidityItems.add(it)
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, false)?.let {
+                            liquidityItemsBSC.add(it)
                             list.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
-                        viewState = ViewState.Error(e)
+                        if (requestCount == Max_Request_Count) {
+                            viewState = ViewState.Error(e)
+                        } else {
+                            requestCount ++
+                        }
+                        requestError = true
                     }
                 }
             }
+            getAllPair(activeETHWallets).forEach { pair ->
+                requestCount = 1
+                requestError = false
+                val tokenEntityA = ethTokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
+                val tokenEntityB = ethTokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
+                if (tokenEntityA != null && tokenEntityB != null) {
+                    try {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, true)?.let {
+                            liquidityItemsEth.add(it)
+                            listEth.add(liquidityViewItemFactory.viewItem(it))
+                        }
+                    } catch (e: Exception) {
+                        if (requestCount == Max_Request_Count) {
+                            viewState = ViewState.Error(e)
+                        } else {
+                            requestCount ++
+                        }
+                        requestError = true
+                    }
+                }
+            }
+            if (requestError && requestCount == Max_Request_Count) {
+                refresh()
+            }
             viewState = ViewState.Success
-            liquidityViewItems = list.map { it }
+            liquidityViewItemsBSC = list.map { it }
+            liquidityViewItemsEth = listEth.map { it }
             isRefreshing = false
             emitState()
          }
@@ -200,7 +270,7 @@ class LiquidityListViewModel(
         return pairs
     }
 
-    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String): LiquidityListModule.LiquidityItem? {
+    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String, isEth: Boolean): LiquidityListModule.LiquidityItem? {
         val adapterA = adapterManager.getReceiveAdapterForWallet(walletA) ?: return null
         val tokenA = Token(
             tokenAAddress,
@@ -214,7 +284,8 @@ class LiquidityListViewModel(
             walletB.coin.code,
             walletB.decimal
         )
-        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return null
+        val web3j = if (isEth) web3jEth else web3jBsc
+        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, isEth) ?: return null
 
         val pairAddress = pair.get(0) as String
         val token0 = pair.get(1) as Token
@@ -265,9 +336,10 @@ class LiquidityListViewModel(
 
     private fun emitState() {
         val newUiState = LiquidityUiState(
-            liquidityViewItems = liquidityViewItems,
+            liquidityViewItems = if (isSelectBSC()) liquidityViewItemsBSC else liquidityViewItemsEth,
             viewState = viewState,
             isRefreshing = isRefreshing,
+            removePercent,
             amountCaution = amountCaution
         )
 
@@ -278,12 +350,12 @@ class LiquidityListViewModel(
 
     private fun removeItem(removeIndex: Int) {
         val list = mutableListOf<LiquidityViewItem>()
-        liquidityViewItems.forEachIndexed{ index, liquidityViewItem ->
+        liquidityViewItemsBSC.forEachIndexed{ index, liquidityViewItem ->
             if (removeIndex != index) {
                 list.add(liquidityViewItem)
             }
         }
-        liquidityViewItems = list
+        liquidityViewItemsBSC = list
         emitState()
     }
 
@@ -306,12 +378,14 @@ class LiquidityListViewModel(
                     walletB.coin.code,
                     walletB.decimal
                 )
+                val web3j = if (isSelectBSC()) web3jBsc else web3jEth
                 val pair =
-                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB) ?: return@launch
+                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, !isSelectBSC()) ?: return@launch
                 val pairAddress = pair.get(0) as String
                 val token00 = pair.get(1) as Token
                 val token11 = pair.get(2) as Token
-                val isChange = token00.address != tokenAAddress
+                //val isChange = token00.address != tokenAAddress
+                val isChange = false
                 val token0 = if (isChange) token11 else token00
                 val token1 = if (isChange) token00 else token11
 
@@ -322,7 +396,7 @@ class LiquidityListViewModel(
                 val poolTokenTotalSupply = TotalSupply.getTotalSupply(web3j, pairAddress)
                 // 查询 当前用户拥有的流动性代币数量
                 val balanceOfAccount = BalanceOf.balanceOf(
-                    web3j,
+                        web3j,
                     pairAddress,
                     evmKitWrapper!!.evmKit.receiveAddress.hex
                 )
@@ -346,19 +420,17 @@ class LiquidityListViewModel(
                     TokenAmount.toBigDecimal(token1, r1, token1.decimals).multiply(shareRate)
                 Log.i("用户在池子中抵押:{} ({})", "$pooledR0Amount, ${token0.symbol}")
                 Log.i("用户在池子中抵押:{} ({})", "$pooledR1Amount, ${token1.symbol}")
-                val inputAmount = inputRemoveAmount?.multiply(BigDecimal.TEN.pow(18))?.toBigInteger() ?: balanceOfAccount
 
                 // 用户期望移除抵押 的代币 的百分比;
-//                val removePercent = inputAmount.toBigDecimal().divide(balanceOfAccount.toBigDecimal(), 2, RoundingMode.DOWN)
-                val removePercent = "1"
+                val removePercent = (removePercent / 100f).toString()
                 val removeLiquidityAmount =
-                    BigDecimal(balanceOfAccount).multiply(BigDecimal("$removePercent")).toBigInteger()
+                    BigDecimal(balanceOfAccount).multiply(BigDecimal(removePercent)).toBigInteger()
                 // 将会得到的 token0 和 token1 的数量
-                val removeToken0Amount = pooledR0Amount.multiply(BigDecimal("$removePercent"))
-                val removeToken1Amount = pooledR1Amount.multiply(BigDecimal("$removePercent"))
+                val removeToken0Amount = pooledR0Amount.multiply(BigDecimal(removePercent))
+                val removeToken1Amount = pooledR1Amount.multiply(BigDecimal(removePercent))
                 Log.i(
                     "Receive {} Amount : {}",
-                    "${token0.symbol}, $removeToken0Amount, percent=$removePercent, removeLiquidityAmount=$removeLiquidityAmount"
+                    "${token0.symbol}, $removeToken0Amount"
                 )
                 Log.i(
                     "Receive {} Amount : {}",
@@ -379,17 +451,27 @@ class LiquidityListViewModel(
                 // 通过合约获取流动性代币的名称 , PancakeSwap 的流动性代币名称都是 "Pancake LPs"
                 val name = Name.name(web3j, pairAddress)
                 val nonces = PairAddressNonce.nonce(
-                    web3j,
+                        web3j,
                     pairAddress,
                     evmKitWrapper!!.evmKit.receiveAddress.hex
                 )
                 val deadline = Constants.getDeadLine()
+                val routerAddress = if (isSelectBSC()) {
+                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                } else {
+                    Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+                }
+                val chainId = if (isSelectBSC()) {
+                    56
+                } else {
+                    1
+                }
                 val json = buildSignJson(
                     name,
-                    56,
+                    chainId,
                     pairAddress,
                     evmKitWrapper!!.evmKit.receiveAddress.hex,
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                    routerAddress,
                     removeLiquidityAmount,
                     nonces,
                     deadline
@@ -451,27 +533,37 @@ class LiquidityListViewModel(
                         DefaultBlockParameterName.LATEST
                     )
                         .send().transactionCount
-
+                val gasPrice: BigInteger = web3j.ethGasPrice()
+                        .send()
+                        .getGasPrice()
                 val hash = TransactionContractSend.send(
-                    web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS,
+                        web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                        routerAddress,
                     encode,
                     BigInteger.ZERO, nonce,
-                    Convert.toWei("10", Convert.Unit.GWEI).toBigInteger(),  // GAS PRICE : 5GWei
+                    gasPrice,  // GAS PRICE : 5GWei
                     BigInteger("500000") // GAS LIMIT
                 )
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
                 // 0xab43576d55e54c3c51ecff56b030cd83945ec7ee0892539953a8ee467570a73d
-                Log.i("Execute Router.removeLiquidityWithPermit Hash = {}", "result=$hash")
+                Log.i("Execute Router.removeLiquidityWithPermit Hash ", "= $hash")
                 withContext(Dispatchers.Main) {
-                    removeItem(index)
-                    removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
-                        "移除成功"
+                    if (hash != null) {
+                        removeItem(index)
+                        removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "移除成功"
+                        } else {
+                            "Remove Success"
+                        }
                     } else {
-                        "Remove Success"
+                        removeErrorMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "移除失败"
+                        } else {
+                            "Remove Fail"
+                        }
                     }
                 }
-                refresh()
+             //   refresh()
             } catch (e: Throwable) {
                 Log.e("removeLiquidity", "error=$e")
                 withContext(Dispatchers.Main) {
@@ -509,6 +601,9 @@ class LiquidityListViewModel(
         disposable.dispose()
     }
 
+    private fun isSelectBSC(): Boolean {
+        return selectedTab == LiquidityListModule.Tab.BSC
+    }
 
 }
 
@@ -516,6 +611,7 @@ data class LiquidityUiState(
     val liquidityViewItems: List<LiquidityViewItem>,
     val viewState: ViewState,
     val isRefreshing: Boolean,
+    val selectPercent: Int,
     val amountCaution: HSCaution? = null
 )
 

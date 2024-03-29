@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity.list
 
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -208,21 +209,16 @@ object LiquidityListModule {
         ExactFrom, ExactTo
     }
 
-/*    sealed class SwapActionState {
-        object Hidden : SwapActionState()
-        class Enabled(val buttonTitle: String) : SwapActionState()
-        class Disabled(val buttonTitle: String, val loading: Boolean = false) : SwapActionState()
+    enum class Tab(@StringRes val titleResId: Int) {
+        BSC(R.string.Liquidity_Tab_BSC),
+        ETH(R.string.Liquidity_Tab_ETH);
 
-        val title: String
-            get() = when (this) {
-                is Enabled -> this.buttonTitle
-                is Disabled -> this.buttonTitle
-                else -> ""
-            }
+        companion object {
+            private val map = values().associateBy(Tab::name)
 
-        val showProgress: Boolean
-            get() = this is Disabled && loading
-    }*/
+            fun fromString(type: String?): Tab? = map[type]
+        }
+    }
 
 }
 

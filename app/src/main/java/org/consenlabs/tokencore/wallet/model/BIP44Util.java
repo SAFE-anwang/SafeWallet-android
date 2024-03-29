@@ -1,6 +1,6 @@
+/*
 package org.consenlabs.tokencore.wallet.model;
 
-import com.google.common.collect.ImmutableList;
 import org.bitcoinj.crypto.ChildNumber;
 
 import java.util.ArrayList;
@@ -42,3 +42,4 @@ public class BIP44Util {
   }
 
 }
+*/

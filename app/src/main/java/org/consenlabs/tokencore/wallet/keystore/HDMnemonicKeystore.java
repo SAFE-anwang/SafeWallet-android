@@ -1,8 +1,9 @@
+/*
 package org.consenlabs.tokencore.wallet.keystore;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
+import com.google.common.base.org.consenlabs.tokencore.Strings;
 import com.google.common.io.BaseEncoding;
 import com.subgraph.orchid.encoders.Hex;
 
@@ -30,9 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+*/
 /**
  * Created by xyz on 2018/2/5.
- */
+ *//*
+
 
 public final class HDMnemonicKeystore extends IMTKeystore implements EncMnemonicKeystore {
 
@@ -118,7 +121,7 @@ public final class HDMnemonicKeystore extends IMTKeystore implements EncMnemonic
 
     this.version = VERSION;
     this.info = new Info();
-    this.id = Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
+    this.id = org.consenlabs.tokencore.Strings.isNullOrEmpty(id) ? UUID.randomUUID().toString() : id;
   }
 
 
@@ -182,3 +185,4 @@ public final class HDMnemonicKeystore extends IMTKeystore implements EncMnemonic
     }
   }
 }
+*/

@@ -1,20 +1,13 @@
 package org.consenlabs.tokencore.wallet.keystore;
 
-import com.google.common.base.Strings;
-
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.params.TestNet3Params;
+import org.consenlabs.tokencore.Strings;
 import org.consenlabs.tokencore.foundation.crypto.Crypto;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
-import org.consenlabs.tokencore.wallet.address.BitcoinAddressCreator;
 import org.consenlabs.tokencore.wallet.address.EthereumAddressCreator;
-import org.consenlabs.tokencore.wallet.address.SegWitBitcoinAddressCreator;
 import org.consenlabs.tokencore.wallet.model.ChainType;
 import org.consenlabs.tokencore.wallet.model.Metadata;
 import org.consenlabs.tokencore.wallet.model.TokenException;
 import org.consenlabs.tokencore.wallet.validators.PrivateKeyValidator;
-import org.consenlabs.tokencore.wallet.validators.WIFValidator;
 
 import java.util.UUID;
 
@@ -34,7 +27,7 @@ public class V3Keystore extends IMTKeystore implements ExportableKeystore {
 
   public V3Keystore(Metadata metadata, String password, String prvKeyHex, String id) {
     byte[] prvKeyBytes;
-    if (metadata.getChainType().equals(ChainType.BITCOIN)) {
+    /*if (metadata.getChainType().equals(ChainType.BITCOIN)) {
       NetworkParameters network = metadata.isMainNet() ? MainNetParams.get() : TestNet3Params.get();
       prvKeyBytes = prvKeyHex.getBytes();
       new WIFValidator(prvKeyHex, network).validate();
@@ -43,7 +36,7 @@ public class V3Keystore extends IMTKeystore implements ExportableKeystore {
       } else {
         this.address = new BitcoinAddressCreator(network).fromPrivateKey(prvKeyHex);
       }
-    } else if (metadata.getChainType().equals(ChainType.ETHEREUM)) {
+    } else*/ if (metadata.getChainType().equals(ChainType.ETHEREUM)) {
       prvKeyBytes = NumericUtil.hexToBytes(prvKeyHex);
       new PrivateKeyValidator(prvKeyHex).validate();
       this.address = new EthereumAddressCreator().fromPrivateKey(prvKeyBytes);

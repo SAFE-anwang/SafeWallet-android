@@ -4,13 +4,13 @@ import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.VersionedChecksummedBytes;
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.consenlabs.tokencore.foundation.utils.ByteUtil;
-import org.spongycastle.crypto.digests.RIPEMD160Digest;
 
 import java.util.Arrays;
 
-public class EOSKey extends VersionedChecksummedBytes {
+public class EOSKey /*extends VersionedChecksummedBytes*/ {
+/*
 
   protected EOSKey(String encoded) throws AddressFormatException {
     super(encoded);
@@ -53,5 +53,6 @@ public class EOSKey extends VersionedChecksummedBytes {
   ECKey getECKey() {
     return ECKey.fromPrivate(bytes, true);
   }
+*/
 
 }

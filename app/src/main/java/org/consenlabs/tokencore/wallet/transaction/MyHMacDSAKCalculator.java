@@ -1,11 +1,13 @@
 package org.consenlabs.tokencore.wallet.transaction;
 
-import org.spongycastle.crypto.Digest;
-import org.spongycastle.crypto.macs.HMac;
-import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.crypto.signers.DSAKCalculator;
-import org.spongycastle.util.Arrays;
-import org.spongycastle.util.BigIntegers;
+
+
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.signers.DSAKCalculator;
+import org.bouncycastle.util.Arrays;
+import org.bouncycastle.util.BigIntegers;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

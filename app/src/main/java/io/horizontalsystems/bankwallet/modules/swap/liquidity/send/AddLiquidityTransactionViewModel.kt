@@ -109,11 +109,11 @@ class AddLiquidityTransactionViewModel(
     private fun getFee() {
         GlobalScope.launch {
             try {
-                val web3j: Web3j = Connect.connect()
+                val web3j: Web3j = Connect.connect(chainToken.blockchainType is BlockchainType.Ethereum)
                 val gasPrice: BigInteger = web3j.ethGasPrice()
                     .send()
                     .getGasPrice()
-                val gasLimit: BigInteger = BigInteger("500000")
+                val gasLimit: BigInteger = BigInteger("50000")
                 val transactionFee = gasPrice.multiply(gasLimit)
                 val balanceResponse = web3j.ethGetBalance(service.ownAddress.hex, DefaultBlockParameterName.LATEST).send()
                 val balance = balanceResponse.balance

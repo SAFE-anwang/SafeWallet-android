@@ -1,7 +1,5 @@
 package org.consenlabs.tokencore.foundation.crypto;
 
-import com.google.common.base.Strings;
-
 import org.consenlabs.tokencore.wallet.model.Messages;
 import org.consenlabs.tokencore.wallet.model.TokenException;
 
@@ -58,7 +56,7 @@ public class PBKDF2Params implements KDFParams {
 
   @Override
   public void validate() {
-    if (dklen == 0 || c == 0 || Strings.isNullOrEmpty(salt) || Strings.isNullOrEmpty(prf)) {
+    if (dklen == 0 || c == 0 || salt == null || salt.isEmpty() || prf == null || prf.isEmpty()) {
       throw new TokenException(Messages.KDF_PARAMS_INVALID);
     }
   }
