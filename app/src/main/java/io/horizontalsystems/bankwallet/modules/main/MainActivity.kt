@@ -1,37 +1,40 @@
 package io.horizontalsystems.bankwallet.modules.main
 
-import android.graphics.Color
+//import io.horizontalsystems.bankwallet.modules.send.SendActivity
+
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
-import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.navigation.fragment.NavHostFragment
+import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
+import com.xuexiang.xupdate.XUpdate
+import com.xuexiang.xupdate.entity.UpdateEntity
+import com.xuexiang.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION
+import com.xuexiang.xupdate.listener.IUpdateParseCallback
+import com.xuexiang.xupdate.proxy.IUpdateParser
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseActivity
-import io.horizontalsystems.bankwallet.entities.Wallet
-//import io.horizontalsystems.bankwallet.modules.send.SendActivity
-import io.horizontalsystems.bankwallet.net.SafeNetWork
-import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.entities.UpgradeVersion
+import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
-import io.horizontalsystems.core.CoreApp
-import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import io.horizontalsystems.bankwallet.net.SafeNetWork
+import io.horizontalsystems.bankwallet.net.VpnConnectService
+
 
 class MainActivity : BaseActivity() {
 
@@ -93,6 +96,7 @@ class MainActivity : BaseActivity() {
         }
 
         startVpn()
+        startUpgradeVersion()
     }
 
     override fun onDestroy() {
@@ -163,6 +167,65 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    private fun startUpgradeVersion() {
+        XUpdate.get()
+                .debug(true)
+                .isWifiOnly(false) // By default, only version updates are checked under WiFi
+                .isGet(true) // The default setting uses Get request to check versions
+                .isAutoMode(false) // The default setting is non automatic mode
+//                .param("versionCode", UpdateUtils.getVersionCode(this)) // Set default public request parameters
+//                .param("appKey", packageName)
+                .setOnUpdateFailureListener { error ->
+
+                    // Set listening for version update errors
+                    if (error.code != CHECK_NO_NEW_VERSION) {          // Handling different errors
+//                        ToastUtils.toast(error.toString())
+                    }
+                }
+                .supportSilentInstall(true) // Set whether silent installation is supported. The default is true
+                .setIUpdateHttpService(OKHttpUpdateHttpService()) // This must be set! Realize the network request function.
+                .init(this.application)
+        XUpdate.newBuild(this)
+                .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
+                .updateParser(object : IUpdateParser {
+                    override fun parseJson(json: String?): UpdateEntity? {
+                        Log.e("longwen", "json=$json")
+                        val gson = Gson()
+                        val result = gson.fromJson<UpgradeVersion>(json, UpgradeVersion::class.java)
+                        if (result != null) {
+                            return UpdateEntity()
+                                    .setHasUpdate(getVersionCode() <= result.versionCode)
+                                    .setIsIgnorable(false)
+                                    .setVersionCode(result.versionCode)
+                                    .setVersionName(result.version)
+                                    .setUpdateContent(result.upgradeMsg)
+                                    .setDownloadUrl(result.url)
+                        }
+                        return null
+                    }
+
+                    override fun parseJson(json: String?, callback: IUpdateParseCallback?) {
+
+                    }
+
+                    override fun isAsyncParser(): Boolean {
+                        return false
+                    }
+                })
+                .update()
+    }
+
+    private fun getVersionCode(): Int {
+        try {
+            val packageManager = packageManager
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            return packageInfo.versionCode
+        } catch (e: PackageManager.NameNotFoundException) {
+            
+        }
+        return 0
     }
 }
 

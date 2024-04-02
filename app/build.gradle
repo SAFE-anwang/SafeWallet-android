@@ -421,6 +421,9 @@ dependencies {
 //    implementation 'com.google.protobuf:protobuf-java:3.5.1'
 
     implementation 'com.lambdaworks:scrypt:1.4.0'
+
+    implementation 'com.github.xuexiangjys:XUpdate:2.1.5'
+    implementation 'com.zhy:okhttputils:2.6.2'
 }
 
 configurations.all {
