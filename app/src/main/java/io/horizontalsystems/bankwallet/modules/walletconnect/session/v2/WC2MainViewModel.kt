@@ -11,11 +11,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 
 class WC2MainViewModel(
-    private val wc2Service: WC2Service,
+    val wc2Service: WC2Service,
     private val wcSessionManager: WC2SessionManager,
 ) : ViewModel() {
 
     val sessionProposalLiveEvent = SingleLiveEvent<Unit>()
+    val sessionDeletedLiveEvent = SingleLiveEvent<Unit>()
     val openWalletConnectRequestLiveEvent = SingleLiveEvent<Long>()
 
     init {
@@ -24,6 +25,9 @@ class WC2MainViewModel(
                 .collect {
                     if (it is WC2Service.Event.WaitingForApproveSession) {
                         sessionProposalLiveEvent.postValue(Unit)
+                    }
+                    if (it is WC2Service.Event.SessionDeleted) {
+                        sessionDeletedLiveEvent.postValue(Unit)
                     }
                 }
         }

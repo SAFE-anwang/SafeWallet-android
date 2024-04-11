@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 
 class WC2SessionViewModel(
-    private val wc2service: WC2Service,
+    val wc2service: WC2Service,
     private val wcManager: WC2Manager,
     private val sessionManager: WC2SessionManager,
     private val accountManager: IAccountManager,
@@ -98,47 +98,7 @@ class WC2SessionViewModel(
                 }
         }
 
-        val topic1 = topic
-        if (topic1 != null) {
-            val existingSession =
-                sessionManager.sessions.firstOrNull { it.topic == topic1 }
-            if (existingSession != null) {
-                peerMeta = existingSession.metaData?.let {
-                    PeerMetaItem(
-                        it.name,
-                        it.url,
-                        it.description,
-                        it.icons.lastOrNull()?.toString(),
-                        accountManager.activeAccount?.name,
-                    )
-                }
-
-                session = existingSession
-                refreshPendingRequests()
-                wcBlockchains = getBlockchainsBySession(existingSession)
-                sessionServiceState = Ready
-            }
-        } else {
-            wc2service.getNextSessionProposal()?.let { sessionProposal ->
-                peerMeta = PeerMetaItem(
-                    sessionProposal.name,
-                    sessionProposal.url,
-                    sessionProposal.description,
-                    sessionProposal.icons.lastOrNull()?.toString(),
-                    accountManager.activeAccount?.name,
-                )
-
-                proposal = sessionProposal
-
-                try {
-                    wcBlockchains = getBlockchainsByProposal(sessionProposal)
-
-                    sessionServiceState = WaitingForApproveSession
-                } catch (e: WC2SessionManager.RequestDataError) {
-                    sessionServiceState = Invalid(e)
-                }
-            }
-        }
+        initTopic(topic)
 
         wc2service.eventObservable
             .subscribe { event ->
@@ -183,6 +143,50 @@ class WC2SessionViewModel(
             }
     }
 
+    private fun initTopic(topic: String?) {
+        val topic1 = topic
+        if (topic1 != null) {
+            val existingSession =
+                    sessionManager.sessions.firstOrNull { it.topic == topic1 }
+            if (existingSession != null) {
+                peerMeta = existingSession.metaData?.let {
+                    PeerMetaItem(
+                            it.name,
+                            it.url,
+                            it.description,
+                            it.icons.lastOrNull()?.toString(),
+                            accountManager.activeAccount?.name,
+                    )
+                }
+
+                session = existingSession
+                refreshPendingRequests()
+                wcBlockchains = getBlockchainsBySession(existingSession)
+                sessionServiceState = Ready
+            }
+        } else {
+            wc2service.getNextSessionProposal()?.let { sessionProposal ->
+                peerMeta = PeerMetaItem(
+                        sessionProposal.name,
+                        sessionProposal.url,
+                        sessionProposal.description,
+                        sessionProposal.icons.lastOrNull()?.toString(),
+                        accountManager.activeAccount?.name,
+                )
+
+                proposal = sessionProposal
+
+                try {
+                    wcBlockchains = getBlockchainsByProposal(sessionProposal)
+
+                    sessionServiceState = WaitingForApproveSession
+                } catch (e: WC2SessionManager.RequestDataError) {
+                    sessionServiceState = Invalid(e)
+                }
+            }
+        }
+    }
+
     private fun refreshPendingRequests() {
         pendingRequests = session?.let { existingSession ->
             wc2service.pendingRequests(existingSession.topic).map {
@@ -201,6 +205,7 @@ class WC2SessionViewModel(
         "personal_sign" -> "Personal Sign Request"
         "eth_sign" -> "Standard Sign Request"
         "eth_signTypedData" -> "Typed Sign Request"
+        "eth_signTypedData_v4" -> "Typed Sign Request"
         "eth_sendTransaction" -> "Approve Transaction"
         else -> "Unsupported"
     }
@@ -258,6 +263,25 @@ class WC2SessionViewModel(
     }
 
     fun connect() {
+        val proposal = proposal ?: return
+
+        if (!connectivityManager.isConnected) {
+            showErrorLiveEvent.postValue(Unit)
+            return
+        }
+
+        if (accountManager.activeAccount == null) {
+            sessionServiceState = Invalid(NoSuitableAccount)
+            return
+        }
+
+        wc2service.approve(proposal, wcBlockchains)
+    }
+
+    fun connectV2() {
+        if (proposal == null) {
+            setTopic(null)
+        }
         val proposal = proposal ?: return
 
         if (!connectivityManager.isConnected) {
@@ -415,6 +439,28 @@ class WC2SessionViewModel(
             val address = wcManager.getEvmAddress(account, data.chain).eip55
             evmBlockchainManager.getBlockchain(data.chain.id)?.let { supportedBlockchain ->
                 WCBlockchain(data.chain.id, supportedBlockchain.name, address)
+            }
+        }
+    }
+
+    fun setTopic(topic: String?) {
+        wc2service.getNextSessionProposal()?.let { sessionProposal ->
+            peerMeta = PeerMetaItem(
+                    sessionProposal.name,
+                    sessionProposal.url,
+                    sessionProposal.description,
+                    sessionProposal.icons.lastOrNull()?.toString(),
+                    accountManager.activeAccount?.name,
+            )
+
+            proposal = sessionProposal
+
+            try {
+                wcBlockchains = getBlockchainsByProposal(sessionProposal)
+
+                sessionServiceState = WaitingForApproveSession
+            } catch (e: WC2SessionManager.RequestDataError) {
+                sessionServiceState = Invalid(e)
             }
         }
     }

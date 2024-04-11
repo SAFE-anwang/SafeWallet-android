@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.walletconnect.session.v2
 
+import com.google.android.exoplayer2.util.Log
 import com.walletconnect.sign.client.Sign
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
@@ -188,7 +189,8 @@ class WC2SessionService(
         /*val accounts: List<String> = blockchains.filter { it.selected }.map { blockchain ->
             "eip155:${blockchain.chainId}:${blockchain.address}"
         }*/
-
+        Log.d("connectWallet", "aprove proposal=${proposal.pairingTopic}")
+        Log.d("connectWallet", "aprove session=${session?.topic}")
         service.approve(proposal, blockchains)
     }
 
@@ -203,6 +205,11 @@ class WC2SessionService(
         state = State.Killed
         service.disconnect(sessionNonNull.topic)
         pingService.disconnect()
+    }
+
+    fun deleteTopic() {
+        val sessionNonNull = session ?: return
+        service.deletePairing(sessionNonNull.topic)
     }
 
     fun reconnect() {

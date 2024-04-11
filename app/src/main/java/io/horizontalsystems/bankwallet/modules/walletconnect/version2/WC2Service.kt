@@ -108,6 +108,7 @@ class WC2Service : SignClient.WalletDelegate {
         val supportedMethods = listOf(
             "personal_sign",
             "eth_signTypedData",
+            "eth_signTypedData_v4",
             "eth_sendTransaction",
             "eth_sign",
         )

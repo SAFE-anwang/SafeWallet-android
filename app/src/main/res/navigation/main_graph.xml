@@ -459,7 +459,12 @@
 
     <fragment
         android:id="@+id/dappBrowseFragment"
-        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment" >
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragmentV2" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/dappBrowseFragmentv2"
+        android:name="io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragmentV2" >
     </fragment>
 
     <!--<fragment

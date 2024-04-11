@@ -196,7 +196,7 @@ class MainActivity : BaseActivity() {
                         val result = gson.fromJson<UpgradeVersion>(json, UpgradeVersion::class.java)
                         if (result != null) {
                             return UpdateEntity()
-                                    .setHasUpdate(getVersionCode() <= result.versionCode)
+                                    .setHasUpdate(getVersionCode() < result.versionCode)
                                     .setIsIgnorable(false)
                                     .setVersionCode(result.versionCode)
                                     .setVersionName(result.version)
@@ -223,7 +223,7 @@ class MainActivity : BaseActivity() {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
             return packageInfo.versionCode
         } catch (e: PackageManager.NameNotFoundException) {
-            
+
         }
         return 0
     }

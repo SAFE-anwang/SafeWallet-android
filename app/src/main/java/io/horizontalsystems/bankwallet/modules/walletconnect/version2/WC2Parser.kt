@@ -58,6 +58,7 @@ object WC2Parser {
                     SignMessage.Message(data)
                 )
             }
+            "eth_signTypedData_v4",
             "eth_signTypedData" -> {
                 val dataString = params.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
                     ?: return WC2UnsupportedRequest(
