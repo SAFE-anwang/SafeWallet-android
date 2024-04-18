@@ -56,7 +56,7 @@ class FallbackBlockViewModel(
                             adapterManager.getAdapterForWallet(it)?.let {
                                 (it as SafeAdapter).fallbackBlock(year, month)
                             }
-                            App.adapterManager.preloadAdapters()
+                            (App.adapterManager as AdapterManager).preloadAdapters()
                         } catch (e: Exception) {
 
                         }
@@ -70,7 +70,7 @@ class FallbackBlockViewModel(
                             adapterManager.getAdapterForWallet(it)?.let {
                                 (it as DogecoinAdapter).fallbackBlock(year, month)
                             }
-                            App.adapterManager.preloadAdapters()
+                            (App.adapterManager as AdapterManager).preloadAdapters()
                         } catch (e: Exception) {
 
                         }

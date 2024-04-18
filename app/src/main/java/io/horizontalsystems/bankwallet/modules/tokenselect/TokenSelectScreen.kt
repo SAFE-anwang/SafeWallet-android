@@ -32,6 +32,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 fun TokenSelectScreen(
     navController: NavController,
     title: String,
+    searchHintText: String = "",
     onClickItem: (BalanceViewItem2) -> Unit,
     viewModel: TokenSelectViewModel,
     emptyItemsText: String,
@@ -42,7 +43,7 @@ fun TokenSelectScreen(
         topBar = {
             SearchBar(
                 title = title,
-                searchHintText = "",
+                searchHintText = searchHintText,
                 menuItems = listOf(),
                 onClose = { navController.popBackStack() },
                 onSearchTextChanged = { text ->

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.releasenotes
 
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownContent
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -33,21 +35,20 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
+import kotlinx.parcelize.Parcelize
 
 class ReleaseNotesFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
         ReleaseNotesScreen(
-            closeablePopup = arguments?.getBoolean(showAsClosablePopupKey) ?: false,
+            closeablePopup = navController.getInput<Input>()?.showAsClosablePopup ?: false,
             onCloseClick = { navController.popBackStack() },
         )
     }
 
-    companion object {
-        const val showAsClosablePopupKey = "showAsClosablePopup"
-    }
-
+    @Parcelize
+    data class Input(val showAsClosablePopup: Boolean) : Parcelable
 }
 
 @Composable

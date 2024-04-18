@@ -1,11 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.market.platform
 
-import android.os.Bundle
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +14,6 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -25,12 +22,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.chart.ChartViewModel
@@ -51,14 +48,13 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SortMenu
 import io.horizontalsystems.bankwallet.ui.compose.components.TopCloseButton
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
-import io.horizontalsystems.core.parcelable
 
 class MarketPlatformFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
 
-        val platform = arguments?.parcelable<Platform>(platformKey)
+        val platform = navController.getInput<Platform>()
 
         if (platform == null) {
             navController.popBackStack()
@@ -71,20 +67,11 @@ class MarketPlatformFragment : BaseComposeFragment() {
             factory = factory,
             onCloseButtonClick = { navController.popBackStack() },
             onCoinClick = { coinUid ->
-                val arguments = CoinFragment.prepareParams(coinUid, "market_platform")
+                val arguments = CoinFragment.Input(coinUid, "market_platform")
                 navController.slideFromRight(R.id.coinFragment, arguments)
             }
         )
     }
-
-    companion object {
-        private const val platformKey = "platform_key"
-
-        fun prepareParams(platform: Platform): Bundle {
-            return bundleOf(platformKey to platform)
-        }
-    }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -98,11 +85,10 @@ private fun PlatformScreen(
 ) {
 
     var scrollToTopAfterUpdate by rememberSaveable { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
-            TopCloseButton(interactionSource, onCloseButtonClick)
+            TopCloseButton(onCloseButtonClick)
 
             HSSwipeRefresh(
                 refreshing = viewModel.isRefreshing,

@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -26,7 +27,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandler
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendInteractor
@@ -209,7 +210,7 @@ class SafeSendFragment : BaseFragment() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
-                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
+                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveModule.NoReceiverAdapter()
                         val sendAddressFragment =
                             InputAddressFragment(receiveAdapter.receiveAddress, wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)
@@ -278,6 +279,16 @@ class SafeSendFragment : BaseFragment() {
 
     companion object {
         const val WALLET = "walletKey"
+
+        private const val walletKey = "walletKey"
+        private const val sendEntryPointDestIdKey = "sendEntryPointDestIdKey"
+        private const val titleKey = "titleKey"
+        private const val predefinedAddressKey = "predefinedAddressKey"
+
+        fun prepareParams(wallet: Wallet, title: String) = bundleOf(
+                walletKey to wallet,
+                titleKey to title
+        )
     }
 
 }

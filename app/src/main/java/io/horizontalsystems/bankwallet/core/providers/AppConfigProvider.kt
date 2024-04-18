@@ -47,14 +47,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
+
+    val blocksDecodedEthereumRpc by lazy {
+        Translator.getString(R.string.blocksDecodedEthereumRpc)
+    }
     val twitterBearerToken by lazy {
         Translator.getString(R.string.twitterBearerToken)
-    }
-    val cryptoCompareApiKey by lazy {
-        Translator.getString(R.string.cryptoCompareApiKey)
-    }
-    val defiyieldProviderApiKey by lazy {
-        Translator.getString(R.string.defiyieldProviderApiKey)
     }
 
     val infuraProjectId by lazy {
@@ -159,34 +157,30 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         projectKey
     }
 
-    val blockchairApiKey by lazy {
-        Translator.getString(R.string.blockchairApiKey)
-    }
-
     val fiatDecimal: Int = 2
     val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
     val maxDecimal: Int = 8
 
     val currencies: List<Currency> = listOf(
-            Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
-            Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
-            Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
-            Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
-            Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
-            Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
-            Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
-            Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
-            Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
-            Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
-            Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
-            Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
-            Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
-            Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
-            Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
-            Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
-            Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
-            Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
-            Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
+        Currency("AUD", "A$", 2, R.drawable.icon_32_flag_australia),
+        Currency("ARS", "$", 2, R.drawable.icon_32_flag_argentine),
+        Currency("BRL", "R$", 2, R.drawable.icon_32_flag_brazil),
+        Currency("CAD", "C$", 2, R.drawable.icon_32_flag_canada),
+        Currency("CHF", "₣", 2, R.drawable.icon_32_flag_switzerland),
+        Currency("CNY", "¥", 2, R.drawable.icon_32_flag_china),
+        Currency("EUR", "€", 2, R.drawable.icon_32_flag_europe),
+        Currency("GBP", "£", 2, R.drawable.icon_32_flag_england),
+        Currency("HKD", "HK$", 2, R.drawable.icon_32_flag_hongkong),
+        Currency("HUF", "Ft", 2, R.drawable.icon_32_flag_hungary),
+        Currency("ILS", "₪", 2, R.drawable.icon_32_flag_israel),
+        Currency("INR", "₹", 2, R.drawable.icon_32_flag_india),
+        Currency("JPY", "¥", 2, R.drawable.icon_32_flag_japan),
+        Currency("NOK", "kr", 2, R.drawable.icon_32_flag_norway),
+        Currency("PHP", "₱", 2, R.drawable.icon_32_flag_philippine),
+        Currency("RUB", "₽", 2, R.drawable.icon_32_flag_russia),
+        Currency("SGD", "S$", 2, R.drawable.icon_32_flag_singapore),
+        Currency("USD", "$", 2, R.drawable.icon_32_flag_usa),
+        Currency("ZAR", "R", 2, R.drawable.icon_32_flag_south_africa),
     )
 
     val donateAddresses: Map<BlockchainType, String> by lazy {

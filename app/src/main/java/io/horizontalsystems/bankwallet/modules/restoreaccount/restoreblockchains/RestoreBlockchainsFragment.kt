@@ -27,11 +27,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
@@ -104,15 +108,6 @@ class RestoreBlockchainsFragment : BaseFragment() {
         }
     }
 
-    private fun isContainerManagerFragment(): Boolean {
-        try {
-            val back: NavBackStackEntry = findNavController().getBackStackEntry(R.id.manageAccountsFragment)
-            return true
-        } catch (ex: IllegalArgumentException){
-        }
-        return false
-    }
-
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
             val popUpToInclusiveId =
@@ -125,34 +120,7 @@ class RestoreBlockchainsFragment : BaseFragment() {
                 inclusive
             )
 
-            /*if (isContainerManagerFragment()) {
-                findNavController().popBackStack(
-                    R.id.manageAccountsFragment,
-                    false
-                )
-            } else {
-                findNavController().popBackStack(
-                    R.id.mainFragment,
-                    false
-                )
-            }*/
         }
-
-        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
-            showBottomSelectorDialog(
-                config,
-                onSelect = { indexes -> coinSettingsViewModel.onSelect(indexes) },
-                onCancel = { coinSettingsViewModel.onCancelSelect() }
-            )
-        }
-
-        coinTokensViewModel.openSelectorEvent.observe(viewLifecycleOwner) { config ->
-            showBottomSelectorDialog(
-                config,
-                onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
-                onCancel = { coinTokensViewModel.onCancelSelect() }
-            )
-        }*/
     }
 
     private fun showBottomSelectorDialog(

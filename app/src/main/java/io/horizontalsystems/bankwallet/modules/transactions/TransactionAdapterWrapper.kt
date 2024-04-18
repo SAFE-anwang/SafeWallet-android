@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
+import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -14,7 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 class TransactionAdapterWrapper(
     private val transactionsAdapter: ITransactionsAdapter,
     private val transactionWallet: TransactionWallet,
-    private var transactionType: FilterTransactionType
+    private var transactionType: FilterTransactionType,
+    private var contact: Contact?
 ) : Clearable {
     private val updatedSubject = PublishSubject.create<Unit>()
     val updatedObservable: Observable<Unit> get() = updatedSubject
@@ -22,6 +24,12 @@ class TransactionAdapterWrapper(
     private val transactionRecords = CopyOnWriteArrayList<TransactionRecord>()
     private var allLoaded = false
     private val disposables = CompositeDisposable()
+
+    val address: String?
+        get() = contact
+            ?.addresses
+            ?.find { it.blockchain == transactionWallet.source.blockchain }
+            ?.address
 
     init {
         subscribeForUpdates()
@@ -43,8 +51,18 @@ class TransactionAdapterWrapper(
         subscribeForUpdates()
     }
 
+    fun setContact(contact: Contact?) {
+        unsubscribeFromUpdates()
+        this.contact = contact
+        transactionRecords.clear()
+        allLoaded = false
+        subscribeForUpdates()
+    }
+
     private fun subscribeForUpdates() {
-        transactionsAdapter.getTransactionRecordsFlowable(transactionWallet.token, transactionType)
+        if (contact != null && address == null) return
+
+        transactionsAdapter.getTransactionRecordsFlowable(transactionWallet.token, transactionType, address)
             .subscribeIO {
                 transactionRecords.clear()
                 allLoaded = false
@@ -61,6 +79,7 @@ class TransactionAdapterWrapper(
 
     fun get(limit: Int): Single<List<TransactionRecord>> = when {
         transactionRecords.size >= limit || allLoaded -> Single.just(transactionRecords.take(limit))
+        contact != null && address == null -> Single.just(listOf())
         else -> {
             val numberOfRecordsToRequest = limit - transactionRecords.size
             transactionsAdapter
@@ -68,7 +87,8 @@ class TransactionAdapterWrapper(
                     transactionRecords.lastOrNull(),
                     transactionWallet.token,
                     numberOfRecordsToRequest,
-                    transactionType
+                    transactionType,
+                    address
                 )
                 .map {
                     allLoaded = it.size < numberOfRecordsToRequest

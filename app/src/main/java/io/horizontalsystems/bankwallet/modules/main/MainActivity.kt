@@ -15,6 +15,10 @@ import android.widget.TextView
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.navigation.fragment.NavHostFragment
 import com.v2ray.ang.AppConfig
@@ -28,16 +32,14 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
-import io.horizontalsystems.core.CoreApp
+import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
+import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 
 class MainActivity : BaseActivity() {
-
-    private val wc2MainViewModel by viewModels<WC2MainViewModel> {
-        WC2MainViewModel.Factory()
-    }
 
     private val viewModel by viewModels<MainActivityViewModel> {
         MainActivityViewModel.Factory()
@@ -51,29 +53,21 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val wcViewModel = WCViewModel()
+
         if (App.localStorage.currentTheme == ThemeType.Blue) {
             setTheme(R.style.Theme_AppTheme_DayNightBlue)
             window.statusBarColor = getColor(R.color.safe_blue)
         }
         setContentView(R.layout.activity_main)
 
-        val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val navHost =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         val navController = navHost.navController
 
         navController.setGraph(R.navigation.main_graph, intent.extras)
         navController.addOnDestinationChangedListener(this)
-
-        wc2MainViewModel.sessionProposalLiveEvent.observe(this) {
-            if (!MainModule.isOpenDapp) {
-                navController.slideFromBottom(R.id.wc2SessionFragment)
-            }
-        }
-        wc2MainViewModel.openWalletConnectRequestLiveEvent.observe(this) { requestId ->
-            navController.slideFromBottom(
-                R.id.wc2RequestFragment,
-                WC2RequestFragment.prepareParams(requestId)
-            )
-        }
+        handleWeb3WalletEvents(navController, wcViewModel)
 
         viewModel.navigateToMainLiveData.observe(this) {
             if (it) {
@@ -95,11 +89,33 @@ class MainActivity : BaseActivity() {
         startVpn()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(mMsgReceiver)
-        Utils.stopVService(this)
-        VpnConnectService.startLoopCheckConnection = false
+    private fun handleWeb3WalletEvents(
+        navController: NavController,
+        wcViewModel: WCViewModel,
+    ) {
+        wcViewModel.walletEvents
+            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .onEach { event ->
+                when (event) {
+                    is SignEvent.SessionProposal -> {
+                        if (!MainModule.isOpenDapp) {
+                            navController.slideFromBottom(R.id.wcSessionFragment)
+                        }
+                    }
+                    is SignEvent.SessionRequest -> {
+                        navController.slideFromBottom(R.id.wcRequestFragment,)
+                    }
+
+                    is SignEvent.Disconnect -> {
+                    }
+
+                    is AuthEvent.OnRequest -> {
+                    }
+
+                    else -> Unit
+                }
+            }
+            .launchIn(lifecycleScope)
     }
 
     fun openSend(wallet: Wallet) {
@@ -163,6 +179,13 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(mMsgReceiver)
+        Utils.stopVService(this)
+        VpnConnectService.startLoopCheckConnection = false
     }
 }
 

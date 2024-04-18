@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.GasDataError
+import io.horizontalsystems.bankwallet.modules.multiswap.EvmBlockchainHelper
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.AmountTypeItem
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ExactType
@@ -211,9 +212,9 @@ class SwapMainViewModel(
 
     private fun getTradeService(provider: ISwapProvider): SwapMainModule.ISwapTradeService = when (provider) {
         SwapMainModule.OneInchProvider -> OneInchTradeService(oneIncKitHelper)
-        SwapMainModule.UniswapV3Provider -> UniswapV3TradeService(uniswapV3Kit)
-        SwapMainModule.PancakeSwapV3Provider -> UniswapV3TradeService(pancakeSwapV3Kit)
-        else -> UniswapV2TradeService(uniswapKit)
+        SwapMainModule.UniswapV3Provider -> UniswapV3TradeService(uniswapV3Kit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        SwapMainModule.PancakeSwapV3Provider -> UniswapV3TradeService(pancakeSwapV3Kit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        else -> UniswapV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
     }
 
     private fun getSpenderAddress(provider: ISwapProvider) = when (provider) {

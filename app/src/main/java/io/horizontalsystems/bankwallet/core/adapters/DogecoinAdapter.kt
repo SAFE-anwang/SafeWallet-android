@@ -13,6 +13,7 @@ import io.horizontalsystems.bitcoincore.models.BalanceInfo
 import io.horizontalsystems.bitcoincore.models.BlockInfo
 import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
+import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.dogecoinkit.DogecoinKit
 import io.horizontalsystems.dogecoinkit.DogecoinKit.NetworkType
@@ -85,6 +86,9 @@ class DogecoinAdapter(
     override fun onTransactionsDelete(hashes: List<String>) {
         // ignored for now
     }
+
+    override val unspentOutputs: List<UnspentOutputInfo>
+        get() = kit.unspentOutputs
 
     override val blockchainType = BlockchainType.Dogecoin
 

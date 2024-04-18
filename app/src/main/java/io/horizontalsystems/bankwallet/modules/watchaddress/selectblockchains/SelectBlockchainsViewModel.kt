@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.description
 import io.horizontalsystems.bankwallet.core.imageUrl
@@ -19,26 +20,15 @@ class SelectBlockchainsViewModel(
     private val accountType: AccountType,
     private val accountName: String?,
     private val service: WatchAddressService
-) : ViewModel() {
+) : ViewModelUiState<SelectBlockchainsUiState>() {
 
     private var title: Int = R.string.Watch_Select_Blockchains
     private var coinViewItems = listOf<CoinViewItem<Token>>()
     private var selectedCoins = setOf<Token>()
     private var accountCreated = false
 
-    var uiState by mutableStateOf(
-        SelectBlockchainsUiState(
-            title = title,
-            coinViewItems = coinViewItems,
-            submitButtonEnabled = true,
-            accountCreated = false
-        )
-    )
-        private set
-
     init {
         val tokens = service.tokens(accountType)
-        selectedCoins = tokens.toSet()
 
         when (accountType) {
             is AccountType.SolanaAddress,
@@ -67,6 +57,13 @@ class SelectBlockchainsViewModel(
         emitState()
     }
 
+    override fun createState() = SelectBlockchainsUiState(
+        title = title,
+        coinViewItems = coinViewItems,
+        submitButtonEnabled = selectedCoins.isNotEmpty(),
+        accountCreated = accountCreated
+    )
+
     private fun coinViewItemForBlockchain(token: Token): CoinViewItem<Token> {
         val blockchain = token.blockchain
         return CoinViewItem(
@@ -74,7 +71,7 @@ class SelectBlockchainsViewModel(
             imageSource = getImageSource(token, R.drawable.ic_platform_placeholder_32),
             title = blockchain.name,
             subtitle = blockchain.description,
-            enabled = true
+            enabled = false
         )
     }
 
@@ -84,7 +81,7 @@ class SelectBlockchainsViewModel(
             imageSource = getImageSource(token),
             title = token.fullCoin.coin.code,
             subtitle = token.fullCoin.coin.name,
-            enabled = true,
+            enabled = false,
             label = label
         )
     }
@@ -116,14 +113,6 @@ class SelectBlockchainsViewModel(
         emitState()
     }
 
-    private fun emitState() {
-        uiState = SelectBlockchainsUiState(
-            title = title,
-            coinViewItems = coinViewItems,
-            submitButtonEnabled = selectedCoins.isNotEmpty(),
-            accountCreated = accountCreated
-        )
-    }
 }
 
 data class SelectBlockchainsUiState(

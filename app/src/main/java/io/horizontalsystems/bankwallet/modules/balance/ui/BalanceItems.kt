@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,8 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -69,7 +73,8 @@ import io.horizontalsystems.bankwallet.modules.sendtokenselect.SendTokenSelectFr
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryCircle
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
@@ -81,6 +86,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
 import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -196,7 +202,34 @@ fun BalanceItems(
     }
 
     val context = LocalContext.current
+    val view = LocalView.current
     var revealedCardId by remember { mutableStateOf<Int?>(null) }
+
+    val navigateToTokenBalance: (BalanceViewItem2) -> Unit = remember {
+        {
+            navController.slideFromRight(
+                R.id.tokenBalanceFragment,
+                it.wallet
+            )
+        }
+    }
+
+    val onClickSyncError: (BalanceViewItem2) -> Unit = remember {
+        {
+            onSyncErrorClicked(
+                it,
+                viewModel,
+                navController,
+                view
+            )
+        }
+    }
+
+    val onDisable: (BalanceViewItem2) -> Unit = remember {
+        {
+            viewModel.disable(it)
+        }
+    }
 
     HSSwipeRefresh(
         refreshing = uiState.isRefreshing,
@@ -215,13 +248,17 @@ fun BalanceItems(
             item {
                 TotalBalanceRow(
                     totalState = totalState,
-                    onClickTitle = {
-                        viewModel.toggleBalanceVisibility()
-                        HudHelper.vibrate(context)
+                    onClickTitle = remember {
+                        {
+                            viewModel.toggleBalanceVisibility()
+                            HudHelper.vibrate(context)
+                        }
                     },
-                    onClickSubtitle = {
-                        viewModel.toggleTotalType()
-                        HudHelper.vibrate(context)
+                    onClickSubtitle = remember {
+                        {
+                            viewModel.toggleTotalType()
+                            HudHelper.vibrate(context)
+                        }
                     }
                 )
             }
@@ -232,22 +269,21 @@ fun BalanceItems(
                         modifier = Modifier.padding(horizontal = 24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ButtonPrimaryYellowWithIcon(
+                        ButtonPrimaryYellow(
                             modifier = Modifier.weight(1f),
-                            icon = R.drawable.ic_arrow_up_right_24,
                             title = stringResource(R.string.Balance_Send),
                             onClick = {
                                 navController.slideFromRight(R.id.sendTokenSelectFragment)
                             }
                         )
                         HSpacer(8.dp)
-                        ButtonThirdCircle(
-                            icon = R.drawable.ic_arrow_down_left_24,
-                            contentDescription = stringResource(R.string.Balance_Receive),
+                        ButtonPrimaryDefault(
+                            modifier = Modifier.weight(1f),
+                            title = stringResource(R.string.Balance_Receive),
                             onClick = {
                                 when (val receiveAllowedState = viewModel.getReceiveAllowedState()) {
                                     ReceiveAllowedState.Allowed -> {
-                                        navController.slideFromRight(R.id.receiveTokenSelectFragment)
+                                        navController.slideFromRight(R.id.receiveFragment)
                                     }
 
                                     is ReceiveAllowedState.BackupRequired -> {
@@ -258,23 +294,21 @@ fun BalanceItems(
                                         )
                                         navController.slideFromBottom(
                                             R.id.backupRequiredDialog,
-                                            BackupRequiredDialog.prepareParams(account, text)
+                                            BackupRequiredDialog.Input(account, text)
                                         )
                                     }
 
                                     null -> Unit
                                 }
-                            },
-                                height = ButtonPrimaryDefaults.MinHeight
+                            }
                         )
                         HSpacer(8.dp)
                         ButtonThirdCircle(
                             icon = R.drawable.ic_swap_24,
                             contentDescription = stringResource(R.string.Swap),
                             onClick = {
-                                navController.slideFromRight(R.id.swapTokenSelectFragment)
-                            },
-                                height = ButtonPrimaryDefaults.MinHeight
+                                navController.slideFromRight(R.id.multiswap)
+                            }
                         )
                     }
                     VSpacer(12.dp)
@@ -400,33 +434,46 @@ fun BalanceItems(
                 }
             }
 
-            wallets(
-                items = balanceViewItems,
-                key = {
-                    it.wallet.hashCode()
+            if (balanceViewItems.isEmpty()) {
+                item {
+                    NoCoinsBlock()
                 }
-            ) { item ->
-                BalanceCardSwipable(
-                    viewItem = item,
-                    viewModel = viewModel,
-                    navController = navController,
-                    revealed = revealedCardId == item.wallet.hashCode(),
-                    onReveal = { walletHashCode ->
-                        if (revealedCardId != walletHashCode) {
-                            revealedCardId = walletHashCode
-                        }
-                    },
-                    onConceal = {
-                        revealedCardId = null
+            } else {
+                wallets(
+                    items = balanceViewItems,
+                    key = {
+                        it.wallet.hashCode()
                     }
-                )
+                ) { item ->
+                    BalanceCardSwipable(
+                        viewItem = item,
+                        revealed = revealedCardId == item.wallet.hashCode(),
+                        onReveal = { walletHashCode ->
+                            if (revealedCardId != walletHashCode) {
+                                revealedCardId = walletHashCode
+                            }
+                        },
+                        onConceal = {
+                            revealedCardId = null
+                        },
+                        onClick = {
+                            navigateToTokenBalance.invoke(item)
+                        },
+                        onClickSyncError = {
+                            onClickSyncError.invoke(item)
+                        },
+                        onDisable = {
+                            onDisable.invoke(item)
+                        }
+                    )
+                }
             }
         }
     }
     uiState.openSend?.let { openSend ->
         navController.slideFromRight(
             R.id.sendTokenSelectFragment,
-            SendTokenSelectFragment.prepareParams(
+            SendTokenSelectFragment.Input(
                 openSend.blockchainTypes,
                 openSend.tokenTypes,
                 openSend.address,
@@ -434,6 +481,40 @@ fun BalanceItems(
             )
         )
         viewModel.onSendOpened()
+    }
+}
+
+@Composable
+private fun NoCoinsBlock() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        VSpacer(height = 100.dp)
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .background(
+                    color = ComposeAppTheme.colors.raina,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.size(48.dp),
+                painter = painterResource(R.drawable.ic_empty_wallet),
+                contentDescription = null,
+                tint = ComposeAppTheme.colors.grey
+            )
+        }
+        VSpacer(32.dp)
+        subhead2_grey(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.Balance_NoCoinsAlert),
+            textAlign = TextAlign.Center,
+            overflow = TextOverflow.Ellipsis,
+        )
+        VSpacer(height = 32.dp)
     }
 }
 

@@ -22,9 +22,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.Account
@@ -42,7 +42,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.extensions.BaseComposableBottomSheetFragment
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.parcelable
 
 class BackupRecoveryPhraseDialog : BaseComposableBottomSheetFragment() {
 
@@ -56,16 +55,10 @@ class BackupRecoveryPhraseDialog : BaseComposableBottomSheetFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
-                val account = requireArguments().parcelable<Account>(accountKey)!!
-                BackupRecoveryPhraseScreen(findNavController(), account)
+                val navController = findNavController()
+                BackupRecoveryPhraseScreen(navController, navController.requireInput())
             }
         }
-    }
-
-    companion object {
-        private const val accountKey = "accountKey"
-
-        fun prepareParams(account: Account) = bundleOf(accountKey to account)
     }
 }
 
@@ -95,10 +88,7 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
                 icon = R.drawable.ic_edit_24,
                 iconTint = ComposeAppTheme.colors.dark,
                 onClick = {
-                    navController.slideFromBottom(
-                        R.id.backupKeyFragment,
-                        BackupKeyModule.prepareParams(account)
-                    )
+                    navController.slideFromBottom(R.id.backupKeyFragment, account)
                 }
             )
             VSpacer(12.dp)
@@ -110,10 +100,7 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
                 icon = R.drawable.ic_file_24,
                 iconTint = ComposeAppTheme.colors.claude,
                 onClick = {
-                    navController.slideFromBottom(
-                        R.id.backupLocalFragment,
-                        BackupLocalFragment.prepareParams(account.id)
-                    )
+                    navController.slideFromBottom(R.id.backupLocalFragment, account)
                 }
             )
             VSpacer(12.dp)

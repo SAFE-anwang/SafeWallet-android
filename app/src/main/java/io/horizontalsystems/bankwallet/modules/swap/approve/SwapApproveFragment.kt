@@ -20,12 +20,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
-import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.setNavigationResultX
+import io.horizontalsystems.bankwallet.core.slideFromRightForResult
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.backNavGraphIdKey
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.dataKey
+import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -35,15 +36,13 @@ import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
-import io.horizontalsystems.core.parcelable
 
 class SwapApproveFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        val approveData = requireArguments().parcelable<SwapMainModule.ApproveData>(dataKey)!!
-        val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
-        SwapApproveScreen(navController, approveData, backNavGraphId)
+        val approveData = navController.requireInput<SwapMainModule.ApproveData>()
+        SwapApproveScreen(navController, approveData)
     }
 
 }
@@ -51,8 +50,7 @@ class SwapApproveFragment : BaseComposeFragment() {
 @Composable
 fun SwapApproveScreen(
     navController: NavController,
-    approveData: SwapMainModule.ApproveData,
-    backNavGraphId: Int
+    approveData: SwapMainModule.ApproveData
 ) {
     val swapApproveViewModel =
         viewModel<SwapApproveViewModel>(factory = SwapApproveModule.Factory(approveData))
@@ -105,25 +103,26 @@ fun SwapApproveScreen(
             }
         )
 
-            Spacer(modifier = Modifier.weight(1f))
-            ButtonsGroupWithShade {
-                ButtonPrimaryYellow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                    title = stringResource(R.string.Swap_Proceed),
-                    onClick = {
-                        swapApproveViewModel.getSendEvmData()?.let { sendEvmData ->
-                            navController.slideFromRight(
-                                R.id.swapApproveConfirmationFragment,
-                                SwapApproveConfirmationModule.prepareParams(sendEvmData, swapApproveViewModel.dex.blockchainType,
-                                backNavGraphId = backNavGraphId)
-                            )
+        Spacer(modifier = Modifier.weight(1f))
+        ButtonsGroupWithShade {
+            ButtonPrimaryYellow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp),
+                title = stringResource(R.string.Swap_Proceed),
+                onClick = {
+                    swapApproveViewModel.getSendEvmData()?.let { sendEvmData ->
+                        navController.slideFromRightForResult<SwapApproveConfirmationFragment.Result>(
+                            R.id.swapApproveConfirmationFragment,
+                            SwapApproveConfirmationModule.Input(sendEvmData, swapApproveViewModel.blockchainType)
+                        ) {
+                            navController.setNavigationResultX(it)
+                            navController.popBackStack()
                         }
-                    },
-                    enabled = approveAllowed
-                )
-            }
+                    }
+                },
+                enabled = approveAllowed
+            )
         }
     }
-
+}

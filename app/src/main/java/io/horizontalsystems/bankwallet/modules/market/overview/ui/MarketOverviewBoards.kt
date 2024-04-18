@@ -11,12 +11,18 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.market.MarketModule
 import io.horizontalsystems.bankwallet.modules.market.MarketViewItem
 import io.horizontalsystems.bankwallet.modules.market.TopMarket
@@ -35,6 +41,15 @@ fun BoardsView(
     onClickSeeAll: (MarketModule.ListType) -> Unit,
     onSelectTopMarket: (TopMarket, MarketModule.ListType) -> Unit
 ) {
+    val onItemClick: (MarketViewItem) -> Unit = remember {
+        {
+            navController.slideFromRight(
+                R.id.coinFragment,
+                CoinFragment.Input(it.coinUid, "market_overview")
+            )
+        }
+    }
+
     boards.forEach { boardItem ->
         TopBoardHeader(
             title = boardItem.boardHeader.title,
@@ -52,7 +67,7 @@ fun BoardsView(
                 .background(ComposeAppTheme.colors.lawrence)
         ){
             boardItem.marketViewItems.forEach { coin ->
-                MarketCoinWithBackground(coin, navController)
+                MarketCoinWithBackground(coin) { onItemClick.invoke(coin) }
             }
 
             SeeAllButton { onClickSeeAll(boardItem.type) }
@@ -88,7 +103,7 @@ fun <T : WithTranslatableTitle> TopBoardHeader(
 @Composable
 private fun MarketCoinWithBackground(
     marketViewItem: MarketViewItem,
-    navController: NavController
+    onClick: () -> Unit
 ) {
     MarketCoinClear(
         marketViewItem.coinName,
@@ -97,8 +112,9 @@ private fun MarketCoinWithBackground(
         marketViewItem.iconPlaceHolder,
         marketViewItem.coinRate,
         marketViewItem.marketDataValue,
-        marketViewItem.rank
-    ) {
-        onItemClick(marketViewItem, navController)
-    }
+        marketViewItem.rank,
+        false,
+        false,
+        onClick
+    )
 }

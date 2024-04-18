@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.core.adapters
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
+import io.horizontalsystems.bankwallet.core.UsedAddress
 import io.horizontalsystems.bankwallet.core.purpose
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -11,6 +12,7 @@ import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.models.BalanceInfo
 import io.horizontalsystems.bitcoincore.models.BlockInfo
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
+import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.bitcoinkit.BitcoinKit
 import io.horizontalsystems.bitcoinkit.BitcoinKit.NetworkType
 import io.horizontalsystems.core.BackgroundManager
@@ -88,8 +90,13 @@ class BitcoinAdapter(
         // ignored for now
     }
 
+    override val unspentOutputs: List<UnspentOutputInfo>
+        get() = kit.unspentOutputs
+
     override val blockchainType = BlockchainType.Bitcoin
 
+    override fun usedAddresses(change: Boolean): List<UsedAddress> =
+        kit.usedAddresses(change).map { UsedAddress(it.index, it.address, "https://blockchair.com/bitcoin/address/${it.address}") }
 
     companion object {
         private const val confirmationsThreshold = 3
@@ -105,7 +112,6 @@ class BitcoinAdapter(
                 is AccountType.HdExtendedKey -> {
                     return BitcoinKit(
                         context = App.instance,
-//                        connectionManager = App.bitCoinConnectionManager,
                         extendedKey = accountType.hdExtendedKey,
                         purpose = derivation.purpose,
                         walletId = account.id,
@@ -117,7 +123,6 @@ class BitcoinAdapter(
                 is AccountType.Mnemonic -> {
                     return BitcoinKit(
                         context = App.instance,
-//                        connectionManager = App.bitCoinConnectionManager,
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,

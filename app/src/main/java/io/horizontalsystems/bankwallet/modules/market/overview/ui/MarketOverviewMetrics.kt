@@ -23,7 +23,6 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.market.metricspage.MetricsPageFragment
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
 import io.horizontalsystems.bankwallet.modules.metricchart.MetricsType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -114,9 +113,6 @@ private fun openMetricsPage(metricsType: MetricsType, navController: NavControll
     if (metricsType == MetricsType.TvlInDefi) {
         navController.slideFromBottom(R.id.tvlFragment)
     } else {
-        navController.slideFromBottom(
-            R.id.metricsPageFragment,
-            MetricsPageFragment.prepareParams(metricsType)
-        )
+        navController.slideFromBottom(R.id.metricsPageFragment, metricsType)
     }
 }

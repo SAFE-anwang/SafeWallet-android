@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.swap.approve
 
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
@@ -42,17 +41,15 @@ object SwapApproveModule {
                     val coinService by lazy {
                         EvmCoinService(approveData.token, App.currencyManager, App.marketKit)
                     }
-                    SwapApproveViewModel(approveData.dex, swapApproveService, coinService) as T
+                    SwapApproveViewModel(
+                        approveData.blockchainType,
+                        swapApproveService,
+                        coinService
+                    ) as T
                 }
 
                 else -> throw IllegalArgumentException()
             }
         }
     }
-
-    fun prepareParams(approveData: SwapMainModule.ApproveData, backNavGraphId: Int = R.id.swapFragment) =
-        bundleOf(dataKey to approveData,
-            backNavGraphIdKey to backNavGraphId,
-        )
-
 }

@@ -17,7 +17,9 @@ class OneInchKitHelper(
     evmKit: EthereumKit,
     apiKey: String
 ) {
-    private val oneInchKit = OneInchKit.getInstance(evmKit, apiKey)
+    private val oneInchKit = OneInchKit.getInstance(apiKey)
+    private val chain = evmKit.chain
+    private val receiveAddress = evmKit.receiveAddress
 
     // TODO take evmCoinAddress from oneInchKit
     private val evmCoinAddress = Address("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
@@ -29,7 +31,7 @@ class OneInchKitHelper(
     }
 
     val smartContractAddress: Address
-        get() = oneInchKit.routerAddress
+        get() = OneInchKit.routerAddress(chain)
 
     fun getQuoteAsync(
         fromToken: Token,
@@ -39,6 +41,7 @@ class OneInchKitHelper(
         val e: Exception
         try {
             return oneInchKit.getQuoteAsync(
+                chain = chain,
                 fromToken = getTokenAddress(fromToken),
                 toToken = getTokenAddress(toToken),
                 amount = fromAmount.scaleUp(fromToken.decimals)
@@ -60,6 +63,8 @@ class OneInchKitHelper(
         gasPrice: GasPrice? = null
     ): Single<Swap> {
         return oneInchKit.getSwapAsync(
+            receiveAddress = receiveAddress,
+            chain = chain,
             fromToken = getTokenAddress(fromToken),
             toToken = getTokenAddress(toToken),
             amount = fromAmount.scaleUp(fromToken.decimals),

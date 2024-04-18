@@ -25,7 +25,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.receive.address.ReceiveAddressModule
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandler
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendInteractor
@@ -197,7 +197,7 @@ class SafeSendActivity : BaseActivity() {
                 is SendModule.Input.Address -> {
                     //add address view
                     mainPresenter.addressModuleDelegate?.let {
-                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveAddressModule.NoReceiverAdapter()
+                        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wallet) ?: throw ReceiveModule.NoReceiverAdapter()
                         val sendAddressFragment =
                             InputAddressFragment(receiveAdapter.receiveAddress, wallet.token, it, mainPresenter.handler)
                         fragments.add(sendAddressFragment)

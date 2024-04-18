@@ -16,7 +16,7 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCRequestChain
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCChainData
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
@@ -79,7 +79,7 @@ data class SendEvmData(
     @Parcelize
     data class WalletConnectInfo(
         val dAppName: String?,
-        val chain: WCRequestChain?
+        val chain: WCChainData?
     ) : Parcelable
 
     @Parcelize
@@ -119,15 +119,6 @@ data class SendEvmData(
 }
 
 object SendEvmModule {
-
-    const val transactionDataKey = "transactionData"
-    const val additionalInfoKey = "additionalInfo"
-    const val blockchainTypeKey = "blockchainType"
-    const val backButtonKey = "backButton"
-    const val sendNavGraphIdKey = "sendNavGraphId_key"
-    const val sendEntryPointDestIdKey = "sendEntryPointDestIdKey"
-    const val transactionToken = "transactionToken"
-    const val backNavGraphIdKey = "backNavGraphId"
 
     @Parcelize
     data class TransactionDataParcelable(
