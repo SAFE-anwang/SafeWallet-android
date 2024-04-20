@@ -243,7 +243,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             marketStorage = this
         }
 
-        val appConfig = AppConfigProvider(Random().nextInt(3), localStorage)
+        val appConfig = AppConfigProvider(Random().nextInt(2), localStorage)
         appConfigProvider = appConfig
 
         torKitManager = TorManager(instance, localStorage)

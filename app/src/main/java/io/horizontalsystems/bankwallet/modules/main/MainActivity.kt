@@ -33,8 +33,6 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.WC2RequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2MainViewModel
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
 
@@ -43,7 +41,6 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 
 class MainActivity : BaseActivity() {
 
