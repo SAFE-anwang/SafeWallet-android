@@ -123,7 +123,7 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             bundle.putBoolean(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
             bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
-            navController.slideFromBottom(
+            navController.navigate(
                 R.id.sendWsafeFragment,
                 bundle
             )
