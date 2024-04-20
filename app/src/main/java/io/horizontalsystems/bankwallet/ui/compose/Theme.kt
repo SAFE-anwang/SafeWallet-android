@@ -139,5 +139,6 @@ fun ProvideLocalAssets(
 }
 
 val LocalColors = compositionLocalOf<Colors> {
-    error("No Colors provided")
+//    error("No Colors provided")
+    lightPalette
 }

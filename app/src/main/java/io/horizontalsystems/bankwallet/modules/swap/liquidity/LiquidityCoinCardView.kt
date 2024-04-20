@@ -52,6 +52,7 @@ import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
 import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinFragment
@@ -101,7 +102,7 @@ fun SwapCoinCardView(
                 .clickable(interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false, radius = 40.dp),
                     onClick = {
-                        navController.getNavigationResult(SelectSwapCoinFragment.resultBundleKey) { bundle ->
+                        /*navController.getNavigationResult(SelectSwapCoinFragment.resultBundleKey) { bundle ->
                             val requestId = bundle.getLong(SelectSwapCoinFragment.requestIdKey)
                             val coinBalanceItem = bundle.getParcelable<CoinBalanceItem>(
                                 SelectSwapCoinFragment.coinBalanceItemResultKey
@@ -112,7 +113,14 @@ fun SwapCoinCardView(
                         }
 
                         val params = SelectSwapCoinFragment.prepareParams(cardState.uuid, dex)
-                        navController.slideFromBottom(R.id.selectSwapCoinDialog, params)
+                        navController.slideFromBottom(R.id.selectSwapCoinDialog, params)*/
+
+                        navController.slideFromBottomForResult<CoinBalanceItem>(
+                                R.id.selectSwapCoinDialog,
+                                dex
+                        ) {
+                            onCoinSelect.invoke(it.token)
+                        }
                     }),
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendFragme
 import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
+import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 object Safe4Module {
@@ -122,10 +123,10 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             bundle.putBoolean(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
-            bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
-            navController.navigate(
+            bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.ETH)
+            navController.slideFromBottom(
                 R.id.sendWsafeFragment,
-                bundle
+                SendEvmModule.Input(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.ETH)
             )
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
@@ -151,7 +152,7 @@ object Safe4Module {
         if (state is AdapterState.Synced){
             val bundle = Bundle()
             bundle.putParcelable(LineLockSendActivity.WALLET, safeWallet)
-            navController.slideFromBottom(
+            navController.navigate(
                 R.id.sendSafeLockFragment,
                 bundle
             )

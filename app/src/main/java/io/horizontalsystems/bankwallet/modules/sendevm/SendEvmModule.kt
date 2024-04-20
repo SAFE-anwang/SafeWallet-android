@@ -156,4 +156,11 @@ object SendEvmModule {
         }
     }
 
+    @Parcelize
+    data class Input(
+            val safeWallet: Wallet,
+            val wSafeWallet: Wallet,
+            val isEth: Boolean,
+            val isMatic: Boolean
+    ) : Parcelable
 }

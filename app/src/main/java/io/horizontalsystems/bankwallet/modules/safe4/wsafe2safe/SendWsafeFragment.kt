@@ -41,10 +41,11 @@ import io.horizontalsystems.marketkit.models.FullCoin
 
 class SendWsafeFragment : BaseFragment() {
 
-    private val wsafeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_WSAFE)!! }
-    private val safeWallet by lazy { requireArguments().getParcelable<Wallet>(SafeConvertSendActivity.WALLET_SAFE)!! }
-    private val isETH by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_ETH)!! }
-    private val isMatic by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_MATIC)!! }
+    private val input by lazy { findNavController().getInput<SendEvmModule.Input>() }
+    private val wsafeWallet by lazy { input!!.wSafeWallet }
+    private val safeWallet by lazy { input!!.safeWallet }
+    private val isETH by lazy { input!!.isEth }
+    private val isMatic by lazy { input!!.isMatic }
 
     private val vmFactory by lazy { SendEvmModule.WsafeFactory(wsafeWallet) }
     private val viewModel by navGraphViewModels<SendWsafeViewModel>(R.id.sendWsafeFragment) { vmFactory }
@@ -118,7 +119,7 @@ class SendWsafeFragment : BaseFragment() {
         })
 
         viewModel.proceedLiveEvent.observe(viewLifecycleOwner, { sendData ->
-            findNavController().slideFromRight(
+            findNavController().navigate(
                 R.id.sendEvmFragment_to_sendWsafeConfirmationFragment,
                 SendEvmConfirmationModule.prepareParams(sendData)
             )
