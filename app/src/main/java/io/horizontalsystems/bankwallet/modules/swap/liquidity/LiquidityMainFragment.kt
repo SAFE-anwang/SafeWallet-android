@@ -383,7 +383,7 @@ fun SwapCards(
                             viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
                                 navController.slideFromRight(
                                     R.id.liquidityConfirmationFragment,
-                                    LiquidityConfirmationFragment.prepareParams(
+                                    LiquidityConfirmationFragment.Input(
                                         swapState.dex,
                                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                                         sendEvmData.additionalInfo,
