@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,16 +28,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsFragment
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
+import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
+import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -50,13 +56,15 @@ import io.horizontalsystems.marketkit.models.Blockchain
 import kotlinx.coroutines.delay
 import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.parcelize.Parcelize
 
 class RestoreBlockchainsFragment : BaseFragment() {
 
     val vmFactory by lazy {
+        val input = findNavController().getInput<Input>()
         RestoreBlockchainsModule.Factory(
-            arguments?.getString(ACCOUNT_NAME_KEY)!!,
-            arguments?.getParcelable(ACCOUNT_TYPE_KEY)!!,
+            input!!.accountName!!,
+            input.accountType!!,
             false,
             false
         )
@@ -78,7 +86,8 @@ class RestoreBlockchainsFragment : BaseFragment() {
             )
             setContent {
                 ComposeAppTheme {
-                    val popUpToInclusiveId = arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, -1) ?: -1
+                    val input = findNavController().getInput<Input>()
+                    val popUpToInclusiveId = input?.popUpToInclusiveId ?: -1
                     ManageWalletsScreen(
                         findNavController(),
                         viewModel,
@@ -92,7 +101,8 @@ class RestoreBlockchainsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         observe()
-        purpose = arguments?.getInt(PURPOSE_TYPE_KEY)
+        val input = findNavController().getInput<Input>()
+        purpose = input?.purposeType
         purpose?.let {
             val viewItems = viewModel.viewItemsLiveData.value
             viewItems?.find {
@@ -104,55 +114,18 @@ class RestoreBlockchainsFragment : BaseFragment() {
         }
     }
 
-    private fun isContainerManagerFragment(): Boolean {
-        try {
-            val back: NavBackStackEntry = findNavController().getBackStackEntry(R.id.manageAccountsFragment)
-            return true
-        } catch (ex: IllegalArgumentException){
-        }
-        return false
-    }
-
     private fun observe() {
         viewModel.successLiveEvent.observe(viewLifecycleOwner) {
-            val popUpToInclusiveId =
-                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.restoreAccountFragment) ?: R.id.restoreAccountFragment
+            val input = findNavController().getInput<Input>()
+            val popUpToInclusiveId = input?.popUpToInclusiveId ?: R.id.restoreAccountFragment
 
-            val inclusive =
-                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: false
+            val inclusive = input?.popOffInclusiveKey ?: false
             findNavController().popBackStack(
                 popUpToInclusiveId,
                 inclusive
             )
 
-            /*if (isContainerManagerFragment()) {
-                findNavController().popBackStack(
-                    R.id.manageAccountsFragment,
-                    false
-                )
-            } else {
-                findNavController().popBackStack(
-                    R.id.mainFragment,
-                    false
-                )
-            }*/
         }
-
-        /*coinSettingsViewModel.openBottomSelectorLiveEvent.observe(viewLifecycleOwner) { config ->
-            showBottomSelectorDialog(
-                config,
-                onSelect = { indexes -> coinSettingsViewModel.onSelect(indexes) },
-                onCancel = { coinSettingsViewModel.onCancelSelect() }
-            )
-        }
-
-        coinTokensViewModel.openSelectorEvent.observe(viewLifecycleOwner) { config ->
-            showBottomSelectorDialog(
-                config,
-                onSelect = { indexes -> coinTokensViewModel.onSelect(indexes) },
-                onCancel = { coinTokensViewModel.onCancelSelect() }
-            )
-        }*/
     }
 
     private fun showBottomSelectorDialog(
@@ -180,14 +153,25 @@ class RestoreBlockchainsFragment : BaseFragment() {
         const val ACCOUNT_TYPE_KEY = "account_type_key"
         const val PURPOSE_TYPE_KEY = "purpose_type_key"
     }
+
+    @Parcelize
+    data class Input(
+            val accountName: String?,
+            val accountType: AccountType?,
+            val purposeType: Int = 0,
+            val popUpToInclusiveId: Int = 0,
+            val popOffInclusiveKey: Boolean = false,
+            val walletType: WalletType? = null
+    ) : Parcelable
+
 }
 
 @Composable
 private fun ManageWalletsScreen(
-    navController: NavController,
-    viewModel: RestoreBlockchainsViewModel,
-    restoreSettingsViewModel: RestoreSettingsViewModel,
-    popUpToInclusiveId: Int
+        navController: NavController,
+        viewModel: RestoreBlockchainsViewModel,
+        restoreSettingsViewModel: RestoreSettingsViewModel,
+        popUpToInclusiveId: Int
 ) {
     val view = LocalView.current
 

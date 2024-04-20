@@ -13,22 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.IconButton
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicHdBinding
@@ -36,6 +28,7 @@ import io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMn
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletViewModel
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.WalletInfo
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_NAME_KEY
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.ACCOUNT_TYPE_KEY
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment.Companion.PURPOSE_TYPE_KEY
@@ -98,7 +91,8 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // IM Token的钱包，不需要输入密码
-        val walletType = arguments?.getParcelable("walletType") as? WalletType
+        val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
+        val walletType = input?.walletType
         binding.toolbarCompose.setViewCompositionStrategy(
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
@@ -179,7 +173,7 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             updateWalletPath(it)
         }
 
-        getNavigationResult("walletName") {
+        findNavController().getNavigationResult("walletName") {
             val name = it.getString("name")
             selectWalletName = name
         }
@@ -190,10 +184,15 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
             hideKeyboard()
             findNavController().slideFromRight(
                 R.id.restoreSelectCoinsFragment,
-                bundleOf(
+                    RestoreBlockchainsFragment.Input(
+                            viewModel.defaultName,
+                            accountType,
+                            purposeType = purpose.value
+                    )
+                /*bundleOf(
                     ACCOUNT_NAME_KEY to viewModel.defaultName,
                     ACCOUNT_TYPE_KEY to accountType,
-                    PURPOSE_TYPE_KEY to purpose.value)
+                    PURPOSE_TYPE_KEY to purpose.value)*/
             )
         })
 

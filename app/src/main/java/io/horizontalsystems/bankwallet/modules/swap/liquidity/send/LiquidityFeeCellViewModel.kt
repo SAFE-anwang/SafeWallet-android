@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity.send
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -10,6 +11,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.Transaction
 import io.horizontalsystems.bankwallet.modules.fee.FeeItem
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
 
 class LiquidityFeeCellViewModel(
     val feeService: IEvmFeeService,
@@ -23,10 +25,11 @@ class LiquidityFeeCellViewModel(
     val viewStateLiveData = MutableLiveData<ViewState>()
 
     init {
-        syncTransactionStatus(feeService.transactionStatus)
-        feeService.transactionStatusObservable
-            .subscribe { syncTransactionStatus(it) }
-            .let { disposable.add(it) }
+        viewModelScope.launch {
+            feeService.transactionStatusFlow.collect {
+                syncTransactionStatus(it)
+            }
+        }
     }
 
     override fun onCleared() {

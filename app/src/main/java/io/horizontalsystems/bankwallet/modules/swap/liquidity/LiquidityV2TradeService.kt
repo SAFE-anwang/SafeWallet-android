@@ -6,6 +6,8 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModul
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ExactType
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.SwapData.UniswapData
 import io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.SwapTradeOptions
+import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.models.RpcSource
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
@@ -24,7 +26,9 @@ import kotlinx.coroutines.flow.update
 import java.math.BigDecimal
 
 class LiquidityV2TradeService(
-    private val pancakeKit: PancakeSwapKit
+    private val pancakeKit: PancakeSwapKit,
+    private val evmKit: EthereumKit,
+    private val rpcSourceHttp: RpcSource.Http
 ) : ILiquidityTradeService {
 
     private var swapDataDisposable: Disposable? = null
@@ -93,7 +97,7 @@ class LiquidityV2TradeService(
 
     @Throws
     override fun transactionData(tradeData: UniversalSwapTradeData): TransactionData {
-        return pancakeKit.transactionLiquidityData(tradeData.getTradeDataV2())
+        return pancakeKit.transactionLiquidityData(evmKit.receiveAddress, evmKit.chain, tradeData.getTradeDataV2())
     }
 
     private fun clearDisposables() {
@@ -132,7 +136,7 @@ class LiquidityV2TradeService(
             val uniswapTokenIn = uniswapToken(tokenIn)
             val uniswapTokenOut = uniswapToken(tokenOut)
 
-            pancakeKit.swapData(uniswapTokenIn, uniswapTokenOut)
+            pancakeKit.swapData(rpcSourceHttp, evmKit.chain, uniswapTokenIn, uniswapTokenOut)
         } catch (error: Throwable) {
             Single.error(error)
         }
@@ -157,7 +161,7 @@ class LiquidityV2TradeService(
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
-            BlockchainType.ArbitrumOne -> pancakeKit.etherToken()
+            BlockchainType.ArbitrumOne -> pancakeKit.etherToken(evmKit.chain)
             else -> throw Exception("Invalid coin for swap: $token")
         }
         is TokenType.Eip20 -> pancakeKit.token(
@@ -168,7 +172,7 @@ class LiquidityV2TradeService(
     }
 
     private val TokenType.isWeth: Boolean
-        get() = this is TokenType.Eip20 && address.equals(pancakeKit.etherToken().address.hex, true)
+        get() = this is TokenType.Eip20 && address.equals(pancakeKit.etherToken(evmKit.chain).address.hex, true)
     private val Token.isWeth: Boolean
         get() = type.isWeth
     private val Token.isNative: Boolean

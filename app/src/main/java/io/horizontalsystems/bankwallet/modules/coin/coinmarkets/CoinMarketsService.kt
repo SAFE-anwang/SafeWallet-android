@@ -4,7 +4,6 @@ import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
-import io.horizontalsystems.bankwallet.modules.coin.coinmarkets.CoinMarketsModule.VolumeMenuType
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.MarketTicker
@@ -22,26 +21,18 @@ class CoinMarketsService(
     private var marketTickers = listOf<MarketTicker>()
     private val price = marketKit.coinPrice(fullCoin.coin.uid, currencyManager.baseCurrency.code)?.value ?: BigDecimal.ZERO
 
-    private val volumeOptions = listOf(
-        VolumeMenuType.Coin(fullCoin.coin.code),
-        VolumeMenuType.Currency(currency.code)
-    )
+    private var verifiedType: VerifiedType = VerifiedType.All
 
-    private var volumeType: VolumeMenuType = volumeOptions[0]
-
-    val volumeMenu = Select(volumeType, volumeOptions)
-
+    val verifiedMenu = Select(verifiedType, VerifiedType.values().toList())
     val stateObservable: BehaviorSubject<DataState<List<MarketTickerItem>>> = BehaviorSubject.create()
 
     val currency get() = currencyManager.baseCurrency
 
-    var sortType = SortType.HighestVolume
-        private set
 
     fun start() {
         marketKit.marketTickersSingle(fullCoin.coin.uid)
-            .subscribeIO({
-                marketTickers = it
+            .subscribeIO({ marketTickers ->
+                this.marketTickers = marketTickers.sortedByDescending { it.volume }
                 emitItems()
             }, {
                 stateObservable.onNext(DataState.Error(it))
@@ -54,43 +45,30 @@ class CoinMarketsService(
         disposables.clear()
     }
 
-    fun setSortType(sortType: SortType) {
-        this.sortType = sortType
-
-        emitItems()
-    }
-
-    fun setVolumeType(volumeType: VolumeMenuType) {
-        this.volumeType = volumeType
+    fun setVerifiedType(verifiedType: VerifiedType) {
+        this.verifiedType = verifiedType
 
         emitItems()
     }
 
     @Synchronized
     private fun emitItems() {
-        val sorted = when (sortType) {
-            SortType.HighestVolume -> marketTickers.sortedByDescending { it.volume }
-            SortType.LowestVolume -> marketTickers.sortedBy { it.volume }
+        val filtered = when (verifiedType) {
+            VerifiedType.Verified -> marketTickers.filter { it.verified }
+            VerifiedType.All -> marketTickers
         }
 
-        stateObservable.onNext(DataState.Success(sorted.map { createItem(it) }))
+        stateObservable.onNext(DataState.Success(filtered.map { createItem(it) }))
     }
 
-    private fun createItem(marketTicker: MarketTicker): MarketTickerItem {
-        val volume = when (volumeType) {
-            is VolumeMenuType.Coin -> marketTicker.volume
-            is VolumeMenuType.Currency -> marketTicker.volume.multiply(price)
-        }
-
-        return MarketTickerItem(
-            marketTicker.marketName,
-            marketTicker.marketImageUrl,
-            marketTicker.base,
-            marketTicker.target,
-            marketTicker.rate,
-            volume,
-            volumeType,
-            marketTicker.tradeUrl
-        )
-    }
+    private fun createItem(marketTicker: MarketTicker): MarketTickerItem = MarketTickerItem(
+        market = marketTicker.marketName,
+        marketImageUrl = marketTicker.marketImageUrl,
+        baseCoinCode = marketTicker.base,
+        targetCoinCode = marketTicker.target,
+        volumeFiat = marketTicker.volume.multiply(price),
+        volumeToken = marketTicker.volume,
+        tradeUrl = marketTicker.tradeUrl,
+        verified = marketTicker.verified
+    )
 }

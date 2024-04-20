@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.managewallets
 
+import android.os.Bundle
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,11 +25,11 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.modules.configuredtoken.ConfiguredTokenInfoDialog
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
-import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -37,27 +38,25 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.getNavigationResult
-import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.marketkit.models.Token
 
 class ManageWalletsFragment : BaseComposeFragment() {
 
-    private val vmFactory by lazy { ManageWalletsModule.Factory(
-        arguments?.getParcelable(RestoreBlockchainsFragment.ACCOUNT_TYPE_KEY)
+    private val vmFactory by lazy {
+        val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
+        ManageWalletsModule.Factory(
+                input?.accountType
     ) }
     private val viewModel by viewModels<ManageWalletsViewModel> { vmFactory }
     private val restoreSettingsViewModel by viewModels<RestoreSettingsViewModel> { vmFactory }
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            ManageWalletsScreen(
-                findNavController(),
-                viewModel,
-                restoreSettingsViewModel
-            )
-        }
+    override fun GetContent(navController: NavController) {
+        ManageWalletsScreen(
+            navController,
+            viewModel,
+            restoreSettingsViewModel
+        )
     }
 
 }
@@ -75,20 +74,13 @@ private fun ManageWalletsScreen(
     if (restoreSettingsViewModel.openZcashConfigure != null) {
         restoreSettingsViewModel.zcashConfigureOpened()
 
-        navController.getNavigationResult(ZcashConfigure.resultBundleKey) { bundle ->
-            val requestResult = bundle.getInt(ZcashConfigure.requestResultKey)
-
-            if (requestResult == ZcashConfigure.RESULT_OK) {
-                val zcashConfig = bundle.parcelable<ZCashConfig>(ZcashConfigure.zcashConfigKey)
-                zcashConfig?.let { config ->
-                    restoreSettingsViewModel.onEnter(config)
-                }
+        navController.slideFromBottomForResult<ZcashConfigure.Result>(R.id.zcashConfigure) {
+            if (it.config != null) {
+                restoreSettingsViewModel.onEnter(it.config)
             } else {
                 restoreSettingsViewModel.onCancelEnterBirthdayHeight()
             }
         }
-
-        navController.slideFromBottom(R.id.zcashConfigure)
     }
 
     Column(
@@ -181,7 +173,7 @@ private fun ManageWalletsScreen(
                                 }
                             },
                             onInfoClick = {
-                                navController.slideFromBottom(R.id.configuredTokenInfo, ConfiguredTokenInfoDialog.prepareParams(viewItem.item))
+                                navController.slideFromBottom(R.id.configuredTokenInfo, viewItem.item)
                             }
                         )
                     }

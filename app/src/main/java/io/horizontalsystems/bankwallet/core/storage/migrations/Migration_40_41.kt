@@ -46,7 +46,7 @@ object Migration_40_41 : Migration(40, 41) {
                     }
                     val btcRestoreMode = when (value) {
                         "Slow" -> BtcRestoreMode.Blockchain
-                        else -> BtcRestoreMode.Api
+                        else -> BtcRestoreMode.Hybrid
                     }
                     btcBlockchain?.let { blockchain ->
                         database.execSQL(

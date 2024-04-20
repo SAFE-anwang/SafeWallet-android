@@ -39,6 +39,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
@@ -49,6 +50,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.Liquidit
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
+import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
@@ -318,35 +320,32 @@ fun SwapCards(
                     viewModel.revokeEvmData?.let { revokeEvmData ->
                         navController.slideFromBottom(
                             R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false, R.id.liquidityFragment)
+                            SwapApproveConfirmationModule.Input(revokeEvmData, swapState.dex.blockchainType, false)
                         )
                     }
                 },
                 onTapApprove1 = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
-                    }
-
                     viewModel.approveData?.let { data ->
-                        navController.slideFromBottom(
-                            R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data,  R.id.liquidityFragment)
-                        )
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
+                                R.id.swapApproveFragment,
+                                data
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapRevoke2 = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
-                    }
                     viewModel.revokeEvmDataB?.let { revokeEvmData ->
-                        navController.slideFromBottom(
-                            R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false, R.id.liquidityFragment)
-                        )
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
+                                R.id.swapApproveConfirmationFragment,
+                                SwapApproveConfirmationModule.Input(revokeEvmData, swapState.dex.blockchainType, false)
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapApprove2 = {
@@ -357,10 +356,14 @@ fun SwapCards(
                     }
 
                     viewModel.approveDataB?.let { data ->
-                        navController.slideFromBottom(
-                            R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data, R.id.liquidityFragment)
-                        )
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
+                                R.id.swapApproveFragment,
+                                data
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapProceed = {
@@ -396,11 +399,19 @@ fun SwapCards(
         }
 
         VSpacer(32.dp)
-        if (hasNonZeroBalance == true && fromState.inputState.amount.isEmpty() && showSuggestions && keyboardState == Opened) {
-            SuggestionsBar(modifier = Modifier.align(Alignment.BottomCenter)) {
-                focusManager.clearFocus()
-                viewModel.onSetAmountInBalancePercent(it)
-            }
+        if (showSuggestions && keyboardState == Opened) {
+            SuggestionsBar(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    onDelete = {
+                        viewModel.onFromAmountChange(null)
+                    },
+                    onSelect = {
+                        focusManager.clearFocus()
+                        viewModel.onSetAmountInBalancePercent(it)
+                    },
+                    selectEnabled = hasNonZeroBalance ?: false,
+                    deleteEnabled = fromState.inputState.amount.isNotBlank()
+            )
         }
     }
 }
@@ -551,8 +562,8 @@ fun PriceImpact(
             modifier = Modifier.clickable(
                 onClick = {
                     navController.slideFromBottom(
-                        R.id.feeSettingsInfoDialog,
-                        FeeSettingsInfoDialog.prepareParams(infoTitle, infoText)
+                            R.id.feeSettingsInfoDialog,
+                            FeeSettingsInfoDialog.Input(infoTitle, infoText)
                     )
                 },
                 interactionSource = MutableInteractionSource(),

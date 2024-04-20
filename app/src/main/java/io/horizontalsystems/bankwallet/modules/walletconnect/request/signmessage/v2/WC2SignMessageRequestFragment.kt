@@ -11,14 +11,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.WCSignMessageRequestViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.ui.SignMessageRequestScreen
 import io.horizontalsystems.core.findNavController
 
-class WC2SignMessageRequestFragment : BaseFragment() {
+class WC2SignMessageRequestFragment  {
 
-    val vmFactory by lazy {
+    /*val vmFactory by lazy {
         WCSignMessageRequestModule.FactoryWC2(
             App.wc2SessionManager.createRequestData(requireArguments().getLong(REQUEST_ID_KEY))
         )
@@ -60,6 +57,6 @@ class WC2SignMessageRequestFragment : BaseFragment() {
 
         fun prepareParams(requestId: Long) =
             bundleOf(REQUEST_ID_KEY to requestId)
-    }
+    }*/
 
 }

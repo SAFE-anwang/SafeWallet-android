@@ -90,7 +90,7 @@ fun ButtonThirdCircle(
             .clip(CircleShape)
             .background(ComposeAppTheme.colors.steel20),
         enabled = enabled,
-        rippleColor = tint
+        rippleColor = tint,
     ) {
         Icon(
             painter = painterResource(id = icon),

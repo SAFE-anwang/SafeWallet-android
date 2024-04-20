@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.releasenotes
 
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,10 +19,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownContent
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -32,24 +35,20 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
-import io.horizontalsystems.core.findNavController
+import kotlinx.parcelize.Parcelize
 
 class ReleaseNotesFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            ReleaseNotesScreen(
-                closeablePopup = arguments?.getBoolean(showAsClosablePopupKey) ?: false,
-                onCloseClick = { findNavController().popBackStack() },
-            )
-        }
+    override fun GetContent(navController: NavController) {
+        ReleaseNotesScreen(
+            closeablePopup = navController.getInput<Input>()?.showAsClosablePopup ?: false,
+            onCloseClick = { navController.popBackStack() },
+        )
     }
 
-    companion object {
-        const val showAsClosablePopupKey = "showAsClosablePopup"
-    }
-
+    @Parcelize
+    data class Input(val showAsClosablePopup: Boolean) : Parcelable
 }
 
 @Composable

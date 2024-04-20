@@ -44,15 +44,12 @@ import io.horizontalsystems.bankwallet.ui.compose.components.InfoTextBody
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
-import io.horizontalsystems.core.findNavController
 
 class AboutFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            AboutNavHost(findNavController())
-        }
+    override fun GetContent(navController: NavController) {
+        AboutNavHost(navController)
     }
 
 }
@@ -176,12 +173,6 @@ private fun SettingSections(
                 R.string.SettingsAboutApp_Github,
                 R.drawable.ic_github_20,
                 onClick = { LinkHelper.openLinkInAppBrowser(context, viewModel.githubLink) }
-            )
-        }, {
-            HsSettingCell(
-                R.string.SettingsAboutApp_Twitter,
-                R.drawable.ic_twitter_20,
-                onClick = { LinkHelper.openLinkInAppBrowser(context, viewModel.twitterLink) }
             )
         }, {
             HsSettingCell(

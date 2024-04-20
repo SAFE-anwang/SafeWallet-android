@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class SendBitcoinAddressService(private val adapter: ISendBitcoinAdapter, val predefinedAddress: String?) {
+class SendBitcoinAddressService(private val adapter: ISendBitcoinAdapter, filledAddress: String?) {
 
-    private var address: Address? = predefinedAddress?.let { Address(it) }
-    private var validAddress: Address? = predefinedAddress?.let { Address(it) }
+    private var address: Address? = filledAddress?.let { Address(it) }
+    private var validAddress: Address? = filledAddress?.let { Address(it) }
     private var addressError: Throwable? = null
 
     private var pluginData: Map<Byte, IPluginData>? = null

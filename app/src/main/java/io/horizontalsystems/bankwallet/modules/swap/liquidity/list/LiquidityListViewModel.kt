@@ -143,7 +143,8 @@ class LiquidityListViewModel(
         amountCaution = amountValidator.validate(
                 coinAmount = amount,
                 coinCode = "",
-                availableBalance = availableBalance
+                availableBalance = availableBalance,
+                leaveSomeBalanceForFee = false
         )
         inputRemoveAmount = amount
         emitState()
@@ -402,7 +403,7 @@ class LiquidityListViewModel(
                 Log.d("Pool Token TotalSupply = {}", "$poolTokenTotalSupply")
                 Log.d(
                     "BalanceOf {} = {}",
-                    "${evmKitWrapper!!.evmKit.receiveAddress.hex}, ${balanceOfAccount}"
+                    "${evmKitWrapper!!.evmKit.receiveAddress.hex}, ${balanceOfAccount}}"
                 )
 
                 // 计算用户在池子中的流动性占比

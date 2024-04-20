@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.coin
 
+import android.os.Parcelable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,12 +11,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsScreen
 import io.horizontalsystems.bankwallet.modules.coin.coinmarkets.CoinMarketsScreen
@@ -23,30 +24,24 @@ import io.horizontalsystems.bankwallet.modules.coin.overview.ui.CoinOverviewScre
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 class CoinFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        val uid = try {
-            activity?.intent?.data?.getQueryParameter("uid")
-        } catch (e: UnsupportedOperationException) {
-            null
-        }
-
-        val coinUid = requireArguments().getString(COIN_UID_KEY, uid ?: "")
-        if (uid != null) {
-            activity?.intent?.data = null
-        }
+    override fun GetContent(navController: NavController) {
+        val input = navController.getInput<Input>()
+        val coinUid = input?.coinUid ?: ""
+        val apiTag = input?.apiTag ?: ""
 
         CoinScreen(
             coinUid,
+            apiTag,
             coinViewModel(coinUid),
-            findNavController(),
+            navController,
             childFragmentManager
         )
     }
@@ -60,32 +55,29 @@ class CoinFragment : BaseComposeFragment() {
         null
     }
 
-    companion object {
-        private const val COIN_UID_KEY = "coin_uid_key"
-
-        fun prepareParams(coinUid: String) = bundleOf(COIN_UID_KEY to coinUid)
-    }
+    @Parcelize
+    data class Input(val coinUid: String, val apiTag: String) : Parcelable
 }
 
 @Composable
 fun CoinScreen(
     coinUid: String,
+    apiTag: String,
     coinViewModel: CoinViewModel?,
     navController: NavController,
     fragmentManager: FragmentManager
 ) {
-    ComposeAppTheme {
-        if (coinViewModel != null) {
-            CoinTabs(coinViewModel, navController, fragmentManager)
-        } else {
-            CoinNotFound(coinUid, navController)
-        }
+    if (coinViewModel != null) {
+        CoinTabs(apiTag, coinViewModel, navController, fragmentManager)
+    } else {
+        CoinNotFound(coinUid, navController)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CoinTabs(
+    apiTag: String,
     viewModel: CoinViewModel,
     navController: NavController,
     fragmentManager: FragmentManager
@@ -149,15 +141,19 @@ fun CoinTabs(
             when (tabs[page]) {
                 CoinModule.Tab.Overview -> {
                     CoinOverviewScreen(
+                        apiTag = apiTag,
                         fullCoin = viewModel.fullCoin,
                         navController = navController
                     )
                 }
+
                 CoinModule.Tab.Market -> {
                     CoinMarketsScreen(fullCoin = viewModel.fullCoin)
                 }
+
                 CoinModule.Tab.Details -> {
                     CoinAnalyticsScreen(
+                        apiTag = apiTag,
                         fullCoin = viewModel.fullCoin,
                         navController = navController,
                         fragmentManager = fragmentManager

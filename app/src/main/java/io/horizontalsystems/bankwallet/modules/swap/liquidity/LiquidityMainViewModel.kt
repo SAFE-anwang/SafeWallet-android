@@ -23,6 +23,7 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.toHexString
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.GasDataError
+import io.horizontalsystems.bankwallet.modules.multiswap.EvmBlockchainHelper
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.swap.ErrorShareService
@@ -121,7 +122,7 @@ class LiquidityMainViewModel(
     private var tokenToState = toTokenService.state
 
     private val evmKit: EthereumKit by lazy { App.evmBlockchainManager.getEvmKitManager(dex.blockchainType).evmKitWrapper?.evmKit!! }
-    private val uniswapKit by lazy { PancakeSwapKit.getInstance(evmKit) }
+    private val uniswapKit by lazy { PancakeSwapKit.getInstance() }
 //    private val uniswapV3Kit by lazy { UniswapV3Kit.getInstance(evmKit) }
     private var tradeService: LiquidityMainModule.ISwapTradeService = getTradeService(dex.provider)
     private var tradeServiceB: LiquidityMainModule.ISwapTradeService = getTradeService(dex.provider)
@@ -268,14 +269,14 @@ class LiquidityMainViewModel(
     }
 
     private fun getTradeService(provider: SwapMainModule.ISwapProvider): LiquidityMainModule.ISwapTradeService = when (provider) {
-        LiquidityMainModule.PancakeLiquidityProvider -> LiquidityV2TradeService(uniswapKit)
-        else -> LiquidityV2TradeService(uniswapKit)
+        LiquidityMainModule.PancakeLiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        else -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
     }
 
     private fun getSpenderAddress(provider: SwapMainModule.ISwapProvider) = when (provider) {
 //        SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
-        LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress
-        else -> uniswapKit.routerAddress
+        LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
+        else -> uniswapKit.routerAddress(evmKit.chain)
     }
 
     private fun syncUiState() {

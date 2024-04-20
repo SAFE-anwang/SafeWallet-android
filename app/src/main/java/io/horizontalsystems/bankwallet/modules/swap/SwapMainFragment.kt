@@ -6,20 +6,42 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,20 +61,19 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionState
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
+import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.confirmation.BaseSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSettingsFragment
@@ -67,20 +88,37 @@ import io.horizontalsystems.bankwallet.modules.swap.ui.SwapError
 import io.horizontalsystems.bankwallet.modules.swap.ui.SwitchCoinsSection
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard.Opened
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryToggle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.getNavigationResult
-import io.horizontalsystems.core.parcelable
-import io.horizontalsystems.marketkit.models.*
+import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 class SwapMainFragment : BaseFragment() {
 
+    @Parcelize
+    data class Input(
+        val tokenFrom: Token,
+        val swapEntryPointDestId: Int = 0
+    ) : Parcelable
+
     private var isAutoSetProvider1Inch = false
 
-    val factory by lazy { SwapMainModule.Factory(requireArguments()) }
+    val input = findNavController().requireInput<Input>()
+    val swapEntryPointDestId = input.swapEntryPointDestId
+    val factory = SwapMainModule.Factory(input.tokenFrom)
     val mainViewModel: SwapMainViewModel by viewModels { factory }
     val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
 
@@ -93,16 +131,17 @@ class SwapMainFragment : BaseFragment() {
             setViewCompositionStrategy(
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
+            val navController = findNavController()
             try {
-                val arguments = requireArguments()
-                val swapEntryPointDestId = arguments.getInt(BaseSwapConfirmationFragment.swapEntryPointDestIdKey)
-                val factory = SwapMainModule.Factory(arguments)
+                /*val input = navController.requireInput<Input>()
+                val swapEntryPointDestId = input.swapEntryPointDestId
+                val factory = SwapMainModule.Factory(input.tokenFrom)
                 val mainViewModel: SwapMainViewModel by viewModels { factory }
-                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
+                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }*/
                 setContent {
                     ComposeAppTheme {
                         SwapNavHost(
-                            findNavController(),
+                            navController,
                             mainViewModel,
                             allowanceViewModel,
                             swapEntryPointDestId
@@ -112,10 +151,7 @@ class SwapMainFragment : BaseFragment() {
                     }
                 }
             } catch (t: Throwable) {
-                Toast.makeText(
-                    App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
-                ).show()
-                findNavController().popBackStack()
+                navController.popBackStack()
             }
         }
     }
@@ -355,31 +391,27 @@ fun SwapCards(
             ActionButtons(
                 buttons = buttons,
                 onTapRevoke = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
-                    }
-
                     viewModel.revokeEvmData?.let { revokeEvmData ->
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                             R.id.swapApproveConfirmationFragment,
-                            SwapApproveConfirmationModule.prepareParams(revokeEvmData, swapState.dex.blockchainType, false)
-                        )
+                            SwapApproveConfirmationModule.Input(revokeEvmData, swapState.dex.blockchainType, false)
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapApprove = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
-                    }
-
                     viewModel.approveData?.let { data ->
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                             R.id.swapApproveFragment,
-                            SwapApproveModule.prepareParams(data)
-                        )
+                            data
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapProceed = {
@@ -387,7 +419,7 @@ fun SwapCards(
                         is SwapMainModule.SwapData.OneInchData -> {
                             navController.slideFromRight(
                                 R.id.oneInchConfirmationFragment,
-                                OneInchSwapConfirmationFragment.prepareParams(
+                                OneInchSwapConfirmationFragment.Input(
                                     swapState.dex.blockchainType,
                                     swapData.data,
                                     swapEntryPointDestId
@@ -399,7 +431,7 @@ fun SwapCards(
                             viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
                                 navController.slideFromRight(
                                     R.id.uniswapConfirmationFragment,
-                                    UniswapConfirmationFragment.prepareParams(
+                                    UniswapConfirmationFragment.Input(
                                         swapState.dex,
                                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                                         sendEvmData.additionalInfo,
@@ -416,11 +448,19 @@ fun SwapCards(
         }
 
         VSpacer(32.dp)
-        if (hasNonZeroBalance == true && fromState.inputState.amount.isEmpty() && showSuggestions && keyboardState == Opened) {
-            SuggestionsBar(modifier = Modifier.align(Alignment.BottomCenter)) {
-                focusManager.clearFocus()
-                viewModel.onSetAmountInBalancePercent(it)
-            }
+        if (showSuggestions && keyboardState == Opened) {
+            SuggestionsBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onDelete = {
+                    viewModel.onFromAmountChange(null)
+                },
+                onSelect = {
+                    focusManager.clearFocus()
+                    viewModel.onSetAmountInBalancePercent(it)
+                },
+                selectEnabled = hasNonZeroBalance ?: false,
+                deleteEnabled = fromState.inputState.amount.isNotBlank()
+            )
         }
     }
 }
@@ -459,56 +499,59 @@ private fun TopMenu(
         ButtonSecondaryCircle(
             icon = R.drawable.ic_manage_2,
             onClick = {
-                navController.getNavigationResult(SwapMainModule.resultKey) {
-                    val recipient = it.parcelable<Address>(SwapMainModule.swapSettingsRecipientKey)
-                    val slippage = it.getString(SwapMainModule.swapSettingsSlippageKey)
-                    val ttl = it.getLong(SwapMainModule.swapSettingsTtlKey)
-                    viewModel.onUpdateSwapSettings(recipient, slippage?.toBigDecimal(), ttl)
+                val onResult: (SwapMainModule.Result) -> Unit = {
+                    viewModel.onUpdateSwapSettings(it.recipient, it.slippageStr.toBigDecimal(), it.ttl)
                 }
                 when (state.dex.provider) {
                     SwapMainModule.OneInchProvider -> {
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult(
                             R.id.oneinchSettingsFragment,
-                            OneInchSettingsFragment.prepareParams(
+                            OneInchSettingsFragment.Input(
                                 state.dex,
                                 state.recipient,
                                 state.slippage,
-                            )
+                            ),
+                            onResult
                         )
                     }
 
                     SwapMainModule.UniswapV3Provider -> {
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult(
                             R.id.uniswapSettingsFragment,
-                            UniswapSettingsFragment.prepareParams(
+                            UniswapSettingsFragment.Input(
                                 dex = state.dex,
                                 address = state.recipient,
                                 slippage = state.slippage,
                                 ttlEnabled = false,
-                            )
+                            ),
+                            onResult
                         )
                     }
+
                     SwapMainModule.PancakeSwapV3Provider -> {
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult(
                             R.id.uniswapSettingsFragment,
-                            UniswapSettingsFragment.prepareParams(
+                            UniswapSettingsFragment.Input(
                                 dex = state.dex,
                                 address = state.recipient,
                                 slippage = state.slippage,
                                 ttlEnabled = false,
-                            )
+                            ),
+                            onResult
                         )
                     }
+
                     else -> {
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult(
                             R.id.uniswapSettingsFragment,
-                            UniswapSettingsFragment.prepareParams(
+                            UniswapSettingsFragment.Input(
                                 dex = state.dex,
                                 address = state.recipient,
                                 slippage = state.slippage,
                                 ttlEnabled = true,
                                 ttl = state.ttl,
-                            )
+                            ),
+                            onResult
                         )
                     }
                 }
@@ -583,7 +626,7 @@ fun PriceImpact(
                 onClick = {
                     navController.slideFromBottom(
                         R.id.feeSettingsInfoDialog,
-                        FeeSettingsInfoDialog.prepareParams(infoTitle, infoText)
+                        FeeSettingsInfoDialog.Input(infoTitle, infoText)
                     )
                 },
                 interactionSource = MutableInteractionSource(),
@@ -611,13 +654,14 @@ fun PriceImpact(
 }
 
 @Composable
-private fun getPriceImpactColor(
+fun getPriceImpactColor(
     priceImpactLevel: PriceImpactLevel?
 ): Color {
     return when (priceImpactLevel) {
         PriceImpactLevel.Normal -> ComposeAppTheme.colors.jacob
         PriceImpactLevel.Warning,
         PriceImpactLevel.Forbidden -> ComposeAppTheme.colors.lucian
+
         else -> ComposeAppTheme.colors.grey
     }
 }

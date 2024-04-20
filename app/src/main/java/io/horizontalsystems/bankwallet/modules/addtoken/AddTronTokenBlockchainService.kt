@@ -21,7 +21,7 @@ class AddTronTokenBlockchainService(
         return try {
             Address.fromBase58(reference)
             true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             false
         }
     }
@@ -43,7 +43,7 @@ class AddTronTokenBlockchainService(
 
     companion object {
         fun getInstance(blockchain: Blockchain): AddTronTokenBlockchainService {
-            val trc20Provider = Trc20Provider.getInstance(Network.Mainnet, App.appConfigProvider.trongridApiKey)
+            val trc20Provider = Trc20Provider.getInstance(Network.Mainnet, App.appConfigProvider.trongridApiKeys)
             return AddTronTokenBlockchainService(blockchain, trc20Provider)
         }
     }

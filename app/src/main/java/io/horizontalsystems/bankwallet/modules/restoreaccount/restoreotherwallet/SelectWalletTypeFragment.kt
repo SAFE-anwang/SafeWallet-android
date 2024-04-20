@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentSelectWalletTypeBinding
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.core.findNavController
 
 class SelectWalletTypeFragment: BaseFragment() {
@@ -32,25 +35,21 @@ class SelectWalletTypeFragment: BaseFragment() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-        val popUpToInclusiveId =
-            arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.manageAccountsFragment) ?: R.id.manageAccountsFragment
-        val inclusive =
-            arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
+        val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
+        val popUpToInclusiveId = input?.popUpToInclusiveId ?: R.id.manageAccountsFragment
+        val inclusive = input?.popOffInclusiveKey ?: true
         val adapter = SelectWalletTypeAdapter(getWalletTypeList()) {
-            val bundle = Bundle()
-            bundle.putParcelable("walletType", it)
-            bundle.putInt(ManageAccountsModule.popOffOnSuccessKey, popUpToInclusiveId)
-            bundle.putBoolean(ManageAccountsModule.popOffInclusiveKey, inclusive)
+            val inputParams = ManageAccountsModule.Input(popUpToInclusiveId, inclusive)
             when(it) {
                 WalletType.SafeWallet -> {
-                    findNavController().slideFromRight(R.id.restoreMnemonicFragment, bundle)
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragment, inputParams)
                 }
                 WalletType.TokenPocket,
                 WalletType.SafeGem,
                 WalletType.Bither,
                 WalletType.ImToken,
                 WalletType.HD -> {
-                    findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, bundle)
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, inputParams)
                 }
                 else -> {
 //                    findNavController().slideFromRight(R.id.restorePhraseImportFragment, bundle)

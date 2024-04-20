@@ -6,10 +6,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.core.composablePopup
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.ManageWalletsScreen
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.RestoreMenuModule
@@ -17,26 +19,20 @@ import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.Restor
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.RestorePhrase
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonicnonstandard.RestorePhraseNonStandard
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigureScreen
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.core.findNavController
 
-class RestoreAccountFragment : BaseComposeFragment() {
+class RestoreAccountFragment : BaseComposeFragment(screenshotEnabled = false) {
 
     @Composable
-    override fun GetContent() {
-        val popUpToInclusiveId =
-            arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.restoreAccountFragment) ?: R.id.restoreAccountFragment
+    override fun GetContent(navController: NavController) {
+        val input = navController.getInput<ManageAccountsModule.Input>()
+        val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.restoreAccountFragment
+        val inclusive = input?.popOffInclusive ?: false
 
-        val inclusive =
-            arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: false
-
-        ComposeAppTheme {
-            RestoreAccountNavHost(
-                findNavController(),
-                popUpToInclusiveId,
-                inclusive
-            )
-        }
+        RestoreAccountNavHost(
+            navController,
+            popUpToInclusiveId,
+            inclusive
+        )
     }
 
 }

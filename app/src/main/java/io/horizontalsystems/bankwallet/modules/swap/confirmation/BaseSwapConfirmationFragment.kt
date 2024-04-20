@@ -49,25 +49,18 @@ abstract class BaseSwapConfirmationFragment : BaseComposeFragment() {
     protected abstract val feeViewModel: EvmFeeCellViewModel
     protected abstract val nonceViewModel: SendEvmNonceViewModel
     protected abstract val navGraphId: Int
+    protected abstract val swapEntryPointDestId: Int
 
     private var snackbarInProcess: CustomSnackbar? = null
-    private val closeUntilDestId by lazy {
-        val swapEntryPointDestId = arguments?.getInt(swapEntryPointDestIdKey) ?: 0
-        if (swapEntryPointDestId == 0) {
-            R.id.swapFragment
-        } else {
-            swapEntryPointDestId
-        }
-    }
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         BaseSwapConfirmationScreen(
             sendEvmTransactionViewModel = sendEvmTransactionViewModel,
             feeViewModel = feeViewModel,
             nonceViewModel = nonceViewModel,
             parentNavGraphId = navGraphId,
-            navController = findNavController(),
+            navController = navController,
             onSendClick = {
                 logger.info("click swap button")
                 sendEvmTransactionViewModel.send(logger)
@@ -94,7 +87,7 @@ abstract class BaseSwapConfirmationFragment : BaseComposeFragment() {
                 findNavController().popBackStack(R.id.swapFragment, true)
             }
             /*Handler(Looper.getMainLooper()).postDelayed({
-                findNavController().popBackStack(closeUntilDestId, true)
+                findNavController().popBackStack(swapEntryPointDestId, true)
             }, 1200)*/
         }
 
@@ -104,11 +97,6 @@ abstract class BaseSwapConfirmationFragment : BaseComposeFragment() {
             findNavController().popBackStack()
         }
     }
-
-    companion object {
-        const val swapEntryPointDestIdKey = "swapEntryPointDestIdKey"
-    }
-
 }
 
 @Composable
@@ -122,55 +110,53 @@ private fun BaseSwapConfirmationScreen(
 ) {
     val enabled by sendEvmTransactionViewModel.sendEnabledLiveData.observeAsState(false)
 
-    ComposeAppTheme {
-        Scaffold(
-            backgroundColor = ComposeAppTheme.colors.tyler,
-            topBar = {
-                AppBar(
-                    title = stringResource(R.string.Send_Confirmation_Title),
-                    navigationIcon = {
-                        HsBackButton(onClick = { navController.popBackStack() })
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
-                            icon = R.drawable.ic_manage_2,
-                            tint = ComposeAppTheme.colors.jacob,
-                            onClick = {
-                                navController.slideFromBottom(
-                                    resId = R.id.sendEvmSettingsFragment,
-                                    args = SendEvmSettingsFragment.prepareParams(parentNavGraphId)
-                                )
-                            }
-                        )
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
+            AppBar(
+                title = stringResource(R.string.Send_Confirmation_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = { navController.popBackStack() })
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
+                        icon = R.drawable.ic_manage_2,
+                        tint = ComposeAppTheme.colors.jacob,
+                        onClick = {
+                            navController.slideFromBottom(
+                                R.id.sendEvmSettingsFragment,
+                                SendEvmSettingsFragment.Input(parentNavGraphId)
+                            )
+                        }
                     )
                 )
+            )
+        }
+    ) {
+        Column(modifier = Modifier.padding(it)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SendEvmTransactionView(
+                    sendEvmTransactionViewModel,
+                    feeViewModel,
+                    nonceViewModel,
+                    navController
+                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
-        ) {
-            Column(modifier = Modifier.padding(it)) {
-                Column(
+            ButtonsGroupWithShade {
+                ButtonPrimaryYellow(
                     modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    SendEvmTransactionView(
-                        sendEvmTransactionViewModel,
-                        feeViewModel,
-                        nonceViewModel,
-                        navController
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-                ButtonsGroupWithShade {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
-                        title = stringResource(R.string.Swap),
-                        onClick = onSendClick,
-                        enabled = enabled
-                    )
-                }
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    title = stringResource(R.string.Swap),
+                    onClick = onSendClick,
+                    enabled = enabled
+                )
             }
         }
     }

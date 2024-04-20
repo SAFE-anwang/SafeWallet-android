@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.description
 import io.horizontalsystems.bankwallet.core.imageUrl
@@ -19,40 +20,35 @@ class SelectBlockchainsViewModel(
     private val accountType: AccountType,
     private val accountName: String?,
     private val service: WatchAddressService
-) : ViewModel() {
+) : ViewModelUiState<SelectBlockchainsUiState>() {
 
     private var title: Int = R.string.Watch_Select_Blockchains
     private var coinViewItems = listOf<CoinViewItem<Token>>()
     private var selectedCoins = setOf<Token>()
     private var accountCreated = false
 
-    var uiState by mutableStateOf(
-        SelectBlockchainsUiState(
-            title = title,
-            coinViewItems = coinViewItems,
-            submitButtonEnabled = true,
-            accountCreated = false
-        )
-    )
-        private set
-
     init {
+        val tokens = service.tokens(accountType)
+
         when (accountType) {
+            is AccountType.SolanaAddress,
+            is AccountType.TronAddress,
+            is AccountType.BitcoinAddress,
+            is AccountType.TonAddress,
             is AccountType.Cex,
             is AccountType.Mnemonic,
-            is AccountType.EvmPrivateKey,
             is AccountType.PrivateKey,
-            is AccountType.SolanaAddress,
-            is AccountType.TronAddress -> Unit // N/A
+            is AccountType.EvmPrivateKey -> Unit // N/A
             is AccountType.EvmAddress -> {
                 title = R.string.Watch_Select_Blockchains
-                coinViewItems = service.tokens(accountType).map {
+                coinViewItems = tokens.map {
                     coinViewItemForBlockchain(it)
                 }
             }
+
             is AccountType.HdExtendedKey -> {
                 title = R.string.Watch_Select_Coins
-                coinViewItems = service.tokens(accountType).map {
+                coinViewItems = tokens.map {
                     coinViewItemForToken(it, label = it.badge)
                 }
             }
@@ -60,6 +56,13 @@ class SelectBlockchainsViewModel(
 
         emitState()
     }
+
+    override fun createState() = SelectBlockchainsUiState(
+        title = title,
+        coinViewItems = coinViewItems,
+        submitButtonEnabled = selectedCoins.isNotEmpty(),
+        accountCreated = accountCreated
+    )
 
     private fun coinViewItemForBlockchain(token: Token): CoinViewItem<Token> {
         val blockchain = token.blockchain
@@ -110,14 +113,6 @@ class SelectBlockchainsViewModel(
         emitState()
     }
 
-    private fun emitState() {
-        uiState = SelectBlockchainsUiState(
-            title = title,
-            coinViewItems = coinViewItems,
-            submitButtonEnabled = selectedCoins.isNotEmpty(),
-            accountCreated = accountCreated
-        )
-    }
 }
 
 data class SelectBlockchainsUiState(

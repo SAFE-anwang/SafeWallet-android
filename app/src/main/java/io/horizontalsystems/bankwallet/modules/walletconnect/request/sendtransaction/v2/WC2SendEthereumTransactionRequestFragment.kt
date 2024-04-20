@@ -20,13 +20,12 @@ import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCRequestModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.WCSendEthereumTransactionRequestViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.ui.SendEthRequestScreen
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 
 class WC2SendEthereumTransactionRequestFragment : BaseFragment() {
-    private val logger = AppLogger("wallet-connect v2")
+    /*private val logger = AppLogger("wallet-connect v2")
     val vmFactory by lazy {
         WCRequestModule.FactoryV2(
             App.wc2SessionManager.createRequestData(requireArguments().getLong(
@@ -87,6 +86,6 @@ class WC2SendEthereumTransactionRequestFragment : BaseFragment() {
 
         fun prepareParams(@StringRes requestId: Long) =
             bundleOf(REQUEST_ID_KEY to requestId)
-    }
+    }*/
 
 }

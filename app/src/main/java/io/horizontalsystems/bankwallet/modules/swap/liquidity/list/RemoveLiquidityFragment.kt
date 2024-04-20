@@ -28,6 +28,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.modules.amount.LiquidityAmountInput
 import io.horizontalsystems.bankwallet.modules.balance.ui.LiquidityItemsEmpty
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityCardSwipable

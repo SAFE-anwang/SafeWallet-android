@@ -1,28 +1,33 @@
 package io.horizontalsystems.bankwallet.modules.market.platform
 
-import android.os.Bundle
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.chart.ChartViewModel
@@ -34,50 +39,39 @@ import io.horizontalsystems.bankwallet.modules.market.topcoins.SelectorDialogSta
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
-import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.parcelable
+import io.horizontalsystems.bankwallet.ui.compose.components.AlertGroup
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryToggle
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinList
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
+import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
+import io.horizontalsystems.bankwallet.ui.compose.components.SortMenu
+import io.horizontalsystems.bankwallet.ui.compose.components.TopCloseButton
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
 
 class MarketPlatformFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        val platformUid = activity?.intent?.data?.getQueryParameter("uid")
-        val platformTitle = activity?.intent?.data?.getQueryParameter("title")
+    override fun GetContent(navController: NavController) {
 
-        val platform = if (platformUid != null && platformTitle != null) {
-            Platform(platformUid, platformTitle)
-        } else {
-            arguments?.parcelable(platformKey)
-        }
+        val platform = navController.getInput<Platform>()
 
         if (platform == null) {
-            findNavController().popBackStack()
+            navController.popBackStack()
             return
         }
 
         val factory = MarketPlatformModule.Factory(platform)
 
-        ComposeAppTheme {
-            PlatformScreen(
-                factory = factory,
-                onCloseButtonClick = { findNavController().popBackStack() },
-                onCoinClick = { coinUid ->
-                    val arguments = CoinFragment.prepareParams(coinUid)
-                    findNavController().slideFromRight(R.id.coinFragment, arguments)
-                }
-            )
-        }
+        PlatformScreen(
+            factory = factory,
+            onCloseButtonClick = { navController.popBackStack() },
+            onCoinClick = { coinUid ->
+                val arguments = CoinFragment.Input(coinUid, "market_platform")
+                navController.slideFromRight(R.id.coinFragment, arguments)
+            }
+        )
     }
-
-    companion object {
-        private const val platformKey = "platform_key"
-
-        fun prepareParams(platform: Platform): Bundle {
-            return bundleOf(platformKey to platform)
-        }
-    }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -91,11 +85,10 @@ private fun PlatformScreen(
 ) {
 
     var scrollToTopAfterUpdate by rememberSaveable { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
-            TopCloseButton(interactionSource, onCloseButtonClick)
+            TopCloseButton(onCloseButtonClick)
 
             HSSwipeRefresh(
                 refreshing = viewModel.isRefreshing,
@@ -108,12 +101,14 @@ private fun PlatformScreen(
                         ViewState.Loading -> {
                             Loading()
                         }
+
                         is ViewState.Error -> {
                             ListErrorView(
                                 stringResource(R.string.SyncError),
                                 viewModel::onErrorClick
                             )
                         }
+
                         ViewState.Success -> {
                             viewModel.viewItems.let { viewItems ->
                                 CoinList(
@@ -180,6 +175,7 @@ private fun PlatformScreen(
                     { viewModel.onSelectorDialogDismiss() }
                 )
             }
+
             else -> {}
         }
     }
@@ -196,7 +192,7 @@ private fun HeaderContent(title: String, description: String, image: ImageSource
         ) {
             Column(
                 modifier = Modifier
-                    .padding(top = 12.dp, end = 8.dp)
+                    .padding(top = 12.dp)
                     .weight(1f)
             ) {
                 title3_leah(
@@ -209,21 +205,14 @@ private fun HeaderContent(title: String, description: String, image: ImageSource
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Box(
+            Image(
+                painter = image.painter(),
+                contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(ComposeAppTheme.colors.lawrence)
-            ) {
-                Image(
-                    painter = image.painter(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(24.dp),
-                )
-            }
+                    .padding(start = 24.dp)
+                    .size(32.dp),
+            )
         }
     }
 }

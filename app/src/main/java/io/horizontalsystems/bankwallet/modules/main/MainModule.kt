@@ -10,12 +10,12 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Manager
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import kotlinx.parcelize.Parcelize
 
 object MainModule {
 
-    class Factory(private val wcDeepLink: String?) : ViewModelProvider.Factory {
+    class Factory(private val wcDeepLink: Uri?) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MainViewModel(
@@ -26,8 +26,8 @@ object MainModule {
                 App.accountManager,
                 App.releaseNotesManager,
                 App.localStorage,
-                App.wc2SessionManager,
-                App.wc2Manager,
+                App.wcSessionManager,
+                App.wcManager,
                 wcDeepLink
             ) as T
         }
@@ -76,16 +76,22 @@ object MainModule {
     }
 
     data class UiState(
-        val selectedPageIndex: Int,
+        val selectedTabIndex: Int,
+        val deeplinkPage: DeeplinkPage?,
         val mainNavItems: List<NavigationViewItem>,
         val showRateAppDialog: Boolean,
         val contentHidden: Boolean,
         val showWhatsNew: Boolean,
         val activeWallet: Account?,
         val torEnabled: Boolean,
-        val wcSupportState: WC2Manager.SupportState?
+        val wcSupportState: WCManager.SupportState?
     )
 
     var isOpenDapp = false
 
 }
+
+data class DeeplinkPage(
+    val navigationId: Int,
+    val input: Parcelable
+)

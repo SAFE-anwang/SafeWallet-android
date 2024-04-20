@@ -1,29 +1,48 @@
 package io.horizontalsystems.bankwallet.core.factories
 
-import io.horizontalsystems.bankwallet.core.utils.AddressParser
+import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 
-class AddressParserFactory {
-    fun parser(blockchainType: BlockchainType) = when (blockchainType) {
-        BlockchainType.Bitcoin -> AddressParser("bitcoin", true)
-        BlockchainType.BitcoinCash -> AddressParser("bitcoincash", false)
-        BlockchainType.ECash -> AddressParser("ecash", false)
-        BlockchainType.Litecoin -> AddressParser("litecoin", true)
-        BlockchainType.Dogecoin -> AddressParser("dogecoin", true)
-        BlockchainType.Dash -> AddressParser("dash", true)
-        BlockchainType.Safe -> AddressParser("safe", true)
-        BlockchainType.Zcash -> AddressParser("zcash", true)
-        BlockchainType.Ethereum -> AddressParser("ethereum", true)
-        BlockchainType.BinanceSmartChain -> AddressParser("", true)
-        BlockchainType.BinanceChain -> AddressParser("binance", true)
-        BlockchainType.Polygon,
-        BlockchainType.Avalanche,
-        BlockchainType.Optimism,
-        BlockchainType.ArbitrumOne,
-        BlockchainType.Solana,
-        BlockchainType.Gnosis,
-        BlockchainType.Fantom,
-        BlockchainType.Tron,
-        is BlockchainType.Unsupported -> AddressParser("", false)
+val BlockchainType.uriScheme: String?
+    get() {
+        if (EvmBlockchainManager.blockchainTypes.contains(this)) {
+            return "ethereum"
+        }
+
+        return when (this) {
+            BlockchainType.Bitcoin -> "bitcoin"
+            BlockchainType.BitcoinCash -> "bitcoincash"
+            BlockchainType.ECash -> "ecash"
+            BlockchainType.Litecoin -> "litecoin"
+            BlockchainType.Dogecoin -> "dogecoin"
+            BlockchainType.Dash -> "dash"
+            BlockchainType.Safe -> "safe"
+            BlockchainType.Zcash -> "zcash"
+            BlockchainType.Ethereum -> "ethereum"
+            BlockchainType.BinanceChain -> "binancecoin"
+            BlockchainType.Ton -> "toncoin"
+            BlockchainType.Tron -> "tron"
+            else -> null
+        }
     }
-}
+
+val BlockchainType.removeScheme: Boolean
+    get() {
+        if (EvmBlockchainManager.blockchainTypes.contains(this)) {
+            return true
+        }
+
+        return when (this) {
+            BlockchainType.Bitcoin,
+            BlockchainType.Litecoin,
+            BlockchainType.Dash,
+            BlockchainType.Safe,
+            BlockchainType.Zcash,
+            BlockchainType.Ethereum,
+            BlockchainType.BinanceChain,
+            BlockchainType.Ton,
+            BlockchainType.Tron -> true
+
+            else -> false
+        }
+    }

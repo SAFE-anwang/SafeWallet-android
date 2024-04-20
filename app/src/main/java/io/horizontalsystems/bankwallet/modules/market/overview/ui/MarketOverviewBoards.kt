@@ -1,22 +1,28 @@
 package io.horizontalsystems.bankwallet.modules.market.overview.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.market.MarketModule
 import io.horizontalsystems.bankwallet.modules.market.MarketViewItem
 import io.horizontalsystems.bankwallet.modules.market.TopMarket
@@ -27,7 +33,6 @@ import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryToggle
 import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinClear
-import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 
 @Composable
 fun BoardsView(
@@ -36,6 +41,15 @@ fun BoardsView(
     onClickSeeAll: (MarketModule.ListType) -> Unit,
     onSelectTopMarket: (TopMarket, MarketModule.ListType) -> Unit
 ) {
+    val onItemClick: (MarketViewItem) -> Unit = remember {
+        {
+            navController.slideFromRight(
+                R.id.coinFragment,
+                CoinFragment.Input(it.coinUid, "market_overview")
+            )
+        }
+    }
+
     boards.forEach { boardItem ->
         TopBoardHeader(
             title = boardItem.boardHeader.title,
@@ -53,7 +67,7 @@ fun BoardsView(
                 .background(ComposeAppTheme.colors.lawrence)
         ){
             boardItem.marketViewItems.forEach { coin ->
-                MarketCoinWithBackground(coin, navController)
+                MarketCoinWithBackground(coin) { onItemClick.invoke(coin) }
             }
 
             SeeAllButton { onClickSeeAll(boardItem.type) }
@@ -63,6 +77,7 @@ fun BoardsView(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun <T : WithTranslatableTitle> TopBoardHeader(
     title: Int,
@@ -71,50 +86,24 @@ fun <T : WithTranslatableTitle> TopBoardHeader(
     onSelect: (T) -> Unit,
     onClickSeeAll: () -> Unit
 ) {
-    Column {
-        Divider(
-            thickness = 1.dp,
-            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
-        )
-        Row(modifier = Modifier.height(42.dp)) {
-            Row(
-                    modifier = Modifier
-                            .height(42.dp)
-                            .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                            ) { onClickSeeAll.invoke() },
-                    verticalAlignment = Alignment.CenterVertically
-            ) {
-                    Image(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        painter = painterResource(iconRes),
-                        contentDescription = "Section Header Icon"
-                    )
-                    body_leah(
-                        text = stringResource(title),
-                        maxLines = 1,
-                    )
-            }
-            Spacer(Modifier.weight(1f))
-            Row(
-                    modifier = Modifier.padding(end = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-            ) {
-                    ButtonSecondaryToggle(
-                            select = select,
-                            onSelect = onSelect
-                    )
-            }
+    MarketsSectionHeader(
+        title = title,
+        onClick = onClickSeeAll,
+        icon = painterResource(iconRes)
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+            ButtonSecondaryToggle(
+                select = select,
+                onSelect = onSelect
+            )
         }
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
 @Composable
 private fun MarketCoinWithBackground(
     marketViewItem: MarketViewItem,
-    navController: NavController
+    onClick: () -> Unit
 ) {
     MarketCoinClear(
         marketViewItem.coinName,
@@ -123,8 +112,9 @@ private fun MarketCoinWithBackground(
         marketViewItem.iconPlaceHolder,
         marketViewItem.coinRate,
         marketViewItem.marketDataValue,
-        marketViewItem.rank
-    ) {
-        onItemClick(marketViewItem, navController)
-    }
+        marketViewItem.rank,
+        false,
+        false,
+        onClick
+    )
 }

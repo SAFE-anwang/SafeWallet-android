@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -43,17 +42,14 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ScrollableTabs
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.DateHelper
 import java.net.UnknownHostException
 
 class GuidesFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            GuidesScreen(findNavController())
-        }
+    override fun GetContent(navController: NavController) {
+        GuidesScreen(navController)
     }
 
 }
@@ -80,6 +76,7 @@ fun GuidesScreen(navController: NavController) {
                 ViewState.Loading -> {
                     Loading()
                 }
+
                 is ViewState.Error -> {
                     val s = when (val error = viewState.t) {
                         is UnknownHostException -> stringResource(R.string.Hud_Text_NoInternet)
@@ -89,6 +86,7 @@ fun GuidesScreen(navController: NavController) {
 
                     ScreenMessageWithAction(s, R.drawable.ic_error_48)
                 }
+
                 ViewState.Success -> {
                     if (selectedCategory != null) {
                         Column {
@@ -108,13 +106,9 @@ fun GuidesScreen(navController: NavController) {
                             ) {
                                 items(guides) { guide ->
                                     CardsPreviewCardsGuide(guide) {
-                                        val arguments = bundleOf(
-                                            MarkdownFragment.markdownUrlKey to guide.fileUrl,
-                                            MarkdownFragment.handleRelativeUrlKey to true
-                                        )
                                         navController.slideFromRight(
                                             R.id.markdownFragment,
-                                            arguments
+                                            MarkdownFragment.Input(guide.fileUrl, true)
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))

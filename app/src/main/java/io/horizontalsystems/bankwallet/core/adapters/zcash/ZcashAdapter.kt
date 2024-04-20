@@ -50,6 +50,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
+import java.util.regex.Pattern
 import kotlin.math.max
 
 class ZcashAdapter(
@@ -205,14 +206,14 @@ class ZcashAdapter(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
-        transactionType: FilterTransactionType
+        transactionType: FilterTransactionType,
+        address: String?,
     ): Single<List<TransactionRecord>> {
         val fromParams = from?.let {
             val transactionHash = it.transactionHash.fromHex().reversedArray()
             Triple(transactionHash, it.timestamp, it.transactionIndex)
         }
-
-        return transactionsProvider.getTransactions(fromParams, transactionType, limit)
+        return transactionsProvider.getTransactions(fromParams, transactionType, address, limit)
             .map { transactions ->
                 transactions.map {
                     getTransactionRecord(it)
@@ -220,10 +221,15 @@ class ZcashAdapter(
             }
     }
 
-    override fun getTransactionRecordsFlowable(token: Token?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
-        return transactionsProvider.getNewTransactionsFlowable(transactionType).map { transactions ->
-            transactions.map { getTransactionRecord(it) }
-        }
+    override fun getTransactionRecordsFlowable(
+        token: Token?,
+        transactionType: FilterTransactionType,
+        address: String?,
+    ): Flowable<List<TransactionRecord>> {
+        return transactionsProvider.getNewTransactionsFlowable(transactionType, address)
+            .map { transactions ->
+                transactions.map { getTransactionRecord(it) }
+            }
     }
 
     override fun getTransactionUrl(transactionHash: String): String =
@@ -350,7 +356,8 @@ class ZcashAdapter(
                 to = transaction.toAddress,
                 sentToSelf = false,
                 memo = transaction.memo,
-                source = wallet.transactionSource
+                source = wallet.transactionSource,
+                replaceable = false
             )
         }
     }
@@ -376,5 +383,25 @@ class ZcashAdapter(
                 Synchronizer.erase(App.instance, ZcashNetwork.Mainnet, getValidAliasFromAccountId(accountId))
             }
         }
+    }
+}
+
+object ZcashAddressValidator {
+    fun validate(address: String): Boolean {
+        return isValidZcashAddress(address)
+    }
+
+    private fun isValidTransparentAddress(address: String): Boolean {
+        val transparentPattern = Pattern.compile("^t[0-9a-zA-Z]{34}$")
+        return transparentPattern.matcher(address).matches()
+    }
+
+    private fun isValidShieldedAddress(address: String): Boolean {
+        val shieldedPattern = Pattern.compile("^z[0-9a-zA-Z]{77}$")
+        return shieldedPattern.matcher(address).matches()
+    }
+
+    private fun isValidZcashAddress(address: String): Boolean {
+        return isValidTransparentAddress(address) || isValidShieldedAddress(address)
     }
 }

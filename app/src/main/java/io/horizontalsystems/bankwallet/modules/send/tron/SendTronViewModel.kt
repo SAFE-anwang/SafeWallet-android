@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.send.tron
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -11,12 +10,14 @@ import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ISendTronAdapter
 import io.horizontalsystems.bankwallet.core.LocalizedException
+import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
-import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -35,11 +36,13 @@ class SendTronViewModel(
     private val feeToken: Token,
     private val adapter: ISendTronAdapter,
     private val xRateService: XRateService,
-    private val amountService: SendAmountAdvancedService,
+    private val amountService: SendAmountService,
     private val addressService: SendTronAddressService,
     val coinMaxAllowedDecimals: Int,
-    private val contactsRepo: ContactsRepository
-) : ViewModel() {
+    private val contactsRepo: ContactsRepository,
+    private val showAddressInput: Boolean,
+    private val connectivityManager: ConnectivityManager,
+) : ViewModelUiState<SendUiState>() {
     val logger: AppLogger = AppLogger("send-tron")
 
     val blockchainType = wallet.token.blockchainType
@@ -50,21 +53,6 @@ class SendTronViewModel(
     private var addressState = addressService.stateFlow.value
     private var feeState: FeeState = FeeState.Loading
     private var cautions: List<HSCaution> = listOf()
-    private val showAddressInput = addressService.predefinedAddress == null
-
-    var uiState by mutableStateOf(
-        SendUiState(
-            availableBalance = amountState.availableBalance,
-            amountCaution = amountState.amountCaution,
-            addressError = addressState.addressError,
-            proceedEnabled = amountState.canBeSend && addressState.canBeSend,
-            sendEnabled = feeState is FeeState.Success,
-            feeViewState = feeState.viewState,
-            cautions = listOf(),
-            showAddressInput = showAddressInput,
-        )
-    )
-        private set
 
     var coinRate by mutableStateOf(xRateService.getRate(sendToken.coin.uid))
         private set
@@ -74,9 +62,6 @@ class SendTronViewModel(
         private set
     var sendResult by mutableStateOf<SendResult?>(null)
         private set
-
-    private val decimalAmount: BigDecimal
-        get() = amountState.evmAmount!!.toBigDecimal().movePointLeft(sendToken.decimals)
 
     init {
         viewModelScope.launch {
@@ -101,6 +86,17 @@ class SendTronViewModel(
         }
     }
 
+    override fun createState() = SendUiState(
+        availableBalance = amountState.availableBalance,
+        amountCaution = amountState.amountCaution,
+        addressError = addressState.addressError,
+        proceedEnabled = amountState.canBeSend && addressState.canBeSend,
+        sendEnabled = feeState is FeeState.Success && cautions.isEmpty(),
+        feeViewState = feeState.viewState,
+        cautions = cautions,
+        showAddressInput = showAddressInput,
+    )
+
     fun onEnterAmount(amount: BigDecimal?) {
         amountService.setAmount(amount)
     }
@@ -119,7 +115,7 @@ class SendTronViewModel(
         ).firstOrNull()
 
         confirmationData = SendTronConfirmationData(
-            amount = decimalAmount,
+            amount = amountState.amount!!,
             fee = null,
             activationFee = null,
             resourcesConsumed = null,
@@ -175,7 +171,7 @@ class SendTronViewModel(
             feeState = FeeState.Loading
             emitState()
 
-            val amount = amountState.evmAmount!!
+            val amount = amountState.amount!!
             val tronAddress = TronAddress.fromBase58(addressState.address!!.hex)
             val fees = adapter.estimateFee(amount, tronAddress)
 
@@ -210,12 +206,13 @@ class SendTronViewModel(
             emitState()
 
             val totalFee = fees.sumOf { it.feeInSuns }.toBigInteger()
-            val isMaxAmount = amountState.availableBalance == decimalAmount
-            val adjustedAmount = if (sendToken == feeToken && isMaxAmount) amount - totalFee else amount
+            val fee = totalFee.toBigDecimal().movePointLeft(feeToken.decimals)
+            val isMaxAmount = amountState.availableBalance == amountState.amount!!
+            val adjustedAmount = if (sendToken == feeToken && isMaxAmount) amount - fee else amount
 
             confirmationData = confirmationData?.copy(
-                amount = adjustedAmount.toBigDecimal().movePointLeft(sendToken.decimals),
-                fee = totalFee.toBigDecimal().movePointLeft(feeToken.decimals),
+                amount = adjustedAmount,
+                fee = fee,
                 activationFee = activationFee,
                 resourcesConsumed = resourcesConsumed
             )
@@ -238,13 +235,17 @@ class SendTronViewModel(
         }
     }
 
+    fun hasConnection(): Boolean {
+        return connectivityManager.isConnected
+    }
+
     private suspend fun send() = withContext(Dispatchers.IO) {
         try {
             val confirmationData = confirmationData ?: return@withContext
             sendResult = SendResult.Sending
             logger.info("sending tx")
 
-            val amount = confirmationData.amount.movePointRight(sendToken.decimals).toBigInteger()
+            val amount = confirmationData.amount
             adapter.send(amount, addressState.tronAddress!!, feeState.feeLimit)
 
             sendResult = SendResult.Sent
@@ -261,7 +262,7 @@ class SendTronViewModel(
         else -> HSCaution(TranslatableString.PlainString(error.message ?: ""))
     }
 
-    private fun handleUpdatedAmountState(amountState: SendAmountAdvancedService.State) {
+    private fun handleUpdatedAmountState(amountState: SendAmountService.State) {
         this.amountState = amountState
 
         emitState()
@@ -271,19 +272,6 @@ class SendTronViewModel(
         this.addressState = addressState
 
         emitState()
-    }
-
-    private fun emitState() {
-        uiState = SendUiState(
-            availableBalance = amountState.availableBalance,
-            amountCaution = amountState.amountCaution,
-            addressError = addressState.addressError,
-            proceedEnabled = amountState.canBeSend && addressState.canBeSend,
-            sendEnabled = feeState is FeeState.Success && cautions.isEmpty(),
-            feeViewState = feeState.viewState,
-            cautions = cautions,
-            showAddressInput = showAddressInput,
-        )
     }
 }
 

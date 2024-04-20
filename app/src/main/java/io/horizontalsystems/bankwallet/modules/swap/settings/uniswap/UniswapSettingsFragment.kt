@@ -1,6 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.settings.uniswap
 
-import android.os.Bundle
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,11 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.setNavigationResultX
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
@@ -35,97 +36,49 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.ScreenMessageWithAction
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.core.parcelable
-import io.horizontalsystems.core.setNavigationResult
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
 class UniswapSettingsFragment : BaseComposeFragment() {
 
-    companion object {
-        private const val dexKey = "dexKey"
-        private const val addressKey = "addressKey"
-        private const val slippageKey = "slippageKey"
-        private const val ttlKey = "ttlKey"
-        private const val ttlEnabledKey = "ttlEnabledKey"
-
-        fun prepareParams(
-            dex: SwapMainModule.Dex,
-            address: Address?,
-            slippage: BigDecimal,
-            ttlEnabled: Boolean,
-            ttl: Long? = null
-        ): Bundle {
-            val bundle = bundleOf(
-                dexKey to dex,
-                addressKey to address,
-                slippageKey to slippage.toPlainString(),
-                ttlEnabledKey to ttlEnabled
-            )
-            if (ttl != null) {
-                bundle.putLong(ttlKey, ttl)
-            }
-            return bundle
-        }
-    }
-
-    private val dex by lazy {
-        requireArguments().parcelable<SwapMainModule.Dex>(dexKey)
-    }
-
-    private val address by lazy {
-        requireArguments().parcelable<Address>(addressKey)
-    }
-
-    private val slippage by lazy {
-        requireArguments().getString(slippageKey)?.toBigDecimal()
-    }
-
-    private val ttlEnabled by lazy {
-        requireArguments().getBoolean(ttlEnabledKey)
-    }
-
-    private val ttl by lazy {
-        val arguments = requireArguments()
-        if (arguments.containsKey(ttlKey)) {
-            arguments.getLong(ttlKey)
-        } else {
-            null
-        }
-    }
-
     @Composable
-    override fun GetContent() {
-        val dexValue = dex
-        ComposeAppTheme {
-            if (dexValue != null) {
-                UniswapSettingsScreen(
-                    onCloseClick = {
-                        findNavController().popBackStack()
-                    },
-                    dex = dexValue,
-                    factory = UniswapSettingsModule.Factory(address, slippage, ttl),
-                    navController = findNavController(),
-                    ttlEnabled = ttlEnabled
+    override fun GetContent(navController: NavController) {
+        val input = navController.getInput<Input>()
+        if (input != null) {
+            UniswapSettingsScreen(
+                onCloseClick = {
+                    navController.popBackStack()
+                },
+                dex = input.dex,
+                factory = UniswapSettingsModule.Factory(input.address, input.slippage, input.ttl),
+                navController = navController,
+                ttlEnabled = input.ttlEnabled
+            )
+        } else {
+            ScreenMessageWithAction(
+                text = stringResource(R.string.Error),
+                icon = R.drawable.ic_error_48
+            ) {
+                ButtonPrimaryYellow(
+                    modifier = Modifier
+                        .padding(horizontal = 48.dp)
+                        .fillMaxWidth(),
+                    title = stringResource(R.string.Button_Close),
+                    onClick = { navController.popBackStack() }
                 )
-            } else {
-                ScreenMessageWithAction(
-                    text = stringResource(R.string.Error),
-                    icon = R.drawable.ic_error_48
-                ) {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .padding(horizontal = 48.dp)
-                            .fillMaxWidth(),
-                        title = stringResource(R.string.Button_Close),
-                        onClick = { findNavController().popBackStack() }
-                    )
-                }
             }
         }
     }
 
+    @Parcelize
+    data class Input(
+        val dex: SwapMainModule.Dex,
+        val address: Address?,
+        val slippage: BigDecimal,
+        val ttlEnabled: Boolean,
+        val ttl: Long? = null
+    ) : Parcelable
 }
 
 @Composable
@@ -190,14 +143,12 @@ private fun UniswapSettingsScreen(
                     title = buttonTitle,
                     onClick = {
                         val tradeOptions = uniswapSettingsViewModel.tradeOptions
-
                         if (tradeOptions != null) {
-                            navController.setNavigationResult(
-                                SwapMainModule.resultKey,
-                                bundleOf(
-                                    SwapMainModule.swapSettingsRecipientKey to tradeOptions.recipient,
-                                    SwapMainModule.swapSettingsSlippageKey to tradeOptions.allowedSlippage.toPlainString(),
-                                    SwapMainModule.swapSettingsTtlKey to tradeOptions.ttl,
+                            navController.setNavigationResultX(
+                                SwapMainModule.Result(
+                                    tradeOptions.recipient,
+                                    tradeOptions.allowedSlippage.toPlainString(),
+                                    tradeOptions.ttl
                                 )
                             )
                             onCloseClick()

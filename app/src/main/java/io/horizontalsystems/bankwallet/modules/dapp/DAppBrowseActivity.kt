@@ -15,9 +15,7 @@ import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionService
 import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2PingService
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.WC2Service
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import java.net.URLDecoder
@@ -31,7 +29,7 @@ class DAppBrowseActivity: BaseActivity(){
     private lateinit var webRootView: LinearLayout
     private lateinit var urlString: String
 
-    private var wc2Service: WC2SessionService? = null
+//    private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
 
@@ -104,12 +102,6 @@ class DAppBrowseActivity: BaseActivity(){
         val accountId = App.accountManager.activeAccount?.id ?: return
         val cacheConnectLink = App.preferences.getString(getKey(urlString), null) ?: return
 
-        App.wc2SessionManager.sessions.forEach {
-            if (cacheConnectLink == it.metaData?.url) {
-                Log.e("connectWallet", "auto connect")
-                wc2Connect(it.topic, null)
-            }
-        }
     }
 
     private fun getKey(linkString: String): String {
@@ -126,7 +118,7 @@ class DAppBrowseActivity: BaseActivity(){
     }
 
     private fun wc2Connect(topic: String?, connectionLink: String?) {
-        wc2Service = WC2SessionService(
+        /*wc2Service = WC2SessionService(
             App.wc2Service,
             App.wc2Manager,
             App.wc2SessionManager,
@@ -156,7 +148,7 @@ class DAppBrowseActivity: BaseActivity(){
             .let {
                 disposables.add(it)
             }
-        wc2Service?.start()
+        wc2Service?.start()*/
     }
 
     override fun onBackPressed() {

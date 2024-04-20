@@ -33,6 +33,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -42,7 +43,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
-import io.horizontalsystems.core.findNavController
 
 class FilterCoinFragment : BaseComposeFragment() {
 
@@ -50,10 +50,8 @@ class FilterCoinFragment : BaseComposeFragment() {
     val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            FilterCoinScreen(findNavController(), viewModel)
-        }
+    override fun GetContent(navController: NavController) {
+        FilterCoinScreen(navController, viewModel)
     }
 
 }
@@ -61,7 +59,7 @@ class FilterCoinFragment : BaseComposeFragment() {
 
 @Composable
 fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewModel) {
-    val filterCoins by viewModel.filterCoinsLiveData.observeAsState()
+    val filterCoins by viewModel.filterTokensLiveData.observeAsState()
 
     ComposeAppTheme {
         Surface(color = ComposeAppTheme.colors.tyler) {
@@ -82,7 +80,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clickable {
-                                            viewModel.setFilterCoin(it.item)
+                                            viewModel.setFilterToken(it.item)
                                             navController.popBackStack()
                                         }
                                         .padding(horizontal = 16.dp),
@@ -110,14 +108,14 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                         }
                                         Column {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                                B2(text = token.coin.name)
-                                                it.item.badge?.let { badge ->
+                                                B2(text = token.coin.code)
+                                                it.item.token.badge?.let { badge ->
                                                     Spacer(modifier = Modifier.width(6.dp))
                                                     Badge(text = badge)
                                                 }
                                             }
                                             Spacer(modifier = Modifier.height(1.dp))
-                                            D1(text = token.coin.code)
+                                            D1(text = token.coin.name)
                                         }
                                     } else {
                                         Image(

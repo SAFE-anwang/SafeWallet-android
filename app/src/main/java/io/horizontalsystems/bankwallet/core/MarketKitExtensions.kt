@@ -102,31 +102,27 @@ val TokenQuery.protocolType: String?
     get() = when (tokenType) {
         is TokenType.Native -> {
             when (blockchainType) {
-                BlockchainType.Optimism -> "Optimism"
-                BlockchainType.ArbitrumOne -> "Arbitrum"
+                BlockchainType.Ethereum,
+                BlockchainType.BinanceSmartChain,
+                BlockchainType.Tron,
+                BlockchainType.Ton -> null
+
                 BlockchainType.BinanceChain -> "BEP2"
-                BlockchainType.Gnosis -> "Gnosis"
-                BlockchainType.Fantom -> "Fantom"
-                else -> null
+                else -> blockchainType.title
             }
         }
+
         is TokenType.Eip20 -> {
             when (blockchainType) {
                 BlockchainType.Ethereum -> "ERC20"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Tron -> "TRC20"
-                BlockchainType.Polygon -> "Polygon"
-                BlockchainType.Avalanche -> "Avalanche"
-                BlockchainType.Optimism -> "Optimism"
-                BlockchainType.ArbitrumOne -> "Arbitrum"
-                BlockchainType.Gnosis -> "Gnosis"
-                BlockchainType.Fantom -> "Fantom"
-                else -> null
+                else -> blockchainType.title
             }
         }
+
         is TokenType.Bep2 -> "BEP2"
-        is TokenType.Spl -> "Solana"
-        else -> null
+        else -> blockchainType.title
     }
 
 val TokenQuery.Companion.customCoinPrefix: String
@@ -170,7 +166,10 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.Tron -> {
             tokenType is TokenType.Native || tokenType is TokenType.Eip20
         }
-        else -> false
+        BlockchainType.Ton -> {
+            tokenType is TokenType.Native
+        }
+        is BlockchainType.Unsupported -> false
     }
 
 val Blockchain.description: String
@@ -194,6 +193,7 @@ val Blockchain.description: String
         BlockchainType.Gnosis -> "xDAI, ERC20 tokens"
         BlockchainType.Fantom -> "FTM, ERC20 tokens"
         BlockchainType.Tron -> "TRX, TRC20 tokens"
+        BlockchainType.Ton -> "TON"
         else -> ""
     }
 
@@ -248,6 +248,8 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Tron,
+        BlockchainType.Ton,
+        BlockchainType.Solana,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Zcash,
@@ -261,7 +263,6 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Fantom,
         BlockchainType.ArbitrumOne,
         BlockchainType.Optimism,
-        BlockchainType.Solana,
     ).forEachIndexed { index, blockchainType ->
         map[blockchainType] = index
     }
@@ -307,6 +308,7 @@ val BlockchainType.title: String
     BlockchainType.Gnosis -> "Gnosis"
     BlockchainType.Fantom -> "Fantom"
     BlockchainType.Tron -> "Tron"
+    BlockchainType.Ton -> "Ton"
     is BlockchainType.Unsupported -> this.uid
 }
 
@@ -353,6 +355,11 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                 else -> false
             }
         }
+
+        is AccountType.BitcoinAddress -> {
+            this === accountType.blockchainType
+        }
+
         is AccountType.EvmAddress ->
             this == BlockchainType.Ethereum
                     || this == BlockchainType.BinanceSmartChain
@@ -379,6 +386,9 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         is AccountType.TronAddress ->
             this == BlockchainType.Tron
 
+        is AccountType.TonAddress ->
+            this == BlockchainType.Ton
+
         is AccountType.Cex -> false
     }
 }
@@ -387,7 +397,7 @@ val TokenType.order: Int
     get() {
         return when (this) {
             TokenType.Native -> 0
-            is TokenType.Derived -> derivation.accountTypeDerivation.ordinal
+            is TokenType.Derived -> derivation.accountTypeDerivation.order
             is TokenType.AddressTyped -> type.bitcoinCashCoinType.ordinal
             else -> Int.MAX_VALUE
         }
@@ -418,8 +428,47 @@ val FullCoin.iconPlaceholder: Int
         R.drawable.coin_placeholder
     }
 
+fun Token.supports(accountType: AccountType): Boolean {
+    return when (accountType) {
+        is AccountType.BitcoinAddress -> {
+            tokenQuery.tokenType == accountType.tokenType
+        }
+
+        is AccountType.HdExtendedKey -> {
+            when (blockchainType) {
+                BlockchainType.Bitcoin,
+                BlockchainType.Litecoin -> {
+                    val type = type
+                    if (type is TokenType.Derived) {
+                        if (!accountType.hdExtendedKey.purposes.contains(type.derivation.purpose)) {
+                            false
+                        } else if (blockchainType == BlockchainType.Bitcoin) {
+                            accountType.hdExtendedKey.coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
+                        } else {
+                            accountType.hdExtendedKey.coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                        }
+                    } else {
+                        false
+                    }
+                }
+
+                BlockchainType.BitcoinCash,
+                BlockchainType.ECash,
+                BlockchainType.Dash -> {
+                    accountType.hdExtendedKey.purposes.contains(HDWallet.Purpose.BIP44)
+                }
+
+                else -> false
+            }
+        }
+
+        else -> true
+    }
+}
+
 fun FullCoin.eligibleTokens(accountType: AccountType): List<Token> {
-    return supportedTokens.filter { it.blockchainType.supports(accountType) }
+    return supportedTokens
+        .filter { it.supports(accountType) && it.blockchainType.supports(accountType) }
 }
 
 val HsPointTimePeriod.title: Int
@@ -430,6 +479,7 @@ val HsPointTimePeriod.title: Int
         HsPointTimePeriod.Hour8 ->R.string.Coin_Analytics_Period_8h
         HsPointTimePeriod.Day1 -> R.string.Coin_Analytics_Period_1d
         HsPointTimePeriod.Week1 -> R.string.Coin_Analytics_Period_1w
+        HsPointTimePeriod.Month1 -> R.string.Coin_Analytics_Period_1m
     }
 
 val TokenType.Derivation.purpose: HDWallet.Purpose
@@ -492,16 +542,30 @@ val BlockchainType.nativeTokenQueries: List<TokenQuery>
         }
     }
 
+val BlockchainType.defaultTokenQuery: TokenQuery
+    get() = when (this) {
+        BlockchainType.Bitcoin,
+        BlockchainType.Litecoin -> {
+            TokenQuery(this, TokenType.Derived(TokenType.Derivation.Bip84))
+        }
+        BlockchainType.BitcoinCash -> {
+            TokenQuery(this, TokenType.AddressTyped(TokenType.AddressType.Type145))
+        }
+        else -> {
+            TokenQuery(this, TokenType.Native)
+        }
+    }
+
 val TokenType.title: String
     get() = when (this) {
         is TokenType.Derived -> derivation.accountTypeDerivation.rawName
-        is TokenType.AddressTyped -> Translator.getString(type.bitcoinCashCoinType.title)
+        is TokenType.AddressTyped -> type.bitcoinCashCoinType.title
         else -> ""
     }
 
 val TokenType.description: String
     get() = when (this) {
-        is TokenType.Derived -> derivation.accountTypeDerivation.addressType
+        is TokenType.Derived -> derivation.accountTypeDerivation.addressType + derivation.accountTypeDerivation.recommended
         is TokenType.AddressTyped -> Translator.getString(type.bitcoinCashCoinType.description)
         else -> ""
     }
@@ -552,5 +616,6 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Solana,
         BlockchainType.ECash,
         BlockchainType.Tron,
-        BlockchainType.Dogecoin
+        BlockchainType.Dogecoin,
+        BlockchainType.Ton
     )

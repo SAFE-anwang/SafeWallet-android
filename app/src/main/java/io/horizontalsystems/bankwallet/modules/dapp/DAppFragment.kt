@@ -77,10 +77,9 @@ class DAppFragment: BaseFragment() {
                 /*findNavController().slideFromBottom(
                     R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
                 )*/
-                val bundle = Bundle()
-                bundle.putString("url", dappItem.dlink)
-                bundle.putString("name", dappItem.name)
-                findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
+                findNavController().slideFromRight(R.id.dappBrowseFragment,
+                        DAppBrowseFragment.Input(dappItem.dlink, dappItem.name)
+                )
                 /*startActivity(Intent(requireActivity(), DAppBrowseActivity::class.java).apply {
                     putExtra("url", dappItem.dlink)
                     putExtra("name", dappItem.name)

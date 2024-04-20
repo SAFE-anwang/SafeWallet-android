@@ -7,7 +7,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
-import io.horizontalsystems.bankwallet.modules.receivemain.FullCoinsProvider
+import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
 
 object ManageWalletsModule {
     const val ACCOUNT_TYPE_KEY = "account_type_key"

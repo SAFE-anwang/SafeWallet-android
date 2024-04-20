@@ -53,11 +53,11 @@ class LockInfoActivity : BaseActivity() {
         val wallet: Wallet = intent.getParcelableExtra(WALLET) ?: run { finish(); return }
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
         val balanceData =  balanceAdapterRepository.balanceData(wallet)
-        Log.i("safe4", "---balanceData: ${balanceData.locked}")
+        Log.i("safe4", "---balanceData: ${balanceData.timeLocked}")
         val adapter = App.adapterManager.getAdapterForWallet(wallet) as SafeAdapter
         lastHeight = adapter.lastBlockInfo?.height!!
         setToolbar()
-        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, getAmount(balanceData.locked))
+        binding.totalAmountText.text = getString(R.string.Safe4_Lock_Total_Amount, getAmount(balanceData.timeLocked))
         val lockUxto = adapter.kit.getConfirmedUnlockedUnspentOutputProvider().getLockUxto()
         syncItems(lockUxto)
 

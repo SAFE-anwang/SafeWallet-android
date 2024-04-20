@@ -29,7 +29,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListModule
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.v2.WC2SessionModule
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.WCSessionModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.BadgeCount
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
@@ -40,7 +40,6 @@ fun WCSessionCell(
     shape: Shape,
     showDivider: Boolean = false,
     session: WalletConnectListModule.SessionViewItem,
-    version: WalletConnectListModule.Version,
     navController: NavController,
 ) {
     Box(
@@ -50,14 +49,10 @@ fun WCSessionCell(
             .clip(shape)
             .background(ComposeAppTheme.colors.lawrence)
             .clickable {
-                if (version == WalletConnectListModule.Version.Version2) {
-                    navController.slideFromBottom(
-                        R.id.wc2SessionFragment,
-                        WC2SessionModule.prepareParams(
-                            session.sessionId
-                        )
-                    )
-                }
+                navController.slideFromBottom(
+                    R.id.wcSessionFragment,
+                    WCSessionModule.Input(session.sessionTopic)
+                )
             },
         contentAlignment = Alignment.Center
     ) {

@@ -4,7 +4,15 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -20,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
@@ -37,8 +46,17 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.bankwallet.ui.compose.components.AlertGroup
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.DescriptionCard
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
+import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
+import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinFirstRow
+import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinSecondRow
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemBorderedRowUniversalClear
+import io.horizontalsystems.bankwallet.ui.compose.components.SortMenu
 import io.horizontalsystems.core.helpers.HudHelper
 
 class TvlFragment : BaseComposeFragment() {
@@ -48,16 +66,14 @@ class TvlFragment : BaseComposeFragment() {
     private val viewModel by viewModels<TvlViewModel> { vmFactory }
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            TvlScreen(viewModel, tvlChartViewModel) { onCoinClick(it) }
-        }
+    override fun GetContent(navController: NavController) {
+        TvlScreen(viewModel, tvlChartViewModel, navController) { onCoinClick(it, navController) }
     }
 
-    private fun onCoinClick(coinUid: String?) {
+    private fun onCoinClick(coinUid: String?, navController: NavController) {
         if (coinUid != null) {
-            val arguments = CoinFragment.prepareParams(coinUid)
-            findNavController().slideFromRight(R.id.coinFragment, arguments)
+            val arguments = CoinFragment.Input(coinUid, "market_tvl")
+            navController.slideFromRight(R.id.coinFragment, arguments)
         } else {
             HudHelper.showWarningMessage(requireView(), R.string.MarketGlobalMetrics_NoCoin)
         }
@@ -68,6 +84,7 @@ class TvlFragment : BaseComposeFragment() {
     private fun TvlScreen(
         tvlViewModel: TvlViewModel,
         chartViewModel: TvlChartViewModel,
+        navController: NavController,
         onCoinClick: (String?) -> Unit
     ) {
         val itemsViewState by tvlViewModel.viewStateLiveData.observeAsState()
@@ -84,7 +101,7 @@ class TvlFragment : BaseComposeFragment() {
                         title = TranslatableString.ResString(R.string.Button_Close),
                         icon = R.drawable.ic_close,
                         onClick = {
-                            findNavController().popBackStack()
+                            navController.popBackStack()
                         }
                     )
                 )
@@ -210,7 +227,7 @@ class TvlFragment : BaseComposeFragment() {
             }
             ButtonSecondaryCircle(
                 modifier = Modifier.padding(end = 16.dp),
-                icon = if (sortDescending) R.drawable.ic_arrow_down_20 else R.drawable.ic_arrow_up_20,
+                icon = if (sortDescending) R.drawable.ic_sort_l2h_20 else R.drawable.ic_sort_h2l_20,
                 onClick = { onToggleSortType() }
             )
             tvlDiffType?.let {

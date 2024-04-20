@@ -1,17 +1,16 @@
 package io.horizontalsystems.bankwallet.modules.send
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.core.os.bundleOf
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeModule
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
@@ -28,15 +27,19 @@ import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapp
 import io.horizontalsystems.bankwallet.modules.send.solana.SendSolanaModule
 import io.horizontalsystems.bankwallet.modules.send.solana.SendSolanaScreen
 import io.horizontalsystems.bankwallet.modules.send.solana.SendSolanaViewModel
+import io.horizontalsystems.bankwallet.modules.send.ton.SendTonModule
+import io.horizontalsystems.bankwallet.modules.send.ton.SendTonScreen
+import io.horizontalsystems.bankwallet.modules.send.ton.SendTonViewModel
 import io.horizontalsystems.bankwallet.modules.send.tron.SendTronModule
 import io.horizontalsystems.bankwallet.modules.send.tron.SendTronScreen
 import io.horizontalsystems.bankwallet.modules.send.tron.SendTronViewModel
 import io.horizontalsystems.bankwallet.modules.send.zcash.SendZCashModule
 import io.horizontalsystems.bankwallet.modules.send.zcash.SendZCashScreen
 import io.horizontalsystems.bankwallet.modules.send.zcash.SendZCashViewModel
+import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.parcelize.Parcelize
 
 class SendFragment : BaseFragment() {
 
@@ -50,11 +53,13 @@ class SendFragment : BaseFragment() {
                 ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             try {
-                val arguments = requireArguments()
-                val wallet = arguments.parcelable<Wallet>(walletKey) ?: throw IllegalStateException("Wallet is Null!")
-                val title = arguments.getString(titleKey) ?: ""
-                val sendEntryPointDestId = arguments.getInt(sendEntryPointDestIdKey)
-                val predefinedAddress = arguments.getString(predefinedAddressKey)
+                val navController = findNavController()
+                val input = navController.requireInput<Input>()
+                val wallet = input.wallet
+                val title = input.title
+                val sendEntryPointDestId = input.sendEntryPointDestId
+                val predefinedAddress = input.predefinedAddress
+                val prefilledData = input.prefilledAddressData
 
                 val amountInputModeViewModel by navGraphViewModels<AmountInputModeViewModel>(R.id.sendXFragment) {
                     AmountInputModeModule.Factory(wallet.coin.uid)
@@ -77,7 +82,8 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendBitcoinViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -93,7 +99,8 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendBinanceViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -109,7 +116,8 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendZCashViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -126,6 +134,7 @@ class SendFragment : BaseFragment() {
                         val evmKitWrapperViewModel by navGraphViewModels<EvmKitWrapperHoldingViewModel>(
                             R.id.sendXFragment
                         ) { factory }
+                        @Suppress("UNUSED_VARIABLE")
                         val initiateLazyViewModel = evmKitWrapperViewModel //needed in SendEvmConfirmationFragment
                         val sendEvmViewModel by navGraphViewModels<SendEvmViewModel>(R.id.sendXFragment) { factory }
                         setContent {
@@ -134,7 +143,8 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendEvmViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -148,7 +158,23 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendSolanaViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
+                            )
+                        }
+                    }
+
+                    BlockchainType.Ton -> {
+                        val factory = SendTonModule.Factory(wallet, predefinedAddress)
+                        val sendTonViewModel by navGraphViewModels<SendTonViewModel>(R.id.sendXFragment) { factory }
+                        setContent {
+                            SendTonScreen(
+                                title,
+                                findNavController(),
+                                sendTonViewModel,
+                                amountInputModeViewModel,
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -162,7 +188,8 @@ class SendFragment : BaseFragment() {
                                 findNavController(),
                                 sendTronViewModel,
                                 amountInputModeViewModel,
-                                sendEntryPointDestId
+                                sendEntryPointDestId,
+                                prefilledData,
                             )
                         }
                     }
@@ -170,35 +197,17 @@ class SendFragment : BaseFragment() {
                     else -> {}
                 }
             } catch (t: Throwable) {
-                Toast.makeText(
-                    App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
-                ).show()
                 findNavController().popBackStack()
             }
         }
     }
 
-    companion object {
-        private const val walletKey = "walletKey"
-        private const val sendEntryPointDestIdKey = "sendEntryPointDestIdKey"
-        private const val titleKey = "titleKey"
-        private const val predefinedAddressKey = "predefinedAddressKey"
-
-        fun prepareParams(wallet: Wallet, title: String) = bundleOf(
-            walletKey to wallet,
-            titleKey to title
-        )
-
-        fun prepareParams(
-            wallet: Wallet,
-            sendEntryPointDestId: Int,
-            title: String,
-            predefinedAddress: String? = null
-        ) = bundleOf(
-            walletKey to wallet,
-            sendEntryPointDestIdKey to sendEntryPointDestId,
-            titleKey to title,
-            predefinedAddressKey to predefinedAddress
-        )
-    }
+    @Parcelize
+    data class Input(
+        val wallet: Wallet,
+        val title: String,
+        val sendEntryPointDestId: Int = 0,
+        val predefinedAddress: String? = null,
+        val prefilledAddressData: PrefilledData? = null
+    ) : Parcelable
 }

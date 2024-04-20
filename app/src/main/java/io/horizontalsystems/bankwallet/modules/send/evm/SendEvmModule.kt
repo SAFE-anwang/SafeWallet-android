@@ -9,13 +9,14 @@ import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
+import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
-import io.horizontalsystems.bankwallet.modules.send.SendAmountAdvancedService
+import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCRequestChain
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCChainData
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
@@ -78,7 +79,7 @@ data class SendEvmData(
     @Parcelize
     data class WalletConnectInfo(
         val dAppName: String?,
-        val chain: WCRequestChain?
+        val chain: WCChainData?
     ) : Parcelable
 
     @Parcelize
@@ -119,15 +120,6 @@ data class SendEvmData(
 
 object SendEvmModule {
 
-    const val transactionDataKey = "transactionData"
-    const val additionalInfoKey = "additionalInfo"
-    const val blockchainTypeKey = "blockchainType"
-    const val backButtonKey = "backButton"
-    const val sendNavGraphIdKey = "sendNavGraphId_key"
-    const val sendEntryPointDestIdKey = "sendEntryPointDestIdKey"
-    const val transactionToken = "transactionToken"
-    const val backNavGraphIdKey = "backNavGraphId"
-
     @Parcelize
     data class TransactionDataParcelable(
         val toAddress: String,
@@ -155,10 +147,11 @@ object SendEvmModule {
                     val amountValidator = AmountValidator()
                     val coinMaxAllowedDecimals = wallet.token.decimals
 
-                    val amountService = SendAmountAdvancedService(
+                    val amountService = SendAmountService(
+                        amountValidator,
+                        wallet.token.coin.code,
                         adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
-                        wallet.token,
-                        amountValidator
+                        wallet.token.type.isNative
                     )
                     val addressService = SendEvmAddressService(predefinedAddress)
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
@@ -170,7 +163,9 @@ object SendEvmModule {
                         xRateService,
                         amountService,
                         addressService,
-                        coinMaxAllowedDecimals
+                        coinMaxAllowedDecimals,
+                        predefinedAddress == null,
+                        App.connectivityManager,
                     ) as T
                 }
                 else -> throw IllegalArgumentException()

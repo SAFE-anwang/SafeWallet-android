@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.send.evm.settings
 
+import android.os.Parcelable
 import androidx.annotation.IdRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,14 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
 import io.horizontalsystems.bankwallet.modules.evmfee.Eip1559FeeSettings
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
@@ -36,42 +36,39 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
 class SendEvmSettingsFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(requireArguments().getInt(NAV_GRAPH_ID))
-        val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(requireArguments().getInt(NAV_GRAPH_ID))
-        val sendViewModel by navGraphViewModels<SendEvmTransactionViewModel>(requireArguments().getInt(NAV_GRAPH_ID))
+    override fun GetContent(navController: NavController) {
+        val input = navController.requireInput<Input>()
+        val navGraphId = input.navGraphId
+        val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(navGraphId)
+        val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(navGraphId)
+        val sendViewModel by navGraphViewModels<SendEvmTransactionViewModel>(navGraphId)
 
-        ComposeAppTheme {
-            val feeSettingsViewModel = viewModel<ViewModel>(
-                factory = EvmFeeModule.Factory(
-                    feeViewModel.feeService,
-                    feeViewModel.gasPriceService,
-                    feeViewModel.coinService
-                )
+        val feeSettingsViewModel = viewModel<ViewModel>(
+            factory = EvmFeeModule.Factory(
+                feeViewModel.feeService,
+                feeViewModel.gasPriceService,
+                feeViewModel.coinService
             )
-            val sendSettingsViewModel = viewModel<SendEvmSettingsViewModel>(
-                factory = SendEvmSettingsModule.Factory(sendViewModel.service.settingsService, feeViewModel.coinService)
-            )
-            SendEvmFeeSettingsScreen(
-                viewModel = sendSettingsViewModel,
-                feeSettingsViewModel = feeSettingsViewModel,
-                nonceViewModel = nonceViewModel,
-                navController = findNavController()
-            )
-        }
+        )
+        val sendSettingsViewModel = viewModel<SendEvmSettingsViewModel>(
+            factory = SendEvmSettingsModule.Factory(sendViewModel.service.settingsService, feeViewModel.coinService)
+        )
+        SendEvmFeeSettingsScreen(
+            viewModel = sendSettingsViewModel,
+            feeSettingsViewModel = feeSettingsViewModel,
+            nonceViewModel = nonceViewModel,
+            navController = navController
+        )
     }
 
-    companion object {
-        private const val NAV_GRAPH_ID = "nav_graph_id"
-
-        fun prepareParams(@IdRes navGraphId: Int) =
-            bundleOf(NAV_GRAPH_ID to navGraphId)
-    }
+    @Parcelize
+    data class Input(@IdRes val navGraphId: Int) : Parcelable
 }
 
 

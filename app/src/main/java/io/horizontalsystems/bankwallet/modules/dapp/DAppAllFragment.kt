@@ -47,10 +47,10 @@ class DAppAllFragment: BaseFragment() {
             }
 
             override fun onClick(dappItem: DAppItem) {
-                val bundle = Bundle()
-                bundle.putString("url", dappItem.dlink)
-                bundle.putString("name", dappItem.name)
-                findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
+                findNavController().slideFromRight(
+                        R.id.dappBrowseFragment,
+                        DAppBrowseFragment.Input(dappItem.dlink, dappItem.name)
+                        )
             }
         })
 

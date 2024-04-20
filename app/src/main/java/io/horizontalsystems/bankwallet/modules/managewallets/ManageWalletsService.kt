@@ -18,7 +18,7 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.*
-import io.horizontalsystems.bankwallet.modules.receivemain.FullCoinsProvider
+import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.Token
@@ -128,8 +128,8 @@ class ManageWalletsService(
         val tokens = if (filter.isNotBlank()) {
             eligibleTokens
         } else if (
-            eligibleTokens.all { it.type is TokenType.Derived } ||
-            eligibleTokens.all { it.type is TokenType.AddressTyped }
+            accountType !is AccountType.HdExtendedKey &&
+            (eligibleTokens.all { it.type is TokenType.Derived } || eligibleTokens.all { it.type is TokenType.AddressTyped })
         ) {
             eligibleTokens.filter { isEnabled(it) || it.type.isDefault }
         } else {
@@ -182,7 +182,10 @@ class ManageWalletsService(
     private fun updateSortedItems(token: Token, enable: Boolean) {
         items = items.map { item ->
             if (item.token == token) {
-                item.copy(enabled = enable)
+                item.copy(
+                    enabled = enable,
+                    hasInfo = hasInfo(token, enable)
+                )
             } else {
                 item
             }

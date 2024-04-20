@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.authorizedAction
@@ -29,7 +29,6 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.contacts.screen.ConfirmationBottomSheet
 import io.horizontalsystems.bankwallet.modules.importwallet.getFileName
-import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restorelocal.RestoreLocalFragment
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -38,40 +37,36 @@ import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawren
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
-import io.horizontalsystems.core.findNavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class BackupManagerFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            val navController = findNavController()
-            BackupManagerScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                onRestoreBackup = { jsonString, fileName ->
-                    navController.navigateWithTermsAccepted {
-                        navController.slideFromBottom(
-                            R.id.restoreLocalFragment,
-                            bundleOf(
-                                ManageAccountsModule.popOffOnSuccessKey to R.id.backupManagerFragment,
-                                ManageAccountsModule.popOffInclusiveKey to false,
-                                RestoreLocalFragment.jsonFileKey to jsonString,
-                                RestoreLocalFragment.fileNameKey to fileName
-                            )
+    override fun GetContent(navController: NavController) {
+        BackupManagerScreen(
+            onBackClick = {
+                navController.popBackStack()
+            },
+            onRestoreBackup = { jsonString, fileName ->
+                navController.navigateWithTermsAccepted {
+                    navController.slideFromBottom(
+                        R.id.restoreLocalFragment,
+                        RestoreLocalFragment.Input(
+                            R.id.backupManagerFragment,
+                            false,
+                            jsonString,
+                            fileName
                         )
-                    }
-                },
-                onCreateBackup = {
-                    navController.authorizedAction {
-                        navController.slideFromRight(R.id.backupLocalFragment)
-                    }
+                    )
                 }
-            )
-        }
+            },
+            onCreateBackup = {
+                navController.authorizedAction {
+                    navController.slideFromRight(R.id.backupLocalFragment)
+                }
+            }
+        )
     }
 }
 

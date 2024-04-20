@@ -13,6 +13,7 @@ import com.v2ray.ang.service.V2RayServiceManager
 import com.v2ray.ang.util.MmkvManager
 import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
 import io.horizontalsystems.binancechainkit.BinanceChainKit
@@ -226,7 +227,7 @@ object VpnConnectService {
         App.bitCoinConnectionManager.onEnterForeground()
 //        App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper?.evmKit?.refresh()
 //        App.binanceKitManager.binanceKit?.refresh()
-        App.adapterManager.preloadAdapters()
+        (App.adapterManager as AdapterManager).preloadAdapters()
 //        App.ethereumKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
 //        App.binanceSmartChainKitManager.evmKitWrapper?.evmKit?.onEnterForeground()
         val mainActivity = activity as MainActivity

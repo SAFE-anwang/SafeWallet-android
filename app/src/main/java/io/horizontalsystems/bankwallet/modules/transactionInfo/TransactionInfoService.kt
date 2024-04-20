@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -43,11 +44,12 @@ import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 class TransactionInfoService(
-    private val transactionRecord: TransactionRecord,
+    val transactionRecord: TransactionRecord,
     private val adapter: ITransactionsAdapter,
     private val marketKit: MarketKitWrapper,
     private val currencyManager: CurrencyManager,
-    private val nftMetadataService: NftMetadataService
+    private val nftMetadataService: NftMetadataService,
+    balanceHidden: Boolean,
 ) {
 
     val transactionHash: String get() = transactionRecord.transactionHash
@@ -61,7 +63,8 @@ class TransactionInfoService(
         adapter.lastBlockInfo,
         TransactionInfoModule.ExplorerData(adapter.explorerTitle, adapter.getTransactionUrl(transactionRecord.transactionHash)),
         mapOf(),
-        mapOf()
+        mapOf(),
+        balanceHidden
     )
         private set(value) {
             field = value
@@ -73,6 +76,7 @@ class TransactionInfoService(
             val coinUids = mutableListOf<String?>()
 
             val txCoinTypes = when (val tx = transactionRecord) {
+                is TonTransactionRecord -> listOf(tx.mainValue.coinUid, tx.fee?.coinUid)
                 is EvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
                 is EvmOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
                 is SwapTransactionRecord -> listOf(tx.fee, tx.valueIn, tx.valueOut).map { it?.coinUid }
@@ -147,7 +151,7 @@ class TransactionInfoService(
         _transactionInfoItemFlow.update { transactionInfoItem }
 
         launch {
-            adapter.getTransactionRecordsFlowable(null, FilterTransactionType.All).asFlow()
+            adapter.getTransactionRecordsFlowable(null, FilterTransactionType.All, null).asFlow()
                 .collect { transactionRecords ->
                     val record = transactionRecords.find { it == transactionRecord }
 

@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,10 +34,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem2
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
-import io.horizontalsystems.bankwallet.modules.balance.token.TokenBalanceFragment
 import io.horizontalsystems.bankwallet.modules.syncerror.SyncErrorDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.DraggableCardSimple
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -56,11 +53,12 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 @Composable
 fun BalanceCardSwipable(
     viewItem: BalanceViewItem2,
-    viewModel: BalanceViewModel,
-    navController: NavController,
     revealed: Boolean,
     onReveal: (Int) -> Unit,
     onConceal: () -> Unit,
+    onClick: () -> Unit,
+    onClickSyncError: () -> Unit,
+    onDisable: () -> Unit,
 ) {
 
     Box(
@@ -72,7 +70,7 @@ fun BalanceCardSwipable(
                 .fillMaxHeight()
                 .align(Alignment.CenterEnd)
                 .width(88.dp),
-            onClick = { viewModel.disable(viewItem) },
+            onClick = onDisable,
             content = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_circle_minus_24),
@@ -89,7 +87,11 @@ fun BalanceCardSwipable(
             onReveal = { onReveal(viewItem.wallet.hashCode()) },
             onConceal = onConceal,
             content = {
-                BalanceCard(viewItem, viewModel, navController)
+                BalanceCard(
+                    onClick = onClick,
+                    onClickSyncError = onClickSyncError,
+                    viewItem = viewItem
+                )
             }
         )
     }
@@ -97,9 +99,9 @@ fun BalanceCardSwipable(
 
 @Composable
 fun BalanceCard(
-    viewItem: BalanceViewItem2,
-    viewModel: BalanceViewModel,
-    navController: NavController
+    onClick: () -> Unit,
+    onClickSyncError: () -> Unit,
+    viewItem: BalanceViewItem2
 ) {
     Column(
         modifier = Modifier
@@ -109,22 +111,15 @@ fun BalanceCard(
             .background(ComposeAppTheme.colors.lawrence)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                navController.slideFromRight(
-                    R.id.tokenBalanceFragment,
-                    TokenBalanceFragment.prepareParams(viewItem.wallet)
-                )
-            }
+                indication = null,
+                onClick = onClick
+            )
     ) {
-        val view = LocalView.current
-
         BalanceCardInner(
             viewItem = viewItem,
-            type = BalanceCardSubtitleType.Rate
-        ) {
-            onSyncErrorClicked(viewItem, viewModel, navController, view)
-        }
+            type = BalanceCardSubtitleType.Rate,
+            onClickSyncError = onClickSyncError
+        )
     }
 }
 
@@ -182,14 +177,12 @@ fun BalanceCardInner(
                         }
                     }
                     Spacer(Modifier.width(24.dp))
-                    if (viewItem.primaryValue.visible) {
-                        Text(
-                            text = viewItem.primaryValue.value,
-                            color = if (viewItem.primaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
-                            style = ComposeAppTheme.typography.headline2,
-                            maxLines = 1,
-                        )
-                    }
+                    Text(
+                        text = if (viewItem.primaryValue.visible) viewItem.primaryValue.value else "*****",
+                        color = if (viewItem.primaryValue.dimmed) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.leah,
+                        style = ComposeAppTheme.typography.headline2,
+                        maxLines = 1,
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(3.dp))
@@ -241,9 +234,9 @@ fun BalanceCardInner(
                                 text = viewItem.syncedUntilTextValue,
                                 maxLines = 1,
                             )
-                        } else if (viewItem.secondaryValue.visible) {
+                        } else {
                             Text(
-                                text = viewItem.secondaryValue.value,
+                                text = if (viewItem.secondaryValue.visible) viewItem.secondaryValue.value else "*****",
                                 color = if (viewItem.secondaryValue.dimmed) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.grey,
                                 style = ComposeAppTheme.typography.subhead2,
                                 maxLines = 1,
@@ -319,7 +312,7 @@ private fun WalletIcon(
     }
 }
 
-private fun onSyncErrorClicked(viewItem: BalanceViewItem2, viewModel: BalanceViewModel, navController: NavController, view: View) {
+fun onSyncErrorClicked(viewItem: BalanceViewItem2, viewModel: BalanceViewModel, navController: NavController, view: View) {
     when (val syncErrorDetails = viewModel.getSyncErrorDetails(viewItem)) {
         is BalanceViewModel.SyncError.Dialog -> {
             val wallet = syncErrorDetails.wallet
@@ -327,7 +320,7 @@ private fun onSyncErrorClicked(viewItem: BalanceViewItem2, viewModel: BalanceVie
 
             navController.slideFromBottom(
                 R.id.syncErrorDialog,
-                SyncErrorDialog.prepareParams(wallet, errorMessage)
+                SyncErrorDialog.Input(wallet, errorMessage)
             )
         }
         is BalanceViewModel.SyncError.NetworkNotAvailable -> {

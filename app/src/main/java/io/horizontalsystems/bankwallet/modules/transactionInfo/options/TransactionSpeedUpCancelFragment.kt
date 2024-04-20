@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.transactionInfo.options
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Parcelable
 import android.view.View
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,13 +17,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
@@ -41,23 +42,21 @@ import io.horizontalsystems.core.CustomSnackbar
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.core.parcelable
+import kotlinx.parcelize.Parcelize
 
 class TransactionSpeedUpCancelFragment : BaseComposeFragment() {
 
     private val logger = AppLogger("tx-speedUp-cancel")
     private val transactionInfoViewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment)
-    private val optionType by lazy {
-        arguments?.parcelable<TransactionInfoOptionsModule.Type>(
-            OPTION_TYPE_KEY
-        )!!
+
+    private val input by lazy {
+        requireArguments().getInputX<Input>()!!
     }
-    private val transactionHash by lazy { arguments?.getString(TRANSACTION_HASH_KEY)!! }
 
     private val vmFactory by lazy {
         TransactionInfoOptionsModule.Factory(
-            optionType,
-            transactionHash,
+            input.optionType,
+            input.transactionHash,
             transactionInfoViewModel.source
         )
     }
@@ -69,14 +68,14 @@ class TransactionSpeedUpCancelFragment : BaseComposeFragment() {
     private var snackbarInProcess: CustomSnackbar? = null
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         TransactionSpeedUpCancelScreen(
             sendEvmTransactionViewModel = sendEvmTransactionViewModel,
             feeViewModel = feeViewModel,
             nonceViewModel = nonceViewModel,
             parentNavGraphId = R.id.transactionSpeedUpCancelFragment,
             speedUpCancelViewModel = speedUpCancelViewModel,
-            navController = findNavController(),
+            navController = navController,
             onSendClick = {
                 logger.info("click send button")
                 sendEvmTransactionViewModel.send(logger)
@@ -126,21 +125,11 @@ class TransactionSpeedUpCancelFragment : BaseComposeFragment() {
 
     }
 
-    companion object {
-        private const val OPTION_TYPE_KEY = "option_type_key"
-        private const val TRANSACTION_HASH_KEY = "transaction_hash_key"
-
-        fun prepareParams(
-            optionType: TransactionInfoOptionsModule.Type,
-            transactionHash: String
-        ): Bundle {
-            return bundleOf(
-                OPTION_TYPE_KEY to optionType,
-                TRANSACTION_HASH_KEY to transactionHash
-            )
-        }
-    }
-
+    @Parcelize
+    data class Input(
+        val optionType: TransactionInfoOptionsModule.Type,
+        val transactionHash: String
+    ) : Parcelable
 }
 
 @Composable
@@ -155,55 +144,52 @@ private fun TransactionSpeedUpCancelScreen(
 ) {
     val enabled by sendEvmTransactionViewModel.sendEnabledLiveData.observeAsState(false)
 
-    ComposeAppTheme {
-        Scaffold(
-            backgroundColor = ComposeAppTheme.colors.tyler,
-            topBar = {
-                AppBar(
-                    title = stringResource(R.string.Send_Confirmation_Title),
-                    navigationIcon = {
-                        HsBackButton(onClick = { navController.popBackStack() })
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
-                            icon = R.drawable.ic_manage_2,
-                            tint = ComposeAppTheme.colors.jacob,
-                            onClick = {
-                                navController.slideFromBottom(
-                                    resId = R.id.sendEvmSettingsFragment,
-                                    args = SendEvmSettingsFragment.prepareParams(parentNavGraphId)
-                                )
-                            }
-                        )
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
+            AppBar(
+                title = stringResource(R.string.Send_Confirmation_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = { navController.popBackStack() })
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
+                        icon = R.drawable.ic_manage_2,
+                        tint = ComposeAppTheme.colors.jacob,
+                        onClick = {
+                            navController.slideFromBottom(
+                                R.id.sendEvmSettingsFragment,
+                                SendEvmSettingsFragment.Input(parentNavGraphId)
+                            )
+                        }
                     )
                 )
+            )
+        }
+    ) {
+        Column(modifier = Modifier.padding(it)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SendEvmTransactionView(
+                    sendEvmTransactionViewModel,
+                    feeViewModel,
+                    nonceViewModel,
+                    navController,
+                )
             }
-        ) {
-            Column(modifier = Modifier.padding(it)) {
-                Column(
+            ButtonsGroupWithShade {
+                ButtonPrimaryYellow(
                     modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    SendEvmTransactionView(
-                        sendEvmTransactionViewModel,
-                        feeViewModel,
-                        nonceViewModel,
-                        navController,
-                        speedUpCancelViewModel.description
-                    )
-                }
-                ButtonsGroupWithShade {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
-                        title = speedUpCancelViewModel.buttonTitle,
-                        onClick = onSendClick,
-                        enabled =  if(speedUpCancelViewModel.isTransactionPending) enabled else false
-                    )
-                }
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    title = speedUpCancelViewModel.buttonTitle,
+                    onClick = onSendClick,
+                    enabled = if (speedUpCancelViewModel.isTransactionPending) enabled else false
+                )
             }
         }
     }

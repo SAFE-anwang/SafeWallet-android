@@ -1,6 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.contacts
 
-import android.os.Bundle
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePage
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.contacts.model.ContactAddress
 import io.horizontalsystems.bankwallet.modules.contacts.screen.AddressScreen
@@ -20,29 +21,24 @@ import io.horizontalsystems.bankwallet.modules.contacts.screen.ContactsScreen
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.AddressViewModel
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.ContactViewModel
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.ContactsViewModel
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.core.setNavigationResult
+import kotlinx.parcelize.Parcelize
 
 
 class ContactsFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
         ContactsNavHost(
-            navController = findNavController(),
-            mode = arguments?.parcelable(modeKey) ?: Mode.Full
+            navController = navController,
+            mode = navController.getInput<Input>()?.mode ?: Mode.Full
         )
     }
 
-    companion object {
-        private const val modeKey = "modeKey"
-
-        fun prepareParams(mode: Mode): Bundle {
-            return bundleOf(modeKey to mode)
-        }
-    }
+    @Parcelize
+    data class Input(val mode: Mode) : Parcelable
 }
 
 @Composable

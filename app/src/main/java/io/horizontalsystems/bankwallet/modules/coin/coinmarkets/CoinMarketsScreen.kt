@@ -4,14 +4,26 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +39,14 @@ import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Select
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryToggle
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
+import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinFirstRow
+import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinSecondRow
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemBorderedRowUniversalClear
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.marketkit.models.FullCoin
 import kotlinx.coroutines.launch
@@ -43,7 +62,7 @@ fun CoinMarketsScreen(
     val viewItems by viewModel.viewItemsLiveData.observeAsState()
 
     Surface(color = ComposeAppTheme.colors.tyler) {
-        Crossfade(viewItemState) { viewItemState ->
+        Crossfade(viewItemState, label = "") { viewItemState ->
             when (viewItemState) {
                 ViewState.Loading -> {
                     Loading()
@@ -61,14 +80,11 @@ fun CoinMarketsScreen(
                                 )
                             } else {
                                 CoinMarketsMenu(
-                                    viewModel.sortingType,
-                                    viewModel.volumeMenu,
-                                    {
-                                        viewModel.toggleSortType(it)
-                                        scrollToTopAfterUpdate = true
-                                    },
-                                    { viewModel.toggleVolumeType(it) }
-                                )
+                                    viewModel.verifiedMenu,
+                                ) {
+                                    viewModel.toggleVerifiedType(it)
+                                    scrollToTopAfterUpdate = true
+                                }
                                 CoinMarketList(items, scrollToTopAfterUpdate)
                                 if (scrollToTopAfterUpdate) {
                                     scrollToTopAfterUpdate = false
@@ -85,33 +101,20 @@ fun CoinMarketsScreen(
 
 @Composable
 fun CoinMarketsMenu(
-    menuSorting: SortType,
-    menuVolumeType: Select<CoinMarketsModule.VolumeMenuType>,
-    onToggleSortType: (SortType) -> Unit,
-    onToggleVolumeType: (CoinMarketsModule.VolumeMenuType) -> Unit
+    menuVerified: Select<VerifiedType>,
+    onToggleVerified: (VerifiedType) -> Unit,
 ) {
 
-    var sortingType by remember { mutableStateOf(menuSorting) }
-    var volumeType by remember { mutableStateOf(menuVolumeType) }
+    var verifiedType by remember { mutableStateOf(menuVerified) }
 
     HeaderSorting(borderTop = true, borderBottom = true) {
-        ButtonSecondaryCircle(
-            modifier = Modifier
-                .padding(start = 16.dp),
-            icon = if (sortingType == SortType.HighestVolume) R.drawable.ic_arrow_down_20 else R.drawable.ic_arrow_up_20,
-            onClick = {
-                val next = sortingType.next()
-                onToggleSortType(next)
-                sortingType = next
-            }
-        )
         Spacer(Modifier.weight(1f))
         ButtonSecondaryToggle(
             modifier = Modifier.padding(end = 16.dp),
-            select = volumeType,
+            select = verifiedType,
             onSelect = {
-                onToggleVolumeType.invoke(it)
-                volumeType = Select(it, volumeType.options)
+                onToggleVerified.invoke(it)
+                verifiedType = Select(it, verifiedType.options)
             }
         )
     }
@@ -134,9 +137,10 @@ fun CoinMarketList(
                 item.market,
                 item.pair,
                 item.marketImageUrl ?: "",
-                item.rate,
-                MarketDataValue.Volume(item.volume),
-                item.tradeUrl
+                item.volumeToken,
+                MarketDataValue.Volume(item.volumeFiat),
+                item.tradeUrl,
+                item.badge
             )
         }
         item {
@@ -155,9 +159,10 @@ fun CoinMarketCell(
     name: String,
     subtitle: String,
     iconUrl: String,
-    coinRate: String? = null,
-    marketDataValue: MarketDataValue? = null,
+    volumeToken: String,
+    marketDataValue: MarketDataValue,
     tradeUrl: String?,
+    badge: TranslatableString?
 ) {
     val context = LocalContext.current
     SectionItemBorderedRowUniversalClear(
@@ -180,7 +185,7 @@ fun CoinMarketCell(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            MarketCoinFirstRow(name, coinRate)
+            MarketCoinFirstRow(name, volumeToken, badge?.getString())
             Spacer(modifier = Modifier.height(3.dp))
             MarketCoinSecondRow(subtitle, marketDataValue, null)
         }

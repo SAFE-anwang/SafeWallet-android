@@ -1,16 +1,18 @@
 package io.horizontalsystems.bankwallet.core
 
+import android.os.Parcelable
 import com.google.gson.JsonObject
+import io.horizontalsystems.bankwallet.core.adapters.BitcoinFeeInfo
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.Bep2TokenInfoService
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.FeeRates
+import io.horizontalsystems.bankwallet.core.utils.AddressUriResult
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.entities.AddressData
 import io.horizontalsystems.bankwallet.entities.AppVersion
 import io.horizontalsystems.bankwallet.entities.CexType
 import io.horizontalsystems.bankwallet.entities.EnabledWallet
@@ -25,10 +27,9 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewType
 import io.horizontalsystems.bankwallet.modules.main.MainModule
-import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketModule
-import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.Value
+import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesModule.Period
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
 import io.horizontalsystems.bankwallet.modules.settings.security.autolock.AutoLockInterval
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.TorStatus
@@ -37,6 +38,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.binancechainkit.BinanceChainKit
 import io.horizontalsystems.bitcoincore.core.IPluginData
+import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.hdwalletkit.Language
@@ -52,15 +54,15 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.util.Date
 import io.horizontalsystems.solanakit.models.Address as SolanaAddress
 import io.horizontalsystems.tronkit.models.Address as TronAddress
 
 interface IAdapterManager {
     val adaptersReadyObservable: Flowable<Map<Wallet, IAdapter>>
-    fun preloadAdapters()
+    fun startAdapterManager()
     fun refresh()
     fun getAdapterForWallet(wallet: Wallet): IAdapter?
     fun getAdapterForToken(token: Token): IAdapter?
@@ -71,6 +73,7 @@ interface IAdapterManager {
 }
 
 interface ILocalStorage {
+    var marketSearchRecentCoinUids: List<String>
     var zcashAccountIds: Set<String>
     var autoLockInterval: AutoLockInterval
     var chartIndicatorsEnabled: Boolean
@@ -90,7 +93,6 @@ interface ILocalStorage {
     var sortType: BalanceSortType
     var appVersions: List<AppVersion>
     var isAlertNotificationOn: Boolean
-    var isLockTimeEnabled: Boolean
     var encryptedSampleText: String?
     var bitcoinDerivation: AccountType.Derivation?
     var torEnabled: Boolean
@@ -110,13 +112,19 @@ interface ILocalStorage {
     var launchPage: LaunchPage?
     var appIcon: AppIcon?
     var mainTab: MainModule.MainNavigation?
-    var marketFavoritesSortingField: SortingField?
-    var marketFavoritesMarketField: MarketField?
+    var marketFavoritesSortDescending: Boolean
+    var marketFavoritesPeriod: Period?
     var relaunchBySettingChange: Boolean
     var marketsTabEnabled: Boolean
     val marketsTabEnabledFlow: StateFlow<Boolean>
     var nonRecommendedAccountAlertDismissedAccounts: Set<String>
     var personalSupportEnabled: Boolean
+    var hideSuspiciousTransactions: Boolean
+    var pinRandomized: Boolean
+    var utxoExpertModeEnabled: Boolean
+    var rbfEnabled: Boolean
+
+    val utxoExpertModeEnabledFlow: StateFlow<Boolean>
 
     fun getSwapProviderId(blockchainType: BlockchainType): String?
     fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
@@ -254,19 +262,22 @@ interface ITransactionsAdapter {
 
     val lastBlockInfo: LastBlockInfo?
     val lastBlockUpdatedFlowable: Flowable<Unit>
+    val additionalTokenQueries: List<TokenQuery> get() = listOf()
 
     fun getTransactionsAsync(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
-        transactionType: FilterTransactionType
+        transactionType: FilterTransactionType,
+        address: String?,
     ): Single<List<TransactionRecord>>
 
     fun getRawTransaction(transactionHash: String): String? = null
 
     fun getTransactionRecordsFlowable(
         token: Token?,
-        transactionType: FilterTransactionType
+        transactionType: FilterTransactionType,
+        address: String?
     ): Flowable<List<TransactionRecord>>
 
     fun getTransactionUrl(transactionHash: String): String
@@ -284,42 +295,66 @@ interface IBalanceAdapter {
     fun sendAllowed() = balanceState is AdapterState.Synced
 }
 
-data class BalanceData(val available: BigDecimal, val locked: BigDecimal = BigDecimal.ZERO) {
-    val total get() = available + locked
+data class BalanceData(
+    val available: BigDecimal,
+    val timeLocked: BigDecimal = BigDecimal.ZERO,
+    val notRelayed: BigDecimal = BigDecimal.ZERO
+) {
+    val total get() = available + timeLocked + notRelayed
 }
 
 interface IReceiveAdapter {
     val receiveAddress: String
     val isMainNet: Boolean
 
-    val isAccountActive: Boolean
-        get() = true
+    suspend fun isAddressActive(address: String): Boolean {
+        return true
+    }
+
+    fun usedAddresses(change: Boolean): List<UsedAddress> {
+        return listOf()
+    }
 }
 
+@Parcelize
+data class UsedAddress(
+    val index: Int,
+    val address: String,
+    val explorerUrl: String
+): Parcelable
+
 interface ISendBitcoinAdapter {
+    val unspentOutputs: List<UnspentOutputInfo>
     val balanceData: BalanceData
     val blockchainType: BlockchainType
     fun availableBalance(
         feeRate: Int,
         address: String?,
+        memo: String?,
+        unspentOutputs: List<UnspentOutputInfo>?,
         pluginData: Map<Byte, IPluginData>?
     ): BigDecimal
 
     fun minimumSendAmount(address: String?): BigDecimal?
-    fun fee(
+    fun bitcoinFeeInfo(
         amount: BigDecimal,
         feeRate: Int,
         address: String?,
+        memo: String?,
+        unspentOutputs: List<UnspentOutputInfo>?,
         pluginData: Map<Byte, IPluginData>?
-    ): BigDecimal?
+    ): BitcoinFeeInfo?
 
     fun validate(address: String, pluginData: Map<Byte, IPluginData>?)
     fun send(
         amount: BigDecimal,
         address: String,
+        memo: String?,
         feeRate: Int,
+        unspentOutputs: List<UnspentOutputInfo>?,
         pluginData: Map<Byte, IPluginData>?,
         transactionSorting: TransactionDataSortMode?,
+        rbfEnabled: Boolean,
         logger: AppLogger
     ): Single<Unit>
 }
@@ -346,7 +381,7 @@ interface ISendEthereumAdapter {
     val evmKitWrapper: EvmKitWrapper
     val balanceData: BalanceData
 
-    fun getTransactionData(amount: BigInteger, address: Address): TransactionData
+    fun getTransactionData(amount: BigDecimal, address: Address): TransactionData
 }
 
 interface ISendBinanceAdapter {
@@ -379,20 +414,27 @@ interface ISendSolanaAdapter {
     suspend fun send(amount: BigDecimal, to: SolanaAddress): FullTransaction
 }
 
+interface ISendTonAdapter {
+    val availableBalance: BigDecimal
+    suspend fun send(amount: BigDecimal, address: String, memo: String?)
+    suspend fun estimateFee() : BigDecimal
+}
+
 interface ISendTronAdapter {
     val balanceData: BalanceData
     val trxBalanceData: BalanceData
 
-    suspend fun estimateFee(amount: BigInteger, to: TronAddress): List<Fee>
-    suspend fun send(amount: BigInteger, to: TronAddress, feeLimit: Long?)
+    suspend fun estimateFee(amount: BigDecimal, to: TronAddress): List<Fee>
+    suspend fun send(amount: BigDecimal, to: TronAddress, feeLimit: Long?)
     suspend fun isAddressActive(address: TronAddress): Boolean
     fun isOwnAddress(address: TronAddress): Boolean
 }
 
 interface IAccountsStorage {
-    var activeAccountId: String?
     val isAccountsEmpty: Boolean
 
+    fun getActiveAccountId(level: Int): String?
+    fun setActiveAccountId(level: Int, id: String?)
     fun allAccounts(accountsMinLevel: Int): List<Account>
     fun save(account: Account)
     fun update(account: Account)
@@ -475,7 +517,7 @@ interface IFeeRateProvider {
 }
 
 interface IAddressParser {
-    fun parse(paymentAddress: String): AddressData
+    fun parse(addressUri: String): AddressUriResult
 }
 
 interface IAccountCleaner {

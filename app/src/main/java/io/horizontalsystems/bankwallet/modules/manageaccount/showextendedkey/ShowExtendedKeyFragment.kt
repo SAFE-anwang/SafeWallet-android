@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.manageaccount.showextendedkey
 
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
 import io.horizontalsystems.bankwallet.modules.manageaccount.showextendedkey.ShowExtendedKeyModule.DisplayKeyType
 import io.horizontalsystems.bankwallet.modules.manageaccount.ui.ActionButton
@@ -26,36 +28,41 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.core.parcelable
 import io.horizontalsystems.hdwalletkit.HDExtendedKey
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 class ShowExtendedKeyFragment : BaseComposeFragment(screenshotEnabled = false) {
 
     @Composable
-    override fun GetContent() {
-        val hdExtendedKey = arguments?.getString(ShowExtendedKeyModule.EXTENDED_ROOT_KEY)?.let {
-            try {
-                HDExtendedKey(it)
-            } catch (error: Throwable) {
-                null
-            }
-        }
-        val displayKeyType = arguments?.parcelable<DisplayKeyType>(ShowExtendedKeyModule.DISPLAY_KEY_TYPE)
+    override fun GetContent(navController: NavController) {
+        val input = navController.getInput<Input>()
+        val hdExtendedKey = input?.extendedRootKey
+        val displayKeyType = input?.displayKeyType
 
         if (hdExtendedKey == null || displayKeyType == null) {
             NoExtendKeyScreen()
         } else {
             ShowExtendedKeyScreen(
-                findNavController(),
+                navController,
                 hdExtendedKey,
                 displayKeyType
             )
         }
     }
 
+    @Parcelize
+    data class Input(val extendedRootKeySerialized: String, val displayKeyType: DisplayKeyType) : Parcelable {
+        val extendedRootKey: HDExtendedKey?
+            get() = try {
+                HDExtendedKey(extendedRootKeySerialized)
+            } catch (error: Throwable) {
+                null
+            }
+
+        constructor(extendedRootKey: HDExtendedKey, displayKeyType: DisplayKeyType) : this(extendedRootKey.serialize(), displayKeyType)
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -73,157 +80,155 @@ private fun ShowExtendedKeyScreen(
         initialValue = ModalBottomSheetValue.Hidden,
     )
 
-    ComposeAppTheme {
-        ModalBottomSheetLayout(
-            sheetState = sheetState,
-            sheetBackgroundColor = ComposeAppTheme.colors.transparent,
-            sheetContent = {
-                ConfirmCopyBottomSheet(
-                    onConfirm = {
-                        coroutineScope.launch {
-                            TextHelper.copyText(viewModel.extendedKey)
-                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-                            sheetState.hide()
-                        }
-                    },
-                    onCancel = {
-                        coroutineScope.launch {
-                            sheetState.hide()
-                        }
-                    }
-                )
-            }
-        ) {
-            Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-                AppBar(
-                    title = viewModel.title.getString(),
-                    navigationIcon = {
-                        HsBackButton(onClick = navController::popBackStack)
-                    },
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Info_Title),
-                            icon = R.drawable.ic_info_24,
-                            onClick = {
-                                FaqManager.showFaqPage(navController, FaqManager.faqPathPrivateKeys)
-                            }
-                        )
-                    )
-                )
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Spacer(Modifier.height(12.dp))
-
-                    if(viewModel.displayKeyType.isPrivate) {
-                        TextImportantWarning(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            text = stringResource(R.string.PrivateKeys_NeverShareWarning)
-                        )
-                        Spacer(Modifier.height(24.dp))
-                    }
-
-                    var showBlockchainSelectorDialog by remember { mutableStateOf(false) }
-                    var showPurposeSelectorDialog by remember { mutableStateOf(false) }
-                    var showAccountSelectorDialog by remember { mutableStateOf(false) }
-
-                    val menuItems = buildList<@Composable () -> Unit> {
-                        add {
-                            MenuItem(
-                                title = stringResource(R.string.ExtendedKey_Purpose),
-                                value = viewModel.purpose.name,
-                                onClick = if (viewModel.displayKeyType == DisplayKeyType.Bip32RootKey || viewModel.displayKeyType.isDerivable) {
-                                    { showPurposeSelectorDialog = true }
-                                } else {
-                                    null
-                                }
-                            )
-                        }
-                        if (viewModel.displayKeyType.isDerivable) {
-                            add {
-                                MenuItem(
-                                    title = stringResource(R.string.ExtendedKey_Blockchain),
-                                    value = viewModel.blockchain.name,
-                                    onClick = { showBlockchainSelectorDialog = true }
-                                )
-                            }
-                            add {
-                                MenuItem(
-                                    title = stringResource(R.string.ExtendedKey_Account),
-                                    value = viewModel.account.toString(),
-                                    onClick = { showAccountSelectorDialog = true }
-                                )
-                            }
-                        }
-                    }
-
-                    if (menuItems.isNotEmpty()) {
-                        CellUniversalLawrenceSection(menuItems)
-                    }
-
-                    Spacer(Modifier.height(32.dp))
-                    if (viewModel.displayKeyType.isPrivate) {
-                        HidableContent(viewModel.extendedKey, stringResource(R.string.ExtendedKey_TapToShowPrivateKey))
-                    } else {
-                        HidableContent(viewModel.extendedKey)
-                    }
-
-                    if (showPurposeSelectorDialog) {
-                        SelectorDialogCompose(
-                            title = stringResource(R.string.ExtendedKey_Purpose),
-                            items = viewModel.purposes.map {
-                                SelectorItem(it.name, it == viewModel.purpose, it)
-                            },
-                            onDismissRequest = {
-                                showPurposeSelectorDialog = false
-                            },
-                            onSelectItem = {
-                                viewModel.set(it)
-                            }
-                        )
-                    }
-                    if (showBlockchainSelectorDialog) {
-                        SelectorDialogCompose(
-                            title = stringResource(R.string.ExtendedKey_Blockchain),
-                            items = viewModel.blockchains.map {
-                                SelectorItem(it.name, it == viewModel.blockchain, it)
-                            },
-                            onDismissRequest = {
-                                showBlockchainSelectorDialog = false
-                            },
-                            onSelectItem = {
-                                viewModel.set(it)
-                            }
-                        )
-                    }
-                    if (showAccountSelectorDialog) {
-                        SelectorDialogCompose(
-                            title = stringResource(R.string.ExtendedKey_Account),
-                            items = viewModel.accounts.map {
-                                SelectorItem(it.toString(), it == viewModel.account, it)
-                            },
-                            onDismissRequest = {
-                                showAccountSelectorDialog = false
-                            },
-                            onSelectItem = {
-                                viewModel.set(it)
-                            }
-                        )
-                    }
-                }
-                ActionButton(R.string.Alert_Copy) {
-                    if (viewModel.displayKeyType.isPrivate) {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                    } else {
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
+        sheetContent = {
+            ConfirmCopyBottomSheet(
+                onConfirm = {
+                    coroutineScope.launch {
                         TextHelper.copyText(viewModel.extendedKey)
                         HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                        sheetState.hide()
                     }
+                },
+                onCancel = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                }
+            )
+        }
+    ) {
+        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+            AppBar(
+                title = viewModel.title.getString(),
+                navigationIcon = {
+                    HsBackButton(onClick = navController::popBackStack)
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Info_Title),
+                        icon = R.drawable.ic_info_24,
+                        onClick = {
+                            FaqManager.showFaqPage(navController, FaqManager.faqPathPrivateKeys)
+                        }
+                    )
+                )
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(Modifier.height(12.dp))
+
+                if (viewModel.displayKeyType.isPrivate) {
+                    TextImportantWarning(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = stringResource(R.string.PrivateKeys_NeverShareWarning)
+                    )
+                    Spacer(Modifier.height(24.dp))
+                }
+
+                var showBlockchainSelectorDialog by remember { mutableStateOf(false) }
+                var showPurposeSelectorDialog by remember { mutableStateOf(false) }
+                var showAccountSelectorDialog by remember { mutableStateOf(false) }
+
+                val menuItems = buildList<@Composable () -> Unit> {
+                    add {
+                        MenuItem(
+                            title = stringResource(R.string.ExtendedKey_Purpose),
+                            value = viewModel.purpose.name,
+                            onClick = if (viewModel.displayKeyType == DisplayKeyType.Bip32RootKey || viewModel.displayKeyType.isDerivable) {
+                                { showPurposeSelectorDialog = true }
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                    if (viewModel.displayKeyType.isDerivable) {
+                        add {
+                            MenuItem(
+                                title = stringResource(R.string.ExtendedKey_Blockchain),
+                                value = viewModel.blockchain.name,
+                                onClick = { showBlockchainSelectorDialog = true }
+                            )
+                        }
+                        add {
+                            MenuItem(
+                                title = stringResource(R.string.ExtendedKey_Account),
+                                value = viewModel.account.toString(),
+                                onClick = { showAccountSelectorDialog = true }
+                            )
+                        }
+                    }
+                }
+
+                if (menuItems.isNotEmpty()) {
+                    CellUniversalLawrenceSection(menuItems)
+                }
+
+                Spacer(Modifier.height(32.dp))
+                if (viewModel.displayKeyType.isPrivate) {
+                    HidableContent(viewModel.extendedKey, stringResource(R.string.ExtendedKey_TapToShowPrivateKey))
+                } else {
+                    HidableContent(viewModel.extendedKey)
+                }
+
+                if (showPurposeSelectorDialog) {
+                    SelectorDialogCompose(
+                        title = stringResource(R.string.ExtendedKey_Purpose),
+                        items = viewModel.purposes.map {
+                            SelectorItem(it.name, it == viewModel.purpose, it)
+                        },
+                        onDismissRequest = {
+                            showPurposeSelectorDialog = false
+                        },
+                        onSelectItem = {
+                            viewModel.set(it)
+                        }
+                    )
+                }
+                if (showBlockchainSelectorDialog) {
+                    SelectorDialogCompose(
+                        title = stringResource(R.string.ExtendedKey_Blockchain),
+                        items = viewModel.blockchains.map {
+                            SelectorItem(it.name, it == viewModel.blockchain, it)
+                        },
+                        onDismissRequest = {
+                            showBlockchainSelectorDialog = false
+                        },
+                        onSelectItem = {
+                            viewModel.set(it)
+                        }
+                    )
+                }
+                if (showAccountSelectorDialog) {
+                    SelectorDialogCompose(
+                        title = stringResource(R.string.ExtendedKey_Account),
+                        items = viewModel.accounts.map {
+                            SelectorItem(it.toString(), it == viewModel.account, it)
+                        },
+                        onDismissRequest = {
+                            showAccountSelectorDialog = false
+                        },
+                        onSelectItem = {
+                            viewModel.set(it)
+                        }
+                    )
+                }
+            }
+            ActionButton(R.string.Alert_Copy) {
+                if (viewModel.displayKeyType.isPrivate) {
+                    coroutineScope.launch {
+                        sheetState.show()
+                    }
+                } else {
+                    TextHelper.copyText(viewModel.extendedKey)
+                    HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
                 }
             }
         }

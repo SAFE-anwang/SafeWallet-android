@@ -5,9 +5,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,11 +31,16 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -34,29 +55,48 @@ import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAccountsViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceScreenState
-import io.horizontalsystems.bankwallet.modules.settings.about.*
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.CellHeaderSorting
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.HSCircularProgressIndicator
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderStick
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.ScrollableTabs
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
+import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
+import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.findNavController
 
 class TransactionsFragment : BaseFragment() {
 
     private val viewModel by viewModels<TransactionsViewModel> { TransactionsModule.Factory() }
-//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+    //    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+                    ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
                 ComposeAppTheme {
@@ -74,14 +114,16 @@ fun TransactionsScreen(
 ) {
     val accountsViewModel = viewModel<BalanceAccountsViewModel>(factory = BalanceModule.AccountsFactory())
 
-    val filterCoins by viewModel.filterCoinsLiveData.observeAsState()
     val filterTypes by viewModel.filterTypesLiveData.observeAsState()
+    val showFilterAlertDot by viewModel.filterResetEnabled.observeAsState(false)
+
+    val uiState = viewModel.uiState
+    val syncing = uiState.syncing
+    val transactions = uiState.transactions
+
     val filterBlockchains by viewModel.filterBlockchainsLiveData.observeAsState()
-    val transactions by viewModel.transactionList.observeAsState()
-    val viewState by viewModel.viewState.observeAsState()
-    val syncing by viewModel.syncingLiveData.observeAsState(false)
-    val filterResetEnabled by viewModel.filterResetEnabled.collectAsState()
     val filterZeroTransactions by viewModel.filterZeroTransactionLiveData.observeAsState()
+
 
     Surface(color = ComposeAppTheme.colors.tyler) {
         Column {
@@ -101,11 +143,12 @@ fun TransactionsScreen(
                 },
                 menuItems = listOf(
                     MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Reset),
-                        enabled = filterResetEnabled,
+                        title = TranslatableString.ResString(R.string.Transactions_Filter),
+                        icon = R.drawable.ic_manage_2_24,
+                        showAlertDot = showFilterAlertDot,
                         onClick = {
-                            viewModel.resetFilters()
-                        }
+                            navController.slideFromRight(R.id.transactionFilterFragment)
+                        },
                     )
                 )
             )
@@ -115,34 +158,36 @@ fun TransactionsScreen(
                     onTransactionTypeClick = viewModel::setFilterTransactionType
                 )
             }
+
+
             filterBlockchains?.let { filterBlockchains ->
                 CellHeaderSorting(borderBottom = true) {
                     var showFilterBlockchainDialog by remember { mutableStateOf(false) }
                     var showFilterTransaction by remember { mutableStateOf(false) }
                     if (showFilterBlockchainDialog) {
                         SelectorDialogCompose(
-                            title = stringResource(R.string.Transactions_Filter_Blockchain),
-                            items = filterBlockchains.map {
-                                SelectorItem(it.item?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains), it.selected, it)
-                            },
-                            onDismissRequest = {
-                                showFilterBlockchainDialog = false
-                            },
-                            onSelectItem = viewModel::onEnterFilterBlockchain
+                                title = stringResource(R.string.Transactions_Filter_Blockchain),
+                                items = filterBlockchains.map {
+                                    SelectorItem(it.item?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains), it.selected, it)
+                                },
+                                onDismissRequest = {
+                                    showFilterBlockchainDialog = false
+                                },
+                                onSelectItem = viewModel::onEnterFilterBlockchain
                         )
                     }
 
                     if (showFilterTransaction) {
                         filterZeroTransactions?.let { filterZeroTransactions ->
                             SelectorDialogCompose(
-                                title = stringResource(R.string.Zero_Transactions_Filter),
-                                items = filterZeroTransactions.map {
-                                    SelectorItem(it.item, it.selected, it)
-                                },
-                                onDismissRequest = {
-                                    showFilterTransaction = false
-                                },
-                                onSelectItem = viewModel::setFilterZeroIncomingTransaction
+                                    title = stringResource(R.string.Zero_Transactions_Filter),
+                                    items = filterZeroTransactions.map {
+                                        SelectorItem(it.item, it.selected, it)
+                                    },
+                                    onDismissRequest = {
+                                        showFilterTransaction = false
+                                    },
+                                    onSelectItem = viewModel::setFilterZeroIncomingTransaction
                             )
                         }
                     }
@@ -150,95 +195,77 @@ fun TransactionsScreen(
                     val filterBlockchain = filterBlockchains.firstOrNull { it.selected }?.item
                     val filterZeroTransaction = filterZeroTransactions?.firstOrNull { it.selected }?.item
                     Row(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            modifier = Modifier.fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         ButtonSecondaryTransparent(
-                            title = filterBlockchain?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
-                            iconRight = R.drawable.ic_down_arrow_20,
-                            onClick = {
-                                showFilterBlockchainDialog = true
-                            }
+                                title = filterBlockchain?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
+                                iconRight = R.drawable.ic_down_arrow_20,
+                                onClick = {
+                                    showFilterBlockchainDialog = true
+                                }
                         )
 
                         ButtonSecondaryTransparent(
-                            title = filterZeroTransaction ?: stringResource(R.string.Transaction_Non_Zero_Transaction),
-                            iconRight = R.drawable.ic_down_arrow_20,
-                            onClick = {
-                                showFilterTransaction = true
-                            }
-                        )
-
-                        filterCoins?.let { filterCoins ->
-                            val filterCoin = filterCoins.find { it.selected }?.item
-
-                            val coinCode = filterCoin?.token?.coin?.code
-                            val badge = filterCoin?.badge
-                            val title = when {
-                                badge != null -> "$coinCode ($badge)"
-                                else -> coinCode
-                            }
-
-                            ButtonSecondaryTransparent(
-                                title = title ?: stringResource(R.string.Transactions_Filter_AllCoins),
+                                title = filterZeroTransaction ?: stringResource(R.string.Transaction_Non_Zero_Transaction),
                                 iconRight = R.drawable.ic_down_arrow_20,
                                 onClick = {
-                                    navController.slideFromBottom(R.id.filterCoinFragment)
+                                    showFilterTransaction = true
                                 }
-                            )
-                        }
+                        )
                     }
                 }
             }
 
-            Crossfade(viewState, label = "") { viewState ->
-                when (viewState) {
-                    ViewState.Success -> {
-                        transactions?.let { transactionItems ->
-                            if (transactionItems.isEmpty()) {
-                                if (syncing) {
-                                    ListEmptyView(
-                                        text = stringResource(R.string.Transactions_WaitForSync),
-                                        icon = R.drawable.ic_clock
-                                    )
-                                } else {
-                                    ListEmptyView(
-                                        text = stringResource(R.string.Transactions_EmptyList),
-                                        icon = R.drawable.ic_outgoingraw
-                                    )
-                                }
-                            } else {
-                                val filterCoin = filterCoins?.find { it.selected }?.item
-                                val filterType = filterTypes?.find { it.selected }?.item
-                                val filterBlockchain = filterBlockchains?.find { it.selected }?.item
 
-                                val listState = rememberSaveable(
-                                    filterCoin,
-                                    filterType,
-                                    filterBlockchain,
-                                    (accountsViewModel.balanceScreenState as? BalanceScreenState.HasAccount)?.accountViewItem?.id,
-                                    saver = LazyListState.Saver
-                                ) {
-                                    LazyListState(0, 0)
-                                }
-                                LazyColumn(state = listState,
-                                        modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
-                                                .clip(RoundedCornerShape(16.dp))
-                                                .background(ComposeAppTheme.colors.lawrence)) {
-                                    transactionList(
-                                        transactionsMap = transactionItems,
-                                        willShow = { viewModel.willShow(it) },
-                                        onClick = { onTransactionClick(it, viewModel, navController) },
-                                        onBottomReached = { viewModel.onBottomReached() }
+            Crossfade(uiState.viewState, label = "") { viewState ->
+                if (viewState == ViewState.Success) {
+                    transactions?.let { transactionItems ->
+                        if (transactionItems.isEmpty()) {
+                            if (syncing) {
+                                ListEmptyView(
+                                    text = stringResource(R.string.Transactions_WaitForSync),
+                                    icon = R.drawable.ic_clock
+                                )
+                            } else {
+                                ListEmptyView(
+                                    text = stringResource(R.string.Transactions_EmptyList),
+                                    icon = R.drawable.ic_outgoingraw
+                                )
+                            }
+                        } else {
+                            val listState = rememberSaveable(
+                                uiState.transactionListId,
+                                (accountsViewModel.balanceScreenState as? BalanceScreenState.HasAccount)?.accountViewItem?.id,
+                                saver = LazyListState.Saver
+                            ) {
+                                LazyListState(0, 0)
+                            }
+
+                            val onClick: (TransactionViewItem) -> Unit = remember {
+                                {
+                                    onTransactionClick(
+                                        it,
+                                        viewModel,
+                                        navController
                                     )
                                 }
                             }
+
+                            LazyColumn(state = listState,
+                                    modifier = Modifier.wrapContentHeight().padding(vertical = 16.dp, horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(ComposeAppTheme.colors.lawrence)) {
+                                transactionList(
+                                    transactionsMap = transactionItems,
+                                    willShow = { viewModel.willShow(it) },
+                                    onClick = onClick,
+                                    onBottomReached = { viewModel.onBottomReached() }
+                                )
+                            }
                         }
                     }
-                    is ViewState.Error,
-                    ViewState.Loading,
-                    null -> {}
                 }
             }
         }
@@ -270,13 +297,18 @@ fun LazyListScope.transactionList(
 
     transactionsMap.forEach { (dateHeader, transactions) ->
         stickyHeader {
-            DateHeader(dateHeader)
+            HeaderStick(text = dateHeader)
         }
 
         val itemsCount = transactions.size
         val singleElement = itemsCount == 1
 
-        itemsIndexed(transactions) { index, item ->
+        itemsIndexed(
+            items = transactions,
+            key = { _, item ->
+                item.uid
+            }
+        ) { index, item ->
             val position: SectionItemPosition = when {
                 singleElement -> SectionItemPosition.Single
                 index == 0 -> SectionItemPosition.First
@@ -360,7 +392,8 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
             Box(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .size(42.dp),
+                    .size(42.dp)
+                    .alpha(if (item.spam) 0.5f else 1f),
                 contentAlignment = Alignment.Center
             ) {
                 item.progress?.let { progress ->
@@ -456,7 +489,11 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                     is TransactionViewItem.Icon.ImageResource -> {}
                 }
             }
-            Column(modifier = Modifier.padding(end = 16.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .alpha(if (item.spam) 0.5f else 1f)
+            ) {
                 Row {
                     body_leah(
                         modifier = Modifier.padding(end = 32.dp),
@@ -464,16 +501,14 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         maxLines = 1,
                     )
                     Spacer(Modifier.weight(1f))
-                    if (item.showAmount) {
-                        item.primaryValue?.let { coloredValue ->
-                            Text(
-                                text = coloredValue.value,
-                                style = ComposeAppTheme.typography.body,
-                                color = coloredValue.color.compose(),
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                            )
-                        }
+                    item.primaryValue?.let { coloredValue ->
+                        Text(
+                            text = if (item.showAmount) coloredValue.value else "*****",
+                            style = ComposeAppTheme.typography.body,
+                            color = coloredValue.color.compose(),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        )
                     }
 
                     if (item.doubleSpend) {
@@ -507,15 +542,13 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                             .padding(end = 8.dp),
                         maxLines = 2,
                     )
-                    if (item.showAmount) {
-                        item.secondaryValue?.let { coloredValue ->
-                            Text(
-                                text = coloredValue.value,
-                                style = ComposeAppTheme.typography.subhead2,
-                                color = coloredValue.color.compose(),
-                                maxLines = 1,
-                            )
-                        }
+                    item.secondaryValue?.let { coloredValue ->
+                        Text(
+                            text = if (item.showAmount) coloredValue.value else "*****",
+                            style = ComposeAppTheme.typography.subhead2,
+                            color = coloredValue.color.compose(),
+                            maxLines = 1,
+                        )
                     }
                 }
             }
@@ -528,22 +561,6 @@ private fun FilterTypeTabs(
     filterTypes: List<Filter<FilterTransactionType>>,
     onTransactionTypeClick: (FilterTransactionType) -> Unit
 ) {
-    /*
-    val image = if (platformCoin.coin.uid == "safe-coin"
-                || platformCoin.coin.uid == "custom_safe-erc20-SAFE"
-                || platformCoin.coin.uid == "custom_safe-bep20-SAFE") {
-                ImageSource.Local(R.drawable.logo_safe_24)
-            } else {
-                ImageSource.Remote(platformCoin.coin.iconUrl, platformCoin.coinType.iconPlaceholder)
-            }
-            TabItem(
-                platformCoin.code,
-                it.selected,
-                it.item,
-                image,
-                it.item.badge
-            )
-    */
     val tabItems = filterTypes.map {
         TabItem(stringResource(it.item.title), it.selected, it.item)
     }

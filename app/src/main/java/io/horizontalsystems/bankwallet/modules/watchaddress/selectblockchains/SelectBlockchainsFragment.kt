@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains
 
+import android.os.Parcelable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,8 +30,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -40,35 +41,35 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.core.parcelable
 import kotlinx.coroutines.delay
+import kotlinx.parcelize.Parcelize
 
 class SelectBlockchainsFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        ComposeAppTheme {
-            val popUpToInclusiveId =
-                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.selectBlockchainsFragment) ?: R.id.selectBlockchainsFragment
-            val inclusive =
-                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: false
-            val accountType = arguments?.parcelable<AccountType>(SelectBlockchainsModule.accountTypeKey)
-            val accountName = arguments?.getString(SelectBlockchainsModule.accountNameKey)
-            if (accountType != null) {
-                SelectBlockchainsScreen(
-                    accountType,
-                    accountName,
-                    findNavController(),
-                    popUpToInclusiveId,
-                    inclusive
-                )
-            } else {
-                findNavController().popBackStack()
-            }
+    override fun GetContent(navController: NavController) {
+        val input = navController.getInput<Input>()
+        if (input != null) {
+            SelectBlockchainsScreen(
+                input.accountType,
+                input.accountName,
+                navController,
+                input.popOffOnSuccess,
+                input.popOffInclusive
+            )
+        } else {
+            navController.popBackStack()
         }
     }
+
+    @Parcelize
+    data class Input(
+        val popOffOnSuccess: Int,
+        val popOffInclusive: Boolean,
+        val accountType: AccountType,
+        val accountName: String?,
+    ) : Parcelable
 
 }
 
@@ -112,7 +113,7 @@ private fun SelectBlockchainsScreen(
             },
             menuItems = listOf(
                 MenuItem(
-                    title = TranslatableString.ResString(R.string.Watch_Address_Watch),
+                    title = TranslatableString.ResString(R.string.Button_Done),
                     onClick = viewModel::onClickWatch,
                     enabled = submitEnabled
                 )

@@ -20,12 +20,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
-import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.setNavigationResultX
+import io.horizontalsystems.bankwallet.core.slideFromRightForResult
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.backNavGraphIdKey
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.dataKey
+import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -35,16 +36,13 @@ import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
-import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.core.parcelable
 
 class SwapApproveFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
-        val approveData = requireArguments().parcelable<SwapMainModule.ApproveData>(dataKey)!!
-        val backNavGraphId = requireArguments().getInt(backNavGraphIdKey)!!
-        SwapApproveScreen(findNavController(), approveData, backNavGraphId)
+    override fun GetContent(navController: NavController) {
+        val approveData = navController.requireInput<SwapMainModule.ApproveData>()
+        SwapApproveScreen(navController, approveData)
     }
 
 }
@@ -52,8 +50,7 @@ class SwapApproveFragment : BaseComposeFragment() {
 @Composable
 fun SwapApproveScreen(
     navController: NavController,
-    approveData: SwapMainModule.ApproveData,
-    backNavGraphId: Int
+    approveData: SwapMainModule.ApproveData
 ) {
     val swapApproveViewModel =
         viewModel<SwapApproveViewModel>(factory = SwapApproveModule.Factory(approveData))
@@ -61,71 +58,71 @@ fun SwapApproveScreen(
     val approveAllowed = swapApproveViewModel.approveAllowed
     val amountError = swapApproveViewModel.amountError
 
-    ComposeAppTheme {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = stringResource(R.string.Approve_Title),
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Close),
-                        icon = R.drawable.ic_close,
-                        onClick = navController::popBackStack
-                    )
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+        AppBar(
+            title = stringResource(R.string.Approve_Title),
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Button_Close),
+                    icon = R.drawable.ic_close,
+                    onClick = navController::popBackStack
                 )
             )
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            TextImportantWarning(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                text = stringResource(R.string.Approve_Info)
-            )
+        Spacer(modifier = Modifier.height(12.dp))
+        TextImportantWarning(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.Approve_Info)
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            val state = amountError?.let {
-                DataState.Error(it)
+        Spacer(modifier = Modifier.height(12.dp))
+        val state = amountError?.let {
+            DataState.Error(it)
+        }
+        var validAmount by rememberSaveable { mutableStateOf(swapApproveViewModel.initialAmount) }
+        FormsInput(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            initial = swapApproveViewModel.initialAmount,
+            hint = "",
+            state = state,
+            pasteEnabled = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            textPreprocessor = object : TextPreprocessor {
+                override fun process(text: String): String {
+                    if (swapApproveViewModel.validateAmount(text)) {
+                        validAmount = text
+                    } else {
+                        // todo: shake animation
+                    }
+                    return validAmount
+                }
+            },
+            onValueChange = {
+                swapApproveViewModel.onEnterAmount(it)
             }
-            var validAmount by rememberSaveable { mutableStateOf(swapApproveViewModel.initialAmount) }
-            FormsInput(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                initial = swapApproveViewModel.initialAmount,
-                hint = "",
-                state = state,
-                pasteEnabled = false,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textPreprocessor = object : TextPreprocessor {
-                    override fun process(text: String): String {
-                        if (swapApproveViewModel.validateAmount(text)) {
-                            validAmount = text
-                        } else {
-                            // todo: shake animation
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        ButtonsGroupWithShade {
+            ButtonPrimaryYellow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp),
+                title = stringResource(R.string.Swap_Proceed),
+                onClick = {
+                    swapApproveViewModel.getSendEvmData()?.let { sendEvmData ->
+                        navController.slideFromRightForResult<SwapApproveConfirmationFragment.Result>(
+                            R.id.swapApproveConfirmationFragment,
+                            SwapApproveConfirmationModule.Input(sendEvmData, swapApproveViewModel.blockchainType)
+                        ) {
+                            navController.setNavigationResultX(it)
+                            navController.popBackStack()
                         }
-                        return validAmount
                     }
                 },
-                onValueChange = {
-                    swapApproveViewModel.onEnterAmount(it)
-                }
+                enabled = approveAllowed
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-            ButtonsGroupWithShade {
-                ButtonPrimaryYellow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                    title = stringResource(R.string.Swap_Proceed),
-                    onClick = {
-                        swapApproveViewModel.getSendEvmData()?.let { sendEvmData ->
-                            navController.slideFromRight(
-                                R.id.swapApproveConfirmationFragment,
-                                SwapApproveConfirmationModule.prepareParams(sendEvmData, swapApproveViewModel.dex.blockchainType,
-                                backNavGraphId = backNavGraphId)
-                            )
-                        }
-                    },
-                    enabled = approveAllowed
-                )
-            }
         }
     }
 }

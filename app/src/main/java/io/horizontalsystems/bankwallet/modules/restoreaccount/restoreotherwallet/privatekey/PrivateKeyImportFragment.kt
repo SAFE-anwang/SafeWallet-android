@@ -25,6 +25,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
@@ -54,7 +55,10 @@ class PrivateKeyImportFragment: BaseFragment() {
         )
     }*/
 
-    private val viewModel by viewModels<PrivateKeyImportViewModel> { RestoreBlockchainsModule.Factory2(arguments?.getParcelable(ACCOUNT_TYPE_KEY)) }
+    private val viewModel by viewModels<PrivateKeyImportViewModel> {
+        val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
+        RestoreBlockchainsModule.Factory2(input?.accountType)
+    }
 //    private val coinSettingsViewModel by viewModels<CoinSettingsViewModel> { vmFactory }
 
     private var _binding: FragmentRestorePrivateKeyImportBinding? = null
@@ -142,18 +146,23 @@ class PrivateKeyImportFragment: BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            val popUpToInclusiveId =
-                                arguments?.getInt(ManageAccountsModule.popOffOnSuccessKey, R.id.manageAccountsFragment) ?: R.id.manageAccountsFragment
-                            val inclusive =
-                                arguments?.getBoolean(ManageAccountsModule.popOffInclusiveKey) ?: true
+                            val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
+                            val popUpToInclusiveId = input?.popUpToInclusiveId ?: R.id.manageAccountsFragment
+                            val inclusive = input?.popOffInclusiveKey ?: true
                             viewModel.resolveAccountType(binding.wordsInput.text.toString())?.let { accountType ->
                                 findNavController().slideFromRight(
                                     R.id.restoreSelectCoinsFragment,
-                                    bundleOf(
+                                        RestoreBlockchainsFragment.Input(
+                                                viewModel.defaultName,
+                                                accountType,
+                                                popUpToInclusiveId = popUpToInclusiveId,
+                                                popOffInclusiveKey= inclusive
+                                        )
+                                    /*bundleOf(
                                         RestoreBlockchainsFragment.ACCOUNT_NAME_KEY to viewModel.defaultName,
                                         ManageAccountsModule.popOffOnSuccessKey to popUpToInclusiveId,
                                         ManageAccountsModule.popOffInclusiveKey to inclusive,
-                                        ACCOUNT_TYPE_KEY to accountType)
+                                        ACCOUNT_TYPE_KEY to accountType)*/
                                 )
 
                             }

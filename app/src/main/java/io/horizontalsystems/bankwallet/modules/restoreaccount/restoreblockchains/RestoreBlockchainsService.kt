@@ -93,6 +93,8 @@ class RestoreBlockchainsService(
             .flatten()
 
         tokens = marketKit.tokens(tokenQueries)
+            .filter { it.supports(accountType) }
+            .sortedBy { it.type.order }
     }
 
     private fun handleApproveTokens(blockchain: Blockchain, tokens: List<Token>) {

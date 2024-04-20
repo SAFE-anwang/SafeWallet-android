@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.manageaccount
 
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,20 +23,15 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.authorizedAction
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Account
-import io.horizontalsystems.bankwallet.modules.backuplocal.BackupLocalFragment
 import io.horizontalsystems.bankwallet.modules.balance.HeaderNote
 import io.horizontalsystems.bankwallet.modules.balance.ui.NoteError
 import io.horizontalsystems.bankwallet.modules.balance.ui.NoteWarning
-import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.ACCOUNT_ID_KEY
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.BackupItem
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.KeyAction
-import io.horizontalsystems.bankwallet.modules.manageaccount.backupkey.BackupKeyModule
-import io.horizontalsystems.bankwallet.modules.manageaccount.publickeys.PublicKeysModule
-import io.horizontalsystems.bankwallet.modules.manageaccount.recoveryphrase.RecoveryPhraseModule
-import io.horizontalsystems.bankwallet.modules.unlinkaccount.UnlinkAccountDialog
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -53,19 +49,22 @@ import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.body_lucian
-import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.parcelize.Parcelize
 
 class ManageAccountFragment : BaseComposeFragment() {
 
     @Composable
-    override fun GetContent() {
+    override fun GetContent(navController: NavController) {
+        val input = navController.requireInput<Input>()
         ManageAccountScreen(
-            findNavController(),
-            arguments?.getString(ACCOUNT_ID_KEY)!!
+            navController,
+            input.accountId
         )
     }
 
+    @Parcelize
+    data class Input(val accountId: String) : Parcelable
 }
 
 @Composable
@@ -78,47 +77,46 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
         viewModel.onClose()
     }
 
-    ComposeAppTheme {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = viewModel.viewState.title,
-                navigationIcon = {
-                    HsBackButton(onClick = { navController.popBackStack() })
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.ManageAccount_Save),
-                        onClick = { viewModel.onSave() },
-                        enabled = viewModel.viewState.canSave
-                    )
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+        AppBar(
+            title = viewModel.viewState.title,
+            navigationIcon = {
+                HsBackButton(onClick = { navController.popBackStack() })
+            },
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.ManageAccount_Save),
+                    onClick = { viewModel.onSave() },
+                    enabled = viewModel.viewState.canSave
                 )
             )
+        )
 
-            Column {
-                HeaderText(stringResource(id = R.string.ManageAccount_Name))
+        Column {
+            HeaderText(stringResource(id = R.string.ManageAccount_Name))
 
-                FormsInput(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    initial = viewModel.viewState.title,
-                    hint = "",
-                    onValueChange = {
-                        viewModel.onChange(it)
-                    }
-                )
+            FormsInput(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                initial = viewModel.viewState.title,
+                hint = "",
+                onValueChange = {
+                    viewModel.onChange(it)
+                }
+            )
 
-                when (viewModel.viewState.headerNote) {
-                    HeaderNote.NonStandardAccount -> {
-                        NoteError(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
-                            text = stringResource(R.string.AccountRecovery_MigrationRequired),
-                            onClick = {
-                                FaqManager.showFaqPage(
-                                    navController,
-                                    FaqManager.faqPathMigrationRequired
-                                )
-                            }
-                        )
-                    }
+            when (viewModel.viewState.headerNote) {
+                HeaderNote.NonStandardAccount -> {
+                    NoteError(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                        text = stringResource(R.string.AccountRecovery_MigrationRequired),
+                        onClick = {
+                            FaqManager.showFaqPage(
+                                navController,
+                                FaqManager.faqPathMigrationRequired
+                            )
+                        }
+                    )
+                }
 
                     HeaderNote.NonRecommendedAccount -> {
                         /*NoteWarning(
@@ -134,34 +132,33 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
                         )*/
                     }
 
-                    HeaderNote.None -> Unit
-                }
-
-                KeyActions(viewModel, navController)
-
-                if (viewModel.viewState.backupActions.isNotEmpty()) {
-                    BackupActions(
-                        viewModel.viewState.backupActions,
-                        viewModel.account,
-                        navController
-                    )
-                }
-
-                VSpacer(32.dp)
-                CellUniversalLawrenceSection(
-                    listOf {
-                        RedActionItem(
-                            title = stringResource(id = R.string.ManageAccount_Unlink),
-                            icon = painterResource(id = R.drawable.ic_delete_20)
-                        ) {
-                            navController.slideFromBottom(
-                                R.id.unlinkConfirmationDialog,
-                                UnlinkAccountDialog.prepareParams(viewModel.account)
-                            )
-                        }
-                    })
-                VSpacer(32.dp)
+                HeaderNote.None -> Unit
             }
+
+            KeyActions(viewModel, navController)
+
+            if (viewModel.viewState.backupActions.isNotEmpty()) {
+                BackupActions(
+                    viewModel.viewState.backupActions,
+                    viewModel.account,
+                    navController
+                )
+            }
+
+            VSpacer(32.dp)
+            CellUniversalLawrenceSection(
+                listOf {
+                    RedActionItem(
+                        title = stringResource(id = R.string.ManageAccount_Unlink),
+                        icon = painterResource(id = R.drawable.ic_delete_20)
+                    ) {
+                        navController.slideFromBottom(
+                            R.id.unlinkConfirmationDialog,
+                            viewModel.account
+                        )
+                    }
+                })
+            VSpacer(32.dp)
         }
     }
 }
@@ -188,7 +185,7 @@ private fun BackupActions(
                         navController.authorizedAction {
                             navController.slideFromBottom(
                                 R.id.backupKeyFragment,
-                                BackupKeyModule.prepareParams(account)
+                                account
                             )
                         }
                     }
@@ -203,7 +200,7 @@ private fun BackupActions(
                         attention = action.showAttention
                     ) {
                         navController.authorizedAction {
-                            navController.slideFromBottom(R.id.backupLocalFragment, BackupLocalFragment.prepareParams(account.id))
+                            navController.slideFromBottom(R.id.backupLocalFragment, account)
                         }
                     }
                 }
@@ -244,7 +241,7 @@ private fun KeyActions(
                         navController.authorizedAction {
                             navController.slideFromRight(
                                 R.id.recoveryPhraseFragment,
-                                RecoveryPhraseModule.prepareParams(viewModel.account)
+                                viewModel.account
                             )
                         }
                     }
@@ -259,7 +256,7 @@ private fun KeyActions(
                     ) {
                         navController.slideFromRight(
                             R.id.privateKeysFragment,
-                            PublicKeysModule.prepareParams(viewModel.account)
+                            viewModel.account
                         )
                     }
                 }
@@ -273,7 +270,7 @@ private fun KeyActions(
                     ) {
                         navController.slideFromRight(
                             R.id.publicKeysFragment,
-                            PublicKeysModule.prepareParams(viewModel.account)
+                            viewModel.account
                         )
                     }
                 }
@@ -398,7 +395,7 @@ private fun YellowActionItem(
                 tint = ComposeAppTheme.colors.lucian
             )
             HSpacer(6.dp)
-        } else if(completed) {
+        } else if (completed) {
             Icon(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 painter = painterResource(id = R.drawable.ic_checkmark_20),

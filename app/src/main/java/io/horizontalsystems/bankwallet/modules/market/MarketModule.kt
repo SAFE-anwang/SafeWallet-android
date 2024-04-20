@@ -11,11 +11,12 @@ import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesModule.Period
 import io.horizontalsystems.bankwallet.modules.market.filters.TimePeriod
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
-import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.MarketInfo
 import kotlinx.parcelize.IgnoredOnParcel
@@ -69,6 +70,21 @@ data class MarketItem(
     val rank: Int?
 ) {
     companion object {
+        fun createFromCoinMarket(
+            marketInfo: MarketInfo,
+            currency: Currency,
+            period: Period,
+        ): MarketItem {
+            return MarketItem(
+                fullCoin = marketInfo.fullCoin,
+                volume = CurrencyValue(currency, marketInfo.totalVolume ?: BigDecimal.ZERO),
+                rate = CurrencyValue(currency, marketInfo.price ?: BigDecimal.ZERO),
+                diff = marketInfo.priceChangeValue(period),
+                marketCap = CurrencyValue(currency, marketInfo.marketCap ?: BigDecimal.ZERO),
+                rank = marketInfo.marketCapRank
+            )
+        }
+
         fun createFromCoinMarket(
             marketInfo: MarketInfo,
             currency: Currency,
@@ -188,11 +204,18 @@ fun MarketInfo.priceChangeValue(period: TimePeriod) = when (period) {
     TimePeriod.TimePeriod_1Y -> priceChange1y
 }
 
+fun MarketInfo.priceChangeValue(period: Period) = when (period) {
+    Period.OneDay -> priceChange24h
+    Period.SevenDay -> priceChange7d
+    Period.ThirtyDay -> priceChange30d
+}
+
 @Parcelize
 enum class TimeDuration(val titleResId: Int) : WithTranslatableTitle, Parcelable {
     OneDay(R.string.CoinPage_TimeDuration_Day),
     SevenDay(R.string.CoinPage_TimeDuration_Week),
-    ThirtyDay(R.string.CoinPage_TimeDuration_Month);
+    ThirtyDay(R.string.CoinPage_TimeDuration_Month),
+    ThreeMonths(R.string.CoinPage_TimeDuration_Month3);
 
     @IgnoredOnParcel
     override val title = TranslatableString.ResString(titleResId)

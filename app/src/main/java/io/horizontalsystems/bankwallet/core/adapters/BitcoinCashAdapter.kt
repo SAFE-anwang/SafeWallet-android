@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.core.adapters
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
+import io.horizontalsystems.bankwallet.core.UsedAddress
 import io.horizontalsystems.bankwallet.core.kitCoinType
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -14,16 +15,17 @@ import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.models.BalanceInfo
 import io.horizontalsystems.bitcoincore.models.BlockInfo
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
+import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
 
 class BitcoinCashAdapter(
-        override val kit: BitcoinCashKit,
-        syncMode: BitcoinCore.SyncMode,
-        backgroundManager: BackgroundManager,
-        wallet: Wallet,
+    override val kit: BitcoinCashKit,
+    syncMode: BitcoinCore.SyncMode,
+    backgroundManager: BackgroundManager,
+    wallet: Wallet,
 ) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), BitcoinCashKit.Listener, ISendBitcoinAdapter {
 
     constructor(
@@ -48,10 +50,10 @@ class BitcoinCashAdapter(
     //
 
     override val explorerTitle: String
-        get() = "btc.com"
+        get() = "blockchair.com"
 
     override fun getTransactionUrl(transactionHash: String): String =
-        "https://bch.btc.com/$transactionHash"
+        "https://blockchair.com/bitcoin-cash/transaction/$transactionHash"
 
     override fun onBalanceUpdate(balance: BalanceInfo) {
         balanceUpdatedSubject.onNext(Unit)
@@ -83,8 +85,13 @@ class BitcoinCashAdapter(
         // ignored for now
     }
 
+    override val unspentOutputs: List<UnspentOutputInfo>
+        get() = kit.unspentOutputs
+
     override val blockchainType = BlockchainType.BitcoinCash
 
+    override fun usedAddresses(change: Boolean): List<UsedAddress> =
+        kit.usedAddresses(change).map { UsedAddress(it.index, it.address, "https://blockchair.com/bitcoin-cash/address/${it.address}") }
 
     companion object {
         private const val confirmationsThreshold = 3
@@ -108,6 +115,7 @@ class BitcoinCashAdapter(
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
+
                 is AccountType.Mnemonic -> {
                     return BitcoinCashKit(
                         context = App.instance,
@@ -120,6 +128,18 @@ class BitcoinCashAdapter(
                         confirmationsThreshold = confirmationsThreshold
                     )
                 }
+
+                is AccountType.BitcoinAddress -> {
+                    return BitcoinCashKit(
+                        context = App.instance,
+                        watchAddress = accountType.address,
+                        walletId = account.id,
+                        syncMode = syncMode,
+                        networkType = networkType,
+                        confirmationsThreshold = confirmationsThreshold,
+                    )
+                }
+
                 else -> throw UnsupportedAccountException()
             }
 
