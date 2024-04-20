@@ -388,7 +388,10 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     if (viewItem.wallet.coin.uid == "safe-coin" && viewItem.wallet.token.blockchain.type is BlockchainType.Safe) {
                         navController.slideFromBottom(
                                 R.id.sendSafeFragment,
-                                SafeSendFragment.prepareParams(viewItem.wallet, sendTitle)
+                                SendFragment.Input(
+                                    wallet = viewItem.wallet,
+                                    title = sendTitle
+                                )
                         )
                     } else {
                         navController.slideFromRight(
