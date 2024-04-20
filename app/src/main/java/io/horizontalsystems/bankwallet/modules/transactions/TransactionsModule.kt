@@ -14,13 +14,15 @@ object TransactionsModule {
     class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val filterService = TransactionFilterService(App.marketKit, App.transactionAdapterManager, App.spamManager)
             val transactionsService = TransactionsService(
                 TransactionRecordRepository(App.transactionAdapterManager),
                 TransactionsRateRepository(App.currencyManager, App.marketKit),
                 TransactionSyncStateRepository(App.transactionAdapterManager),
                 App.contactsRepository,
                 NftMetadataService(App.nftMetadataManager),
-                App.spamManager
+                App.spamManager,
+                filterService
             )
             val transactionViewItemFactory = TransactionViewItemFactory(
                 App.evmLabelManager,
@@ -34,7 +36,7 @@ object TransactionsModule {
                 App.balanceHiddenManager,
                 App.transactionAdapterManager,
                 App.walletManager,
-                TransactionFilterService(App.marketKit, App.transactionAdapterManager, App.spamManager),
+                filterService,
             ) as T
         }
     }

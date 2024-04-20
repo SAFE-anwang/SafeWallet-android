@@ -136,8 +136,8 @@ fun LiquidityAllowance(
                 modifier = Modifier.clickable(
                     onClick = {
                         navController.slideFromBottom(
-                            R.id.feeSettingsInfoDialog,
-                            FeeSettingsInfoDialog.prepareParams(infoTitle, infoText)
+                                R.id.feeSettingsInfoDialog,
+                                FeeSettingsInfoDialog.Input(infoTitle, infoText)
                         )
                     },
                     interactionSource = MutableInteractionSource(),

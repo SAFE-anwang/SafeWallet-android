@@ -30,16 +30,11 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.additionalInfoKey
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.backButtonKey
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.backNavGraphIdKey
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.blockchainTypeKey
-import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule.transactionDataKey
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
+import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule.backNavGraphIdKey
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -121,7 +116,7 @@ class SwapApproveConfirmationFragment : BaseComposeFragment() {
                 R.string.Hud_Text_Done
             )
             Handler(Looper.getMainLooper()).postDelayed({
-                findNavController().setNavigationResultX(Result(true), popBackId)
+                findNavController().setNavigationResultX(Result(true))
                 findNavController().popBackStack(popBackId, false)
             }, 1200)
         }

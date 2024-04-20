@@ -249,6 +249,7 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.BinanceSmartChain,
         BlockchainType.Tron,
         BlockchainType.Ton,
+        BlockchainType.Solana,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Zcash,
@@ -262,7 +263,6 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Fantom,
         BlockchainType.ArbitrumOne,
         BlockchainType.Optimism,
-        BlockchainType.Solana,
     ).forEachIndexed { index, blockchainType ->
         map[blockchainType] = index
     }

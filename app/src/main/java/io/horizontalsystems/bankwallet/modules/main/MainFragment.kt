@@ -51,6 +51,7 @@ import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceScreen
+import io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.market.MarketScreen
@@ -138,10 +139,9 @@ class MainFragment : BaseComposeFragment() {
                 }
                 App.appConfigProvider.safeBSCPancakeswap,
                 App.appConfigProvider.safeEthUniswap -> {
-                    val bundle = Bundle()
-                    bundle.putString("url", url)
-                    bundle.putString("name", url.subSequence(8, url.length).toString())
-                    findNavController().slideFromRight(R.id.dappBrowseFragment, bundle)
+                    findNavController().slideFromRight(R.id.dappBrowseFragment,
+                            DAppBrowseFragment.Input(url, url.subSequence(8, url.length).toString())
+                    )
                 }
                 else -> {
                     startActivity(Intent(requireActivity(), WebViewActivity::class.java).apply {

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
@@ -69,6 +70,15 @@ class SelectSwapCoinFragment : BaseComposeFragment() {
                 }, 100)
             }
         }
+    }
+
+    companion object {
+        const val resultBundleKey = "selectSwapCoinResultKey"
+        const val dexKey = "dexKey"
+        const val requestIdKey = "requestIdKey"
+        const val coinBalanceItemResultKey = "coinBalanceItemResultKey"
+
+        fun prepareParams(requestId: Long, dex: SwapMainModule.Dex) = bundleOf(requestIdKey to requestId, dexKey to dex)
     }
 }
 

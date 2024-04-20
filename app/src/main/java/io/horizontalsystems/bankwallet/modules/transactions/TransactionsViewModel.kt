@@ -136,20 +136,7 @@ class TransactionsViewModel(
 
         service.itemsObservable
             .subscribeIO { items ->
-                val viewItems = items
-                        .filter {
-                            val result = if (isHideZeroTransaction) {
-                                // filter input transcation value zero of eth
-                                !(/*it.record is TransactionRecord && */it.record.mainValue?.zeroValue == true)
-                            } else {
-                                true
-                            }
-                            result
-                        }
-                        .map { transactionViewItem2Factory.convertToViewItemCached(it) }
-                        .groupBy { it.formattedDate }
-
-                handleUpdatedItems(viewItems)
+                handleUpdatedItems(items)
             }
             .let {
                 disposables.add(it)
@@ -184,6 +171,15 @@ class TransactionsViewModel(
         refreshViewItemsJob?.cancel()
         refreshViewItemsJob = viewModelScope.launch(Dispatchers.Default) {
             val viewItems = items
+                    .filter {
+                        val result = if (isHideZeroTransaction) {
+                            // filter input transcation value zero of eth
+                            !(it.record.mainValue?.zeroValue == true)
+                        } else {
+                            true
+                        }
+                        result
+                    }
                 .map {
                     ensureActive()
                     transactionViewItem2Factory.convertToViewItemCached(it)

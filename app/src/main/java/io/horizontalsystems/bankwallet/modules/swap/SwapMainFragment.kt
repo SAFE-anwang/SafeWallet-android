@@ -116,7 +116,9 @@ class SwapMainFragment : BaseFragment() {
 
     private var isAutoSetProvider1Inch = false
 
-    val factory by lazy { SwapMainModule.Factory(requireArguments()) }
+    val input = findNavController().requireInput<Input>()
+    val swapEntryPointDestId = input.swapEntryPointDestId
+    val factory = SwapMainModule.Factory(input.tokenFrom)
     val mainViewModel: SwapMainViewModel by viewModels { factory }
     val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
 
@@ -131,11 +133,11 @@ class SwapMainFragment : BaseFragment() {
             )
             val navController = findNavController()
             try {
-                val input = navController.requireInput<Input>()
+                /*val input = navController.requireInput<Input>()
                 val swapEntryPointDestId = input.swapEntryPointDestId
                 val factory = SwapMainModule.Factory(input.tokenFrom)
                 val mainViewModel: SwapMainViewModel by viewModels { factory }
-                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }
+                val allowanceViewModel: SwapAllowanceViewModel by viewModels { factory }*/
                 setContent {
                     ComposeAppTheme {
                         SwapNavHost(

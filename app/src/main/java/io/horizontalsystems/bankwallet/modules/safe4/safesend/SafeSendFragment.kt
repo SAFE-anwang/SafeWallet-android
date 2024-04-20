@@ -25,6 +25,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.ISendSafeAdapter
+import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.databinding.ActivitySendBinding
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
@@ -33,6 +34,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandle
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendInteractor
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.address.InputAddressFragment
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.fee.LineLockFeeFragment
+import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter
 import io.horizontalsystems.bankwallet.modules.send.SendPresenter.ActionState
@@ -57,7 +59,11 @@ import io.horizontalsystems.core.helpers.HudHelper
 
 class SafeSendFragment : BaseFragment() {
 
-    private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
+    private val wallet by lazy {
+        val input = findNavController().requireInput<SendFragment.Input>()
+//        requireArguments().getParcelable<Wallet>(WALLET)!!
+        input.wallet
+    }
     private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
     private val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
     private val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
@@ -79,7 +85,8 @@ class SafeSendFragment : BaseFragment() {
         _binding = ActivitySendBinding.inflate(layoutInflater)
         val view = binding.root
 //
-        val wallet: Wallet = requireArguments().getParcelable(WALLET) ?: run { findNavController().popBackStack(); return view}
+        val input = findNavController().requireInput<SendFragment.Input>()
+        val wallet: Wallet = input.wallet ?: run { findNavController().popBackStack(); return view}
 
         setToolbar(wallet)
 

@@ -64,7 +64,7 @@ class LiquidityAllowanceService(
 
         return allowance?.let {
             token?.let { token ->
-                SwapMainModule.ApproveData(dex, token, address.hex, amount, allowance.value)
+                SwapMainModule.ApproveData(dex.blockchainType, token, address.hex, amount, allowance.value)
             }
         }
 

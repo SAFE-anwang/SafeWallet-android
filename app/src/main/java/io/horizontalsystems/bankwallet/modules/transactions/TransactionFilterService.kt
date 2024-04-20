@@ -20,7 +20,7 @@ class TransactionFilterService(
     private var selectedBlockchain: Blockchain? = null
     private var filterTokenList: List<FilterToken?> = listOf(null)
     private var selectedToken: FilterToken? = null
-    private val transactionTypes = FilterTransactionType.values().toList()
+    val transactionTypes = FilterTransactionType.values().toList()
     private var selectedTransactionType: FilterTransactionType = FilterTransactionType.All
     private var contact: Contact? = null
     private var uniqueId = UUID.randomUUID().toString()
@@ -121,6 +121,10 @@ class TransactionFilterService(
         selectedTransactionType = type
 
         emitState()
+    }
+
+    fun getSelectedTransactionType(): FilterTransactionType {
+        return selectedTransactionType
     }
 
     fun setContact(contact: Contact?) {

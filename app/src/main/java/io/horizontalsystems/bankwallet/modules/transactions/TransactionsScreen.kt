@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -32,8 +34,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,8 +64,11 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceScreenState
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.CellHeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HSCircularProgressIndicator
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderStick
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
@@ -69,10 +76,36 @@ import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.ScrollableTabs
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
+import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.core.findNavController
+
+class TransactionsFragment : BaseFragment() {
+
+    private val viewModel by viewModels<TransactionsViewModel> { TransactionsModule.Factory() }
+    //    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+            )
+            setContent {
+                ComposeAppTheme {
+                    TransactionsScreen(findNavController(), viewModel)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun TransactionsScreen(
@@ -125,6 +158,66 @@ fun TransactionsScreen(
                     onTransactionTypeClick = viewModel::setFilterTransactionType
                 )
             }
+
+
+            filterBlockchains?.let { filterBlockchains ->
+                CellHeaderSorting(borderBottom = true) {
+                    var showFilterBlockchainDialog by remember { mutableStateOf(false) }
+                    var showFilterTransaction by remember { mutableStateOf(false) }
+                    if (showFilterBlockchainDialog) {
+                        SelectorDialogCompose(
+                                title = stringResource(R.string.Transactions_Filter_Blockchain),
+                                items = filterBlockchains.map {
+                                    SelectorItem(it.item?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains), it.selected, it)
+                                },
+                                onDismissRequest = {
+                                    showFilterBlockchainDialog = false
+                                },
+                                onSelectItem = viewModel::onEnterFilterBlockchain
+                        )
+                    }
+
+                    if (showFilterTransaction) {
+                        filterZeroTransactions?.let { filterZeroTransactions ->
+                            SelectorDialogCompose(
+                                    title = stringResource(R.string.Zero_Transactions_Filter),
+                                    items = filterZeroTransactions.map {
+                                        SelectorItem(it.item, it.selected, it)
+                                    },
+                                    onDismissRequest = {
+                                        showFilterTransaction = false
+                                    },
+                                    onSelectItem = viewModel::setFilterZeroIncomingTransaction
+                            )
+                        }
+                    }
+
+                    val filterBlockchain = filterBlockchains.firstOrNull { it.selected }?.item
+                    val filterZeroTransaction = filterZeroTransactions?.firstOrNull { it.selected }?.item
+                    Row(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        ButtonSecondaryTransparent(
+                                title = filterBlockchain?.name ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
+                                iconRight = R.drawable.ic_down_arrow_20,
+                                onClick = {
+                                    showFilterBlockchainDialog = true
+                                }
+                        )
+
+                        ButtonSecondaryTransparent(
+                                title = filterZeroTransaction ?: stringResource(R.string.Transaction_Non_Zero_Transaction),
+                                iconRight = R.drawable.ic_down_arrow_20,
+                                onClick = {
+                                    showFilterTransaction = true
+                                }
+                        )
+                    }
+                }
+            }
+
 
             Crossfade(uiState.viewState, label = "") { viewState ->
                 if (viewState == ViewState.Success) {

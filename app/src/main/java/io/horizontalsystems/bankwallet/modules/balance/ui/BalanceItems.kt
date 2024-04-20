@@ -65,6 +65,7 @@ import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequi
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppModule
 import io.horizontalsystems.bankwallet.modules.rateapp.RateAppViewModel
+import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
@@ -390,7 +391,7 @@ fun BalanceItems(
                             contentDescription = stringResource(R.string.ManageCoins_title),
                             onClick = {
                                 navController.slideFromRight(R.id.manageWalletsFragment,
-                                    ManageWalletsModule.prepareParams(accountViewItem.type)
+                                        RestoreBlockchainsFragment.Input("", accountViewItem.type )
                                 )
                             }
                         )

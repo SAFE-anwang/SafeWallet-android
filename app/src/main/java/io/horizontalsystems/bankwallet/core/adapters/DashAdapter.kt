@@ -96,7 +96,6 @@ class DashAdapter(
                 is AccountType.HdExtendedKey -> {
                     return DashKit(
                         context = App.instance,
-//                        connectionManager = App.bitCoinConnectionManager,
                         extendedKey = accountType.hdExtendedKey,
                         walletId = account.id,
                         syncMode = syncMode,
@@ -107,7 +106,6 @@ class DashAdapter(
                 is AccountType.Mnemonic -> {
                     return DashKit(
                         context = App.instance,
-//                        connectionManager = App.bitCoinConnectionManager,
                         words = accountType.words,
                         passphrase = accountType.passphrase,
                         walletId = account.id,

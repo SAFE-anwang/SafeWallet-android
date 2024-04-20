@@ -54,7 +54,7 @@ import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 
-class WC2SessionFragment : BaseFragment() {
+class WCSessionFragment : BaseFragment() {
 
     private val viewModel by viewModels<WCSessionViewModel> {
         val input = arguments?.getInputX<WCSessionModule.Input>()

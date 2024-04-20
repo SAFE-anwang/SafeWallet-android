@@ -296,7 +296,6 @@ private fun SettingSections(
             HsSettingCell(
                 R.string.Settings_Telegram,
                 R.drawable.ic_telegram_20,
-                showAlert = showAlertAboutApp,
                 onClick = {
                     LinkHelper.openLinkInAppBrowser(context, App.appConfigProvider.appTelegramLink)
                 }
@@ -305,7 +304,6 @@ private fun SettingSections(
             HsSettingCell(
                 R.string.Settings_Twitter,
                 R.drawable.ic_twitter_20,
-                showAlert = showAlertAboutApp,
                 onClick = {
                     LinkHelper.openLinkInAppBrowser(context, App.appConfigProvider.appTwitterLink)
                 }

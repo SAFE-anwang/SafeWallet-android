@@ -158,7 +158,7 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
                     fallbackBlockViewModel.fallback(item.blockchain, year, month)
-                    setNavigationResult("fallbackHeight", bundleOf("isFallback" to true))
+                    findNavController().setNavigationResult("fallbackHeight", bundleOf("isFallback" to true))
                     findNavController().popBackStack()
 
                 }

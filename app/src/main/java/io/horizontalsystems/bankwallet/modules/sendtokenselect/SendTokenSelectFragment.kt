@@ -43,7 +43,12 @@ class SendTokenSelectFragment : BaseComposeFragment() {
                         if (it.wallet.coin.uid == "safe-coin" && it.wallet.token.blockchain.type is BlockchainType.Safe) {
                             navController.slideFromBottom(
                                     R.id.sendSafeFragment,
-                                    SafeSendFragment.prepareParams(it.wallet, sendTitle)
+                                    SendFragment.Input(
+                                            wallet = it.wallet,
+                                            sendEntryPointDestId = R.id.sendTokenSelectFragment,
+                                            title = sendTitle,
+                                            prefilledAddressData = prefilledData,
+                                    )
                             )
                         } else {
                             navController.slideFromRight(

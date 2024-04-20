@@ -29,12 +29,16 @@ class TransactionsService(
     private val contactsRepository: ContactsRepository,
     private val nftMetadataService: NftMetadataService,
     private val spamManager: SpamManager,
+    private val transactionFilterService: TransactionFilterService
 ) : Clearable {
 
     private val itemsSubject = BehaviorSubject.create<List<TransactionItem>>()
     val itemsObservable: Observable<List<TransactionItem>> get() = itemsSubject
 
     val syncingObservable get() = transactionSyncStateRepository.syncingObservable
+
+    private val typesSubject = BehaviorSubject.create<Pair<List<FilterTransactionType>, FilterTransactionType>>()
+    val typesObservable get() = typesSubject
 
     private val disposables = CompositeDisposable()
     private val transactionItems = CopyOnWriteArrayList<TransactionItem>()
@@ -284,11 +288,11 @@ class TransactionsService(
 
 
     fun setFilterZeroIncoming() {
-        val f = transactionFilterService.selectedTransactionType
+        val f = transactionFilterService.getSelectedTransactionType()
         executorService.submit {
-            typesSubject.onNext(Pair(transactionFilterService.getFilterTypes(), f))
+            typesSubject.onNext(Pair(transactionFilterService.transactionTypes, f))
             transactionFilterService.setSelectedTransactionType(f)
-            transactionRecordRepository.setTransactionType(f)
+//            transactionRecordRepository.reload()
         }
     }
 }

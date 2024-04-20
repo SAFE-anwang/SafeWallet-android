@@ -25,10 +25,6 @@ class UniswapConfirmationFragment(
         requireArguments().getInputX<Input>()!!
     }
 
-    private val token by lazy {
-        requireArguments().getParcelable<Token>(tokenKey)
-    }
-
     override val logger = AppLogger("swap_uniswap")
 
     private val vmFactory by lazy {

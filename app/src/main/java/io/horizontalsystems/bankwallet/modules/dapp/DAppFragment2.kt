@@ -61,7 +61,9 @@ fun DAppFragment2(
                     .clickable {
                         val bundle = Bundle()
                         bundle.putBoolean("isInput", true)
-                        navController.slideFromRight(R.id.dappBrowseFragment, bundle)
+                        navController.slideFromRight(R.id.dappBrowseFragment,
+                                DAppBrowseFragment.Input("", "", true)
+                        )
                     },
                 verticalArrangement = Arrangement.Center
             ) {
@@ -120,10 +122,9 @@ fun DAppFragment2(
                                     CellItems(
                                         dappItem = postItem
                                     ) {
-                                        val bundle = Bundle()
-                                        bundle.putString("url", postItem.dlink)
-                                        bundle.putString("name", postItem.name)
-                                        navController.slideFromRight(R.id.dappBrowseFragment, bundle)
+                                        navController.slideFromRight(R.id.dappBrowseFragment,
+                                                DAppBrowseFragment.Input(postItem.dlink, postItem.name)
+                                        )
                                     }
                                 }
                             }

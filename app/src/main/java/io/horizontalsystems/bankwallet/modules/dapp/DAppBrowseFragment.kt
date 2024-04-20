@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.dapp
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Base64
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -15,7 +16,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget1.LinearLayoutManager
 import com.google.android.exoplayer2.util.Log
@@ -24,12 +29,17 @@ import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.databinding.FragmentDappBrowseBinding
 import io.horizontalsystems.bankwallet.modules.main.MainModule
+import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
+import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
+import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
+import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListViewModel
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransaction.v2.WC2SendEthereumTransactionRequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.signmessage.v2.WC2SignMessageRequestFragment
-import io.horizontalsystems.bankwallet.modules.walletconnect.version2.*
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.WCSessionModule
+import io.horizontalsystems.bankwallet.modules.walletconnect.session.WCSessionViewModel
 import io.horizontalsystems.bankwallet.ui.extensions.ConfirmationDialog
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.core.findNavController
@@ -38,6 +48,9 @@ import io.horizontalsystems.marketkit.models.Blockchain
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.parcelize.Parcelize
 import java.net.URLDecoder
 
 class DAppBrowseFragment: BaseFragment(){
@@ -45,26 +58,28 @@ class DAppBrowseFragment: BaseFragment(){
 //    private lateinit  var baseViewModel : WalletConnectViewModel
     /*private val wc2MainViewModel by viewModels<WC2MainViewModel> {
         WC2MainViewModel.Factory()
-    }
-    private val viewModel by viewModels<WC2SessionViewModel> {
-        WC2SessionModule.Factory(arguments?.getString(WC2SessionModule.SESSION_TOPIC_KEY))
     }*/
+/*    private val viewModel by viewModels<WCSessionViewModel> {
+        Log.e("connectWallet", "DAppBrowseFragment")
+        val input = arguments?.getInputX<WCSessionModule.Input>()
+        WCSessionModule.Factory(input?.sessionTopic)
+    }*/
+
+    private var viewModel: WCSessionViewModel? = null
+
+    private val walletConnectListViewModel by viewModels<WalletConnectListViewModel> {
+        WalletConnectListModule.Factory()
+    }
 
     private val HISTORY_KEY = "dapp_history"
     private var _binding: FragmentDappBrowseBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var webView: WebView
-    /*private lateinit var toolbar: Toolbar
-    private lateinit var progressBar: ProgressBar
-    private lateinit var webRootView: LinearLayout*/
     private lateinit var urlString: String
 
-//    private var wc2Service: WC2SessionService? = null
 
     private val disposables = CompositeDisposable()
-//    private val openRequestLiveEvent = SingleLiveEvent<WC1Request>()
-//    private val openWalletConnectRequestLiveEvent = SingleLiveEvent<WC2Request>()
     private val errorLiveEvent = SingleLiveEvent<String?>()
 
     private var autoConnect = true
@@ -87,12 +102,40 @@ class DAppBrowseFragment: BaseFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
+
+        val wcViewModel = WCViewModel()
+        wcViewModel.walletEvents
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .onEach { event ->
+                    when (event) {
+                        is SignEvent.SessionProposal -> {
+                            val input = arguments?.getInputX<WCSessionModule.Input>()
+                            viewModel = WCSessionViewModel(
+                                    App.wcSessionManager,
+                                    App.connectivityManager,
+                                    App.accountManager.activeAccount,
+                                    input?.sessionTopic,
+                            )
+                            viewModel?.connect()
+                        }
+                        is SignEvent.SessionRequest -> {
+//                            findNavController().slideFromBottom(R.id.wcRequestFragment,)
+                        }
+
+                        is SignEvent.Disconnect -> {
+                            viewModel?.disconnect()
+                        }
+
+                        is AuthEvent.OnRequest -> {
+                        }
+
+                        else -> Unit
+                    }
+                }
+                .launchIn(lifecycleScope)
     }
 
     private fun initUI() {
-        /*toolbar = findViewById(R.id.dappToolbar)
-        progressBar = findViewById(R.id.progressBar)
-        webRootView = findViewById(R.id.webRootView)*/
         binding.dappToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
@@ -125,9 +168,10 @@ class DAppBrowseFragment: BaseFragment(){
             }
             false
         }
-        val url = arguments?.getString("url") ?: ""
-        val name = arguments?.getString("name")
-        val isInput = arguments?.getBoolean("isInput")?.let {
+        val input = findNavController().requireInput<Input>()
+        val url = input.url
+        val name = input.name
+        val isInput = input.isInput?.let {
             binding.dappToolbar.visibility = if (it) View.GONE else View.VISIBLE
             binding.layoutInput.visibility = if (it) View.VISIBLE else View.GONE
             binding.layoutHistory.visibility = if (it) View.VISIBLE else View.GONE
@@ -158,40 +202,12 @@ class DAppBrowseFragment: BaseFragment(){
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             callback)
-        /*openRequestLiveEvent.observe(viewLifecycleOwner, Observer {
-            *//*val baseViewModel by navGraphViewModels<WalletConnectViewModel>(R.id.mainFragment) {
-                WalletConnectModule.Factory2(
-                    wc1Service!!
-                )
-            }*//*
-            when (it) {
-                is WC1SendEthereumTransactionRequest -> {
-//                    baseViewModel.sharedSendEthereumTransactionRequest = it
-
-                    findNavController().slideFromRight(
-                        R.id.mainFragment_to_wcSendEthereumTransactionRequestFragment
-                    )
-                }
-                is WC1SignMessageRequest -> {
-                    Log.e("connectWallet", "navigation sign message")
-//                    baseViewModel.sharedSignMessageRequest = it
-
-                    findNavController().slideFromRight(
-                        R.id.mainFragment_to_wcSignMessageRequestFragment
-                    )
-                }
-            }
-        })*/
 
         errorLiveEvent.observe(viewLifecycleOwner, Observer { errorMsg ->
             errorMsg?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         })
-
-        /*wc2MainViewModel.sessionProposalLiveEvent.observe(viewLifecycleOwner) {
-            viewModel.connect()
-        }*/
 
         initHistoryView()
     }
@@ -321,76 +337,7 @@ class DAppBrowseFragment: BaseFragment(){
     }
 
     private fun wc2Connect(topic: String?, connectionLink: String?) {
-        connectionLink?.let {
-            Web3Wallet.pair(
-                    Wallet.Params.Pair(connectionLink.trim()),
-                    onSuccess = {
-//                    connectionResult = null
-                    },
-                    onError = {
-//                    connectionResult = WalletConnectListViewModel.ConnectionResult.Error
-                    }
-            )
-        }
-        /*wc2Service = WC2SessionService(
-            App.wc2Service,
-            App.wc2Manager,
-            App.wc2SessionManager,
-            App.accountManager,
-            WC2PingService(),
-            App.connectivityManager,
-            App.evmBlockchainManager,
-            topic,
-            connectionLink,
-        )
-        wc2Service!!.connectionStateObservable
-            .subscribe {
-                Log.e("connectWallet", "connect state v2: $it")
-                if (it is WC2PingService.State.Disconnected) {
-//                    wc2Service?.reconnect()
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        wc2Service!!.stateObservable
-            .subscribe {
-                Log.e("connectWallet", "service state: $it")
-                isConnecting = false
-                when(it) {
-                    WC2SessionService.State.WaitingForApproveSession -> {
-                        wc2Service?.approve()
-                        // 保存连接钱包链接， 下次进入时自动连接
-                        connectionLink?.let {
-                            val decodeUrl = URLDecoder.decode(connectionLink)
-                            Log.e("connectWallet", "decode: $decodeUrl")
-                            App.preferences.edit().putString(getKey(urlString), decodeUrl).commit()
-                        }
-                    }
-                    is WC2SessionService.State.Invalid -> {
-                        errorLiveEvent.postValue(it.error.message)
-                        disposables.clear()
-                        wc2Service?.stop()
-                        wc2Service = null
-                    }
-                    WC2SessionService.State.Killed -> {
-                        wc2Service?.stop()
-                        wc2Service = null
-                    }
-                    else -> {}
-                }
-            }
-            .let {
-                disposables.add(it)
-            }
-        App.wc2SessionManager.pendingRequestObservable2
-            .subscribe{
-                Log.e("connectWallet", "pendingRequestObservable: $it")
-                openWalletConnectRequestLiveEvent.postValue(it)
-            }.let {
-                disposables.add(it)
-            }
-        wc2Service?.start()*/
+        walletConnectListViewModel.setConnectionUri(connectionLink ?: "")
     }
 
     override fun onDestroy() {
@@ -400,8 +347,6 @@ class DAppBrowseFragment: BaseFragment(){
             it.destroy()
         }
         disposables.dispose()
-//        wc2Service?.disconnect()
-//        wc2Service = null
         MainModule.isOpenDapp = false
         super.onDestroy()
     }
@@ -457,4 +402,10 @@ class DAppBrowseFragment: BaseFragment(){
         binding.layoutHistory.visibility = View.GONE
     }
 
+    @Parcelize
+    data class Input(
+            val url: String,
+            val name: String,
+            val isInput: Boolean? = false
+    ) : Parcelable
 }
