@@ -24,6 +24,7 @@ import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.databinding.FragmentRestoreMnemonicHdBinding
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMnemonicService
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.phrase.SelectWalletViewModel
@@ -182,12 +183,17 @@ class RestoreMnemonicFragmentHD : BaseFragment() {
     private fun observeEvents() {
         viewModel.proceedLiveEvent.observe(viewLifecycleOwner, Observer { accountType ->
             hideKeyboard()
+            val input = findNavController().getInput<ManageAccountsModule.Input>()
+            val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.restoreAccountFragment
+            val inclusive = input?.popOffInclusive ?: false
             findNavController().slideFromRight(
                 R.id.restoreSelectCoinsFragment,
                     RestoreBlockchainsFragment.Input(
                             viewModel.defaultName,
                             accountType,
-                            purposeType = purpose.value
+                            purposeType = purpose.value,
+                            popUpToInclusiveId = popUpToInclusiveId,
+                            popOffInclusiveKey = inclusive
                     )
                 /*bundleOf(
                     ACCOUNT_NAME_KEY to viewModel.defaultName,
