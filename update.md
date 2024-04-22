@@ -283,3 +283,12 @@ b.更换市场行情下第三方接口；
 6.增加新建钱包时安全中心下区块链的更新方式选择，包括API和blockchain。  
 
 
+v0.38.0.1.0422版本说明：
+1、支持TONCOIN（The Open Network）链；
+2、支持BTC、BCH调用API服务，可以加速/取消待处理的交易；
+3、支持交易记录按联系人过滤显示；
+4、支持增加隐藏微量币交易功能，部分解决地址攻击问题；
+5、支持监控BTC、BCH、DASH和LTC地址功能；
+6、优化WalletConnect连接Dapp，兼容最新协议修改,支持多ID随机调用；
+7、优化BSC、ETH、Matic、Avax、Arbit、Opti、Gnosis等数据同步服务；
+8、支持软件自动更新功能；
