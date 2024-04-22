@@ -47,7 +47,8 @@ object LiquidityMainModule {
     )
 
     class Factory(arguments: Bundle) : ViewModelProvider.Factory {
-        private val tokenFrom: Token? = arguments.getParcelable(tokenFromKey)
+        private val input: Bundle? = arguments.getParcelable("input")
+        private val tokenFrom: Token? = input?.getParcelable(tokenFromKey)
         private val swapProviders: List<SwapMainModule.ISwapProvider> = listOf(
             PancakeLiquidityProvider,
             UniswapLiquidityProvider

@@ -405,7 +405,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             HSpacer(8.dp)
             if (!viewItem.swapVisible) {
                 ButtonPrimaryDefault(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(40.dp),
                     title = stringResource(R.string.Balance_Receive),
                     onClick =  onClickReceive,
                 )
@@ -414,6 +414,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     icon = R.drawable.ic_arrow_down_left_24,
                     contentDescription = stringResource(R.string.Balance_Receive),
                     onClick = onClickReceive,
+                    height = 40.dp
                 )
             }
             if (viewItem.liquidityVisible) {

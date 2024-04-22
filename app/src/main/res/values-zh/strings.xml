@@ -648,7 +648,7 @@
     <string name="Swap_Approve">批准</string>
     <string name="Swap_Approving">审批中</string>
     <string name="Swap_Swapping">交易中...</string>
-    <string name="Swap_Quoting">引述</string>
+    <string name="Swap_Quoting">报价中</string>
     <string name="Swap_MaximumPaid">最大支付金额</string>
     <string name="Swap_MinimumGot">保证金额</string>
     <string name="Swap_PoweredBy">技术支持：</string>
@@ -1028,7 +1028,7 @@
     <string name="DuressPinSelectAccounts_SectionWallets_Title">战利品</string>
     <string name="DuressPinSelectAccounts_SectionWatchWallets_Title">观看战利品</string>
     <!--Setting_Terms-->
-    <string name="SettingsTerms_Text">本钱包是为寻求以私密和独立的方式投资和储存加密货币的人士而创立。\n\n这是一个非监护式对等钱包，只有用户能够对资金进行控制。它不收集任何数据并通过不把用户钱包锁定至特定的钱包应用来保证他/她的独立性。\n\nSafeWallet钱包完全开源且任何人都可以确定应用按照其宣称的方式运行。\n\n我们为我们自己创立了SafeWallet作为符合标准的可用的解决方案。从工程和可用性角度而言，我们相信此钱包远远领先于其他产品。\n</string>
+    <string name="SettingsTerms_Text">本钱包是为寻求以私密和独立的方式投资和储存加密货币的人士而创立。\n\n这是一个链上钱包，只有用户能够对资金进行控制。它不收集任何数据并通过不把用户钱包锁定至特定的钱包应用来保证他/她的独立性。\n\nSafeWallet钱包完全开源且任何人都可以确定应用按照其宣称的方式运行。\n\n我们为我们自己创立了SafeWallet作为符合标准的可用的解决方案。从工程和可用性角度而言，我们相信此钱包远远领先于其他产品。\n</string>
     <string name="SettingsTerms_Backup">安全地备份每个钱包的助记词。这是在应用程序发生故障时重新获得资金的唯一途径。</string>
     <string name="SettingsTerms_PrivateKeys">钱包助记词在安装过程中在设备上随机生成，并且不存储在其他地方。</string>
     <string name="SettingsTerms_DisablingPin">在智能手机上禁用解锁 PIN (代码)会删除应用程序中的所有钱包。恢复资金访问将需要助记词。</string>

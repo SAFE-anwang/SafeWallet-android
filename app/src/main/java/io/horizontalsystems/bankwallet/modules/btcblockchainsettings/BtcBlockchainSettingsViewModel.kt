@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.BtcRestoreMode
 import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockchainSettingsModule.BlockchainSettingsIcon
 import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockchainSettingsModule.ViewItem
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.disposables.CompositeDisposable
 
 class BtcBlockchainSettingsViewModel(
@@ -29,6 +30,8 @@ class BtcBlockchainSettingsViewModel(
 
     val title: String = service.blockchain.name
     val blockchainIconUrl = service.blockchain.type.imageUrl
+
+    val isSafe = service.blockchain.type == BlockchainType.Safe
 
     init {
         service.hasChangesObservable

@@ -194,17 +194,13 @@ class MainActivity : BaseActivity() {
 
     private fun startUpgradeVersion() {
         XUpdate.get()
-                .debug(true)
                 .isWifiOnly(false) // By default, only version updates are checked under WiFi
                 .isGet(true) // The default setting uses Get request to check versions
                 .isAutoMode(false) // The default setting is non automatic mode
-//                .param("versionCode", UpdateUtils.getVersionCode(this)) // Set default public request parameters
-//                .param("appKey", packageName)
                 .setOnUpdateFailureListener { error ->
-
                     // Set listening for version update errors
                     if (error.code != CHECK_NO_NEW_VERSION) {          // Handling different errors
-//                        ToastUtils.toast(error.toString())
+
                     }
                 }
                 .supportSilentInstall(true) // Set whether silent installation is supported. The default is true
@@ -212,15 +208,16 @@ class MainActivity : BaseActivity() {
                 .init(this.application)
         XUpdate.newBuild(this)
                 .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
+                .promptThemeColor(getColor(R.color.safe_blue))
                 .updateParser(object : IUpdateParser {
                     override fun parseJson(json: String?): UpdateEntity? {
-                        Log.e("longwen", "json=$json")
+                        Log.e("VersionUpdate", "json=$json")
                         val gson = Gson()
                         val result = gson.fromJson<UpgradeVersion>(json, UpgradeVersion::class.java)
                         if (result != null) {
                             return UpdateEntity()
                                     .setHasUpdate(getVersionCode() < result.versionCode)
-                                    .setIsIgnorable(false)
+                                    .setIsIgnorable(true)
                                     .setVersionCode(result.versionCode)
                                     .setVersionName(result.version)
                                     .setUpdateContent(result.upgradeMsg)

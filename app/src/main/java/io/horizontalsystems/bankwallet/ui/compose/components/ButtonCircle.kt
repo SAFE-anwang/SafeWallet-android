@@ -22,13 +22,14 @@ fun ButtonPrimaryCircle(
     @DrawableRes icon: Int = R.drawable.ic_arrow_down_left_24,
     contentDescription: String? = null,
     onClick: () -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    height: Dp = 50.dp
 ) {
     val shape = CircleShape
     HsIconButton(
         onClick = { onClick() },
         modifier = Modifier
-            .size(50.dp)
+            .size(height)
             .clip(shape)
             .background(if (enabled) {
                 if (App.localStorage.currentTheme == ThemeType.Blue)

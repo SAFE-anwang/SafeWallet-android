@@ -64,9 +64,13 @@ class SafeAdapter(
     }
 
     override fun onKitStateUpdate(state: BitcoinCore.KitState) {
-        setState(state)
-        if (state is BitcoinCore.KitState.NotSynced) {
-            refresh()
+        try {
+            setState(state)
+            if (state is BitcoinCore.KitState.NotSynced) {
+                refresh()
+            }
+        } catch (e: Exception) {
+
         }
     }
 

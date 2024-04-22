@@ -183,7 +183,7 @@ fun SwapConfirmScreen(navController: NavController) {
                             },
                         )
                         VSpacer(height = 12.dp)
-                        subhead1_leah(text = "Quote expires in ${uiState.expiresIn}")
+                        subhead1_leah(text = "报价即将过期 ${uiState.expiresIn}")
                     }
                 }
             }
@@ -312,11 +312,18 @@ private fun TokenRow(
     borderTop: Boolean = true,
 ) {
     CellUniversal(borderTop = borderTop) {
-        CoinImage(
-            iconUrl = token.coin.imageUrl,
-            placeholder = token.iconPlaceholder,
-            modifier = Modifier.size(32.dp)
-        )
+        if (token?.coin?.uid == "safe-coin") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+            )
+        } else {
+            CoinImage(
+                    iconUrl = token.coin.imageUrl,
+                    placeholder = token.iconPlaceholder,
+                    modifier = Modifier.size(32.dp)
+            )
+        }
         HSpacer(width = 16.dp)
         Column {
             val title = when (type) {

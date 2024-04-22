@@ -203,6 +203,7 @@ class WCSessionViewModel(
     private fun title(method: String?): String = when (method) {
         "personal_sign" -> "Personal Sign Request"
         "eth_sign" -> "Standard Sign Request"
+        "eth_signTypedData_v4" -> "Typed Sign Request"
         "eth_signTypedData" -> "Typed Sign Request"
         "eth_sendTransaction" -> "Approve Transaction"
         else -> "Unsupported"
@@ -449,7 +450,7 @@ class WCSessionViewModel(
     private fun getSupportedNamespaces(accounts: List<String>): Map<String, Wallet.Model.Namespace.Session> {
         return mapOf(
             "eip155" to Wallet.Model.Namespace.Session(
-                chains = listOf("eip155:1"),
+                chains = listOf("eip155:1", "eip155:56"),
                 methods = listOf(
                     "eth_sendTransaction",
                     "personal_sign",
@@ -460,7 +461,8 @@ class WCSessionViewModel(
 //                    "eth_sendRawTransaction",
                     "eth_sign",
 //                    "eth_signTransaction",
-                    "eth_signTypedData"
+                    "eth_signTypedData",
+                    "eth_signTypedData_v4"
                 ),
                 events = listOf("chainChanged", "accountsChanged"),
                 accounts = accounts
@@ -469,7 +471,7 @@ class WCSessionViewModel(
     }
 
     private fun getSupportedBlockchains(account: Account): List<WCBlockchain> {
-        val chains = listOf(Chain.Ethereum)
+        val chains = listOf(Chain.Ethereum, Chain.BinanceSmartChain)
         return chains.map {
             val address = getEvmAddress(account, it).eip55
             WCBlockchain(it.id, it.name, address)

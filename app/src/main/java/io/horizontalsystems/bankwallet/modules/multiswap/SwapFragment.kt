@@ -119,7 +119,7 @@ fun SwapScreen(navController: NavController, tokenIn: Token?) {
         onClickCoinFrom = {
             navController.slideFromBottomForResult<Token>(
                 R.id.swapSelectCoinFragment,
-                SwapSelectCoinFragment.Input(uiState.tokenOut, context.getString(R.string.Swap_YouPay))
+                SwapSelectCoinFragment.Input(uiState.tokenIn, context.getString(R.string.Swap_YouPay))
             ) {
                 viewModel.onSelectTokenIn(it)
             }
@@ -681,11 +681,18 @@ private fun CoinSelector(
 ) {
     Selector(
         icon = {
-            CoinImage(
-                iconUrl = token?.coin?.imageUrl,
-                placeholder = token?.iconPlaceholder,
-                modifier = Modifier.size(32.dp)
-            )
+            if (token?.coin?.uid == "safe-coin") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                )
+            } else {
+                CoinImage(
+                        iconUrl = token?.coin?.imageUrl,
+                        placeholder = token?.iconPlaceholder,
+                        modifier = Modifier.size(32.dp)
+                )
+            }
         },
         text = {
             if (token != null) {

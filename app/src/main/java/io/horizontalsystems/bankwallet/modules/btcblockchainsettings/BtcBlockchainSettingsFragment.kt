@@ -73,10 +73,14 @@ private fun BtcBlockchainSettingsScreen(
                 title = viewModel.title,
                 navigationIcon = {
                     Image(
-                        painter = rememberAsyncImagePainter(
-                            model = viewModel.blockchainIconUrl,
-                            error = painterResource(R.drawable.ic_platform_placeholder_32)
-                        ),
+                        painter = if (viewModel.isSafe) {
+                            painterResource(R.drawable.logo_safe_24)
+                        } else {
+                            rememberAsyncImagePainter(
+                                    model = viewModel.blockchainIconUrl,
+                                    error = painterResource(R.drawable.ic_platform_placeholder_32)
+                            )
+                        },
                         contentDescription = null,
                         modifier = Modifier
                             .padding(start = 14.dp)
@@ -129,7 +133,7 @@ private fun BtcBlockchainSettingsScreen(
 private fun RestoreSourceSettings(
     viewModel: BtcBlockchainSettingsViewModel
 ) {
-    BlockchainSettingSection(viewModel.restoreSources) { viewItem ->
+    BlockchainSettingSection(viewModel.restoreSources, viewModel.isSafe) { viewItem ->
         viewModel.onSelectRestoreMode(viewItem)
     }
 }
@@ -137,6 +141,7 @@ private fun RestoreSourceSettings(
 @Composable
 private fun BlockchainSettingSection(
     restoreSources: List<BtcBlockchainSettingsModule.ViewItem>,
+    isSafe: Boolean,
     onItemClick: (BtcBlockchainSettingsModule.ViewItem) -> Unit
 ) {
     subhead2_grey(
@@ -145,7 +150,7 @@ private fun BlockchainSettingSection(
     )
     VSpacer(32.dp)
     CellUniversalLawrenceSection(restoreSources) { item ->
-        BlockchainSettingCell(item.title, item.subtitle, item.selected, item.icon) {
+        BlockchainSettingCell(item.title, item.subtitle, item.selected, item.icon, isSafe) {
             onItemClick(item)
         }
     }
@@ -158,6 +163,7 @@ fun BlockchainSettingCell(
     subtitle: String,
     checked: Boolean,
     icon: BlockchainSettingsIcon?,
+    isSafe: Boolean = false,
     onClick: () -> Unit
 ) {
     RowUniversal(
@@ -170,10 +176,14 @@ fun BlockchainSettingCell(
                     .size(32.dp),
                 painter = when (icon) {
                     is BlockchainSettingsIcon.ApiIcon -> painterResource(icon.resId)
-                    is BlockchainSettingsIcon.BlockchainIcon -> rememberAsyncImagePainter(
-                        model = icon.url,
-                        error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    )
+                    is BlockchainSettingsIcon.BlockchainIcon -> if (isSafe) {
+                            painterResource(R.drawable.logo_safe_24)
+                        } else {
+                            rememberAsyncImagePainter(
+                            model = icon.url,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                        )
+                    }
                 },
                 contentDescription = null,
             )

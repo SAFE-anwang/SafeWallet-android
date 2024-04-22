@@ -79,14 +79,14 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     .thenBy { it.token.coin.code }
                     .thenBy { it.token.blockchainType.order }
                     .thenBy { it.token.badge }
-            )
+            ).filter { it.token.blockchainType == otherSelectedToken?.blockchainType }
                 .let {
                     resultTokens.addAll(it)
                 }
 
             // Suggested Tokens
             otherSelectedToken?.let { otherToken ->
-                val topFullCoins = marketKit.fullCoins("", limit = 100)
+                val topFullCoins = marketKit.fullCoins("", limit = 200)
                 val tokens =
                     topFullCoins.map { fullCoin ->
                         fullCoin.tokens.filter { it.blockchainType == otherToken.blockchainType }
@@ -132,7 +132,7 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     resultTokens.addAll(it)
                 }
 
-            coinBalanceItems = resultTokens
+            coinBalanceItems = resultTokens/*.filter { dexSupportsCoin(it.token) }*/
             return@withContext
         }
 

@@ -393,6 +393,60 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
     }
 }
 
+fun BlockchainType.supportsSwap(accountType: AccountType): Boolean {
+    return when (accountType) {
+        is AccountType.Mnemonic -> true
+        is AccountType.HdExtendedKey -> {
+            val coinTypes = accountType.hdExtendedKey.coinTypes
+            when (this) {
+                BlockchainType.Bitcoin -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin)
+                BlockchainType.Litecoin -> coinTypes.contains(ExtendedKeyCoinType.Litecoin)
+                BlockchainType.Dogecoin, /*-> coinTypes.contains(ExtendedKeyCoinType.Litecoin)*/
+                BlockchainType.BitcoinCash,
+                BlockchainType.Dash,
+                BlockchainType.Safe,
+                BlockchainType.ECash -> coinTypes.contains(ExtendedKeyCoinType.Bitcoin) && accountType.hdExtendedKey.purposes.contains(HDWallet.Purpose.BIP44)
+                else -> false
+            }
+        }
+
+        is AccountType.BitcoinAddress -> {
+            this === accountType.blockchainType
+        }
+
+        is AccountType.EvmAddress ->
+            this == BlockchainType.Ethereum
+                    || this == BlockchainType.BinanceSmartChain
+                    || this == BlockchainType.Polygon
+                    || this == BlockchainType.Avalanche
+                    || this == BlockchainType.Optimism
+                    || this == BlockchainType.ArbitrumOne
+                    || this == BlockchainType.Gnosis
+                    || this == BlockchainType.Fantom
+        is AccountType.PrivateKey,
+        is AccountType.EvmPrivateKey -> {
+            this == BlockchainType.Ethereum
+                    || this == BlockchainType.BinanceSmartChain
+//                    || this == BlockchainType.Polygon
+                    || this == BlockchainType.Avalanche
+                    || this == BlockchainType.Optimism
+                    || this == BlockchainType.ArbitrumOne
+                    || this == BlockchainType.Gnosis
+                    || this == BlockchainType.Fantom
+        }
+        is AccountType.SolanaAddress ->
+            this == BlockchainType.Solana
+
+        is AccountType.TronAddress ->
+            this == BlockchainType.Tron
+
+        is AccountType.TonAddress ->
+            this == BlockchainType.Ton
+
+        is AccountType.Cex -> false
+    }
+}
+
 val TokenType.order: Int
     get() {
         return when (this) {
