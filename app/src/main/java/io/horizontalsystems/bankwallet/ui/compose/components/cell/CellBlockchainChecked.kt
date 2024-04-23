@@ -27,14 +27,21 @@ fun CellBlockchainChecked(
         borderTop = borderTop,
         onClick = onToggle
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = blockchain.type.imageUrl,
-                error = painterResource(R.drawable.ic_platform_placeholder_32)
-            ),
-            contentDescription = null,
-            modifier = Modifier.size(32.dp)
-        )
+        if (blockchain.uid == "safe-coin") {
+            Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+            )
+        } else {
+            Image(
+                    painter = rememberAsyncImagePainter(
+                            model = blockchain.type.imageUrl,
+                            error = painterResource(R.drawable.ic_platform_placeholder_32)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+            )
+        }
         body_leah(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

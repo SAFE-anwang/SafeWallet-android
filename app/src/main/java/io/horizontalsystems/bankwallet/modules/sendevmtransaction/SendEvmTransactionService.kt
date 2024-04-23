@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
@@ -69,6 +70,7 @@ class SendEvmTransactionService(
     override var sendState: SendState = SendState.Idle
         private set(value) {
             field = value
+            Log.e("longwen", "sendSate=$value, ${Exception().stackTraceToString()}")
             sendStateSubject.onNext(value)
         }
     override val sendStateObservable: Flowable<SendState> = sendStateSubject.toFlowable(BackpressureStrategy.BUFFER)

@@ -58,7 +58,7 @@ class CoinOverviewChartService(
         val mostPeriodSeconds = now - chartStartTime
 
         chartIntervals = HsTimePeriod.values().filter {
-            it.range <= mostPeriodSeconds
+            it.range <= mostPeriodSeconds && (coinUid != "safe-coin" || it.value != "5y")
         } + listOf<HsTimePeriod?>(null)
 
         scope.launch {

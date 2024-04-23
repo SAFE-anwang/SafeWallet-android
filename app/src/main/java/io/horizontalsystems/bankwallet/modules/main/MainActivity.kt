@@ -208,7 +208,6 @@ class MainActivity : BaseActivity() {
                 .init(this.application)
         XUpdate.newBuild(this)
                 .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
-                .promptThemeColor(getColor(R.color.safe_blue))
                 .updateParser(object : IUpdateParser {
                     override fun parseJson(json: String?): UpdateEntity? {
                         Log.e("VersionUpdate", "json=$json")

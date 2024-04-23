@@ -92,7 +92,7 @@ fun BackupRecoveryPhraseScreen(navController: NavController, account: Account) {
                 }
             )
             VSpacer(12.dp)
-            ButtonPrimaryDefaultWithIcon(
+            ButtonPrimaryYellowWithIcon(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),

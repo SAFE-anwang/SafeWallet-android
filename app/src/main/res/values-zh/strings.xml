@@ -1940,4 +1940,5 @@
     <string name="Liquidity_Add">添加</string>
     <string name="Liquidity_Add_Success">添加成功</string>
     <string name="Dapp">添加成功</string>
+    <string name="qutoe_expire_hint">报价即将过期</string>
 </resources>

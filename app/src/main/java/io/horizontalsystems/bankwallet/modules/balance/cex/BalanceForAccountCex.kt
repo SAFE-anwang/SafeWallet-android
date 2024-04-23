@@ -318,12 +318,19 @@ fun WalletIconCex(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            CoinImage(
-                iconUrl = viewItem.coinIconUrl,
-                placeholder = viewItem.coinIconPlaceholder,
-                modifier = Modifier
-                    .size(32.dp)
-            )
+            if (viewItem.coinUid == "safe-coin") {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                )
+            } else {
+                CoinImage(
+                        iconUrl = viewItem.coinIconUrl,
+                        placeholder = viewItem.coinIconPlaceholder,
+                        modifier = Modifier
+                                .size(32.dp)
+                )
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.depositcex
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -106,13 +108,20 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            CoinImage(
-                iconUrl = viewItem.coinIconUrl,
-                placeholder = viewItem.coinIconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
-                    .size(32.dp)
-            )
+            if (viewItem.coinIconUrl?.contains("safe-coin") == true) {
+                Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                )
+            } else {
+                CoinImage(
+                        iconUrl = viewItem.coinIconUrl,
+                        placeholder = viewItem.coinIconPlaceholder,
+                        modifier = Modifier
+                                .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                                .size(32.dp)
+                )
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)

@@ -2259,4 +2259,5 @@
     <string name="Liquidity_Add_Success">Add success</string>
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>
+    <string name="qutoe_expire_hint">报价即将过期</string>
 </resources>

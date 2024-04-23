@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,9 +73,6 @@ class SwapApproveConfirmationFragment : BaseComposeFragment() {
         )
     }
 
-    private val popBackId: Int
-        get() = arguments?.getInt(backNavGraphIdKey) ?: R.id.swapFragment
-
     private val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
     private val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
     private val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(R.id.swapApproveConfirmationFragment) { vmFactory }
@@ -103,6 +101,7 @@ class SwapApproveConfirmationFragment : BaseComposeFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sendEvmTransactionViewModel.sendingLiveData.observe(viewLifecycleOwner) {
+            Log.d("longwen", "show message")
             snackbarInProcess = HudHelper.showInProcessMessage(
                 requireView(),
                 R.string.Swap_Approving,
@@ -117,7 +116,7 @@ class SwapApproveConfirmationFragment : BaseComposeFragment() {
             )
             Handler(Looper.getMainLooper()).postDelayed({
                 findNavController().setNavigationResultX(Result(true))
-                findNavController().popBackStack(popBackId, false)
+                findNavController().popBackStack()
             }, 1200)
         }
 

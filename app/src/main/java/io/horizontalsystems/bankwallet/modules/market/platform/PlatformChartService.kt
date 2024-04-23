@@ -41,7 +41,8 @@ class PlatformChartService(
         val mostPeriodSeconds = now - chartStartTime
 
         chartIntervals = HsTimePeriod.values().filter {
-            it.range <= mostPeriodSeconds
+            it.range <= mostPeriodSeconds && (platform.uid != "safe-coin" || it.value != "5y")
+            false
         } + listOf<HsTimePeriod?>(null)
 
         super.start()

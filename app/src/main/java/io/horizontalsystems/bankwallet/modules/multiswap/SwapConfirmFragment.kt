@@ -183,7 +183,7 @@ fun SwapConfirmScreen(navController: NavController) {
                             },
                         )
                         VSpacer(height = 12.dp)
-                        subhead1_leah(text = "报价即将过期 ${uiState.expiresIn}")
+                        subhead1_leah(text = "${stringResource(R.string.qutoe_expire_hint)} ${uiState.expiresIn}")
                     }
                 }
             }
