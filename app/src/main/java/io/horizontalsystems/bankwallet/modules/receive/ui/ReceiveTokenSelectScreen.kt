@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalIte
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -135,7 +136,7 @@ fun ReceiveCoin(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (uid == "safe-coin") {
+        if (uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

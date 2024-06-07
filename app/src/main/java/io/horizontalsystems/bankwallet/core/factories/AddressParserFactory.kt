@@ -17,6 +17,7 @@ val BlockchainType.uriScheme: String?
             BlockchainType.Dogecoin -> "dogecoin"
             BlockchainType.Dash -> "dash"
             BlockchainType.Safe -> "safe"
+            BlockchainType.SafeFour -> "safe4"
             BlockchainType.Zcash -> "zcash"
             BlockchainType.Ethereum -> "ethereum"
             BlockchainType.BinanceChain -> "binancecoin"

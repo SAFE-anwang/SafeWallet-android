@@ -1941,4 +1941,5 @@
     <string name="Liquidity_Add_Success">添加成功</string>
     <string name="Dapp">添加成功</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
+    <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE4（从1开始)</string>
 </resources>

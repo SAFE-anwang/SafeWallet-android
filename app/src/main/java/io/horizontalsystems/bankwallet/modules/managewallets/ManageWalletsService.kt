@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.Restor
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.*
 import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.Token
@@ -225,7 +226,7 @@ class ManageWalletsService(
         if (selectedBlockchain == null) return true
         return if (selectedBlockchain!!.type == BlockchainType.Bitcoin) {
             isBitcoins(token.blockchain.type)
-        } else if (selectedBlockchain!!.type == BlockchainType.Safe && token.coin.uid == "safe-coin") {
+        } else if (selectedBlockchain!!.type == BlockchainType.Safe && token.coin.isSafeCoin()) {
             true
         } else if ((selectedBlockchain!!.type == BlockchainType.ArbitrumOne
             || selectedBlockchain!!.type == BlockchainType.Optimism

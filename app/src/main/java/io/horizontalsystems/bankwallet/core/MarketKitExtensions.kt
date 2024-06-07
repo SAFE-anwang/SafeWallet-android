@@ -147,6 +147,7 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.Zcash -> {
             tokenType is TokenType.Native
         }
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,
@@ -181,6 +182,7 @@ val Blockchain.description: String
         BlockchainType.Litecoin -> "LTC (BIP44, BIP49, BIP84, BIP86)"
         BlockchainType.Dogecoin -> "DOGE"
         BlockchainType.Dash -> "DASH"
+        BlockchainType.SafeFour -> "SAFE4"
         BlockchainType.Safe -> "SAFE"
         BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
         BlockchainType.Ethereum -> "ETH, ERC20 tokens"
@@ -244,6 +246,7 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
     val map = mutableMapOf<BlockchainType, Int>()
     listOf(
         BlockchainType.Safe,
+        BlockchainType.SafeFour,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
@@ -284,6 +287,7 @@ val BlockchainType.tokenIconPlaceholder: Int
         BlockchainType.Gnosis -> R.drawable.gnosis_erc20
         BlockchainType.Fantom -> R.drawable.fantom_erc20
         BlockchainType.Tron -> R.drawable.tron_trc20
+        BlockchainType.SafeFour -> R.drawable.ic_safe_20
         else -> R.drawable.coin_placeholder
     }
 
@@ -295,6 +299,7 @@ val BlockchainType.title: String
     BlockchainType.Litecoin -> "Litecoin"
     BlockchainType.Dogecoin -> "Dogecoin"
     BlockchainType.Dash -> "Dash"
+    BlockchainType.SafeFour -> "Safe4"
     BlockchainType.Safe -> "Safe"
     BlockchainType.Zcash -> "Zcash"
     BlockchainType.Ethereum -> "Ethereum"
@@ -369,6 +374,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                     || this == BlockchainType.ArbitrumOne
                     || this == BlockchainType.Gnosis
                     || this == BlockchainType.Fantom
+                    || this == BlockchainType.SafeFour
         is AccountType.PrivateKey,
         is AccountType.EvmPrivateKey -> {
             this == BlockchainType.Ethereum
@@ -379,6 +385,7 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                     || this == BlockchainType.ArbitrumOne
                     || this == BlockchainType.Gnosis
                     || this == BlockchainType.Fantom
+                    || this == BlockchainType.SafeFour
         }
         is AccountType.SolanaAddress ->
             this == BlockchainType.Solana
@@ -653,6 +660,7 @@ val TokenType.meta: String?
 val BlockchainType.Companion.supported: List<BlockchainType>
     get() = listOf(
         BlockchainType.Safe,
+        BlockchainType.SafeFour,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,

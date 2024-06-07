@@ -47,6 +47,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
@@ -190,7 +191,7 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.uid == "safe-coin") {
+        if (item.token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp)
@@ -244,7 +245,7 @@ private fun Amount(item: ViewItem.Amount) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.uid == "safe-coin") {
+        if (item.token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp).size(32.dp)
@@ -294,7 +295,7 @@ private fun Token(item: ViewItem.TokenItem) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.uid == "safe-coin") {
+        if (item.token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp).size(32.dp)

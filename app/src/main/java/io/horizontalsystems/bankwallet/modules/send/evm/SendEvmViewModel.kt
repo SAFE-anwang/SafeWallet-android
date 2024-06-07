@@ -8,12 +8,19 @@ import cash.z.ecc.android.sdk.ext.collectWith
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.send.SendUiState
+import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinPluginService
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
+import io.horizontalsystems.ethereumkit.core.Safe4Web3jUtils
+import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
+import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.hodler.LockTimeInterval
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 
@@ -26,7 +33,8 @@ class SendEvmViewModel(
     private val addressService: SendEvmAddressService,
     val coinMaxAllowedDecimals: Int,
     private val showAddressInput: Boolean,
-    private val connectivityManager: ConnectivityManager
+    private val connectivityManager: ConnectivityManager,
+    private val pluginService: SendBitcoinPluginService
 ) : ViewModelUiState<SendUiState>() {
     val fiatMaxAllowedDecimals = App.appConfigProvider.fiatDecimal
 
@@ -35,6 +43,10 @@ class SendEvmViewModel(
 
     var coinRate by mutableStateOf(xRateService.getRate(sendToken.coin.uid))
         private set
+
+    val isLockTimeEnabled by pluginService::isLockTimeEnabled
+    val lockTimeIntervals by pluginService::lockTimeIntervals
+    private var pluginState = pluginService.stateFlow.value
 
     init {
         amountService.stateFlow.collectWith(viewModelScope) {
@@ -46,6 +58,10 @@ class SendEvmViewModel(
         xRateService.getRateFlow(sendToken.coin.uid).collectWith(viewModelScope) {
             coinRate = it
         }
+
+        pluginService.stateFlow.collectWith(viewModelScope) {
+            handleUpdatedPluginState(it)
+        }
     }
 
     override fun createState() = SendUiState(
@@ -54,6 +70,7 @@ class SendEvmViewModel(
         addressError = addressState.addressError,
         canBeSend = amountState.canBeSend && addressState.canBeSend,
         showAddressInput = showAddressInput,
+        lockTimeInterval = pluginState.lockTimeInterval,
     )
 
     fun onEnterAmount(amount: BigDecimal?) {
@@ -80,12 +97,31 @@ class SendEvmViewModel(
         val tmpAmount = amountState.amount ?: return null
         val evmAddress = addressState.evmAddress ?: return null
 
-        val transactionData = adapter.getTransactionData(tmpAmount, evmAddress)
-
+        val transactionData = if (wallet.token.blockchainType == BlockchainType.SafeFour && pluginState.lockTimeInterval != null) {
+            val amountBigInt = tmpAmount.movePointRight(EvmAdapter.decimal).toBigInteger()
+//            TransactionData(io.horizontalsystems.ethereumkit.models.Address(Safe4Contract.AccountManagerContractAddr), amountBigInt, Safe4Web3jUtils.getDepositTransactionInput(evmAddress.hex, (pluginState.lockTimeInterval!!.value() * 30).toBigInteger()).hexStringToByteArray())
+            TransactionData(evmAddress, amountBigInt, Safe4Web3jUtils.getDepositTransactionInput(evmAddress.hex, (pluginState.lockTimeInterval!!.value() * 30).toBigInteger()).hexStringToByteArray())
+        } else {
+            adapter.getTransactionData(tmpAmount, evmAddress)
+        }
+        pluginState.lockTimeInterval?.let {
+            transactionData.lockTime = it.value() * 30
+        }
         return SendEvmData(transactionData)
     }
 
     fun hasConnection(): Boolean {
         return connectivityManager.isConnected
+    }
+
+    fun onEnterLockTimeInterval(lockTimeInterval: LockTimeInterval?) {
+        pluginService.setLockTimeInterval(lockTimeInterval)
+    }
+
+
+    private fun handleUpdatedPluginState(pluginState: SendBitcoinPluginService.State) {
+        this.pluginState = pluginState
+
+        emitState()
     }
 }

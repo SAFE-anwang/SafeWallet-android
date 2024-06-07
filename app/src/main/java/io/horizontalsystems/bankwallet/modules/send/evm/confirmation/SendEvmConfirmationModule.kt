@@ -43,6 +43,7 @@ object SendEvmConfirmationModule {
             Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
             Chain.Gnosis -> BlockchainType.Gnosis
             Chain.Fantom -> BlockchainType.Fantom
+            Chain.SafeFour -> BlockchainType.SafeFour
             else -> BlockchainType.Ethereum
         }
 
@@ -116,7 +117,8 @@ object SendEvmConfirmationModule {
             get() = TransactionData(
                 Address(transactionDataParcelable.toAddress),
                 transactionDataParcelable.value,
-                transactionDataParcelable.input
+                transactionDataParcelable.input,
+                transactionDataParcelable.lockTime
             )
 
         constructor(sendData: SendEvmData, sendNavId: Int, sendEntryPointDestId: Int = 0) : this(

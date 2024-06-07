@@ -50,6 +50,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.FullCoin
 
 class SendActivity : BaseFragment() {
@@ -101,7 +102,7 @@ class SendActivity : BaseFragment() {
                 AppBar(
                     title = stringResource(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
-                        if (fullCoin.coin.uid == "safe-coin"
+                        if (fullCoin.coin.isSafeCoin()
                             || fullCoin.coin.uid == "custom_safe-erc20-SAFE"
                             || fullCoin.coin.uid == "custom_safe-bep20-SAFE") {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),

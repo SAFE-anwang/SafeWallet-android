@@ -84,6 +84,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 
 class TransactionsFragment : BaseFragment() {
 
@@ -418,7 +419,7 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.url?.endsWith("safe-coin@3x.png") ==true) {
+                        if (icon.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
@@ -438,7 +439,7 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                     is TransactionViewItem.Icon.Double -> {
                         val backShape = if (icon.back.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.back.url?.endsWith("safe-coin@3x.png") ==true) {
+                        if (icon.back.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
@@ -466,7 +467,7 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                                 .clip(frontShape)
                                 .background(ComposeAppTheme.colors.tyler)
                         )
-                        if (icon.front.url?.endsWith("safe-coin@3x.png") ==true) {
+                        if (icon.front.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier

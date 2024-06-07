@@ -59,6 +59,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -312,7 +313,7 @@ private fun TokenRow(
     borderTop: Boolean = true,
 ) {
     CellUniversal(borderTop = borderTop) {
-        if (token?.coin?.uid == "safe-coin") {
+        if (token?.coin?.uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp)

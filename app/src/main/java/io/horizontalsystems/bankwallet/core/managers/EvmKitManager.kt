@@ -223,13 +223,14 @@ class EvmKitWrapper(
         transactionData: TransactionData,
         gasPrice: GasPrice,
         gasLimit: Long,
-        nonce: Long?
+        nonce: Long?,
+        lockTime: Int? = null
     ): Single<FullTransaction> {
         return if (signer != null) {
             evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
                 .flatMap { rawTransaction ->
                     val signature = signer.signature(rawTransaction)
-                    evmKit.send(rawTransaction, signature)
+                    evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
                 }
         } else {
             Single.error(Exception())

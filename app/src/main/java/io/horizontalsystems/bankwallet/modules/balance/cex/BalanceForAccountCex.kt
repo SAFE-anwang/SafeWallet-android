@@ -42,6 +42,7 @@ import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -318,7 +319,7 @@ fun WalletIconCex(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.coinUid == "safe-coin") {
+            if (viewItem.coinUid.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp)

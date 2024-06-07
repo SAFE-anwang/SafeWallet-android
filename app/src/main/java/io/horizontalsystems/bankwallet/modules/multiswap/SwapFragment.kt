@@ -92,6 +92,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.net.UnknownHostException
@@ -681,7 +682,7 @@ private fun CoinSelector(
 ) {
     Selector(
         icon = {
-            if (token?.coin?.uid == "safe-coin") {
+            if (token?.coin?.uid.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp)

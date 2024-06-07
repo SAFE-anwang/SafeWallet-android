@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 
 @Composable
 fun MarketCoinClear(
@@ -81,7 +82,7 @@ fun MarketCoin(
             .padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (coinIconUrl.endsWith("safe-coin@3x.png")) {
+        if (coinIconUrl.isSafeIcon()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier

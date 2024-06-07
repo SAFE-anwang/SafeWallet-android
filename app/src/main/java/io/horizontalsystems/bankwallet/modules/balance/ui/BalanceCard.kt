@@ -48,6 +48,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
@@ -294,7 +295,7 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.wallet.coin.uid == "safe-coin") {
+            if (viewItem.wallet.coin.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

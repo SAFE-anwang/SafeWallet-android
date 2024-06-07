@@ -96,6 +96,7 @@ class Eip20Adapter(
                 Chain.Optimism,
                 Chain.ArbitrumOne,
                 Chain.Gnosis,
+                Chain.SafeFour,
             )
 
             networkTypes.forEach {

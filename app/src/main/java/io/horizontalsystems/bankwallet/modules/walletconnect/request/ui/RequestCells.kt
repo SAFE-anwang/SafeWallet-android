@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 
 @Composable
@@ -83,7 +84,7 @@ fun AmountCell(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
-        if (token.coin.uid == "safe-coin") {
+        if (token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
@@ -124,7 +125,7 @@ fun TokenCell(token: Token) {
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
     ) {
-        if (token.coin.uid == "safe-coin") {
+        if (token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier
@@ -159,7 +160,7 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
     ) {
-        if (token.coin.uid == "safe-coin") {
+        if (token.coin.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier

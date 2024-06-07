@@ -29,6 +29,7 @@ object AddressInputModule {
                 BlockchainType.BinanceChain -> {
                     addressParserChain.addHandler(AddressHandlerPure(tokenQuery.blockchainType))
                 }
+                BlockchainType.SafeFour,
                 BlockchainType.Ethereum,
                 BlockchainType.BinanceSmartChain,
                 BlockchainType.Polygon,
@@ -82,6 +83,7 @@ object AddressInputModule {
                 BlockchainType.BinanceChain -> {
                     addressParserChain.addHandler(AddressHandlerPure(blockchainType))
                 }
+                BlockchainType.SafeFour,
                 BlockchainType.Ethereum,
                 BlockchainType.BinanceSmartChain,
                 BlockchainType.Polygon,

@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 
 class ManageWalletsFragment : BaseComposeFragment() {
@@ -198,7 +199,7 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            if (viewItem.item.coin.uid == "safe-coin") {
+            if (viewItem.item.coin.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

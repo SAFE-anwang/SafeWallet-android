@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
 class BlockchainSettingsFragment : BaseComposeFragment() {
 
@@ -120,7 +121,7 @@ private fun BlockchainSettingCell(
     RowUniversal(
         onClick = onClick
     ) {
-        if (item.blockchainItem.blockchain.uid == "safe-coin") {
+        if (item.blockchainItem.blockchain.uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

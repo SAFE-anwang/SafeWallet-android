@@ -52,6 +52,7 @@ import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
@@ -168,7 +169,7 @@ fun TransactionAmountCell(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (coinIconUrl?.endsWith("safe-coin@3x.png") ==true) {
+        if (coinIconUrl.isSafeIcon()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier
@@ -669,6 +670,7 @@ private fun openTransactionOptionsModule(
             )
         }
 
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.BinanceChain,

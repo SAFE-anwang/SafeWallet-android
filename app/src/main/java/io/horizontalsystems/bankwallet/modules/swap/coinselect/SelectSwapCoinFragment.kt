@@ -44,6 +44,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SearchBar
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
 class SelectSwapCoinFragment : BaseComposeFragment() {
 
@@ -110,7 +111,7 @@ fun SelectSwapCoinDialogScreen(
                             onClickItem.invoke(coinItem)
                         }
                     ) {
-                        if (coinItem.token.coin.uid == "safe-coin") {
+                        if (coinItem.token.coin.isSafeCoin()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                     contentDescription = null,
                                     modifier = Modifier.size(32.dp)

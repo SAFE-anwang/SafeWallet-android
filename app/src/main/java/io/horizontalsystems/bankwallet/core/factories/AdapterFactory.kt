@@ -131,6 +131,7 @@ class AdapterFactory(
             BlockchainType.Zcash -> {
                 ZcashAdapter(context, wallet, restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType), localStorage)
             }
+            BlockchainType.SafeFour,
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,

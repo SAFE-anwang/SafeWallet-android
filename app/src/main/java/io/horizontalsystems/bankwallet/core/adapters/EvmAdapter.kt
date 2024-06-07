@@ -6,9 +6,11 @@ import io.horizontalsystems.bankwallet.core.BalanceData
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.core.Safe4Web3jUtils
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Flowable
 import java.math.BigDecimal
 
@@ -54,7 +56,11 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
 
     override fun getTransactionData(amount: BigDecimal, address: Address): TransactionData {
         val amountBigInt = amount.movePointRight(decimal).toBigInteger()
-        return TransactionData(address, amountBigInt, byteArrayOf())
+        return if (evmKitWrapper.blockchainType == BlockchainType.SafeFour) {
+            TransactionData(address, amountBigInt, byteArrayOf())
+        } else {
+            TransactionData(address, amountBigInt, byteArrayOf())
+        }
     }
 
     companion object {
@@ -69,6 +75,7 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
                 Chain.Optimism,
                 Chain.ArbitrumOne,
                 Chain.Gnosis,
+                Chain.SafeFour,
             )
             networkTypes.forEach {
                 EthereumKit.clear(App.instance, it, walletId)

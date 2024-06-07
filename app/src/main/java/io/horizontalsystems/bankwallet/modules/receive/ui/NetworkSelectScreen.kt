@@ -33,6 +33,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalIte
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.FullCoin
 import kotlinx.coroutines.launch
 
@@ -101,7 +102,7 @@ fun NetworkCell(
     RowUniversal(
         onClick = onClick
     ) {
-        if (uid == "safe-coin") {
+        if (uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

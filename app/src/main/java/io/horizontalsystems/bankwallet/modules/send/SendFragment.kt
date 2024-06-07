@@ -122,6 +122,7 @@ class SendFragment : BaseFragment() {
                         }
                     }
 
+                    BlockchainType.SafeFour,
                     BlockchainType.Ethereum,
                     BlockchainType.BinanceSmartChain,
                     BlockchainType.Polygon,

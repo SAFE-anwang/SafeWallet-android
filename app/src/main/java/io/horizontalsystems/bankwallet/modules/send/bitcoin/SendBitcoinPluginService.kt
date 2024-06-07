@@ -15,6 +15,7 @@ class SendBitcoinPluginService(blockchainType: BlockchainType) {
             || blockchainType is BlockchainType.Dash
             || blockchainType is BlockchainType.Litecoin
             || blockchainType is BlockchainType.BitcoinCash
+            || blockchainType is BlockchainType.SafeFour
     val lockTimeIntervals = listOf(null) + LockTimeInterval.values().toList()
 
     private var lockTimeInterval: LockTimeInterval? = null
