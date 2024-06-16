@@ -15,6 +15,8 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomi
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ExternalContractCallTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.SwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.TransferEvent
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.UnknownSwapTransactionRecord
@@ -28,6 +30,8 @@ import io.horizontalsystems.ethereumkit.decorations.ContractCreationDecoration
 import io.horizontalsystems.ethereumkit.decorations.IncomingDecoration
 import io.horizontalsystems.ethereumkit.decorations.OutgoingDecoration
 import io.horizontalsystems.ethereumkit.decorations.UnknownTransactionDecoration
+import io.horizontalsystems.ethereumkit.decorations.safe4.Safe4DepositIncomingDecoration
+import io.horizontalsystems.ethereumkit.decorations.safe4.Safe4DepositOutgoingDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.FullTransaction
 import io.horizontalsystems.ethereumkit.models.InternalTransaction
@@ -64,6 +68,14 @@ class EvmTransactionConverter(
         val transactionRecord = when (val decoration = fullTransaction.decoration) {
             is ContractCreationDecoration -> {
                 ContractCreationTransactionRecord(transaction, baseToken, source)
+            }
+
+            is Safe4DepositIncomingDecoration -> {
+                Safe4DepositEvmIncomingTransactionRecord(transaction, baseToken, source, spamManager, decoration.from.eip55, baseCoinValue(decoration.value, false))
+            }
+
+            is Safe4DepositOutgoingDecoration -> {
+                Safe4DepositEvmOutgoingTransactionRecord(transaction, baseToken, source, decoration.to.eip55, baseCoinValue(decoration.value, true), decoration.sentToSelf)
             }
 
             is IncomingDecoration -> {

@@ -71,3 +71,5 @@
     @Upload.* <methods>;
     @DownloadGroup.* <methods>;
 }
+
+-keep class com.anwang.accountmanager.** { *; }

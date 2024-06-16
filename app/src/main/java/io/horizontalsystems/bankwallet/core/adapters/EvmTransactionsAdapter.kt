@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.models.TransactionTag
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
@@ -100,7 +101,11 @@ class EvmTransactionsAdapter(
         address: String?,
     ) = buildList {
         token?.let {
-            add(listOf(coinTagName(it)))
+            if (it.blockchainType == BlockchainType.SafeFour) {
+                // Safe 4, query all transaction
+            } else {
+                add(listOf(coinTagName(it)))
+            }
         }
 
         val filterType = when (transactionType) {

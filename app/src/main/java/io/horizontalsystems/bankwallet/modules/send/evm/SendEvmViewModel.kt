@@ -97,13 +97,7 @@ class SendEvmViewModel(
         val tmpAmount = amountState.amount ?: return null
         val evmAddress = addressState.evmAddress ?: return null
 
-        val transactionData = if (wallet.token.blockchainType == BlockchainType.SafeFour && pluginState.lockTimeInterval != null) {
-            val amountBigInt = tmpAmount.movePointRight(EvmAdapter.decimal).toBigInteger()
-//            TransactionData(io.horizontalsystems.ethereumkit.models.Address(Safe4Contract.AccountManagerContractAddr), amountBigInt, Safe4Web3jUtils.getDepositTransactionInput(evmAddress.hex, (pluginState.lockTimeInterval!!.value() * 30).toBigInteger()).hexStringToByteArray())
-            TransactionData(evmAddress, amountBigInt, Safe4Web3jUtils.getDepositTransactionInput(evmAddress.hex, (pluginState.lockTimeInterval!!.value() * 30).toBigInteger()).hexStringToByteArray())
-        } else {
-            adapter.getTransactionData(tmpAmount, evmAddress)
-        }
+        val transactionData = adapter.getTransactionData(tmpAmount, evmAddress)
         pluginState.lockTimeInterval?.let {
             transactionData.lockTime = it.value() * 30
         }

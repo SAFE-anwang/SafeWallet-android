@@ -227,11 +227,19 @@ class EvmKitWrapper(
         lockTime: Int? = null
     ): Single<FullTransaction> {
         return if (signer != null) {
-            evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
-                .flatMap { rawTransaction ->
-                    val signature = signer.signature(rawTransaction)
-                    evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
-                }
+            if (lockTime == null) {
+                evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
+                        .flatMap { rawTransaction ->
+                            val signature = signer.signature(rawTransaction)
+                            evmKit.send(rawTransaction, signature, signer.privateKey)
+                        }
+            } else {
+                evmKit.safe4LockRawTransaction(transactionData, gasPrice, gasLimit, lockTime, nonce)
+                        .flatMap { rawTransaction ->
+                            val signature = signer.signature(rawTransaction)
+                            evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
+                        }
+            }
         } else {
             Single.error(Exception())
         }

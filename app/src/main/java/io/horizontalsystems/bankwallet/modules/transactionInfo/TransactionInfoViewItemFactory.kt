@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
@@ -26,6 +25,8 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomi
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ExternalContractCallTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.SwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.UnknownSwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaIncomingTransactionRecord
@@ -134,6 +135,16 @@ class TransactionInfoViewItemFactory(
                     )
                 )
 
+            is Safe4DepositEvmIncomingTransactionRecord ->
+                itemSections.add(
+                    getReceiveSectionItems(
+                        value = transaction.value,
+                        fromAddress = transaction.from,
+                        coinPrice = rates[transaction.value.coinUid],
+                        hideAmount = transactionItem.hideAmount,
+                    )
+                )
+
             is TronIncomingTransactionRecord ->
                 itemSections.add(
                     getReceiveSectionItems(
@@ -145,6 +156,20 @@ class TransactionInfoViewItemFactory(
                 )
 
             is EvmOutgoingTransactionRecord -> {
+                sentToSelf = transaction.sentToSelf
+                itemSections.add(
+                    getSendSectionItems(
+                        value = transaction.value,
+                        toAddress = transaction.to,
+                        coinPrice = rates[transaction.value.coinUid],
+                        hideAmount = transactionItem.hideAmount,
+                        sentToSelf = transaction.sentToSelf,
+                        nftMetadata = nftMetadata
+                    )
+                )
+            }
+
+            is Safe4DepositEvmOutgoingTransactionRecord -> {
                 sentToSelf = transaction.sentToSelf
                 itemSections.add(
                     getSendSectionItems(
