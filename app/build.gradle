@@ -69,7 +69,7 @@ android {
             debuggable true
             minifyEnabled false
             applicationIdSuffix ".dev"
-            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
+            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
             resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
             resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
@@ -115,7 +115,7 @@ android {
             debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
+            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
             resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
             resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
