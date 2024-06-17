@@ -248,7 +248,7 @@ fun PriceWithToggleCell(
 }
 
 @Composable
-fun TransactionInfoAddressCell(title: String, value: String, showAdd: Boolean, blockchainType: BlockchainType?, navController: NavController? = null) {
+fun TransactionInfoAddressCell(title: String, value: String, showAdd: Boolean, blockchainType: BlockchainType?, navController: NavController? = null, showCopy: Boolean = true) {
     val view = LocalView.current
     var showSaveAddressDialog by remember { mutableStateOf(false) }
     RowUniversal(
@@ -263,22 +263,23 @@ fun TransactionInfoAddressCell(title: String, value: String, showAdd: Boolean, b
             textAlign = TextAlign.Right
         )
 
-        if (showAdd) {
+        if (showAdd && showCopy) {
             HSpacer(16.dp)
             ButtonSecondaryCircle(
                 icon = R.drawable.icon_20_user_plus,
                 onClick = { showSaveAddressDialog = true }
             )
         }
-
-        HSpacer(16.dp)
-        ButtonSecondaryCircle(
-            icon = R.drawable.ic_copy_20,
-            onClick = {
-                TextHelper.copyText(value)
-                HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-            }
-        )
+        if (showCopy) {
+            HSpacer(16.dp)
+            ButtonSecondaryCircle(
+                    icon = R.drawable.ic_copy_20,
+                    onClick = {
+                        TextHelper.copyText(value)
+                        HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                    }
+            )
+        }
     }
 
     if (showSaveAddressDialog) {

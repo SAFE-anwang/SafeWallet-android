@@ -40,7 +40,10 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
         get() = evmKit.syncStateFlowable.map {}
 
     override val balanceData: BalanceData
-        get() = BalanceData(balanceInBigDecimal(evmKit.accountState?.balance, decimal))
+        get() = BalanceData(
+                    balanceInBigDecimal(evmKit.accountState?.balance, decimal),
+                    timeLocked =  balanceInBigDecimal(evmKit.accountState?.timeLockBalance, decimal)
+                )
 
     override val balanceUpdatedFlowable: Flowable<Unit>
         get() = evmKit.accountStateFlowable.map { }

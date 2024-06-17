@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
+import com.anwang.utils.Safe4Contract
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
@@ -558,7 +559,7 @@ class TransactionInfoViewItemFactory(
         if (!mint && fromAddress != null) {
             val contact = getContact(fromAddress)
             items.add(
-                Address(getString(R.string.TransactionInfo_From), fromAddress, contact == null, blockchainType)
+                Address(getString(R.string.TransactionInfo_From), fromAddress, contact == null, blockchainType, fromAddress != Safe4Contract.AccountManagerContractAddr)
             )
             contact?.let {
                 items.add(
@@ -604,7 +605,7 @@ class TransactionInfoViewItemFactory(
         if (!burn && toAddress != null) {
             val contact = getContact(toAddress)
             items.add(
-                Address(getString(R.string.TransactionInfo_To), toAddress, contact == null, blockchainType)
+                Address(getString(R.string.TransactionInfo_To), toAddress, contact == null, blockchainType, toAddress != Safe4Contract.AccountManagerContractAddr)
             )
 
             contact?.let {

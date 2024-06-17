@@ -208,7 +208,8 @@ fun TransactionInfoSection(
                                 value = viewItem.value,
                                 showAdd = viewItem.showAdd,
                                 blockchainType = viewItem.blockchainType,
-                                navController = navController
+                                navController = navController,
+                                showCopy = viewItem.showCopy
                             )
                         }
                     }
