@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord.Type.U
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
@@ -286,7 +287,8 @@ class TransactionViewItemFactory(
                         currencyValue = transactionItem.currencyValue,
                         progress = progress,
                         spam = record.spam,
-                        icon = icon
+                        icon = icon,
+                        input = record.transaction.input?.toHexString()
                 )
             }
             is EvmIncomingTransactionRecord -> {
@@ -315,7 +317,8 @@ class TransactionViewItemFactory(
                         progress = progress,
                         spam = record.spam,
                         icon = icon,
-                        nftMetadata = transactionItem.nftMetadata
+                        nftMetadata = transactionItem.nftMetadata,
+                        input = record.transaction.input?.toHexString()
                 )
             }
             is EvmOutgoingTransactionRecord -> {
@@ -752,7 +755,8 @@ class TransactionViewItemFactory(
         progress: Float?,
         spam: Boolean,
         icon: TransactionViewItem.Icon?,
-        nftMetadata: Map<NftUid, NftAssetBriefMetadata>
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
+        input: String?
     ): TransactionViewItem {
         val primaryValue = if (sentToSelf) {
             ColoredValue(getCoinString(value, true), ColorName.Leah)
@@ -761,12 +765,12 @@ class TransactionViewItemFactory(
         }
 
         val secondaryValue = singleValueSecondaryValue(value, currencyValue, nftMetadata)
-
+        val address = Safe4Web3jUtils.depositDecode(input)?.shorten() ?: mapped(to, blockchainType)
         return TransactionViewItem(
             uid = uid,
             progress = progress,
             title = Translator.getString(R.string.Transactions_Send),
-            subtitle = Translator.getString(R.string.Transactions_To, mapped(to, blockchainType)),
+            subtitle = Translator.getString(R.string.Transactions_To, address),
             primaryValue = primaryValue,
             secondaryValue = secondaryValue,
             showAmount = showAmount,
@@ -788,20 +792,22 @@ class TransactionViewItemFactory(
             currencyValue: CurrencyValue?,
             progress: Float?,
             spam: Boolean,
-            icon: TransactionViewItem.Icon?
+            icon: TransactionViewItem.Icon?,
+            input: String?
     ): TransactionViewItem {
         val primaryValue = getColoredValue(value, ColorName.Remus)
         val secondaryValue = currencyValue?.let {
             getColoredValue(it, ColorName.Grey)
         }
 
+        val address = Safe4Web3jUtils.depositDecode(input)?.shorten() ?: mapped(from, blockchainType)
         return TransactionViewItem(
                 uid = uid,
                 progress = progress,
                 title = Translator.getString(R.string.Transactions_Receive),
                 subtitle = Translator.getString(
                         R.string.Transactions_From,
-                        mapped(from, blockchainType)
+                        address
                 ),
                 primaryValue = primaryValue,
                 secondaryValue = secondaryValue,

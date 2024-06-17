@@ -7,7 +7,7 @@ import io.horizontalsystems.ethereumkit.models.Transaction
 import io.horizontalsystems.marketkit.models.Token
 
 class Safe4DepositEvmIncomingTransactionRecord(
-    transaction: Transaction,
+    val transaction: Transaction,
     baseToken: Token,
     source: TransactionSource,
     spamManager: SpamManager,
