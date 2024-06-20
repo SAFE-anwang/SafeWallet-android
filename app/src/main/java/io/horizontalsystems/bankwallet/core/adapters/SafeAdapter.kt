@@ -215,8 +215,7 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold,
-                        connectionManager = App.bitCoinConnectionManager
+                        confirmationsThreshold = confirmationsThreshold
                     )
                 }
                 is AccountType.Mnemonic -> {
@@ -226,8 +225,7 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold,
-                        connectionManager = App.bitCoinConnectionManager
+                        confirmationsThreshold = confirmationsThreshold
                     )
                 }
                 else -> throw UnsupportedAccountException()

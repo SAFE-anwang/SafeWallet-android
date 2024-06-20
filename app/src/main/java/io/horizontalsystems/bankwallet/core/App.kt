@@ -209,7 +209,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager
-        lateinit var bitCoinConnectionManager: ConnectionManager
         var tmpItemToShow: TransactionItem? = null
     }
 
@@ -231,7 +230,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         MMKV.initialize(this)
 
         instance = this
-        bitCoinConnectionManager = ConnectionManager(this)
 
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
