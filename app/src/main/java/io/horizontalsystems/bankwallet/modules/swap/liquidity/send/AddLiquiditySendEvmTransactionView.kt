@@ -115,6 +115,7 @@ private fun SectionView(viewItems: List<ViewItem>, navController: NavController)
             is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
             is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
             is ViewItem.TokenItem -> Token(item)
+            else -> null
         }
     }
 }

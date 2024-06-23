@@ -115,6 +115,7 @@ class DAppBrowseFragment: BaseFragment(){
                                     App.connectivityManager,
                                     App.accountManager.activeAccount,
                                     input?.sessionTopic,
+                                    App.evmBlockchainManager
                             )
                             viewModel?.connect()
                         }

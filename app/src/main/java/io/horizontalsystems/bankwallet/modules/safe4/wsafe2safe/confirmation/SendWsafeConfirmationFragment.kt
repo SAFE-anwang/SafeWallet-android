@@ -16,6 +16,7 @@ import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.databinding.FragmentConfirmationSendEvmBinding
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
@@ -150,6 +151,7 @@ class SendWsafeConfirmationFragment : BaseFragment() {
                 nonceServiceViewModel,
                 findNavController(),
                 /*R.id.sendWsafeConfirmationFragment,*/
+                    StatPage.SendConfirmation
             )
         }
         binding.buttonSendCompose.setContent {

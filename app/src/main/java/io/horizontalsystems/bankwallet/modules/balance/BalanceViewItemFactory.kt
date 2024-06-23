@@ -15,7 +15,11 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.cex.BalanceCexViewItem
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.core.helpers.DateHelper
+import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
@@ -315,13 +319,21 @@ class BalanceViewItemFactory {
             syncingTextValue = getSyncingText(state),
             syncedUntilTextValue = getSyncedUntilText(state),
             failedIconVisible = state is AdapterState.NotSynced,
-            badge = wallet.badge,
+            badge = getBadge(wallet, coin),
             swapEnabled = state is AdapterState.Synced,
             errorMessage = errorMessage,
             isWatchAccount = watchAccount,
             isLpToken = item.wallet.coin.name == "Pancake LPs",
             liquidityVisible = wallet.token.liquidity
         )
+    }
+
+    private fun getBadge(wallet: Wallet, coin: Coin): String? {
+        return if (coin.isSafeFour() && Chain.SafeFour.isSafeFourTestNet) {
+            "SAFE4 TestNet"
+        } else {
+            wallet.badge
+        }
     }
 
     fun cexViewItem(

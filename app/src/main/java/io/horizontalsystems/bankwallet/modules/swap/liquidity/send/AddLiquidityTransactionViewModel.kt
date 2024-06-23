@@ -13,6 +13,7 @@ import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.stats.StatSection
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -305,7 +306,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
 
@@ -364,7 +366,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressRecipient
                 )
             )
             contact?.let {
@@ -596,7 +599,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressRecipient
                 )
             )
             contact?.let {
@@ -706,7 +710,8 @@ class AddLiquidityTransactionViewModel(
                 Translator.getString(R.string.Send_Confirmation_To),
                 addressValue,
                 contact == null,
-                blockchainType
+                blockchainType,
+                StatSection.Input
             )
         )
         contact?.let {
@@ -761,7 +766,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.Approve_Spender),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressSpender
                 )
             )
             contact?.let {
@@ -794,7 +800,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
             contact?.let {
@@ -854,7 +861,8 @@ class AddLiquidityTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
             contact?.let {
