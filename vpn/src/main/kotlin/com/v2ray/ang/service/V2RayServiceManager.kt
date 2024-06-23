@@ -78,6 +78,7 @@ object V2RayServiceManager {
         }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
             context.startForegroundService(intent)
+            showNotification()
         } else {
             context.startService(intent)
         }
