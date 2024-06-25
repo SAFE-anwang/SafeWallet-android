@@ -128,6 +128,11 @@ class KeyStoreManager(
 
 }
 
+sealed class KeyStoreValidationError : Error() {
+    class UserNotAuthenticated : KeyStoreValidationError()
+    class KeyIsInvalid : KeyStoreValidationError()
+}
+
 enum class KeyStoreValidationResult {
     UserNotAuthenticated, KeyIsInvalid, KeyIsValid
 }

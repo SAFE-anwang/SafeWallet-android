@@ -234,6 +234,7 @@ dependencies {
 
     //AppWidgets
     implementation 'androidx.glance:glance-appwidget:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose-android:2.8.2'
 
     // Room
     def room_version = '2.6.1'

@@ -1,5 +1,8 @@
 package io.horizontalsystems.bankwallet.core
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Parcelable
 import android.widget.ImageView
@@ -29,6 +32,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.delay
 import java.util.Locale
 import java.util.Optional
 
@@ -256,4 +260,28 @@ fun NavGraphBuilder.composablePopup(
         },
         content = content
     )
+}
+
+suspend fun <T> retryWhen(
+    times: Int,
+    predicate: suspend (cause: Throwable) -> Boolean,
+    block: suspend () -> T
+): T {
+    repeat(times - 1) {
+        try {
+            return block()
+        } catch (e: Throwable) {
+            if (!predicate(e)) {
+                throw e
+            }
+        }
+        delay(1000)
+    }
+    return block()
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

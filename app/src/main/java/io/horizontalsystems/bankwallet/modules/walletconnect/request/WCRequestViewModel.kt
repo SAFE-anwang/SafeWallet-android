@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.walletconnect.request
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.exoplayer2.util.Log
 import com.google.gson.JsonParser
 import com.walletconnect.web3.wallet.client.Wallet
 import io.horizontalsystems.bankwallet.core.App
@@ -87,6 +88,7 @@ class WCNewRequestViewModel(
 
             TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD -> {
                 val params = JsonParser.parseString(sessionRequest.request.params).asJsonArray
+                Log.d("longwen", "params=${params}")
                 params.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
                     ?: throw Exception("Invalid Data")
             }

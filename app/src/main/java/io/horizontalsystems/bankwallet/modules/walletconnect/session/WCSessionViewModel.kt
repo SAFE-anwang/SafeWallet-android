@@ -474,16 +474,17 @@ class WCSessionViewModel(
             is NoSuitableEvmKit -> Translator.getString(R.string.WalletConnect_Error_NoSuitableEvmKit)
             is RequestNotFoundError -> Translator.getString(R.string.WalletConnect_Error_RequestNotFoundError)
             is ValidationError.UnsupportedChains -> Translator.getString(
-                    R.string.WalletConnect_Error_UnsupportedChains,
-                    error.chains.joinToString { it })
+                R.string.WalletConnect_Error_UnsupportedChains,
+                error.chains.joinToString { it })
 
             is ValidationError.UnsupportedMethods -> Translator.getString(
-                    R.string.WalletConnect_Error_UnsupportedMethods,
-                    error.methods.joinToString { it })
+                R.string.WalletConnect_Error_UnsupportedMethods,
+                error.methods.joinToString { it })
 
             is ValidationError.UnsupportedEvents -> Translator.getString(
-                    R.string.WalletConnect_Error_UnsupportedEvents,
-                    error.events.joinToString { it })
+                R.string.WalletConnect_Error_UnsupportedEvents,
+                error.events.joinToString { it })
+
             else -> null
         }
     }
@@ -507,12 +508,12 @@ class WCSessionViewModel(
         }
 
     private fun getSupportedNamespaces(accounts: List<String>) = mapOf(
-            "eip155" to Wallet.Model.Namespace.Session(
-                    chains = supportedChains.map { "eip155:${it.id}" },
-                    methods = supportedMethods,
-                    events = supportedEvents,
-                    accounts = accounts
-            )
+        "eip155" to Wallet.Model.Namespace.Session(
+            chains = supportedChains.map { "eip155:${it.id}" },
+            methods = supportedMethods,
+            events = supportedEvents,
+            accounts = accounts
+        )
     )
 
     private fun getSupportedBlockchains(account: Account) = supportedChains.map {
@@ -531,3 +532,4 @@ sealed class ValidationError : Throwable() {
     class UnsupportedMethods(val methods: List<String>) : ValidationError()
     class UnsupportedEvents(val events: List<String>) : ValidationError()
 }
+
