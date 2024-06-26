@@ -9,11 +9,9 @@ import io.horizontalsystems.bankwallet.modules.evmfee.GasPriceInfo
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.models.GasPrice
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
+import io.reactivex.Single
+import io.reactivex.disposables.Disposable
+import java.lang.Long.max
 import java.math.BigDecimal
 
 class LegacyGasPriceService(
@@ -21,9 +19,9 @@ class LegacyGasPriceService(
     private val minRecommendedGasPrice: Long? = null,
     private val initialGasPrice: Long? = null,
 ) : IEvmGasPriceService() {
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-    private var setGasPriceJob: Job? = null
-    private var recommendedGasPrice: Long? = null
+
+    var recommendedGasPrice: Long? = null
+    private var disposable: Disposable? = null
 
     private val overpricingBound = Bound.Multiplied(BigDecimal(1.5))
     private val riskOfStuckBound = Bound.Multiplied(BigDecimal(0.9))
@@ -32,7 +30,16 @@ class LegacyGasPriceService(
 
     override fun createState() = state
 
-    override fun start() {
+    private val recommendedGasPriceSingle
+        get() = recommendedGasPrice?.let { Single.just(it) }
+            ?: gasPriceProvider.gasPriceSingle()
+                .map { it }
+                .doOnSuccess { gasPrice ->
+                    val adjustedGasPrice = max(gasPrice.toLong(), minRecommendedGasPrice ?: 0)
+                    recommendedGasPrice = adjustedGasPrice
+                }
+
+    init {
         if (initialGasPrice != null) {
             setGasPrice(initialGasPrice)
         } else {
@@ -40,70 +47,71 @@ class LegacyGasPriceService(
         }
     }
 
-    private suspend fun getRecommendedGasPriceSingle(): Long {
-        recommendedGasPrice?.let {
-            return it
-        }
+    override fun start() {
 
-        val gasPrice = gasPriceProvider.gasPriceSingle().await()
-        val adjustedGasPrice = gasPrice.coerceAtLeast(minRecommendedGasPrice ?: 0)
-
-        recommendedGasPrice = adjustedGasPrice
-
-        return adjustedGasPrice
     }
 
     override fun setRecommended() {
-        setGasPriceInternal(null)
-    }
-
-    fun setGasPrice(value: Long) {
-        setGasPriceInternal(value)
-    }
-
-    private fun setGasPriceInternal(value: Long?) {
         state = DataState.Loading
         emitState()
 
-        setGasPriceJob?.cancel()
-        setGasPriceJob = coroutineScope.launch {
-            try {
-                val recommended = getRecommendedGasPriceSingle()
+        disposable?.dispose()
 
-                val gasPriceInfo = if (value == null) {
+        recommendedGasPriceSingle
+            .subscribeIO({ recommended ->
+                state = DataState.Success(
                     GasPriceInfo(
                         gasPrice = GasPrice.Legacy(recommended),
                         gasPriceDefault = GasPrice.Legacy(recommended),
                         default = true,
-                        warnings = listOf<FeeSettingsWarning>(),
+                        warnings = listOf(),
                         errors = listOf()
                     )
-                } else {
-                    val warnings = buildList {
-                        if (value < riskOfStuckBound.calculate(recommended)) {
-                            add(FeeSettingsWarning.RiskOfGettingStuckLegacy)
-                        }
+                )
 
-                        if (value >= overpricingBound.calculate(recommended)) {
-                            add(FeeSettingsWarning.Overpricing)
-                        }
-                    }
+                emitState()
+            }, {
+                state = DataState.Error(it)
 
+                emitState()
+            }).let {
+                disposable = it
+            }
+    }
+
+    fun setGasPrice(value: Long) {
+        state = DataState.Loading
+        emitState()
+        disposable?.dispose()
+
+        recommendedGasPriceSingle
+            .subscribeIO({ recommended ->
+                val warnings = mutableListOf<Warning>()
+                val errors = mutableListOf<Throwable>()
+
+                if (value < riskOfStuckBound.calculate(recommended)) {
+                    warnings.add(FeeSettingsWarning.RiskOfGettingStuckLegacy)
+                }
+
+                if (value >= overpricingBound.calculate(recommended)) {
+                    warnings.add(FeeSettingsWarning.Overpricing)
+                }
+
+                state = DataState.Success(
                     GasPriceInfo(
                         gasPrice = GasPrice.Legacy(value),
                         gasPriceDefault = GasPrice.Legacy(recommended),
                         default = false,
                         warnings = warnings,
-                        errors = listOf()
+                        errors = errors
                     )
-                }
-
-                state = DataState.Success(gasPriceInfo)
+                )
                 emitState()
-            } catch (e: Throwable) {
-                state = DataState.Error(e)
+            }, {
+                state = DataState.Error(it)
                 emitState()
+            }).let {
+                disposable = it
             }
-        }
     }
 }

@@ -179,8 +179,7 @@ private fun TransactionSpeedUpCancelScreen(
                     sendEvmTransactionViewModel,
                     feeViewModel,
                     nonceViewModel,
-                    navController,
-                    StatPage.Resend
+                    navController
                 )
             }
             ButtonsGroupWithShade {

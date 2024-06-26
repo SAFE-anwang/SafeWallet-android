@@ -65,11 +65,10 @@ import io.horizontalsystems.marketkit.models.TokenType
 
 @Composable
 fun SendEvmTransactionView(
-        transactionViewModel: SendEvmTransactionViewModel,
-        feeCellViewModel: EvmFeeCellViewModel,
-        nonceViewModel: SendEvmNonceViewModel,
-        navController: NavController,
-        statPage: StatPage
+    transactionViewModel: SendEvmTransactionViewModel,
+    feeCellViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
+    navController: NavController,
 ) {
 
     val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
@@ -78,24 +77,24 @@ fun SendEvmTransactionView(
 
     Column {
         items.forEach { sectionViewItem ->
-            SectionView(sectionViewItem.viewItems, navController, statPage)
+            SectionView(sectionViewItem.viewItems, navController)
         }
 
         NonceView(nonceViewModel)
 
-        Spacer(Modifier.height(16.dp))
-        RowUniversal(
+            Spacer(Modifier.height(16.dp))
+            RowUniversal(
                 modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
+            ) {
 //                listOf {
-            FeeCell(
-                    title = stringResource(R.string.FeeSettings_NetworkFee),
-                    info = stringResource(R.string.FeeSettings_NetworkFee_Info),
-                    value = fee,
-                    viewState = viewState,
-                    navController = navController
-            )
-        }
+                    FeeCell(
+                        title = stringResource(R.string.FeeSettings_NetworkFee),
+                        info = stringResource(R.string.FeeSettings_NetworkFee_Info),
+                        value = fee,
+                        viewState = viewState,
+                        navController = navController
+                    )
+                }
 //            )
 
         val cautions by transactionViewModel.cautionsLiveData.observeAsState()
@@ -171,7 +170,7 @@ private fun NonceView(nonceViewModel: SendEvmNonceViewModel) {
 }
 
 @Composable
-private fun SectionView(viewItems: List<ViewItem>, navController: NavController, statPage: StatPage) {
+private fun SectionView(viewItems: List<ViewItem>, navController: NavController) {
     Spacer(Modifier.height(16.dp))
     CellUniversalLawrenceSection(viewItems) { item ->
         when (item) {
@@ -197,6 +196,36 @@ private fun SectionView(viewItems: List<ViewItem>, navController: NavController,
         }
     }
 }
+
+
+@Composable
+private fun SectionView(viewItems: List<ViewItem>, navController: NavController, statPage: StatPage) {
+    Spacer(Modifier.height(16.dp))
+    CellUniversalLawrenceSection(viewItems) { item ->
+        when (item) {
+            is ViewItem.Subhead -> Subhead(item)
+            is ViewItem.Value -> TitleValue(item)
+            is ViewItem.ValueMulti -> TitleValueMulti(item)
+            is ViewItem.AmountMulti -> AmountMulti(item)
+            is ViewItem.Amount -> Amount(item)
+            is ViewItem.AmountWithTitle -> AmountWithTitle(item)
+            is ViewItem.NftAmount -> NftAmount(item)
+            is ViewItem.Address -> {
+                TransactionInfoAddressCell(
+                        title = item.title,
+                        value = item.value,
+                        showAdd = item.showAdd,
+                        blockchainType = item.blockchainType,
+                        navController = navController,
+                )
+            }
+            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
+            is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
+            is ViewItem.TokenItem -> Token(item)
+        }
+    }
+}
+
 
 @Composable
 private fun Subhead(item: ViewItem.Subhead) {

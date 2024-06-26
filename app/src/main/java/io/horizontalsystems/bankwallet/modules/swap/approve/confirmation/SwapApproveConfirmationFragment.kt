@@ -191,8 +191,7 @@ private fun SwapApproveConfirmationScreen(
                     sendEvmTransactionViewModel,
                     feeViewModel,
                     nonceViewModel,
-                    navController,
-                    StatPage.SwapApproveConfirmation
+                    navController
                 )
             }
             ButtonsGroupWithShade {

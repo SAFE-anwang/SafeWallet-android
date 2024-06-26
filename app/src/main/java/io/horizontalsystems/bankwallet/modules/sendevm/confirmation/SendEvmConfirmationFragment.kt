@@ -146,9 +146,8 @@ class SendEvmConfirmationFragment : BaseFragment() {
                 sendEvmTransactionViewModel,
                 feeViewModel,
                 nonceServiceViewModel,
-                findNavController(),
+                findNavController()
                 /*R.id.sendWsafeConfirmationFragment,*/
-                StatPage.SendConfirmation
             )
         }
         binding.buttonSendCompose.setContent {

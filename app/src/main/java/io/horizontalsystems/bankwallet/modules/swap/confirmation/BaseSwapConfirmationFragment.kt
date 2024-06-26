@@ -145,8 +145,7 @@ private fun BaseSwapConfirmationScreen(
                     sendEvmTransactionViewModel,
                     feeViewModel,
                     nonceViewModel,
-                    navController,
-                    StatPage.Swap
+                    navController
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }

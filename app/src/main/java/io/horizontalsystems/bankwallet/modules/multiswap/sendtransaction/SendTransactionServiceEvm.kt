@@ -132,7 +132,7 @@ class SendTransactionServiceEvm(
 
     override fun start(coroutineScope: CoroutineScope) {
         gasPriceService.start()
-        feeService.start()
+//        feeService.start()
 
         coroutineScope.launch {
             gasPriceService.stateFlow.collect { gasPriceState ->

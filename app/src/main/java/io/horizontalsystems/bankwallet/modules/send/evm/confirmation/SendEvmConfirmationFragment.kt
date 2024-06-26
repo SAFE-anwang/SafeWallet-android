@@ -169,8 +169,7 @@ private fun SendEvmConfirmationScreen(
                     sendEvmTransactionViewModel,
                     feeViewModel,
                     nonceViewModel,
-                    navController,
-                    StatPage.SendConfirmation
+                    navController
                 )
             }
             ButtonsGroupWithShade {
