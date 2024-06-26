@@ -20,6 +20,8 @@ import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.dashkit.DashKit
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -67,7 +69,7 @@ class SafeAdapter(
         try {
             setState(state)
             if (state is BitcoinCore.KitState.NotSynced) {
-                refresh()
+                GlobalScope.launch { refresh() }
             }
         } catch (e: Exception) {
 
