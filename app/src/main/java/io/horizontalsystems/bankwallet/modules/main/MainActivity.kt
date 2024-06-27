@@ -89,7 +89,9 @@ class MainActivity : BaseActivity() {
                         navController.slideFromBottom(R.id.wcRequestFragment)
                     }
                     is Wallet.Model.SessionProposal -> {
-                        navController.slideFromBottom(R.id.wcSessionFragment)
+                        if (!MainModule.isOpenDapp) {
+                            navController.slideFromBottom(R.id.wcSessionFragment)
+                        }
                     }
                     else -> {}
                 }
