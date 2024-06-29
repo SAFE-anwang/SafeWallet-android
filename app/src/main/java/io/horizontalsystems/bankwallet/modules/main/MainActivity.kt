@@ -33,6 +33,9 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
+import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
+import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
+import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
@@ -112,6 +115,30 @@ class MainActivity : BaseActivity() {
 
         startVpn()
         startUpgradeVersion()
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        validate()
+    }
+
+    private fun validate() = try {
+        viewModel.validate()
+    } catch (e: MainScreenValidationError.NoSystemLock) {
+        KeyStoreActivity.startForNoSystemLock(this)
+        finish()
+    } catch (e: MainScreenValidationError.KeyInvalidated) {
+        KeyStoreActivity.startForInvalidKey(this)
+        finish()
+    } catch (e: MainScreenValidationError.UserAuthentication) {
+        KeyStoreActivity.startForUserAuthentication(this)
+        finish()
+    } catch (e: MainScreenValidationError.Welcome) {
+        IntroActivity.start(this)
+        finish()
+    } catch (e: MainScreenValidationError.Unlock) {
+        LockScreenActivity.start(this)
     }
 
     private fun handleWeb3WalletEvents(

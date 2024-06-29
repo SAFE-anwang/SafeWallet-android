@@ -69,7 +69,7 @@ class SafeAdapter(
         try {
             setState(state)
             if (state is BitcoinCore.KitState.NotSynced) {
-                GlobalScope.launch { refresh() }
+                App.adapterManager.refreshSafeAdapter()
             }
         } catch (e: Exception) {
 
