@@ -245,4 +245,9 @@ class EvmKitWrapper(
         }
     }
 
+    fun withdraw() {
+        if (blockchainType == BlockchainType.SafeFour && signer != null) {
+            evmKit.withdraw(signer.privateKey)
+        }
+    }
 }

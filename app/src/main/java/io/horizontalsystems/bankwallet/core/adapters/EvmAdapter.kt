@@ -21,6 +21,7 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
 
     override fun start() {
         // started via EthereumKitManager
+        evmKitWrapper.withdraw()
     }
 
     override fun stop() {
