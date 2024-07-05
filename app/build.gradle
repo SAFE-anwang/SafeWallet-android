@@ -37,7 +37,7 @@ android {
         resValue "string", "analyticsLink", "https://unstoppable.money/analytics"
         resValue "string", "appGithubLink", "https://github.com/SAFE-anwang/SafeWallet-android"
         resValue "string", "appTwitterLink", "https://twitter.com/safeanwang"
-        resValue "string", "appTelegramLink", "https://t.me/safeanwang4"
+        resValue "string", "appTelegramLink", "tg://resolve?domain=safeanwang4"
         resValue "string", "appRedditLink", "https://www.reddit.com/user/safe_2018"
         resValue "string", "reportEmail", "foundation@anwang.com"
         resValue "string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
