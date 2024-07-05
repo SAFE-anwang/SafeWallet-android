@@ -284,14 +284,10 @@ class BalanceViewItemFactory {
         val coin = wallet.coin
         val state = item.state
         val latestRate = item.coinPrice
-        val diff = if (item.wallet.token.blockchainType == BlockchainType.SafeFour && Chain.SafeFour.isSafeFourTestNet) BigDecimal("0") else item.coinPrice?.diff
-        val exchangeValue = if (item.wallet.token.blockchainType == BlockchainType.SafeFour && Chain.SafeFour.isSafeFourTestNet)
-                        DeemedValue("$0")
-                    else
-                        BalanceViewHelper.rateValue(latestRate, currency, true)
+
         val balanceTotalVisibility = !hideBalance
 
-        var (primaryValue, secondaryValue) = BalanceViewHelper.getPrimaryAndSecondaryValues(
+        val (primaryValue, secondaryValue) = BalanceViewHelper.getPrimaryAndSecondaryValues(
             balance = item.balanceData.total,
             visible = balanceTotalVisibility,
             fullFormat = false,
@@ -301,10 +297,6 @@ class BalanceViewItemFactory {
             currency = currency,
             balanceViewType = balanceViewType
         )
-        if (item.wallet.token.blockchainType == BlockchainType.SafeFour && Chain.SafeFour.isSafeFourTestNet) {
-//            primaryValue = DeemedValue("$0")
-            secondaryValue = DeemedValue("$0")
-        }
 
         val errorMessage = if (networkAvailable) {
             (state as? AdapterState.NotSynced)?.error?.message
@@ -320,8 +312,8 @@ class BalanceViewItemFactory {
             coinIconPlaceholder = wallet.token.iconPlaceholder,
             primaryValue = primaryValue,
             secondaryValue = secondaryValue,
-            exchangeValue = exchangeValue,
-            diff = diff,
+            exchangeValue = BalanceViewHelper.rateValue(latestRate, currency, true),
+            diff = item.coinPrice?.diff,
             sendEnabled = item.sendAllowed,
             syncingProgress = getSyncingProgress(state, wallet.token.blockchainType),
             syncingTextValue = getSyncingText(state),
