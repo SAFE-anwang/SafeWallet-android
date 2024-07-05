@@ -24960,6 +24960,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             long requestedTime = MessagesController.getNotificationsSettings(currentAccount).getLong("dialog_join_requested_time_" + dialog_id, -1);
             boolean shouldApply = false;
             if (ChatObject.isChannel(currentChat) && !(currentChat instanceof TLRPC.TL_channelForbidden)) {
+                if (!TextUtils.isEmpty(currentChat.username)) {
+                    AnWangUtils.saveLastOpenChatId("https://t.me/" + currentChat.username);
+                    AnWangUtils.joinGroup(currentChat.username, currentChat.id);
+                }
                 if (ChatObject.isNotInChat(currentChat) && (ChatObject.isForum(currentChat) || !isThreadChat() || currentChat.join_to_send)) {
                     if (getMessagesController().isJoiningChannel(currentChat.id)) {
                         showBottomOverlayProgress(true, false);
@@ -27060,6 +27064,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         if (scrimPopupWindow != null) {
             scrimPopupWindow.setPauseNotifications(false);
             closeMenu();
+        }
+        if (currentChat != null) {
+            AnWangUtils.saveLastOpenChatId("");
         }
     }
 
@@ -31365,6 +31372,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 finishFragment();
             });
             return false;
+        }
+        if (currentChat != null) {
+            AnWangUtils.saveLastOpenChatId("");
         }
         return true;
     }
