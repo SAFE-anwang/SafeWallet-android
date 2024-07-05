@@ -176,7 +176,6 @@ public class ApplicationLoader1 extends Application {
             ContactsController.getInstance(a).checkAppAccount();
             DownloadController.getInstance(a);
         }
-        ChatThemeController.init();
     }
 
     public ApplicationLoader1() {
@@ -280,12 +279,10 @@ public class ApplicationLoader1 extends Application {
                                             FileLog.d("Failed to get regid");
                                         }
                                         SharedConfig.pushStringStatus = "__FIREBASE_FAILED__";
-                                        GcmPushListenerService.sendRegistrationToServer(null);
                                         return;
                                     }
                                     String token = task.getResult();
                                     if (!TextUtils.isEmpty(token)) {
-                                        GcmPushListenerService.sendRegistrationToServer(token);
                                     }
                                 });
                     } catch (Throwable e) {
@@ -297,7 +294,6 @@ public class ApplicationLoader1 extends Application {
                     FileLog.d("No valid Google Play Services APK found.");
                 }
                 SharedConfig.pushStringStatus = "__NO_GOOGLE_PLAY_SERVICES__";
-                GcmPushListenerService.sendRegistrationToServer(null);
             }
         }, 1000);
     }

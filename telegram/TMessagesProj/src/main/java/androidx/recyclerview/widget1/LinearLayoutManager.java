@@ -32,6 +32,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.TraceCompat;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget1.LinearSmoothScroller;
+import androidx.recyclerview.widget1.OrientationHelper;
+import androidx.recyclerview.widget1.RecyclerView;
+import androidx.recyclerview.widget1.ScrollbarHelper;
+import androidx.recyclerview.widget1.ViewBoundsCheck;
 
 import java.util.List;
 
@@ -158,6 +163,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     private int[] mReusableIntPair = new int[2];
 
     private boolean needFixGap = true;
+    private boolean needFixEndGap = true;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -801,6 +807,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         mLayoutState.mScrapList = null;
     }
 
+    protected int firstPosition() {
+        return 0;
+    }
+
     private void updateAnchorInfoForLayout(RecyclerView.Recycler recycler, RecyclerView.State state,
             AnchorInfo anchorInfo) {
         if (updateAnchorFromPendingData(state, anchorInfo)) {
@@ -820,7 +830,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             Log.d(TAG, "deciding anchor info for fresh state");
         }
         anchorInfo.assignCoordinateFromPadding();
-        anchorInfo.mPosition = mStackFromEnd ? state.getItemCount() - 1 : 0;
+        anchorInfo.mPosition = mStackFromEnd ? state.getItemCount() - 1 : firstPosition();
     }
 
     /**
@@ -958,7 +968,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      */
     private int fixLayoutEndGap(int endOffset, RecyclerView.Recycler recycler,
             RecyclerView.State state, boolean canOffsetChildren) {
-        if (!needFixGap) {
+        if (!needFixGap || !needFixEndGap) {
             return 0;
         }
         int gap = mOrientationHelper.getEndAfterPadding() - endOffset;
@@ -981,7 +991,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         return fixOffset;
     }
 
-    public int getStarForFixGap() {
+    public int getStartForFixGap() {
         return mOrientationHelper.getStartAfterPadding();
     }
 
@@ -993,7 +1003,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (!needFixGap) {
             return 0;
         }
-        int gap = startOffset - getStarForFixGap();
+        int gap = startOffset - getStartForFixGap();
         int fixOffset = 0;
         if (gap > 0) {
             // check if we should fix this gap.
@@ -1088,7 +1098,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * Scroll to the specified adapter position with the given offset from resolved layout
      * start. Resolved layout start depends on {@link #getReverseLayout()},
-     * {@link ViewCompat#getLayoutDirection(android.view.View)} and {@link #getStackFromEnd()}.
+     * {@link ViewCompat#getLayoutDirection(View)} and {@link #getStackFromEnd()}.
      * <p>
      * For example, if layout is {@link #VERTICAL} and {@link #getStackFromEnd()} is true, calling
      * <code>scrollToPositionWithOffset(10, 20)</code> will layout such that
@@ -1579,7 +1589,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *                    parameter for now, rather than accessing {@link #mLayoutState}
      * @see #recycleViewsFromStart(RecyclerView.Recycler, int, int)
      * @see #recycleViewsFromEnd(RecyclerView.Recycler, int, int)
-     * @see LinearLayoutManager.LayoutState#mLayoutDirection
+     * @see LayoutState#mLayoutDirection
      */
     private void recycleByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
         if (!layoutState.mRecycle || layoutState.mInfinite) {
@@ -2224,6 +2234,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         }
     }
 
+    public boolean hasPendingScrollPosition() {
+        return mPendingScrollPosition >= 0;
+    }
+
     /**
      * Helper class that keeps temporary state while {LayoutManager} is filling out the empty
      * space.
@@ -2464,8 +2478,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             dest.writeInt(mAnchorLayoutFromEnd ? 1 : 0);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR =
+                new Creator<SavedState>() {
                     @Override
                     public SavedState createFromParcel(Parcel in) {
                         return new SavedState(in);
@@ -2600,5 +2614,9 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
     public void setNeedFixGap(boolean needFixGap) {
         this.needFixGap = needFixGap;
+    }
+
+    public void setNeedFixEndGap(boolean needFixEndGap) {
+        this.needFixEndGap = needFixEndGap;
     }
 }

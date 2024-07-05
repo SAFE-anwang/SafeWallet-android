@@ -10,43 +10,97 @@ package org.telegram.ui.Cells;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Components.AnimatedTextView;
+import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Switch;
 
 public class TextCheckCell2 extends FrameLayout {
 
+    public int id;
     private TextView textView;
     private TextView valueTextView;
     private Switch checkBox;
     private boolean needDivider;
     private boolean isMultiline;
 
+    private LinearLayout collapseViewContainer;
+    private AnimatedTextView animatedTextView;
+    private View collapsedArrow;
+    private View checkBoxClickArea;
+
+    public void setCollapseArrow(String text, boolean collapsed, Runnable onCheckClick) {
+        if (collapseViewContainer == null) {
+            collapseViewContainer = new LinearLayout(getContext());
+            collapseViewContainer.setOrientation(LinearLayout.HORIZONTAL);
+            animatedTextView = new AnimatedTextView(getContext(), false, true, true);
+            animatedTextView.setTextSize(AndroidUtilities.dp(14));
+            animatedTextView.getDrawable().setAllowCancel(true);
+            animatedTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+            animatedTextView.setTypeface(AndroidUtilities.bold());
+            animatedTextView.setAnimationProperties(.4f, 0, 320, CubicBezierInterpolator.EASE_OUT_QUINT);
+            collapseViewContainer.addView(animatedTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT,20));
+
+            collapsedArrow = new View(getContext());
+            Drawable drawable = getContext().getResources().getDrawable(R.drawable.arrow_more).mutate();
+            drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText), PorterDuff.Mode.MULTIPLY));
+            collapsedArrow.setBackground(drawable);
+            collapseViewContainer.addView(collapsedArrow, LayoutHelper.createLinear(16, 16, Gravity.CENTER_VERTICAL));
+            collapseViewContainer.setClipChildren(false);
+            setClipChildren(false);
+            addView(collapseViewContainer, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL));
+
+            checkBoxClickArea = new View(getContext()) {
+                @Override
+                protected void onDraw(Canvas canvas) {
+                    super.onDraw(canvas);
+                    canvas.drawLine(0, AndroidUtilities.dp(14), 2, getMeasuredHeight()- AndroidUtilities.dp(14), Theme.dividerPaint);
+                }
+            };
+            checkBoxClickArea.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector), 2));
+            addView(checkBoxClickArea, LayoutHelper.createFrame(76, LayoutHelper.MATCH_PARENT, LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT));
+        }
+        animatedTextView.setText(text);
+        collapsedArrow.animate().cancel();
+        collapsedArrow.animate().rotation(collapsed ? 0 : 180).setDuration(340).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();
+        checkBoxClickArea.setOnClickListener(v -> onCheckClick.run());
+    }
+
     public TextCheckCell2(Context context) {
+        this(context, null);
+    }
+
+    public TextCheckCell2(Context context, Theme.ResourcesProvider resourcesProvider) {
         super(context);
 
         textView = new TextView(context);
-        textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
+        textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         textView.setLines(1);
         textView.setMaxLines(1);
         textView.setSingleLine(true);
         textView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
         textView.setEllipsize(TextUtils.TruncateAt.END);
-        addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, LocaleController.isRTL ? 64 : 21, 0, LocaleController.isRTL ? 21 : 64, 0));
+        addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, LocaleController.isRTL ? 64 : 21, 0, LocaleController.isRTL ? 21 : 64, 0));
 
         valueTextView = new TextView(context);
-        valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
+        valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));
         valueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         valueTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         valueTextView.setLines(1);
@@ -70,10 +124,26 @@ public class TextCheckCell2 extends FrameLayout {
         }
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (collapseViewContainer != null) {
+            if (LocaleController.isRTL) {
+                collapseViewContainer.setTranslationX(textView.getLeft() - collapseViewContainer.getMeasuredWidth() - AndroidUtilities.dp(4));
+            } else {
+                collapseViewContainer.setTranslationX(textView.getRight() + AndroidUtilities.dp(4));
+            }
+        }
+    }
+
     public void setTextAndCheck(String text, boolean checked, boolean divider) {
+        setTextAndCheck(text, checked, divider, false);
+    }
+
+    public void setTextAndCheck(String text, boolean checked, boolean divider, boolean animated) {
         textView.setText(text);
         isMultiline = false;
-        checkBox.setChecked(checked, false);
+        checkBox.setChecked(checked, animated);
         needDivider = divider;
         valueTextView.setVisibility(GONE);
         LayoutParams layoutParams = (LayoutParams) textView.getLayoutParams();
@@ -83,7 +153,7 @@ public class TextCheckCell2 extends FrameLayout {
         setWillNotDraw(!divider);
     }
 
-    public void setTextAndValueAndCheck(String text, String value, boolean checked, boolean multiline, boolean divider) {
+    public void setTextAndValueAndCheck(CharSequence text, CharSequence value, boolean checked, boolean multiline, boolean divider) {
         textView.setText(text);
         valueTextView.setText(value);
         checkBox.setChecked(checked, false);
@@ -120,10 +190,22 @@ public class TextCheckCell2 extends FrameLayout {
             textView.setAlpha(1.0f);
             valueTextView.setAlpha(1.0f);
             checkBox.setAlpha(1.0f);
+            if (animatedTextView != null) {
+                animatedTextView.setAlpha(1.0f);
+            }
+            if (collapsedArrow != null) {
+                collapsedArrow.setAlpha(1.0f);
+            }
         } else {
             checkBox.setAlpha(0.5f);
             textView.setAlpha(0.5f);
             valueTextView.setAlpha(0.5f);
+            if (animatedTextView != null) {
+                animatedTextView.setAlpha(0.6f);
+            }
+            if (collapsedArrow != null) {
+                collapsedArrow.setAlpha(0.6f);
+            }
         }
     }
 
@@ -165,6 +247,10 @@ public class TextCheckCell2 extends FrameLayout {
         return checkBox.isChecked();
     }
 
+    public Switch getCheckBox() {
+        return checkBox;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (needDivider) {
@@ -178,6 +264,5 @@ public class TextCheckCell2 extends FrameLayout {
         info.setClassName("android.widget.Switch");
         info.setCheckable(true);
         info.setChecked(checkBox.isChecked());
-        info.setContentDescription(checkBox.isChecked() ? LocaleController.getString("NotificationsOn", R.string.NotificationsOn) : LocaleController.getString("NotificationsOff", R.string.NotificationsOff));
     }
 }

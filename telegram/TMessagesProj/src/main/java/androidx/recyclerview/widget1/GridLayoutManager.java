@@ -24,6 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.recyclerview.widget1.LinearLayoutManager;
+import androidx.recyclerview.widget1.RecyclerView;
 
 import java.util.Arrays;
 

@@ -42,7 +42,7 @@ public class MemberRequestCell extends FrameLayout {
         nameTextView.setMaxLines(1);
         nameTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         nameTextView.setTextSize(17);
-        nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        nameTextView.setTypeface(AndroidUtilities.bold());
         addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP, LocaleController.isRTL ? 12 : 74, 12, LocaleController.isRTL ? 74 : 12, 0));
 
         statusTextView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
@@ -53,14 +53,14 @@ public class MemberRequestCell extends FrameLayout {
 
         int btnPadding = AndroidUtilities.dp(17);
         TextView addButton = new TextView(getContext());
-        addButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(4), Theme.getColor(Theme.key_featuredStickers_addButton), Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
+        addButton.setBackground(Theme.AdaptiveRipple.filledRectByKey(Theme.key_featuredStickers_addButton, 4));
         addButton.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);
         addButton.setMaxLines(1);
         addButton.setPadding(btnPadding, 0, btnPadding, 0);
         addButton.setText(isChannel ? LocaleController.getString("AddToChannel", R.string.AddToChannel) : LocaleController.getString("AddToGroup", R.string.AddToGroup));
         addButton.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
         addButton.setTextSize(14);
-        addButton.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        addButton.setTypeface(AndroidUtilities.bold());
         addButton.setOnClickListener(v -> {
             if (clickListener != null && importer != null) {
                 clickListener.onAddClicked(importer);
@@ -77,7 +77,7 @@ public class MemberRequestCell extends FrameLayout {
         dismissButton.setText(LocaleController.getString("Dismiss", R.string.Dismiss));
         dismissButton.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText));
         dismissButton.setTextSize(14);
-        dismissButton.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        dismissButton.setTypeface(AndroidUtilities.bold());
         dismissButton.setOnClickListener(v -> {
             if (clickListener != null && importer != null) {
                 clickListener.onDismissClicked(importer);
@@ -100,7 +100,9 @@ public class MemberRequestCell extends FrameLayout {
         avatarImageView.setForUserOrChat(user, avatarDrawable);
         nameTextView.setText(UserObject.getUserName(user));
         String dateText = LocaleController.formatDateAudio(importer.date, false);
-        if (importer.approved_by == 0) {
+        if (importer.via_chatlist) {
+            statusTextView.setText(LocaleController.getString("JoinedViaFolder", R.string.JoinedViaFolder));
+        } else if (importer.approved_by == 0) {
             statusTextView.setText(LocaleController.formatString("RequestedToJoinAt", R.string.RequestedToJoinAt, dateText));
         } else {
             TLRPC.User approvedByUser = users.get(importer.approved_by);

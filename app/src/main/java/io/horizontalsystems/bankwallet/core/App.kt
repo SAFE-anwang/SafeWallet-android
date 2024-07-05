@@ -470,7 +470,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
 
-        ApplicationLoader.instance.init(this)
+        ApplicationLoader.applicationLoaderInstance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")

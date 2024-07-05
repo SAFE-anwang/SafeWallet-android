@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
 import androidx.recyclerview.widget1.LinearLayoutManager;
 import androidx.recyclerview.widget1.RecyclerView;
 
@@ -59,7 +60,6 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
-import org.telegram.messenger.support.fingerprint.FingerprintManagerCompat;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -298,7 +298,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                                     finishFragment();
                                 }).create();
                         alertDialog.show();
-                        ((TextView)alertDialog.getButton(Dialog.BUTTON_POSITIVE)).setTextColor(Theme.getColor(Theme.key_dialogTextRed));
+                        ((TextView)alertDialog.getButton(Dialog.BUTTON_POSITIVE)).setTextColor(Theme.getColor(Theme.key_text_RedBold));
                     } else if (position == changePasscodeRow) {
                         presentFragment(new PasscodeActivity(TYPE_SETUP_CODE));
                     } else if (position == autoLockRow) {
@@ -354,9 +354,9 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                         });
                         showDialog(builder.create());
                     } else if (position == fingerprintRow) {
-                        SharedConfig.useFingerprint = !SharedConfig.useFingerprint;
+                        SharedConfig.useFingerprintLock = !SharedConfig.useFingerprintLock;
                         UserConfig.getInstance(currentAccount).saveConfig(false);
-                        ((TextCheckCell) view).setChecked(SharedConfig.useFingerprint);
+                        ((TextCheckCell) view).setChecked(SharedConfig.useFingerprintLock);
                     } else if (position == captureRow) {
                         SharedConfig.allowScreenCapture = !SharedConfig.allowScreenCapture;
                         UserConfig.getInstance(currentAccount).saveConfig(false);
@@ -420,6 +420,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                 frameLayout.addView(innerLinearLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
                 lockImageView = new RLottieImageView(context);
+                lockImageView.setFocusable(false);
                 lockImageView.setAnimation(R.raw.tsv_setup_intro, 120, 120);
                 lockImageView.setAutoRepeat(false);
                 lockImageView.playAnimation();
@@ -428,7 +429,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
 
                 titleTextView = new TextView(context);
                 titleTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-                titleTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                titleTextView.setTypeface(AndroidUtilities.bold());
                 if (type == TYPE_SETUP_CODE) {
                     if (SharedConfig.passcodeHash.length() != 0) {
                         titleTextView.setText(LocaleController.getString("EnterNewPasscode", R.string.EnterNewPasscode));
@@ -826,8 +827,10 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
         if (lockImageView != null) {
             lockImageView.setVisibility(!AndroidUtilities.isSmallScreen() && AndroidUtilities.displaySize.x < AndroidUtilities.displaySize.y ? View.VISIBLE : View.GONE);
         }
-        for (CodeNumberField f : codeFieldContainer.codeField) {
-            f.setShowSoftInputOnFocusCompat(!isCustomKeyboardVisible());
+        if (codeFieldContainer != null && codeFieldContainer.codeField != null) {
+            for (CodeNumberField f : codeFieldContainer.codeField) {
+                f.setShowSoftInputOnFocusCompat(!isCustomKeyboardVisible());
+            }
         }
     }
 
@@ -867,19 +870,20 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
     }
 
     private void updateRows() {
+        fingerprintRow = -1;
         rowCount = 0;
         utyanRow = rowCount++;
         hintRow = rowCount++;
         changePasscodeRow = rowCount++;
         try {
             if (Build.VERSION.SDK_INT >= 23) {
-                FingerprintManagerCompat fingerprintManager = FingerprintManagerCompat.from(ApplicationLoader.applicationContext);
-                if (fingerprintManager.isHardwareDetected() && AndroidUtilities.isKeyguardSecure()) {
+                if (
+                    BiometricManager.from(ApplicationLoader.applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS &&
+                    AndroidUtilities.isKeyguardSecure()
+                ) {
                     fingerprintRow = rowCount++;
-                } else {
-                    fingerprintRow = -1;
                 }
-            } else fingerprintRow = -1;
+            }
         } catch (Throwable e) {
             FileLog.e(e);
         }
@@ -1169,7 +1173,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                 case VIEW_TYPE_CHECK: {
                     TextCheckCell textCell = (TextCheckCell) holder.itemView;
                     if (position == fingerprintRow) {
-                        textCell.setTextAndCheck(LocaleController.getString("UnlockFingerprint", R.string.UnlockFingerprint), SharedConfig.useFingerprint, true);
+                        textCell.setTextAndCheck(LocaleController.getString(R.string.UnlockFingerprint), SharedConfig.useFingerprintLock, false);
                     } else if (position == captureRow) {
                         textCell.setTextAndCheck(LocaleController.getString(R.string.ScreenCaptureShowContent), SharedConfig.allowScreenCapture, false);
                     }
@@ -1202,8 +1206,8 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                         textCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
                     } else if (position == disablePasscodeRow) {
                         textCell.setText(LocaleController.getString(R.string.DisablePasscode), false);
-                        textCell.setTag(Theme.key_dialogTextRed);
-                        textCell.setTextColor(Theme.getColor(Theme.key_dialogTextRed));
+                        textCell.setTag(Theme.key_text_RedBold);
+                        textCell.setTextColor(Theme.getColor(Theme.key_text_RedBold));
                     }
                     break;
                 }
@@ -1229,11 +1233,11 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                         cell.getTextView().setGravity(Gravity.CENTER_HORIZONTAL);
                     } else if (position == autoLockDetailRow) {
                         cell.setText(LocaleController.getString(R.string.AutoLockInfo));
-                        cell.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
+                        cell.setBackground(Theme.getThemedDrawableByKey(mContext, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
                         cell.getTextView().setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
                     } else if (position == captureDetailRow) {
                         cell.setText(LocaleController.getString(R.string.ScreenCaptureInfo));
-                        cell.setBackground(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+                        cell.setBackground(Theme.getThemedDrawableByKey(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                         cell.getTextView().setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
                     }
                     break;

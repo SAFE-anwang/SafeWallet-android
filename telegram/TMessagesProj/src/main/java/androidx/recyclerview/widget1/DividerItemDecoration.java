@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.LinearLayoutManager;
+import androidx.recyclerview.widget1.RecyclerView;
 
 /**
  * DividerItemDecoration is a {@link RecyclerView.ItemDecoration} that can be used as a divider

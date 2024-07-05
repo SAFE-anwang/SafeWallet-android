@@ -19,6 +19,9 @@ package androidx.recyclerview.widget1;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.recyclerview.widget1.AsyncListDiffer;
+import androidx.recyclerview.widget1.DiffUtil;
+import androidx.recyclerview.widget1.ListAdapter;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

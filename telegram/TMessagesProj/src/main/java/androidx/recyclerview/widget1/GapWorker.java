@@ -20,6 +20,10 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.core.os.TraceCompat;
+import androidx.recyclerview.widget1.RecyclerView;
+
+import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.FileLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,6 +278,7 @@ final class GapWorker implements Runnable {
         return false;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private RecyclerView.ViewHolder prefetchPositionWithDeadline(RecyclerView view,
             int position, long deadlineNs) {
         if (isPrefetchPositionAttached(view, position)) {
@@ -301,6 +306,14 @@ final class GapWorker implements Runnable {
                     recycler.addViewHolderToRecycledViewPool(holder, false);
                 }
             }
+        } catch (Exception e) {
+            FileLog.e(e);
+            AndroidUtilities.runOnUIThread(() -> {
+                if (view.getAdapter() != null) {
+                    view.getAdapter().notifyDataSetChanged();
+                }
+            });
+            return null;
         } finally {
             view.onExitLayoutOrScroll(false);
         }

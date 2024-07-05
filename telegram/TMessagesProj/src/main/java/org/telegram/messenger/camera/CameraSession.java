@@ -11,12 +11,12 @@ package org.telegram.messenger.camera;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -30,7 +30,7 @@ import java.util.List;
 
 public class CameraSession {
 
-    protected CameraInfo cameraInfo;
+    public CameraInfo cameraInfo;
     private String currentFlashMode;
     private OrientationEventListener orientationEventListener;
     private int lastOrientation = -1;
@@ -52,6 +52,8 @@ public class CameraSession {
     private boolean useTorch;
     private boolean isRound;
     private boolean destroyed;
+
+    public ArrayList<String> availableFlashModes = new ArrayList<>();
 
     private int infoCameraId = -1;
     Camera.CameraInfo info = new Camera.CameraInfo();
@@ -131,7 +133,7 @@ public class CameraSession {
     }
 
     public void checkFlashMode(String mode) {
-        ArrayList<String> modes = CameraController.getInstance().availableFlashModes;
+        ArrayList<String> modes = availableFlashModes;
         if (modes.contains(currentFlashMode)) {
             return;
         }
@@ -162,7 +164,7 @@ public class CameraSession {
     }
 
     public String getNextFlashMode() {
-        ArrayList<String> modes = CameraController.getInstance().availableFlashModes;
+        ArrayList<String> modes = availableFlashModes;
         for (int a = 0; a < modes.size(); a++) {
             String mode = modes.get(a);
             if (mode.equals(currentFlashMode)) {
@@ -204,7 +206,7 @@ public class CameraSession {
         return sameTakePictureOrientation;
     }
 
-    protected void configureRoundCamera(boolean initial) {
+    protected boolean configureRoundCamera(boolean initial) {
         try {
             isVideo = true;
             Camera camera = cameraInfo.camera;
@@ -276,7 +278,9 @@ public class CameraSession {
             }
         } catch (Throwable e) {
             FileLog.e(e);
+            return false;
         }
+        return true;
     }
 
     public void updateRotation() {
@@ -295,10 +299,10 @@ public class CameraSession {
         displayOrientation = getDisplayOrientation(info, true);
         int cameraDisplayOrientation;
 
+        int degrees = 0;
         if ("samsung".equals(Build.MANUFACTURER) && "sf2wifixx".equals(Build.PRODUCT)) {
             cameraDisplayOrientation = 0;
         } else {
-            int degrees = 0;
             int temp = displayOrientation;
             switch (temp) {
                 case Surface.ROTATION_0:
@@ -413,7 +417,7 @@ public class CameraSession {
         }
     }
 
-    protected void focusToRect(Rect focusRect, Rect meteringRect) {
+    public void focusToRect(Rect focusRect, Rect meteringRect) {
         try {
             Camera camera = cameraInfo.camera;
             if (camera != null) {
@@ -496,7 +500,7 @@ public class CameraSession {
         isVideo = true;
     }
 
-    protected void stopVideoRecording() {
+    public void stopVideoRecording() {
         isVideo = false;
         useTorch = false;
         configurePhotoCamera();
@@ -579,5 +583,13 @@ public class CameraSession {
             orientationEventListener.disable();
             orientationEventListener = null;
         }
+    }
+
+    public Camera.Size getCurrentPreviewSize() {
+        return cameraInfo.camera.getParameters().getPreviewSize();
+    }
+
+    public Camera.Size getCurrentPictureSize() {
+        return cameraInfo.camera.getParameters().getPictureSize();
     }
 }

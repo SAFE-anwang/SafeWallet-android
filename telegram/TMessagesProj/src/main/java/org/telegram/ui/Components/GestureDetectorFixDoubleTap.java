@@ -14,6 +14,7 @@ public class GestureDetectorFixDoubleTap {
         boolean isLongpressEnabled();
         boolean onTouchEvent(MotionEvent ev);
         void setIsLongpressEnabled(boolean enabled);
+        void setLongpressDuration(long duration);
         void setOnDoubleTapListener(OnDoubleTapListener listener);
     }
 
@@ -56,6 +57,7 @@ public class GestureDetectorFixDoubleTap {
         private float mDownFocusY;
 
         private boolean mIsLongpressEnabled;
+        private long mLongpressDuration = ViewConfiguration.getLongPressTimeout();
 
         /**
          * Determines speed during touch scrolling
@@ -171,6 +173,11 @@ public class GestureDetectorFixDoubleTap {
             mIsLongpressEnabled = isLongpressEnabled;
         }
 
+        @Override
+        public void setLongpressDuration(long duration) {
+            mLongpressDuration = duration;
+        }
+
         /**
          * @return true if longpress is enabled, else false.
          */
@@ -249,7 +256,7 @@ public class GestureDetectorFixDoubleTap {
                     break;
 
                 case MotionEvent.ACTION_DOWN:
-                    if (mDoubleTapListener != null && mListener.hasDoubleTap()) {
+                    if (mDoubleTapListener != null && mListener.hasDoubleTap(ev)) {
                         boolean hadTapMessage = mHandler.hasMessages(TAP);
                         if (hadTapMessage) mHandler.removeMessages(TAP);
                         if ((mCurrentDownEvent != null) && (mPreviousUpEvent != null)
@@ -282,7 +289,7 @@ public class GestureDetectorFixDoubleTap {
                     if (mIsLongpressEnabled) {
                         mHandler.removeMessages(LONG_PRESS);
                         mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()
-                                + TAP_TIMEOUT + ViewConfiguration.getLongPressTimeout());
+                                + TAP_TIMEOUT + mLongpressDuration);
                     }
                     mHandler.sendEmptyMessageAtTime(SHOW_PRESS,
                             mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);
@@ -487,6 +494,10 @@ public class GestureDetectorFixDoubleTap {
         mImpl.setIsLongpressEnabled(enabled);
     }
 
+    public void setLongpressDuration(long duration) {
+        mImpl.setLongpressDuration(duration);
+    }
+
     /**
      * Sets the listener which will be called for double-tap and related
      * gestures.
@@ -499,7 +510,7 @@ public class GestureDetectorFixDoubleTap {
     }
 
     public static class OnGestureListener extends GestureDetector.SimpleOnGestureListener {
-        public boolean hasDoubleTap() {
+        public boolean hasDoubleTap(MotionEvent e) {
             return false;
         }
     }

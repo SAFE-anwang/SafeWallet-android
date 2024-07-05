@@ -5,16 +5,18 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 
 public class BlurredFrameLayout extends FrameLayout {
 
-    private final SizeNotifierFrameLayout sizeNotifierFrameLayout;
+    protected final SizeNotifierFrameLayout sizeNotifierFrameLayout;
     protected Paint backgroundPaint;
     public int backgroundColor = Color.TRANSPARENT;
     public int backgroundPaddingBottom;
@@ -27,6 +29,7 @@ public class BlurredFrameLayout extends FrameLayout {
         this.sizeNotifierFrameLayout = sizeNotifierFrameLayout;
     }
 
+    private android.graphics.Rect blurBounds = new android.graphics.Rect();
     @Override
     protected void dispatchDraw(Canvas canvas) {
         if (SharedConfig.chatBlurEnabled() && sizeNotifierFrameLayout != null && drawBlur && backgroundColor != Color.TRANSPARENT) {
@@ -34,14 +37,20 @@ public class BlurredFrameLayout extends FrameLayout {
                 backgroundPaint = new Paint();
             }
             backgroundPaint.setColor(backgroundColor);
-            AndroidUtilities.rectTmp2.set(0, backgroundPaddingTop, getMeasuredWidth(), getMeasuredHeight() - backgroundPaddingBottom);
+            blurBounds.set(0, backgroundPaddingTop, getMeasuredWidth(), getMeasuredHeight() - backgroundPaddingBottom);
             float y = 0;
             View view = this;
             while (view != sizeNotifierFrameLayout) {
                 y += view.getY();
-                view = (View) view.getParent();
+                ViewParent parent = view.getParent();
+                if (parent instanceof View) {
+                    view = (View) parent;
+                } else {
+                    super.dispatchDraw(canvas);
+                    return;
+                }
             }
-            sizeNotifierFrameLayout.drawBlurRect(canvas, y, AndroidUtilities.rectTmp2, backgroundPaint, isTopView);
+            sizeNotifierFrameLayout.drawBlurRect(canvas, y, blurBounds, backgroundPaint, isTopView);
         }
         super.dispatchDraw(canvas);
     }

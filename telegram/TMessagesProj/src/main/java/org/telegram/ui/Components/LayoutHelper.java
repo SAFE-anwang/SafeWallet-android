@@ -73,6 +73,12 @@ public class LayoutHelper {
         return layoutParams;
     }
 
+    public static FrameLayout.LayoutParams createFrameMarginPx(int width, float height, int gravity, int leftMarginPx, int topMarginPx, int rightMarginPx, int bottomMarginPx) {
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(getSize(width), getSize(height), gravity);
+        layoutParams.setMargins(leftMarginPx, topMarginPx, rightMarginPx, bottomMarginPx);
+        return layoutParams;
+    }
+
     public static FrameLayout.LayoutParams createFrame(int width, int height, int gravity) {
         return new FrameLayout.LayoutParams(getSize(width), getSize(height), gravity);
     }
@@ -169,6 +175,13 @@ public class LayoutHelper {
         return layoutParams;
     }
 
+    public static LinearLayout.LayoutParams createLinear(int width, float height, int gravity, int leftMargin, int topMargin, int rightMargin, int bottomMargin) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(getSize(width), getSize(height));
+        layoutParams.setMargins(AndroidUtilities.dp(leftMargin), AndroidUtilities.dp(topMargin), AndroidUtilities.dp(rightMargin), AndroidUtilities.dp(bottomMargin));
+        layoutParams.gravity = gravity;
+        return layoutParams;
+    }
+
     public static LinearLayout.LayoutParams createLinear(int width, int height, float leftMargin, float topMargin, float rightMargin, float bottomMargin) {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(getSize(width), getSize(height));
         layoutParams.setMargins(AndroidUtilities.dp(leftMargin), AndroidUtilities.dp(topMargin), AndroidUtilities.dp(rightMargin), AndroidUtilities.dp(bottomMargin));
@@ -192,6 +205,10 @@ public class LayoutHelper {
     }
 
     public static LinearLayout.LayoutParams createLinear(int width, int height) {
+        return new LinearLayout.LayoutParams(getSize(width), getSize(height));
+    }
+
+    public static LinearLayout.LayoutParams createLinear(float width, float height) {
         return new LinearLayout.LayoutParams(getSize(width), getSize(height));
     }
 

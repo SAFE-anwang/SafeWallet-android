@@ -16,6 +16,8 @@
 
 package androidx.recyclerview.widget1;
 
+import androidx.recyclerview.widget1.AdapterHelper;
+
 import java.util.List;
 
 class OpReorderer {

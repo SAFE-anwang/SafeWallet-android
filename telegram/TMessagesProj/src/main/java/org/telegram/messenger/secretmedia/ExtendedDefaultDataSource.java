@@ -97,7 +97,6 @@ public final class ExtendedDefaultDataSource implements DataSource {
                 context,
                 new DefaultHttpDataSource(
                         userAgent,
-                        /* contentTypePredicate= */ null,
                         connectTimeoutMillis,
                         readTimeoutMillis,
                         allowCrossProtocolRedirects,
@@ -293,9 +292,12 @@ public final class ExtendedDefaultDataSource implements DataSource {
         return encryptedFileDataSource;
     }
 
+    private FileStreamLoadOperation streamLoadOperation;
     private DataSource getStreamDataSource() {
-        FileStreamLoadOperation streamLoadOperation = new FileStreamLoadOperation();
-        addListenersToDataSource(streamLoadOperation);
+        if (streamLoadOperation == null) {
+            streamLoadOperation = new FileStreamLoadOperation();
+            addListenersToDataSource(streamLoadOperation);
+        }
         return streamLoadOperation;
     }
 

@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.recyclerview.widget1.AdapterHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -3114,8 +3115,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
                         + '}';
             }
 
-            public static final Parcelable.Creator<FullSpanItem> CREATOR =
-                    new Parcelable.Creator<FullSpanItem>() {
+            public static final Creator<FullSpanItem> CREATOR =
+                    new Creator<FullSpanItem>() {
                         @Override
                         public FullSpanItem createFromParcel(Parcel in) {
                             return new FullSpanItem(in);
@@ -3224,8 +3225,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             dest.writeList(mFullSpanItems);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR =
+                new Creator<SavedState>() {
                     @Override
                     public SavedState createFromParcel(Parcel in) {
                         return new SavedState(in);

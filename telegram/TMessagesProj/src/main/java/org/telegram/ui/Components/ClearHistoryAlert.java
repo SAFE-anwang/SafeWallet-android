@@ -93,7 +93,7 @@ public class ClearHistoryAlert extends BottomSheet {
             textView.setGravity(Gravity.CENTER);
             textView.setTextColor(getThemedColor(Theme.key_featuredStickers_buttonText));
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            textView.setTypeface(AndroidUtilities.bold());
             addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER));
         }
 
@@ -106,9 +106,8 @@ public class ClearHistoryAlert extends BottomSheet {
             textView.setText(text);
         }
 
-        private int getThemedColor(String key) {
-            Integer color = resourcesProvider != null ? resourcesProvider.getColor(key) : null;
-            return color != null ? color : Theme.getColor(key);
+        protected int getThemedColor(int key) {
+            return Theme.getColor(key, resourcesProvider);
         }
     }
 
@@ -244,7 +243,7 @@ public class ClearHistoryAlert extends BottomSheet {
 
         if (!autoDeleteOnly) {
             TextView textView = new TextView(context);
-            textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            textView.setTypeface(AndroidUtilities.bold());
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
             textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
             textView.setText(LocaleController.getString("ClearHistory", R.string.ClearHistory));
@@ -262,7 +261,7 @@ public class ClearHistoryAlert extends BottomSheet {
             if (user != null) {
                 messageTextView.setText(AndroidUtilities.replaceTags(LocaleController.formatString("AreYouSureClearHistoryWithUser", R.string.AreYouSureClearHistoryWithUser, UserObject.getUserName(user))));
             } else {
-                if (!ChatObject.isChannel(chat) || chat.megagroup && TextUtils.isEmpty(chat.username)) {
+                if (!ChatObject.isChannel(chat) || chat.megagroup && !ChatObject.isPublic(chat)) {
                     messageTextView.setText(AndroidUtilities.replaceTags(LocaleController.formatString("AreYouSureClearHistoryWithChat", R.string.AreYouSureClearHistoryWithChat, chat.title)));
                 } else if (chat.megagroup) {
                     messageTextView.setText(LocaleController.getString("AreYouSureClearHistoryGroup", R.string.AreYouSureClearHistoryGroup));
@@ -297,7 +296,7 @@ public class ClearHistoryAlert extends BottomSheet {
             linearLayout.addView(clearButton, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50, Gravity.LEFT | Gravity.TOP, 0, 0, 0, 0));
 
             ShadowSectionCell shadowSectionCell = new ShadowSectionCell(context);
-            Drawable drawable = Theme.getThemedDrawable(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow);
+            Drawable drawable = Theme.getThemedDrawableByKey(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow);
             CombinedDrawable combinedDrawable = new CombinedDrawable(new ColorDrawable(getThemedColor(Theme.key_windowBackgroundGray)), drawable);
             combinedDrawable.setFullsize(true);
             shadowSectionCell.setBackgroundDrawable(combinedDrawable);
@@ -315,7 +314,7 @@ public class ClearHistoryAlert extends BottomSheet {
             linearLayout.addView(lottieImageView, LayoutHelper.createLinear(160, 160, Gravity.CENTER_HORIZONTAL | Gravity.TOP, 17, 0, 17, 0));
 
             TextView percentTextView = new TextView(context);
-            percentTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            percentTextView.setTypeface(AndroidUtilities.bold());
             percentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
             percentTextView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
             percentTextView.setText(LocaleController.getString("AutoDeleteAlertTitle", R.string.AutoDeleteAlertTitle));
@@ -360,14 +359,13 @@ public class ClearHistoryAlert extends BottomSheet {
         linearLayout.addView(slideChooseView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 8, 0, 0));
 
         FrameLayout buttonContainer = new FrameLayout(context);
-        Drawable drawable = Theme.getThemedDrawable(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow);
+        Drawable drawable = Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow);
         CombinedDrawable combinedDrawable = new CombinedDrawable(new ColorDrawable(getThemedColor(Theme.key_windowBackgroundGray)), drawable);
         combinedDrawable.setFullsize(true);
         buttonContainer.setBackgroundDrawable(combinedDrawable);
         linearLayout.addView(buttonContainer, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
         TextInfoPrivacyCell infoCell = new TextInfoPrivacyCell(context, resourcesProvider);
-
         infoCell.setText(LocaleController.getString("AutoDeleteInfo", R.string.AutoDeleteInfo));
         buttonContainer.addView(infoCell);
 

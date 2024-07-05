@@ -1129,7 +1129,6 @@
     <string name="MessageScheduledReminderNotification">&#128197; Erinnerung</string>
     <string name="OneResult">1 Ergebnis</string>
     <string name="VideoQualityIsTooLow">Die Videoqualität ist zu niedrig, um die Komprimierung zu ändern.</string>
-    <string name="TextSelectionHit">**Wort** gedrückt halten und Cursor bewegen, um noch mehr Text zu markieren.</string>
     <string name="CardNumberCopied">Kartennummer in Zwischenablage kopiert</string>
     <string name="CopyCardNumber">Kopieren</string>
     <string name="DiceInfo2">**:würfel:**-Emoji senden, um zu würfeln</string>
@@ -2494,7 +2493,6 @@
     <string name="FilterChatRemovedFrom">**%1$s** wurde aus **%2$s** entfernt</string>
     <string name="FilterChatsRemovedFrom">**%1$s** wurde aus **%2$s** entfernt</string>
     <string name="FilterAddToAlertFullTitle">Limt erreicht</string>
-    <string name="FilterRemoveFromAlertFullText">Mehr als 100 Chats kann man leider nicht einem Ordner hinzufügen.</string>
     <string name="FilterAddToAlertFullText">Mehr als 100 Chats kann man leider nicht aus einem Ordner ausschließen.</string>
     <!--passcode view-->
     <string name="Passcode">Pincode-Sperre</string>

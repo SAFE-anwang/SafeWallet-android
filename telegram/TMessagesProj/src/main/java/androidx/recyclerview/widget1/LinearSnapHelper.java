@@ -21,6 +21,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.OrientationHelper;
+import androidx.recyclerview.widget1.RecyclerView;
+import androidx.recyclerview.widget1.SnapHelper;
 
 /**
  * Implementation of the {@link SnapHelper} supporting snapping in either vertical or horizontal

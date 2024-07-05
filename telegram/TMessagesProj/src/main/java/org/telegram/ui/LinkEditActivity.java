@@ -122,7 +122,7 @@ public class LinkEditActivity extends BaseFragment {
         }
         createTextView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultTitle));
         createTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f);
-        createTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        createTextView.setTypeface(AndroidUtilities.bold());
         createTextView.setPadding(AndroidUtilities.dp(18), AndroidUtilities.dp(8), AndroidUtilities.dp(18), AndroidUtilities.dp(8));
         int topSpace = actionBar.getOccupyStatusBar() ? (AndroidUtilities.statusBarHeight / AndroidUtilities.dp(2)) : 0;
         actionBar.addView(createTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.END | Gravity.CENTER_VERTICAL, 0, topSpace, 0, 0));
@@ -274,7 +274,7 @@ public class LinkEditActivity extends BaseFragment {
         buttonTextView.setPadding(AndroidUtilities.dp(34), 0, AndroidUtilities.dp(34), 0);
         buttonTextView.setGravity(Gravity.CENTER);
         buttonTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        buttonTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        buttonTextView.setTypeface(AndroidUtilities.bold());
 
         if (type == CREATE_TYPE) {
             buttonTextView.setText(LocaleController.getString("CreateLink", R.string.CreateLink));
@@ -282,35 +282,42 @@ public class LinkEditActivity extends BaseFragment {
             buttonTextView.setText(LocaleController.getString("SaveLink", R.string.SaveLink));
         }
 
-        approveCell = new TextCheckCell(context) {
-            @Override
-            protected void onDraw(Canvas canvas) {
-                canvas.save();
-                canvas.clipRect(0, 0, getWidth(), getHeight());
-                super.onDraw(canvas);
-                canvas.restore();
-            }
-        };
-        approveCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundUnchecked));
-        approveCell.setColors(Theme.key_windowBackgroundCheckText, Theme.key_switchTrackBlue, Theme.key_switchTrackBlueChecked, Theme.key_switchTrackBlueThumb, Theme.key_switchTrackBlueThumbChecked);
-        approveCell.setDrawCheckRipple(true);
-        approveCell.setHeight(56);
-        approveCell.setTag(Theme.key_windowBackgroundUnchecked);
-        approveCell.setTextAndCheck(LocaleController.getString("ApproveNewMembers", R.string.ApproveNewMembers), false, false);
-        approveCell.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-        approveCell.setOnClickListener(view -> {
-            TextCheckCell cell = (TextCheckCell) view;
-            boolean newIsChecked = !cell.isChecked();
-            cell.setBackgroundColorAnimated(newIsChecked, Theme.getColor(newIsChecked ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));
-            cell.setChecked(newIsChecked);
-            setUsesVisible(!newIsChecked);
-            firstLayout = true;
-        });
-        linearLayout.addView(approveCell, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56));
+        TLRPC.Chat chatLocal = getMessagesController().getChat(chatId);
+        boolean hasApproveCell = false;
+        if (chatLocal == null || chatLocal.username == null) {
+            hasApproveCell = true;
+            approveCell = new TextCheckCell(context) {
+                @Override
+                protected void onDraw(Canvas canvas) {
+                    canvas.save();
+                    canvas.clipRect(0, 0, getWidth(), getHeight());
+                    super.onDraw(canvas);
+                    canvas.restore();
+                }
+            };
+            approveCell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundUnchecked));
+            approveCell.setColors(Theme.key_windowBackgroundCheckText, Theme.key_switchTrackBlue, Theme.key_switchTrackBlueChecked, Theme.key_switchTrackBlueThumb, Theme.key_switchTrackBlueThumbChecked);
+            approveCell.setDrawCheckRipple(true);
+            approveCell.setHeight(56);
+            approveCell.setTag(Theme.key_windowBackgroundUnchecked);
+            approveCell.setTextAndCheck(LocaleController.getString("ApproveNewMembers", R.string.ApproveNewMembers), false, false);
+            approveCell.setTypeface(AndroidUtilities.bold());
+            approveCell.setOnClickListener(view -> {
+                TextCheckCell cell = (TextCheckCell) view;
+                boolean newIsChecked = !cell.isChecked();
+                cell.setBackgroundColorAnimated(newIsChecked, Theme.getColor(newIsChecked ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));
+                cell.setChecked(newIsChecked);
+                setUsesVisible(!newIsChecked);
+                firstLayout = true;
+            });
+            linearLayout.addView(approveCell, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56));
+        }
 
         TextInfoPrivacyCell hintCell = new TextInfoPrivacyCell(context);
-        hintCell.setBackground(Theme.getThemedDrawable(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
-        hintCell.setText(LocaleController.getString("ApproveNewMembersDescription", R.string.ApproveNewMembersDescription));
+        hintCell.setBackground(Theme.getThemedDrawableByKey(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
+        if (hasApproveCell) {
+            hintCell.setText(LocaleController.getString("ApproveNewMembersDescription", R.string.ApproveNewMembersDescription));
+        }
         linearLayout.addView(hintCell);
 
         timeHeaderCell = new HeaderCell(context);
@@ -323,7 +330,7 @@ public class LinkEditActivity extends BaseFragment {
         timeEditText.setGravity(Gravity.CENTER_VERTICAL);
         timeEditText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         timeEditText.setHint(LocaleController.getString("TimeLimitHint", R.string.TimeLimitHint));
-        timeEditText.setOnClickListener(view -> AlertsCreator.createDatePickerDialog(context, -1, (notify, scheduleDate) -> chooseDate(scheduleDate)));
+        timeEditText.setOnClickListener(view -> AlertsCreator.createDatePickerDialog(context, LocaleController.getString(R.string.ExpireAfter), LocaleController.getString(R.string.SetTimeLimit), -1, (notify, scheduleDate) -> chooseDate(scheduleDate)));
 
         timeChooseView.setCallback(index -> {
             if (index < dispalyedDates.size()) {
@@ -427,15 +434,7 @@ public class LinkEditActivity extends BaseFragment {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
             public void afterTextChanged(Editable s) {
-                SpannableStringBuilder builder = new SpannableStringBuilder(s);
-                Emoji.replaceEmoji(builder, nameEditText.getPaint().getFontMetricsInt(), (int) nameEditText.getPaint().getTextSize(), false);
-                int selection = nameEditText.getSelectionStart();
-                nameEditText.removeTextChangedListener(this);
-                nameEditText.setText(builder);
-                if (selection >= 0) {
-                    nameEditText.setSelection(selection);
-                }
-                nameEditText.addTextChangedListener(this);
+                Emoji.replaceEmoji(s, nameEditText.getPaint().getFontMetricsInt(), (int) nameEditText.getPaint().getTextSize(), false);
             }
         });
         nameEditText.setCursorVisible(false);
@@ -451,7 +450,7 @@ public class LinkEditActivity extends BaseFragment {
         linearLayout.addView(nameEditText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50));
 
         dividerName = new TextInfoPrivacyCell(context);
-        dividerName.setBackground(Theme.getThemedDrawable(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+        dividerName.setBackground(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
         dividerName.setText(LocaleController.getString("LinkNameHelp", R.string.LinkNameHelp));
         linearLayout.addView(dividerName);
 
@@ -459,7 +458,7 @@ public class LinkEditActivity extends BaseFragment {
             revokeLink = new TextSettingsCell(context);
             revokeLink.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
             revokeLink.setText(LocaleController.getString("RevokeLink", R.string.RevokeLink), false);
-            revokeLink.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteRedText5));
+            revokeLink.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
             revokeLink.setOnClickListener(view -> {
                 AlertDialog.Builder builder2 = new AlertDialog.Builder(getParentActivity());
                 builder2.setMessage(LocaleController.getString("RevokeAlert", R.string.RevokeAlert));
@@ -490,8 +489,8 @@ public class LinkEditActivity extends BaseFragment {
         buttonTextView.setOnClickListener(this::onCreateClicked);
         buttonTextView.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
 
-        dividerUses.setBackgroundDrawable(Theme.getThemedDrawable(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
-        divider.setBackgroundDrawable(Theme.getThemedDrawable(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
+        dividerUses.setBackgroundDrawable(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+        divider.setBackgroundDrawable(Theme.getThemedDrawableByKey(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
         buttonTextView.setBackgroundDrawable(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(6), Theme.getColor(Theme.key_featuredStickers_addButton), Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
 
         usesEditText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
@@ -517,7 +516,7 @@ public class LinkEditActivity extends BaseFragment {
 
         int timeIndex = timeChooseView.getSelectedIndex();
         if (timeIndex < dispalyedDates.size() && dispalyedDates.get(timeIndex) < 0) {
-            AndroidUtilities.shakeView(timeEditText, 2, 0);
+            AndroidUtilities.shakeView(timeEditText);
             Vibrator vibrator = (Vibrator) timeEditText.getContext().getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null) {
                 vibrator.vibrate(200);
@@ -530,7 +529,7 @@ public class LinkEditActivity extends BaseFragment {
                 progressDialog.dismiss();
             }
             loading = true;
-            progressDialog = new AlertDialog(getParentActivity(), 3);
+            progressDialog = new AlertDialog(getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER);
             progressDialog.showDelayed(500);
             TLRPC.TL_messages_exportChatInvite req = new TLRPC.TL_messages_exportChatInvite();
             req.peer = getMessagesController().getInputPeer(-chatId);
@@ -552,7 +551,7 @@ public class LinkEditActivity extends BaseFragment {
                 req.usage_limit = 0;
             }
 
-            req.request_needed = approveCell.isChecked();
+            req.request_needed = approveCell != null && approveCell.isChecked();
             if (req.request_needed) {
                 req.usage_limit = 0;
             }
@@ -620,9 +619,9 @@ public class LinkEditActivity extends BaseFragment {
                 }
             }
 
-            if (inviteToEdit.request_needed != approveCell.isChecked()) {
+            if (inviteToEdit.request_needed != (approveCell != null && approveCell.isChecked())) {
                 req.flags |= 8;
-                req.request_needed = approveCell.isChecked();
+                req.request_needed = (approveCell != null && approveCell.isChecked());
                 if (req.request_needed) {
                     req.flags |= 2;
                     req.usage_limit = 0;
@@ -639,7 +638,7 @@ public class LinkEditActivity extends BaseFragment {
 
             if (edited) {
                 loading = true;
-                progressDialog = new AlertDialog(getParentActivity(), 3);
+                progressDialog = new AlertDialog(getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER);
                 progressDialog.showDelayed(500);
                 getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
                     loading = false;
@@ -730,9 +729,9 @@ public class LinkEditActivity extends BaseFragment {
                     if (selectedDate < 86400L) {
                         options[i] = LocaleController.getString("MessageScheduleToday", R.string.MessageScheduleToday);
                     } else if (selectedDate < 364 * 86400L) {
-                        options[i] = LocaleController.getInstance().formatterScheduleDay.format(originDate * 1000L);
+                        options[i] = LocaleController.getInstance().getFormatterScheduleDay().format(originDate * 1000L);
                     } else {
-                        options[i] = LocaleController.getInstance().formatterYear.format(originDate * 1000L);
+                        options[i] = LocaleController.getInstance().getFormatterYear().format(originDate * 1000L);
                     }
                 }
             }
@@ -775,8 +774,10 @@ public class LinkEditActivity extends BaseFragment {
                 chooseUses(invite.usage_limit);
                 usesEditText.setText(Integer.toString(invite.usage_limit));
             }
-            approveCell.setBackgroundColor(Theme.getColor(invite.request_needed ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));
-            approveCell.setChecked(invite.request_needed);
+            if (approveCell != null) {
+                approveCell.setBackgroundColor(Theme.getColor(invite.request_needed ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));
+                approveCell.setChecked(invite.request_needed);
+            }
             setUsesVisible(!invite.request_needed);
             if (!TextUtils.isEmpty(invite.title)) {
                 SpannableStringBuilder builder = new SpannableStringBuilder(invite.title);
@@ -791,7 +792,7 @@ public class LinkEditActivity extends BaseFragment {
         usesChooseView.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         usesEditText.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         dividerUses.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-        divider.setBackground(Theme.getThemedDrawable(getParentActivity(), isVisible ? R.drawable.greydivider : R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+        divider.setBackground(Theme.getThemedDrawableByKey(getParentActivity(), isVisible ? R.drawable.greydivider : R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
     }
 
     public interface Callback {
@@ -817,8 +818,8 @@ public class LinkEditActivity extends BaseFragment {
         ThemeDescription.ThemeDescriptionDelegate descriptionDelegate = () -> {
             if (dividerUses != null) {
                 Context context = dividerUses.getContext();
-                dividerUses.setBackgroundDrawable(Theme.getThemedDrawable(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
-                divider.setBackgroundDrawable(Theme.getThemedDrawable(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
+                dividerUses.setBackgroundDrawable(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+                divider.setBackgroundDrawable(Theme.getThemedDrawableByKey(context, R.drawable.greydivider, Theme.key_windowBackgroundGrayShadow));
                 buttonTextView.setBackgroundDrawable(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(6), Theme.getColor(Theme.key_featuredStickers_addButton), Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
 
                 usesEditText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
@@ -828,11 +829,11 @@ public class LinkEditActivity extends BaseFragment {
                 timeEditText.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
                 buttonTextView.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
                 if (revokeLink != null) {
-                    revokeLink.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteRedText5));
+                    revokeLink.setTextColor(Theme.getColor(Theme.key_text_RedRegular));
                 }
 
                 createTextView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultTitle));
-                dividerName.setBackground(Theme.getThemedDrawable(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+                dividerName.setBackground(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                 nameEditText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
                 nameEditText.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
             }
@@ -865,7 +866,7 @@ public class LinkEditActivity extends BaseFragment {
         themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, descriptionDelegate, Theme.key_windowBackgroundWhiteBlackText));
         themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, descriptionDelegate, Theme.key_windowBackgroundWhiteGrayText));
         themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, descriptionDelegate, Theme.key_featuredStickers_buttonText));
-        themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, descriptionDelegate, Theme.key_windowBackgroundWhiteRedText5));
+        themeDescriptions.add(new ThemeDescription(null, 0, null, null, null, descriptionDelegate, Theme.key_text_RedRegular));
 
         return themeDescriptions;
     }

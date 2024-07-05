@@ -10,15 +10,20 @@ package org.telegram.messenger;
 
 import android.os.SystemClock;
 import android.util.SparseArray;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class NotificationCenter {
 
+    private final static long EXPIRE_NOTIFICATIONS_TIME = 5017;
     private static int totalEvents = 1;
 
     public static final int didReceiveNewMessages = totalEvents++;
@@ -39,6 +44,7 @@ public class NotificationCenter {
     public static final int loadingMessagesFailed = totalEvents++;
     public static final int messageReceivedByAck = totalEvents++;
     public static final int messageReceivedByServer = totalEvents++;
+    public static final int messageReceivedByServer2 = totalEvents++;
     public static final int messageSendError = totalEvents++;
     public static final int forceImportContactsStart = totalEvents++;
     public static final int contactsDidLoad = totalEvents++;
@@ -67,6 +73,7 @@ public class NotificationCenter {
     public static final int updateMessageMedia = totalEvents++;
     public static final int replaceMessagesObjects = totalEvents++;
     public static final int didSetPasscode = totalEvents++;
+    public static final int passcodeDismissed = totalEvents++;
     public static final int twoStepPasswordChanged = totalEvents++;
     public static final int didSetOrRemoveTwoStepPassword = totalEvents++;
     public static final int didRemoveTwoStepPassword = totalEvents++;
@@ -78,6 +85,7 @@ public class NotificationCenter {
     public static final int stickersDidLoad = totalEvents++;
     public static final int diceStickersDidLoad = totalEvents++;
     public static final int featuredStickersDidLoad = totalEvents++;
+    public static final int featuredEmojiDidLoad = totalEvents++;
     public static final int groupStickersDidLoad = totalEvents++;
     public static final int messagesReadContent = totalEvents++;
     public static final int botInfoDidLoad = totalEvents++;
@@ -85,6 +93,7 @@ public class NotificationCenter {
     public static final int pinnedInfoDidLoad = totalEvents++;
     public static final int botKeyboardDidLoad = totalEvents++;
     public static final int chatSearchResultsAvailable = totalEvents++;
+    public static final int hashtagSearchUpdated = totalEvents++;
     public static final int chatSearchResultsLoading = totalEvents++;
     public static final int musicDidLoad = totalEvents++;
     public static final int moreMusicDidLoad = totalEvents++;
@@ -103,6 +112,7 @@ public class NotificationCenter {
     public static final int paymentFinished = totalEvents++;
     public static final int channelRightsUpdated = totalEvents++;
     public static final int openArticle = totalEvents++;
+    public static final int articleClosed = totalEvents++;
     public static final int updateMentionsCount = totalEvents++;
     public static final int didUpdatePollResults = totalEvents++;
     public static final int chatOnlineCountDidLoad = totalEvents++;
@@ -114,6 +124,7 @@ public class NotificationCenter {
     public static final int startSpoilers = totalEvents++;
     public static final int sendingMessagesChanged = totalEvents++;
     public static final int didUpdateReactions = totalEvents++;
+    public static final int didUpdateExtendedMedia = totalEvents++;
     public static final int didVerifyMessagesStickers = totalEvents++;
     public static final int scheduledMessagesUpdated = totalEvents++;
     public static final int newSuggestionsAvailable = totalEvents++;
@@ -124,6 +135,23 @@ public class NotificationCenter {
     public static final int stickersImportComplete = totalEvents++;
     public static final int dialogDeleted = totalEvents++;
     public static final int webViewResultSent = totalEvents++;
+    public static final int voiceTranscriptionUpdate = totalEvents++;
+    public static final int animatedEmojiDocumentLoaded = totalEvents++;
+    public static final int recentEmojiStatusesUpdate = totalEvents++;
+    public static final int updateSearchSettings = totalEvents++;
+    public static final int updateTranscriptionLock = totalEvents++;
+    public static final int businessMessagesUpdated = totalEvents++;
+    public static final int quickRepliesUpdated = totalEvents++;
+    public static final int quickRepliesDeleted = totalEvents++;
+
+    public static final int businessLinksUpdated = totalEvents++;
+    public static final int businessLinkCreated = totalEvents++;
+    public static final int needDeleteBusinessLink = totalEvents++;
+
+    public static final int messageTranslated = totalEvents++;
+    public static final int messageTranslating = totalEvents++;
+    public static final int dialogIsTranslatable = totalEvents++;
+    public static final int dialogTranslate = totalEvents++;
 
     public static final int didGenerateFingerprintKeyPair = totalEvents++;
 
@@ -157,6 +185,8 @@ public class NotificationCenter {
     public static final int recordStarted = totalEvents++;
     public static final int recordStartError = totalEvents++;
     public static final int recordStopped = totalEvents++;
+    public static final int recordPaused = totalEvents++;
+    public static final int recordResumed = totalEvents++;
     public static final int screenshotTook = totalEvents++;
     public static final int albumsDidLoad = totalEvents++;
     public static final int audioDidSent = totalEvents++;
@@ -191,9 +221,44 @@ public class NotificationCenter {
 
     public static final int updateBotMenuButton = totalEvents++;
 
+    public static final int giftsToUserSent = totalEvents++;
+    public static final int didStartedMultiGiftsSelector = totalEvents++;
+    public static final int boostedChannelByUser = totalEvents++;
+    public static final int boostByChannelCreated = totalEvents++;
+    public static final int didUpdatePremiumGiftStickers = totalEvents++;
+    public static final int didUpdatePremiumGiftFieldIcon = totalEvents++;
+    public static final int storiesEnabledUpdate = totalEvents++;
+    public static final int storiesBlocklistUpdate = totalEvents++;
+    public static final int storiesLimitUpdate = totalEvents++;
+    public static final int storiesSendAsUpdate = totalEvents++;
+    public static final int unconfirmedAuthUpdate = totalEvents++;
+    public static final int dialogPhotosUpdate = totalEvents++;
+    public static final int channelRecommendationsLoaded = totalEvents++;
+    public static final int savedMessagesDialogsUpdate = totalEvents++;
+    public static final int savedReactionTagsUpdate = totalEvents++;
+    public static final int userIsPremiumBlockedUpadted = totalEvents++;
+    public static final int savedMessagesForwarded = totalEvents++;
+    public static final int emojiKeywordsLoaded = totalEvents++;
+    public static final int smsJobStatusUpdate = totalEvents++;
+    public static final int storyQualityUpdate = totalEvents++;
+    public static final int openBoostForUsersDialog = totalEvents++;
+    public static final int groupRestrictionsUnlockedByBoosts = totalEvents++;
+    public static final int chatWasBoostedByUser = totalEvents++;
+    public static final int groupPackUpdated = totalEvents++;
+    public static final int timezonesUpdated = totalEvents++;
+    public static final int customStickerCreated = totalEvents++;
+    public static final int premiumFloodWaitReceived = totalEvents++;
+    public static final int availableEffectsUpdate = totalEvents++;
+    public static final int starOptionsLoaded = totalEvents++;
+    public static final int starBalanceUpdated = totalEvents++;
+    public static final int starTransactionsLoaded = totalEvents++;
+    public static final int factCheckLoaded = totalEvents++;
+    public static final int botStarsUpdated = totalEvents++;
+    public static final int botStarsTransactionsLoaded = totalEvents++;
+    public static final int channelStarsUpdated = totalEvents++;
+
     //global
     public static final int pushMessagesUpdated = totalEvents++;
-    public static final int stopEncodingService = totalEvents++;
     public static final int wallpapersDidLoad = totalEvents++;
     public static final int wallpapersNeedReload = totalEvents++;
     public static final int didReceiveSmsCode = totalEvents++;
@@ -218,6 +283,7 @@ public class NotificationCenter {
     public static final int didSetNewWallpapper = totalEvents++;
     public static final int proxySettingsChanged = totalEvents++;
     public static final int proxyCheckDone = totalEvents++;
+    public static final int proxyChangedByRotation = totalEvents++;
     public static final int liveLocationsChanged = totalEvents++;
     public static final int newLocationAvailable = totalEvents++;
     public static final int liveLocationsCacheChanged = totalEvents++;
@@ -244,6 +310,34 @@ public class NotificationCenter {
     public static final int onActivityResultReceived = totalEvents++;
     public static final int onRequestPermissionResultReceived = totalEvents++;
     public static final int onUserRingtonesUpdated = totalEvents++;
+    public static final int currentUserPremiumStatusChanged = totalEvents++;
+    public static final int premiumPromoUpdated = totalEvents++;
+    public static final int premiumStatusChangedGlobal = totalEvents++;
+    public static final int currentUserShowLimitReachedDialog = totalEvents++;
+    public static final int billingProductDetailsUpdated = totalEvents++;
+    public static final int billingConfirmPurchaseError = totalEvents++;
+    public static final int premiumStickersPreviewLoaded = totalEvents++;
+    public static final int userEmojiStatusUpdated = totalEvents++;
+    public static final int requestPermissions = totalEvents++;
+    public static final int permissionsGranted = totalEvents++;
+    public static final int topicsDidLoaded = totalEvents++;
+    public static final int chatSwithcedToForum = totalEvents++;
+    public static final int didUpdateGlobalAutoDeleteTimer = totalEvents++;
+    public static final int onDatabaseReset = totalEvents++;
+    public static final int wallpaperSettedToUser = totalEvents++;
+    public static final int storiesUpdated = totalEvents++;
+    public static final int storiesListUpdated = totalEvents++;
+    public static final int storiesDraftsUpdated = totalEvents++;
+    public static final int chatlistFolderUpdate = totalEvents++;
+    public static final int uploadStoryProgress = totalEvents++;
+    public static final int uploadStoryEnd = totalEvents++;
+    public static final int customTypefacesLoaded = totalEvents++;
+    public static final int stealthModeChanged = totalEvents++;
+    public static final int onReceivedChannelDifference = totalEvents++;
+    public static final int storiesReadUpdated = totalEvents++;
+    public static final int nearEarEvent = totalEvents++;
+
+    public static boolean alreadyLogged;
 
     private SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();
     private SparseArray<ArrayList<NotificationCenterDelegate>> removeAfterBroadcast = new SparseArray<>();
@@ -263,7 +357,7 @@ public class NotificationCenter {
 
     HashSet<Integer> heavyOperationsCounter = new HashSet<>();
 
-    private final HashMap<Integer, AllowedNotifications> allowedNotifications = new HashMap<>();
+    private final SparseArray<AllowedNotifications> allowedNotifications = new SparseArray<>();
 
     public interface NotificationCenterDelegate {
         void didReceivedNotification(int id, int account, Object... args);
@@ -337,7 +431,7 @@ public class NotificationCenter {
         notifications.allowedIds = allowedNotifications;
         this.allowedNotifications.put(animationInProgressPointer, notifications);
         if (checkForExpiredNotifications == null) {
-            AndroidUtilities.runOnUIThread(checkForExpiredNotifications = this::checkForExpiredNotifications, 1017);
+            AndroidUtilities.runOnUIThread(checkForExpiredNotifications = this::checkForExpiredNotifications, EXPIRE_NOTIFICATIONS_TIME);
         }
 
         return animationInProgressPointer;
@@ -345,19 +439,19 @@ public class NotificationCenter {
 
     private void checkForExpiredNotifications() {
         checkForExpiredNotifications = null;
-        if (this.allowedNotifications.isEmpty()) {
+        if (this.allowedNotifications.size() == 0) {
             return;
         }
         long minTime = Long.MAX_VALUE;
         long currentTime = SystemClock.elapsedRealtime();
         ArrayList<Integer> expiredIndices = null;
-        for (HashMap.Entry<Integer, AllowedNotifications> entry : this.allowedNotifications.entrySet()) {
-            AllowedNotifications allowedNotification = entry.getValue();
+        for (int i = 0; i < allowedNotifications.size(); i++) {
+            AllowedNotifications allowedNotification = allowedNotifications.valueAt(i);
             if (currentTime - allowedNotification.time > 1000) {
                 if (expiredIndices == null) {
                     expiredIndices = new ArrayList<>();
                 }
-                expiredIndices.add(entry.getKey());
+                expiredIndices.add(allowedNotifications.keyAt(i));
             } else {
                 minTime = Math.min(allowedNotification.time, minTime);
             }
@@ -368,7 +462,7 @@ public class NotificationCenter {
             }
         }
         if (minTime != Long.MAX_VALUE) {
-            long time = 1017 - (currentTime - minTime);
+            long time = EXPIRE_NOTIFICATIONS_TIME - (currentTime - minTime);
             AndroidUtilities.runOnUIThread(() -> checkForExpiredNotifications = this::checkForExpiredNotifications, Math.max(17, time));
         }
     }
@@ -381,7 +475,8 @@ public class NotificationCenter {
     }
 
     public void onAnimationFinish(int index) {
-        AllowedNotifications allowed = allowedNotifications.remove(index);
+        AllowedNotifications allowed = allowedNotifications.get(index);
+        allowedNotifications.delete(index);
         if (allowed != null) {
             animationInProgressCount--;
             if (!heavyOperationsCounter.isEmpty()) {
@@ -394,7 +489,7 @@ public class NotificationCenter {
                 runDelayedNotifications();
             }
         }
-        if (checkForExpiredNotifications != null && allowedNotifications.isEmpty()) {
+        if (checkForExpiredNotifications != null && allowedNotifications.size() == 0) {
             AndroidUtilities.cancelRunOnUIThread(checkForExpiredNotifications);
             checkForExpiredNotifications = null;
         }
@@ -435,20 +530,24 @@ public class NotificationCenter {
         return observers.get(id);
     }
 
+    public void postNotificationNameOnUIThread(final int id, final Object... args) {
+        AndroidUtilities.runOnUIThread(() -> postNotificationName(id, args));
+    }
+
     public void postNotificationName(int id, Object... args) {
-        boolean allowDuringAnimation = id == startAllHeavyOperations || id == stopAllHeavyOperations || id == didReplacedPhotoInMemCache || id == closeChats || id == invalidateMotionBackground;
+        boolean allowDuringAnimation = id == startAllHeavyOperations || id == stopAllHeavyOperations || id == didReplacedPhotoInMemCache || id == closeChats || id == invalidateMotionBackground || id == needCheckSystemBarColors;
         ArrayList<Integer> expiredIndices = null;
-        if (!allowDuringAnimation && !allowedNotifications.isEmpty()) {
+        if (!allowDuringAnimation && allowedNotifications.size() > 0) {
             int size = allowedNotifications.size();
             int allowedCount = 0;
             long currentTime = SystemClock.elapsedRealtime();
-            for (HashMap.Entry<Integer, AllowedNotifications> entry : allowedNotifications.entrySet()) {
-                AllowedNotifications allowedNotification = entry.getValue();
-                if (currentTime - allowedNotification.time > 1000) {
+            for (int i = 0; i < allowedNotifications.size(); i++) {
+                AllowedNotifications allowedNotification = allowedNotifications.valueAt(i);
+                if (currentTime - allowedNotification.time > EXPIRE_NOTIFICATIONS_TIME) {
                     if (expiredIndices == null) {
                         expiredIndices = new ArrayList<>();
                     }
-                    expiredIndices.add(entry.getKey());
+                    expiredIndices.add(allowedNotifications.keyAt(i));
                 }
                 int[] allowed = allowedNotification.allowedIds;
                 if (allowed != null) {
@@ -471,13 +570,37 @@ public class NotificationCenter {
             Integer flags = (Integer) args[0];
             currentHeavyOperationFlags |= flags;
         }
-        postNotificationNameInternal(id, allowDuringAnimation, args);
+        if (shouldDebounce(id, args) && BuildVars.DEBUG_VERSION) {
+            postNotificationDebounced(id, args);
+        } else {
+            postNotificationNameInternal(id, allowDuringAnimation, args);
+        }
 
         if (expiredIndices != null) {
             for (int i = 0; i < expiredIndices.size(); i++) {
                 onAnimationFinish(expiredIndices.get(i));
             }
         }
+    }
+
+    SparseArray<Runnable> alreadyPostedRannubles = new SparseArray<>();
+
+    private void postNotificationDebounced(int id, Object[] args) {
+        int hash = id + (Arrays.hashCode(args) << 16);
+        if (alreadyPostedRannubles.indexOfKey(hash) >= 0) {
+            //skip
+        } else {
+            Runnable runnable = () -> {
+                postNotificationNameInternal(id, false, args);
+                alreadyPostedRannubles.remove(hash);
+            };
+            alreadyPostedRannubles.put(hash, runnable);
+            AndroidUtilities.runOnUIThread(runnable, 250);
+        }
+    }
+
+    private boolean shouldDebounce(int id, Object[] args) {
+        return id == updateInterfaces;
     }
 
     @UiThread
@@ -490,9 +613,6 @@ public class NotificationCenter {
         if (!allowDuringAnimation && isAnimationInProgress()) {
             DelayedPost delayedPost = new DelayedPost(id, args);
             delayedPosts.add(delayedPost);
-            if (BuildVars.LOGS_ENABLED) {
-                FileLog.e("delay post notification " + id + " with args count = " + args.length);
-            }
             return;
         }
         if (!postponeCallbackList.isEmpty()) {
@@ -553,12 +673,27 @@ public class NotificationCenter {
         }
         ArrayList<NotificationCenterDelegate> objects = observers.get(id);
         if (objects == null) {
-            observers.put(id, (objects = new ArrayList<>()));
+            observers.put(id, (objects = createArrayForId(id)));
         }
         if (objects.contains(observer)) {
             return;
         }
         objects.add(observer);
+        if (BuildVars.DEBUG_VERSION && !alreadyLogged) {
+            if (objects.size() > 1000) {
+                alreadyLogged = true;
+                FileLog.e(new RuntimeException("Total observers more than 1000, need check for memory leak. " + id), true);
+            }
+        }
+    }
+
+    private ArrayList<NotificationCenterDelegate> createArrayForId(int id) {
+        // this notifications often add/remove
+        // UniqArrayList for fast contains method check
+        if (id == didReplacedPhotoInMemCache || id == stopAllHeavyOperations || id == startAllHeavyOperations) {
+            return new UniqArrayList<>();
+        }
+        return new ArrayList<>();
     }
 
     public void removeObserver(NotificationCenterDelegate observer, int id) {
@@ -631,6 +766,146 @@ public class NotificationCenter {
 
         private AllowedNotifications() {
             time = SystemClock.elapsedRealtime();
+        }
+    }
+
+    public Runnable listenGlobal(View view, final int id, final Utilities.Callback<Object[]> callback) {
+        if (view == null || callback == null) {
+            return () -> {};
+        }
+        final NotificationCenterDelegate delegate = (_id, account, args) -> {
+            if (_id == id) {
+                callback.run(args);
+            }
+        };
+        final View.OnAttachStateChangeListener viewListener = new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View view) {
+                NotificationCenter.getGlobalInstance().addObserver(delegate, id);
+            }
+            @Override
+            public void onViewDetachedFromWindow(View view) {
+                NotificationCenter.getGlobalInstance().removeObserver(delegate, id);
+            }
+        };
+        view.addOnAttachStateChangeListener(viewListener);
+
+        return () -> {
+            view.removeOnAttachStateChangeListener(viewListener);
+            NotificationCenter.getGlobalInstance().removeObserver(delegate, id);
+        };
+    }
+
+    public Runnable listen(View view, final int id, final Utilities.Callback<Object[]> callback) {
+        if (view == null || callback == null) {
+            return () -> {};
+        }
+        final NotificationCenterDelegate delegate = (_id, account, args) -> {
+            if (_id == id) {
+                callback.run(args);
+            }
+        };
+        final View.OnAttachStateChangeListener viewListener = new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View view) {
+                addObserver(delegate, id);
+            }
+            @Override
+            public void onViewDetachedFromWindow(View view) {
+                removeObserver(delegate, id);
+            }
+        };
+        view.addOnAttachStateChangeListener(viewListener);
+
+        return () -> {
+            view.removeOnAttachStateChangeListener(viewListener);
+            removeObserver(delegate, id);
+        };
+    }
+
+    public static void listenEmojiLoading(View view) {
+        getGlobalInstance().listenGlobal(view, NotificationCenter.emojiLoaded, args -> view.invalidate());
+    }
+
+    public void listenOnce(int id, Runnable callback) {
+        final NotificationCenterDelegate[] observer = new NotificationCenterDelegate[1];
+        observer[0] = (nid, account, args) -> {
+            if (nid == id && observer[0] != null) {
+                if (callback != null) {
+                    callback.run();
+                }
+                removeObserver(observer[0], id);
+                observer[0] = null;
+            }
+        };
+        addObserver(observer[0], id);
+    }
+
+    private class UniqArrayList<T> extends ArrayList<T> {
+        HashSet<T> set = new HashSet<>();
+
+        @Override
+        public boolean add(T t) {
+            if (set.add(t)) {
+                return super.add(t);
+            }
+            return false;
+        }
+
+        @Override
+        public void add(int index, T element) {
+            if (set.add(element)) {
+                super.add(index, element);
+            }
+        }
+
+        @Override
+        public boolean addAll(@NonNull Collection<? extends T> c) {
+            boolean modified = false;
+            for (T t : c) {
+                if (add(t)) {
+                    modified = true;
+                }
+            }
+            return modified;
+        }
+
+        @Override
+        public boolean addAll(int index, @NonNull Collection<? extends T> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public T remove(int index) {
+            T t = super.remove(index);
+            if (t != null) {
+                set.remove(t);
+            }
+            return t;
+        }
+
+        @Override
+        public boolean remove(@Nullable Object o) {
+            if (set.remove(o)) {
+                return super.remove(o);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(@NonNull Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean contains(@Nullable Object o) {
+            return set.contains(o);
+        }
+
+        @Override
+        public void clear() {
+            set.clear();
+            super.clear();
         }
     }
 }

@@ -11,6 +11,8 @@ package androidx.recyclerview.widget1;
 import android.content.Context;
 import android.graphics.PointF;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.RecyclerView;
+
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -40,8 +42,17 @@ public class LinearSmoothScrollerCustom extends RecyclerView.SmoothScroller {
     public static final int POSITION_END = 1;
     public static final int POSITION_TOP = 2;
 
+    private float durationMultiplier = 1f;
+    private int offset;
+
     public LinearSmoothScrollerCustom(Context context, int position) {
         MILLISECONDS_PER_PX = MILLISECONDS_PER_INCH / context.getResources().getDisplayMetrics().densityDpi;
+        scrollPosition = position;
+    }
+
+    public LinearSmoothScrollerCustom(Context context, int position, float durationMultiplier) {
+        this.durationMultiplier = durationMultiplier;
+        MILLISECONDS_PER_PX = MILLISECONDS_PER_INCH / context.getResources().getDisplayMetrics().densityDpi * durationMultiplier;
         scrollPosition = position;
     }
 
@@ -50,12 +61,18 @@ public class LinearSmoothScrollerCustom extends RecyclerView.SmoothScroller {
 
     }
 
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
     @Override
     protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
         final int dy = calculateDyToMakeVisible(targetView);
         final int time = calculateTimeForDeceleration(dy);
         if (time > 0) {
-            action.update(0, -dy, Math.max(400, time), mDecelerateInterpolator);
+            action.update(0, -dy, Math.max((int) (400 * durationMultiplier), time), mDecelerateInterpolator);
+        } else {
+            onEnd();
         }
     }
 
@@ -127,13 +144,13 @@ public class LinearSmoothScrollerCustom extends RecyclerView.SmoothScroller {
         int boxSize = end - start;
         int viewSize = bottom - top;
         if (scrollPosition == POSITION_TOP) {
-            start = layoutManager.getPaddingTop();
+            start = layoutManager.getPaddingTop() + offset;
         } else if (viewSize > boxSize) {
             start = 0;
         } else if (scrollPosition == POSITION_MIDDLE) {
             start = (boxSize - viewSize) / 2;
         } else {
-            start = (layoutManager.getPaddingTop() - AndroidUtilities.dp(88));
+            start = (layoutManager.getPaddingTop() + offset - AndroidUtilities.dp(88));
         }
         end = start + viewSize;
         final int dtStart = start - top;
@@ -154,5 +171,9 @@ public class LinearSmoothScrollerCustom extends RecyclerView.SmoothScroller {
             return ((ScrollVectorProvider) layoutManager).computeScrollVectorForPosition(targetPosition);
         }
         return null;
+    }
+
+    public void onEnd() {
+
     }
 }

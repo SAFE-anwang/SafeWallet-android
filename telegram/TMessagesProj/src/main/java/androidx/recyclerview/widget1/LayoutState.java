@@ -18,6 +18,8 @@ package androidx.recyclerview.widget1;
 
 import android.view.View;
 
+import androidx.recyclerview.widget1.RecyclerView;
+
 /**
  * Helper class that keeps temporary state while {LayoutManager} is filling out the empty
  * space.

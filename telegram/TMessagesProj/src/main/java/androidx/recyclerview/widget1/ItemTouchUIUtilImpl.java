@@ -21,6 +21,7 @@ import android.os.Build;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget1.RecyclerView;
 
 /**
  * Package private class to keep implementations. Putting them inside ItemTouchUIUtil makes them
@@ -31,7 +32,7 @@ class ItemTouchUIUtilImpl implements ItemTouchUIUtil {
 
     @Override
     public void onDraw(Canvas c, RecyclerView recyclerView, View view, float dX, float dY,
-            int actionState, boolean isCurrentlyActive) {
+                       int actionState, boolean isCurrentlyActive) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (isCurrentlyActive) {
                 Object originalElevation = view.getTag();

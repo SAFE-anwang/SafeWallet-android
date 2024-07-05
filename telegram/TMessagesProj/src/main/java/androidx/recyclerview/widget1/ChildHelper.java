@@ -20,6 +20,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget1.RecyclerView;
+
+import org.telegram.messenger.BuildVars;
+
 import java.util.ArrayList;
 import java.util.List;
 

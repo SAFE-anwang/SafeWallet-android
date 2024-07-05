@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.SparseIntArray;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -22,8 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.NotificationCenter;
+import org.telegram.messenger.AnimationNotificationsLocker;
 import org.telegram.messenger.UserConfig;
+import org.telegram.ui.ActionBar.ActionBarMenuSlider;
 import org.telegram.ui.ActionBar.ActionBarPopupWindow;
 import org.telegram.ui.ActionBar.Theme;
 
@@ -53,8 +55,11 @@ public class PopupSwipeBackLayout extends FrameLayout {
     private ValueAnimator foregroundAnimator;
 
     private int currentForegroundIndex = -1;
-    private int notificationIndex;
+    private AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();
     Theme.ResourcesProvider resourcesProvider;
+
+    private int lastHeightReported = -1;
+    private IntCallback onHeightUpdateListener;
 
     private Rect hitRect = new Rect();
 
@@ -146,11 +151,22 @@ public class PopupSwipeBackLayout extends FrameLayout {
     }
 
     public void invalidateTransforms() {
+        invalidateTransforms(true);
+    }
 
-        if (!onSwipeBackProgressListeners.isEmpty()) {
-            for (int i = 0; i < onSwipeBackProgressListeners.size(); i++) {
-                onSwipeBackProgressListeners.get(i).onSwipeBackProgress(this, toProgress, transitionProgress);
+
+    float lastToProgress;
+    float lastTransitionProgress;
+
+    public void invalidateTransforms(boolean applyBackScaleY) {
+        if (lastToProgress != toProgress || lastTransitionProgress != transitionProgress) {
+            if (!onSwipeBackProgressListeners.isEmpty()) {
+                for (int i = 0; i < onSwipeBackProgressListeners.size(); i++) {
+                    onSwipeBackProgressListeners.get(i).onSwipeBackProgress(this, toProgress, transitionProgress);
+                }
             }
+            lastToProgress = toProgress;
+            lastTransitionProgress = transitionProgress;
         }
 
         View backgroundView = getChildAt(0);
@@ -185,7 +201,9 @@ public class PopupSwipeBackLayout extends FrameLayout {
         h += p.getPaddingTop() + p.getPaddingBottom();
         p.updateAnimation = false;
         p.setBackScaleX(w / p.getMeasuredWidth());
-        p.setBackScaleY(h / p.getMeasuredHeight());
+        if (applyBackScaleY) {
+            p.setBackScaleY(Math.min(1, h / p.getMeasuredHeight()));
+        }
         p.updateAnimation = true;
 
         for (int i = 0; i < getChildCount(); i++) {
@@ -197,12 +215,20 @@ public class PopupSwipeBackLayout extends FrameLayout {
         invalidate();
     }
 
+    public boolean isForegroundOpen() {
+        return transitionProgress > 0;
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (processTouchEvent(ev))
+        if (processTouchEvent(ev)) {
             return true;
-
+        }
         int act = ev.getActionMasked();
+        if (mRect != null && !mRect.contains(ev.getX(), ev.getY()) && act == MotionEvent.ACTION_DOWN) {
+//            return false;
+        }
+
         if (act == MotionEvent.ACTION_DOWN && !mRect.contains(ev.getX(), ev.getY())) {
             callOnClick();
             return true;
@@ -248,7 +274,9 @@ public class PopupSwipeBackLayout extends FrameLayout {
                     if (isProcessingSwipe) {
                         clearFlags();
                         animateToState(transitionProgress >= 0.5f ? 1 : 0, 0);
-                    } else if (isSwipeDisallowed) clearFlags();
+                    } else if (isSwipeDisallowed) {
+                        clearFlags();
+                    }
                     return false;
             }
         }
@@ -265,7 +293,7 @@ public class PopupSwipeBackLayout extends FrameLayout {
         ValueAnimator val = ValueAnimator.ofFloat(transitionProgress, f).setDuration((long) (DURATION * Math.max(0.5f, Math.abs(transitionProgress - f) - Math.min(0.2f, flingVal))));
         val.setInterpolator(CubicBezierInterpolator.DEFAULT);
         int selectedAccount = UserConfig.selectedAccount;
-        notificationIndex = NotificationCenter.getInstance(selectedAccount).setAnimationInProgress(notificationIndex, null);
+        notificationsLocker.lock();
         val.addUpdateListener(animation -> {
             transitionProgress = (float) animation.getAnimatedValue();
             invalidateTransforms();
@@ -279,13 +307,25 @@ public class PopupSwipeBackLayout extends FrameLayout {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                NotificationCenter.getInstance(selectedAccount).onAnimationFinish(notificationIndex);
+                notificationsLocker.unlock();
                 transitionProgress = f;
+                if (f <= 0) {
+                    currentForegroundIndex = -1;
+                }
                 invalidateTransforms();
                 isAnimationInProgress = false;
+
+                if (onForegroundOpen != null && Math.abs(f - 1f) < .01f) {
+                    onForegroundOpen.run();
+                }
             }
         });
         val.start();
+    }
+
+    private Runnable onForegroundOpen;
+    public void setOnForegroundOpenFinished(Runnable listener) {
+        onForegroundOpen = listener;
     }
 
     /**
@@ -313,7 +353,9 @@ public class PopupSwipeBackLayout extends FrameLayout {
     }
 
     public void closeForeground(boolean animated) {
-        if (isAnimationInProgress) return;
+        if (isAnimationInProgress) {
+            return;
+        }
         if (!animated) {
             currentForegroundIndex = -1;
             transitionProgress = 0;
@@ -324,11 +366,29 @@ public class PopupSwipeBackLayout extends FrameLayout {
         }
     }
 
+    public boolean stickToRight;
+    public void setStickToRight(boolean right) {
+        stickToRight = right;
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         for (int i = 0; i < getChildCount(); i++) {
             View ch = getChildAt(i);
-            ch.layout(0, 0, ch.getMeasuredWidth(), ch.getMeasuredHeight());
+            boolean shownFromBottom = ch.getLayoutParams() instanceof FrameLayout.LayoutParams && ((LayoutParams) ch.getLayoutParams()).gravity == Gravity.BOTTOM;
+            if (shownFromBottom) {
+                if (stickToRight) {
+                    ch.layout((right - left) - ch.getMeasuredWidth(), bottom - top - ch.getMeasuredHeight(), right - left, bottom - top);
+                } else {
+                    ch.layout(0, bottom - top - ch.getMeasuredHeight(), ch.getMeasuredWidth(), bottom - top);
+                }
+            } else {
+                if (stickToRight) {
+                    ch.layout((right - left) - ch.getMeasuredWidth(), 0, right - left, ch.getMeasuredHeight());
+                } else {
+                    ch.layout(0, 0, ch.getMeasuredWidth(), ch.getMeasuredHeight());
+                }
+            }
         }
     }
 
@@ -344,31 +404,52 @@ public class PopupSwipeBackLayout extends FrameLayout {
             return;
         }
         View backgroundView = getChildAt(0);
-        float fW = backgroundView.getMeasuredWidth(), fH = backgroundView.getMeasuredHeight();
-        float w, h;
+        float fY = backgroundView.getTop(), fW = backgroundView.getMeasuredWidth(), fH = backgroundView.getMeasuredHeight();
+        float y, w, h;
         if (currentForegroundIndex == -1 || currentForegroundIndex >= getChildCount()) {
+            y = fY;
             w = fW;
             h = fH;
         } else {
             View foregroundView = getChildAt(currentForegroundIndex);
-            float tW = foregroundView.getMeasuredWidth(), tH = overrideForegroundHeight != 0 ? overrideForegroundHeight : foregroundView.getMeasuredHeight();
+            float tY = foregroundView.getTop();
+            float tW = foregroundView.getMeasuredWidth();
+            float tH = overrideForegroundHeight != 0 ? overrideForegroundHeight : foregroundView.getMeasuredHeight();
             if (backgroundView.getMeasuredWidth() == 0 || backgroundView.getMeasuredHeight() == 0 || foregroundView.getMeasuredWidth() == 0 || foregroundView.getMeasuredHeight() == 0) {
+                y = fY;
                 w = fW;
                 h = fH;
             } else {
-                w = fW + (tW - fW) * transitionProgress;
-                h = fH + (tH - fH) * transitionProgress;
+                y = AndroidUtilities.lerp(fY, tY, transitionProgress);
+                w = AndroidUtilities.lerp(fW, tW, transitionProgress);
+                h = AndroidUtilities.lerp(fH, tH, transitionProgress);
             }
         }
 
         int s = canvas.save();
         mPath.rewind();
         int rad = AndroidUtilities.dp(6);
-        mRect.set(0, 0, w, h);
+        if (stickToRight) {
+            mRect.set(getWidth() - w, y, getWidth(), y + h);
+        } else {
+            mRect.set(0, y, w, y + h);
+        }
         mPath.addRoundRect(mRect, rad, rad, Path.Direction.CW);
         canvas.clipPath(mPath);
         super.dispatchDraw(canvas);
         canvas.restoreToCount(s);
+
+        if (onHeightUpdateListener != null && lastHeightReported != mRect.height()) {
+            onHeightUpdateListener.run(lastHeightReported = (int) mRect.height());
+        }
+    }
+
+    public interface IntCallback {
+        public void run(int height);
+    }
+
+    public void setOnHeightUpdateListener(IntCallback onHeightUpdateListener) {
+        this.onHeightUpdateListener = onHeightUpdateListener;
     }
 
     /**
@@ -378,7 +459,7 @@ public class PopupSwipeBackLayout extends FrameLayout {
      */
     private boolean isDisallowedView(MotionEvent e, View v) {
         v.getHitRect(hitRect);
-        if (hitRect.contains((int) e.getX(), (int) e.getY()) && v.canScrollHorizontally(-1))
+        if (hitRect.contains((int) e.getX(), (int) e.getY()) && (v.canScrollHorizontally(-1) || v instanceof ActionBarMenuSlider))
             return true;
         if (v instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) v;
@@ -413,7 +494,7 @@ public class PopupSwipeBackLayout extends FrameLayout {
         }
     }
 
-    public void setNewForegroundHeight(int index, int height) {
+    public void setNewForegroundHeight(int index, int height, boolean animated) {
         overrideHeightIndex.put(index, height);
         if (index != currentForegroundIndex) {
             return;
@@ -423,30 +504,33 @@ public class PopupSwipeBackLayout extends FrameLayout {
         }
         if (foregroundAnimator != null) {
             foregroundAnimator.cancel();
+            foregroundAnimator = null;
         }
-        View fg = getChildAt(currentForegroundIndex);
-        float fromH = overrideForegroundHeight != 0 ? overrideForegroundHeight : fg.getMeasuredHeight();
-        float toH = height;
+        if (animated) {
+            View fg = getChildAt(currentForegroundIndex);
+            float fromH = overrideForegroundHeight != 0 ? overrideForegroundHeight : fg.getMeasuredHeight();
+            float toH = height;
 
-        ValueAnimator animator = ValueAnimator.ofFloat(fromH, toH).setDuration(240);
-        animator.setInterpolator(Easings.easeInOutQuad);
-        animator.addUpdateListener(animation -> {
-            overrideForegroundHeight = (float) animation.getAnimatedValue();
+            ValueAnimator animator = ValueAnimator.ofFloat(fromH, toH).setDuration(240);
+            animator.setInterpolator(Easings.easeInOutQuad);
+            animator.addUpdateListener(animation -> {
+                overrideForegroundHeight = (float) animation.getAnimatedValue();
+                invalidateTransforms();
+            });
+            isAnimationInProgress = true;
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    isAnimationInProgress = false;
+                    foregroundAnimator = null;
+                }
+            });
+            animator.start();
+            foregroundAnimator = animator;
+        } else {
+            overrideForegroundHeight = height;
             invalidateTransforms();
-        });
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isAnimationInProgress = false;
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                isAnimationInProgress = true;
-            }
-        });
-        animator.start();
-        foregroundAnimator = animator;
+        }
     }
 
     public void setForegroundColor(int color) {

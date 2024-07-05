@@ -23,12 +23,15 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ChatObject;
+import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.ImageLocation;
+import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.R;
@@ -38,6 +41,7 @@ import org.telegram.messenger.voip.VoIPService;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.Components.AnimatedEmojiDrawable;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.BlobDrawable;
@@ -61,6 +65,10 @@ public class GroupCallUserCell extends FrameLayout {
     private RLottieImageView muteButton;
     private RLottieDrawable muteDrawable;
     private RLottieDrawable shakeHandDrawable;
+
+    public AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable rightDrawable;
+    private Drawable verifiedDrawable;
+    private Drawable premiumDrawable;
 
     private RadialProgressView avatarProgressView;
 
@@ -117,7 +125,7 @@ public class GroupCallUserCell extends FrameLayout {
         muteButton.playAnimation();
     };
 
-    private String grayIconColor = Theme.key_voipgroup_mutedIcon;
+    private int grayIconColor = Theme.key_voipgroup_mutedIcon;
 
     private Runnable checkRaiseRunnable = () -> applyParticipantChanges(true, true);
 
@@ -282,11 +290,12 @@ public class GroupCallUserCell extends FrameLayout {
 
         nameTextView = new SimpleTextView(context);
         nameTextView.setTextColor(Theme.getColor(Theme.key_voipgroup_nameText));
-        nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        nameTextView.setTypeface(AndroidUtilities.bold());
         nameTextView.setTextSize(16);
         nameTextView.setDrawablePadding(AndroidUtilities.dp(6));
         nameTextView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP);
         addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 20, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, LocaleController.isRTL ? 54 : 67, 10, LocaleController.isRTL ? 67 : 54, 0));
+        rightDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(nameTextView, AndroidUtilities.dp(20), AnimatedEmojiDrawable.CACHE_TYPE_ALERT_EMOJI_STATUS);
 
         speakingDrawable = context.getResources().getDrawable(R.drawable.voice_volume_mini);
         speakingDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_voipgroup_speakingText), PorterDuff.Mode.MULTIPLY));
@@ -424,6 +433,9 @@ public class GroupCallUserCell extends FrameLayout {
         if (animatorSet != null) {
             animatorSet.cancel();
         }
+        if (rightDrawable != null) {
+            rightDrawable.detach();
+        }
     }
 
     public boolean isSelfUser() {
@@ -457,10 +469,32 @@ public class GroupCallUserCell extends FrameLayout {
         if (id > 0) {
             currentUser = accountInstance.getMessagesController().getUser(id);
             currentChat = null;
-            avatarDrawable.setInfo(currentUser);
+            avatarDrawable.setInfo(accountInstance.getCurrentAccount(), currentUser);
 
             nameTextView.setText(UserObject.getUserName(currentUser));
-            nameTextView.setRightDrawable(currentUser != null && currentUser.verified ? new VerifiedDrawable(getContext()) : null);
+            if (currentUser != null && currentUser.verified) {
+                rightDrawable.set(verifiedDrawable = (verifiedDrawable == null ? new VerifiedDrawable(getContext()) : verifiedDrawable), animated);
+            } else if (currentUser != null && DialogObject.getEmojiStatusDocumentId(currentUser.emoji_status) != 0) {
+                rightDrawable.set(DialogObject.getEmojiStatusDocumentId(currentUser.emoji_status), animated);
+            } else if (currentUser != null && currentUser.premium) {
+                if (premiumDrawable == null) {
+                    premiumDrawable = getContext().getResources().getDrawable(R.drawable.msg_premium_liststar).mutate();
+                    premiumDrawable = new AnimatedEmojiDrawable.WrapSizeDrawable(premiumDrawable, AndroidUtilities.dp(14), AndroidUtilities.dp(14)) {
+                        @Override
+                        public void draw(@NonNull Canvas canvas) {
+                            canvas.save();
+                            canvas.translate(AndroidUtilities.dp(-2), AndroidUtilities.dp(0));
+                            super.draw(canvas);
+                            canvas.restore();
+                        }
+                    };
+                }
+                rightDrawable.set(premiumDrawable, animated);
+            } else {
+                rightDrawable.set((Drawable) null, animated);
+            }
+            rightDrawable.setColor(Theme.getColor(Theme.key_premiumGradient1));
+            nameTextView.setRightDrawable(rightDrawable);
             avatarImageView.getImageReceiver().setCurrentAccount(account.getCurrentAccount());
             if (uploadingAvatar != null) {
                 hasAvatar = true;
@@ -473,11 +507,17 @@ public class GroupCallUserCell extends FrameLayout {
         } else {
             currentChat = accountInstance.getMessagesController().getChat(-id);
             currentUser = null;
-            avatarDrawable.setInfo(currentChat);
+            avatarDrawable.setInfo(accountInstance.getCurrentAccount(), currentChat);
 
             if (currentChat != null) {
                 nameTextView.setText(currentChat.title);
-                nameTextView.setRightDrawable(currentChat.verified ? new VerifiedDrawable(getContext()) : null);
+                if (currentChat.verified) {
+                    rightDrawable.set(verifiedDrawable = (verifiedDrawable == null ? new VerifiedDrawable(getContext()) : verifiedDrawable), animated);
+                } else if (currentChat != null && DialogObject.getEmojiStatusDocumentId(currentChat.emoji_status) != 0) {
+                    rightDrawable.set(DialogObject.getEmojiStatusDocumentId(currentChat.emoji_status), animated);
+                } else {
+                    rightDrawable.set((Drawable) null, animated);
+                }
                 avatarImageView.getImageReceiver().setCurrentAccount(account.getCurrentAccount());
                 if (uploadingAvatar != null) {
                     hasAvatar = true;
@@ -501,6 +541,9 @@ public class GroupCallUserCell extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         applyParticipantChanges(false);
+        if (rightDrawable != null) {
+            rightDrawable.attach();
+        }
     }
 
     public TLRPC.TL_groupCallParticipant getParticipant() {
@@ -542,8 +585,8 @@ public class GroupCallUserCell extends FrameLayout {
         applyParticipantChanges(animated, false);
     }
 
-    public void setGrayIconColor(String key, int value) {
-        if (!grayIconColor.equals(key)) {
+    public void setGrayIconColor(int key, int value) {
+        if (grayIconColor != key) {
             if (currentIconGray) {
                 lastMuteColor = Theme.getColor(key);
             }
@@ -948,6 +991,9 @@ public class GroupCallUserCell extends FrameLayout {
         }
 
         public void draw(Canvas canvas, float cx, float cy, View parentView) {
+            if (!LiteMode.isEnabled(LiteMode.FLAG_CALLS_ANIMATIONS)) {
+                return;
+            }
             float scaleBlob = 0.8f + 0.4f * amplitude;
             if (showWaves || wavesEnter != 0) {
                 canvas.save();

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import androidx.annotation.RawRes;
+import androidx.fragment.app.FragmentActivity;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -22,14 +23,17 @@ import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.AlertsCreator;
 
-public class BasePermissionsActivity extends Activity {
+public class BasePermissionsActivity extends FragmentActivity {
     public final static int REQUEST_CODE_GEOLOCATION = 2,
             REQUEST_CODE_EXTERNAL_STORAGE = 4,
             REQUEST_CODE_ATTACH_CONTACT = 5,
             REQUEST_CODE_CALLS = 7,
             REQUEST_CODE_OPEN_CAMERA = 20,
             REQUEST_CODE_VIDEO_MESSAGE = 150,
-            REQUEST_CODE_EXTERNAL_STORAGE_FOR_AVATAR = 151;
+            REQUEST_CODE_EXTERNAL_STORAGE_FOR_AVATAR = 151,
+            REQUEST_CODE_SIGN_IN_WITH_GOOGLE = 200,
+            REQUEST_CODE_PAYMENT_FORM = 210,
+            REQUEST_CODE_MEDIA_GEO = 211;
 
     protected int currentAccount = -1;
 
@@ -93,6 +97,8 @@ public class BasePermissionsActivity extends Activity {
             }
         } else if (requestCode == REQUEST_CODE_GEOLOCATION) {
             NotificationCenter.getGlobalInstance().postNotificationName(granted ? NotificationCenter.locationPermissionGranted : NotificationCenter.locationPermissionDenied);
+        } else if (requestCode == REQUEST_CODE_MEDIA_GEO) {
+            NotificationCenter.getGlobalInstance().postNotificationName(granted ? NotificationCenter.locationPermissionGranted : NotificationCenter.locationPermissionDenied, 1);
         }
         return true;
     }

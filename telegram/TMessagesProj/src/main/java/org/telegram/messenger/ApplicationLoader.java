@@ -19,6 +19,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -28,23 +31,31 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.multidex.MultiDex;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.firebase.messaging.FirebaseMessaging;
 
+import org.json.JSONObject;
+import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.ActionBar.BaseFragment;
+import org.telegram.ui.Adapters.DrawerLayoutAdapter;
 import org.telegram.ui.Components.ForegroundDetector;
+import org.telegram.ui.Components.Premium.boosts.BoostRepository;
+import org.telegram.ui.IUpdateLayout;
+import org.telegram.ui.LauncherIconController;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ApplicationLoader {
 
-    public static volatile ApplicationLoader instance = new ApplicationLoader();
+    public static volatile ApplicationLoader applicationLoaderInstance = new ApplicationLoader();
 
     @SuppressLint("StaticFieldLeak")
     public static volatile Context applicationContext;
@@ -67,7 +78,68 @@ public class ApplicationLoader {
     public static boolean canDrawOverlays;
     public static volatile long mainInterfacePausedStageQueueTime;
 
-    public static boolean hasPlayServices;
+    private static PushListenerController.IPushListenerServiceProvider pushProvider;
+    private static IMapsProvider mapsProvider;
+    private static ILocationServiceProvider locationServiceProvider;
+
+
+    public static ILocationServiceProvider getLocationServiceProvider() {
+        if (locationServiceProvider == null) {
+            locationServiceProvider = applicationLoaderInstance.onCreateLocationServiceProvider();
+            locationServiceProvider.init(applicationContext);
+        }
+        return locationServiceProvider;
+    }
+
+    protected ILocationServiceProvider onCreateLocationServiceProvider() {
+        return new GoogleLocationProvider();
+    }
+
+    public static IMapsProvider getMapsProvider() {
+        if (mapsProvider == null) {
+            mapsProvider = applicationLoaderInstance.onCreateMapsProvider();
+        }
+        return mapsProvider;
+    }
+
+    protected IMapsProvider onCreateMapsProvider() {
+        return new GoogleMapsProvider();
+    }
+
+    public static PushListenerController.IPushListenerServiceProvider getPushProvider() {
+        if (pushProvider == null) {
+            pushProvider = applicationLoaderInstance.onCreatePushProvider();
+        }
+        return pushProvider;
+    }
+
+    protected PushListenerController.IPushListenerServiceProvider onCreatePushProvider() {
+        return PushListenerController.GooglePushListenerServiceProvider.INSTANCE;
+    }
+
+    public static String getApplicationId() {
+        return applicationLoaderInstance.onGetApplicationId();
+    }
+
+    protected String onGetApplicationId() {
+        return null;
+    }
+
+    public static boolean isHuaweiStoreBuild() {
+        return applicationLoaderInstance.isHuaweiBuild();
+    }
+
+    public static boolean isStandaloneBuild() {
+        return applicationLoaderInstance.isStandalone();
+    }
+
+    protected boolean isHuaweiBuild() {
+        return false;
+    }
+
+    protected boolean isStandalone() {
+        return false;
+    }
 
     public static File getFilesDirFixed() {
         for (int a = 0; a < 10; a++) {
@@ -92,6 +164,7 @@ public class ApplicationLoader {
             return;
         }
         applicationInited = true;
+        NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
 
         try {
             LocaleController.getInstance(); //TODO improve
@@ -159,8 +232,8 @@ public class ApplicationLoader {
             }
         }
 
-        ApplicationLoader app = (ApplicationLoader) ApplicationLoader.instance;
-        app.initPlayServices();
+        ApplicationLoader app = (ApplicationLoader) ApplicationLoader.applicationLoaderInstance;
+        app.initPushServices();
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("app initied");
         }
@@ -170,7 +243,7 @@ public class ApplicationLoader {
             ContactsController.getInstance(a).checkAppAccount();
             DownloadController.getInstance(a);
         }
-        ChatThemeController.init();
+        BillingController.getInstance().startConnection();
     }
 
     public ApplicationLoader() {
@@ -186,13 +259,22 @@ public class ApplicationLoader {
 
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));
+            try {
+                FileLog.d("buildVersion = " + ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0).versionCode);
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
         }
         if (applicationContext == null) {
             applicationContext = context.getApplicationContext();
         }
 
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
-        ConnectionsManager.native_setJava(false);
+        try {
+            ConnectionsManager.native_setJava(false);
+        } catch (UnsatisfiedLinkError error) {
+            throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
+        }
         new ForegroundDetector((Application) applicationContext) {
             @Override
             public void onActivityStarted(Activity activity) {
@@ -210,6 +292,9 @@ public class ApplicationLoader {
         applicationHandler = new Handler(applicationContext.getMainLooper());
 
         AndroidUtilities.runOnUIThread(ApplicationLoader::startPushService);
+
+        LauncherIconController.tryFixLauncherIconIfNeeded();
+        ProxyRotationController.init();
     }
 
     public static void setLanguage(String language) {
@@ -260,48 +345,16 @@ public class ApplicationLoader {
         }
     }*/
 
-    private void initPlayServices() {
+    private void initPushServices() {
         AndroidUtilities.runOnUIThread(() -> {
-            if (hasPlayServices = checkPlayServices()) {
-                final String currentPushString = SharedConfig.pushString;
-                if (!TextUtils.isEmpty(currentPushString)) {
-                    if (BuildVars.DEBUG_PRIVATE_VERSION && BuildVars.LOGS_ENABLED) {
-                        FileLog.d("GCM regId = " + currentPushString);
-                    }
-                } else {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("GCM Registration not found.");
-                    }
-                }
-                Utilities.globalQueue.postRunnable(() -> {
-                    try {
-                        SharedConfig.pushStringGetTimeStart = SystemClock.elapsedRealtime();
-                        FirebaseMessaging.getInstance().getToken()
-                                .addOnCompleteListener(task -> {
-                                    SharedConfig.pushStringGetTimeEnd = SystemClock.elapsedRealtime();
-                                    if (!task.isSuccessful()) {
-                                        if (BuildVars.LOGS_ENABLED) {
-                                            FileLog.d("Failed to get regid");
-                                        }
-                                        SharedConfig.pushStringStatus = "__FIREBASE_FAILED__";
-                                        GcmPushListenerService.sendRegistrationToServer(null);
-                                        return;
-                                    }
-                                    String token = task.getResult();
-                                    if (!TextUtils.isEmpty(token)) {
-                                        GcmPushListenerService.sendRegistrationToServer(token);
-                                    }
-                                });
-                    } catch (Throwable e) {
-                        FileLog.e(e);
-                    }
-                });
+            if (getPushProvider().hasServices()) {
+                getPushProvider().onRequestPushToken();
             } else {
                 if (BuildVars.LOGS_ENABLED) {
-                    FileLog.d("No valid Google Play Services APK found.");
+                    FileLog.d("No valid " + getPushProvider().getLogTitle() + " APK found.");
                 }
                 SharedConfig.pushStringStatus = "__NO_GOOGLE_PLAY_SERVICES__";
-                GcmPushListenerService.sendRegistrationToServer(null);
+                PushListenerController.sendRegistrationToServer(getPushProvider().getPushType(), null);
             }
         }, 1000);
     }
@@ -314,6 +367,13 @@ public class ApplicationLoader {
             FileLog.e(e);
         }
         return true;
+    }
+
+    private static long lastNetworkCheck = -1;
+    private static void ensureCurrentNetworkGet() {
+        final long now = System.currentTimeMillis();
+        ensureCurrentNetworkGet(now - lastNetworkCheck > 5000);
+        lastNetworkCheck = now;
     }
 
     private static void ensureCurrentNetworkGet(boolean force) {
@@ -499,4 +559,93 @@ public class ApplicationLoader {
         }
         return result;
     }
+
+    public static void startAppCenter(Activity context) {
+        applicationLoaderInstance.startAppCenterInternal(context);
+    }
+
+    public static void checkForUpdates() {
+        applicationLoaderInstance.checkForUpdatesInternal();
+    }
+
+    public static void appCenterLog(Throwable e) {
+        applicationLoaderInstance.appCenterLogInternal(e);
+    }
+
+    protected void appCenterLogInternal(Throwable e) {
+
+    }
+
+    protected void checkForUpdatesInternal() {
+
+    }
+
+    protected void startAppCenterInternal(Activity context) {
+
+    }
+
+    public static void logDualCamera(boolean success, boolean vendor) {
+        applicationLoaderInstance.logDualCameraInternal(success, vendor);
+    }
+
+    protected void logDualCameraInternal(boolean success, boolean vendor) {
+
+    }
+
+    public boolean checkApkInstallPermissions(final Context context) {
+        return false;
+    }
+
+    public boolean openApkInstall(Activity activity, TLRPC.Document document) {
+        return false;
+    }
+
+    public boolean showUpdateAppPopup(Context context, TLRPC.TL_help_appUpdate update, int account) {
+        return false;
+    }
+
+    public IUpdateLayout takeUpdateLayout(Activity activity, ViewGroup sideMenu, ViewGroup sideMenuContainer) {
+        return null;
+    }
+
+    public TLRPC.Update parseTLUpdate(int constructor) {
+        return null;
+    }
+
+    public void processUpdate(int currentAccount, TLRPC.Update update) {
+
+    }
+
+    public boolean onSuggestionFill(String suggestion, CharSequence[] output, boolean[] closeable) {
+        return false;
+    }
+
+    public boolean onSuggestionClick(String suggestion) {
+        return false;
+    }
+
+    public boolean extendDrawer(ArrayList<DrawerLayoutAdapter.Item> items) {
+        return false;
+    }
+
+    public boolean checkRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
+        return false;
+    }
+
+    public boolean consumePush(int account, JSONObject json) {
+        return false;
+    }
+
+    public void onResume() {
+
+    }
+
+    public boolean onPause() {
+        return false;
+    }
+
+    public BaseFragment openSettings(int n) {
+        return null;
+    }
+
 }

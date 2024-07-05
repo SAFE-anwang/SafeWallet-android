@@ -13,9 +13,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Insets;
 import android.graphics.Paint;
@@ -30,6 +32,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -38,6 +41,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -50,6 +54,7 @@ import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.AnimationNotificationsLocker;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.NotificationCenter;
@@ -68,11 +73,17 @@ public class BottomSheet extends Dialog {
 
     protected int currentAccount = UserConfig.selectedAccount;
     protected ViewGroup containerView;
-    protected ContainerView container;
+    public ContainerView container;
     protected boolean keyboardVisible;
+    private int lastKeyboardHeight;
+    protected int keyboardHeight;
     private WindowInsets lastInsets;
     public boolean drawNavigationBar;
+    public boolean drawDoubleNavigationBar;
     public boolean scrollNavBar;
+    public boolean occupyNavigationBar;
+    protected boolean waitingKeyboard;
+    public FrameLayout topBulletinContainer;
 
     protected boolean useSmoothKeyboard;
 
@@ -93,12 +104,15 @@ public class BottomSheet extends Dialog {
     private View customView;
     private CharSequence title;
     private boolean bigTitle;
+    private boolean multipleLinesTitle;
     private int bottomInset;
     private int leftInset;
     private int rightInset;
     protected boolean fullWidth;
     protected boolean isFullscreen;
     private boolean fullHeight;
+    private int cellType;
+    private Integer selectedPos;
     protected ColorDrawable backDrawable = new ColorDrawable(0xff000000) {
         @Override
         public void setAlpha(int alpha) {
@@ -110,13 +124,15 @@ public class BottomSheet extends Dialog {
     protected boolean useLightStatusBar = true;
     protected boolean useLightNavBar;
 
-    protected String behindKeyboardColorKey = Theme.key_dialogBackground;
+    protected int behindKeyboardColorKey = Theme.key_dialogBackground;
     protected int behindKeyboardColor;
 
     private boolean canDismissWithSwipe = true;
+    private boolean canDismissWithTouchOutside = true;
 
     private boolean allowCustomAnimation = true;
     private boolean showWithoutAnimation;
+    boolean showing;
 
     private int statusBarHeight = AndroidUtilities.statusBarHeight;
 
@@ -150,28 +166,48 @@ public class BottomSheet extends Dialog {
 
     protected AnimatorSet currentSheetAnimation;
     protected int currentSheetAnimationType;
+    protected ValueAnimator navigationBarAnimation;
+    protected float navigationBarAlpha = 0;
 
     protected View nestedScrollChild;
     private boolean disableScroll;
     private float currentPanTranslationY;
 
-    protected String navBarColorKey = Theme.key_windowBackgroundGray;
+    protected int navBarColorKey = Theme.key_windowBackgroundGray;
     protected int navBarColor;
 
     private OnDismissListener onHideListener;
     protected Theme.ResourcesProvider resourcesProvider;
+    protected boolean isPortrait;
+    public boolean pauseAllHeavyOperations = true;
+    private AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();
+    protected int playingImagesLayerNum;
+    protected int openedLayerNum;
+    private boolean skipDismissAnimation;
 
     public void setDisableScroll(boolean b) {
         disableScroll = b;
     }
 
     private ValueAnimator keyboardContentAnimator;
-    protected boolean smoothKeyboardAnimationEnabled;
+    public boolean smoothKeyboardAnimationEnabled;
+    public boolean smoothKeyboardByBottom;
     private boolean openNoDelay;
 
     private float hideSystemVerticalInsetsProgress;
+    public boolean useBackgroundTopPadding = true;
+    protected int customViewGravity = Gravity.LEFT | Gravity.TOP;
+    private boolean transitionFromRight;
 
-    protected class ContainerView extends FrameLayout implements NestedScrollingParent {
+    public void transitionFromRight(boolean transitionFromRight) {
+        this.transitionFromRight = transitionFromRight;
+    }
+
+    public void onOpenAnimationEnd() {
+
+    }
+
+    public class ContainerView extends FrameLayout implements NestedScrollingParent {
 
         private VelocityTracker velocityTracker = null;
         private int startedTrackingX;
@@ -182,7 +218,6 @@ public class BottomSheet extends Dialog {
         private AnimatorSet currentAnimation = null;
         private NestedScrollingParentHelper nestedScrollingParentHelper;
         private Rect rect = new Rect();
-        private int keyboardHeight;
         private Paint backgroundPaint = new Paint();
         private boolean keyboardChanged;
 
@@ -278,9 +313,18 @@ public class BottomSheet extends Dialog {
                 allowCustomAnimation = allowOld;
             } else {
                 currentAnimation = new AnimatorSet();
-                currentAnimation.playTogether(ObjectAnimator.ofFloat(containerView, "translationY", 0));
-                currentAnimation.setDuration((int) (150 * (Math.max(0, translationY) / AndroidUtilities.getPixelsInCM(0.8f, false))));
-                currentAnimation.setInterpolator(CubicBezierInterpolator.EASE_OUT);
+                ValueAnimator invalidateContainer = ValueAnimator.ofFloat(0, 1);
+                invalidateContainer.addUpdateListener(a -> {
+                    if (container != null) {
+                        container.invalidate();
+                    }
+                });
+                currentAnimation.playTogether(
+                    ObjectAnimator.ofFloat(containerView, "translationY", 0),
+                    invalidateContainer
+                );
+                currentAnimation.setDuration((int) (250 * (Math.max(0, translationY) / AndroidUtilities.getPixelsInCM(0.8f, false))));
+                currentAnimation.setInterpolator(CubicBezierInterpolator.DEFAULT);
                 currentAnimation.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -303,6 +347,8 @@ public class BottomSheet extends Dialog {
         }
 
         private float y = 0f;
+        private float swipeBackX = 0f;
+        private boolean allowedSwipeToBack;
         public boolean processTouchEvent(MotionEvent ev, boolean intercept) {
             if (dismissed) {
                 return false;
@@ -310,61 +356,134 @@ public class BottomSheet extends Dialog {
             if (onContainerTouchEvent(ev)) {
                 return true;
             }
-
-            if (canDismissWithTouchOutside() && ev != null && (ev.getAction() == MotionEvent.ACTION_DOWN || ev.getAction() == MotionEvent.ACTION_MOVE) && (!startedTracking && !maybeStartTracking && ev.getPointerCount() == 1)) {
-                startedTrackingX = (int) ev.getX();
-                startedTrackingY = (int) ev.getY();
-                if (startedTrackingY < containerView.getTop() || startedTrackingX < containerView.getLeft() || startedTrackingX > containerView.getRight()) {
-                    dismiss();
-                    return true;
-                }
-                onScrollUpBegin(y);
-                startedTrackingPointerId = ev.getPointerId(0);
-                maybeStartTracking = true;
-                cancelCurrentAnimation();
-                if (velocityTracker != null) {
-                    velocityTracker.clear();
-                }
-            } else if (ev != null && ev.getAction() == MotionEvent.ACTION_MOVE && ev.getPointerId(0) == startedTrackingPointerId) {
-                if (velocityTracker == null) {
-                    velocityTracker = VelocityTracker.obtain();
-                }
-                float dx = Math.abs((int) (ev.getX() - startedTrackingX));
-                float dy = (int) ev.getY() - startedTrackingY;
-                boolean canScrollUp = onScrollUp(y + dy);
-                velocityTracker.addMovement(ev);
-                if (!disableScroll && maybeStartTracking && !startedTracking && (dy > 0 && dy / 3.0f > Math.abs(dx) && Math.abs(dy) >= touchSlop)) {
+            if (canSwipeToBack(ev) || allowedSwipeToBack) {
+                if (ev != null && (ev.getAction() == MotionEvent.ACTION_DOWN || ev.getAction() == MotionEvent.ACTION_MOVE) && (!startedTracking && !maybeStartTracking && ev.getPointerCount() == 1)) {
+                    allowedSwipeToBack = true;
+                    startedTrackingX = (int) ev.getX();
                     startedTrackingY = (int) ev.getY();
+                    startedTrackingPointerId = ev.getPointerId(0);
+                    maybeStartTracking = true;
+                    cancelCurrentAnimation();
+                } else if (ev != null && ev.getAction() == MotionEvent.ACTION_MOVE && ev.getPointerId(0) == startedTrackingPointerId) {
+                    float dx = ev.getX() - startedTrackingX;
+                    float dy = ev.getY() - startedTrackingY;
+                    if (velocityTracker == null) {
+                        velocityTracker = VelocityTracker.obtain();
+                    }
+                    velocityTracker.addMovement(ev);
+                    if (!disableScroll && maybeStartTracking && !startedTracking && (dx > 0 && dx / 3.0f > Math.abs(dy) && Math.abs(dx) >= touchSlop)) {
+                        startedTrackingX = (int) ev.getX();
+                        maybeStartTracking = false;
+                        startedTracking = true;
+                    } else if (startedTracking) {
+                        swipeBackX += dx;
+                        containerView.setTranslationX(Math.max(swipeBackX, 0));
+                        startedTrackingX = (int) ev.getX();
+                        container.invalidate();
+                    }
+                } else if (ev == null || ev.getPointerId(0) == startedTrackingPointerId && (ev.getAction() == MotionEvent.ACTION_CANCEL || ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_POINTER_UP)) {
+                    containerView.setTranslationX(0);
+                    if (velocityTracker == null) {
+                        velocityTracker = VelocityTracker.obtain();
+                    }
+                    float velX = velocityTracker.getXVelocity();
+                    float velY = velocityTracker.getYVelocity();
+                    final boolean backAnimation = swipeBackX < containerView.getMeasuredWidth() / 3.0f && (velX < 3500 || velX < velY);
+                    if (backAnimation) {
+                        swipeBackX = Math.max(swipeBackX, 0);
+                        ValueAnimator animator = ValueAnimator.ofFloat(swipeBackX, 0);
+                        animator.addUpdateListener(animation -> {
+                            swipeBackX = (float) animation.getAnimatedValue();
+                            setTranslationX(swipeBackX);
+                        });
+                        animator.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                swipeBackX = 0;
+                                setTranslationX(0);
+                            }
+                        });
+                        animator.setInterpolator(CubicBezierInterpolator.DEFAULT);
+                        animator.setDuration(220);
+                        animator.start();
+                    } else {
+                        ValueAnimator animator = ValueAnimator.ofFloat(swipeBackX, getMeasuredWidth());
+                        animator.addUpdateListener(animation -> {
+                            swipeBackX = (float) animation.getAnimatedValue();
+                            setTranslationX(swipeBackX);
+                        });
+                        animator.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                skipDismissAnimation = true;
+                                dismiss();
+                            }
+                        });
+                        animator.setInterpolator(CubicBezierInterpolator.DEFAULT);
+                        animator.setDuration(150);
+                        animator.start();
+                    }
                     maybeStartTracking = false;
-                    startedTracking = true;
-                    requestDisallowInterceptTouchEvent(true);
-                } else if (startedTracking) {
-                    y += dy;
-                    if (!canScrollUp)
-                        y = Math.max(y, 0);
-                    containerView.setTranslationY(Math.max(y, 0));
+                    startedTracking = false;
+                    startedTrackingPointerId = -1;
+                    allowedSwipeToBack = false;
+                }
+            } else {
+                if (canDismissWithTouchOutside() && ev != null && (ev.getAction() == MotionEvent.ACTION_DOWN || ev.getAction() == MotionEvent.ACTION_MOVE) && (!startedTracking && !maybeStartTracking && ev.getPointerCount() == 1)) {
+                    startedTrackingX = (int) ev.getX();
                     startedTrackingY = (int) ev.getY();
-                    container.invalidate();
+                    if (startedTrackingY < containerView.getTop() || startedTrackingX < containerView.getLeft() || startedTrackingX > containerView.getRight()) {
+                        onDismissWithTouchOutside();
+                        return true;
+                    }
+                    onScrollUpBegin(y);
+                    startedTrackingPointerId = ev.getPointerId(0);
+                    maybeStartTracking = true;
+                    cancelCurrentAnimation();
+                    if (velocityTracker != null) {
+                        velocityTracker.clear();
+                    }
+                } else if (canDismissWithSwipe() && ev != null && ev.getAction() == MotionEvent.ACTION_MOVE && ev.getPointerId(0) == startedTrackingPointerId) {
+                    if (velocityTracker == null) {
+                        velocityTracker = VelocityTracker.obtain();
+                    }
+                    float dx = Math.abs((int) (ev.getX() - startedTrackingX));
+                    float dy = (int) ev.getY() - startedTrackingY;
+                    boolean canScrollUp = onScrollUp(y + dy);
+                    velocityTracker.addMovement(ev);
+                    if (!disableScroll && maybeStartTracking && !startedTracking && (dy > 0 && dy / 3.0f > Math.abs(dx) && Math.abs(dy) >= touchSlop)) {
+                        startedTrackingY = (int) ev.getY();
+                        maybeStartTracking = false;
+                        startedTracking = true;
+                        requestDisallowInterceptTouchEvent(true);
+                    } else if (startedTracking) {
+                        y += dy;
+                        if (!canScrollUp)
+                            y = Math.max(y, 0);
+                        containerView.setTranslationY(Math.max(y, 0));
+                        startedTrackingY = (int) ev.getY();
+                        container.invalidate();
+                    }
+                } else if (ev == null || ev.getPointerId(0) == startedTrackingPointerId && (ev.getAction() == MotionEvent.ACTION_CANCEL || ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_POINTER_UP)) {
+                    if (velocityTracker == null) {
+                        velocityTracker = VelocityTracker.obtain();
+                    }
+                    velocityTracker.computeCurrentVelocity(1000);
+                    onScrollUpEnd(y);
+                    if (startedTracking || y > 0) {
+                        checkDismiss(velocityTracker.getXVelocity(), velocityTracker.getYVelocity());
+                    } else {
+                        maybeStartTracking = false;
+                    }
+                    startedTracking = false;
+                    if (velocityTracker != null) {
+                        velocityTracker.recycle();
+                        velocityTracker = null;
+                    }
+                    startedTrackingPointerId = -1;
                 }
-            } else if (ev == null || ev.getPointerId(0) == startedTrackingPointerId && (ev.getAction() == MotionEvent.ACTION_CANCEL || ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_POINTER_UP)) {
-                if (velocityTracker == null) {
-                    velocityTracker = VelocityTracker.obtain();
-                }
-                velocityTracker.computeCurrentVelocity(1000);
-                onScrollUpEnd(y);
-                if (startedTracking || y > 0) {
-                    checkDismiss(velocityTracker.getXVelocity(), velocityTracker.getYVelocity());
-                } else {
-                    maybeStartTracking = false;
-                }
-                startedTracking = false;
-                if (velocityTracker != null) {
-                    velocityTracker.recycle();
-                    velocityTracker = null;
-                }
-                startedTrackingPointerId = -1;
             }
-            return !intercept && maybeStartTracking || startedTracking || !canDismissWithSwipe();
+            return (!intercept && maybeStartTracking) || startedTracking || !(canDismissWithSwipe() || canSwipeToBack(ev));
         }
 
         @Override
@@ -385,6 +504,8 @@ public class BottomSheet extends Dialog {
                 keyboardHeight = Math.max(0, usableViewHeight - (rect.bottom - rect.top));
                 if (keyboardHeight < AndroidUtilities.dp(20)) {
                     keyboardHeight = 0;
+                } else {
+                    lastKeyboardHeight = keyboardHeight;
                 }
                 bottomInset -= keyboardHeight;
             } else {
@@ -404,12 +525,12 @@ public class BottomSheet extends Dialog {
                 if (keyboardVisible && rect.bottom != 0 && rect.top != 0) {
                     bottomInset -= keyboardHeight;
                 }
-                if (!drawNavigationBar) {
+                if (!drawNavigationBar && !occupyNavigationBar) {
                     containerHeight -= getBottomInset();
                 }
             }
             setMeasuredDimension(width, containerHeight);
-            if (lastInsets != null && Build.VERSION.SDK_INT >= 21) {
+            if (lastInsets != null && Build.VERSION.SDK_INT >= 21 && !occupyNavigationBar) {
                 int inset = (int) (lastInsets.getSystemWindowInsetBottom() * (1f - hideSystemVerticalInsetsProgress));
                 if (Build.VERSION.SDK_INT >= 29) {
                     inset += getAdditionalMandatoryOffsets();
@@ -419,7 +540,7 @@ public class BottomSheet extends Dialog {
             if (lastInsets != null && Build.VERSION.SDK_INT >= 21) {
                 width -= getRightInset() + getLeftInset();
             }
-            boolean isPortrait = width < height;
+            isPortrait = width < height;
 
             if (containerView != null) {
                 if (!fullWidth) {
@@ -427,7 +548,7 @@ public class BottomSheet extends Dialog {
                     if (AndroidUtilities.isTablet()) {
                         widthSpec = MeasureSpec.makeMeasureSpec((int) (Math.min(AndroidUtilities.displaySize.x, AndroidUtilities.displaySize.y) * 0.8f) + backgroundPaddingLeft * 2, MeasureSpec.EXACTLY);
                     } else {
-                        widthSpec = MeasureSpec.makeMeasureSpec(isPortrait ? width + backgroundPaddingLeft * 2 : (int) Math.max(width * 0.8f, Math.min(AndroidUtilities.dp(480), width)) + backgroundPaddingLeft * 2, MeasureSpec.EXACTLY);
+                        widthSpec = MeasureSpec.makeMeasureSpec((getBottomSheetWidth(isPortrait, width, height)) + backgroundPaddingLeft * 2, MeasureSpec.EXACTLY);
                     }
                     containerView.measure(widthSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
                 } else {
@@ -447,11 +568,6 @@ public class BottomSheet extends Dialog {
         }
 
         @Override
-        public void requestLayout() {
-            super.requestLayout();
-        }
-
-        @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             layoutCount--;
             if (containerView != null) {
@@ -461,7 +577,7 @@ public class BottomSheet extends Dialog {
                     right -= getRightInset();
                     if (useSmoothKeyboard) {
                         t = 0;
-                    } else {
+                    } else if (!occupyNavigationBar) {
                         t -= lastInsets.getSystemWindowInsetBottom() * (1f - hideSystemVerticalInsetsProgress) - (drawNavigationBar ? 0 : getBottomInset());
                         if (Build.VERSION.SDK_INT >= 29) {
                             t -= getAdditionalMandatoryOffsets();
@@ -472,25 +588,29 @@ public class BottomSheet extends Dialog {
                 if (lastInsets != null && Build.VERSION.SDK_INT >= 21) {
                     l += getLeftInset();
                 }
-                if (smoothKeyboardAnimationEnabled && startAnimationRunnable == null && keyboardChanged && !dismissed && containerView.getTop() != t) {
-                    containerView.setTranslationY(containerView.getTop() - t);
+                if (smoothKeyboardAnimationEnabled && startAnimationRunnable == null && keyboardChanged && !dismissed && (smoothKeyboardByBottom ? containerView.getBottom() != t + containerView.getMeasuredHeight() : containerView.getTop() != t) || smoothContainerViewLayoutUntil > 0 && System.currentTimeMillis() < smoothContainerViewLayoutUntil) {
+                    containerView.setTranslationY(smoothKeyboardByBottom ? containerView.getBottom() - (t + containerView.getMeasuredHeight()) : containerView.getTop() - t);
+                    onSmoothContainerViewLayout(containerView.getTranslationY());
                     if (keyboardContentAnimator != null) {
                         keyboardContentAnimator.cancel();
                     }
                     keyboardContentAnimator = ValueAnimator.ofFloat(containerView.getTranslationY(), 0);
                     keyboardContentAnimator.addUpdateListener(valueAnimator -> {
                         containerView.setTranslationY((Float) valueAnimator.getAnimatedValue());
+                        onSmoothContainerViewLayout(containerView.getTranslationY());
                         invalidate();
                     });
                     keyboardContentAnimator.addListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             containerView.setTranslationY(0);
+                            onSmoothContainerViewLayout(containerView.getTranslationY());
                             invalidate();
                         }
                     });
                     keyboardContentAnimator.setDuration(AdjustPanLayoutHelper.keyboardDuration).setInterpolator(AdjustPanLayoutHelper.keyboardInterpolator);
                     keyboardContentAnimator.start();
+                    smoothContainerViewLayoutUntil = -1;
                 }
                 containerView.layout(l, t, l + containerView.getMeasuredWidth(), t + containerView.getMeasuredHeight());
             }
@@ -546,17 +666,24 @@ public class BottomSheet extends Dialog {
                     child.layout(childLeft, childTop, childLeft + width, childTop + height);
                 }
             }
-            if (layoutCount == 0 && startAnimationRunnable != null) {
+            if (layoutCount == 0 && startAnimationRunnable != null && !waitingKeyboard) {
                 AndroidUtilities.cancelRunOnUIThread(startAnimationRunnable);
                 startAnimationRunnable.run();
                 startAnimationRunnable = null;
+            }
+            if (waitingKeyboard && keyboardVisible) {
+                if (startAnimationRunnable != null) {
+                    AndroidUtilities.cancelRunOnUIThread(startAnimationRunnable);
+                    startAnimationRunnable.run();
+                }
+                waitingKeyboard = false;
             }
             keyboardChanged = false;
         }
 
         @Override
         public boolean onInterceptTouchEvent(MotionEvent event) {
-            if (canDismissWithSwipe()) {
+            if (canDismissWithSwipe() || canSwipeToBack(event)) {
                 return processTouchEvent(event, true);
             }
             return super.onInterceptTouchEvent(event);
@@ -578,13 +705,16 @@ public class BottomSheet extends Dialog {
         @Override
         protected void dispatchDraw(Canvas canvas) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (navBarColorKey != null) {
+                if (navBarColorKey >= 0) {
                     backgroundPaint.setColor(getThemedColor(navBarColorKey));
                 } else {
                     backgroundPaint.setColor(navBarColor);
                 }
             } else {
                 backgroundPaint.setColor(0xff000000);
+            }
+            if (drawDoubleNavigationBar && !shouldOverlayCameraViewOverNavBar()) {
+                drawNavigationBar(canvas, 1f);
             }
             if (backgroundPaint.getAlpha() < 255 && drawNavigationBar) {
                 float translation = 0;
@@ -601,7 +731,7 @@ public class BottomSheet extends Dialog {
                 super.dispatchDraw(canvas);
             }
             if (!shouldOverlayCameraViewOverNavBar()) {
-                drawNavigationBar(canvas);
+                drawNavigationBar(canvas, (drawDoubleNavigationBar ? 0.7f * navigationBarAlpha : 1f));
             }
             if (drawNavigationBar && rightInset != 0 && rightInset > leftInset && fullWidth && AndroidUtilities.displaySize.x > AndroidUtilities.displaySize.y) {
                 canvas.drawRect(containerView.getRight() - backgroundPaddingLeft, containerView.getTranslationY(), containerView.getRight() + rightInset, getMeasuredHeight(), backgroundPaint);
@@ -612,7 +742,7 @@ public class BottomSheet extends Dialog {
             }
 
             if (containerView.getTranslationY() < 0) {
-                backgroundPaint.setColor(behindKeyboardColorKey != null ? getThemedColor(behindKeyboardColorKey) : behindKeyboardColor);
+                backgroundPaint.setColor(behindKeyboardColorKey >= 0 ? getThemedColor(behindKeyboardColorKey) : behindKeyboardColor);
                 canvas.drawRect(containerView.getLeft() + backgroundPaddingLeft, containerView.getY() + containerView.getMeasuredHeight(), containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight(), backgroundPaint);
             }
         }
@@ -621,7 +751,7 @@ public class BottomSheet extends Dialog {
         protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
             if (child instanceof CameraView) {
                 if (shouldOverlayCameraViewOverNavBar()) {
-                    drawNavigationBar(canvas);
+                    drawNavigationBar(canvas, 1f);
                 }
                 return super.drawChild(canvas, child, drawingTime);
             }
@@ -643,8 +773,8 @@ public class BottomSheet extends Dialog {
                 restore = true;
             }
             super.onDraw(canvas);
-            if (lastInsets != null && keyboardHeight != 0) {
-                backgroundPaint.setColor(behindKeyboardColorKey != null ? getThemedColor(behindKeyboardColorKey) : behindKeyboardColor);
+            if (drawNavigationBar && lastInsets != null && keyboardHeight != 0) {
+                backgroundPaint.setColor(behindKeyboardColorKey >= 0 ? getThemedColor(behindKeyboardColorKey) : behindKeyboardColor);
                 canvas.drawRect(containerView.getLeft() + backgroundPaddingLeft, getMeasuredHeight() - keyboardHeight - (drawNavigationBar ? getBottomInset() : 0), containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight() - (drawNavigationBar ? getBottomInset() : 0), backgroundPaint);
             }
             onContainerDraw(canvas);
@@ -653,9 +783,9 @@ public class BottomSheet extends Dialog {
             }
         }
 
-        public void drawNavigationBar(Canvas canvas) {
+        public void drawNavigationBar(Canvas canvas, float alpha) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (navBarColorKey != null) {
+                if (navBarColorKey >= 0) {
                     backgroundPaint.setColor(getThemedColor(navBarColorKey));
                 } else {
                     backgroundPaint.setColor(navBarColor);
@@ -663,21 +793,47 @@ public class BottomSheet extends Dialog {
             } else {
                 backgroundPaint.setColor(0xff000000);
             }
+            if (transitionFromRight && containerView.getVisibility() != View.VISIBLE) {
+                return;
+            }
             if ((drawNavigationBar && bottomInset != 0) || currentPanTranslationY != 0) {
                 float translation = 0;
-                if (scrollNavBar || Build.VERSION.SDK_INT >= 29 && getAdditionalMandatoryOffsets() > 0) {
-                    float dist = containerView.getMeasuredHeight() - containerView.getTranslationY();
-                    translation = Math.max(0, getBottomInset() - dist);
-                }
                 int navBarHeight = drawNavigationBar ? getBottomInset() : 0;
-                canvas.drawRect(containerView.getLeft() + backgroundPaddingLeft, getMeasuredHeight() - navBarHeight + translation - currentPanTranslationY, containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight() + translation, backgroundPaint);
+                if (scrollNavBar || Build.VERSION.SDK_INT >= 29 && getAdditionalMandatoryOffsets() > 0) {
+                    if (drawDoubleNavigationBar) {
+                        translation = Math.max(0, Math.min(navBarHeight - currentPanTranslationY, containerView.getTranslationY()));
+                    } else {
+                        float dist = containerView.getMeasuredHeight() - containerView.getTranslationY();
+                        translation = Math.max(0, getBottomInset() - dist);
+                    }
+                }
+                int wasAlpha = backgroundPaint.getAlpha();
+                if (transitionFromRight) {
+                    alpha *= containerView.getAlpha();
+                }
+                int left = transitionFromRight ? (int) containerView.getX() : containerView.getLeft();
+                if (alpha < 1f) {
+                    backgroundPaint.setAlpha((int) (wasAlpha * alpha));
+                }
+                canvas.drawRect(left + backgroundPaddingLeft, getMeasuredHeight() - navBarHeight + translation - currentPanTranslationY, containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight() + translation, backgroundPaint);
+                backgroundPaint.setAlpha(wasAlpha);
 
                 if (overlayDrawNavBarColor != 0) {
                     backgroundPaint.setColor(overlayDrawNavBarColor);
-                    canvas.drawRect(containerView.getLeft() + backgroundPaddingLeft, getMeasuredHeight() - navBarHeight + translation - currentPanTranslationY, containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight() + translation, backgroundPaint);
+                    wasAlpha = backgroundPaint.getAlpha();
+                    if (alpha < 1f) {
+                        backgroundPaint.setAlpha((int) (wasAlpha * alpha));
+                        translation = 0;
+                    }
+                    canvas.drawRect(left  + backgroundPaddingLeft, getMeasuredHeight() - navBarHeight + translation - currentPanTranslationY, containerView.getRight() - backgroundPaddingLeft, getMeasuredHeight() + translation, backgroundPaint);
+                    backgroundPaint.setAlpha(wasAlpha);
                 }
             }
         }
+    }
+
+    protected int getBottomSheetWidth(boolean isPortrait, int width,int height) {
+        return isPortrait ? width : (int) Math.max(width * 0.8f, Math.min(AndroidUtilities.dp(480), width));
     }
 
     protected boolean shouldOverlayCameraViewOverNavBar() {
@@ -697,11 +853,15 @@ public class BottomSheet extends Dialog {
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private int getAdditionalMandatoryOffsets() {
-        if (!calcMandatoryInsets) {
+        if (!calcMandatoryInsets || lastInsets == null) {
             return 0;
         }
         Insets insets = lastInsets.getSystemGestureInsets();
         return !keyboardVisible && drawNavigationBar && insets != null && (insets.left != 0 || insets.right != 0) ? insets.bottom : 0;
+    }
+
+    public boolean isKeyboardVisible() {
+        return keyboardVisible;
     }
 
     public interface BottomSheetDelegateInterface {
@@ -737,6 +897,7 @@ public class BottomSheet extends Dialog {
         private final Theme.ResourcesProvider resourcesProvider;
         private TextView textView;
         private ImageView imageView;
+        private ImageView imageView2;
         int currentType;
 
         public BottomSheetCell(Context context, int type) {
@@ -748,7 +909,9 @@ public class BottomSheet extends Dialog {
             this.resourcesProvider = resourcesProvider;
 
             currentType = type;
-            setBackgroundDrawable(Theme.getSelectorDrawable(false));
+            if (type != Builder.CELL_TYPE_CALL) {
+                setBackgroundDrawable(Theme.getSelectorDrawable(false, resourcesProvider));
+            }
             //setPadding(AndroidUtilities.dp(16), 0, AndroidUtilities.dp(16), 0);
 
             imageView = new ImageView(context);
@@ -756,12 +919,17 @@ public class BottomSheet extends Dialog {
             imageView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));
             addView(imageView, LayoutHelper.createFrame(56, 48, Gravity.CENTER_VERTICAL | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT)));
 
+            imageView2 = new ImageView(context);
+            imageView2.setScaleType(ImageView.ScaleType.CENTER);
+            imageView2.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_radioBackgroundChecked, resourcesProvider), PorterDuff.Mode.SRC_IN));
+            addView(imageView2, LayoutHelper.createFrame(56, 48, Gravity.CENTER_VERTICAL | (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT)));
+
             textView = new TextView(context);
             textView.setLines(1);
             textView.setSingleLine(true);
             textView.setGravity(Gravity.CENTER_HORIZONTAL);
             textView.setEllipsize(TextUtils.TruncateAt.END);
-            if (type == 0) {
+            if (type == 0 || type == Builder.CELL_TYPE_CALL) {
                 textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
                 addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL));
@@ -769,14 +937,14 @@ public class BottomSheet extends Dialog {
                 textView.setGravity(Gravity.CENTER);
                 textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-                textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                textView.setTypeface(AndroidUtilities.bold());
                 addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
             } else if (type == 2) {
                 textView.setGravity(Gravity.CENTER);
                 textView.setTextColor(getThemedColor(Theme.key_featuredStickers_buttonText));
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-                textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-                textView.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(4), getThemedColor(Theme.key_featuredStickers_addButton), getThemedColor(Theme.key_featuredStickers_addButtonPressed)));
+                textView.setTypeface(AndroidUtilities.bold());
+                textView.setBackground(Theme.AdaptiveRipple.filledRect(getThemedColor(Theme.key_featuredStickers_addButton), 6));
                 addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, 0, 16, 16, 16, 16));
             }
         }
@@ -832,6 +1000,15 @@ public class BottomSheet extends Dialog {
             }
         }
 
+        private boolean checked;
+        public void setChecked(boolean checked) {
+            imageView2.setImageResource((this.checked = checked) ? R.drawable.checkbig : 0);
+        }
+
+        public boolean isChecked() {
+            return checked;
+        }
+
         public TextView getTextView() {
             return textView;
         }
@@ -840,9 +1017,18 @@ public class BottomSheet extends Dialog {
             return imageView;
         }
 
-        private int getThemedColor(String key) {
-            Integer color = resourcesProvider != null ? resourcesProvider.getColor(key) : null;
-            return color != null ? color : Theme.getColor(key);
+        protected int getThemedColor(int key) {
+            return Theme.getColor(key, resourcesProvider);
+        }
+
+        public boolean isSelected = false;
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+            super.onInitializeAccessibilityNodeInfo(info);
+            if (isSelected) {
+                info.setSelected(true);
+            }
         }
     }
 
@@ -886,6 +1072,37 @@ public class BottomSheet extends Dialog {
                 }
                 return true;
             }
+
+            @Override
+            protected void dispatchDraw(Canvas canvas) {
+                super.dispatchDraw(canvas);
+                mainContainerDispatchDraw(canvas);
+            }
+
+            @Override
+            protected void onConfigurationChanged(Configuration newConfig) {
+                lastInsets = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    container.requestApplyInsets();
+                }
+            }
+
+            @Override
+            protected void onAttachedToWindow() {
+                super.onAttachedToWindow();
+                Bulletin.addDelegate(this, new Bulletin.Delegate() {
+                    @Override
+                    public int getTopOffset(int tag) {
+                        return AndroidUtilities.statusBarHeight;
+                    }
+                });
+            }
+
+            @Override
+            protected void onDetachedFromWindow() {
+                super.onDetachedFromWindow();
+                Bulletin.removeDelegate(this);
+            }
         };
         container.setBackgroundDrawable(backDrawable);
         focusable = needFocus;
@@ -898,6 +1115,7 @@ public class BottomSheet extends Dialog {
                 }
                 lastInsets = insets;
                 v.requestLayout();
+                onInsetsChanged();
                 if (Build.VERSION.SDK_INT >= 30) {
                     return WindowInsets.CONSUMED;
                 } else {
@@ -905,13 +1123,33 @@ public class BottomSheet extends Dialog {
                 }
             });
             if (Build.VERSION.SDK_INT >= 30) {
-                container.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |  View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+                container.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
             } else {
                 container.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
             }
         }
 
         backDrawable.setAlpha(0);
+    }
+
+    protected void onInsetsChanged() {
+
+    }
+
+    protected void mainContainerDispatchDraw(Canvas canvas) {
+
+    }
+
+    public void fixNavigationBar() {
+        fixNavigationBar(getThemedColor(Theme.key_windowBackgroundGray));
+    }
+
+    public void fixNavigationBar(int bgColor) {
+        drawNavigationBar = !occupyNavigationBar;
+        drawDoubleNavigationBar = true;
+        scrollNavBar = true;
+        navBarColorKey = -1;
+        setOverlayNavBarColor(navBarColor = bgColor);
     }
 
     @Override
@@ -944,6 +1182,9 @@ public class BottomSheet extends Dialog {
                 @Override
                 public void setTranslationY(float translationY) {
                     super.setTranslationY(translationY);
+                    if (topBulletinContainer != null) {
+                        topBulletinContainer.setTranslationY(-getHeight() + translationY - getPaddingTop() - AndroidUtilities.statusBarHeight + backgroundPaddingTop);
+                    }
                     onContainerTranslationYChanged(translationY);
                 }
             };
@@ -953,34 +1194,74 @@ public class BottomSheet extends Dialog {
         containerView.setVisibility(View.INVISIBLE);
         container.addView(containerView, 0, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM));
 
+        if (topBulletinContainer == null) {
+            topBulletinContainer = new FrameLayout(getContext());
+            container.addView(topBulletinContainer, container.indexOfChild(containerView) + 1, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.BOTTOM));
+        }
+
         int topOffset = 0;
         if (title != null) {
-            titleView = new TextView(getContext());
-            titleView.setLines(1);
-            titleView.setSingleLine(true);
+            titleView = new TextView(getContext()) {
+                @Override
+                protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                    if (multipleLinesTitle) {
+                        int topOffset = getMeasuredHeight();
+                        if (customView != null) {
+                            ((ViewGroup.MarginLayoutParams) customView.getLayoutParams()).topMargin = topOffset;
+                        } else if (containerView != null) {
+                            for (int i = 1; i < containerView.getChildCount(); ++i) {
+                                View child = containerView.getChildAt(i);
+                                if (child instanceof BottomSheetCell) {
+                                    ((ViewGroup.MarginLayoutParams) child.getLayoutParams()).topMargin = topOffset;
+                                    topOffset += AndroidUtilities.dp(48);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            int height = 48;
             titleView.setText(title);
             if (bigTitle) {
                 titleView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-                titleView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-                titleView.setPadding(AndroidUtilities.dp(21), AndroidUtilities.dp(6), AndroidUtilities.dp(21), AndroidUtilities.dp(8));
+                titleView.setTypeface(AndroidUtilities.bold());
+                titleView.setPadding(AndroidUtilities.dp(21), AndroidUtilities.dp(multipleLinesTitle ? 14 : 6), AndroidUtilities.dp(21), AndroidUtilities.dp(8));
             } else {
                 titleView.setTextColor(getThemedColor(Theme.key_dialogTextGray2));
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-                titleView.setPadding(AndroidUtilities.dp(16), 0, AndroidUtilities.dp(16), AndroidUtilities.dp(8));
+                titleView.setPadding(AndroidUtilities.dp(16), AndroidUtilities.dp(multipleLinesTitle ? 8 : 0), AndroidUtilities.dp(16), AndroidUtilities.dp(8));
             }
-            titleView.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+            if (multipleLinesTitle) {
+                titleView.setSingleLine(false);
+                titleView.setMaxLines(5);
+                titleView.setEllipsize(TextUtils.TruncateAt.END);
+            } else {
+                titleView.setLines(1);
+                titleView.setSingleLine(true);
+                titleView.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+            }
             titleView.setGravity(Gravity.CENTER_VERTICAL);
-            containerView.addView(titleView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48));
+            containerView.addView(titleView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, multipleLinesTitle ? ViewGroup.LayoutParams.WRAP_CONTENT : height));
             titleView.setOnTouchListener((v, event) -> true);
-            topOffset += 48;
+            topOffset += height;
         }
         if (customView != null) {
             if (customView.getParent() != null) {
                 ViewGroup viewGroup = (ViewGroup) customView.getParent();
                 viewGroup.removeView(customView);
             }
-            containerView.addView(customView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 0, topOffset, 0, 0));
+            if (!useBackgroundTopPadding) {
+                containerView.setClipToPadding(false);
+                containerView.setClipChildren(false);
+                container.setClipToPadding(false);
+                container.setClipChildren(false);
+                containerView.addView(customView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, customViewGravity, 0, topOffset, 0, 0));
+                ((ViewGroup.MarginLayoutParams) customView.getLayoutParams()).topMargin = -backgroundPaddingTop + AndroidUtilities.dp(topOffset);
+            } else {
+                containerView.addView(customView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, customViewGravity, 0, topOffset, 0, 0));
+            }
         } else {
             if (items != null) {
                 FrameLayout rowLayout = null;
@@ -989,7 +1270,7 @@ public class BottomSheet extends Dialog {
                     if (items[a] == null) {
                         continue;
                     }
-                    BottomSheetCell cell = new BottomSheetCell(getContext(), 0, resourcesProvider);
+                    BottomSheetCell cell = new BottomSheetCell(getContext(), cellType, resourcesProvider);
                     cell.setTextAndIcon(items[a], itemIcons != null ? itemIcons[a] : 0, null, bigTitle);
                     containerView.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.LEFT | Gravity.TOP, 0, topOffset, 0, 0));
                     topOffset += 48;
@@ -1076,35 +1357,40 @@ public class BottomSheet extends Dialog {
 
     @Override
     public void show() {
+        if (!AndroidUtilities.isSafeToShow(getContext())) return;
         super.show();
+        setShowing(true);
         if (focusable) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
         dismissed = false;
         cancelSheetAnimation();
-        containerView.measure(View.MeasureSpec.makeMeasureSpec(AndroidUtilities.displaySize.x + backgroundPaddingLeft * 2, View.MeasureSpec.AT_MOST), View.MeasureSpec.makeMeasureSpec(AndroidUtilities.displaySize.y, View.MeasureSpec.AT_MOST));
+        containerView.measure(
+            View.MeasureSpec.makeMeasureSpec(AndroidUtilities.displaySize.x + backgroundPaddingLeft * 2, View.MeasureSpec.AT_MOST),
+            View.MeasureSpec.makeMeasureSpec(AndroidUtilities.displaySize.y, View.MeasureSpec.AT_MOST)
+        );
         if (showWithoutAnimation) {
             backDrawable.setAlpha(dimBehind ? dimBehindAlpha : 0);
             containerView.setTranslationY(0);
             return;
         }
         backDrawable.setAlpha(0);
-        if (Build.VERSION.SDK_INT >= 18) {
-            layoutCount = 2;
-            containerView.setTranslationY((Build.VERSION.SDK_INT >= 21 ? AndroidUtilities.statusBarHeight * (1f - hideSystemVerticalInsetsProgress) : 0) + containerView.getMeasuredHeight() + (scrollNavBar ? getBottomInset() : 0));
-            AndroidUtilities.runOnUIThread(startAnimationRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (startAnimationRunnable != this || dismissed) {
-                        return;
-                    }
-                    startAnimationRunnable = null;
-                    startOpenAnimation();
-                }
-            }, openNoDelay ? 0 : 150);
-        } else {
-            startOpenAnimation();
+        layoutCount = 2;
+        containerView.setTranslationY((Build.VERSION.SDK_INT >= 21 ? AndroidUtilities.statusBarHeight * (1f - hideSystemVerticalInsetsProgress) : 0) + containerView.getMeasuredHeight() + (scrollNavBar ? getBottomInset() : 0));
+        long delay = openNoDelay ? 0 : 150;
+        if (waitingKeyboard) {
+            delay = 500;
         }
+        AndroidUtilities.runOnUIThread(startAnimationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (startAnimationRunnable != this || dismissed) {
+                    return;
+                }
+                startAnimationRunnable = null;
+                startOpenAnimation();
+            }
+        }, delay);
     }
 
     public ColorDrawable getBackDrawable() {
@@ -1112,7 +1398,7 @@ public class BottomSheet extends Dialog {
     }
 
     public int getBackgroundPaddingTop() {
-        return backgroundPaddingTop;
+        return backgroundPaddingTop ;
     }
 
     public void setAllowDrawContent(boolean value) {
@@ -1170,8 +1456,16 @@ public class BottomSheet extends Dialog {
         return false;
     }
 
+    protected void onDismissWithTouchOutside() {
+        dismiss();
+    }
+
     protected boolean canDismissWithTouchOutside() {
-        return true;
+        return canDismissWithTouchOutside;
+    }
+
+    public void setCanDismissWithTouchOutside(boolean value) {
+        canDismissWithTouchOutside = value;
     }
 
     public TextView getTitleView() {
@@ -1186,8 +1480,8 @@ public class BottomSheet extends Dialog {
         if (currentSheetAnimation != null) {
             currentSheetAnimation.cancel();
             currentSheetAnimation = null;
-            currentSheetAnimationType = 0;
         }
+        currentSheetAnimationType = 0;
     }
 
     public void setOnHideListener(OnDismissListener listener) {
@@ -1208,21 +1502,50 @@ public class BottomSheet extends Dialog {
             if (Build.VERSION.SDK_INT >= 20 && useHardwareLayer) {
                 container.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             }
-            containerView.setTranslationY(containerView.getMeasuredHeight() + (scrollNavBar ? getBottomInset() : 0));
+            if (transitionFromRight) {
+                containerView.setTranslationX(AndroidUtilities.dp(48));
+                containerView.setAlpha(0);
+                containerView.setTranslationY(0);
+            } else {
+                containerView.setTranslationY(getContainerViewHeight() + keyboardHeight + AndroidUtilities.dp(10) + (scrollNavBar ? getBottomInset() : 0));
+            }
             currentSheetAnimationType = 1;
+            if (navigationBarAnimation != null) {
+                navigationBarAnimation.cancel();
+            }
+            navigationBarAnimation = ValueAnimator.ofFloat(navigationBarAlpha, 1f);
+            navigationBarAnimation.addUpdateListener(a -> {
+                navigationBarAlpha = (float) a.getAnimatedValue();
+                if (container != null) {
+                    container.invalidate();
+                }
+            });
             currentSheetAnimation = new AnimatorSet();
             currentSheetAnimation.playTogether(
+                    ObjectAnimator.ofFloat(containerView, View.TRANSLATION_X, 0),
+                    ObjectAnimator.ofFloat(containerView, View.ALPHA, 1f),
                     ObjectAnimator.ofFloat(containerView, View.TRANSLATION_Y, 0),
-                    ObjectAnimator.ofInt(backDrawable, AnimationProperties.COLOR_DRAWABLE_ALPHA, dimBehind ? dimBehindAlpha : 0));
-            currentSheetAnimation.setDuration(400);
-            currentSheetAnimation.setStartDelay(20);
+                    ObjectAnimator.ofInt(backDrawable, AnimationProperties.COLOR_DRAWABLE_ALPHA, dimBehind ? dimBehindAlpha : 0),
+                    navigationBarAnimation
+            );
+            if (transitionFromRight) {
+                currentSheetAnimation.setDuration(250);
+                currentSheetAnimation.setInterpolator(CubicBezierInterpolator.DEFAULT);
+            } else {
+                currentSheetAnimation.setDuration(400);
+                currentSheetAnimation.setInterpolator(openInterpolator);
+            }
+            currentSheetAnimation.setStartDelay(waitingKeyboard ? 0 : 20);
             currentSheetAnimation.setInterpolator(openInterpolator);
+            int finalAccount = currentAccount;
+            notificationsLocker.lock();
             currentSheetAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (currentSheetAnimation != null && currentSheetAnimation.equals(animation)) {
                         currentSheetAnimation = null;
                         currentSheetAnimationType = 0;
+                        onOpenAnimationEnd();
                         if (delegate != null) {
                             delegate.onOpenAnimationEnd();
                         }
@@ -1236,7 +1559,10 @@ public class BottomSheet extends Dialog {
                             getWindow().setAttributes(params);
                         }
                     }
-                    NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);
+                    if (pauseAllHeavyOperations) {
+                        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);
+                    }
+                    notificationsLocker.unlock();
                 }
 
                 @Override
@@ -1247,7 +1573,9 @@ public class BottomSheet extends Dialog {
                     }
                 }
             });
-            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);
+            if (pauseAllHeavyOperations) {
+                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);
+            }
             currentSheetAnimation.start();
         }
     }
@@ -1256,7 +1584,7 @@ public class BottomSheet extends Dialog {
         delegate = bottomSheetDelegate;
     }
 
-    public FrameLayout getContainer() {
+    public ContainerView getContainer() {
         return container;
     }
 
@@ -1323,10 +1651,10 @@ public class BottomSheet extends Dialog {
         currentSheetAnimationType = 2;
         currentSheetAnimation = new AnimatorSet();
         currentSheetAnimation.playTogether(
-                ObjectAnimator.ofFloat(containerView, View.TRANSLATION_Y, containerView.getMeasuredHeight() + AndroidUtilities.dp(10) + (scrollNavBar ? getBottomInset() : 0)),
+                ObjectAnimator.ofFloat(containerView, View.TRANSLATION_Y, getContainerViewHeight() + keyboardHeight + AndroidUtilities.dp(10) + (scrollNavBar ? getBottomInset() : 0)),
                 ObjectAnimator.ofInt(backDrawable, AnimationProperties.COLOR_DRAWABLE_ALPHA, 0)
         );
-        currentSheetAnimation.setDuration(180);
+        currentSheetAnimation.setDuration(cellType == Builder.CELL_TYPE_CALL ? 330 : 180);
         currentSheetAnimation.setInterpolator(CubicBezierInterpolator.EASE_OUT);
         currentSheetAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -1361,6 +1689,27 @@ public class BottomSheet extends Dialog {
         });
         NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);
         currentSheetAnimation.start();
+
+        if (cellType == Builder.CELL_TYPE_CALL && selectedPos != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int color1 = getItemViews().get(selectedPos).getTextView().getCurrentTextColor();
+            int color2 = getItemViews().get(item).getTextView().getCurrentTextColor();
+            ValueAnimator animator = ValueAnimator.ofArgb(color1, color2);
+            animator.addUpdateListener(a -> {
+                int color = (int) a.getAnimatedValue();
+                setItemColor(selectedPos, color, color);
+            });
+            animator.setDuration(130);
+            animator.setInterpolator(CubicBezierInterpolator.DEFAULT);
+            animator.start();
+            ValueAnimator animator2 = ValueAnimator.ofArgb(color2, color1);
+            animator2.addUpdateListener(a -> {
+                int color = (int) a.getAnimatedValue();
+                setItemColor(item, color, color);
+            });
+            animator2.setDuration(130);
+            animator2.setInterpolator(CubicBezierInterpolator.DEFAULT);
+            animator2.start();
+        }
     }
 
     @Override
@@ -1369,6 +1718,24 @@ public class BottomSheet extends Dialog {
             return false;
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    public void onDismissAnimationStart() {}
+
+    public int getContainerViewHeight() {
+        if (containerView == null) {
+            return 0;
+        }
+        return containerView.getMeasuredHeight();
+    }
+
+    protected boolean canSwipeToBack(MotionEvent event) {
+        return false;
+    }
+
+    private boolean forceKeyboardOnDismiss;
+    public void forceKeyboardOnDismiss() {
+        forceKeyboardOnDismiss = true;
     }
 
     @Override
@@ -1385,59 +1752,88 @@ public class BottomSheet extends Dialog {
         }
         cancelSheetAnimation();
         long duration = 0;
-        if (!allowCustomAnimation || !onCustomCloseAnimation()) {
-            currentSheetAnimationType = 2;
-            currentSheetAnimation = new AnimatorSet();
-            currentSheetAnimation.playTogether(
-                    ObjectAnimator.ofFloat(containerView, View.TRANSLATION_Y, containerView.getMeasuredHeight() + container.keyboardHeight + AndroidUtilities.dp(10) + (scrollNavBar ? getBottomInset() : 0)),
-                    ObjectAnimator.ofInt(backDrawable, AnimationProperties.COLOR_DRAWABLE_ALPHA, 0)
-            );
-            if (useFastDismiss) {
-                int height = containerView.getMeasuredHeight();
-                duration = Math.max(60, (int) (250 * (height - containerView.getTranslationY()) / (float) height));
-                currentSheetAnimation.setDuration(duration);
-                useFastDismiss = false;
-            } else {
-                currentSheetAnimation.setDuration(duration = 250);
-            }
-            currentSheetAnimation.setInterpolator(CubicBezierInterpolator.DEFAULT);
-            currentSheetAnimation.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    if (currentSheetAnimation != null && currentSheetAnimation.equals(animation)) {
-                        currentSheetAnimation = null;
-                        currentSheetAnimationType = 0;
-                        AndroidUtilities.runOnUIThread(() -> {
-                            try {
-                                dismissInternal();
-                            } catch (Exception e) {
-                                FileLog.e(e);
-                            }
-                        });
-                    }
-                    NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                    if (currentSheetAnimation != null && currentSheetAnimation.equals(animation)) {
-                        currentSheetAnimation = null;
-                        currentSheetAnimationType = 0;
-                    }
+        onDismissAnimationStart();
+        if (skipDismissAnimation) {
+            AndroidUtilities.runOnUIThread(() -> {
+                try {
+                    dismissInternal();
+                } catch (Exception e) {
+                    FileLog.e(e);
                 }
             });
-            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);
-            currentSheetAnimation.start();
+        } else {
+            if (!allowCustomAnimation || !onCustomCloseAnimation()) {
+                currentSheetAnimationType = 2;
+                if (navigationBarAnimation != null) {
+                    navigationBarAnimation.cancel();
+                }
+                navigationBarAnimation = ValueAnimator.ofFloat(navigationBarAlpha, 0f);
+                navigationBarAnimation.addUpdateListener(a -> {
+                    navigationBarAlpha = (float) a.getAnimatedValue();
+                    if (container != null) {
+                        container.invalidate();
+                    }
+                });
+                currentSheetAnimation = new AnimatorSet();
+                ArrayList<Animator> animators = new ArrayList<>();
+                if (containerView != null) {
+                    if (transitionFromRight) {
+                        animators.add(ObjectAnimator.ofFloat(containerView, View.TRANSLATION_X, AndroidUtilities.dp(48)));
+                        animators.add(ObjectAnimator.ofFloat(containerView, View.ALPHA, 0));
+                    } else {
+                        animators.add(ObjectAnimator.ofFloat(containerView, View.TRANSLATION_Y, getContainerViewHeight() + (forceKeyboardOnDismiss ? lastKeyboardHeight : keyboardHeight) + AndroidUtilities.dp(10) + (scrollNavBar ? getBottomInset() : 0)));
+                    }
+                }
+                animators.add(ObjectAnimator.ofInt(backDrawable, AnimationProperties.COLOR_DRAWABLE_ALPHA, 0));
+                animators.add(navigationBarAnimation);
+                currentSheetAnimation.playTogether(animators);
+
+                if (transitionFromRight) {
+                    currentSheetAnimation.setDuration(200);
+                    currentSheetAnimation.setInterpolator(CubicBezierInterpolator.DEFAULT);
+                } else {
+                    currentSheetAnimation.setDuration(duration = 250);
+                    currentSheetAnimation.setInterpolator(CubicBezierInterpolator.EASE_OUT);
+                }
+                currentSheetAnimation.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (currentSheetAnimation != null && currentSheetAnimation.equals(animation)) {
+                            currentSheetAnimation = null;
+                            currentSheetAnimationType = 0;
+                            AndroidUtilities.runOnUIThread(() -> {
+                                try {
+                                    dismissInternal();
+                                } catch (Exception e) {
+                                    FileLog.e(e);
+                                }
+                            });
+                        }
+                        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        if (currentSheetAnimation != null && currentSheetAnimation.equals(animation)) {
+                            currentSheetAnimation = null;
+                            currentSheetAnimationType = 0;
+                        }
+                    }
+                });
+                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);
+                currentSheetAnimation.start();
+            }
         }
 
         Bulletin bulletin = Bulletin.getVisibleBulletin();
-        if (bulletin != null && bulletin.isShowing()) {
+        if (bulletin != null && bulletin.isShowing() && bulletin.hideAfterBottomSheet) {
             if (duration > 0) {
                 bulletin.hide((long) (duration * 0.6f));
             } else {
                 bulletin.hide();
             }
         }
+        setShowing(false);
     }
 
     public int getSheetAnimationType() {
@@ -1448,7 +1844,8 @@ public class BottomSheet extends Dialog {
         try {
             super.dismiss();
         } catch (Exception e) {
-            FileLog.e(e);
+            //ignore: not attached to window manager
+            FileLog.e(e, false);
         }
     }
 
@@ -1462,18 +1859,35 @@ public class BottomSheet extends Dialog {
 
     public static class Builder {
 
+        public static int CELL_TYPE_CALL = 4;
+
         private BottomSheet bottomSheet;
 
         public Builder(Context context) {
             this(context, false);
         }
 
+        public Builder(Context context, int bgColor) {
+            this(context, false, null, bgColor);
+        }
+
         public Builder(Context context, boolean needFocus) {
             this(context, needFocus, null);
         }
 
+        public Builder(Context context, boolean needFocus, int bgColor) {
+            this(context, needFocus, null, bgColor);
+        }
+
         public Builder(Context context, boolean needFocus, Theme.ResourcesProvider resourcesProvider) {
             bottomSheet = new BottomSheet(context, needFocus, resourcesProvider);
+            bottomSheet.fixNavigationBar();
+        }
+
+        public Builder(Context context, boolean needFocus, Theme.ResourcesProvider resourcesProvider, int bgColor) {
+            bottomSheet = new BottomSheet(context, needFocus, resourcesProvider);
+            bottomSheet.setBackgroundColor(bgColor);
+            bottomSheet.fixNavigationBar(bgColor);
         }
 
         public Builder setItems(CharSequence[] items, final OnClickListener onClickListener) {
@@ -1494,6 +1908,12 @@ public class BottomSheet extends Dialog {
             return this;
         }
 
+        public Builder setCustomView(View view, int gravity) {
+            bottomSheet.customView = view;
+            bottomSheet.customViewGravity = gravity;
+            return this;
+        }
+
         public View getCustomView() {
             return bottomSheet.customView;
         }
@@ -1505,6 +1925,21 @@ public class BottomSheet extends Dialog {
         public Builder setTitle(CharSequence title, boolean big) {
             bottomSheet.title = title;
             bottomSheet.bigTitle = big;
+            return this;
+        }
+
+        public Builder selectedPos(Integer pos) {
+            bottomSheet.selectedPos = pos;
+            return this;
+        }
+
+        public Builder setCellType(int cellType) {
+            bottomSheet.cellType = cellType;
+            return this;
+        }
+
+        public Builder setTitleMultipleLines(boolean allowMultipleLines) {
+            bottomSheet.multipleLinesTitle = allowMultipleLines;
             return this;
         }
 
@@ -1563,13 +1998,6 @@ public class BottomSheet extends Dialog {
 
         public Builder setOnPreDismissListener(OnDismissListener onDismissListener) {
             bottomSheet.setOnHideListener(onDismissListener);
-            return this;
-        }
-
-        public Builder fixNavigationBar() {
-            bottomSheet.drawNavigationBar = true;
-            bottomSheet.scrollNavBar = true;
-            bottomSheet.setOverlayNavBarColor(bottomSheet.getThemedColor(Theme.key_dialogBackground));
             return this;
         }
     }
@@ -1652,9 +2080,8 @@ public class BottomSheet extends Dialog {
         return currentAccount;
     }
 
-    protected int getThemedColor(String key) {
-        Integer color = resourcesProvider != null ? resourcesProvider.getColor(key) : null;
-        return color != null ? color : Theme.getColor(key);
+    protected int getThemedColor(int key) {
+        return Theme.getColor(key, resourcesProvider);
     }
 
     public void setOpenNoDelay(boolean openNoDelay) {
@@ -1663,5 +2090,38 @@ public class BottomSheet extends Dialog {
 
     public int getBackgroundPaddingLeft() {
         return this.backgroundPaddingLeft;
+    }
+
+    private void setShowing(boolean showing) {
+        if (this.showing == showing) {
+            return;
+        }
+        this.showing = showing;
+        if (openedLayerNum > 0) {
+            if (showing) {
+                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, openedLayerNum);
+            } else {
+                NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, openedLayerNum);
+            }
+        }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
+        return super.dispatchKeyEvent(event);
+    }
+
+    public void setImageReceiverNumLevel(int playingImages, int onShowing) {
+        this.playingImagesLayerNum = playingImages;
+        this.openedLayerNum = onShowing;
+    }
+
+    private long smoothContainerViewLayoutUntil = -1;
+    public void smoothContainerViewLayout() {
+        smoothContainerViewLayoutUntil = System.currentTimeMillis() + 80;
+    }
+
+    protected void onSmoothContainerViewLayout(float ty) {
+
     }
 }
