@@ -1,6 +1,6 @@
 package org.telegram.ui.Components.Paint;
 
-import static com.google.zxing.common.detector.MathUtils.distance;
+import static com.google.zxing1.common.detector.MathUtils.distance;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

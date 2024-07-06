@@ -62,7 +62,7 @@ import androidx.dynamicanimation.animation.SpringForce;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
-import com.google.zxing.common.detector.MathUtils;
+import com.google.zxing1.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;

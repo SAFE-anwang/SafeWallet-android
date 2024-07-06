@@ -8,7 +8,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.google.zxing.common.detector.MathUtils;
+import com.google.zxing1.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 

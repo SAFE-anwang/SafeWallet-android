@@ -42,7 +42,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.C;
-import com.google.zxing.common.detector.MathUtils;
+import com.google.zxing1.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;

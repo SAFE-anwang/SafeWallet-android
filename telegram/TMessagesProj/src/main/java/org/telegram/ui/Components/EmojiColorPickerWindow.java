@@ -17,7 +17,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
-import com.google.zxing.common.detector.MathUtils;
+import com.google.zxing1.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.CompoundEmoji;

@@ -16,7 +16,7 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import com.google.common.primitives.Floats;
-import com.google.zxing.common.detector.MathUtils;
+import com.google.zxing1.common.detector.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
