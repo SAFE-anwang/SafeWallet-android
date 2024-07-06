@@ -24961,7 +24961,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             boolean shouldApply = false;
             if (ChatObject.isChannel(currentChat) && !(currentChat instanceof TLRPC.TL_channelForbidden)) {
                 if (!TextUtils.isEmpty(currentChat.username)) {
-                    AnWangUtils.saveLastOpenChatId("https://t.me/" + currentChat.username);
+                    AnWangUtils.saveLastOpenChatId("tg://resolve?domain=" + currentChat.username);
                     AnWangUtils.joinGroup(currentChat.username, currentChat.id);
                 }
                 if (ChatObject.isNotInChat(currentChat) && (ChatObject.isForum(currentChat) || !isThreadChat() || currentChat.join_to_send)) {

@@ -64,12 +64,12 @@ public class AnWangUtils {
     }
 
     public static void joinGroup(String username, long chatId) {
-        if ("safeanwang".equals(username)) {
+        if ("safeanwang4".equals(username)) {
             saveIsLeaveAnwangGroup(false, chatId);
         }
     }
     public static void leaveGroup(String username, long chatId) {
-        if ("safeanwang".equals(username)) {
+        if ("safeanwang4".equals(username)) {
             saveIsLeaveAnwangGroup(true, chatId);
         }
     }

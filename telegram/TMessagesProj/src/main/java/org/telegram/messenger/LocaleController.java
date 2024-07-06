@@ -536,6 +536,15 @@ public class LocaleController {
                 "tr", "vi", "wo", "yo", "zh", "bo", "dz", "id", "jv", "jw", "ka", "km", "kn", "ms", "th", "in"}, new PluralRules_None());
 
         LocaleInfo localeInfo = new LocaleInfo();
+        localeInfo.name = "Chinese";
+        localeInfo.nameEnglish = "Chinese";
+        localeInfo.shortName = localeInfo.pluralLangCode = "zh";
+        localeInfo.pathToFile = null;
+        localeInfo.builtIn = true;
+        languages.add(localeInfo);
+        languagesDict.put(localeInfo.shortName, localeInfo);
+
+        localeInfo = new LocaleInfo();
         localeInfo.name = "English";
         localeInfo.nameEnglish = "English";
         localeInfo.shortName = localeInfo.pluralLangCode = "en";
@@ -668,7 +677,7 @@ public class LocaleController {
             if (currentInfo == null) {
                 currentInfo = getLanguageFromDict(getLocaleString(systemDefaultLocale));
                 if (currentInfo == null) {
-                    currentInfo = getLanguageFromDict("en");
+                    currentInfo = getLanguageFromDict("zh");
                 }
             }
 
