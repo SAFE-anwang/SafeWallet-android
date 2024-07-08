@@ -162,7 +162,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         Theme.createDialogsResources(this);
         Theme.createChatResources(this, false);
 
-        AndroidUtilities.fillStatusBarHeight(this);
+        AndroidUtilities.fillStatusBarHeight(this, false);
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.appDidLogout);
             NotificationCenter.getInstance(a).addObserver(this, NotificationCenter.updateInterfaces);
@@ -328,7 +328,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             }
 
             @Override
-            public void onTextChanged(CharSequence text, boolean big) {
+            public void onTextChanged(CharSequence text, boolean big, boolean fromDraft) {
 
             }
 
@@ -395,7 +395,12 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             }
 
             @Override
-            public void needStartRecordVideo(int state, boolean notify, int scheduleDate) {
+            public void needStartRecordVideo(int state, boolean notify, int scheduleDate, int ttl, long effectId) {
+
+            }
+
+            @Override
+            public void toggleVideoRecordingPause() {
 
             }
 
@@ -479,7 +484,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         nameTextView.setSingleLine(true);
         nameTextView.setEllipsize(TextUtils.TruncateAt.END);
         nameTextView.setGravity(Gravity.LEFT);
-        nameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        nameTextView.setTypeface(AndroidUtilities.bold());
         avatarContainer.addView(nameTextView);
         layoutParams2 = (FrameLayout.LayoutParams) nameTextView.getLayoutParams();
         layoutParams2.width = LayoutHelper.WRAP_CONTENT;
@@ -809,7 +814,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
                         TextView textView = new TextView(this);
                         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
                         textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText));
-                        textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                        textView.setTypeface(AndroidUtilities.bold());
                         textView.setText(button.text.toUpperCase());
                         textView.setTag(button);
                         textView.setGravity(Gravity.CENTER);
@@ -857,7 +862,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         }
         ViewGroup view;
         MessageObject messageObject = popupMessages.get(num);
-        if ((messageObject.type == 1 || messageObject.type == 4) && !messageObject.isSecretMedia()) {
+        if ((messageObject.type == MessageObject.TYPE_PHOTO || messageObject.type == MessageObject.TYPE_GEO) && !messageObject.isSecretMedia()) {
             if (imageViews.size() > 0) {
                 view = imageViews.get(0);
                 imageViews.remove(0);
@@ -889,14 +894,14 @@ public class PopupNotificationActivity extends Activity implements NotificationC
             BackupImageView imageView = view.findViewWithTag(311);
             imageView.setAspectFit(true);
 
-            if (messageObject.type == 1) {
+            if (messageObject.type == MessageObject.TYPE_PHOTO) {
                 TLRPC.PhotoSize currentPhotoObject = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, AndroidUtilities.getPhotoSize());
                 TLRPC.PhotoSize thumb = FileLoader.getClosestPhotoSizeWithSize(messageObject.photoThumbs, 100);
                 boolean photoSet = false;
                 if (currentPhotoObject != null) {
                     boolean photoExist = true;
-                    if (messageObject.type == 1) {
-                        File cacheFile = FileLoader.getPathToMessage(messageObject.messageOwner);
+                    if (messageObject.type == MessageObject.TYPE_PHOTO) {
+                        File cacheFile = FileLoader.getInstance(UserConfig.selectedAccount).getPathToMessage(messageObject.messageOwner);
                         if (!cacheFile.exists()) {
                             photoExist = false;
                         }
@@ -922,7 +927,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
                     imageView.setVisibility(View.VISIBLE);
                     messageText.setVisibility(View.GONE);
                 }
-            } else if (messageObject.type == 4) {
+            } else if (messageObject.type == MessageObject.TYPE_GEO) {
                 messageText.setVisibility(View.GONE);
                 messageText.setText(messageObject.messageText);
                 imageView.setVisibility(View.VISIBLE);
@@ -937,7 +942,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
                     imageView.setImage(currentUrl, null, null);
                 }
             }
-        } else if (messageObject.type == 2) {
+        } else if (messageObject.type == MessageObject.TYPE_VOICE) {
             PopupAudioView cell;
             if (audioViews.size() > 0) {
                 view = audioViews.get(0);

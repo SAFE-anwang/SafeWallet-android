@@ -140,6 +140,7 @@ class WatchAddressViewModel(
         BlockchainType.Dogecoin,
         BlockchainType.Dash -> Type.BitcoinAddress
 
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.BinanceChain,

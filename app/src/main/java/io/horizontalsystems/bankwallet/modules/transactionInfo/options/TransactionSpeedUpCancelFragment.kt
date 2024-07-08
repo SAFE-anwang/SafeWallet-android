@@ -25,6 +25,7 @@ import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
@@ -178,7 +179,7 @@ private fun TransactionSpeedUpCancelScreen(
                     sendEvmTransactionViewModel,
                     feeViewModel,
                     nonceViewModel,
-                    navController,
+                    navController
                 )
             }
             ButtonsGroupWithShade {

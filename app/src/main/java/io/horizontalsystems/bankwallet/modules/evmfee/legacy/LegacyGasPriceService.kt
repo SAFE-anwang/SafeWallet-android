@@ -17,7 +17,7 @@ import java.math.BigDecimal
 class LegacyGasPriceService(
     private val gasPriceProvider: LegacyGasPriceProvider,
     private val minRecommendedGasPrice: Long? = null,
-    initialGasPrice: Long? = null,
+    private val initialGasPrice: Long? = null,
 ) : IEvmGasPriceService() {
 
     var recommendedGasPrice: Long? = null
@@ -45,6 +45,10 @@ class LegacyGasPriceService(
         } else {
             setRecommended()
         }
+    }
+
+    override fun start() {
+
     }
 
     override fun setRecommended() {

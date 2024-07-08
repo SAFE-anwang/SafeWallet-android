@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorManager
 import io.horizontalsystems.bankwallet.modules.chart.ChartPointsWrapper
 import io.horizontalsystems.chartview.ChartViewType
 import io.horizontalsystems.chartview.models.ChartPoint
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.HsPeriodType
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
@@ -58,7 +59,7 @@ class CoinOverviewChartService(
         val mostPeriodSeconds = now - chartStartTime
 
         chartIntervals = HsTimePeriod.values().filter {
-            it.range <= mostPeriodSeconds && (coinUid != "safe-coin" || it.value != "5y")
+            it.range <= mostPeriodSeconds && (!coinUid.isSafeCoin() || it.value != "5y")
         } + listOf<HsTimePeriod?>(null)
 
         scope.launch {

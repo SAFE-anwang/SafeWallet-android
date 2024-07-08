@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
 
 @Composable
@@ -27,7 +28,7 @@ fun CellBlockchainChecked(
         borderTop = borderTop,
         onClick = onToggle
     ) {
-        if (blockchain.uid == "safe-coin") {
+        if (blockchain.uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp)

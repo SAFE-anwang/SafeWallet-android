@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.core.SingleLiveEvent
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.reactivex.BackpressureStrategy
 import io.reactivex.disposables.CompositeDisposable
@@ -50,7 +51,7 @@ class RestoreBlockchainsViewModel(
     private fun viewItem(
         item: RestoreBlockchainsService.Item
     ):CoinViewItem<Blockchain> {
-        val imageSource = if (item.blockchain.uid == "safe-coin") {
+        val imageSource = if (item.blockchain.uid.isSafeCoin()) {
             ImageSource.Local(R.drawable.safe)
         } else {
             ImageSource.Remote(

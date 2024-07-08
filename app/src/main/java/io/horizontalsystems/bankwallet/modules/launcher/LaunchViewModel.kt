@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.core.IKeyStoreManager
 import io.horizontalsystems.core.IPinComponent
 import io.horizontalsystems.core.ISystemInfoManager
+import io.horizontalsystems.core.security.KeyStoreValidationError
 import io.horizontalsystems.core.security.KeyStoreValidationResult
 
 class LaunchViewModel(

@@ -38,15 +38,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.findActivity
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -72,7 +74,6 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSup
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager.SupportState
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigationItem
 import io.horizontalsystems.bankwallet.ui.extensions.WalletSwitchBottomSheet
@@ -183,17 +184,28 @@ private fun MainScreen(
     deepLink: Uri?,
     fragmentNavController: NavController,
     clearActivityData: () -> Unit,
-    viewModel: MainViewModel = viewModel(factory = MainModule.Factory(deepLink)),
+    viewModel: MainViewModel = viewModel(factory = MainModule.Factory()),
     safe4ViewModel: Safe4ViewModel,
     openLink: (String) -> Unit
 ) {
 
     val uiState = viewModel.uiState
+    val context = LocalContext.current
     val selectedPage = uiState.selectedTabIndex
     val pagerState = rememberPagerState(initialPage = selectedPage) { uiState.mainNavItems.size }
 
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+    LaunchedEffect(Unit) {
+        context.findActivity()?.let { activity ->
+            activity.intent?.data?.let { uri ->
+                viewModel.handleDeepLink(uri)
+                activity.intent?.data = null //clear intent data
+            }
+        }
+    }
+
 
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
@@ -357,9 +369,9 @@ private fun MainScreen(
         }
     }
 
-    DisposableLifecycleCallbacks(
-        onResume = viewModel::onResume,
-    )
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        viewModel.onResume()
+    }
 }
 
 @Composable

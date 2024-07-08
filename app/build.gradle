@@ -17,8 +17,8 @@ android {
         compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 105
-        versionName "v0.38.0.1.0425"
+        versionCode 108
+        versionName "v0.38.0.1.0707"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -37,7 +37,7 @@ android {
         resValue "string", "analyticsLink", "https://unstoppable.money/analytics"
         resValue "string", "appGithubLink", "https://github.com/SAFE-anwang/SafeWallet-android"
         resValue "string", "appTwitterLink", "https://twitter.com/safeanwang"
-        resValue "string", "appTelegramLink", "https://t.me/safeanwang4"
+        resValue "string", "appTelegramLink", "tg://resolve?domain=safeanwang4"
         resValue "string", "appRedditLink", "https://www.reddit.com/user/safe_2018"
         resValue "string", "reportEmail", "foundation@anwang.com"
         resValue "string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/"
@@ -69,7 +69,7 @@ android {
             debuggable true
             minifyEnabled false
             applicationIdSuffix ".dev"
-            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
+            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
             resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
             resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
@@ -115,7 +115,7 @@ android {
             debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAOXBoQEAAAAAeu7Hl%2BsC1LjgUYMc0y%2FeMKI40oY%3D6cXjUCDSpJ71IHmpOnMx3oiKPvQl7j2DIonxk91IW5RmmMYyOH"
+            resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
             resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
             resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
@@ -234,6 +234,7 @@ dependencies {
 
     //AppWidgets
     implementation 'androidx.glance:glance-appwidget:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose-android:2.8.2'
 
     // Room
     def room_version = '2.6.1'
@@ -341,7 +342,7 @@ dependencies {
     implementation 'com.github.unstoppabledomains:resolution-java:v7.1.0'
 
     // Ethereum Name Service
-    implementation "org.web3j:core:4.9.0"
+    implementation "org.web3j:core:4.9.8"
 
     implementation 'com.twitter.twittertext:twitter-text:3.1.0'
 

@@ -120,6 +120,7 @@ class AddressHandlerUdn(
             BlockchainType.Litecoin -> "LTC"
             BlockchainType.Dogecoin -> "DOGE"
             BlockchainType.Dash -> "DASH"
+            BlockchainType.SafeFour,
             BlockchainType.Safe -> "SAFE"
             BlockchainType.Zcash -> "ZEC"
             BlockchainType.Solana -> "SOL"
@@ -135,6 +136,7 @@ class AddressHandlerUdn(
             }
 
             is TokenType.Eip20 -> when (tokenQuery.blockchainType) {
+                BlockchainType.SafeFour -> "SAFE4"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Polygon -> "MATIC"
                 BlockchainType.Avalanche -> "AVAX"

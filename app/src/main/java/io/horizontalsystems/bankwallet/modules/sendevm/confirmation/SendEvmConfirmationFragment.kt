@@ -16,6 +16,7 @@ import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.databinding.FragmentConfirmationSendEvmBinding
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
@@ -145,7 +146,7 @@ class SendEvmConfirmationFragment : BaseFragment() {
                 sendEvmTransactionViewModel,
                 feeViewModel,
                 nonceServiceViewModel,
-                findNavController(),
+                findNavController()
                 /*R.id.sendWsafeConfirmationFragment,*/
             )
         }

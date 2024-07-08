@@ -17,10 +17,12 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
+import com.walletconnect.web3.wallet.client.Wallet
 import com.xuexiang.xupdate.XUpdate
 import com.xuexiang.xupdate.entity.UpdateEntity
 import com.xuexiang.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION
@@ -31,7 +33,9 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
-import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
+import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
+import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
@@ -39,6 +43,7 @@ import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
+import io.horizontalsystems.core.hideKeyboard
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -55,8 +60,8 @@ class MainActivity : BaseActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        val wcViewModel = WCViewModel()
 
         if (App.localStorage.currentTheme == ThemeType.Blue) {
             setTheme(R.style.Theme_AppTheme_DayNightBlue)
@@ -69,13 +74,32 @@ class MainActivity : BaseActivity() {
         val navController = navHost.navController
 
         navController.setGraph(R.navigation.main_graph, intent.extras)
-        navController.addOnDestinationChangedListener(this)
-        handleWeb3WalletEvents(navController, wcViewModel)
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            currentFocus?.hideKeyboard(this)
+        }
 
         viewModel.navigateToMainLiveData.observe(this) {
             if (it) {
                 navController.popBackStack(navController.graph.startDestinationId, false)
                 viewModel.onNavigatedToMain()
+            }
+        }
+
+        viewModel.wcEvent.observe(this) { wcEvent ->
+            if (wcEvent != null) {
+                when (wcEvent) {
+                    is Wallet.Model.SessionRequest -> {
+                        navController.slideFromBottom(R.id.wcRequestFragment)
+                    }
+                    is Wallet.Model.SessionProposal -> {
+                        if (!MainModule.isOpenDapp) {
+                            navController.slideFromBottom(R.id.wcSessionFragment)
+                        }
+                    }
+                    else -> {}
+                }
+
+                viewModel.onWcEventHandled()
             }
         }
 
@@ -91,6 +115,30 @@ class MainActivity : BaseActivity() {
 
         startVpn()
         startUpgradeVersion()
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        validate()
+    }
+
+    private fun validate() = try {
+        viewModel.validate()
+    } catch (e: MainScreenValidationError.NoSystemLock) {
+        KeyStoreActivity.startForNoSystemLock(this)
+        finish()
+    } catch (e: MainScreenValidationError.KeyInvalidated) {
+        KeyStoreActivity.startForInvalidKey(this)
+        finish()
+    } catch (e: MainScreenValidationError.UserAuthentication) {
+        KeyStoreActivity.startForUserAuthentication(this)
+        finish()
+    } catch (e: MainScreenValidationError.Welcome) {
+        IntroActivity.start(this)
+        finish()
+    } catch (e: MainScreenValidationError.Unlock) {
+        LockScreenActivity.start(this)
     }
 
     private fun handleWeb3WalletEvents(

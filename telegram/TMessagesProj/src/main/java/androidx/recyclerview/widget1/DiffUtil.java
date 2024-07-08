@@ -20,6 +20,9 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.recyclerview.widget1.ListAdapter;
+import androidx.recyclerview.widget1.ListUpdateCallback;
+import androidx.recyclerview.widget1.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;

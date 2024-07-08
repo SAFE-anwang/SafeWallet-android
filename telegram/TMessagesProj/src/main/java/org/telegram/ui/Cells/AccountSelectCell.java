@@ -21,12 +21,12 @@ import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ContactsController;
-import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
@@ -34,7 +34,7 @@ import org.telegram.ui.Components.LayoutHelper;
 
 public class AccountSelectCell extends FrameLayout {
 
-    private TextView textView;
+    private SimpleTextView textView;
     private TextView infoTextView;
     private BackupImageView imageView;
     private ImageView checkImageView;
@@ -52,14 +52,12 @@ public class AccountSelectCell extends FrameLayout {
         imageView.setRoundRadius(AndroidUtilities.dp(18));
         addView(imageView, LayoutHelper.createFrame(36, 36, Gravity.LEFT | Gravity.TOP, 10, 10, 0, 0));
 
-        textView = new TextView(context);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
-        textView.setLines(1);
+        textView = new SimpleTextView(context);
+        textView.setTextSize(15);
+        textView.setTypeface(AndroidUtilities.bold());
+        textView.setEllipsizeByGradient(true);
         textView.setMaxLines(1);
-        textView.setSingleLine(true);
         textView.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-        textView.setEllipsize(TextUtils.TruncateAt.END);
 
         if (hasInfo) {
             addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 61, 7, 8, 0));
@@ -77,7 +75,7 @@ public class AccountSelectCell extends FrameLayout {
             infoTextView.setEllipsize(TextUtils.TruncateAt.END);
             addView(infoTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 61, 27, 8, 0));
         } else {
-            addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP, 61, 0, 56, 0));
+            addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP, 61, 0, 52, 0));
             textView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuItem));
 
             checkImageView = new ImageView(context);
@@ -114,7 +112,7 @@ public class AccountSelectCell extends FrameLayout {
         } else {
             TLRPC.Chat chat = (TLRPC.Chat) object;
             avatarDrawable.setInfo(chat);
-            infoTextView.setText(chat.title);
+            infoTextView.setText(chat == null ? "" : chat.title);
             imageView.setForUserOrChat(chat, avatarDrawable);
         }
     }
@@ -122,7 +120,7 @@ public class AccountSelectCell extends FrameLayout {
     public void setAccount(int account, boolean check) {
         accountNumber = account;
         TLRPC.User user = UserConfig.getInstance(accountNumber).getCurrentUser();
-        avatarDrawable.setInfo(user);
+        avatarDrawable.setInfo(account, user);
         textView.setText(ContactsController.formatName(user.first_name, user.last_name));
         imageView.getImageReceiver().setCurrentAccount(account);
         imageView.setForUserOrChat(user, avatarDrawable);

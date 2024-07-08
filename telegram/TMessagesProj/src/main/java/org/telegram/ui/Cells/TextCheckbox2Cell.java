@@ -127,7 +127,7 @@ public class TextCheckbox2Cell extends FrameLayout {
         setWillNotDraw(!divider);
     }
 
-    public void setColors(String key, String switchKey, String switchKeyChecked, String switchThumb, String switchThumbChecked) {
+    public void setColors(int key, int switchKey, int switchKeyChecked, int switchThumb, int switchThumbChecked) {
         textView.setTextColor(Theme.getColor(key));
 //        checkbox.setColors(switchKey, switchKeyChecked, switchThumb, switchThumbChecked);
         textView.setTag(key);
@@ -295,6 +295,12 @@ public class TextCheckbox2Cell extends FrameLayout {
         info.setClassName("android.widget.checkbox");
         info.setCheckable(true);
         info.setChecked(checkbox.isChecked());
-        info.setContentDescription(checkbox.isChecked() ? LocaleController.getString("NotificationsOn", R.string.NotificationsOn) : LocaleController.getString("NotificationsOff", R.string.NotificationsOff));
+        StringBuilder sb = new StringBuilder();
+        sb.append(textView.getText());
+        if (valueTextView != null) {
+            sb.append("\n");
+            sb.append(valueTextView.getText());
+        }
+        info.setText(sb);
     }
 }

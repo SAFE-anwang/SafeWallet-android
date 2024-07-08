@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactVi
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCChainData
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
+import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinPluginService
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
@@ -124,12 +125,14 @@ object SendEvmModule {
     data class TransactionDataParcelable(
         val toAddress: String,
         val value: BigInteger,
-        val input: ByteArray
+        val input: ByteArray,
+        val lockTime: Int?
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
-            transactionData.input
+            transactionData.input,
+            transactionData.lockTime
         )
     }
 
@@ -155,6 +158,7 @@ object SendEvmModule {
                     )
                     val addressService = SendEvmAddressService(predefinedAddress)
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
+                    val pluginService = SendBitcoinPluginService(wallet.token.blockchainType)
 
                     SendEvmViewModel(
                         wallet,
@@ -166,6 +170,7 @@ object SendEvmModule {
                         coinMaxAllowedDecimals,
                         predefinedAddress == null,
                         App.connectivityManager,
+                        pluginService
                     ) as T
                 }
                 else -> throw IllegalArgumentException()

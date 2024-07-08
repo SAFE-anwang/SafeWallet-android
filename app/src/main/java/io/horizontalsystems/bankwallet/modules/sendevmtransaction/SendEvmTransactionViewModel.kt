@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItemFactory
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.stats.StatSection
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -252,7 +253,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
 
@@ -311,7 +313,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressRecipient
                 )
             )
             contact?.let {
@@ -533,7 +536,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressRecipient
                 )
             )
             contact?.let {
@@ -643,7 +647,8 @@ class SendEvmTransactionViewModel(
                 Translator.getString(R.string.Send_Confirmation_To),
                 addressValue,
                 contact == null,
-                blockchainType
+                blockchainType,
+                StatSection.AddressTo
             )
         )
         contact?.let {
@@ -698,7 +703,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.Approve_Spender),
                     addressValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressSpender
                 )
             )
             contact?.let {
@@ -755,7 +761,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
             contact?.let {
@@ -799,7 +806,8 @@ class SendEvmTransactionViewModel(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
                     contact == null,
-                    blockchainType
+                    blockchainType,
+                    StatSection.AddressTo
                 )
             )
             contact?.let {
@@ -894,7 +902,7 @@ class SendEvmTransactionViewModel(
         }
 
 }
-
+/*
 data class SectionViewItem(
     val viewItems: List<ViewItem>
 )
@@ -943,4 +951,4 @@ data class AmountValues(val coinAmount: String, val fiatAmount: String?)
 
 enum class ValueType {
     Regular, Disabled, Outgoing, Incoming, Warning, Forbidden
-}
+}*/

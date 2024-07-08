@@ -9,13 +9,18 @@
 package org.telegram.ui;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.collection.LongSparseArray;
+import androidx.recyclerview.widget1.LinearLayoutManager;
+import androidx.recyclerview.widget1.RecyclerView;
+
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.MediaDataController;
 import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.MediaDataController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.tgnet.TLRPC;
@@ -32,11 +37,8 @@ import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.StickersAlert;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import androidx.collection.LongSparseArray;
-import androidx.recyclerview.widget1.LinearLayoutManager;
-import androidx.recyclerview.widget1.RecyclerView;
 
 public class ArchivedStickersActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -47,6 +49,7 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
     private LinearLayoutManager layoutManager;
     private RecyclerListView listView;
 
+    private HashSet<Long> loadedSets = new HashSet<>();
     private ArrayList<TLRPC.StickerSetCovered> sets = new ArrayList<>();
     private boolean firstLoaded;
     private boolean endReached;
@@ -93,6 +96,8 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
         actionBar.setAllowOverlayTitle(true);
         if (currentType == MediaDataController.TYPE_IMAGE) {
             actionBar.setTitle(LocaleController.getString("ArchivedStickers", R.string.ArchivedStickers));
+        } else if (currentType == MediaDataController.TYPE_EMOJIPACKS) {
+            actionBar.setTitle(LocaleController.getString("ArchivedEmojiPacks", R.string.ArchivedEmojiPacks));
         } else {
             actionBar.setTitle(LocaleController.getString("ArchivedMasks", R.string.ArchivedMasks));
         }
@@ -173,7 +178,7 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
     private void updateRows() {
         rowCount = 0;
         if (!sets.isEmpty()) {
-            archiveInfoRow = currentType == MediaDataController.TYPE_IMAGE ? rowCount++ : -1;
+            archiveInfoRow = currentType == MediaDataController.TYPE_IMAGE || currentType == MediaDataController.TYPE_EMOJIPACKS ? rowCount++ : -1;
             stickersStartRow = rowCount;
             stickersEndRow = rowCount + sets.size();
             rowCount += sets.size();
@@ -208,6 +213,7 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
         req.offset_id = sets.isEmpty() ? 0 : sets.get(sets.size() - 1).set.id;
         req.limit = 15;
         req.masks = currentType == MediaDataController.TYPE_MASK;
+        req.emojis = currentType == MediaDataController.TYPE_EMOJIPACKS;
         int reqId = getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
             if (error == null) {
                 processResponse((TLRPC.TL_messages_archivedStickers) response);
@@ -218,8 +224,14 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
 
     private void processResponse(TLRPC.TL_messages_archivedStickers res) {
         if (!isInTransition) {
-            sets.addAll(res.sets);
-            endReached = res.sets.size() != 15;
+            int added = 0;
+            for (TLRPC.StickerSetCovered s : res.sets) {
+                if (loadedSets.contains(s.set.id)) continue;
+                loadedSets.add(s.set.id);
+                sets.add(s);
+                added++;
+            }
+            endReached = added <= 0;
             loadingStickers = false;
             firstLoaded = true;
             if (emptyView != null) {
@@ -235,12 +247,12 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
     }
 
     @Override
-    protected void onTransitionAnimationStart(boolean isOpen, boolean backward) {
+    public void onTransitionAnimationStart(boolean isOpen, boolean backward) {
         isInTransition = true;
     }
 
     @Override
-    protected void onTransitionAnimationEnd(boolean isOpen, boolean backward) {
+    public void onTransitionAnimationEnd(boolean isOpen, boolean backward) {
         isInTransition = false;
         if (doOnTransitionEnd != null) {
             doOnTransitionEnd.run();
@@ -341,7 +353,7 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
                 if (position == archiveInfoRow) {
                     cell.setTopPadding(17);
                     cell.setBottomPadding(10);
-                    cell.setText(LocaleController.getString("ArchivedStickersInfo", R.string.ArchivedStickersInfo));
+                    cell.setText(currentType == MediaDataController.TYPE_EMOJIPACKS ? LocaleController.getString("ArchivedEmojiInfo", R.string.ArchivedEmojiInfo) : LocaleController.getString("ArchivedStickersInfo", R.string.ArchivedStickersInfo));
                 } else {
                     cell.setTopPadding(10);
                     cell.setBottomPadding(17);
@@ -365,11 +377,11 @@ public class ArchivedStickersActivity extends BaseFragment implements Notificati
                     break;
                 case 1:
                     view = new LoadingCell(mContext);
-                    view.setBackgroundDrawable(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+                    view.setBackgroundDrawable(Theme.getThemedDrawableByKey(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                     break;
                 case 2:
                     view = new TextInfoPrivacyCell(mContext);
-                    view.setBackgroundDrawable(Theme.getThemedDrawable(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
+                    view.setBackgroundDrawable(Theme.getThemedDrawableByKey(mContext, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
                     break;
             }
             view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));

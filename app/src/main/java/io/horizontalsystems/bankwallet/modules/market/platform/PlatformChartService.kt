@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.modules.chart.ChartPointsWrapper
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.chartview.ChartViewType
 import io.horizontalsystems.chartview.models.ChartPoint
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.HsPeriodType
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
@@ -41,7 +42,7 @@ class PlatformChartService(
         val mostPeriodSeconds = now - chartStartTime
 
         chartIntervals = HsTimePeriod.values().filter {
-            it.range <= mostPeriodSeconds && (platform.uid != "safe-coin" || it.value != "5y")
+            it.range <= mostPeriodSeconds && (!platform.uid.isSafeCoin() || it.value != "5y")
             false
         } + listOf<HsTimePeriod?>(null)
 

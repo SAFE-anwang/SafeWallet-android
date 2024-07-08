@@ -43,6 +43,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
 class FilterCoinFragment : BaseComposeFragment() {
 
@@ -88,7 +89,7 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        if (token.coin.uid == "safe-coin") {
+                                        if (token.coin.isSafeCoin()) {
                                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                                 contentDescription = null,
                                                 modifier = Modifier

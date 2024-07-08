@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.watchaddress.WatchAddressService
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 
 class SelectBlockchainsViewModel(
@@ -87,7 +88,7 @@ class SelectBlockchainsViewModel(
     }
 
     private fun getImageSource(token: Token, placeHolder: Int = R.drawable.coin_placeholder): ImageSource {
-        return if (token.coin.uid == "safe-coin") {
+        return if (token.coin.isSafeCoin()) {
             ImageSource.Local(R.drawable.logo_safe_24)
         } else {
             ImageSource.Remote(token.fullCoin.coin.imageUrl, placeHolder)

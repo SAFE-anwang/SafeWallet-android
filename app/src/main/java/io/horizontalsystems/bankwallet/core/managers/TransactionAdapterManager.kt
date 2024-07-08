@@ -52,6 +52,7 @@ class TransactionAdapterManager(
             var txAdapter = currentAdapters.remove(source)
             if (txAdapter == null) {
                 txAdapter = when (val blockchainType = source.blockchain.type) {
+                    BlockchainType.SafeFour,
                     BlockchainType.Ethereum,
                     BlockchainType.BinanceSmartChain,
                     BlockchainType.Polygon,

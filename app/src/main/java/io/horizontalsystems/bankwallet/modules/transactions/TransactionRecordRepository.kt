@@ -70,6 +70,7 @@ class TransactionRecordRepository(
                 BlockchainType.Zcash,
                 BlockchainType.ECash,
                 BlockchainType.BinanceChain -> mergedWallets.add(wallet)
+                BlockchainType.SafeFour,
                 BlockchainType.Ethereum,
                 BlockchainType.BinanceSmartChain,
                 BlockchainType.Polygon,

@@ -656,6 +656,9 @@
     <string name="WalletConnect_Error_NoSuitableAccount">No suitable account</string>
     <string name="WalletConnect_Error_NoSuitableEvmKit">No suitable evm kit</string>
     <string name="WalletConnect_Error_DataParsingError">Data parsing error</string>
+    <string name="WalletConnect_Error_UnsupportedChains">Unsupported chains: %s</string>
+    <string name="WalletConnect_Error_UnsupportedMethods">Unsupported methods: %s</string>
+    <string name="WalletConnect_Error_UnsupportedEvents">Unsupported events: %s</string>
     <string name="WalletConnect_Error_RequestNotFoundError">Request not found error</string>
     <string name="WalletConnect_NoConnection">You don\’t have any connected dapps</string>
     <string name="WalletConnect_PendingRequests">Pending Requests</string>
@@ -2260,4 +2263,5 @@
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
+    <string name="Send_Safe_Four_Hodler_Description">TimeLock works only for sending to Safe 4 (starting with 1)</string>
 </resources>

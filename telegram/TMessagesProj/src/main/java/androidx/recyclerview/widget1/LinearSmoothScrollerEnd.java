@@ -11,6 +11,8 @@ package androidx.recyclerview.widget1;
 import android.content.Context;
 import android.graphics.PointF;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.RecyclerView;
+
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;

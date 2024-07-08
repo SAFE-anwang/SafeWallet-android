@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
 import io.horizontalsystems.bankwallet.core.IReceiveAdapter
 import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -213,4 +214,9 @@ class AdapterManager(
         return adaptersMap[wallet]?.let { it as? IReceiveAdapter }
     }
 
+    override fun refreshSafeAdapter() {
+        handler.post {
+            adaptersMap.values.forEach { if (it is SafeAdapter) it.refresh() }
+        }
+    }
 }

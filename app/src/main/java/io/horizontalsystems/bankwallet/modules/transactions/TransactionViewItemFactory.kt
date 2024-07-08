@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord.Type.U
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
@@ -24,6 +25,8 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomi
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ExternalContractCallTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.SwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.TransferEvent
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.UnknownSwapTransactionRecord
@@ -40,6 +43,8 @@ import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColorName
 import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
+import io.horizontalsystems.ethereumkit.core.Safe4Web3jUtils
+import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.tronkit.models.Contract
 import java.math.BigDecimal
@@ -272,6 +277,20 @@ class TransactionViewItemFactory(
             }
 
             is ContractCreationTransactionRecord -> createViewItemFromContractCreationTransactionRecord(record, progress, icon)
+            is Safe4DepositEvmIncomingTransactionRecord -> {
+                createViewItemFromSafe4EvmIncomingTransactionRecord(
+                        uid = record.uid,
+                        value = record.value,
+                        from = record.from,
+                        blockchainType = record.blockchainType,
+                        timestamp = record.timestamp,
+                        currencyValue = transactionItem.currencyValue,
+                        progress = progress,
+                        spam = record.spam,
+                        icon = icon,
+                        input = record.transaction.input?.toHexString()
+                )
+            }
             is EvmIncomingTransactionRecord -> {
                 createViewItemFromEvmIncomingTransactionRecord(
                     uid = record.uid,
@@ -286,6 +305,22 @@ class TransactionViewItemFactory(
                 )
             }
 
+            is Safe4DepositEvmOutgoingTransactionRecord -> {
+                createViewItemFromSafe4EvmOutgoingTransactionRecord(
+                        uid = record.uid,
+                        value = record.value,
+                        to = record.to,
+                        blockchainType = record.blockchainType,
+                        timestamp = record.timestamp,
+                        sentToSelf = record.sentToSelf,
+                        currencyValue = transactionItem.currencyValue,
+                        progress = progress,
+                        spam = record.spam,
+                        icon = icon,
+                        nftMetadata = transactionItem.nftMetadata,
+                        input = record.transaction.input?.toHexString()
+                )
+            }
             is EvmOutgoingTransactionRecord -> {
                 createViewItemFromEvmOutgoingTransactionRecord(
                     uid = record.uid,
@@ -708,6 +743,82 @@ class TransactionViewItemFactory(
             icon = icon ?: singleValueIconType(value, nftMetadata)
         )
     }
+
+    private fun createViewItemFromSafe4EvmOutgoingTransactionRecord(
+        uid: String,
+        value: TransactionValue,
+        to: String,
+        blockchainType: BlockchainType,
+        timestamp: Long,
+        sentToSelf: Boolean,
+        currencyValue: CurrencyValue?,
+        progress: Float?,
+        spam: Boolean,
+        icon: TransactionViewItem.Icon?,
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
+        input: String?
+    ): TransactionViewItem {
+        val primaryValue = if (sentToSelf) {
+            ColoredValue(getCoinString(value, true), ColorName.Leah)
+        } else {
+            getColoredValue(value, ColorName.Lucian)
+        }
+
+        val secondaryValue = singleValueSecondaryValue(value, currencyValue, nftMetadata)
+        val address = Safe4Web3jUtils.depositDecode(input)?.shorten() ?: mapped(to, blockchainType)
+        return TransactionViewItem(
+            uid = uid,
+            progress = progress,
+            title = Translator.getString(R.string.Transactions_Send),
+            subtitle = Translator.getString(R.string.Transactions_To, address),
+            primaryValue = primaryValue,
+            secondaryValue = secondaryValue,
+            showAmount = showAmount,
+            date = Date(timestamp * 1000),
+            sentToSelf = sentToSelf,
+            spam = spam,
+            icon = icon ?: singleValueIconType(value, nftMetadata),
+            locked = true
+        )
+    }
+
+
+    private fun createViewItemFromSafe4EvmIncomingTransactionRecord(
+            uid: String,
+            value: TransactionValue,
+            from: String,
+            blockchainType: BlockchainType,
+            timestamp: Long,
+            currencyValue: CurrencyValue?,
+            progress: Float?,
+            spam: Boolean,
+            icon: TransactionViewItem.Icon?,
+            input: String?
+    ): TransactionViewItem {
+        val primaryValue = getColoredValue(value, ColorName.Remus)
+        val secondaryValue = currencyValue?.let {
+            getColoredValue(it, ColorName.Grey)
+        }
+
+        val address = Safe4Web3jUtils.depositDecode(input)?.shorten() ?: mapped(from, blockchainType)
+        return TransactionViewItem(
+                uid = uid,
+                progress = progress,
+                title = Translator.getString(R.string.Transactions_Receive),
+                subtitle = Translator.getString(
+                        R.string.Transactions_From,
+                        address
+                ),
+                primaryValue = primaryValue,
+                secondaryValue = secondaryValue,
+                showAmount = showAmount,
+                date = Date(timestamp * 1000),
+                spam = spam,
+                icon = icon ?: singleValueIconType(value),
+                locked = true
+        )
+    }
+
 
     private fun getColoredValue(value: Any, color: ColorName): ColoredValue =
         when (value) {

@@ -19,6 +19,8 @@ package androidx.recyclerview.widget1;
 import android.graphics.Canvas;
 import android.view.View;
 
+import androidx.recyclerview.widget1.RecyclerView;
+
 /**
  * Utility class for {@link ItemTouchHelper} which handles item transformations for different
  * API versions.

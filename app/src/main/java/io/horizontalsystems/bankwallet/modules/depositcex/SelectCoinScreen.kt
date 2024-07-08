@@ -108,7 +108,7 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            if (viewItem.coinIconUrl?.contains("safe-coin") == true) {
+            if (viewItem.coinIconUrl?.contains("safe-coin") == true || viewItem.coinIconUrl?.contains("safe4-coin") == true) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp)

@@ -33,6 +33,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
@@ -328,7 +329,7 @@ private fun ContactAddress(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClickEdit
     ) {
-        if (addressViewItem.blockchain.type is BlockchainType.Safe) {
+        if (addressViewItem.blockchain.uid.isSafeCoin()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier

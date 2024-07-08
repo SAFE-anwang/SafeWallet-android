@@ -34,6 +34,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.FullCoin
 
 class SendEvmFragment : BaseFragment() {
@@ -133,7 +134,7 @@ class SendEvmFragment : BaseFragment() {
                 AppBar(
                     title = stringResource(R.string.Send_Title, fullCoin.coin.code),
                     navigationIcon = {
-                        if (fullCoin.coin.uid == "safe-coin") {
+                        if (fullCoin.coin.isSafeCoin()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

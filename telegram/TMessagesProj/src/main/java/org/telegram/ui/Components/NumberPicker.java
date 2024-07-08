@@ -22,10 +22,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -71,8 +73,11 @@ public class NumberPicker extends LinearLayout {
     private int mSelectorTextGapHeight;
     private String[] mDisplayedValues;
     private int mMinValue;
+    private boolean mMinValueSet;
     private int mMaxValue;
+    private boolean mMaxValueSet;
     private int mValue;
+    private int mFantomValue;
     private OnValueChangeListener mOnValueChangeListener;
     private OnScrollListener mOnScrollListener;
     private Formatter mFormatter;
@@ -94,7 +99,7 @@ public class NumberPicker extends LinearLayout {
     private int mTouchSlop;
     private int mMinimumFlingVelocity;
     private int mMaximumFlingVelocity;
-    private boolean mWrapSelectorWheel;
+    private boolean mWrapSelectorWheel, mWrapSelectorWheelSetting;
     private int mSolidColor;
     private Paint mSelectionDivider;
     private int mSelectionDividerHeight;
@@ -138,10 +143,14 @@ public class NumberPicker extends LinearLayout {
         initializeSelectorWheelIndices();
     }
 
+    public int getItemsCount() {
+        return SELECTOR_WHEEL_ITEM_COUNT;
+    }
+
     private void init() {
         mSolidColor = 0;
         mSelectionDivider = new Paint();
-        mSelectionDivider.setColor(getThemedColor(Theme.key_dialogButton));
+        mSelectionDivider.setColor(getThemedColor(Theme.key_featuredStickers_addButton));
 
         mSelectionDividerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, UNSCALED_DEFAULT_SELECTION_DIVIDER_HEIGHT, getResources().getDisplayMetrics());
         mSelectionDividersDistance = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, UNSCALED_DEFAULT_SELECTION_DIVIDERS_DISTANCE, getResources().getDisplayMetrics());
@@ -623,10 +632,14 @@ public class NumberPicker extends LinearLayout {
     }
 
     public void setWrapSelectorWheel(boolean wrapSelectorWheel) {
-        final boolean wrappingAllowed = (mMaxValue - mMinValue) >= mSelectorIndices.length;
-        if ((!wrapSelectorWheel || wrappingAllowed) && wrapSelectorWheel != mWrapSelectorWheel) {
-            mWrapSelectorWheel = wrapSelectorWheel;
-        }
+        final boolean wrappingAllowed = !(mMaxValueSet && mMinValueSet) || allItemsCount != null && (mMaxValue - mMinValue + 1) >= allItemsCount;
+        mWrapSelectorWheel = wrappingAllowed && (mWrapSelectorWheelSetting = wrapSelectorWheel);
+    }
+
+    private Integer allItemsCount;
+    public void setAllItemsCount(int allItemsCount) {
+        this.allItemsCount = allItemsCount;
+        setWrapSelectorWheel(mWrapSelectorWheelSetting);
     }
 
     public void setOnLongPressUpdateInterval(long intervalMillis) {
@@ -642,6 +655,7 @@ public class NumberPicker extends LinearLayout {
     }
 
     public void setMinValue(int minValue) {
+        mMinValueSet = true;
         if (mMinValue == minValue) {
             return;
         }
@@ -650,14 +664,20 @@ public class NumberPicker extends LinearLayout {
         }
         mMinValue = minValue;
         if (mMinValue > mValue) {
-            mValue = mMinValue;
+            if (mMinValue <= mFantomValue) {
+                mValue = mFantomValue;
+            } else {
+                mValue = mMinValue;
+            }
         }
-        boolean wrapSelectorWheel = mMaxValue - mMinValue > mSelectorIndices.length;
-        setWrapSelectorWheel(wrapSelectorWheel);
+        setWrapSelectorWheel(mWrapSelectorWheelSetting);
         initializeSelectorWheelIndices();
         updateInputTextView();
         tryComputeMaxWidth();
         invalidate();
+        if (mScrollState == OnScrollListener.SCROLL_STATE_IDLE && mOnScrollListener != null) {
+            mOnScrollListener.onScrollStateChange(this, OnScrollListener.SCROLL_STATE_IDLE);
+        }
     }
 
     public int getMaxValue() {
@@ -665,6 +685,7 @@ public class NumberPicker extends LinearLayout {
     }
 
     public void setMaxValue(int maxValue) {
+        mMaxValueSet = true;
         if (mMaxValue == maxValue) {
             return;
         }
@@ -673,14 +694,20 @@ public class NumberPicker extends LinearLayout {
         }
         mMaxValue = maxValue;
         if (mMaxValue < mValue) {
-            mValue = mMaxValue;
+            if (mMaxValue >= mFantomValue) {
+                mValue = mFantomValue;
+            } else {
+                mValue = mMaxValue;
+            }
         }
-        boolean wrapSelectorWheel = mMaxValue - mMinValue > mSelectorIndices.length;
-        setWrapSelectorWheel(wrapSelectorWheel);
+        setWrapSelectorWheel(mWrapSelectorWheelSetting);
         initializeSelectorWheelIndices();
         updateInputTextView();
         tryComputeMaxWidth();
         invalidate();
+        if (mScrollState == OnScrollListener.SCROLL_STATE_IDLE && mOnScrollListener != null) {
+            mOnScrollListener.onScrollStateChange(this, OnScrollListener.SCROLL_STATE_IDLE);
+        }
     }
 
     public String[] getDisplayedValues() {
@@ -713,10 +740,27 @@ public class NumberPicker extends LinearLayout {
         removeAllCallbacks();
     }
 
+    private int thisGravity;
+    @Override
+    public void setGravity(int gravity) {
+        super.setGravity(thisGravity = gravity);
+    }
+
     private final static CubicBezierInterpolator interpolator = new CubicBezierInterpolator(0, 0.5f, 0.5f, 1f);
     @Override
     protected void onDraw(Canvas canvas) {
-        float x = (getRight() - getLeft()) / 2 + textOffset;
+        float x;
+        if (thisGravity == Gravity.RIGHT) {
+            mSelectorWheelPaint.setTextAlign(Align.RIGHT);
+            x = getWidth();
+        } else if (thisGravity == Gravity.LEFT) {
+            mSelectorWheelPaint.setTextAlign(Align.LEFT);
+            x = 0;
+        } else {
+            mSelectorWheelPaint.setTextAlign(Align.CENTER);
+            x = getWidth() / 2f;
+        }
+        x += textOffset;
         float y = mCurrentScrollOffset;
 
         // draw the selector wheel
@@ -854,16 +898,22 @@ public class NumberPicker extends LinearLayout {
             current = Math.min(current, mMaxValue);
         }
         int previous = mValue;
-        mValue = current;
+        mValue = mFantomValue = current;
         updateInputTextView();
+        if (Math.abs(previous - current) > 0.9f) {
+            AndroidUtilities.vibrateCursor(this);
+        }
         if (notifyChange) {
             notifyChange(previous, current);
         }
         initializeSelectorWheelIndices();
         invalidate();
+        if (mScrollState == OnScrollListener.SCROLL_STATE_IDLE && mOnScrollListener != null) {
+            mOnScrollListener.onScrollStateChange(this, OnScrollListener.SCROLL_STATE_IDLE);
+        }
     }
 
-    private void changeValueByOne(boolean increment) {
+    protected void changeValueByOne(boolean increment) {
         mInputText.setVisibility(View.INVISIBLE);
         if (!moveToFinalScrollerPosition(mFlingScroller)) {
             moveToFinalScrollerPosition(mAdjustScroller);
@@ -942,9 +992,9 @@ public class NumberPicker extends LinearLayout {
     }
 
     private int getWrappedSelectorIndex(int selectorIndex) {
-        if (selectorIndex > mMaxValue) {
+        if (mMaxValueSet && selectorIndex > mMaxValue && mMaxValue - mMinValue != 0) {
             return mMinValue + (selectorIndex - mMaxValue) % (mMaxValue - mMinValue) - 1;
-        } else if (selectorIndex < mMinValue) {
+        } else if (mMinValueSet && selectorIndex < mMinValue && mMaxValue - mMinValue != 0) {
             return mMaxValue - (mMinValue - selectorIndex) % (mMaxValue - mMinValue) + 1;
         }
         return selectorIndex;
@@ -1179,8 +1229,7 @@ public class NumberPicker extends LinearLayout {
         invalidate();
     }
 
-    private int getThemedColor(String key) {
-        Integer color = resourcesProvider != null ? resourcesProvider.getColor(key) : null;
-        return color != null ? color : Theme.getColor(key);
+    private int getThemedColor(int key) {
+        return Theme.getColor(key, resourcesProvider);
     }
 }

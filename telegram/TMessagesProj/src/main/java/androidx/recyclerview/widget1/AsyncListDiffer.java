@@ -21,6 +21,10 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.DiffUtil;
+import androidx.recyclerview.widget1.ListAdapter;
+import androidx.recyclerview.widget1.ListUpdateCallback;
+import androidx.recyclerview.widget1.RecyclerView;
 
 import java.util.Collections;
 import java.util.List;

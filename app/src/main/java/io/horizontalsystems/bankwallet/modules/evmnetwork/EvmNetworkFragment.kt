@@ -65,6 +65,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 import io.horizontalsystems.marketkit.models.Blockchain
 
 class EvmNetworkFragment : BaseComposeFragment() {
@@ -125,16 +126,24 @@ private fun EvmNetworkScreen(
             AppBar(
                 title = viewModel.title,
                 navigationIcon = {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            model = viewModel.blockchain.type.imageUrl,
-                            error = painterResource(R.drawable.ic_platform_placeholder_32)
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 14.dp)
-                            .size(24.dp)
-                    )
+                    if (viewModel.blockchain.type.imageUrl.isSafeIcon()) {
+                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
+                                contentDescription = null,
+                                modifier = Modifier.padding(start = 14.dp)
+                                        .size(24.dp)
+                        )
+                    } else {
+                        Image(
+                                painter = rememberAsyncImagePainter(
+                                        model = viewModel.blockchain.type.imageUrl,
+                                        error = painterResource(R.drawable.ic_platform_placeholder_32)
+                                ),
+                                contentDescription = null,
+                                modifier = Modifier
+                                        .padding(start = 14.dp)
+                                        .size(24.dp)
+                        )
+                    }
                 },
                 menuItems = listOf(
                     MenuItem(

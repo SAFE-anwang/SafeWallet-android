@@ -111,6 +111,7 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bitcoincore.managers.ConnectionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCWalletRequestHandler
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionStorage
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetManager
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetRepository
@@ -182,6 +183,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var coinManager: ICoinManager
         lateinit var wcSessionManager: WCSessionManager
         lateinit var wcManager: WCManager
+        lateinit var wcWalletRequestHandler: WCWalletRequestHandler
         lateinit var termsManager: ITermsManager
         lateinit var marketFavoritesManager: MarketFavoritesManager
         lateinit var marketKit: MarketKitWrapper
@@ -209,7 +211,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager
-        lateinit var bitCoinConnectionManager: ConnectionManager
         var tmpItemToShow: TransactionItem? = null
     }
 
@@ -231,7 +232,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         MMKV.initialize(this)
 
         instance = this
-        bitCoinConnectionManager = ConnectionManager(this)
 
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
@@ -388,13 +388,14 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             pinDbStorage = PinDbStorage(appDatabase.pinDao())
         )
 
-        backgroundStateChangeListener = BackgroundStateChangeListener(systemInfoManager, keyStoreManager, pinComponent).apply {
+        backgroundStateChangeListener = BackgroundStateChangeListener(pinComponent).apply {
             backgroundManager.registerListener(this)
         }
 
         rateAppManager = RateAppManager(walletManager, adapterManager, localStorage)
 
         wcManager = WCManager(accountManager)
+        wcWalletRequestHandler = WCWalletRequestHandler(evmBlockchainManager)
 
         termsManager = TermsManager(localStorage)
 
@@ -469,7 +470,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
 
-        ApplicationLoader.instance.init(this)
+        ApplicationLoader.applicationLoaderInstance.init(this)
         ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")

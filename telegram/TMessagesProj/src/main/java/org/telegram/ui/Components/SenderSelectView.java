@@ -11,16 +11,17 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 
-import com.google.android.exoplayer2.util.Log;
-
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ImageReceiver;
+import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.R;
+import org.telegram.messenger.UserObject;
 import org.telegram.tgnet.TLObject;
+import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 
 public class SenderSelectView extends View {
@@ -49,6 +50,7 @@ public class SenderSelectView extends View {
         menuPaint.setStrokeCap(Paint.Cap.ROUND);
         menuPaint.setStyle(Paint.Style.STROKE);
         updateColors();
+        setContentDescription(LocaleController.formatString("AccDescrSendAsPeer", R.string.AccDescrSendAsPeer, ""));
     }
 
     private void updateColors() {
@@ -117,6 +119,15 @@ public class SenderSelectView extends View {
      * @param obj User or chat
      */
     public void setAvatar(TLObject obj) {
+        String objName = "";
+        if (obj instanceof TLRPC.User) {
+            objName = UserObject.getFirstName((TLRPC.User) obj);
+        } else if (obj instanceof TLRPC.Chat) {
+            objName = ((TLRPC.Chat) obj).title;
+        } else if (obj instanceof TLRPC.ChatInvite) {
+            objName = ((TLRPC.ChatInvite) obj).title;
+        }
+        setContentDescription(LocaleController.formatString("AccDescrSendAsPeer", R.string.AccDescrSendAsPeer, objName));
         avatarDrawable.setInfo(obj);
         avatarImage.setForUserOrChat(obj, avatarDrawable);
     }

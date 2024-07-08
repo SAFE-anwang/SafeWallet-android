@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.SubscriptionManager
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.DataState
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Analytics
 import io.horizontalsystems.marketkit.models.AnalyticsPreview
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -58,7 +59,7 @@ class CoinAnalyticsService(
             _stateFlow.emit(DataState.Loading)
 
             try {
-                if (fullCoin.coin.uid == "safe-coin") {
+                if (fullCoin.coin.isSafeCoin()) {
                     marketKit.safeAnalyticsSingle("safe-anwang", currency.code, apiTag).await()
                         .let {
                             _stateFlow.emit(DataState.Success(AnalyticData(analytics = it)))
@@ -94,7 +95,7 @@ class CoinAnalyticsService(
         }
 
         try {
-            if (fullCoin.coin.uid == "safe-coin") {
+            if (fullCoin.coin.isSafeCoin()) {
                 marketKit.safeAnalyticsPreviewSingle(fullCoin.coin.uid, addresses, apiTag).await()
                     .let {
                         _stateFlow.emit(DataState.Success(AnalyticData(analyticsPreview = it)))

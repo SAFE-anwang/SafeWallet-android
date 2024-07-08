@@ -18,6 +18,7 @@ package androidx.recyclerview.widget1;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget1.RecyclerView;
 
 import java.util.List;
 

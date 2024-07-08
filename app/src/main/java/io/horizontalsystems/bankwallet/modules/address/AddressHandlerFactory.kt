@@ -67,6 +67,7 @@ class AddressHandlerFactory(
                 addressHandlers.add(AddressHandlerZcash())
             }
 
+            BlockchainType.SafeFour,
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
@@ -100,6 +101,7 @@ class AddressHandlerFactory(
         val udnHandler = AddressHandlerUdn(TokenQuery(blockchainType, TokenType.Native), null, udnApiKey)
         val domainAddressHandlers = mutableListOf<IAddressHandler>(udnHandler)
         when (blockchainType) {
+            BlockchainType.SafeFour,
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,

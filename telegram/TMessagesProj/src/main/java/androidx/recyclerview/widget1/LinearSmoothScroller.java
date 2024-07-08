@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
+import androidx.recyclerview.widget1.RecyclerView;
+
 import org.telegram.messenger.BuildVars;
 
 /**
@@ -31,7 +33,7 @@ import org.telegram.messenger.BuildVars;
  * {@link DecelerateInterpolator} to slowly approach to target position.
  * <p>
  * If the {@link RecyclerView.LayoutManager} you are using does not implement the
- * {@link RecyclerView.SmoothScroller.ScrollVectorProvider} interface, then you must override the
+ * {@link ScrollVectorProvider} interface, then you must override the
  * {@link #computeScrollVectorForPosition(int)} method. All the LayoutManagers bundled with
  * the support library implement this interface.
  */
@@ -41,14 +43,14 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
 
     private static final float MILLISECONDS_PER_INCH = 25f;
 
-    private static final int TARGET_SEEK_SCROLL_DISTANCE_PX = 10000;
+    protected static final int TARGET_SEEK_SCROLL_DISTANCE_PX = 10000;
 
     /**
      * Align child view's left or top with parent view's left or top
      *
      * @see #calculateDtToFit(int, int, int, int, int)
-     * @see #calculateDxToMakeVisible(android.view.View, int)
-     * @see #calculateDyToMakeVisible(android.view.View, int)
+     * @see #calculateDxToMakeVisible(View, int)
+     * @see #calculateDyToMakeVisible(View, int)
      */
     public static final int SNAP_TO_START = -1;
 
@@ -56,8 +58,8 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * Align child view's right or bottom with parent view's right or bottom
      *
      * @see #calculateDtToFit(int, int, int, int, int)
-     * @see #calculateDxToMakeVisible(android.view.View, int)
-     * @see #calculateDyToMakeVisible(android.view.View, int)
+     * @see #calculateDxToMakeVisible(View, int)
+     * @see #calculateDyToMakeVisible(View, int)
      */
     public static final int SNAP_TO_END = 1;
 
@@ -68,15 +70,15 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      * {@code SNAP_TO_ANY} is the same as using {@code SNAP_TO_START}</p>
      *
      * @see #calculateDtToFit(int, int, int, int, int)
-     * @see #calculateDxToMakeVisible(android.view.View, int)
-     * @see #calculateDyToMakeVisible(android.view.View, int)
+     * @see #calculateDxToMakeVisible(View, int)
+     * @see #calculateDyToMakeVisible(View, int)
      */
     public static final int SNAP_TO_ANY = 0;
 
     // Trigger a scroll to a further distance than TARGET_SEEK_SCROLL_DISTANCE_PX so that if target
     // view is not laid out until interim target position is reached, we can detect the case before
     // scrolling slows down and reschedule another interim target scroll
-    private static final float TARGET_SEEK_EXTRA_SCROLL_RATIO = 1.2f;
+    protected static final float TARGET_SEEK_EXTRA_SCROLL_RATIO = 1.2f;
 
     protected final LinearInterpolator mLinearInterpolator = new LinearInterpolator();
 
@@ -198,7 +200,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
      *
      * @param dx Distance in pixels that we want to scroll
      * @return Time in milliseconds
-     * @see #calculateSpeedPerPixel(android.util.DisplayMetrics)
+     * @see #calculateSpeedPerPixel(DisplayMetrics)
      */
     protected int calculateTimeForScrolling(int dx) {
         // In a case where dx is very small, rounding may return 0 although dx > 0.
@@ -274,8 +276,8 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
     }
 
     /**
-     * Helper method for {@link #calculateDxToMakeVisible(android.view.View, int)} and
-     * {@link #calculateDyToMakeVisible(android.view.View, int)}
+     * Helper method for {@link #calculateDxToMakeVisible(View, int)} and
+     * {@link #calculateDyToMakeVisible(View, int)}
      */
     public int calculateDtToFit(int viewStart, int viewEnd, int boxStart, int boxEnd, int
             snapPreference) {

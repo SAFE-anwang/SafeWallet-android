@@ -5,6 +5,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 
 object SendTransactionServiceFactory {
     fun create(blockchainType: BlockchainType): ISendTransactionService = when (blockchainType) {
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,

@@ -13,6 +13,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -49,6 +50,7 @@ import org.telegram.ui.LaunchActivity;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class Browser {
 
@@ -178,40 +180,106 @@ public class Browser {
         if (equals) {
             return url.equals("telegra.ph") || url.equals("te.legra.ph") || url.equals("graph.org");
         }
-        return url.matches("^(https" + (forceHttps ? "" : "?") + "://)?(te\\.?legra\\.ph|graph\\.org).*"); // telegra.ph, te.legra.ph, graph.org
+        return url.matches("^(https" + (forceHttps ? "" : "?") + "://)?(te\\.?legra\\.ph|graph\\.org)(/.*|$)"); // telegra.ph, te.legra.ph, graph.org
+    }
+
+    public static String extractUsername(String link) {
+        if (link == null || TextUtils.isEmpty(link)) {
+            return null;
+        }
+        if (link.startsWith("@")) {
+            return link.substring(1);
+        }
+        if (link.startsWith("t.me/")) {
+            return link.substring(5);
+        }
+        if (link.startsWith("http://t.me/")) {
+            return link.substring(12);
+        }
+        if (link.startsWith("https://t.me/")) {
+            return link.substring(13);
+        }
+        Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(link);
+        if (prefixMatcher.find()) {
+            return prefixMatcher.group(1);
+        }
+        return null;
     }
 
     public static boolean urlMustNotHaveConfirmation(String url) {
         return (
             isTelegraphUrl(url, false, true) ||
-            url.matches("^(https://)?t\\.me/iv\\??.*") || // t.me/iv?
-            url.matches("^(https://)?telegram\\.org/(blog|tour)/?.*") // telegram.org/blog, telegram.org/tour
+            url.matches("^(https://)?t\\.me/iv\\??(/.*|$)") || // t.me/iv?
+            url.matches("^(https://)?telegram\\.org/(blog|tour)(/.*|$)") || // telegram.org/blog, telegram.org/tour
+            url.matches("^(https://)?fragment\\.com(/.*|$)") // fragment.com
         );
     }
 
+    public static class Progress {
+        public void init() {}
+        public void end() {
+            end(false);
+        }
+        public void end(boolean replaced) {}
+
+        private Runnable onCancelListener;
+        public void cancel() {
+            cancel(false);
+        }
+        public void cancel(boolean replaced) {
+            if (onCancelListener != null) {
+                onCancelListener.run();
+            }
+            end(replaced);
+        }
+        public void onCancel(Runnable onCancelListener) {
+            this.onCancelListener = onCancelListener;
+        }
+    }
+
     public static void openUrl(final Context context, Uri uri, final boolean allowCustom, boolean tryTelegraph) {
+        openUrl(context, uri, allowCustom, tryTelegraph, false, null, null);
+    }
+
+    public static void openUrl(final Context context, Uri uri, final boolean allowCustom, boolean tryTelegraph, Progress inCaseLoading) {
+        openUrl(context, uri, allowCustom, tryTelegraph, false, inCaseLoading, null);
+    }
+
+    public static void openUrl(final Context context, Uri uri, boolean _allowCustom, boolean tryTelegraph, boolean forceNotInternalForApps, Progress inCaseLoading, String browser) {
         if (context == null || uri == null) {
             return;
         }
         final int currentAccount = UserConfig.selectedAccount;
         boolean[] forceBrowser = new boolean[]{false};
         boolean internalUri = isInternalUri(uri, forceBrowser);
+        String browserPackage = getBrowserPackageName(browser);
+        if (isBrowserPackageInstalled(context, browserPackage, uri)) {
+            tryTelegraph = false;
+            _allowCustom = false;
+        } else {
+            browserPackage = null;
+        }
+        final boolean allowCustom = _allowCustom;
         if (tryTelegraph) {
             try {
-                String host = uri.getHost().toLowerCase();
-                if (isTelegraphUrl(host, true) || uri.toString().toLowerCase().contains("telegram.org/faq") || uri.toString().toLowerCase().contains("telegram.org/privacy")) {
-                    final AlertDialog[] progressDialog = new AlertDialog[]{new AlertDialog(context, 3)};
+                String host = AndroidUtilities.getHostAuthority(uri);
+                if (UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser() != null && (isTelegraphUrl(host, true) || "telegram.org".equalsIgnoreCase(host) && (uri.toString().toLowerCase().contains("telegram.org/faq") || uri.toString().toLowerCase().contains("telegram.org/privacy") || uri.toString().toLowerCase().contains("telegram.org/blog")))) {
+                    final AlertDialog[] progressDialog = new AlertDialog[] {
+                        new AlertDialog(context, AlertDialog.ALERT_TYPE_SPINNER)
+                    };
 
                     Uri finalUri = uri;
                     TLRPC.TL_messages_getWebPagePreview req = new TLRPC.TL_messages_getWebPagePreview();
                     req.message = uri.toString();
                     final int reqId = ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
-                        try {
-                            progressDialog[0].dismiss();
-                        } catch (Throwable ignore) {
-
+                        if (inCaseLoading != null) {
+                            inCaseLoading.end();
+                        } else {
+                            try {
+                                progressDialog[0].dismiss();
+                            } catch (Throwable ignore) {}
+                            progressDialog[0] = null;
                         }
-                        progressDialog[0] = null;
 
                         boolean ok = false;
                         if (response instanceof TLRPC.TL_messageMediaWebPage) {
@@ -225,17 +293,19 @@ public class Browser {
                             openUrl(context, finalUri, allowCustom, false);
                         }
                     }));
-                    AndroidUtilities.runOnUIThread(() -> {
-                        if (progressDialog[0] == null) {
-                            return;
-                        }
-                        try {
-                            progressDialog[0].setOnCancelListener(dialog -> ConnectionsManager.getInstance(UserConfig.selectedAccount).cancelRequest(reqId, true));
-                            progressDialog[0].show();
-                        } catch (Exception ignore) {
-
-                        }
-                    }, 1000);
+                    if (inCaseLoading != null) {
+                        inCaseLoading.init();
+                    } else {
+                        AndroidUtilities.runOnUIThread(() -> {
+                            if (progressDialog[0] == null) {
+                                return;
+                            }
+                            try {
+                                progressDialog[0].setOnCancelListener(dialog -> ConnectionsManager.getInstance(UserConfig.selectedAccount).cancelRequest(reqId, true));
+                                progressDialog[0].show();
+                            } catch (Exception ignore) {}
+                        }, 1000);
+                    }
                     return;
                 }
             } catch (Exception ignore) {
@@ -251,12 +321,12 @@ public class Browser {
                     FileLog.e(e);
                 }
             }
-            String host = uri.getHost() != null ? uri.getHost().toLowerCase() : "";
+            String host = AndroidUtilities.getHostAuthority(uri.toString().toLowerCase());
             if (AccountInstance.getInstance(currentAccount).getMessagesController().autologinDomains.contains(host)) {
                 String token = "autologin_token=" + URLEncoder.encode(AccountInstance.getInstance(UserConfig.selectedAccount).getMessagesController().autologinToken, "UTF-8");
                 String url = uri.toString();
                 int idx = url.indexOf("://");
-                String path = idx >= 0 ? url.substring(idx + 3) : url;
+                String path = idx >= 0 && idx <= 5 && !url.substring(0, idx).contains(".") ? url.substring(idx + 3) : url;
                 String fragment = uri.getEncodedFragment();
                 String finalPath = fragment == null ? path : path.substring(0, path.indexOf("#" + fragment));
                 if (finalPath.indexOf('?') >= 0) {
@@ -319,17 +389,24 @@ public class Browser {
                 }
 
                 if (forceBrowser[0] || allActivities == null || allActivities.isEmpty()) {
+                    if (MessagesController.getInstance(currentAccount).authDomains.contains(host)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        ApplicationLoader.applicationContext.startActivity(intent);
+                        return;
+                    }
+
                     Intent share = new Intent(ApplicationLoader.applicationContext, ShareBroadcastReceiver.class);
                     share.setAction(Intent.ACTION_SEND);
 
-                    PendingIntent copy = PendingIntent.getBroadcast(ApplicationLoader.applicationContext, 0, new Intent(ApplicationLoader.applicationContext, CustomTabsCopyReceiver.class), ApplicationLoader.getPendingFlag(PendingIntent.FLAG_UPDATE_CURRENT));
+                    PendingIntent copy = PendingIntent.getBroadcast(ApplicationLoader.applicationContext, 0, new Intent(ApplicationLoader.applicationContext, CustomTabsCopyReceiver.class), PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
                     CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getSession());
                     builder.addMenuItem(LocaleController.getString("CopyLink", R.string.CopyLink), copy);
 
                     builder.setToolbarColor(Theme.getColor(Theme.key_actionBarBrowser));
                     builder.setShowTitle(true);
-                    builder.setActionButton(BitmapFactory.decodeResource(context.getResources(), R.drawable.abc_ic_menu_share_mtrl_alpha), LocaleController.getString("ShareFile", R.string.ShareFile), PendingIntent.getBroadcast(ApplicationLoader.applicationContext, 0, share, ApplicationLoader.getPendingFlag(0)), true);
+                    builder.setActionButton(BitmapFactory.decodeResource(context.getResources(), R.drawable.msg_filled_shareout), LocaleController.getString("ShareFile", R.string.ShareFile), PendingIntent.getBroadcast(ApplicationLoader.applicationContext, 0, share, PendingIntent.FLAG_MUTABLE ), true);
                     CustomTabsIntent intent = builder.build();
                     intent.setUseNewTask();
                     intent.launchUrl(context, uri);
@@ -345,9 +422,17 @@ public class Browser {
                 ComponentName componentName = new ComponentName(context.getPackageName(), LaunchActivity.class.getName());
                 intent.setComponent(componentName);
             }
+            if (!TextUtils.isEmpty(browserPackage)) {
+                intent.setPackage(browserPackage);
+            }
             intent.putExtra(android.provider.Browser.EXTRA_CREATE_NEW_TAB, true);
             intent.putExtra(android.provider.Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-            context.startActivity(intent);
+            if (internalUri && context instanceof LaunchActivity) {
+                intent.putExtra(LaunchActivity.EXTRA_FORCE_NOT_INTERNAL_APPS, forceNotInternalForApps);
+                ((LaunchActivity) context).onNewIntent(intent, inCaseLoading);
+            } else {
+                context.startActivity(intent);
+            }
         } catch (Exception e) {
             FileLog.e(e);
         }
@@ -376,18 +461,44 @@ public class Browser {
         return false;
     }
 
+    public static boolean isTMe(String url) {
+        try {
+            final String linkPrefix = MessagesController.getInstance(UserConfig.selectedAccount).linkPrefix;
+            return TextUtils.equals(AndroidUtilities.getHostAuthority(url), linkPrefix);
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        return false;
+    }
+
     public static boolean isInternalUri(Uri uri, boolean[] forceBrowser) {
         return isInternalUri(uri, false, forceBrowser);
     }
 
     public static boolean isInternalUri(Uri uri, boolean all, boolean[] forceBrowser) {
-        String host = uri.getHost();
+        String host = AndroidUtilities.getHostAuthority(uri);
         host = host != null ? host.toLowerCase() : "";
+
+        if (MessagesController.getInstance(UserConfig.selectedAccount).authDomains.contains(host)) {
+            if (forceBrowser != null) {
+                forceBrowser[0] = true;
+            }
+            return false;
+        }
+
+        Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(host);
+        if (prefixMatcher.find()) {
+            uri = Uri.parse("https://t.me/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : "/" + uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
+
+            host = uri.getHost();
+            host = host != null ? host.toLowerCase() : "";
+        }
+
         if ("ton".equals(uri.getScheme())) {
             try {
                 Intent viewIntent = new Intent(Intent.ACTION_VIEW, uri);
                 List<ResolveInfo> allActivities = ApplicationLoader.applicationContext.getPackageManager().queryIntentActivities(viewIntent, 0);
-                if (allActivities != null && allActivities.size() > 1) {
+                if (allActivities != null && allActivities.size() >= 1) {
                     return false;
                 }
             } catch (Exception ignore) {
@@ -426,11 +537,89 @@ public class Browser {
                 }
                 return true;
             }
+        } else if ("telegram.org".equals(host) && uri != null && uri.getPath() != null && uri.getPath().startsWith("/blog/")) {
+            return true;
         } else if (all) {
             if (host.endsWith("telegram.org") || host.endsWith("telegra.ph") || host.endsWith("telesco.pe")) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static String getBrowserPackageName(String browser) {
+        if (browser == null) return null;
+        switch (browser) {
+            case "google-chrome":
+            case "chrome":
+                return "com.android.chrome";
+            case "mozilla-firefox":
+            case "firefox":
+                return "org.mozilla.firefox";
+            case "microsoft-edge":
+            case "edge":
+                return "com.microsoft.emmx";
+            case "opera":
+                return "com.opera.browser";
+            case "opera-mini":
+                return "com.opera.mini.native";
+            case "brave":
+            case "brave-browser":
+                return "com.brave.browser";
+            case "duckduckgo":
+            case "duckduckgo-browser":
+                return "com.duckduckgo.mobile.android";
+            case "samsung":
+            case "samsung-browser":
+                return "com.sec.android.app.sbrowser";
+            case "vivaldi":
+            case "vivaldi-browser":
+                return "com.vivaldi.browser";
+            case "kiwi":
+            case "kiwi-browser":
+                return "com.kiwibrowser.browser";
+            case "uc":
+            case "uc-browser":
+                return "com.UCMobile.intl";
+            case "tor":
+            case "tor-browser":
+                return "org.torproject.torbrowser";
+        }
+        return null;
+    }
+
+    public static boolean isBrowserPackageInstalled(Context context, String packageName, Uri uri) {
+        if (packageName == null) return false;
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.setPackage(packageName);
+        return packageManager.resolveActivity(intent, 0) != null;
+    }
+
+    public static String replaceHostname(Uri originalUri, String newHostname) {
+        String scheme = originalUri.getScheme();
+        String userInfo = originalUri.getUserInfo();
+        int port = originalUri.getPort();
+        String path = originalUri.getPath();
+        String query = originalUri.getQuery();
+        String fragment = originalUri.getFragment();
+
+        StringBuilder modifiedUriBuilder = new StringBuilder();
+        modifiedUriBuilder.append(scheme).append("://");
+        if (userInfo != null) {
+            modifiedUriBuilder.append(userInfo).append("@");
+        }
+        modifiedUriBuilder.append(newHostname);
+        if (port != -1) {
+            modifiedUriBuilder.append(":").append(port);
+        }
+        modifiedUriBuilder.append(path);
+        if (query != null) {
+            modifiedUriBuilder.append("?").append(query);
+        }
+        if (fragment != null) {
+            modifiedUriBuilder.append("#").append(fragment);
+        }
+        return modifiedUriBuilder.toString();
     }
 }

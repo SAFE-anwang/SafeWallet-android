@@ -67,12 +67,12 @@ class ViewInfoStore {
             mLayoutHolderMap.put(holder, record);
         }
         record.preInfo = info;
-        record.flags |= FLAG_PRE;
+        record.flags |= InfoRecord.FLAG_PRE;
     }
 
     boolean isDisappearing(RecyclerView.ViewHolder holder) {
         final InfoRecord record = mLayoutHolderMap.get(holder);
-        return record != null && ((record.flags & FLAG_DISAPPEARED) != 0);
+        return record != null && ((record.flags & InfoRecord.FLAG_DISAPPEARED) != 0);
     }
 
     /**
@@ -83,7 +83,7 @@ class ViewInfoStore {
      */
     @Nullable
     RecyclerView.ItemAnimator.ItemHolderInfo popFromPreLayout(RecyclerView.ViewHolder vh) {
-        return popFromLayoutStep(vh, FLAG_PRE);
+        return popFromLayoutStep(vh, InfoRecord.FLAG_PRE);
     }
 
     /**
@@ -94,7 +94,7 @@ class ViewInfoStore {
      */
     @Nullable
     RecyclerView.ItemAnimator.ItemHolderInfo popFromPostLayout(RecyclerView.ViewHolder vh) {
-        return popFromLayoutStep(vh, FLAG_POST);
+        return popFromLayoutStep(vh, InfoRecord.FLAG_POST);
     }
 
     private RecyclerView.ItemAnimator.ItemHolderInfo popFromLayoutStep(RecyclerView.ViewHolder vh, int flag) {
@@ -106,15 +106,15 @@ class ViewInfoStore {
         if (record != null && (record.flags & flag) != 0) {
             record.flags &= ~flag;
             final RecyclerView.ItemAnimator.ItemHolderInfo info;
-            if (flag == FLAG_PRE) {
+            if (flag == InfoRecord.FLAG_PRE) {
                 info = record.preInfo;
-            } else if (flag == FLAG_POST) {
+            } else if (flag == InfoRecord.FLAG_POST) {
                 info = record.postInfo;
             } else {
                 throw new IllegalArgumentException("Must provide flag PRE or POST");
             }
             // if not pre-post flag is left, clear.
-            if ((record.flags & (FLAG_PRE | FLAG_POST)) == 0) {
+            if ((record.flags & (InfoRecord.FLAG_PRE | InfoRecord.FLAG_POST)) == 0) {
                 mLayoutHolderMap.removeAt(index);
                 InfoRecord.recycle(record);
             }
@@ -147,7 +147,7 @@ class ViewInfoStore {
             record = InfoRecord.obtain();
             mLayoutHolderMap.put(holder, record);
         }
-        record.flags |= FLAG_APPEAR;
+        record.flags |= InfoRecord.FLAG_APPEAR;
         record.preInfo = info;
     }
 
@@ -159,7 +159,7 @@ class ViewInfoStore {
      */
     boolean isInPreLayout(RecyclerView.ViewHolder viewHolder) {
         final InfoRecord record = mLayoutHolderMap.get(viewHolder);
-        return record != null && (record.flags & FLAG_PRE) != 0;
+        return record != null && (record.flags & InfoRecord.FLAG_PRE) != 0;
     }
 
     /**
@@ -185,7 +185,7 @@ class ViewInfoStore {
             mLayoutHolderMap.put(holder, record);
         }
         record.postInfo = info;
-        record.flags |= FLAG_POST;
+        record.flags |= InfoRecord.FLAG_POST;
     }
 
     /**
@@ -200,7 +200,7 @@ class ViewInfoStore {
             record = InfoRecord.obtain();
             mLayoutHolderMap.put(holder, record);
         }
-        record.flags |= FLAG_DISAPPEARED;
+        record.flags |= InfoRecord.FLAG_DISAPPEARED;
     }
 
     /**
@@ -212,7 +212,7 @@ class ViewInfoStore {
         if (record == null) {
             return;
         }
-        record.flags &= ~FLAG_DISAPPEARED;
+        record.flags &= ~InfoRecord.FLAG_DISAPPEARED;
     }
 
     void process(ProcessCallback callback) {
@@ -227,10 +227,10 @@ class ViewInfoStore {
             if (record == null) {
                 continue;
             }
-            if ((record.flags & FLAG_APPEAR_AND_DISAPPEAR) == FLAG_APPEAR_AND_DISAPPEAR) {
+            if ((record.flags & InfoRecord.FLAG_APPEAR_AND_DISAPPEAR) == InfoRecord.FLAG_APPEAR_AND_DISAPPEAR) {
                 // Appeared then disappeared. Not useful for animations.
                 callback.unused(viewHolder);
-            } else if ((record.flags & FLAG_DISAPPEARED) != 0) {
+            } else if ((record.flags & InfoRecord.FLAG_DISAPPEARED) != 0) {
                 // Set as "disappeared" by the LayoutManager (addDisappearingView)
                 if (record.preInfo == null) {
                     // similar to appear disappear but happened between different layout passes.
@@ -239,19 +239,19 @@ class ViewInfoStore {
                 } else {
                     callback.processDisappeared(viewHolder, record.preInfo, record.postInfo);
                 }
-            } else if ((record.flags & FLAG_APPEAR_PRE_AND_POST) == FLAG_APPEAR_PRE_AND_POST) {
+            } else if ((record.flags & InfoRecord.FLAG_APPEAR_PRE_AND_POST) == InfoRecord.FLAG_APPEAR_PRE_AND_POST) {
                 // Appeared in the layout but not in the adapter (e.g. entered the viewport)
                 callback.processAppeared(viewHolder, record.preInfo, record.postInfo);
-            } else if ((record.flags & FLAG_PRE_AND_POST) == FLAG_PRE_AND_POST) {
+            } else if ((record.flags & InfoRecord.FLAG_PRE_AND_POST) == InfoRecord.FLAG_PRE_AND_POST) {
                 // Persistent in both passes. Animate persistence
                 callback.processPersistent(viewHolder, record.preInfo, record.postInfo);
-            } else if ((record.flags & FLAG_PRE) != 0) {
+            } else if ((record.flags & InfoRecord.FLAG_PRE) != 0) {
                 // Was in pre-layout, never been added to post layout
                 callback.processDisappeared(viewHolder, record.preInfo, null);
-            } else if ((record.flags & FLAG_POST) != 0) {
+            } else if ((record.flags & InfoRecord.FLAG_POST) != 0) {
                 // Was not in pre-layout, been added to post layout
                 callback.processAppeared(viewHolder, record.preInfo, record.postInfo);
-            } else if ((record.flags & FLAG_APPEAR) != 0) {
+            } else if ((record.flags & InfoRecord.FLAG_APPEAR) != 0) {
                 // Scrap view. RecyclerView will handle removing/recycling this.
             } else if (DEBUG) {
                 throw new IllegalStateException("record without any reasonable flag combination:/");

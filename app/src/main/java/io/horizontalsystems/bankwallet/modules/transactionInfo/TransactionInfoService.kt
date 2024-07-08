@@ -18,6 +18,8 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomi
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ExternalContractCallTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.Safe4DepositEvmOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.SwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.UnknownSwapTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.nftUids
@@ -77,6 +79,8 @@ class TransactionInfoService(
 
             val txCoinTypes = when (val tx = transactionRecord) {
                 is TonTransactionRecord -> listOf(tx.mainValue.coinUid, tx.fee?.coinUid)
+                is Safe4DepositEvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
+                is Safe4DepositEvmOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
                 is EvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
                 is EvmOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
                 is SwapTransactionRecord -> listOf(tx.fee, tx.valueIn, tx.valueOut).map { it?.coinUid }

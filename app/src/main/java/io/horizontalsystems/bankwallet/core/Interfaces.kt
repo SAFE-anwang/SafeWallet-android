@@ -70,6 +70,8 @@ interface IAdapterManager {
     fun getReceiveAdapterForWallet(wallet: Wallet): IReceiveAdapter?
     fun refreshAdapters(wallets: List<Wallet>)
     fun refreshByWallet(wallet: Wallet)
+
+    fun refreshSafeAdapter()
 }
 
 interface ILocalStorage {

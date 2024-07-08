@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
 import io.horizontalsystems.bankwallet.core.customCoinPrefix
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.MarketKit
 import io.horizontalsystems.marketkit.SyncInfo
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -34,7 +35,8 @@ class MarketKitWrapper(
             hsApiBaseUrl = hsApiBaseUrl,
             hsApiKey = hsApiKey,
             appVersion = appConfigProvider.appVersion,
-            appId = appConfigProvider.appId
+            appId = appConfigProvider.appId,
+            isSafe4TestNet = Chain.SafeFour.isSafeFourTestNet
         )
     }
 

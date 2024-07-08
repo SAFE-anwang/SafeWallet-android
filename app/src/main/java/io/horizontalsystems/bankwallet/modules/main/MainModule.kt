@@ -15,7 +15,7 @@ import kotlinx.parcelize.Parcelize
 
 object MainModule {
 
-    class Factory(private val wcDeepLink: Uri?) : ViewModelProvider.Factory {
+    class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MainViewModel(
@@ -28,7 +28,6 @@ object MainModule {
                 App.localStorage,
                 App.wcSessionManager,
                 App.wcManager,
-                wcDeepLink
             ) as T
         }
     }
@@ -37,6 +36,12 @@ object MainModule {
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         intent.data = data
+        context.startActivity(intent)
+    }
+
+    fun startAsNewTask(context: Context) {
+        val intent = Intent(context, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         context.startActivity(intent)
     }
 

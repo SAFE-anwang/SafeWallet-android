@@ -6,10 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,7 +29,6 @@ import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
-import org.telegram.ui.Cells.TextCheckCell2;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RLottieImageView;
@@ -47,6 +46,7 @@ public class SessionBottomSheet extends BottomSheet {
         Context context = fragment.getParentActivity();
         this.session = session;
         this.parentFragment = fragment;
+        fixNavigationBar();
 
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -66,7 +66,7 @@ public class SessionBottomSheet extends BottomSheet {
 
         TextView nameView = new TextView(context);
         nameView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        nameView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+        nameView.setTypeface(AndroidUtilities.bold());
         nameView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
         nameView.setGravity(Gravity.CENTER);
         linearLayout.addView(nameView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 21, 12, 21, 0));
@@ -82,7 +82,7 @@ public class SessionBottomSheet extends BottomSheet {
         if ((session.flags & 1) != 0) {
             timeText = LocaleController.getString("Online", R.string.Online);
         } else {
-            timeText = LocaleController.formatDateTime(session.date_active);
+            timeText = LocaleController.formatDateTime(session.date_active, true);
         }
         timeView.setText(timeText);
 
@@ -120,7 +120,7 @@ public class SessionBottomSheet extends BottomSheet {
         if (session.country.length() != 0) {
             ItemView locationItemView = new ItemView(context, false);
             locationItemView.valueText.setText(session.country);
-            drawable = ContextCompat.getDrawable(context, R.drawable.menu_location).mutate();
+            drawable = ContextCompat.getDrawable(context, R.drawable.msg_location).mutate();
             drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.SRC_IN));
             locationItemView.iconView.setImageDrawable(drawable);
             locationItemView.descriptionText.setText(LocaleController.getString("Location", R.string.Location));
@@ -150,7 +150,7 @@ public class SessionBottomSheet extends BottomSheet {
         if (session.ip.length() != 0) {
             ItemView locationItemView = new ItemView(context, false);
             locationItemView.valueText.setText(session.ip);
-            drawable = ContextCompat.getDrawable(context, R.drawable.menu_language).mutate();
+            drawable = ContextCompat.getDrawable(context, R.drawable.msg_language).mutate();
             drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.SRC_IN));
             locationItemView.iconView.setImageDrawable(drawable);
             locationItemView.descriptionText.setText(LocaleController.getString("IpAddress", R.string.IpAddress));
@@ -183,7 +183,7 @@ public class SessionBottomSheet extends BottomSheet {
         if (secretChatsEnabled(session)) {
             ItemView acceptSecretChats = new ItemView(context, true);
             acceptSecretChats.valueText.setText(LocaleController.getString("AcceptSecretChats", R.string.AcceptSecretChats));
-            drawable = ContextCompat.getDrawable(context, R.drawable.menu_secret).mutate();
+            drawable = ContextCompat.getDrawable(context, R.drawable.msg_secret).mutate();
             drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.SRC_IN));
             acceptSecretChats.iconView.setImageDrawable(drawable);
             acceptSecretChats.switchView.setChecked(!session.encrypted_requests_disabled, false);
@@ -207,7 +207,7 @@ public class SessionBottomSheet extends BottomSheet {
 
         ItemView acceptCalls = new ItemView(context, true);
         acceptCalls.valueText.setText(LocaleController.getString("AcceptCalls", R.string.AcceptCalls));
-        drawable = ContextCompat.getDrawable(context, R.drawable.menu_calls).mutate();
+        drawable = ContextCompat.getDrawable(context, R.drawable.msg_calls).mutate();
         drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon), PorterDuff.Mode.SRC_IN));
         acceptCalls.iconView.setImageDrawable(drawable);
         acceptCalls.switchView.setChecked(!session.call_requests_disabled, false);
@@ -232,11 +232,11 @@ public class SessionBottomSheet extends BottomSheet {
             buttonTextView.setPadding(AndroidUtilities.dp(34), 0, AndroidUtilities.dp(34), 0);
             buttonTextView.setGravity(Gravity.CENTER);
             buttonTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            buttonTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            buttonTextView.setTypeface(AndroidUtilities.bold());
             buttonTextView.setText(LocaleController.getString("TerminateSession", R.string.TerminateSession));
 
             buttonTextView.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
-            buttonTextView.setBackgroundDrawable(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(6), Theme.getColor(Theme.key_chat_attachAudioBackground), ColorUtils.setAlphaComponent(Theme.getColor(Theme.key_windowBackgroundWhite), 120)));
+            buttonTextView.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(6), Theme.getColor(Theme.key_chat_attachAudioBackground), ColorUtils.setAlphaComponent(Theme.getColor(Theme.key_windowBackgroundWhite), 120)));
 
             linearLayout.addView(buttonTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, 0, 16, 15, 16, 16));
 
@@ -259,7 +259,7 @@ public class SessionBottomSheet extends BottomSheet {
                     fragment.showDialog(alertDialog);
                     TextView button = (TextView) alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
                     if (button != null) {
-                        button.setTextColor(Theme.getColor(Theme.key_dialogTextRed2));
+                        button.setTextColor(Theme.getColor(Theme.key_text_RedBold));
                     }
                 }
             });
@@ -307,19 +307,22 @@ public class SessionBottomSheet extends BottomSheet {
         }
         String deviceModel = session.device_model.toLowerCase();
         int iconId;
-        String colorKey;
+        int colorKey, colorKey2;
         boolean animation = true;
 
 
         if (deviceModel.contains("safari")) {
             iconId = R.raw.safari_30;
             colorKey = Theme.key_avatar_backgroundPink;
+            colorKey2 = Theme.key_avatar_background2Pink;
         } else if (deviceModel.contains("edge")) {
             iconId = R.raw.edge_30;
             colorKey = Theme.key_avatar_backgroundPink;
+            colorKey2 = Theme.key_avatar_background2Pink;
         } else if (deviceModel.contains("chrome")) {
             iconId = R.raw.chrome_30;
             colorKey = Theme.key_avatar_backgroundPink;
+            colorKey2 = Theme.key_avatar_background2Pink;
         } else if (deviceModel.contains("opera") || deviceModel.contains("firefox") || deviceModel.contains("vivaldi")) {
             animation = false;
             if (deviceModel.contains("opera")) {
@@ -330,32 +333,41 @@ public class SessionBottomSheet extends BottomSheet {
                 iconId = R.drawable.device_web_other;
             }
             colorKey = Theme.key_avatar_backgroundPink;
+            colorKey2 = Theme.key_avatar_background2Pink;
         } else if (platform.contains("ubuntu")) {
             iconId = R.raw.ubuntu_30;
             colorKey = Theme.key_avatar_backgroundBlue;
+            colorKey2 = Theme.key_avatar_background2Blue;
         } else if (platform.contains("ios")) {
             iconId = deviceModel.contains("ipad") ? R.raw.ipad_30 : R.raw.iphone_30;
             colorKey = Theme.key_avatar_backgroundBlue;
+            colorKey2 = Theme.key_avatar_background2Blue;
         } else if (platform.contains("windows")) {
             iconId = R.raw.windows_30;
             colorKey = Theme.key_avatar_backgroundCyan;
+            colorKey2 = Theme.key_avatar_background2Cyan;
         } else if (platform.contains("macos")) {
             iconId = R.raw.mac_30;
             colorKey = Theme.key_avatar_backgroundCyan;
+            colorKey2 = Theme.key_avatar_background2Cyan;
         } else if (platform.contains("android")) {
             iconId = R.raw.android_30;
             colorKey = Theme.key_avatar_backgroundGreen;
+            colorKey2 = Theme.key_avatar_background2Green;
         } else {
             if (session.app_name.toLowerCase().contains("desktop")) {
                 iconId = R.raw.windows_30;
                 colorKey = Theme.key_avatar_backgroundCyan;
+                colorKey2 = Theme.key_avatar_background2Cyan;
             } else {
                 iconId = R.raw.chrome_30;
                 colorKey = Theme.key_avatar_backgroundPink;
+                colorKey2 = Theme.key_avatar_background2Pink;
             }
         }
 
         imageView.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(42), Theme.getColor(colorKey)));
+//        imageView.setBackground(new SessionCell.CircleGradientDrawable(AndroidUtilities.dp(42), Theme.getColor(colorKey), Theme.getColor(colorKey2)));
         if (animation) {
             int[] colors = new int[]{0x000000, Theme.getColor(colorKey)};
             imageView.setAnimation(iconId, 50, 50, colors);
@@ -375,7 +387,8 @@ public class SessionBottomSheet extends BottomSheet {
         public ItemView(Context context, boolean needSwitch) {
             super(context);
             iconView = new ImageView(context);
-            addView(iconView, LayoutHelper.createFrame(28, 28, 0, 16, 8, 0, 0));
+            iconView.setScaleType(ImageView.ScaleType.CENTER);
+            addView(iconView, LayoutHelper.createFrame(32, 32, 0, 12, 4, 0, 0));
 
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -385,13 +398,13 @@ public class SessionBottomSheet extends BottomSheet {
             valueText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             valueText.setGravity(Gravity.LEFT);
             valueText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-            linearLayout.addView(valueText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, needSwitch ? 46 : 0, 0));
+            linearLayout.addView(valueText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, needSwitch ? 64 : 0, 0));
 
             descriptionText = new TextView(context);
             descriptionText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             descriptionText.setGravity(Gravity.LEFT);
             descriptionText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText));
-            linearLayout.addView(descriptionText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 4, needSwitch ? 46 : 0, 0));
+            linearLayout.addView(descriptionText, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0, 0, 4, needSwitch ? 64 : 0, 0));
             setPadding(0, AndroidUtilities.dp(4), 0, AndroidUtilities.dp(4));
 
             if (needSwitch) {
@@ -406,6 +419,17 @@ public class SessionBottomSheet extends BottomSheet {
             super.dispatchDraw(canvas);
             if (needDivider) {
                 canvas.drawRect(AndroidUtilities.dp(64), getMeasuredHeight() - 1, getMeasuredWidth(), getMeasuredHeight(), Theme.dividerPaint);
+            }
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+            super.onInitializeAccessibilityNodeInfo(info);
+            if (switchView != null) {
+                info.setClassName("android.widget.Switch");
+                info.setCheckable(true);
+                info.setChecked(switchView.isChecked());
+                info.setText(valueText.getText() + "\n" + descriptionText.getText() + "\n" + (switchView.isChecked() ? LocaleController.getString("NotificationsOn", R.string.NotificationsOn) : LocaleController.getString("NotificationsOff", R.string.NotificationsOff)));
             }
         }
     }

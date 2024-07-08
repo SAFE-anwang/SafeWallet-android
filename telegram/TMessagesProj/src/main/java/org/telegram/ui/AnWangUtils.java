@@ -41,7 +41,8 @@ public class AnWangUtils {
         if (!isInAnWang) {
             Intent intent = new Intent(activity, LaunchActivity.class);
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://t.me/safeanwang4"));
+//            intent.setData(Uri.parse("https://t.me/safeanwang4"));
+            intent.setData(Uri.parse("tg://resolve?domain=safeanwang4"));
             activity.startActivity(intent);
         }
         isCheckInAnwangGroup = true;
@@ -63,12 +64,12 @@ public class AnWangUtils {
     }
 
     public static void joinGroup(String username, long chatId) {
-        if ("safeanwang".equals(username)) {
+        if ("safeanwang4".equals(username)) {
             saveIsLeaveAnwangGroup(false, chatId);
         }
     }
     public static void leaveGroup(String username, long chatId) {
-        if ("safeanwang".equals(username)) {
+        if ("safeanwang4".equals(username)) {
             saveIsLeaveAnwangGroup(true, chatId);
         }
     }

@@ -17,6 +17,9 @@
 package androidx.recyclerview.widget1;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget1.DiffUtil;
+import androidx.recyclerview.widget1.ListUpdateCallback;
+import androidx.recyclerview.widget1.RecyclerView;
 
 /**
  * ListUpdateCallback that dispatches update events to the given adapter.

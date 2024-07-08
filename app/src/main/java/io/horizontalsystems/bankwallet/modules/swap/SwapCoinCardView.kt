@@ -62,6 +62,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 
@@ -110,7 +111,7 @@ fun SwapCoinCardView(
                     }),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (cardState.token?.coin?.uid == "safe-coin") {
+            if (cardState.token?.coin?.uid.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)

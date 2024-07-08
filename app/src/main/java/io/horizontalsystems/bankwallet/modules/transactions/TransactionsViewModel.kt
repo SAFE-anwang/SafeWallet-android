@@ -293,6 +293,7 @@ data class TransactionViewItem(
                 BlockchainType.Fantom -> R.drawable.logo_chain_fantom_trx_32
                 BlockchainType.Tron -> R.drawable.logo_chain_tron_trx_32
                 BlockchainType.Safe -> R.drawable.logo_safe_24
+                BlockchainType.SafeFour -> R.drawable.logo_safe_24
                 else -> null
             }
         }

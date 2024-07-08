@@ -16,6 +16,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 
 @Composable
 fun CoinScreenTitle(
@@ -27,7 +28,7 @@ fun CoinScreenTitle(
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (coinIconUrl.endsWith("safe-coin@3x.png")) {
+        if (coinIconUrl.isSafeIcon()) {
             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                 contentDescription = null,
                 modifier = Modifier

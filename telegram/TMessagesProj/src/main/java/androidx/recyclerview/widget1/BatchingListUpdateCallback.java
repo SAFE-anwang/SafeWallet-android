@@ -16,6 +16,9 @@
 package androidx.recyclerview.widget1;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget1.DiffUtil;
+import androidx.recyclerview.widget1.ListUpdateCallback;
+import androidx.recyclerview.widget1.SortedList;
 
 /**
  * Wraps a {@link ListUpdateCallback} callback and batches operations that can be merged.

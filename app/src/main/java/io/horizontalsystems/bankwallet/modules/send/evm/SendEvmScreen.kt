@@ -23,11 +23,14 @@ import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
+import io.horizontalsystems.bankwallet.modules.hodler.HSHodlerInput
 import io.horizontalsystems.bankwallet.modules.send.SendScreen
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationModule
 import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.core.helpers.HudHelper
 
 @Composable
@@ -47,6 +50,10 @@ fun SendEvmScreen(
     val amountCaution = uiState.amountCaution
     val proceedEnabled = uiState.canBeSend
     val amountInputType = amountInputModeViewModel.inputType
+
+    val lockTimeIntervals = viewModel.lockTimeIntervals
+    val lockTimeEnabled = viewModel.isLockTimeEnabled
+    val lockTimeInterval = uiState.lockTimeInterval
 
     val paymentAddressViewModel = viewModel<AddressParserViewModel>(
         factory = AddressParserModule.Factory(wallet.token, prefilledData?.amount)
@@ -108,6 +115,25 @@ fun SendEvmScreen(
                     viewModel.onEnterAddress(it)
                 }
             }
+
+            if (lockTimeEnabled) {
+                Spacer(Modifier.height(32.dp))
+                CellUniversalLawrenceSection(
+                        listOf {
+                            HSHodlerInput(
+                                    lockTimeIntervals = lockTimeIntervals,
+                                    lockTimeInterval = lockTimeInterval,
+                                    onSelect = {
+                                        viewModel.onEnterLockTimeInterval(it)
+                                    }
+                            )
+                        }
+                )
+                InfoText(
+                        text = stringResource(R.string.Send_Safe_Four_Hodler_Description),
+                )
+            }
+
             ButtonPrimaryYellow(
                 modifier = Modifier
                     .fillMaxWidth()

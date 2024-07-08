@@ -20,6 +20,8 @@ import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.dashkit.DashKit
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -67,7 +69,7 @@ class SafeAdapter(
         try {
             setState(state)
             if (state is BitcoinCore.KitState.NotSynced) {
-                refresh()
+                App.adapterManager.refreshSafeAdapter()
             }
         } catch (e: Exception) {
 
@@ -215,8 +217,7 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold,
-                        connectionManager = App.bitCoinConnectionManager
+                        confirmationsThreshold = confirmationsThreshold
                     )
                 }
                 is AccountType.Mnemonic -> {
@@ -226,8 +227,7 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold,
-                        connectionManager = App.bitCoinConnectionManager
+                        confirmationsThreshold = confirmationsThreshold
                     )
                 }
                 else -> throw UnsupportedAccountException()
