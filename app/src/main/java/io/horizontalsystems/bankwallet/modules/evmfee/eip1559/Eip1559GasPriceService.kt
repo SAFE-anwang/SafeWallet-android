@@ -63,7 +63,7 @@ class Eip1559GasPriceService(
         initialGasPrice: GasPrice.Eip1559? = null
     ) : this(gasProvider, evmKit.lastBlockHeightFlowable, minGasPrice, initialGasPrice)
 
-    override fun start() {
+    init {
         if (initialBaseFee != null && initialPriorityFee != null) {
             setGasPrice(initialBaseFee, initialPriorityFee)
         } else {
@@ -75,6 +75,10 @@ class Eip1559GasPriceService(
                 syncRecommended()
             }
         }
+    }
+
+    override fun start() {
+
     }
 
     override fun setRecommended() {
