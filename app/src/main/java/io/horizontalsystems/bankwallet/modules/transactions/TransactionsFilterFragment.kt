@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
@@ -44,7 +45,8 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 
 class TransactionsFilterFragment : BaseComposeFragment() {
 
-    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
+    private val viewModel by viewModels<TransactionsViewModel> { TransactionsModule.Factory() }
 
     @Composable
     override fun GetContent(navController: NavController) {
