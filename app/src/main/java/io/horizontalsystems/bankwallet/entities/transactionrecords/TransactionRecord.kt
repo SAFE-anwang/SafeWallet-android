@@ -19,6 +19,7 @@ abstract class TransactionRecord(
     val timestamp: Long,
     val failed: Boolean = false,
     val spam: Boolean = false,
+    val withdraw: Boolean = false,
     val source: TransactionSource
 ) : Comparable<TransactionRecord> {
 

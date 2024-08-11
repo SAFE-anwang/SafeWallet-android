@@ -53,6 +53,7 @@ class TransactionsViewModel(
     val filterBlockchainsLiveData = MutableLiveData<List<Filter<Blockchain?>>>()
     val filterContactLiveData = MutableLiveData<Contact?>()
     var filterHideSuspiciousTx = MutableLiveData<Boolean>()
+    var filterHideWithdrawTx = MutableLiveData<Boolean>()
 
     private var transactionListId: String? = null
     private var transactions: Map<String, List<TransactionViewItem>>? = null
@@ -117,6 +118,10 @@ class TransactionsViewModel(
                 if (filterHideSuspiciousTx.value != state.hideSuspiciousTx){
                     service.reload()
                 }
+                if (filterHideWithdrawTx.value != state.hideWithdrawTx){
+                    service.reload()
+                }
+                filterHideWithdrawTx.postValue(state.hideWithdrawTx)
                 filterHideSuspiciousTx.postValue(state.hideSuspiciousTx)
 
                 transactionListId = selectedTransactionWallet.hashCode().toString() +
@@ -246,6 +251,10 @@ class TransactionsViewModel(
 
     fun updateFilterHideSuspiciousTx(checked: Boolean) {
         transactionFilterService.updateFilterHideSuspiciousTx(checked)
+    }
+
+    fun updateFilterHideWithdrawTx(checked: Boolean) {
+        transactionFilterService.updateFilterHideWithdrawTx(checked)
     }
 
 }

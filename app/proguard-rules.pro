@@ -73,3 +73,5 @@
 }
 
 -keep class com.anwang.accountmanager.** { *; }
+
+-keep class com.anwang.types.supernode.** { *; }

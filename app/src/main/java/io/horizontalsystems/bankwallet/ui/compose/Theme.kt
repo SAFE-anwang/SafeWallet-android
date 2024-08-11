@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.ui.compose
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -88,7 +87,7 @@ fun ComposeAppTheme(
 
 }
 
-object AppRippleTheme : RippleTheme {
+/*object AppRippleTheme : RippleTheme {
     // Here you should return the ripple color you want
     // and not use the defaultRippleColor extension on RippleTheme.
     // Using that will override the ripple color set in DarkMode
@@ -104,7 +103,7 @@ object AppRippleTheme : RippleTheme {
         Color.Black,
         lightTheme = true
     )
-}
+}*/
 
 object ComposeAppTheme {
     val colors: Colors

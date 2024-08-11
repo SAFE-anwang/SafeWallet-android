@@ -18,10 +18,11 @@ import io.horizontalsystems.bankwallet.modules.pin.core.Pin
 import io.horizontalsystems.bankwallet.modules.pin.core.PinDao
 import io.horizontalsystems.bankwallet.modules.profeatures.storage.ProFeaturesDao
 import io.horizontalsystems.bankwallet.modules.profeatures.storage.ProFeaturesSessionKey
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalState
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WalletConnectV2Session
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionDao
 
-@Database(version = 59, exportSchema = false, entities = [
+@Database(version = 60, exportSchema = false, entities = [
     EnabledWallet::class,
     EnabledWalletCache::class,
     AccountRecord::class,
@@ -45,6 +46,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionDa
     CexAssetRaw::class,
     ChartIndicatorSetting::class,
     Pin::class,
+    ProposalState::class,
 ])
 
 @TypeConverters(DatabaseConverters::class)
@@ -69,6 +71,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tokenAutoEnabledBlockchainDao(): TokenAutoEnabledBlockchainDao
     abstract fun pinDao(): PinDao
     abstract fun vpnServerDao(): VpnServerInfoDao
+
+    abstract fun proposalStateDao(): ProposalStateDao
 
     companion object {
 
@@ -113,7 +117,8 @@ abstract class AppDatabase : RoomDatabase() {
                             Migration_55_56,
                             Migration_56_57,
                             Migration_57_58,
-                            Migration_58_59
+                            Migration_58_59,
+                            Migration_59_60
                     )
                     .build()
         }

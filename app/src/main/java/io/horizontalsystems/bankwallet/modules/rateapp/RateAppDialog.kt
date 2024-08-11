@@ -55,10 +55,10 @@ fun RateApp(
     }
 }
 
-@Preview
+/*@Preview
 @Composable
 private fun Preview_RateApp() {
     ComposeAppTheme {
         RateApp({}, {})
     }
-}
+}*/

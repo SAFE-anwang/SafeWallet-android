@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,7 +102,7 @@ fun SwapCoinCardView(
             modifier = Modifier
                 .height(32.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false, radius = 40.dp),
+                    indication = ripple(bounded = false, radius = 40.dp),
                     onClick = {
                         /*navController.getNavigationResult(SelectSwapCoinFragment.resultBundleKey) { bundle ->
                             val requestId = bundle.getLong(SelectSwapCoinFragment.requestIdKey)

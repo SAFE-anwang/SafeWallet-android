@@ -1,0 +1,589 @@
+package io.horizontalsystems.bankwallet.modules.safe4.node
+
+import androidx.compose.runtime.Composable
+import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.marketkit.models.BlockchainType
+import android.os.Parcelable
+import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeModule
+import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
+import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
+import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteRecordView
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationModule
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.components.AdditionalDataCell2
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondary
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
+import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
+import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
+import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
+
+class SafeFourNodeInfoFragment: BaseComposeFragment() {
+    @Composable
+    override fun GetContent(navController: NavController) {
+        val address = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit?.receiveAddress
+        if (address == null) {
+            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
+            navController.popBackStack(R.id.nodeListFragment, true)
+            return
+        }
+
+        val navController = findNavController()
+        val input = navController.requireInput<Input>()
+        val wallet = input.wallet
+        val nodeType = input.nodeType
+        val nodeId = input.nodeId
+        val viewModel by viewModels<SafeFourNodeInfoViewModel> { SafeFourVoteModule.FactoryInfo(wallet, nodeId, address, nodeType) }
+
+        val voteRecordViewModel by viewModels<SafeFourVoteRecordViewModel> {
+            SafeFourVoteModule.FactoryRecord(input.wallet, input.nodeAddress, NodeType.getType(nodeType) == NodeType.SuperNode, nodeId)
+        }
+        TabInfoScreen(navController, viewModel, nodeType, voteRecordViewModel, input)
+    }
+
+    @Parcelize
+    data class Input(
+            val wallet: Wallet,
+            val nodeId: Int,
+            val nodeType: Int,
+            val nodeAddress: String,
+    ) : Parcelable
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TabInfoScreen(
+        navController: NavController,
+        viewModel: SafeFourNodeInfoViewModel,
+        nodeType: Int,
+        voteRecordViewModel: SafeFourVoteRecordViewModel,
+        input: SafeFourNodeInfoFragment.Input
+) {
+
+    val tabs = viewModel.tabs
+    val pagerState = rememberPagerState(initialPage = 0) { tabs.size }
+    val coroutineScope = rememberCoroutineScope()
+    val isSuperNode = NodeType.getType(nodeType) == NodeType.SuperNode
+
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+        AppBar(
+                title = stringResource(id = R.string.Safe_Four_Node_Info_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = { navController.popBackStack() })
+                }
+        )
+        val selectedTab = tabs[pagerState.currentPage]
+        val tabItems = tabs.map {
+            TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
+        }
+        Tabs(tabItems, onClick = { tab ->
+            coroutineScope.launch {
+                pagerState.scrollToPage(tab.ordinal)
+            }
+        })
+
+        HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = false
+        ) { page ->
+            when (tabs[page]) {
+                SafeFourVoteModule.TabInfo.Info -> {
+                    NodeBaseInfoScreen(navController, viewModel)
+                }
+
+                SafeFourVoteModule.TabInfo.Creator -> {
+                    CreatorScreen(viewModel)
+                }
+
+                SafeFourVoteModule.TabInfo.Voters -> {
+                    VoterRecordScreen(viewModel = voteRecordViewModel)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NodeBaseInfoScreen(
+        navController: NavController,
+        viewModel: SafeFourNodeInfoViewModel
+) {
+    ComposeAppTheme {
+
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+
+            Row(
+                    modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                NodeInfoScreen(viewModel, isSuperNode = viewModel.isSuper)
+            }
+        }
+    }
+}
+
+
+@Composable
+fun NodeInfoScreen(
+        viewModel: SafeFourNodeInfoViewModel,
+        isSuperNode: Boolean
+) {
+    val nodeInfo = viewModel.uiState.nodeInfo ?: return
+    val uiState = viewModel.uiState
+    Column() {
+        Text(
+                text = stringResource(id = R.string.Safe_Four_Node_Info),
+                style = ComposeAppTheme.typography.body,
+                color = ComposeAppTheme.colors.grey,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 16.sp,
+                maxLines = 1,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row() {
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Id),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.id.toString(),
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Status),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.status.title().getString(),
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Address),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.address.hex,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        if (isSuperNode) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                Text(
+                        text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
+                        style = ComposeAppTheme.typography.body,
+                        color = ComposeAppTheme.colors.grey,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                        text = nodeInfo.name,
+                        color = ComposeAppTheme.colors.grey,
+                        style = ComposeAppTheme.typography.body,
+                        maxLines = 1,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Creator),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.creator.hex,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Pledge),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.createPledge,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Vote_Pledge),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.voteCompleteCount,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_ENode),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.enode,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Desc),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = nodeInfo.desc,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        body_bran(
+                text = stringResource(id = R.string.Safe_Four_Register_Reward))
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Register_Creator),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = uiState.creatorText,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            LinearProgressIndicator(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                            .background(ComposeAppTheme.colors.lawrence),
+                    progress = uiState.creator,
+                    color = ComposeAppTheme.colors.green50,
+                    backgroundColor = ComposeAppTheme.colors.grey50)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row{
+            Text(
+                    text = stringResource(id = R.string.Safe_Four_Register_Partner),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                    text = uiState.partnerText,
+                    color = ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
+            Spacer(Modifier.weight(1f))
+            LinearProgressIndicator(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                            .background(ComposeAppTheme.colors.lawrence),
+                    progress = uiState.partner,
+                    color = ComposeAppTheme.colors.green50,
+                    backgroundColor = ComposeAppTheme.colors.grey50)
+        }
+        if (isSuperNode) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                Text(
+                        text = stringResource(id = R.string.Safe_Four_Register_Voters),
+                        style = ComposeAppTheme.typography.body,
+                        color = ComposeAppTheme.colors.grey,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                        text = uiState.voterText,
+                        color = ComposeAppTheme.colors.grey,
+                        style = ComposeAppTheme.typography.body,
+                        maxLines = 1,
+                )
+                Spacer(Modifier.weight(1f))
+                LinearProgressIndicator(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                                .background(ComposeAppTheme.colors.lawrence),
+                        progress = uiState.voter,
+                        color = ComposeAppTheme.colors.green50,
+                        backgroundColor = ComposeAppTheme.colors.grey50)
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+
+@Composable
+fun CreatorScreen(
+        viewModel: SafeFourNodeInfoViewModel
+) {
+    val uiState = viewModel.uiState
+    val recordList = uiState.creatorList
+
+    val listState = rememberLazyListState()
+    Scaffold(
+            backgroundColor = ComposeAppTheme.colors.tyler,
+    ) {
+        LazyColumn(modifier = Modifier.padding(it), state = listState) {
+            item {
+                Row(modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp)) {
+                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_ID),
+                            modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
+                            modifier = Modifier.weight(4f))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
+                            modifier = Modifier.weight(2f))
+                }
+            }
+
+            itemsIndexed(
+                    items = recordList,
+                    key = { _, item ->
+                        item.id
+                    }
+            ) { index, item ->
+                Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)) {
+
+                    body_bran(text = item.id,
+                            modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    body_bran(text = item.address,
+                            modifier = Modifier.weight(4f))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    body_bran(text = item.amount,
+                            modifier = Modifier.weight(2f))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun VoterRecordScreen(
+        viewModel: SafeFourVoteRecordViewModel
+) {
+    val uiState = viewModel.uiState
+    val recordList = uiState.voteRecords
+    if (recordList.isNullOrEmpty()) {
+        Column() {
+            if (recordList == null) {
+                ListEmptyView(
+                        text = stringResource(R.string.Transactions_WaitForSync),
+                        icon = R.drawable.ic_clock
+                )
+            } else {
+                ListEmptyView(
+                        text = stringResource(R.string.Safe_Four_No_Super_Node),
+                        icon = R.drawable.ic_no_data
+                )
+            }
+        }
+    } else {
+        val listState = rememberLazyListState()
+        Scaffold(
+                backgroundColor = ComposeAppTheme.colors.tyler,
+        ) {
+            LazyColumn(modifier = Modifier.padding(it), state = listState) {
+                item {
+                    Row(modifier = Modifier
+                            .wrapContentHeight()
+                            .padding(horizontal = 16.dp)) {
+                        body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
+                                modifier = Modifier.weight(4f))
+                        Spacer(modifier = Modifier.width(16.dp))
+                        body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
+                                modifier = Modifier.weight(2f))
+                    }
+                    Divider(
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+                }
+                val bottomReachedRank = getRecordBottomReachedRank(recordList)
+
+                itemsIndexed(
+                        items = recordList,
+                        key = { index, item ->
+                            index
+                        }
+                ) { index, item ->
+                    Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)) {
+                        body_bran(text = item.address,
+                                modifier = Modifier.weight(4f))
+                        Spacer(modifier = Modifier.width(16.dp))
+                        body_bran(text = item.lockValue,
+                                modifier = Modifier.weight(2f))
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    if (item.index == bottomReachedRank) {
+                        viewModel.onBottomReached()
+                    }
+
+                    Divider(
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+private fun getRecordBottomReachedRank(nodeList: List<VoteRecordView>): Int? {
+    //get index not exact bottom but near to the bottom, to make scroll smoother
+    val index = if (nodeList.size > 4) nodeList.size - 4 else 0
+
+    return nodeList.getOrNull(index)?.index
+}

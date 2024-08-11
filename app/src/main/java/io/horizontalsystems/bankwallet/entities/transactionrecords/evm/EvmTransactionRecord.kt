@@ -24,6 +24,7 @@ open class EvmTransactionRecord(
         timestamp = transaction.timestamp,
         failed = transaction.isFailed,
         spam = spam,
+        withdraw = transaction.isWithdraw(),
         source = source
     ) {
 

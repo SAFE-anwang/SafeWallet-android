@@ -208,6 +208,7 @@ class TokenTransactionsService(
             }
 
             if (record.spam && spamManager.hideSuspiciousTx) return@forEach
+            if (record.withdraw && spamManager.hideWithdrawTx) return@forEach
 
             transactionItem = if (transactionItem == null) {
                 val lastBlockInfo = transactionSyncStateRepository.getLastBlockInfo(record.source)
@@ -221,7 +222,7 @@ class TokenTransactionsService(
             tmpList.add(transactionItem)
         }
 
-        if (newRecords.isNotEmpty() && newRecords.all { it.spam }) {
+        if (newRecords.isNotEmpty() && newRecords.all { it.spam || it.withdraw }) {
             loadNext()
         } else {
             transactionItems.clear()

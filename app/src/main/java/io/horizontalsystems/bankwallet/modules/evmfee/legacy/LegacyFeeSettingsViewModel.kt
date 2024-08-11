@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
@@ -35,6 +36,7 @@ class LegacyFeeSettingsViewModel(
         private set
 
     init {
+        Log.e("longwen", "Legacy fee")
         viewModelScope.launch {
             gasPriceService.stateFlow.collect {
                 sync(it)

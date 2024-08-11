@@ -102,7 +102,6 @@ class SwapApproveConfirmationFragment : BaseComposeFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sendEvmTransactionViewModel.sendingLiveData.observe(viewLifecycleOwner) {
-            Log.d("longwen", "show message")
             snackbarInProcess = HudHelper.showInProcessMessage(
                 requireView(),
                 R.string.Swap_Approving,

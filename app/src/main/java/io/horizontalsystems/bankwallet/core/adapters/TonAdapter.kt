@@ -276,6 +276,7 @@ class TonTransactionRecord(
     timestamp: Long,
     failed: Boolean = false,
     spam: Boolean = false,
+    withdraw: Boolean = false,
     source: TransactionSource,
     override val mainValue: TransactionValue,
     val fee: TransactionValue?,
@@ -291,6 +292,7 @@ class TonTransactionRecord(
     timestamp,
     failed,
     spam,
+    withdraw,
     source,
 ) {
     enum class Type {

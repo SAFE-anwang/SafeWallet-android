@@ -25,6 +25,7 @@ class TransactionFilterService(
     private var contact: Contact? = null
     private var uniqueId = UUID.randomUUID().toString()
     private var hideSuspiciousTx = spamManager.hideSuspiciousTx
+    private var hideWithdrawTx = spamManager.hideWithdrawTx
 
     private val _stateFlow = MutableStateFlow(
         State(
@@ -38,6 +39,7 @@ class TransactionFilterService(
             uniqueId = uniqueId,
             contact = contact,
             hideSuspiciousTx = hideSuspiciousTx,
+            hideWithdrawTx = hideWithdrawTx,
         )
     )
     val stateFlow get() = _stateFlow.asStateFlow()
@@ -55,6 +57,7 @@ class TransactionFilterService(
                 uniqueId = uniqueId,
                 contact = contact,
                 hideSuspiciousTx = hideSuspiciousTx,
+                hideWithdrawTx = hideWithdrawTx,
             )
         }
     }
@@ -138,7 +141,9 @@ class TransactionFilterService(
         selectedBlockchain = null
         contact = null
         hideSuspiciousTx = true
+        hideWithdrawTx = true
         spamManager.updateFilterHideSuspiciousTx(true)
+        spamManager.updateFilterHideWithdrawTx(true)
 
         emitState()
     }
@@ -148,6 +153,7 @@ class TransactionFilterService(
                 || selectedBlockchain != null
                 || contact != null
                 || !hideSuspiciousTx
+                || !hideWithdrawTx
     }
 
     private fun refreshContact() {
@@ -167,6 +173,12 @@ class TransactionFilterService(
         emitState()
     }
 
+    fun updateFilterHideWithdrawTx(checked: Boolean) {
+        hideWithdrawTx = checked
+        spamManager.updateFilterHideWithdrawTx(checked)
+        emitState()
+    }
+
     data class State(
         val blockchains: List<Blockchain?>,
         val selectedBlockchain: Blockchain?,
@@ -178,6 +190,7 @@ class TransactionFilterService(
         val uniqueId: String,
         val contact: Contact?,
         val hideSuspiciousTx: Boolean,
+        val hideWithdrawTx: Boolean
     )
 
 }

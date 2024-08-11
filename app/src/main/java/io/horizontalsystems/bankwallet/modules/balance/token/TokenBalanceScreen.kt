@@ -80,6 +80,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 
@@ -165,8 +166,8 @@ private fun TokenBalanceHeader(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         VSpacer(height = (24.dp))
@@ -207,6 +208,9 @@ private fun TokenBalanceHeader(
         }
         VSpacer(height = 24.dp)
         ButtonsRow(viewItem = balanceViewItem, navController = navController, viewModel = viewModel)
+        if (balanceViewItem.wallet.coin.isSafeFour()) {
+            SafeFourButtonsRow(navController = navController, viewModel = viewModel, balanceViewItem)
+        }
         LockedBalanceSection(balanceViewItem, navController)
     }
 }
@@ -216,8 +220,8 @@ private fun LockedBalanceSection(balanceViewItem: BalanceViewItem, navController
     if (balanceViewItem.lockedValues.isNotEmpty()) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
         ) {
             balanceViewItem.lockedValues.forEach { lockedValue ->
                 LockedBalanceCell(
@@ -283,8 +287,8 @@ private fun WalletIcon(
 ) {
     Box(
         modifier = Modifier
-            .height(52.dp)
-            .fillMaxWidth(),
+                .height(52.dp)
+                .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         viewItem.syncingProgress.progress?.let { progress ->
@@ -307,10 +311,10 @@ private fun WalletIcon(
             val view = LocalView.current
             Image(
                 modifier = Modifier
-                    .size(32.dp)
-                    .clickable {
-                        onSyncErrorClicked(viewItem, viewModel, navController, view)
-                    },
+                        .size(32.dp)
+                        .clickable {
+                            onSyncErrorClicked(viewItem, viewModel, navController, view)
+                        },
                 painter = painterResource(id = R.drawable.ic_attention_24),
                 contentDescription = "coin icon",
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
@@ -382,7 +386,9 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             )
         } else {
             ButtonPrimaryYellow(
-                modifier = Modifier.weight(1f).height(40.dp),
+                modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp),
                 title = stringResource(R.string.Balance_Send),
                 onClick = {
                     val sendTitle = Translator.getString(R.string.Send_Title, viewItem.wallet.token.fullCoin.coin.code)
@@ -406,7 +412,9 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             HSpacer(8.dp)
             if (!viewItem.swapVisible) {
                 ButtonPrimaryDefault(
-                    modifier = Modifier.weight(1f).height(40.dp),
+                    modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
                     title = stringResource(R.string.Balance_Receive),
                     onClick =  onClickReceive,
                 )

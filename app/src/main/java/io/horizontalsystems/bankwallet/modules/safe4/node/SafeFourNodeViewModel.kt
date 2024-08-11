@@ -1,4 +1,227 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
-class SafeFourNodeViewModel {
+import androidx.compose.runtime.Immutable
+import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.math.BigInteger
+
+class SafeFourNodeViewModel(
+        val wallet: Wallet,
+        private val title: String,
+        private val nodeService: SafeFourNodeService,
+        private val isSuperNode: Boolean
+) : ViewModelUiState<SafeFourModule.SafeFourNodeUiState>()  {
+
+    val tabs = if (isSuperNode) listOf(
+            Pair(0, R.string.Safe_Four_Super_Node_All), Pair(1, R.string.Safe_Four_Super_Node_Mine)
+    ) else listOf(
+            Pair(0,R.string.Safe_Four_Master_Node_All), Pair(1, R.string.Safe_Four_Master_Node_Mine)
+    )
+
+    var tmpItemToShow: NodeInfo? = null
+
+    private val disposables = CompositeDisposable()
+
+    private var nodes: List<NodeViewItem>? = null
+    private var mineNodes: List<NodeViewItem>? = null
+
+    private var isRegisterNode = Pair(false, false)
+
+
+    init {
+        nodeService.registerNodeObservable
+                .subscribeIO{
+                    isRegisterNode = it
+                    Log.e("longwen", "isRegister=${it.first}, ${it.second}")
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.itemsObservable
+                .subscribeIO {
+                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode) }
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.mineNodeItemsObservable
+                .subscribeIO {
+                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode) }
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        viewModelScope.launch(Dispatchers.IO) {
+            nodeService.loadItems(0)
+            nodeService.loadItemsMine(0)
+        }
+    }
+
+    override fun createState() = SafeFourModule.SafeFourNodeUiState(
+        title = title,
+        nodeList = nodes,
+        mineList = mineNodes,
+        isRegisterNode = isRegisterNode
+    )
+
+
+    fun onBottomReached() {
+        viewModelScope.launch(Dispatchers.IO) {
+            nodeService.loadNext()
+        }
+    }
+
+    fun getNodeItem(viewItem: NodeViewItem) = nodeService.getNodeItem(viewItem.id)
+
+    fun isSuperNode(): Boolean {
+        return isSuperNode
+    }
+
+    fun getNodeType(): Int {
+        return if (isSuperNode) {
+            NodeType.SuperNode
+        } else {
+            NodeType.MainNode
+        }.ordinal
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
+    }
+
+    fun getMenuName(): Int {
+        return if (isSuperNode) {
+            R.string.Safe_Four_Register_Super_Node
+        } else {
+            R.string.Safe_Four_Register_Master_Node
+        }
+    }
+
+    fun menuEnable(): Boolean {
+        return !isRegisterNode.first && !isRegisterNode.second
+    }
+
+    fun getAlreadyRegisterText(): Int {
+        return if (isRegisterNode.first) {
+            R.string.Safe_Four_Register_Super_Node_Register
+        } else {
+            R.string.Safe_Four_Register_Master_Node_Register
+        }
+    }
+
+    fun getVoteButtonName(): Int {
+        return if (isSuperNode) {
+            R.string.Safe_Four_Node_Super_Node_Vote
+        } else {
+            R.string.Safe_Four_Node_Master_Node_Vote
+        }
+    }
+
+
+}
+
+data class NodeInfo(
+        val id: Int,
+        val addr: Address,
+        val creator: Address,
+        val enode: String,
+        val description: String,
+        val isOfficial: Boolean,
+        val state: NodeStatus,
+        val founders: List<NodeMemberInfo>,
+        val incentivePlan: NodeIncentivePlan,
+        val lastRewardHeight: Long,
+        val createHeight: Long,
+        val updateHeight: Long,
+        val name: String = "",
+        val isEdit: Boolean = false,
+        var totalVoteNum: BigInteger = BigInteger.ZERO,
+        var totalAmount: BigInteger = BigInteger.ZERO,
+        var allVoteNum: BigInteger = BigInteger.ZERO,
+        var availableLimit: BigInteger = BigInteger.ZERO
+) {
+    override fun toString(): String {
+        return "NodeItem(id=$id, addr=$addr, creator=$creator, enode='$enode', description='$description', isOfficial=$isOfficial, state=$state, founders=$founders, incentivePlan=$incentivePlan, lastRewardHeight=$lastRewardHeight, createHeight=$createHeight, updateHeight=$updateHeight, name='$name')"
+    }
+}
+
+data class NodeMemberInfo(
+        val lockID: Int,
+        val addr: Address,
+        val amount: BigInteger,
+        val height: Long
+) {
+    override fun toString(): String {
+        return "NodeMemberInfo(lockID=$lockID, addr=$addr, amount=$amount, height=$height)"
+    }
+}
+
+data class NodeIncentivePlan(
+        val creator: Int,
+        val partner: Int,
+        val voter: Int
+) {
+    override fun toString(): String {
+        return "NodeIncentivePlan(creator=$creator, partner=$partner, voter=$voter)"
+    }
+}
+
+@Immutable
+data class NodeViewItem(
+        val ranking: Int,
+        val id: Int,
+        val name: String,
+        val desc: String,
+        val voteCount: String,
+        val voteCompleteCount: String,
+        val progress: Float,
+        val progressText: String,
+        val address: Address,
+        val creator: Address,
+        val status: NodeStatus,
+        val enode: String = "",
+        val createPledge: String = "5,000 SAFE",
+        val canJoin: Boolean = false,
+        val isEdit: Boolean = false
+)
+
+data class CreateViewItem(
+        val id: String,
+        val address: String,
+        val amount: String
+)
+
+sealed class NodeStatus {
+    object Online : NodeStatus()
+    object Exception : NodeStatus()
+
+    fun title(): TranslatableString {
+        return when (this) {
+            is Online -> TranslatableString.ResString(R.string.Safe_Four_Node_Online)
+            is Exception -> TranslatableString.ResString(R.string.Safe_Four_Node_Exception)
+            else -> TranslatableString.PlainString("")
+        }
+    }
+
+    companion object {
+        fun get(state: Int): NodeStatus {
+            return if (state == 1)
+                Online
+            else
+                Exception
+        }
+    }
 }

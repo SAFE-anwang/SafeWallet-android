@@ -32,6 +32,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import java.math.BigInteger
 import java.net.URI
 
 class EvmKitManager(
@@ -248,6 +249,59 @@ class EvmKitWrapper(
     fun withdraw() {
         if (blockchainType == BlockchainType.SafeFour && signer != null) {
             evmKit.withdraw(signer.privateKey)
+        }
+    }
+
+    fun createSuperNode(
+            value: BigInteger,
+            isUnion: Boolean,
+            addr: String,
+            lockDay: BigInteger,
+            name: String,
+            enode: String,
+            description: String,
+            creatorIncentive: BigInteger,
+            partnerIncentive: BigInteger,
+            voterIncentive: BigInteger
+    ): Single<String> {
+        return if (signer != null) {
+            evmKit.superNodeRegister(signer.privateKey, value, isUnion, addr, lockDay, name, enode, description, creatorIncentive, partnerIncentive, voterIncentive)
+        } else {
+            Single.error(Exception())
+        }
+    }
+
+    fun createMasterNode(
+            value: BigInteger,
+            isUnion: Boolean,
+            addr: String,
+            lockDay: BigInteger,
+            enode: String,
+            description: String,
+            creatorIncentive: BigInteger,
+            partnerIncentive: BigInteger
+    ): Single<String> {
+        return if (signer != null) {
+            evmKit.masterNodeRegister(signer.privateKey, value, isUnion, addr, lockDay, enode, description, creatorIncentive, partnerIncentive)
+        } else {
+            Single.error(Exception())
+        }
+    }
+
+    fun voteOrApprovalWithAmount(value: BigInteger, isVote: Boolean, dstAddr: String): Single<String> {
+        return if (signer != null) {
+            evmKit.voteOrApprovalWithAmount(signer.privateKey, value, isVote,
+                    dstAddr)
+        } else {
+            return Single.error(Exception())
+        }
+    }
+
+    fun voteOrApproval(isVote: Boolean, dstAddr: String, recordIDs: List<BigInteger>): Single<String> {
+        return if (signer != null) {
+            evmKit.voteOrApproval(signer.privateKey, isVote, dstAddr, recordIDs)
+        } else {
+            return Single.error(Exception())
         }
     }
 }

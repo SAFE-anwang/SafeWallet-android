@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.core.managers
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.TransferEvent
+import io.horizontalsystems.ethereumkit.models.Transaction
 import java.math.BigDecimal
 
 class SpamManager(
@@ -12,6 +13,9 @@ class SpamManager(
     private val negligibleValue = BigDecimal("0.01")
 
     var hideSuspiciousTx = localStorage.hideSuspiciousTransactions
+        private set
+
+    var hideWithdrawTx = localStorage.hideWithdrawTransactions
         private set
 
     fun isSpam(
@@ -54,6 +58,11 @@ class SpamManager(
     fun updateFilterHideSuspiciousTx(hide: Boolean) {
         localStorage.hideSuspiciousTransactions = hide
         hideSuspiciousTx = hide
+    }
+
+    fun updateFilterHideWithdrawTx(hide: Boolean) {
+        localStorage.hideWithdrawTransactions = hide
+        hideWithdrawTx = hide
     }
 
 }

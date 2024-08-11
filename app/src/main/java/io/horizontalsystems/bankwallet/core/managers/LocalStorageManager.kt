@@ -83,6 +83,7 @@ class LocalStorageManager(
     private val PIN_RANDOMIZED = "pin_randomized"
     private val UTXO_EXPERT_MODE = "utxo_expert_mode"
     private val RBF_ENABLED = "rbf_enabled"
+    private val HIDE_WITHDRAW_TX = "hide_withdraw_tx"
 
     private val _utxoExpertModeEnabledFlow = MutableStateFlow(false)
     override val utxoExpertModeEnabledFlow = _utxoExpertModeEnabledFlow
@@ -532,5 +533,12 @@ class LocalStorageManager(
     private fun getLiquidityProviderKey(blockchainType: BlockchainType): String {
         return LIQUIDITY_PROVIDER + blockchainType.uid
     }
+
+
+    override var hideWithdrawTransactions: Boolean
+        get() = preferences.getBoolean(HIDE_WITHDRAW_TX, true)
+        set(value) {
+            preferences.edit().putBoolean(HIDE_WITHDRAW_TX, value).apply()
+        }
 
 }

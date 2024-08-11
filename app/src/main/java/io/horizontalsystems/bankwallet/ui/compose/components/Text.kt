@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
@@ -70,6 +71,31 @@ fun body_bran(
         color = ComposeAppTheme.colors.bran,
     )
 }
+
+
+@Composable
+fun body_bran(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null,
+    textDecoration: TextDecoration? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
+) {
+    Text(
+            text = text,
+            modifier = modifier,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            onTextLayout = onTextLayout,
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.bran,
+            textDecoration = textDecoration
+    )
+}
+
 
 @Composable
 fun L2(

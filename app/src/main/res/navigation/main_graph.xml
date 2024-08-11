@@ -541,4 +541,50 @@
     <dialog
         android:id="@+id/wcAccountTypeNotSupportedDialog"
         android:name="io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog" />
+
+    <fragment
+        android:id="@+id/nodeListFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeFragment" />
+    <fragment
+        android:id="@+id/createSuperNodeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.supernode.SafeFourCreateNodeFragment" />
+    <fragment
+        android:id="@+id/createNodeConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourCreateNodeConfirmationFragment" />
+    <fragment
+        android:id="@+id/voteFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteFragment" />
+    <fragment
+        android:id="@+id/voteConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationFragment" />
+    <fragment
+        android:id="@+id/proposalFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalFragment" />
+    <fragment
+        android:id="@+id/proposalInfoFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.SafeFourProposalInfoFragment" />
+    <fragment
+        android:id="@+id/rewardFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.reward.SafeFourRewardFragment" />
+
+    <fragment
+        android:id="@+id/createProposalFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.SafeFourCreateProposalFragment" />
+
+    <fragment
+        android:id="@+id/nodeInfoFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeInfoFragment" />
+
+    <fragment
+        android:id="@+id/nodeEditFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeEditFragment" />
+
+    <fragment
+        android:id="@+id/createProposalConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.SafeFourCreateProposalConfirmationFragment" />
+
+    <fragment
+        android:id="@+id/redeemSafe3Fragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Fragment" />
+
 </navigation>

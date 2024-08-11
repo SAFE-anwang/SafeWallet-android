@@ -66,6 +66,7 @@ fun FilterScreen(
     val filterCoins by viewModel.filterTokensLiveData.observeAsState()
     val filterBlockchains by viewModel.filterBlockchainsLiveData.observeAsState()
     val filterHideUnknownTokens = viewModel.filterHideSuspiciousTx.observeAsState(true)
+    val filterHideWithdrawTokens = viewModel.filterHideWithdrawTx.observeAsState(true)
     val filterContact by viewModel.filterContactLiveData.observeAsState()
 
     val filterCoin = filterCoins?.find { it.selected }?.item
@@ -162,6 +163,18 @@ fun FilterScreen(
                 )
                 InfoText(
                     text = stringResource(R.string.Transactions_Filter_StablecoinDustAmount_Description),
+                )
+                VSpacer(32.dp)
+                CellSingleLineLawrenceSection(
+                    listOf {
+                        FilterSwitch(
+                            title = stringResource(R.string.Transactions_Filter_HideWithdrawTx),
+                            enabled = filterHideWithdrawTokens.value,
+                            onChecked = { checked ->
+                                viewModel.updateFilterHideWithdrawTx(checked)
+                            }
+                        )
+                    }
                 )
                 VSpacer(24.dp)
             }
