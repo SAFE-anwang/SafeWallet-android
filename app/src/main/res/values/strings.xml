@@ -2406,7 +2406,7 @@
 
 
 
-    <string name="Redeem_Safe3_Title">Redeem Safe3</string>
+    <string name="Redeem_Safe3_Title">Safe3->Safe4</string>
     <string name="Redeem_Safe3_Query">Query Asset</string>
     <string name="Redeem_Safe3_Verify_Private_Key">Verify Private Key</string>
     <string name="Redeem_Safe3_Migration">Asset Redeem</string>

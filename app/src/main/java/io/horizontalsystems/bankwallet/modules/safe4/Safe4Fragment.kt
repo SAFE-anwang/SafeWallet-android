@@ -375,15 +375,6 @@ private fun Safe4Sections(
                 )
             },{
                 HsSettingCell(
-                        R.string.Redeem_Safe3_Title,
-                        R.mipmap.ic_app_color,
-                        showAlert = false,
-                        onClick = {
-                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
-                        }
-                )
-            },{
-                HsSettingCell(
                         R.string.Safe_Four_Profit,
                         R.mipmap.ic_app_color,
                         showAlert = false,
@@ -391,7 +382,16 @@ private fun Safe4Sections(
                             Safe4Module.handlerNode(Safe4Module.SafeFourType.Profit, navController)
                         }
                 )
-            },)
+            },{
+                HsSettingCell(
+                        R.string.Redeem_Safe3_Title,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
+                        }
+                )
+            })
     )
 
     Spacer(Modifier.height(25.dp))

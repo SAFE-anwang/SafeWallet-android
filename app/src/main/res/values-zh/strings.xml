@@ -2081,7 +2081,7 @@
     <string name="Safe_Four_Node_Edit_Super_Hint">通过调用超级节点合约更新超级节点对应的属性信息.\n更新的超级节点数据在交易写入区块链后才会生效.</string>
     <string name="Safe_Four_Node_Edit_Master_Hint">通过调用主节点合约更新主节点对应的属性信息.\n更新的主节点数据在交易写入区块链后才会生效.</string>
 
-    <string name="Redeem_Safe3_Title">Safe3 资产迁移</string>
+    <string name="Redeem_Safe3_Title">Safe3->Safe4</string>
     <string name="Redeem_Safe3_Query">资产查询</string>
     <string name="Redeem_Safe3_Verify_Private_Key">验证私钥</string>
     <string name="Redeem_Safe3_Migration">资产迁移</string>
