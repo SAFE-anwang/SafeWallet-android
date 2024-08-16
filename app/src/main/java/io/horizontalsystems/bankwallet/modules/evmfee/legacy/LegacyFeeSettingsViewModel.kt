@@ -36,7 +36,6 @@ class LegacyFeeSettingsViewModel(
         private set
 
     init {
-        Log.e("longwen", "Legacy fee")
         viewModelScope.launch {
             gasPriceService.stateFlow.collect {
                 sync(it)

@@ -25,7 +25,7 @@ import java.net.UnknownHostException
 
 class SafeFourVoteConfirmationViewModel(
         private val title: String,
-        private val isSuper: Boolean,
+        val isSuper: Boolean,
         private val wallet: Wallet,
         val voteData: VoteData,
         val safe4RpcBlockChain: RpcBlockchainSafe4,

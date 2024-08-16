@@ -87,10 +87,10 @@ class SafeFourNodeEditViewModel(
                 nodeEnode,
                 nodeDesc,
                 addressState.addressError,
-                !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length > 5,
+                !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length > 7,
                 !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true) && addressState.canBeSend ,
                 !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank(),
-                !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank()
+                !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length > 7
 
         )
 

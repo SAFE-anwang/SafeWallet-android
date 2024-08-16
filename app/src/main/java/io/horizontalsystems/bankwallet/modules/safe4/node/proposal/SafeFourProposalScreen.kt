@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -25,17 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeStatus
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
+import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
 
@@ -117,13 +122,9 @@ fun LazyListScope.proposalList(
 							onClick.invoke(item)
 						}
 				)
-			}
-			Divider(
-					modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-					thickness = 1.dp,
-					color = ComposeAppTheme.colors.steel10,
-			)
 
+			}
+			Spacer(modifier = Modifier.height(5.dp))
 			if (item.id == bottomReachedRank) {
 				onBottomReached.invoke()
 			}
@@ -153,100 +154,74 @@ fun ProposalItemCell(
 	SectionUniversalItem(
 			borderTop = divider,
 	) {
-		val clipModifier = when (position) {
-			SectionItemPosition.First -> {
-				Modifier.clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-			}
-
-			SectionItemPosition.Last -> {
-				Modifier.clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-			}
-
-			SectionItemPosition.Single -> {
-				Modifier.clip(RoundedCornerShape(12.dp))
-			}
-
-			else -> Modifier
-		}
-
-		val borderModifier = if (position != SectionItemPosition.Single) {
-			Modifier.sectionItemBorder(1.dp, ComposeAppTheme.colors.steel20, 12.dp, position)
-		} else {
-			Modifier.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
-		}
+		val clipModifier = Modifier.clip(RoundedCornerShape(12.dp))
 
 		RowUniversal(
 				modifier = Modifier
 						.fillMaxSize()
 						.then(clipModifier)
-						.then(borderModifier)
 						.background(ComposeAppTheme.colors.lawrence)
 						.clickable(onClick = onClick),
 		) {
 			Column(
 					modifier = Modifier
-							.padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 6.dp)
+							.padding(start = 16.dp, end = 16.dp)
 							.alpha(1f)
 			) {
 				Row {
-					body_leah(
-							modifier = Modifier.fillMaxWidth().weight(1f),
-							text = item.id.toString(),
-							maxLines = 1,
-					)
-					val color = ComposeAppTheme.colors.grey
 					Text(
-							modifier = Modifier.fillMaxWidth().weight(2f),
 							text = item.title,
 							style = ComposeAppTheme.typography.body,
-							color = color,
+							color = ComposeAppTheme.colors.bran,
 							overflow = TextOverflow.Ellipsis,
 							maxLines = 1,
+							fontWeight = FontWeight.Bold
 					)
-					Text(
-							modifier = Modifier.fillMaxWidth().weight(1.5f),
-							text = item.amount,
-							style = ComposeAppTheme.typography.body,
-							color = color,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-				}
+					Spacer(Modifier.weight(1f))
 
-				Spacer(Modifier.height(6.dp))
-				Row {
 					val color = when (item.status) {
-						is ProposalStatus.Voting -> ComposeAppTheme.colors.tgBlue
+						is ProposalStatus.Voting -> ComposeAppTheme.colors.issykBlue
 						is ProposalStatus.Lose -> ComposeAppTheme.colors.grey50
 						is ProposalStatus.Adopt -> ComposeAppTheme.colors.greenD
 					}
-					Text(
-							modifier = Modifier.fillMaxWidth().weight(1f),
-							text = item.status.title().getString(),
-							style = ComposeAppTheme.typography.body,
-							color = color,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-					Text(
-							modifier = Modifier.fillMaxWidth().weight(2f),
-							text = item.creator.shorten(),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
+					Row(
+							modifier = Modifier
+									.clip(RoundedCornerShape(5.dp))
+									.background(color)
+									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp)) {
+						Text(
+								text = item.status.title().getString(),
+								style = ComposeAppTheme.typography.captionSB,
+								color = ComposeAppTheme.colors.white,
+								overflow = TextOverflow.Ellipsis,
+								maxLines = 1,
+						)
+					}
+				}
+				Spacer(Modifier.height(2.dp))
+				body_grey(
+						text = stringResource(id = R.string.Safe_Four_Proposal_List_Amount, item.amount)
+				)
 
-					Text(
-							modifier = Modifier.fillMaxWidth().weight(1.5f),
+				Spacer(Modifier.height(2.dp))
+
+				body_grey(
+						text = stringResource(id = R.string.Safe_Four_Proposal_Creator, item.creator.shorten(8))
+				)
+
+				Spacer(Modifier.height(2.dp))
+
+				Row {
+					body_bran(
+							text = stringResource(id = R.string.Safe_Four_Proposal_List_ID, item.id.toString())
+					)
+					Spacer(Modifier.weight(1f))
+					body_grey(
 							text = item.endDate,
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
 							overflow = TextOverflow.Ellipsis,
 							maxLines = 1,
 					)
 				}
-
 			}
 		}
 	}

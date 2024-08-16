@@ -62,6 +62,8 @@ fun SafeFourCreateProposalScreen(
 			stringResource(id = R.string.Safe_Four_Proposal_Issuance_Method_Instalments)
 			)
 	var selectedMethod by remember{ mutableStateOf(0) }
+	var nameErrorState by remember{ mutableStateOf(false) }
+	var descErrorState by remember{ mutableStateOf(false) }
 
 	Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
 		AppBar(
@@ -83,6 +85,17 @@ fun SafeFourCreateProposalScreen(
 					hint = stringResource(R.string.Safe_Four_Proposal_Create_Title_Hint),
 			) {
 				viewModel.onEnterTitle(it)
+				nameErrorState = it.length < 8
+			}
+
+			if (nameErrorState) {
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
 			}
 
 			Spacer(modifier = Modifier.height(12.dp))
@@ -95,6 +108,17 @@ fun SafeFourCreateProposalScreen(
 					hint = stringResource(R.string.Safe_Four_Proposal_Create_Desc_Hint),
 			) {
 				viewModel.onEnterDescription(it)
+				descErrorState = it.length < 8
+			}
+
+			if (descErrorState) {
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
 			}
 
 			Spacer(modifier = Modifier.height(12.dp))

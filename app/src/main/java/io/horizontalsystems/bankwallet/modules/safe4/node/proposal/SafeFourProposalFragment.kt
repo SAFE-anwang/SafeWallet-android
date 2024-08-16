@@ -17,16 +17,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.CreatorScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.LockVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.MasterVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteFragment
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoterRecordScreen
+import io.horizontalsystems.bankwallet.modules.safe4.node.HintView
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -87,6 +78,8 @@ fun TabScreen(
                 )
 
         )
+
+        HintView(textId = R.string.Safe_Four_Proposal_Hint)
 
         val selectedTab = tabs[pagerState.currentPage]
         val tabItems = tabs.map {

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
@@ -15,6 +16,11 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendFragment
 import io.horizontalsystems.bankwallet.modules.safe4.lockinfo.LockInfoActivity
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
+import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
+import io.horizontalsystems.bankwallet.modules.safe4.node.reward.SafeFourRewardModule
+import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Module
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
@@ -188,6 +194,80 @@ object Safe4Module {
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun handlerNode(type: SafeFourType, navController: NavController) {
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safe4Wallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour) {
+                safe4Wallet = it
+            }
+        }
+        if (safe4Wallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe4"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safe4Wallet)
+        if (state is AdapterState.Synced){
+            when(type) {
+                SafeFourType.SuperNode -> {
+                    navController.slideFromBottom(
+                            R.id.nodeListFragment,
+                            SafeFourModule.Input(R.string.Safe_Four_Super_Node, NodeType.SuperNode.ordinal, safe4Wallet)
+                    )
+                }
+                SafeFourType.MasterNode -> {
+                    navController.slideFromBottom(
+                            R.id.nodeListFragment,
+                            SafeFourModule.Input(R.string.Safe_Four_Master_Node, NodeType.MainNode.ordinal, safe4Wallet)
+                    )
+                }
+                SafeFourType.Proposal -> {
+                    navController.slideFromBottom(
+                            R.id.proposalFragment,
+                            SafeFourProposalModule.Input(safe4Wallet)
+                    )
+                }
+                SafeFourType.Redeem -> {
+                    var safeWallet: Wallet? = null
+                    for (it in walletList) {
+                        if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
+                            safeWallet = it
+                        }
+                    }
+                    if (safeWallet == null) {
+                        Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "Safe3"), Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+                    val state =  balanceAdapterRepository.state(safeWallet)
+                    if (state is AdapterState.Synced) {
+                        navController.slideFromBottom(
+                                R.id.redeemSafe3Fragment,
+
+                                RedeemSafe3Module.Input(safe4Wallet, safeWallet)
+                        )
+                    } else {
+                        Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                SafeFourType.Profit -> {
+                    navController.slideFromBottom(
+                            R.id.rewardFragment,
+                            SafeFourRewardModule.Input(safe4Wallet)
+                    )
+                }
+            }
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    enum class SafeFourType {
+        SuperNode, MasterNode, Proposal, Redeem, Profit
     }
 
     enum class ChainType {

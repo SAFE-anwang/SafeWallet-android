@@ -208,9 +208,6 @@ private fun TokenBalanceHeader(
         }
         VSpacer(height = 24.dp)
         ButtonsRow(viewItem = balanceViewItem, navController = navController, viewModel = viewModel)
-        if (balanceViewItem.wallet.coin.isSafeFour()) {
-            SafeFourButtonsRow(navController = navController, viewModel = viewModel, balanceViewItem)
-        }
         LockedBalanceSection(balanceViewItem, navController)
     }
 }

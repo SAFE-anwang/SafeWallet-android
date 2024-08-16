@@ -40,33 +40,11 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
-import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalStatus
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.proposalList
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.CreatorScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.LockVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.MasterVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteFragment
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoterRecordScreen
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
-import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
-import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.body_lucian
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
@@ -104,12 +82,40 @@ fun RewardInfoScreen(
                         HsBackButton(onClick = { navController.popBackStack() })
                     }
             )
-            Surface(color = ComposeAppTheme.colors.tyler,
-                    modifier = Modifier.padding(16.dp)
+            Surface(color = ComposeAppTheme.colors.lawrence,
+                    modifier = Modifier
+                            .padding(16.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))) {
             Scaffold(
-                    backgroundColor = ComposeAppTheme.colors.tyler,
+                    backgroundColor = ComposeAppTheme.colors.lawrence,
+                    topBar = {
+                        Column(
+
+                        ) {
+                            Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)) {
+                                body_leah(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = stringResource(id = R.string.Safe_Four_Profit_Title_Date),
+                                        maxLines = 1,
+                                )
+                                body_leah(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = stringResource(id = R.string.Safe_Four_Profit_Title_Amount),
+                                        maxLines = 1,
+                                        textAlign = TextAlign.End
+                                )
+                            }
+                            Divider(
+                                    thickness = 1.dp,
+                                    color = ComposeAppTheme.colors.steel10,
+                            )
+                        }
+                    }
             ) { paddingValues ->
                 if (rewardList.isNullOrEmpty()) {
                     Column(Modifier.padding(paddingValues)) {
@@ -127,28 +133,7 @@ fun RewardInfoScreen(
                     }
                 } else {
                     val listState = rememberLazyListState()
-                    Column(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    ) {
-                        Row {
-                            body_leah(
-                                    modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f),
-                                    text = stringResource(id = R.string.Safe_Four_Profit_Title_Date),
-                                    maxLines = 1,
-                            )
-                            body_leah(
-                                    modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f),
-                                    text = stringResource(id = R.string.Safe_Four_Profit_Title_Amount),
-                                    maxLines = 1,
-                                    textAlign = TextAlign.End
-                            )
-                        }
 
-                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyColumn(Modifier.padding(paddingValues), state = listState) {
 

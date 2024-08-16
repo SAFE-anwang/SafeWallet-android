@@ -27,8 +27,6 @@ class SafeFourNodeViewModel(
             Pair(0,R.string.Safe_Four_Master_Node_All), Pair(1, R.string.Safe_Four_Master_Node_Mine)
     )
 
-    var tmpItemToShow: NodeInfo? = null
-
     private val disposables = CompositeDisposable()
 
     private var nodes: List<NodeViewItem>? = null
@@ -41,7 +39,6 @@ class SafeFourNodeViewModel(
         nodeService.registerNodeObservable
                 .subscribeIO{
                     isRegisterNode = it
-                    Log.e("longwen", "isRegister=${it.first}, ${it.second}")
                     emitState()
                 }
                 .let {
@@ -66,6 +63,14 @@ class SafeFourNodeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             nodeService.loadItems(0)
             nodeService.loadItemsMine(0)
+        }
+    }
+
+    private fun isRegisterNode(): Boolean {
+        return if (isSuperNode) {
+            isRegisterNode.first
+        } else {
+            isRegisterNode.second
         }
     }
 
@@ -119,6 +124,14 @@ class SafeFourNodeViewModel(
             R.string.Safe_Four_Register_Super_Node_Register
         } else {
             R.string.Safe_Four_Register_Master_Node_Register
+        }
+    }
+
+    fun getRegisterHintText(): Int {
+        return if (isSuperNode) {
+            R.string.Safe_Four_Register_Super_Node_Register_Hint
+        } else {
+            R.string.Safe_Four_Register_Master_Node_Register_Hint
         }
     }
 

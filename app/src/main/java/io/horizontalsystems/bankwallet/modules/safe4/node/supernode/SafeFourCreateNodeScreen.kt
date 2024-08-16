@@ -80,6 +80,8 @@ fun SafeFourCreateNodeScreen(
 			stringResource(id = R.string.Safe_Four_Register_Mode_Crowd_Funding)
 			)
 	var selectedOption by remember{ mutableStateOf(0) }
+	var nameErrorState by remember{ mutableStateOf(false) }
+	var descErrorState by remember{ mutableStateOf(false) }
 
 	Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
 		AppBar(
@@ -129,6 +131,15 @@ fun SafeFourCreateNodeScreen(
 					}
 				}
 			}
+			Spacer(modifier = Modifier.height(12.dp))
+			AvailableBalance(
+					coinCode = wallet.coin.code,
+					coinDecimal = viewModel.coinMaxAllowedDecimals,
+					fiatDecimal = viewModel.fiatMaxAllowedDecimals,
+					availableBalance = availableBalance,
+					amountInputType = AmountInputType.COIN,
+					rate = viewModel.coinRate
+			)
 			Column(
 					modifier = Modifier
 							.padding(16.dp)
@@ -156,16 +167,6 @@ fun SafeFourCreateNodeScreen(
 					)
 				}
 			}
-			Spacer(modifier = Modifier.height(12.dp))
-
-			AvailableBalance(
-					coinCode = wallet.coin.code,
-					coinDecimal = viewModel.coinMaxAllowedDecimals,
-					fiatDecimal = viewModel.fiatMaxAllowedDecimals,
-					availableBalance = availableBalance,
-					amountInputType = AmountInputType.COIN,
-					rate = viewModel.coinRate
-			)
 
 			Spacer(modifier = Modifier.height(12.dp))
 			val addressHint = if (isSuper) {
@@ -205,6 +206,17 @@ fun SafeFourCreateNodeScreen(
 						hint = "",
 				) {
 					viewModel.onEnterNodeName(it)
+					nameErrorState = it.length < 8
+				}
+
+				if (nameErrorState) {
+					Text(
+							modifier = Modifier.padding(start = 16.dp),
+							text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+							color = ComposeAppTheme.colors.redD,
+							style = ComposeAppTheme.typography.caption,
+							maxLines = 1,
+					)
 				}
 			}
 			Spacer(modifier = Modifier.height(12.dp))
@@ -214,8 +226,9 @@ fun SafeFourCreateNodeScreen(
 			FormsInput(
 					modifier = Modifier.padding(horizontal = 16.dp),
 					enabled = true,
-					pasteEnabled = false,
+					pasteEnabled = true,
 					hint = "",
+					qrScannerEnabled = true,
 			) {
 				viewModel.onEnterENode(it)
 			}
@@ -232,6 +245,17 @@ fun SafeFourCreateNodeScreen(
 					hint = "",
 			) {
 				viewModel.onEnterIntroduction(it)
+				descErrorState = it.length < 8
+			}
+
+			if (descErrorState) {
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
 			}
 
 			if (isSuper || selectedOption == 1) {
@@ -321,6 +345,8 @@ fun SliderScreen(
 					if (temp > max) {
 						sliderPosition = max.toFloat()
 					}
+					progressCreator = sliderPosition.toInt()
+					progressPartner = 100 - sliderPosition.toInt()
 					onValueChange.invoke(sliderPosition.toInt())
 				},
 //				steps = 1,
@@ -336,7 +362,7 @@ fun SliderScreen(
 				body_bran(
 						text = stringResource(id = R.string.Safe_Four_Register_Creator))
 				Text(
-						text = "${progressPartner.toString()}%"
+						text = "${progressCreator.toString()}%"
 				)
 			}
 
@@ -350,7 +376,7 @@ fun SliderScreen(
 			) {
 				body_bran(text = stringResource(id = R.string.Safe_Four_Register_Partner))
 
-				Text(text = "${progressCreator.toString()}%")
+				Text(text = "${progressPartner.toString()}%")
 			}
 		}
 	}

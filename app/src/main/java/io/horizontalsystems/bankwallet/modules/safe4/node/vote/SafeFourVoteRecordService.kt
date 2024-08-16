@@ -38,11 +38,11 @@ class SafeFourVoteRecordService(
 			maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeId).blockingGet().toInt()
 		}
 		val itemsCount = page * itemsPerPage
-		if (itemsCount >= maxVoteCount) {
+		if (maxVoteCount == -1) {
 			loading.set(false)
 			return
 		}
-		val single = safe4RpcBlockChain.getVoters(nodeAddress, itemsCount, itemsPerPage)
+		val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
 		single.subscribeOn(Schedulers.io())
 				.map {
 					val recordList = it.addrs.mapIndexed { index, address ->

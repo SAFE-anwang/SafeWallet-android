@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.safe3
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.anwang.types.safe3.AvailableSafe3Info
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -28,7 +29,7 @@ object RedeemSafe3Module {
 		override fun <T : ViewModel> create(modelClass: Class<T>): T {
 			val addressService = SendBitcoinAddressService(adapter, null)
 			val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-			return RedeemSafe3ViewModel(wallet, safe3Wallet, addressService, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore) as T
+			return RedeemSafe3ViewModel(wallet, safe3Wallet, addressService, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
 		}
 	}
 
@@ -44,7 +45,8 @@ object RedeemSafe3Module {
 			val canRedeem: Boolean,
 			val safe4address: String? = null,
 			val safe3LockNum: Int = 0,
-			val masterNodeLock: String? = null
+			val masterNodeLock: String? = null,
+			val showConfirmationDialog: Boolean = false
 	)
 
 	data class Safe3LockItemView(
@@ -58,6 +60,15 @@ object RedeemSafe3Module {
 			val isMN: Boolean,
 			val safe4Addr: String,
 			val redeemHeight: Long,
+	)
+
+	data class NeedRedeemInfo(
+			val address: String,
+			val existAvailable: Boolean,
+			val existLocked: Boolean,
+			val existMasterNode: Boolean,
+			val availableSafe3Info: AvailableSafe3Info,
+			val privateKey: String
 	)
 
 	@Parcelize

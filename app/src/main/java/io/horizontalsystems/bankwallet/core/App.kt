@@ -85,6 +85,7 @@ import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EnabledWalletsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
 import io.horizontalsystems.bankwallet.core.storage.NftStorage
+import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
 import io.horizontalsystems.bankwallet.core.storage.RestoreSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.VpnServerStorage
 import io.horizontalsystems.bankwallet.modules.backuplocal.fullbackup.BackupProvider
@@ -148,6 +149,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var currencyManager: CurrencyManager
         lateinit var languageManager: LanguageManager
         lateinit var vpnServerStorage: VpnServerStorage
+        lateinit var redeemStorage: RedeemStorage
 
         lateinit var blockchainSettingsStorage: BlockchainSettingsStorage
         lateinit var evmSyncSourceStorage: EvmSyncSourceStorage
@@ -282,7 +284,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         val proFeaturesStorage = ProFeaturesStorage(appDatabase)
         proFeatureAuthorizationManager = ProFeaturesAuthorizationManager(proFeaturesStorage, accountManager, appConfigProvider)
 
-        vpnServerStorage = VpnServerStorage(appDatabase)
+
 
         enabledWalletsStorage = EnabledWalletsStorage(appDatabase)
         walletStorage = WalletStorage(marketKit, enabledWalletsStorage)
@@ -467,6 +469,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         spamManager = SpamManager(localStorage)
 
         vpnServerStorage = VpnServerStorage(appDatabase)
+        redeemStorage = RedeemStorage(appDatabase)
 
         binanceRefreshManager = BinanceRefreshManager(this, accountManager, binanceKitManager)
 

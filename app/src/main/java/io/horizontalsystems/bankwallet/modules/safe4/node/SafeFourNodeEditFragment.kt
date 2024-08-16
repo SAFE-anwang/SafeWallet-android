@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -139,6 +140,9 @@ fun EditScreen(
         R.string.Safe_Four_Node_Edit_Master_Title
     }
 
+    var nameErrorState by remember{ mutableStateOf(false) }
+    var descErrorState by remember{ mutableStateOf(false) }
+
     val view = LocalView.current
     val sendResult = viewModel.sendResult
 
@@ -176,6 +180,12 @@ fun EditScreen(
                     HsBackButton(onClick = { navController.popBackStack() })
                 }
         )
+        HintView(
+                if (isSuperNode)
+                R.string.Safe_Four_Node_Edit_Super_Hint
+            else
+                R.string.Safe_Four_Node_Edit_Master_Hint
+        )
         Column(modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())) {
@@ -191,14 +201,23 @@ fun EditScreen(
                         hint = "",
                 ) {
                     viewModel.onEnterName(it)
+                    nameErrorState = it.length < 8
+                }
+
+                if (nameErrorState) {
+                    Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+                            color = ComposeAppTheme.colors.redD,
+                            style = ComposeAppTheme.typography.caption,
+                            maxLines = 1,
+                    )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row {
                     ButtonPrimaryYellow(
                             modifier = Modifier
-                                    .weight(1f)
-                                    .padding(16.dp)
-                                    .height(40.dp),
+                                    .wrapContentSize(),
                             title = stringResource(R.string.Safe_Four_Node_Update_Button),
                             enabled = uiState.nameCanUpdate,
                             onClick = {
@@ -236,9 +255,7 @@ fun EditScreen(
             Row {
                 ButtonPrimaryYellow(
                         modifier = Modifier
-                                .weight(1f)
-                                .padding(16.dp)
-                                .height(40.dp),
+                                .wrapContentSize(),
                         title = stringResource(R.string.Safe_Four_Node_Update_Button),
                         enabled = uiState.addressCanUpdate,
                         onClick = {
@@ -263,9 +280,7 @@ fun EditScreen(
             Row {
                 ButtonPrimaryYellow(
                         modifier = Modifier
-                                .weight(1f)
-                                .padding(16.dp)
-                                .height(40.dp),
+                                .wrapContentSize(),
                         title = stringResource(R.string.Safe_Four_Node_Update_Button),
                         enabled = uiState.enodeCanUpdate,
                         onClick = {
@@ -284,6 +299,17 @@ fun EditScreen(
                     hint = "",
             ) {
                 viewModel.onEnterDesc(it)
+                descErrorState = it.length < 8
+            }
+
+            if (descErrorState) {
+                Text(
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+                        color = ComposeAppTheme.colors.redD,
+                        style = ComposeAppTheme.typography.caption,
+                        maxLines = 1,
+                )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -291,9 +317,7 @@ fun EditScreen(
             Row {
                 ButtonPrimaryYellow(
                         modifier = Modifier
-                                .weight(1f)
-                                .padding(16.dp)
-                                .height(40.dp),
+                                .wrapContentSize(),
                         title = stringResource(R.string.Safe_Four_Node_Update_Button),
                         enabled = uiState.descCanUpdate,
                         onClick = {

@@ -21,6 +21,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -30,12 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.modules.safe4.node.HintView
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalStatus
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -44,7 +47,9 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondary
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.core.SnackbarDuration
@@ -81,6 +86,7 @@ fun ProposalInfoScreen(
     val proposalInfo = viewModel.uiState.proposalInfo
     val voteList = viewModel.uiState.voteList
     val voteEnable = uiState.voteEnable
+    val isVoted = uiState.isVoted
     val view = LocalView.current
 
     val sendResult = viewModel.sendResult
@@ -116,29 +122,22 @@ fun ProposalInfoScreen(
                         HsBackButton(onClick = { navController.popBackStack() })
                     }
             )
-            Surface(color = ComposeAppTheme.colors.tyler,
-                    modifier = Modifier.padding(16.dp)
+            Column(
+                    modifier = Modifier
+                            .padding(16.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))) {
-            Scaffold(
-            ) { paddingValues ->
-
-                val listState = rememberLazyListState()
-                LazyColumn(Modifier.padding(start = 16.dp, end = 16.dp), state = listState) {
-                    item {
+                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                            .background(ComposeAppTheme.colors.lawrence)
+                            .padding(horizontal = 16.dp)
+            ) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Row {
                             subhead1_grey(
-                                    modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f),
                                     text = stringResource(id = R.string.Safe_Four_Proposal_Info_ID),
                                     maxLines = 1,
                             )
+                            Spacer(modifier = Modifier.width(16.dp))
                             subhead1_leah(
-                                    modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(2f),
                                     text = proposalInfo.id.toString(),
                                     maxLines = 1,
                             )
@@ -155,8 +154,10 @@ fun ProposalInfoScreen(
                                 thickness = 1.dp,
                                 color = ComposeAppTheme.colors.steel10,
                         )
-                        Column {
-                            Row {
+                        Column() {
+                            Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 subhead1_grey(
                                         text = stringResource(id = R.string.Safe_Four_Proposal_Info_Voting_Status),
                                         maxLines = 1,
@@ -175,7 +176,9 @@ fun ProposalInfoScreen(
                                         maxLines = 1,
                                 )
                             }
-                            Row {
+                            Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 subhead1_grey(
                                         text = stringResource(id = R.string.Safe_Four_Proposal_Info_Total),
                                         maxLines = 1,
@@ -233,11 +236,6 @@ fun ProposalInfoScreen(
                                 )
                             }
                         }
-                        val backgroundColor = if (voteEnable) {
-                            ComposeAppTheme.colors.laguna
-                        } else {
-                            ComposeAppTheme.colors.yellow50
-                        }
                     if (proposalInfo.status == ProposalStatus.Voting) {
                             Spacer(modifier = Modifier.height(16.dp))
                             val text = if (voteEnable) {
@@ -245,19 +243,33 @@ fun ProposalInfoScreen(
                             } else {
                                 R.string.Safe_Four_Proposal_Disable
                             }
-                            Column(
-                                    modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-                                            .background(backgroundColor)
-                                            .padding(16.dp)
+
+                        Column(
+                                modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .border(1.dp, ComposeAppTheme.colors.grey50, RoundedCornerShape(8.dp))
+                                        .background(ComposeAppTheme.colors.lawrence)
+                                        .fillMaxWidth()
+                        ) {
+                            Row(
+                                    verticalAlignment = Alignment.CenterVertically
                             ) {
-                                subhead1_leah(
+                                Icon(
+                                        painter = painterResource(id = R.drawable.ic_info_20), contentDescription = null,
+                                        modifier = Modifier
+                                                .padding(start = 16.dp)
+                                                .width(24.dp)
+                                                .height(24.dp))
+                                Text(
+                                        modifier = Modifier
+                                                .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+                                        fontSize = 14.sp,
                                         text = stringResource(id = text),
-                                )
+                                        style = ComposeAppTheme.typography.caption)
                             }
-                            if (uiState.isVoted) {
+                        }
+
+                            if (isVoted) {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Row {
                                     body_leah(
@@ -266,8 +278,6 @@ fun ProposalInfoScreen(
                                     )
                                     Spacer(modifier = Modifier.width(16.dp))
                                     Text(
-                                            modifier = Modifier
-                                                    .fillMaxWidth(),
                                             text = ProposalVoteStatus.Agree.title().toString(),
                                             style = ComposeAppTheme.typography.body,
                                             color = ComposeAppTheme.colors.greenD,
@@ -276,7 +286,7 @@ fun ProposalInfoScreen(
                                             textAlign = TextAlign.End
                                     )
                                 }
-                            } else if (uiState.voteEnable) {
+                            } else if (voteEnable) {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Row(
                                 ) {
@@ -293,7 +303,7 @@ fun ProposalInfoScreen(
                                                     contentColor = ComposeAppTheme.colors.jacob
                                             ),
                                             onClick = {
-                                                viewModel.vote(0)
+                                                viewModel.vote(1)
                                             }
                                     ) {
                                         Text(
@@ -316,7 +326,7 @@ fun ProposalInfoScreen(
                                                     contentColor = ComposeAppTheme.colors.jacob
                                             ),
                                             onClick = {
-                                                viewModel.vote(1)
+                                                viewModel.vote(2)
                                             }
                                     ) {
                                         Text(
@@ -339,7 +349,7 @@ fun ProposalInfoScreen(
                                                     contentColor = ComposeAppTheme.colors.jacob
                                             ),
                                             onClick = {
-                                                viewModel.vote(2)
+                                                viewModel.vote(3)
                                             }
                                     ) {
                                         Text(
@@ -352,27 +362,40 @@ fun ProposalInfoScreen(
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
-                    }
-                    if (uiState.voteList?.isNotEmpty() == true) {
-                        item {
+
+                Divider(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                        thickness = 1.dp,
+                        color = ComposeAppTheme.colors.steel10,
+                )
+                headline2_leah(
+                        text = stringResource(id = R.string.Safe_Four_Proposal_Info_Votes_Record),
+                        maxLines = 1,
+                )
+                Row {
+                    subhead1_leah(
+                            text = stringResource(id = R.string.Safe_Four_Proposal_Vote_Node),
+                            maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    subhead1_leah(
+                            text = stringResource(id = R.string.Safe_Four_Proposal_Vote_Result),
+                            maxLines = 1,
+                    )
+                }
+                    if (uiState.voteList.isNullOrEmpty()) {
+                            ListEmptyView(
+                                    text = stringResource(R.string.Safe_Four_No_Data),
+                                    icon = R.drawable.ic_clock
+                            )
+                    } else {
+
                             Divider(
                                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                                     thickness = 1.dp,
                                     color = ComposeAppTheme.colors.steel10,
                             )
-                            subhead1_grey(
-                                    text = stringResource(id = R.string.Safe_Four_Proposal_Info_Votes_Record),
-                                    maxLines = 1,
-                            )
-                            Divider(
-                                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                            thickness = 1.dp,
-                            color = ComposeAppTheme.colors.steel10,
-                            )
-                        }
-                        itemsIndexed(
-                                items = uiState.voteList
-                        ) { index, item ->
+                        uiState.voteList.forEach { item ->
                             Column(
                             ) {
                                 Row {
@@ -389,14 +412,9 @@ fun ProposalInfoScreen(
                                         is ProposalVoteStatus.Refuse -> ComposeAppTheme.colors.redD
                                         is ProposalVoteStatus.Abstain -> ComposeAppTheme.colors.grey50
                                     }
+                                    Row {
 
-                                    /*val icon = when (item.state) {
-                                    is ProposalVoteStatus.Agree -> R.drawable.ic_check_circle_24
-                                    is ProposalVoteStatus.Refuse -> R.drawable.ic_highlight_off_24
-                                    is ProposalVoteStatus.Abstain -> R.drawable.ic_help_outline_24
-                                }
-
-                                Icon(painter = painterResource(id = icon), contentDescription = null)*/
+                                    }
                                     Text(
                                             modifier = Modifier
                                                     .fillMaxWidth()
@@ -419,10 +437,7 @@ fun ProposalInfoScreen(
                         }
                     }
                 }
-
-            }
         }
-    }
     if (uiState.showConfirmationDialog) {
         ProposalConfirmationDialog(
                 viewModel,
@@ -442,53 +457,37 @@ fun ContentScreen(
 ) {
     val uiState = viewModel.uiState
     val proposalInfo = viewModel.uiState.proposalInfo
-    val voteEnable = uiState.voteEnable
 
-    Row {
-        subhead1_grey(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                text = stringResource(id = R.string.Safe_Four_Proposal_Info_Title),
-                maxLines = 1,
-        )
-        subhead1_leah(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f),
-                text = proposalInfo.title,
-                maxLines = 1,
-        )
-    }
+    subhead1_grey(
+            text = stringResource(id = R.string.Safe_Four_Proposal_Info_Title),
+            maxLines = 1,
+    )
+    Spacer(modifier = Modifier.height(2.dp))
+    subhead1_leah(
+            text = proposalInfo.title
+    )
     Divider(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
             thickness = 1.dp,
             color = ComposeAppTheme.colors.steel10,
     )
     if (!isConfirmation) {
-        Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            subhead1_grey(
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                    text = stringResource(id = R.string.Safe_Four_Proposal_Info_Creator),
-                    maxLines = 1,
-            )
-            subhead1_leah(
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(2f),
-                    text = proposalInfo.creator
-            )
-        }
+
+        subhead1_grey(
+                text = stringResource(id = R.string.Safe_Four_Proposal_Info_Creator),
+                maxLines = 1,
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        subhead1_leah(
+                text = proposalInfo.creator
+        )
+
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 thickness = 1.dp,
                 color = ComposeAppTheme.colors.steel10,
         )
     }
-    Spacer(modifier = Modifier.height(12.dp))
     Row {
         subhead1_grey(
                 modifier = Modifier
@@ -510,7 +509,6 @@ fun ContentScreen(
             thickness = 1.dp,
             color = ComposeAppTheme.colors.steel10,
     )
-    Spacer(modifier = Modifier.height(12.dp))
     Column {
         subhead1_grey(
                 modifier = Modifier
@@ -530,7 +528,6 @@ fun ContentScreen(
             thickness = 1.dp,
             color = ComposeAppTheme.colors.steel10,
     )
-    Spacer(modifier = Modifier.height(12.dp))
 
     Column {
         subhead1_grey(

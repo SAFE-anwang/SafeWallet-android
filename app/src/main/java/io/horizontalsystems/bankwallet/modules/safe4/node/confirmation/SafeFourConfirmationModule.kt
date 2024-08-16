@@ -53,6 +53,10 @@ class SafeFourConfirmationModule {
             val voterIncentive: BigInteger,
             val isSuper: Boolean
     ): Parcelable {
+
+        override fun toString(): String {
+            return "CreateNodeData(value=$value, isUnion=$isUnion, address='$address', lockDay=$lockDay, name='$name', enode='$enode', description='$description', creatorIncentive=$creatorIncentive, partnerIncentive=$partnerIncentive, voterIncentive=$voterIncentive, isSuper=$isSuper)"
+        }
     }
 
     @Parcelize

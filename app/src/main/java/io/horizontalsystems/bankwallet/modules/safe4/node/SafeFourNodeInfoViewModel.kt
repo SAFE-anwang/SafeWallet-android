@@ -40,7 +40,7 @@ class SafeFourNodeInfoViewModel(
         private val nodeService: SafeFourNodeService,
 ) : ViewModelUiState<NodeInfoUiState>() {
 
-    val tabs = if (isSuper) SafeFourVoteModule.TabInfo.values() else arrayOf(SafeFourVoteModule.TabInfo.Info, SafeFourVoteModule.TabInfo.Creator)
+    val tabs = if (isSuper) SafeFourVoteModule.TabInfo.values() else arrayOf(SafeFourVoteModule.TabInfo.Creator)
 
     private var nodeInfo: NodeInfo? = null
 

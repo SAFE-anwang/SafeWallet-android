@@ -110,13 +110,17 @@ object SafeFourVoteModule {
 
 	enum class Tab(@StringRes val titleResId: Int) {
 		SafeVote(R.string.Safe_Four_Node_Vote_Tab_Safe_Vote),
-		LockVote(R.string.Safe_Four_Node_Vote_Tab_Lock_Vote),
+		LockVote(R.string.Safe_Four_Node_Vote_Tab_Lock_Vote);
+		/*Creator(R.string.Safe_Four_Node_Vote_Tab_Creator),
+		Voters(R.string.Safe_Four_Node_Vote_Tab_Voter);*/
+	}
+
+	enum class Tab2(@StringRes val titleResId: Int) {
 		Creator(R.string.Safe_Four_Node_Vote_Tab_Creator),
 		Voters(R.string.Safe_Four_Node_Vote_Tab_Voter);
 	}
 
 	enum class TabInfo(@StringRes val titleResId: Int) {
-		Info(R.string.Safe_Four_Node_Info),
 		Creator(R.string.Safe_Four_Node_Vote_Tab_Creator),
 		Voters(R.string.Safe_Four_Node_Vote_Tab_Voter);
 	}

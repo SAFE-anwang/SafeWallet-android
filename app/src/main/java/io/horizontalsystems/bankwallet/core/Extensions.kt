@@ -193,7 +193,7 @@ fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
         .subscribe(onSuccess)
 }
 
-fun String.shorten(): String {
+fun String.shorten(characters: Int = 4): String {
     val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:", "ecash:")
 
     var prefix = ""
@@ -206,7 +206,6 @@ fun String.shorten(): String {
 
     val withoutPrefix = this.removePrefix(prefix)
 
-    val characters = 4
     return if (withoutPrefix.length > characters * 2)
         prefix + withoutPrefix.take(characters) + "..." + withoutPrefix.takeLast(characters)
     else

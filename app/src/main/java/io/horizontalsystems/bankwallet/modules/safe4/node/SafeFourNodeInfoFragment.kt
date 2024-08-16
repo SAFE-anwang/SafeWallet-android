@@ -22,10 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -75,6 +71,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.core.findNavController
@@ -129,13 +126,16 @@ fun TabInfoScreen(
     val coroutineScope = rememberCoroutineScope()
     val isSuperNode = NodeType.getType(nodeType) == NodeType.SuperNode
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
+            .verticalScroll(rememberScrollState())) {
         AppBar(
                 title = stringResource(id = R.string.Safe_Four_Node_Info_Title),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 }
         )
+        NodeBaseInfoScreen(navController, viewModel)
+        Spacer(modifier = Modifier.height(10.dp))
         val selectedTab = tabs[pagerState.currentPage]
         val tabItems = tabs.map {
             TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
@@ -151,10 +151,6 @@ fun TabInfoScreen(
                 userScrollEnabled = false
         ) { page ->
             when (tabs[page]) {
-                SafeFourVoteModule.TabInfo.Info -> {
-                    NodeBaseInfoScreen(navController, viewModel)
-                }
-
                 SafeFourVoteModule.TabInfo.Creator -> {
                     CreatorScreen(viewModel)
                 }
@@ -174,18 +170,11 @@ fun NodeBaseInfoScreen(
 ) {
     ComposeAppTheme {
 
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-
-            Row(
-                    modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
-                            .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-            ) {
-
+        Column(modifier = Modifier
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(ComposeAppTheme.colors.lawrence)) {
                 NodeInfoScreen(viewModel, isSuperNode = viewModel.isSuper)
-            }
         }
     }
 }
@@ -198,17 +187,24 @@ fun NodeInfoScreen(
 ) {
     val nodeInfo = viewModel.uiState.nodeInfo ?: return
     val uiState = viewModel.uiState
-    Column() {
+    Column {
+        Spacer(Modifier.height(16.dp))
         Text(
+                modifier = Modifier.padding(start = 16.dp),
                 text = stringResource(id = R.string.Safe_Four_Node_Info),
-                style = ComposeAppTheme.typography.body,
-                color = ComposeAppTheme.colors.grey,
+                style = ComposeAppTheme.typography.subhead1,
+                color = ComposeAppTheme.colors.bran,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 16.sp,
                 maxLines = 1,
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row() {
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),) {
             Text(
                     text = stringResource(id = R.string.Safe_Four_Node_Info_Id),
                     style = ComposeAppTheme.typography.body,
@@ -219,13 +215,18 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.id.toString(),
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),){
             Text(
                     text = stringResource(id = R.string.Safe_Four_Node_Info_Status),
                     style = ComposeAppTheme.typography.body,
@@ -236,32 +237,62 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.status.title().getString(),
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
-            Text(
-                    text = stringResource(id = R.string.Safe_Four_Node_Info_Address),
-                    style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                    text = nodeInfo.address.hex,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.body,
-                    maxLines = 1,
-            )
-        }
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Text(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                text = stringResource(id = R.string.Safe_Four_Node_Info_Address),
+                style = ComposeAppTheme.typography.body,
+                color = ComposeAppTheme.colors.grey,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                text = nodeInfo.address.hex,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.body,
+                maxLines = 1,
+        )
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = stringResource(id = R.string.Safe_Four_Node_Info_Creator),
+                style = ComposeAppTheme.typography.body,
+                color = ComposeAppTheme.colors.grey,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                text = nodeInfo.creator.hex,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.body,
+                maxLines = 1,
+        )
         if (isSuperNode) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Divider(
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
             Row {
                 Text(
+                        modifier = Modifier.padding(start = 8.dp),
                         text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
                         style = ComposeAppTheme.typography.body,
                         color = ComposeAppTheme.colors.grey,
@@ -270,32 +301,21 @@ fun NodeInfoScreen(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                         text = nodeInfo.name,
-                        color = ComposeAppTheme.colors.grey,
+                        color = ComposeAppTheme.colors.bran,
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
-            Text(
-                    text = stringResource(id = R.string.Safe_Four_Node_Info_Creator),
-                    style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                    text = nodeInfo.creator.hex,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.body,
-                    maxLines = 1,
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),){
             Text(
                     text = stringResource(id = R.string.Safe_Four_Node_Info_Pledge),
                     style = ComposeAppTheme.typography.body,
@@ -306,13 +326,18 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.createPledge,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),){
             Text(
                     text = stringResource(id = R.string.Safe_Four_Node_Info_Vote_Pledge),
                     style = ComposeAppTheme.typography.body,
@@ -323,61 +348,76 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.voteCompleteCount,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
-            Text(
-                    text = stringResource(id = R.string.Safe_Four_Node_Info_ENode),
-                    style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                    text = nodeInfo.enode,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.body
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row{
-            Text(
-                    text = stringResource(id = R.string.Safe_Four_Node_Info_Desc),
-                    style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                    text = nodeInfo.desc,
-                    color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.body,
-                    maxLines = 1,
-            )
-        }
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = stringResource(id = R.string.Safe_Four_Node_Info_ENode),
+                style = ComposeAppTheme.typography.body,
+                color = ComposeAppTheme.colors.grey,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                text = nodeInfo.enode,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.body
+        )
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = stringResource(id = R.string.Safe_Four_Node_Info_Desc),
+                style = ComposeAppTheme.typography.body,
+                color = ComposeAppTheme.colors.grey,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                text = nodeInfo.desc,
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.body,
+                maxLines = 1,
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Divider(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
         body_bran(
+                modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(id = R.string.Safe_Four_Register_Reward))
         Spacer(modifier = Modifier.height(8.dp))
-        Row{
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+        ){
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Creator),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
-            Spacer(Modifier.weight(1f))
             Text(
                     text = uiState.creatorText,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -393,18 +433,20 @@ fun NodeInfoScreen(
                     backgroundColor = ComposeAppTheme.colors.grey50)
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Row{
+        Row(
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+        ){
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Partner),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
-            Spacer(Modifier.weight(1f))
             Text(
                     text = uiState.partnerText,
-                    color = ComposeAppTheme.colors.grey,
+                    color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -421,18 +463,20 @@ fun NodeInfoScreen(
         }
         if (isSuperNode) {
             Spacer(modifier = Modifier.height(8.dp))
-            Row {
+            Row(
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                         text = stringResource(id = R.string.Safe_Four_Register_Voters),
                         style = ComposeAppTheme.typography.body,
-                        color = ComposeAppTheme.colors.grey,
+                        color = ComposeAppTheme.colors.bran,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                 )
-                Spacer(Modifier.weight(1f))
                 Text(
                         text = uiState.voterText,
-                        color = ComposeAppTheme.colors.grey,
+                        color = ComposeAppTheme.colors.bran,
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )
@@ -459,48 +503,48 @@ fun CreatorScreen(
 ) {
     val uiState = viewModel.uiState
     val recordList = uiState.creatorList
-
-    val listState = rememberLazyListState()
-    Scaffold(
-            backgroundColor = ComposeAppTheme.colors.tyler,
-    ) {
-        LazyColumn(modifier = Modifier.padding(it), state = listState) {
-            item {
-                Row(modifier = Modifier
+    Column(modifier = Modifier
+            .padding(16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(ComposeAppTheme.colors.lawrence)) {
+        Row(modifier = Modifier
+                .wrapContentHeight()
+                .padding(start = 10.dp, top = 16.dp, end = 10.dp , bottom = 16.dp)) {
+            body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_ID),
+                    modifier = Modifier.weight(1.1f))
+            Spacer(modifier = Modifier.width(10.dp))
+            body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
+                    modifier = Modifier.weight(4f))
+            Spacer(modifier = Modifier.width(10.dp))
+            body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
+                    modifier = Modifier.weight(2.5f))
+        }
+        Divider(
+                modifier = Modifier
                         .wrapContentHeight()
-                        .padding(horizontal = 16.dp)) {
-                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_ID),
-                            modifier = Modifier.weight(1f))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
-                            modifier = Modifier.weight(4f))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
-                            modifier = Modifier.weight(2f))
-                }
-            }
+                        .padding(bottom = 16.dp),
+                thickness = 1.dp,
+                color = ComposeAppTheme.colors.steel10,
+        )
+        recordList.forEach { item ->
+            Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)) {
 
-            itemsIndexed(
-                    items = recordList,
-                    key = { _, item ->
-                        item.id
-                    }
-            ) { index, item ->
-                Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)) {
-
-                    body_bran(text = item.id,
-                            modifier = Modifier.weight(1f))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    body_bran(text = item.address,
-                            modifier = Modifier.weight(4f))
-                    Spacer(modifier = Modifier.width(16.dp))
-                    body_bran(text = item.amount,
-                            modifier = Modifier.weight(2f))
-                }
-                Spacer(modifier = Modifier.height(8.dp))
+                body_bran(text = item.id,
+                        modifier = Modifier.weight(1.1f))
+                Spacer(modifier = Modifier.width(10.dp))
+                body_bran(text = item.address,
+                        modifier = Modifier.weight(4f))
+                Spacer(modifier = Modifier.width(10.dp))
+                body_bran(text = item.amount,
+                        modifier = Modifier.weight(2.5f))
             }
+            Divider(
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
         }
     }
 }
@@ -528,53 +572,43 @@ fun VoterRecordScreen(
             }
         }
     } else {
-        val listState = rememberLazyListState()
-        Scaffold(
-                backgroundColor = ComposeAppTheme.colors.tyler,
-        ) {
-            LazyColumn(modifier = Modifier.padding(it), state = listState) {
-                item {
-                    Row(modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(horizontal = 16.dp)) {
-                        body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
-                                modifier = Modifier.weight(4f))
-                        Spacer(modifier = Modifier.width(16.dp))
-                        body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
-                                modifier = Modifier.weight(2f))
-                    }
-                    Divider(
-                            thickness = 1.dp,
-                            color = ComposeAppTheme.colors.steel10,
-                    )
-                }
-                val bottomReachedRank = getRecordBottomReachedRank(recordList)
+        Column(modifier = Modifier
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(ComposeAppTheme.colors.lawrence)) {
+            Column {
+                Row(modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp, bottom = 16.dp)
+                ) {
+                    subhead1_leah(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Address),
+                            modifier = Modifier.weight(4f))
 
-                itemsIndexed(
-                        items = recordList,
-                        key = { index, item ->
-                            index
-                        }
-                ) { index, item ->
-                    Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)) {
-                        body_bran(text = item.address,
-                                modifier = Modifier.weight(4f))
-                        Spacer(modifier = Modifier.width(16.dp))
-                        body_bran(text = item.lockValue,
-                                modifier = Modifier.weight(2f))
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    if (item.index == bottomReachedRank) {
-                        viewModel.onBottomReached()
-                    }
-
-                    Divider(
-                            thickness = 1.dp,
-                            color = ComposeAppTheme.colors.steel10,
-                    )
+                    subhead1_leah(text = stringResource(R.string.Safe_Four_Node_Vote_Record_Num),
+                            modifier = Modifier.weight(2f))
                 }
+                Divider(
+                        thickness = 1.dp,
+                        color = ComposeAppTheme.colors.steel10,
+                )
+            }
+            recordList.forEach { item ->
+                Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 10.dp, bottom = 10.dp)) {
+                    body_bran(text = item.address,
+                            modifier = Modifier.weight(4f))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    body_bran(text = item.lockValue,
+                            modifier = Modifier.weight(2f))
+                }
+
+                Divider(
+                        thickness = 1.dp,
+                        color = ComposeAppTheme.colors.steel10,
+                )
             }
         }
     }

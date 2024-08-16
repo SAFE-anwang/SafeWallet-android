@@ -2281,12 +2281,15 @@
     <string name="Safe_Four_Register_Master_Node">Create Master Node</string>
     <string name="Safe_Four_Register_Super_Node_Register">Already create super node</string>
     <string name="Safe_Four_Register_Master_Node_Register">Already create master node</string>
+    <string name="Safe_Four_Register_Super_Node_Register_Hint">If you register as a super node, you will no longer be able to register as a master node\nIf you register as a super node, you will no longer be able to use the lock-up records under this account to vote for super nodes</string>
+    <string name="Safe_Four_Register_Master_Node_Register_Hint">If you have registered as a master node, you can no longer register as a super node master node</string>
     <string name="Safe_Four_Register_Rgister_Mode">Create Mode</string>
     <string name="Safe_Four_Register_Mode_Stand_Alone">Stand Alone</string>
     <string name="Safe_Four_Register_Mode_Crowd_Funding">Crowd-funding</string>
     <string name="Safe_Four_Register_Mode_Super_Node_Address">Super Node Address</string>
     <string name="Safe_Four_Register_Mode_Master_Node_Address">Master Node Address</string>
     <string name="Safe_Four_Register_Mode_Name">Name</string>
+    <string name="Safe_Four_Register_Mode_Length_Error">The length cannot be less than 8 characters</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">After deploying the node program on the server, use geth to connect to the console input\nadmin.nodeInfo\nObtain ENODE information of the node</string>
     <string name="Safe_Four_Register_Introduction">Brief Introduction</string>
@@ -2295,20 +2298,23 @@
     <string name="Safe_Four_Register_Creator">Creator</string>
     <string name="Safe_Four_Register_Voters">Voters</string>
     <string name="Safe_Four_Register_Lock">Lock</string>
+    <string name="Safe_Four_Register_Lock_Confirmation">Locked SAFE，from account balance to account contract</string>
     <string name="Safe_Four_Register_Balance">Balance</string>
     <string name="Safe_Four_Register_Node_Send">Send</string>
     <string name="Safe_Four_No_Super_Node">You don\'t have create Super Node</string>
+    <string name="Safe_Four_No_Master_Node">You don\'t have create Master Node</string>
     <string name="Safe_Four_Node_Online">Online</string>
     <string name="Safe_Four_Node_Exception">Exception</string>
     <string name="Safe_Four_Node_Join_Partner">Join Partner</string>
     <string name="Safe_Four_Node_Remaining_Shares">Remaining shares of the master node</string>
     <string name="Safe_Four_Node_Register_Num">Number</string>
     <string name="Safe_Four_Node_Join_Shares">Remaining shares</string>
-    <string name="Safe_Four_Node_Pledge">Pledge SAFE:</string>
+    <string name="Safe_Four_Node_Pledge">Pledge SAFE:%s SAFE</string>
     <string name="Safe_Four_Node_Super_Node_Vote">Super node voting</string>
     <string name="Safe_Four_Node_Master_Node_Vote">Joint creation of master nodes</string>
     <string name="Safe_Four_Node_Info">Node Information:</string>
-    <string name="Safe_Four_Node_Info_Id">ID:</string>
+    <string name="Safe_Four_Node_Info_Id_List">Node ID: %s</string>
+    <string name="Safe_Four_Node_Info_Id">Node ID: </string>
     <string name="Safe_Four_Node_Info_Status">Status:</string>
     <string name="Safe_Four_Node_Info_Address">Address:</string>
     <string name="Safe_Four_Node_Info_Name">Name:</string>
@@ -2321,7 +2327,7 @@
     <string name="Safe_Four_Node_Vote_Tab_Safe_Vote">SAFE Vote</string>
     <string name="Safe_Four_Node_Vote_Tab_Lock_Vote">Lock Vote</string>
     <string name="Safe_Four_Node_Info_Title">Node Info</string>
-    <string name="Safe_Four_Node_Vote_Tab_Creator">Creator/Partner</string>
+    <string name="Safe_Four_Node_Vote_Tab_Creator">Creator | Partner</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">Voters</string>
     <string name="Safe_Four_Node_Vote_Lock_Id">Lock Id:%s</string>
     <string name="Safe_Four_Node_Vote_Lock_All">Select all available lock up records</string>
@@ -2338,6 +2344,9 @@
     <string name="Safe_Four_Proposal_State_Adopt">Adopt</string>
     <string name="Safe_Four_Proposal_Title">Proposal</string>
     <string name="Safe_Four_Proposal_Create_Button">Create Proposal</string>
+    <string name="Safe_Four_Proposal_List_Amount">Number: %s</string>
+    <string name="Safe_Four_Proposal_List_ID">Proposal ID: %s</string>
+    <string name="Safe_Four_Proposal_Creator">Creator: %s</string>
     <string name="Safe_Four_Proposal_Already_Vote">Voted</string>
     <string name="Safe_Four_Proposal_Vote_Agree">Agree</string>
     <string name="Safe_Four_Proposal_Vote_Refuse">Refuse</string>
@@ -2382,12 +2391,19 @@
     <string name="Safe_Four_Profit_Title_Amount">Amount</string>
     <string name="Safe_Four_Proposal_Cancel">Cancle</string>
     <string name="Safe_Four_Proposal_Send">Send</string>
+    <string name="Safe_Four_Proposal_Vote_Result">Vote Result</string>
+    <string name="Safe_Four_Proposal_Vote_Node">Super Node</string>
+    <string name="Safe_Four_No_Data">No Data</string>
+    <string name="Safe_Four_Proposal_Hint">Pay 1 SAFE to create a proposal and get SAFE from the fund pool\nOnly online and top 49 super nodes can vote</string>
     <string name="Transactions_Filter_HideWithdrawTx">Hide mining profits</string>
 
     <string name="Safe_Four_Node_Edit">Edit</string>
     <string name="Safe_Four_Node_Edit_Super_Title">Edit Super Node</string>
     <string name="Safe_Four_Node_Edit_Master_Title">Edit Master Node</string>
     <string name="Safe_Four_Node_Update_Button">Update</string>
+    <string name="Safe_Four_Node_Edit_Super_Hint">Update the attribute information corresponding to the super node by calling the super node contract.\nThe updated super node data will take effect only after the transaction is written into the blockchain.</string>
+    <string name="Safe_Four_Node_Edit_Master_Hint">Update the attribute information corresponding to the master node by calling the master node contract.\nThe updated master node data will take effect only after the transaction is written into the blockchain.</string>
+
 
 
     <string name="Redeem_Safe3_Title">Redeem Safe3</string>
@@ -2409,5 +2425,9 @@
     <string name="Redeem_Safe4_Address">Safe4 Address</string>
     <string name="Redeem_Safe4_Redeem_Button">Redeem</string>
     <string name="Redeem_Safe4_Redeem_Onec">One-click migration Safe3</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">One-click migration Safe3 to Safe4 address</string>
+    <string name="Safe_Four">Safe4</string>
+    <string name="Safe_Four_Node_Info_Ranking">Rank: %d</string>
+    <string name="Safe_Four_Vote_Amount">[%s]</string>
     <!-- safe 4  end-->
 </resources>

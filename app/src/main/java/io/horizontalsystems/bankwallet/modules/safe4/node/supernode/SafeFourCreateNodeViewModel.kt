@@ -43,9 +43,9 @@ class SafeFourCreateNodeViewModel(
         private set
 
     private var isUnion = true
-    private var superNodeName = ""
+    var superNodeName = ""
     private var eNode = ""
-    private var introduction = ""
+    var introduction = ""
     private var amountState = amountService.stateFlow.value
     private var addressState = addressService.stateFlow.value
     private var creatorIncentive = 10
@@ -91,9 +91,12 @@ class SafeFourCreateNodeViewModel(
             availableBalance = amountState.availableBalance,
             amountCaution = amountState.amountCaution,
             canBeSend = if (isSuperNode)
-                    amountState.canBeSend && addressState.canBeSend && superNodeName.isNotBlank() && eNode.isNotBlank() && introduction.isNotBlank()
+                    amountState.canBeSend && addressState.canBeSend /*&& superNodeName.isNotBlank()*/
+                            && superNodeName.length >= 8 && eNode.isNotBlank()
+                            /*&& introduction.isNotBlank()*/ && introduction.length >= 8
                 else
-                    amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank() && introduction.isNotBlank()
+                    amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank()
+                            && introduction.isNotBlank() && introduction.length >= 8
             ,
             lockAmount = "${getLockAmount()} SAFE"
     )
@@ -131,8 +134,8 @@ class SafeFourCreateNodeViewModel(
     private fun resetIncentive() {
         if (isSuperNode) {
             if (isUnion) {
-                creatorIncentive = 45
-                partnerIncentive = 10
+                creatorIncentive = 10
+                partnerIncentive = 45
                 voterIncentive = 45
             }
         } else {

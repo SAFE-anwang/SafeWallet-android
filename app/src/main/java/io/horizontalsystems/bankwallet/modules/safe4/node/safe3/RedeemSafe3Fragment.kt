@@ -114,15 +114,16 @@ fun RedeemSafe3Screen(
 				navigationIcon = {
 					HsBackButton(onClick = { navController.popBackStack() })
 				},
-				/*menuItems = listOf(
+				menuItems = listOf(
 					MenuItem(
 							title = TranslatableString.ResString(R.string.Redeem_Safe4_Redeem_Onec),
-							onClick = viewModel::redeemCurrentWalletSafe3,
+							onClick = viewModel::showConfirmation,
 							enabled = true
 					)
-				)*/
+				)
 		)
-		Column(modifier = Modifier.padding(16.dp)
+		Column(modifier = Modifier
+				.padding(16.dp)
 				.fillMaxSize()
 				.verticalScroll(rememberScrollState())) {
 			Column(
@@ -304,6 +305,16 @@ fun RedeemSafe3Screen(
 			}
 			
 		}
+	}
+	if (uiState.showConfirmationDialog) {
+		RedeemConfirmationDialog(viewModel = viewModel,
+				onOKClick = {
+					viewModel.redeemCurrentWalletSafe3()
+				},
+				onCancelClick = {
+					viewModel.closeDialog()
+				}
+		)
 	}
 }
 

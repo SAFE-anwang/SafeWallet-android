@@ -336,6 +336,65 @@ private fun Safe4Sections(
     )
 
     Spacer(Modifier.height(25.dp))
+    Text(
+            text = stringResource(R.string.Safe_Four),
+            style = ComposeAppTheme.typography.subhead1,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+    CellSingleLineLawrenceSection(
+            listOf ({
+                HsSettingCell(
+                        R.string.Safe_Four_Super_Node,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.SuperNode, navController)
+                        }
+                )
+            },{
+                HsSettingCell(
+                        R.string.Safe_Four_Master_Node,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.MasterNode, navController)
+                        }
+                )
+            },{
+                HsSettingCell(
+                        R.string.Safe_Four_Proposal,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Proposal, navController)
+                        }
+                )
+            },{
+                HsSettingCell(
+                        R.string.Redeem_Safe3_Title,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
+                        }
+                )
+            },{
+                HsSettingCell(
+                        R.string.Safe_Four_Profit,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Profit, navController)
+                        }
+                )
+            },)
+    )
+
+    Spacer(Modifier.height(25.dp))
 
     Text(
         text = stringResource(R.string.Safe4_Safe_Basic_Info),

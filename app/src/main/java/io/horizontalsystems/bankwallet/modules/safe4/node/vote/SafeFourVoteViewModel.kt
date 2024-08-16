@@ -49,7 +49,8 @@ class SafeFourVoteViewModel(
     var coinRate by mutableStateOf(xRateService.getRate(sendToken.coin.uid))
         private set
 
-    val tabs = if (isSuper && !isJoin) SafeFourVoteModule.Tab.values() else arrayOf(SafeFourVoteModule.Tab.SafeVote, SafeFourVoteModule.Tab.Creator)
+    val tabs = if (isSuper && !isJoin) SafeFourVoteModule.Tab.values() else arrayOf(SafeFourVoteModule.Tab.SafeVote)
+    val tabs2 = if (isSuper && !isJoin) SafeFourVoteModule.Tab2.values() else arrayOf(SafeFourVoteModule.Tab2.Creator)
 
     private var nodeInfo: NodeInfo? = null
 

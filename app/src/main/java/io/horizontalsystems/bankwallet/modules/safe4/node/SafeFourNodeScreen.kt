@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
+import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,22 +36,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.CreatorScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.LockVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.MasterVoteScreen
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteFragment
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoterRecordScreen
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -63,6 +57,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
+import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
 import kotlinx.coroutines.launch
@@ -78,6 +73,7 @@ fun TabScreen(
 
 	val uiState = viewModel.uiState
 	val title = uiState.title
+	val isRegisterNode = uiState.isRegisterNode
 
 	val pagerState = rememberPagerState(initialPage = 0) { tabs.size }
 	val coroutineScope = rememberCoroutineScope()
@@ -102,6 +98,12 @@ fun TabScreen(
 						)
 				)
 		)
+
+		HintView(viewModel.getRegisterHintText())
+
+		if (isRegisterNode.first || isRegisterNode.second) {
+			HintView(viewModel.getAlreadyRegisterText())
+		}
 		val selectedTab = tabs[pagerState.currentPage]
 		val tabItems = tabs.map {
 			TabItem(stringResource(id = it.second), it == selectedTab, it)
@@ -151,7 +153,11 @@ fun SafeFourNodeScreen(
 						)
 					} else {
 						ListEmptyView(
-								text = stringResource(R.string.Safe_Four_No_Super_Node),
+								text = stringResource(
+										if (viewModel.isSuperNode())
+											R.string.Safe_Four_No_Super_Node
+										else
+											R.string.Safe_Four_No_Master_Node),
 								icon = R.drawable.ic_no_data
 						)
 					}
@@ -159,33 +165,7 @@ fun SafeFourNodeScreen(
 			} else {
 				val listState = rememberLazyListState()
 				LazyColumn(Modifier.padding(paddingValues), state = listState) {
-					item {
-						if (isRegisterNode.first || isRegisterNode.second) {
-							Column(
-									modifier = Modifier
-											.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-											.clip(RoundedCornerShape(8.dp))
-											.border(1.dp, ComposeAppTheme.colors.yellow50, RoundedCornerShape(8.dp))
-											.background(ComposeAppTheme.colors.yellow20)
-											.fillMaxWidth()
-							) {
-								Row(
-										verticalAlignment = Alignment.CenterVertically
-								) {
-									Icon(
-											painter = painterResource(id = R.drawable.ic_info_20), contentDescription = null,
-											modifier = Modifier
-													.padding(start = 16.dp)
-													.width(24.dp)
-													.height(24.dp))
-									Text(
-											modifier = Modifier
-													.padding(16.dp),
-											text = stringResource(id = viewModel.getAlreadyRegisterText()))
-								}
-							}
-						}
-					}
+
 					nodeList(
 							nodeList = nodeList,
 							onClick = { onNodeClick(it, viewModel, navController) },
@@ -228,7 +208,9 @@ fun SafeFourNodeScreen(
 												it.address.hex
 										)
 								)
-							}
+							},
+							isRegisterSuperNode = isRegisterNode.first,
+							isMine = isMine
 					)
 				}
 			}
@@ -254,7 +236,9 @@ fun LazyListScope.nodeList(
 		voteClick: (NodeViewItem) -> Unit,
 		joinClick: (NodeViewItem) -> Unit,
 		onEditClick: (NodeViewItem) -> Unit,
-		isSuperNode: Boolean
+		isSuperNode: Boolean,
+		isRegisterSuperNode: Boolean,
+		isMine: Boolean
 ) {
 	val bottomReachedRank = getBottomReachedRank(nodeList)
 
@@ -275,7 +259,7 @@ fun LazyListScope.nodeList(
 
 			Box(modifier = Modifier.padding(horizontal = 16.dp)) {
 				if (isSuperNode) {
-					NodeCell(item, position,
+					NodeCell(item, position, isRegisterSuperNode, isMine,
 							onClick = {
 								onClick.invoke(item)
 							},
@@ -289,6 +273,7 @@ fun LazyListScope.nodeList(
 								onEditClick.invoke(item)
 							}
 					)
+
 				} else {
 					MasterNodeCell(item, position,
 						onClick = {
@@ -304,11 +289,7 @@ fun LazyListScope.nodeList(
 				}
 			}
 
-			Divider(
-					modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-					thickness = 1.dp,
-					color = ComposeAppTheme.colors.steel10,
-			)
+			Spacer(modifier = Modifier.height(5.dp))
 
 			if (item.ranking == bottomReachedRank) {
 				onBottomReached.invoke()
@@ -330,7 +311,10 @@ private fun getBottomReachedRank(nodeList: List<NodeViewItem>): Int? {
 
 
 @Composable
-fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> Unit,
+fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
+			 isRegisterSuperNode: Boolean,
+			 isMine: Boolean,
+			 onClick: () -> Unit,
 			 voteClick: () -> Unit,
 			 joinClick: () -> Unit,
 			 onEditClick: () -> Unit,
@@ -339,33 +323,12 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> U
 	SectionUniversalItem(
 			borderTop = divider,
 	) {
-		val clipModifier = when (position) {
-			SectionItemPosition.First -> {
-				Modifier.clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-			}
-
-			SectionItemPosition.Last -> {
-				Modifier.clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-			}
-
-			SectionItemPosition.Single -> {
-				Modifier.clip(RoundedCornerShape(12.dp))
-			}
-
-			else -> Modifier
-		}
-
-		val borderModifier = if (position != SectionItemPosition.Single) {
-			Modifier.sectionItemBorder(1.dp, ComposeAppTheme.colors.steel20, 12.dp, position)
-		} else {
-			Modifier.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
-		}
+		val clipModifier = Modifier.clip(RoundedCornerShape(12.dp))
 
 		RowUniversal(
 				modifier = Modifier
 						.fillMaxSize()
 						.then(clipModifier)
-						.then(borderModifier)
 						.background(ComposeAppTheme.colors.lawrence)
 						.clickable(onClick = onClick),
 		) {
@@ -374,30 +337,95 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> U
 							.padding(start = 16.dp, end = 16.dp)
 							.alpha(1f)
 			) {
-				Row{
-					Column(
-							modifier = Modifier.weight(1f)
-					) {
-						body_leah(
-								modifier = Modifier.padding(end = 16.dp),
-								text = item.ranking.toString(),
-								maxLines = 1,
-						)
-
-						val color = when (item.status) {
-							is NodeStatus.Online -> ComposeAppTheme.colors.greenD
-							is NodeStatus.Exception -> ComposeAppTheme.colors.redD
-						}
+				Row {
+					Text(
+							text = item.name,
+							style = ComposeAppTheme.typography.body,
+							color = ComposeAppTheme.colors.bran,
+							overflow = TextOverflow.Ellipsis,
+							maxLines = 1,
+							fontWeight = FontWeight.Bold
+					)
+					Spacer(Modifier.weight(1f))
+					val color = when (item.status) {
+						is NodeStatus.Online -> ComposeAppTheme.colors.issykBlue
+						is NodeStatus.Exception -> ComposeAppTheme.colors.grey50
+					}
+					Row(
+							modifier = Modifier
+									.clip(RoundedCornerShape(5.dp))
+									.background(color)
+									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp)) {
 						Text(
 								text = item.status.title().getString(),
-								style = ComposeAppTheme.typography.body,
-								color = color,
+								style = ComposeAppTheme.typography.captionSB,
+								color = ComposeAppTheme.colors.white,
 								overflow = TextOverflow.Ellipsis,
 								maxLines = 1,
 						)
 					}
+				}
+				Spacer(Modifier.height(2.dp))
+				Row {
+					if (!isMine) {
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Ranking, item.ranking), )
+						Spacer(Modifier.width(16.dp))
+					}
+					body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id.toString()),)
+					Spacer(Modifier.weight(1f))
+					if (item.canJoin) {
+
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.wrapContentWidth()
+										.height(28.dp),
+								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
+								onClick = {
+									joinClick.invoke()
+								}
+						)
+					}
+					if (!isRegisterSuperNode) {
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Vote),
+								onClick = {
+									voteClick.invoke()
+								}
+						)
+					}
+				}
+				Spacer(Modifier.height(2.dp))
+				Row {
+					Text(
+							text = item.address.hex.shorten(8),
+							style = ComposeAppTheme.typography.body,
+							color = ComposeAppTheme.colors.grey,
+							overflow = TextOverflow.Ellipsis,
+							maxLines = 1,
+					)
+
+					Spacer(Modifier.weight(1f))
+
+					if (item.isEdit) {
+						Spacer(Modifier.width(10.dp))
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.wrapContentWidth()
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Node_Edit),
+								onClick = {
+									onEditClick.invoke()
+								}
+						)
+					}
+				}
+
+				Spacer(Modifier.height(4.dp))
+
+				Row{
 					Column(
-							modifier = Modifier.weight(4f),
 							horizontalAlignment = Alignment.CenterHorizontally
 					) {
 						Row(
@@ -406,15 +434,15 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> U
 							Text(
 									text = item.voteCount,
 									style = ComposeAppTheme.typography.body,
-									color = ComposeAppTheme.colors.grey,
+									color = ComposeAppTheme.colors.bran,
 									overflow = TextOverflow.Ellipsis,
 									maxLines = 1,
 							)
 							Spacer(Modifier.weight(1f))
 							Text(
-									text = item.voteCompleteCount,
+									text = stringResource(id = R.string.Safe_Four_Vote_Amount, item.voteCompleteCount),
 									style = ComposeAppTheme.typography.body,
-									color = ComposeAppTheme.colors.bran,
+									color = ComposeAppTheme.colors.grey,
 									overflow = TextOverflow.Ellipsis,
 									maxLines = 1,
 							)
@@ -432,7 +460,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> U
 									progress = item.progress,
 									color = ComposeAppTheme.colors.green50,
 									backgroundColor = ComposeAppTheme.colors.grey50)
-
+							Spacer(Modifier.width(8.dp))
 							Text(
 									modifier = Modifier
 											.wrapContentWidth(),
@@ -445,92 +473,10 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition, onClick: () -> U
 						}
 					}
 				}
-
-				Row {
-					Column(
-							modifier = Modifier.weight(1f)
-					) {
-						Text(
-								text = item.name,
-								style = ComposeAppTheme.typography.body,
-								color = ComposeAppTheme.colors.grey,
-								overflow = TextOverflow.Ellipsis,
-								maxLines = 1,
-						)
-						Spacer(Modifier.height(5.dp))
-						Text(
-								text = item.desc,
-								style = ComposeAppTheme.typography.body,
-								color = ComposeAppTheme.colors.grey,
-								overflow = TextOverflow.Ellipsis,
-								maxLines = 1,
-						)
-					}
-					Column(
-							modifier = Modifier.weight(1f)
-					) {
-						Row {
-							Text(
-									text = item.address.hex.shorten(),
-									style = ComposeAppTheme.typography.body,
-									color = ComposeAppTheme.colors.grey,
-									overflow = TextOverflow.Ellipsis,
-									maxLines = 1,
-							)
-							Spacer(Modifier.weight(1f))
-							body_leah(
-									modifier = Modifier.padding(end = 4.dp),
-									text = "ID:",
-									maxLines = 1,
-							)
-							body_leah(
-									modifier = Modifier.padding(end = 8.dp),
-									text = "${item.id}",
-									maxLines = 1,
-							)
-						}
-
-						Row {
-							Spacer(Modifier.weight(1f))
-							if (item.canJoin) {
-
-								ButtonPrimaryYellow(
-										modifier = Modifier
-												.wrapContentWidth()
-												.height(30.dp),
-										title = stringResource(R.string.Safe_Four_Node_Join_Partner),
-										onClick = {
-											joinClick.invoke()
-										}
-								)
-							} else {
-								ButtonPrimaryYellow(
-										modifier = Modifier
-												.height(30.dp),
-										title = stringResource(R.string.Safe_Four_Vote),
-										onClick = {
-											voteClick.invoke()
-										}
-								)
-							}
-							if (item.isEdit) {
-
-								Spacer(Modifier.width(10.dp))
-								ButtonPrimaryYellow(
-										modifier = Modifier
-												.wrapContentWidth()
-												.height(30.dp),
-										title = stringResource(R.string.Safe_Four_Node_Edit),
-										onClick = {
-											onEditClick.invoke()
-										}
-								)
-							}
-						}
-					}
-				}
 			}
 		}
+
+		Spacer(Modifier.height(5.dp))
 	}
 }
 
@@ -545,33 +491,12 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 	SectionUniversalItem(
 			borderTop = divider,
 	) {
-		val clipModifier = when (position) {
-			SectionItemPosition.First -> {
-				Modifier.clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-			}
-
-			SectionItemPosition.Last -> {
-				Modifier.clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-			}
-
-			SectionItemPosition.Single -> {
-				Modifier.clip(RoundedCornerShape(12.dp))
-			}
-
-			else -> Modifier
-		}
-
-		val borderModifier = if (position != SectionItemPosition.Single) {
-			Modifier.sectionItemBorder(1.dp, ComposeAppTheme.colors.steel20, 12.dp, position)
-		} else {
-			Modifier.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
-		}
+		val clipModifier = Modifier.clip(RoundedCornerShape(12.dp))
 
 		RowUniversal(
 				modifier = Modifier
 						.fillMaxSize()
 						.then(clipModifier)
-						.then(borderModifier)
 						.background(ComposeAppTheme.colors.lawrence)
 						.clickable(onClick = onClick),
 		) {
@@ -581,49 +506,38 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							.alpha(1f)
 			) {
 				Row {
+					Text(
+							text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id),
+							style = ComposeAppTheme.typography.body,
+							color = ComposeAppTheme.colors.bran,
+							overflow = TextOverflow.Ellipsis,
+							maxLines = 1,
+							fontWeight = FontWeight.Bold
+					)
+					Spacer(Modifier.weight(1f))
 					val color = when (item.status) {
-						is NodeStatus.Online -> ComposeAppTheme.colors.greenD
-						is NodeStatus.Exception -> ComposeAppTheme.colors.grey
+						is NodeStatus.Online -> ComposeAppTheme.colors.issykBlue
+						is NodeStatus.Exception -> ComposeAppTheme.colors.grey50
 					}
-					Text(
-							text = item.status.title().getString(),
-							style = ComposeAppTheme.typography.body,
-							color = color,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-					Spacer(Modifier.weight(1f))
-					body_leah(
-							modifier = Modifier.padding(end = 4.dp),
-							text = "ID:",
-							maxLines = 1,
-					)
-					body_leah(
-							modifier = Modifier.padding(end = 8.dp),
-							text = "${item.id}",
-							maxLines = 1,
-					)
-					Spacer(Modifier.weight(1f))
-					
-					Text(
-							text = item.address.hex.shorten(),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-					
+					Row(
+							modifier = Modifier
+									.clip(RoundedCornerShape(5.dp))
+									.background(color)
+									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp)) {
+						Text(
+								text = item.status.title().getString(),
+								style = ComposeAppTheme.typography.captionSB,
+								color = ComposeAppTheme.colors.white,
+								overflow = TextOverflow.Ellipsis,
+								maxLines = 1,
+						)
+					}
 				}
+				Spacer(Modifier.height(2.dp))
+
 				Row {
 					Text(
-							text = stringResource(id = R.string.Safe_Four_Node_Pledge),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-					Text(
-							text = item.voteCount,
+							text = stringResource(id = R.string.Safe_Four_Node_Pledge, item.voteCount),
 							style = ComposeAppTheme.typography.body,
 							color = ComposeAppTheme.colors.grey,
 							overflow = TextOverflow.Ellipsis,
@@ -635,7 +549,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 						ButtonPrimaryYellow(
 								modifier = Modifier
 										.wrapContentWidth()
-										.height(30.dp),
+										.height(25.dp),
 								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
 								onClick = {
 									joinClick.invoke()
@@ -647,7 +561,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 						ButtonPrimaryYellow(
 								modifier = Modifier
 										.wrapContentWidth()
-										.height(30.dp),
+										.height(25.dp),
 								title = stringResource(R.string.Safe_Four_Node_Edit),
 								onClick = {
 									onEditClick.invoke()
@@ -655,7 +569,21 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 						)
 					}
 				}
+
+				Spacer(Modifier.height(2.dp))
+				Row {
+					Text(
+							text = item.address.hex.shorten(8),
+							style = ComposeAppTheme.typography.body,
+							color = ComposeAppTheme.colors.grey,
+							overflow = TextOverflow.Ellipsis,
+							maxLines = 1,
+					)
+					
+				}
 			}
 		}
+
+		Spacer(Modifier.height(5.dp))
 	}
 }

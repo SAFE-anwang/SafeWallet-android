@@ -1959,11 +1959,14 @@
     <string name="Safe_Four_Register_Master_Node">注册主节点</string>
     <string name="Safe_Four_Register_Super_Node_Register">已创建超级节点</string>
     <string name="Safe_Four_Register_Master_Node_Register">已注册主节点</string>
+    <string name="Safe_Four_Register_Super_Node_Register_Hint">注册成为超级节点,将不能再注册主节点\n注册成为超级节点,将不能再使用该账户下的锁仓记录进行超级节点投票</string>
+    <string name="Safe_Four_Register_Master_Node_Register_Hint">已注注册成为主节点，则不能再注册成为超级节点册主节点</string>
     <string name="Safe_Four_Register_Mode_Stand_Alone">独立</string>
     <string name="Safe_Four_Register_Mode_Crowd_Funding">众筹</string>
     <string name="Safe_Four_Register_Mode_Super_Node_Address">超级节点地址</string>
     <string name="Safe_Four_Register_Mode_Master_Node_Address">主节点地址</string>
     <string name="Safe_Four_Register_Mode_Name">名称</string>
+    <string name="Safe_Four_Register_Mode_Length_Error">长度不能小于8个字</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入\nadmin.nodeInfo\n获取节点的ENODE信息</string>
     <string name="Safe_Four_Register_Introduction">简介</string>
@@ -1972,20 +1975,23 @@
     <string name="Safe_Four_Register_Creator">创建者</string>
     <string name="Safe_Four_Register_Voters">投票人</string>
     <string name="Safe_Four_Register_Lock">锁仓</string>
+    <string name="Safe_Four_Register_Lock_Confirmation">锁定SAFE，从 "账户余额" 到 "合约账户"</string>
     <string name="Safe_Four_Register_Balance">余额</string>
     <string name="Safe_Four_Register_Node_Send">发送</string>
     <string name="Safe_Four_No_Super_Node">您还没有创建超级节点</string>
+    <string name="Safe_Four_No_Master_Node">您还没有创建主节点</string>
     <string name="Safe_Four_Node_Online">在线</string>
     <string name="Safe_Four_Node_Exception">异常</string>
     <string name="Safe_Four_Node_Join_Partner">加入合伙人</string>
     <string name="Safe_Four_Node_Remaining_Shares">主节点剩余份额</string>
     <string name="Safe_Four_Node_Register_Num">选择数量</string>
     <string name="Safe_Four_Node_Join_Shares">份额</string>
-    <string name="Safe_Four_Node_Pledge">质押SAFE:</string>
+    <string name="Safe_Four_Node_Pledge">质押SAFE: %s SAFE</string>
     <string name="Safe_Four_Node_Super_Node_Vote">超级节点投票</string>
     <string name="Safe_Four_Node_Master_Node_Vote">主节点联合创建</string>
-    <string name="Safe_Four_Node_Info">节点详情:</string>
+    <string name="Safe_Four_Node_Info">节点详情</string>
     <string name="Safe_Four_Node_Info_Id">节点ID:</string>
+    <string name="Safe_Four_Node_Info_Id_List">节点ID: %s</string>
     <string name="Safe_Four_Node_Info_Status">节点状态:</string>
     <string name="Safe_Four_Node_Info_Address">节点地址:</string>
     <string name="Safe_Four_Node_Info_Name">节点名称:</string>
@@ -1997,7 +2003,7 @@
     <string name="Safe_Four_Node_Super_Node_Vote_Address">超级节点地址</string>
     <string name="Safe_Four_Node_Vote_Tab_Safe_Vote">SAFE投票</string>
     <string name="Safe_Four_Node_Vote_Tab_Lock_Vote">锁仓投票</string>
-    <string name="Safe_Four_Node_Vote_Tab_Creator">创建人/合伙人</string>
+    <string name="Safe_Four_Node_Vote_Tab_Creator">创建人 | 合伙人</string>
     <string name="Safe_Four_Node_Info_Title">节点信息</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">投票人</string>
     <string name="Safe_Four_Node_Vote_Lock_Id">锁仓记录Id:%s</string>
@@ -2005,7 +2011,7 @@
     <string name="Safe_Four_Node_Vote_Lock_hint">必须同时满足如下条件的锁仓记录才可以进行投票\n1. 未关联超级节点的锁仓记录\n2. 未投票的锁仓记录\n3. 锁仓数量大于 1 SAFE</string>
     <string name="Safe_Four_Node_Vote_Record_Address">地址</string>
     <string name="Safe_Four_Node_Vote_Record_Num">数量</string>
-    <string name="Safe_Four_Node_Vote_Record_ID">锁仓记录ID</string>
+    <string name="Safe_Four_Node_Vote_Record_ID">锁仓ID</string>
     <string name="Safe_Four_Node_Join">成为合伙人</string>
 
     <string name="Safe_Four_Proposal_Title">提案</string>
@@ -2015,6 +2021,9 @@
     <string name="Safe_Four_Proposal_State_Voting">正在投票</string>
     <string name="Safe_Four_Proposal_State_Adopt">通过</string>
     <string name="Safe_Four_Proposal_Create_Button">发起提案</string>
+    <string name="Safe_Four_Proposal_List_Amount">申请数量: %s</string>
+    <string name="Safe_Four_Proposal_List_ID">提案ID: %s</string>
+    <string name="Safe_Four_Proposal_Creator">创建人: %s</string>
     <string name="Safe_Four_Proposal_Vote_Agree">同意</string>
     <string name="Safe_Four_Proposal_Vote_Refuse">拒绝</string>
     <string name="Safe_Four_Proposal_Vote_Give_up">放弃</string>
@@ -2059,12 +2068,18 @@
     <string name="Safe_Four_Profit_Title_Amount">金额</string>
     <string name="Safe_Four_Proposal_Cancel">取消</string>
     <string name="Safe_Four_Proposal_Send">发送</string>
+    <string name="Safe_Four_Proposal_Vote_Result">投票结果</string>
+    <string name="Safe_Four_Proposal_Vote_Node">超级节点</string>
+    <string name="Safe_Four_No_Data">暂无数据</string>
+    <string name="Safe_Four_Proposal_Hint">支付 1 SAFE 来创建提案从资金池里获取SAFE\n只有在线且排名前49的超级节点才可以进行投票</string>
     <string name="Transactions_Filter_HideWithdrawTx">隐藏挖矿收益</string>
 
     <string name="Safe_Four_Node_Edit">编辑</string>
     <string name="Safe_Four_Node_Edit_Super_Title">编辑超级节点</string>
     <string name="Safe_Four_Node_Edit_Master_Title">编辑主节点</string>
     <string name="Safe_Four_Node_Update_Button">更新</string>
+    <string name="Safe_Four_Node_Edit_Super_Hint">通过调用超级节点合约更新超级节点对应的属性信息.\n更新的超级节点数据在交易写入区块链后才会生效.</string>
+    <string name="Safe_Four_Node_Edit_Master_Hint">通过调用主节点合约更新主节点对应的属性信息.\n更新的主节点数据在交易写入区块链后才会生效.</string>
 
     <string name="Redeem_Safe3_Title">Safe3 资产迁移</string>
     <string name="Redeem_Safe3_Query">资产查询</string>
@@ -2085,6 +2100,9 @@
     <string name="Redeem_Safe4_Address">Safe4 钱包地址</string>
     <string name="Redeem_Safe4_Redeem_Button">迁移</string>
     <string name="Redeem_Safe4_Redeem_Onec">一键迁移Safe3</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的Safe3到Safe4地址</string>
+    <string name="Safe_Four">Safe4</string>
+    <string name="Safe_Four_Node_Info_Ranking">排名: %d</string>
 
 
     <!-- safe 4  end-->

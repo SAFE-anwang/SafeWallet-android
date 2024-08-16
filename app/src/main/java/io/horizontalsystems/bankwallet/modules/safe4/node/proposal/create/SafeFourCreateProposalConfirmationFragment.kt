@@ -43,35 +43,14 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
-import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalStatus
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.SafeFourProposalInfoViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.proposalList
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.CreatorScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.LockVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.MasterVoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteFragment
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteScreen
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoterRecordScreen
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
-import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
-import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.body_lucian
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.core.SnackbarDuration
@@ -144,73 +123,71 @@ fun ProposalInfoScreen(
 
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
-                title = stringResource(id = R.string.Safe_Four_Proposal_Title),
+                title = stringResource(id = R.string.Safe_Four_Proposal_Create),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 }
         )
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            Column(
-                    modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-                            .background(ComposeAppTheme.colors.lawrence)
-                            .padding(16.dp)
-            ) {
+        Column(modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                .background(ComposeAppTheme.colors.lawrence)
+                .padding(top = 16.dp, bottom = 16.dp)
+                .verticalScroll(rememberScrollState())) {
 
-                body_grey(
+
+            body_grey(
+                    modifier = Modifier
+                            .padding(start = 16.dp),
                         text = stringResource(id = R.string.Safe_Four_Proposal_Create_Title))
+            Spacer(modifier = Modifier.height(5.dp))
 
-                body_bran(
+            body_bran(
+                    modifier = Modifier
+                            .padding(start = 16.dp),
                         text = uiState.title)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            Divider(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
+
+            body_grey(
+                    modifier = Modifier
+                            .padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Proposal_Create_Desc))
+            Spacer(modifier = Modifier.height(5.dp))
+            body_bran(
+                    modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp),
+                    text = uiState.desc)
+
+            Divider(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
+
+            body_grey(
+                    modifier = Modifier
+                            .padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Proposal_Create_Apply))
+            Spacer(modifier = Modifier.height(5.dp))
+            body_bran(
+                    modifier = Modifier
+                            .padding(start = 16.dp),
+                    text = uiState.amount)
+            Divider(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
 
             Column(
                     modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-                            .background(ComposeAppTheme.colors.lawrence)
-                            .padding(16.dp)
-            ) {
-
-                body_grey(
-                        text = stringResource(id = R.string.Safe_Four_Proposal_Create_Desc))
-                Spacer(modifier = Modifier.height(5.dp))
-                body_bran(
-                        text = uiState.desc)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(
-                    modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-                            .background(ComposeAppTheme.colors.lawrence)
-                            .padding(16.dp)
-            ) {
-
-                body_grey(
-                        text = stringResource(id = R.string.Safe_Four_Proposal_Create_Apply))
-                Spacer(modifier = Modifier.height(5.dp))
-                body_bran(
-                        text = uiState.amount)
-            }
-
-            Column(
-                    modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-                            .background(ComposeAppTheme.colors.lawrence)
-                            .padding(16.dp)
+                            .padding(start = 16.dp, end = 16.dp),
             ) {
                 subhead1_grey(
                         modifier = Modifier
@@ -274,20 +251,16 @@ fun ProposalInfoScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row {
-                ButtonPrimaryYellow(
-                        modifier = Modifier
-                                .weight(1f)
-                                .padding(16.dp)
-                                .height(40.dp),
-                        title = stringResource(R.string.Safe_Four_Register_Node_Send),
-                        onClick = {
-                            viewModel.send()
-                        }
-                )
-            }
         }
+        ButtonPrimaryYellow(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .height(40.dp),
+                title = stringResource(R.string.Safe_Four_Register_Node_Send),
+                onClick = {
+                    viewModel.send()
+                }
+        )
     }
 }
