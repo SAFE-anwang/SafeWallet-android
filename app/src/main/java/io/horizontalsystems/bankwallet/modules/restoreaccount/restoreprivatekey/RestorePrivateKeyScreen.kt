@@ -47,7 +47,7 @@ fun RestorePrivateKey(
                         title = TranslatableString.ResString(R.string.Button_Next),
                         onClick = {
                             viewModel.resolveAccountType()?.let { accountType ->
-                                mainViewModel.setAccountData(accountType, viewModel.accountName, true, false)
+                                mainViewModel.setAccountData(accountType, viewModel.accountName, false, false)
                                 openSelectCoinsScreen.invoke()
                             }
                         }

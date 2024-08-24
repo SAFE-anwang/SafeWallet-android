@@ -186,7 +186,7 @@ class EvmTransactionConverter(
                         ContractCallTransactionRecord(
                             transaction, baseToken, source,
                             contractAddress.eip55,
-                            transaction.input?.let { evmLabelManager.methodLabel(it) },
+                            transaction.input?.let { evmLabelManager.methodLabel(it, transaction.to?.eip55) },
                             getInternalEvents(internalTransactions) +
                                     getIncomingEip20Events(incomingEip20Transfers) +
                                     getIncomingEip721Events(incomingEip721Transfers) +

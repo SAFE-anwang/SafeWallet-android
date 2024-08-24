@@ -65,12 +65,20 @@ fun SectionTitleCell(
         modifier = Modifier.padding(horizontal = 16.dp),
     ) {
         iconResId?.let {
-            Icon(
-                modifier = Modifier.padding(end = 16.dp),
-                painter = painterResource(iconResId),
-                tint = ComposeAppTheme.colors.grey,
-                contentDescription = null,
-            )
+            if (it == R.drawable.logo_safe_24) {
+                Image(
+                        modifier = Modifier.padding(end = 16.dp),
+                        painter = painterResource(iconResId),
+                        contentDescription = null,
+                )
+            } else {
+                Icon(
+                        modifier = Modifier.padding(end = 16.dp),
+                        painter = painterResource(iconResId),
+                        tint = ComposeAppTheme.colors.grey,
+                        contentDescription = null,
+                )
+            }
         }
 
         body_leah(text = title)

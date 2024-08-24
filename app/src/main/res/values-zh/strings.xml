@@ -2110,6 +2110,17 @@
     <string name="Super_Node_Search">超级节点Id | 超级节点地址</string>
     <string name="Proposal_Search">提案Id</string>
 
+    <string name="Method_Create_Proposal">创建提案</string>
+    <string name="Method_Create_Super_Node">创建超级节点</string>
+    <string name="Method_Create_Master_Node">创建主节点</string>
+    <string name="Method_Vote">投票</string>
+    <string name="Method_Join_Super_Node">加入超级节点合伙人</string>
+    <string name="Method_Join_Master_Node">加入主节点合伙人</string>
+    <string name="Method_Change_Enode">修改Enode</string>
+    <string name="Method_Change_Desc">修改描述</string>
+    <string name="Method_Change_Address">修改地址</string>
+    <string name="Method_Withdraw">提现</string>
+
 
     <!-- safe 4  end-->
 </resources>

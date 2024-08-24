@@ -2435,5 +2435,16 @@
     <string name="Master_Node_Search">Master Node Id | Master Node Address</string>
     <string name="Super_Node_Search">Super Node Id | Super Node Address</string>
     <string name="Proposal_Search">Proposal Id</string>
+
+    <string name="Method_Create_Proposal">Create Proposal</string>
+    <string name="Method_Create_Super_Node">Create Super Node</string>
+    <string name="Method_Create_Master_Node">Create Master Node</string>
+    <string name="Method_Vote">Voted</string>
+    <string name="Method_Join_Super_Node">Join Super Node</string>
+    <string name="Method_Join_Master_Node">Join Master Node</string>
+    <string name="Method_Change_Enode">Change Enode</string>
+    <string name="Method_Change_Desc">Change Description</string>
+    <string name="Method_Change_Address">Change Address</string>
+    <string name="Method_Withdraw">Withdraw</string>
     <!-- safe 4  end-->
 </resources>
