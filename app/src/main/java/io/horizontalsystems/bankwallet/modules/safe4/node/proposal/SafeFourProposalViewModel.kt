@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -11,6 +12,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.parcelize.Parcelize
+import org.apache.commons.lang3.StringUtils
 import java.math.BigInteger
 
 class SafeFourProposalViewModel(
@@ -25,6 +27,7 @@ class SafeFourProposalViewModel(
     private var allProposal: List<ProposalViewItem>? = null
     private var mineProposal: List<ProposalViewItem>? = null
 
+    private var query: String? = null
     var currentScreen = 0
 
     init {
@@ -48,8 +51,16 @@ class SafeFourProposalViewModel(
     }
 
     override fun createState() = SafeFourProposalModule.SafeFourProposalUiState(
-        allProposalList = allProposal,
-        mineProposalList = mineProposal,
+        allProposalList = if (this.query.isNullOrBlank()) {
+            allProposal
+        } else allProposal?.filter {
+                it.id.toString() == query
+        },
+            mineProposalList = if (this.query.isNullOrBlank()) {
+                mineProposal
+            } else mineProposal?.filter {
+            it.id.toString() == query
+        },
     )
 
     fun getProposalInfo(id: Int, type: Int): ProposalInfo? {
@@ -58,6 +69,17 @@ class SafeFourProposalViewModel(
 
     fun onBottomReached() {
         nodeService.loadNext()
+    }
+
+
+    fun searchByQuery(query: String) {
+        this.query = query
+        emitState()
+    }
+
+    fun clearQuery() {
+        this.query = null
+        emitState()
     }
 
 

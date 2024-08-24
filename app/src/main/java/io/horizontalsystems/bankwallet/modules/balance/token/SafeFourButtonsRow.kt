@@ -114,10 +114,10 @@ fun SafeFourButtonsRow(
                         Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
                         return@ButtonPrimaryYellow
                     }
-                    navController.slideFromBottom(
+                    /*navController.slideFromBottom(
                             R.id.redeemSafe3Fragment,
                             RedeemSafe3Module.Input(viewModel.wallet, safeWallet)
-                    )
+                    )*/
                 },
                 enabled = viewItem.sendEnabled
         )

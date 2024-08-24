@@ -86,7 +86,8 @@ fun ProposalInfoScreen(
     val proposalInfo = viewModel.uiState.proposalInfo
     val voteList = viewModel.uiState.voteList
     val voteEnable = uiState.voteEnable
-    val isVoted = uiState.isVoted
+//    val isVoted = uiState.isVoted
+    val isVoted = true
     val view = LocalView.current
 
     val sendResult = viewModel.sendResult
@@ -271,12 +272,21 @@ fun ProposalInfoScreen(
 
                             if (isVoted) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Row {
+                                Row(
+                                        modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .border(1.dp, ComposeAppTheme.colors.grey50, RoundedCornerShape(8.dp))) {
                                     body_leah(
                                             text = stringResource(id = R.string.Safe_Four_Proposal_Already_Vote),
                                             maxLines = 1,
                                     )
                                     Spacer(modifier = Modifier.width(16.dp))
+                                    Icon(
+                                            modifier = Modifier.padding(end = 8.dp),
+                                            painter = painterResource(id = R.drawable.ic_check_20),
+                                            contentDescription = null,
+                                            tint = ComposeAppTheme.colors.remus
+                                    )
                                     Text(
                                             text = ProposalVoteStatus.Agree.title().toString(),
                                             style = ComposeAppTheme.typography.body,
@@ -411,9 +421,6 @@ fun ProposalInfoScreen(
                                         is ProposalVoteStatus.Agree -> ComposeAppTheme.colors.greenD
                                         is ProposalVoteStatus.Refuse -> ComposeAppTheme.colors.redD
                                         is ProposalVoteStatus.Abstain -> ComposeAppTheme.colors.grey50
-                                    }
-                                    Row {
-
                                     }
                                     Text(
                                             modifier = Modifier

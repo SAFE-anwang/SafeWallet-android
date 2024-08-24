@@ -42,6 +42,7 @@ class SafeFourVoteRecordService(
 			loading.set(false)
 			return
 		}
+		Log.e("longwen", "maxVoteCount=$maxVoteCount")
 		val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
 		single.subscribeOn(Schedulers.io())
 				.map {

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create
 
+import android.os.Build
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +16,11 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +36,11 @@ import androidx.compose.ui.unit.sp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Calendar
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +53,18 @@ fun SingleButtonDatePickerView(
 	var isOpenDialog by remember { mutableStateOf(false) }
 	var isDefaultValue by remember { mutableStateOf(true) }
 	var selectDate by remember { mutableStateOf(value) }
-	val datePickerState = rememberDatePickerState()
+	val datePickerState = rememberDatePickerState(
+			selectableDates = object : SelectableDates {
+				override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+					val calendar = Calendar.getInstance()
+					return calendar.timeInMillis < utcTimeMillis
+				}
+
+				override fun isSelectableYear(year: Int): Boolean {
+					return year >= Calendar.getInstance().get(Calendar.YEAR)
+				}
+			}
+	)
 	val sdf = remember { SimpleDateFormat("yyy-MM-dd") }
 	Row(
 			modifier = modifier
@@ -132,8 +152,30 @@ fun TwoButtonDatePickerView(
 ) {
 	var isOpenStartDialog by remember { mutableStateOf(false) }
 	var isOpenEndDialog by remember { mutableStateOf(false) }
-	val startDatePickerState = rememberDatePickerState()
-	val endDatePickerState = rememberDatePickerState()
+	val startDatePickerState = rememberDatePickerState(
+			selectableDates = object : SelectableDates {
+				override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+					val calendar = Calendar.getInstance()
+					return calendar.timeInMillis < utcTimeMillis
+				}
+
+				override fun isSelectableYear(year: Int): Boolean {
+					return year >= Calendar.getInstance().get(Calendar.YEAR)
+				}
+			}
+	)
+	val endDatePickerState = rememberDatePickerState(
+			selectableDates = object : SelectableDates {
+				override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+					val calendar = Calendar.getInstance()
+					return calendar.timeInMillis < utcTimeMillis
+				}
+
+				override fun isSelectableYear(year: Int): Boolean {
+					return year >= Calendar.getInstance().get(Calendar.YEAR)
+				}
+			}
+	)
 	var isStartDateDefault by remember { mutableStateOf(true) }
 	var isEndDateDefault by remember { mutableStateOf(true) }
 	var selectStartDate by remember { mutableStateOf(startDate) }
@@ -279,41 +321,3 @@ fun TwoButtonDatePickerView(
 	}
 }
 
-/*@Composable
-fun DatePicker(
-		state: DatePickerState,
-		modifier: Modifier = Modifier,
-		dateFormatter: DatePickerFormatter = remember { DatePickerFormatter() },
-		dateValidator: (Long) -> Boolean = { true },
-		title: (@Composable () -> Unit)? = {
-			DatePickerDefaults.DatePickerTitle(
-					state,
-					modifier = Modifier.padding(16.dp)
-			)
-		},
-		headline: (@Composable () -> Unit)? = {
-			DatePickerDefaults.DatePickerHeadline(
-					state,
-					dateFormatter,
-					modifier = Modifier.padding(16.dp)
-			)
-		},
-		showModeToggle: Boolean = true,
-		colors: DatePickerColors = DatePickerDefaults.colors(
-
-				todayDateBorderColor = Color.Red        //默认选中的当天日期的边框色
-
-						selectedDayContentColor = Color.Red        //选中的文字颜色
-
-						selectedDayContainerColor  = Color.Red        //选中的填充颜色
-
-		)
-)*/
-
-/*@Composable
-fun rememberDatePickerState(
-		@Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,        //默认选中的日期
-		@Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,        //默认显示的月份
-		yearRange: IntRange = DatePickerDefaults.YearRange,        //限制选择的年份范围，如 2000..2100
-		initialDisplayMode: DisplayMode = DisplayMode.Picker        //选择模式Picker、输入模式Input
-): DatePickerState*/

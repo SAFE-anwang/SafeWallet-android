@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Master_Node_Create_Amount
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Super_Node_Create_Amount
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.models.Address
@@ -65,21 +66,30 @@ class SafeFourNodeService(
 	fun loadItems(page: Int) {
 		if (loading.get()) return
 		loading.set(true)
-
+		val isSuperNode = nodeType == NodeType.SuperNode
 		if (nodeMaxCount == -1) {
-			nodeMaxCount = safe4RpcBlockChain.getNodeNum(nodeType == NodeType.SuperNode).toInt()
+			nodeMaxCount = safe4RpcBlockChain.getNodeNum(isSuperNode).toInt()
 		}
-		val itemsCount = page * SafeFourLockedVoteService.itemsPerPage
+//		val itemsCount = page * SafeFourLockedVoteService.itemsPerPage
+
+		var itemsCount = if (isSuperNode)
+			page * itemsPerPage
+			else
+			nodeMaxCount - (page + 1) * itemsPerPage
+		var pageCount = if (isSuperNode) itemsPerPage else {
+			if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+		}
+		if (itemsCount < 0) itemsCount = 0
 		if (itemsCount >= nodeMaxCount) {
 			loading.set(false)
 			return
 		}
 		val single = when(nodeType) {
 			NodeType.SuperNode -> {
-				safe4RpcBlockChain.superNodeGetAll(itemsCount, itemsPerPage)
+				safe4RpcBlockChain.superNodeGetAll(itemsCount, pageCount)
 			}
 			NodeType.MainNode -> {
-				safe4RpcBlockChain.masterNodeGetAll(itemsCount, itemsPerPage)
+				safe4RpcBlockChain.masterNodeGetAll(itemsCount, pageCount)
 			}
 		}
 		var allVoteNum = BigInteger.ZERO
@@ -122,7 +132,11 @@ class SafeFourNodeService(
 				}
 				.subscribe( {
 					allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
-					nodeItems.addAll(it)
+					if (isSuperNode) {
+						nodeItems.addAll(it)
+					} else {
+						nodeItems.addAll(it.reversed())
+					}
 					itemsSubject.onNext(nodeItems)
 
 					loadedPageNumber = page
@@ -141,13 +155,29 @@ class SafeFourNodeService(
 		if (mineNodeMaxCount == -1) {
 			mineNodeMaxCount = safe4RpcBlockChain.getAddrNum4Creator(isSuperNode, walletAddress.hex).blockingGet().toInt()
 		}
-		val itemsCount = page * itemsPerPage
+//		val itemsCount = page * itemsPerPage
+
+		val isSuperNode = nodeType == NodeType.SuperNode
+		if (nodeMaxCount == -1) {
+			nodeMaxCount = safe4RpcBlockChain.getNodeNum(isSuperNode).toInt()
+		}
+//		val itemsCount = page * SafeFourLockedVoteService.itemsPerPage
+
+		var itemsCount = if (isSuperNode)
+			page * itemsPerPage
+		else
+			mineNodeMaxCount - (page + 1) * itemsPerPage
+		var pageCount = if (isSuperNode) itemsPerPage else {
+			if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+		}
+		if (itemsCount < 0) itemsCount = 0
+
 		if (itemsCount >= mineNodeMaxCount) {
 			mineItemsSubject.onNext(mineNodeItems)
 			loadingMine.set(false)
 			return
 		}
-		val single = safe4RpcBlockChain.getAddrs4Creator(isSuperNode, walletAddress.hex, itemsCount, itemsPerPage)
+		val single = safe4RpcBlockChain.getAddrs4Creator(isSuperNode, walletAddress.hex, itemsCount, pageCount)
 
 		var allVoteNum = BigInteger.ZERO
 		single.subscribeOn(Schedulers.io())
@@ -189,7 +219,11 @@ class SafeFourNodeService(
 				}
 				.subscribe( {
 					allLoadedMine.set(it.isEmpty() || it.size < itemsPerPage)
-					mineNodeItems.addAll(it)
+					if (isSuperNode) {
+						mineNodeItems.addAll(it)
+					} else {
+						mineNodeItems.addAll(it.reversed())
+					}
 					mineItemsSubject.onNext(mineNodeItems)
 
 					loadedPageNumberMine = page

@@ -2406,11 +2406,14 @@
 
 
 
-    <string name="Redeem_Safe3_Title">Safe3->Safe4</string>
+    <string name="Redeem_Safe3_Title">SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Other_Wallet">Other wallets SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Local_Wallet">Local wallet SAFE3=>SAFE4</string>
     <string name="Redeem_Safe3_Query">Query Asset</string>
     <string name="Redeem_Safe3_Verify_Private_Key">Verify Private Key</string>
     <string name="Redeem_Safe3_Migration">Asset Redeem</string>
     <string name="Redeem_Safe3_Address_Hint">Safe3 Address</string>
+    <string name="Redeem_Safe3_Address_Hint_2">Safe3 Address\n%s</string>
     <string name="Redeem_Safe3_Private_Key">Safe3 Private Key</string>
     <string name="Redeem_Safe3_Private_Key_Hint">Enter private key</string>
     <string name="Redeem_Safe3_Account_Balance">Balance</string>
@@ -2429,5 +2432,8 @@
     <string name="Safe_Four">Safe4</string>
     <string name="Safe_Four_Node_Info_Ranking">Rank: %d</string>
     <string name="Safe_Four_Vote_Amount">[%s]</string>
+    <string name="Master_Node_Search">Master Node Id | Master Node Address</string>
+    <string name="Super_Node_Search">Super Node Id | Super Node Address</string>
+    <string name="Proposal_Search">Proposal Id</string>
     <!-- safe 4  end-->
 </resources>

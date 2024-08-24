@@ -587,4 +587,12 @@
         android:id="@+id/redeemSafe3Fragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Fragment" />
 
+    <fragment
+        android:id="@+id/redeemSafe3LocalFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3LocalFragment" />
+
+    <fragment
+        android:id="@+id/redeemSafe3SelectFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3SelectFragment" />
+
 </navigation>

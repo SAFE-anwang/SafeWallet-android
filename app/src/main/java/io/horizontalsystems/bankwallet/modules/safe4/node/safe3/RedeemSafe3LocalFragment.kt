@@ -54,30 +54,29 @@ import io.horizontalsystems.bankwallet.ui.compose.components.headline1_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
-class RedeemSafe3Fragment(): BaseComposeFragment() {
+class RedeemSafe3LocalFragment(): BaseComposeFragment() {
 	@Composable
 	override fun GetContent(navController: NavController) {
 		val input = navController.getInput<RedeemSafe3Module.Input>()
 		val wallet = input?.wallet ?: return
 		val safe3Wallet = input?.safe3Wallet ?: return
 
-		val viewModel by viewModels<RedeemSafe3ViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
-		RedeemSafe3Screen(viewModel = viewModel, navController = navController)
+		val viewModel by viewModels<RedeemSafe3LocalViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
+
+		RedeemSafe3LocalScreen(viewModel = viewModel, navController = navController)
 	}
 }
 
 @Composable
-fun RedeemSafe3Screen(
-		viewModel: RedeemSafe3ViewModel,
+fun RedeemSafe3LocalScreen(
+		viewModel: RedeemSafe3LocalViewModel,
 		navController: NavController
 ) {
 	val uiState = viewModel.uiState
-	val addressError = uiState.addressError
 	val safe3Wallet = viewModel.safe3Wallet
 	val currentStep = uiState.step
-	val paymentAddressViewModel = viewModel<AddressParserViewModel>(
-			factory = AddressParserModule.Factory(safe3Wallet.token, null)
-	)
+	val syncing = uiState.syncing
+	val list = uiState.list
 
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
@@ -110,7 +109,8 @@ fun RedeemSafe3Screen(
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
 		AppBar(
-				title = stringResource(id = R.string.Redeem_Safe3_Other_Wallet),
+				title = stringResource(id = R.string.Redeem_Safe3_Local_Wallet),
+				showSpinner = syncing,
 				navigationIcon = {
 					HsBackButton(onClick = { navController.popBackStack() })
 				}
@@ -164,20 +164,11 @@ fun RedeemSafe3Screen(
 				StepView("3",  stringResource(id = R.string.Redeem_Safe3_Migration), currentStep == 3, currentStep > 3)
 			}
 
-			Spacer(modifier = Modifier.height(16.dp))
-			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Address_Hint))
-			HSAddressInput(
-					tokenQuery = safe3Wallet.token.tokenQuery,
-					coinCode = safe3Wallet.coin.code,
-					error = addressError,
-					textPreprocessor = paymentAddressViewModel,
-					navController = navController
-			) {
-				viewModel.onEnterAddress(it)
-			}
 
-			if (currentStep >= 2) {
-				Spacer(modifier = Modifier.height(16.dp))
+
+			Spacer(modifier = Modifier.height(16.dp))
+
+			list.forEach {
 				Column(
 						modifier = Modifier
 								.clip(RoundedCornerShape(8.dp))
@@ -186,32 +177,41 @@ fun RedeemSafe3Screen(
 								.fillMaxWidth()
 								.padding(16.dp)
 				) {
-
+					body_bran(text = stringResource(id = R.string.Redeem_Safe3_Address_Hint_2, it.address))
+					Spacer(modifier = Modifier.height(2.dp))
 					body_grey(text = stringResource(id = R.string.Redeem_Safe3_Account_Balance))
 
 					Spacer(modifier = Modifier.height(6.dp))
-					body_bran(text = uiState.safe3Balance,
-							textDecoration = if (uiState.existAvailable) TextDecoration.None else TextDecoration.LineThrough)
+					body_bran(text = it.safe3Balance,
+							textDecoration = if (it.existAvailable) TextDecoration.None else TextDecoration.LineThrough)
 
 					Spacer(modifier = Modifier.height(16.dp))
 					Row {
 						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Balance))
 						Spacer(modifier = Modifier.width(16.dp))
-						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Num, uiState.safe3LockNum))
+						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Num, it.safe3LockNum))
 					}
 
 					Spacer(modifier = Modifier.height(6.dp))
-					body_bran(text = uiState.safe3LockBalance,
-							textDecoration = if (uiState.existLocked) TextDecoration.None else TextDecoration.LineThrough)
-					if (uiState.masterNodeLock != null) {
+					body_bran(text = it.safe3LockBalance,
+							textDecoration = if (it.existLocked) TextDecoration.None else TextDecoration.LineThrough)
+					if (it.masterNodeLock != null) {
 						Spacer(modifier = Modifier.height(16.dp))
 						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Master_Balance))
 
 						Spacer(modifier = Modifier.height(6.dp))
-						body_bran(text = uiState.masterNodeLock,
-								textDecoration = if (uiState.existLocked) TextDecoration.None else TextDecoration.LineThrough)
+						body_bran(text = it.masterNodeLock,
+								textDecoration = if (it.existLocked) TextDecoration.None else TextDecoration.LineThrough)
 					}
 				}
+				Spacer(modifier = Modifier.height(3.dp))
+			}
+
+
+
+			/*if (currentStep >= 2) {
+				Spacer(modifier = Modifier.height(16.dp))
+
 
 				Spacer(modifier = Modifier.height(16.dp))
 				body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
@@ -249,9 +249,9 @@ fun RedeemSafe3Screen(
 						}
 					}
 				}
-			}
+			}*/
 
-			if (currentStep >= 3) {
+			if (!syncing) {
 
 				Spacer(modifier = Modifier.height(16.dp))
 				Column(
@@ -292,69 +292,21 @@ fun RedeemSafe3Screen(
 						title = stringResource(id = R.string.Redeem_Safe4_Redeem_Button),
 						enabled = uiState.canRedeem,
 						onClick = {
-							viewModel.redeem()
+							viewModel.showConfirmation()
 						}
 				)
 			}
-			
+
 		}
 	}
 	if (uiState.showConfirmationDialog) {
 		RedeemConfirmationDialog(address = viewModel.receiveAddress(),
 				onOKClick = {
-					viewModel.redeemCurrentWalletSafe3()
+					viewModel.redeem()
 				},
 				onCancelClick = {
 					viewModel.closeDialog()
 				}
-		)
-	}
-}
-
-@Composable
-fun StepView(
-		step: String,
-		stepName: String,
-		enable: Boolean,
-		success: Boolean
-) {
-	val background = if (enable) ComposeAppTheme.colors.issykBlue else ComposeAppTheme.colors.grey50
-	val textColor = if (enable) ComposeAppTheme.colors.white else ComposeAppTheme.colors.black50
-	Row(
-			verticalAlignment = Alignment.CenterVertically
-	) {
-		Box(
-				modifier = Modifier
-						.size(30.dp)
-						.clip(CircleShape)
-//						.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-						.background(background),
-				contentAlignment = Alignment.Center
-				) {
-			if (success) {
-				Icon(
-						painter = painterResource(id = R.drawable.ic_check_20),
-						contentDescription = null,
-						tint = ComposeAppTheme.colors.remus
-				)
-			} else {
-				Text(
-						text = step,
-						color = textColor,
-						style = ComposeAppTheme.typography.body,
-						fontSize = 14.sp,
-						textAlign = TextAlign.Center
-				)
-			}
-		}
-
-		Text(
-				text = stepName,
-				modifier = Modifier
-						.padding(start = 8.dp),
-				color = ComposeAppTheme.colors.black50,
-				style = ComposeAppTheme.typography.body,
-				fontSize = 14.sp
 		)
 	}
 }

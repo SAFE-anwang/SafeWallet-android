@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -170,6 +171,8 @@ fun ProposalItemCell(
 			) {
 				Row {
 					Text(
+							modifier = Modifier
+									.weight(3f),
 							text = item.title,
 							style = ComposeAppTheme.typography.body,
 							color = ComposeAppTheme.colors.bran,
@@ -187,6 +190,7 @@ fun ProposalItemCell(
 					Row(
 							modifier = Modifier
 									.clip(RoundedCornerShape(5.dp))
+									.wrapContentWidth()
 									.background(color)
 									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp)) {
 						Text(

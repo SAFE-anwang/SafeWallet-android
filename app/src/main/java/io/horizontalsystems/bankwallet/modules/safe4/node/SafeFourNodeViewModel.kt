@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.apache.commons.lang3.StringUtils
 import java.math.BigInteger
 
 class SafeFourNodeViewModel(
@@ -33,6 +34,8 @@ class SafeFourNodeViewModel(
     private var mineNodes: List<NodeViewItem>? = null
 
     private var isRegisterNode = Pair(false, false)
+    private var query: String? = null
+    private var isFilterId: Boolean = false
 
 
     init {
@@ -76,8 +79,24 @@ class SafeFourNodeViewModel(
 
     override fun createState() = SafeFourModule.SafeFourNodeUiState(
         title = title,
-        nodeList = nodes,
-        mineList = mineNodes,
+        nodeList = if (this.query.isNullOrBlank()) {
+            nodes
+        } else nodes?.filter {
+            if (isFilterId) {
+                it.id.toString() == query
+            } else {
+                it.id.toString() == query || it.address.hex.contains(query!!, true)
+            }
+        },
+        mineList = if (this.query.isNullOrBlank()) {
+            mineNodes
+        } else mineNodes?.filter {
+            if (isFilterId) {
+                it.id.toString() == query
+            } else {
+                it.id.toString() == query || it.address.hex.contains(query!!, true)
+            }
+        },
         isRegisterNode = isRegisterNode
     )
 
@@ -143,6 +162,17 @@ class SafeFourNodeViewModel(
         }
     }
 
+    fun searchByQuery(query: String) {
+        this.query = query
+        Log.e("longwen", "searchByQuery=${this.query}")
+        isFilterId = query.length > 1 && StringUtils.isNumeric(query)
+        emitState()
+    }
+
+    fun clearQuery() {
+        this.query = null
+        emitState()
+    }
 
 }
 

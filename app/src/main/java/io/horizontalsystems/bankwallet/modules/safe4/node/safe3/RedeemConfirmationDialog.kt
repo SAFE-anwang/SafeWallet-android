@@ -27,7 +27,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
 
 @Composable
 fun RedeemConfirmationDialog(
-		viewModel: RedeemSafe3ViewModel,
+		address: String,
 		onOKClick: () -> Unit,
 		onCancelClick: () -> Unit,
 ) {
@@ -56,7 +56,7 @@ fun RedeemConfirmationDialog(
 			)
 			Spacer(Modifier.height(10.dp))
 			Text(
-					text = viewModel.receiveAddress(),
+					text = address,
 					style = ComposeAppTheme.typography.body,
 					color = ComposeAppTheme.colors.greenD,
 			)

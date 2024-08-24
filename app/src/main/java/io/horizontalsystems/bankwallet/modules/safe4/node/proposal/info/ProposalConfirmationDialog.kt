@@ -42,8 +42,8 @@ fun ProposalConfirmationDialog(
 						.padding(horizontal = 24.dp, vertical = 20.dp)
 		) {
 			val (buttonText, color) = when(viewModel.getVoteType()) {
-				0 -> Pair(R.string.Safe_Four_Proposal_Vote_Agree, ComposeAppTheme.colors.greenD)
-				1 -> Pair(R.string.Safe_Four_Proposal_Vote_Refuse, ComposeAppTheme.colors.redD)
+				1 -> Pair(R.string.Safe_Four_Proposal_Vote_Agree, ComposeAppTheme.colors.greenD)
+				2 -> Pair(R.string.Safe_Four_Proposal_Vote_Refuse, ComposeAppTheme.colors.redD)
 				else -> Pair(R.string.Safe_Four_Proposal_Vote_Give_up, ComposeAppTheme.colors.grey)
 			}
 			Text(

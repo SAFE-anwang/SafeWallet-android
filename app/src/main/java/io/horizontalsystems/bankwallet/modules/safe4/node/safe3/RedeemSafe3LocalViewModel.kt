@@ -34,25 +34,17 @@ import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 
-class RedeemSafe3ViewModel(
+class RedeemSafe3LocalViewModel(
 		val wallet: Wallet,
 		val safe3Wallet: Wallet,
-		private val addressService: SendBitcoinAddressService,
 		private val safe4: RpcBlockchainSafe4,
 		private val evmKitWrapper: EvmKitWrapper,
 		private val bitcoinCore: BitcoinCore,
-		private val redeemStorage: RedeemStorage,
-		val isOneClickMigration: Boolean = false,
-): ViewModelUiState<RedeemSafe3Module.RedeemSafe3UiState>() {
+		private val redeemStorage: RedeemStorage
+): ViewModelUiState<RedeemSafe3Module.RedeemSafe3LocalUiState>() {
 
 	private var step = 1
-	private var addressState = addressService.stateFlow.value
-	private var availableSafe3Info: AvailableSafe3Info? = null
-	private var lockList: List<LockedSafe3Info>? = null
 
-	private var loadedPageNumber = 0
-	private val loading = AtomicBoolean(false)
-	private var allLoaded = AtomicBoolean(false)
 	private var maxLockedCount: Int = -1
 	private var existAvailable = false
 	private var existLocked = false
@@ -60,45 +52,17 @@ class RedeemSafe3ViewModel(
 	private var privateKeyError = false
 
 	private var showConfirmationDialg = false
-	private var privateKey: String = ""
+	val list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
 
 	private var isRedeeming = AtomicBoolean(false)
 
 	var sendResult by mutableStateOf<SendResult?>(null)
+	private var syncing = true
 
 	private val disposables = CompositeDisposable()
 
 	init {
-		addressService.stateFlow.collectWith(viewModelScope) {
-			handleUpdatedAddressState(it)
-		}
-	}
-
-	private fun handleUpdatedAddressState(addressState: SendBitcoinAddressService.State) {
-		val tempAddressState = this.addressState
-		this.addressState = addressState
-//		if (!tempAddressState.validAddress?.hex.equals(addressState.validAddress?.hex, true)) {
-			existAvailable = false
-			existLocked = false
-			existMasterNode = false
-			if (addressState.canBeSend) {
-				step = 1
-				check(addressState.validAddress!!.hex)
-			}
-//		}
-		emitState()
-	}
-
-	fun onEnterPrivateKey(privateKey: String) {
-		if (privateKey.startsWith("0x") && privateKey.length == 66) {
-			this.privateKey = privateKey
-			privateKeyError = false
-			step = 3
-			emitState()
-		} else {
-			privateKeyError = true
-			emitState()
-		}
+		getNeedToRedeemAddress()
 	}
 
 	fun receiveAddress(): String {
@@ -110,26 +74,34 @@ class RedeemSafe3ViewModel(
 		emitState()
 	}
 
-	override fun createState() : RedeemSafe3Module.RedeemSafe3UiState{
-		val lockValue = lockBalance()
-		return RedeemSafe3Module.RedeemSafe3UiState(
+	override fun createState() : RedeemSafe3Module.RedeemSafe3LocalUiState{
+		return RedeemSafe3Module.RedeemSafe3LocalUiState(
 				step,
-				addressState.addressError,
-				convertLockInfo(),
-				availableBalance(),
-				lockValue,
-				privateKeyError,
-				existAvailable,
-				existLocked,
-				existAvailable || existLocked,
-				getSafe4Address(privateKey),
-				if (maxLockedCount == -1) 0 else maxLockedCount,
-				masterLockBalance(),
+				syncing,
+				!syncing && list.size > 0,
+				receiveAddress(),
+				convert(),
 				showConfirmationDialg
 		)
 	}
 
-	private fun  availableBalance(): String {
+	private fun convert(): List<RedeemSafe3Module.Safe3LocalItemView> {
+		if (list.isEmpty())	emptyList<RedeemSafe3Module.Safe3LocalItemView>()
+		return list.map {
+			RedeemSafe3Module.Safe3LocalItemView(
+					it.address,
+					NodeCovertFactory.formatSafe(it.safe3Balance),
+					NodeCovertFactory.formatSafe(it.safe3LockBalance),
+					if (it.masterNodeLock == null || it.masterNodeLock == BigInteger.ZERO) null else NodeCovertFactory.formatSafe(it.masterNodeLock),
+					it.existAvailable,
+					it.existLocked,
+					it.existMasterNode,
+					it.safe3LockNum
+			)
+		}
+	}
+
+	private fun  availableBalance(availableSafe3Info: AvailableSafe3Info?): String {
 		return if (availableSafe3Info != null) {
 			NodeCovertFactory.formatSafe(availableSafe3Info!!.amount)
 		} else {
@@ -137,76 +109,50 @@ class RedeemSafe3ViewModel(
 		}
 	}
 
-	private fun lockBalance(): String {
+	private fun lockBalance(lockList: List<LockedSafe3Info>?): BigInteger {
 		return if (lockList?.isNotEmpty() == true) {
 			lockList!!.sumOf { it.amount }.let {
-				if (it == BigInteger.ZERO)	existLocked = false
-				NodeCovertFactory.formatSafe(it)
+				it
 			}
 		} else {
-			existLocked = false
-			NodeCovertFactory.formatSafe(BigInteger.ZERO)
+			BigInteger.ZERO
 		}
 	}
 
-	private fun masterLockBalance(): String? {
+	private fun masterLockBalance(lockList: List<LockedSafe3Info>?): BigInteger {
 		return if (lockList?.isNotEmpty() == true) {
 			lockList!!.filter { it.isMN }.sumOf { it.amount }.let {
-				NodeCovertFactory.formatSafe(it)
+				it
 			}
 		} else {
-			null
+			BigInteger.ZERO
 		}
 	}
 
-	private fun convertLockInfo(): List<RedeemSafe3Module.Safe3LockItemView>? {
-		return lockList?.map {
-			RedeemSafe3Module.Safe3LockItemView(
-					it.safe3Addr,
-					NodeCovertFactory.formatSafe(it.amount),
-					it.txid,
-					it.lockHeight.toLong(),
-					it.unlockHeight.toLong(),
-					it.remainLockHeight.toLong(),
-					it.lockDay.toInt(),
-					it.isMN,
-					it.safe4Addr.value,
-					it.redeemHeight.toLong()
-			)
-		}
-	}
-
-	fun onEnterAddress(address: Address?) {
-		step = 1
-		addressService.setAddress(address)
-	}
-
-	private fun checkNeedToRedeem(address: String) {
-		existAvailable = safe4.existAvailableNeedToRedeem(address)
-		existLocked = safe4.existLockedNeedToRedeem(address)
-		existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
-	}
-
-	private fun check(address: String?) {
-		if (address == null) return
-		viewModelScope.launch(Dispatchers.IO) {
-			try {
-				checkNeedToRedeem(address)
-				availableSafe3Info = getAvailableSafe3Info(address)
-				loadItems(0, address)
-				step = 2
-			} catch (e: Exception) {
-				Log.e("Redeem", "error=$e")
-			}
-		}
-	}
 
 	fun redeem() {
-		redeem(privateKey)
-	}
-	fun redeem(privateKey: String) {
+		closeDialog()
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
+			list.forEach {
+				try {
+					val redeemResult = safe4.redeemSafe3(it.privateKey.toHexString()).blockingGet()
+					if (existMasterNode) {
+						safe4.redeemMasterNode(it.privateKey.toHexString(), "")
+					}
+					redeemStorage.save(Redeem(
+							it.address,
+							it.existAvailable,
+							it.existLocked,
+							it.existMasterNode,
+							true
+					))
+				} catch (e: Exception) {
+					Log.e("Redeem", "redeem error=$e")
+				}
+
+			}
+			/*val privateKey = evmKitWrapper.signer!!.privateKey.toHexString()
 			try {
 				val redeemResult = safe4.redeemSafe3(privateKey).blockingGet()
 				if (existMasterNode) {
@@ -221,7 +167,8 @@ class RedeemSafe3ViewModel(
 			} catch (e: Exception) {
 				Log.e("Redeem", "redeem error=$e")
 				sendResult = SendResult.Failed(createCaution(e))
-			}
+			}*/
+
 		}
 	}
 
@@ -234,33 +181,32 @@ class RedeemSafe3ViewModel(
 		}
 	}
 
-	private fun loadItems(page: Int, address: String) {
-		if (loading.get()) return
-		loading.set(true)
+	private fun loadItems(address: String): List<LockedSafe3Info>? {
 		if (maxLockedCount == -1) {
 			maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
 		}
-		val itemsCount = page * itemsPerPage
-		if (itemsCount >= maxLockedCount) {
-			loading.set(false)
-			return
+		if (maxLockedCount <= 0) {
+			return null
 		}
-		val single = safe4.safe3GetLockedInfo(address, itemsCount, maxLockedCount)
-		single.subscribeOn(Schedulers.io())
-				.doFinally {
-					loading.set(false)
-				}
-				.subscribe( {
-					allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
-
-					lockList = it
-					loadedPageNumber = page
-					emitState()
-				},{
-					Log.e("Redeem", "get locked error=$it")
-				}).let {
-					disposables.add(it)
-				}
+		val lockList = mutableListOf<LockedSafe3Info>()
+		val countPage = (maxLockedCount + itemsPerPage - 1) / itemsPerPage
+		var page = 1
+		var start = 0
+		var count = itemsPerPage
+		if (count > maxLockedCount) {
+			count = maxLockedCount
+		}
+		var list = emptyList<LockedSafe3Info>()
+		while(page <= countPage) {
+			list = safe4.safe3GetLockedInfo(address, start, count).blockingGet()
+			lockList.addAll(list)
+			start = itemsPerPage * page
+			if (start + itemsPerPage > maxLockedCount) {
+				count = maxLockedCount
+			}
+			page ++
+		}
+		return lockList
 	}
 
 	private fun getLockedAmount(address: String): Pair<BigInteger, BigInteger> {
@@ -288,70 +234,58 @@ class RedeemSafe3ViewModel(
 		return EthereumKit.ethereumAddress(Numeric.toBigInt(privateKey)).eip55
 	}
 
-	fun loadNext() {
-		if (!allLoaded.get()) {
-			viewModelScope.launch(Dispatchers.IO) {
-				loadItems(loadedPageNumber + 1, addressState.validAddress!!.hex)
-			}
-		}
-	}
-
 	fun showConfirmation() {
 		if (isRedeeming.get())	return
 		showConfirmationDialg = true
 		emitState()
 	}
 
-	fun redeemCurrentWalletSafe3() {
-		closeDialog()
-		sendResult = SendResult.Sending
-		isRedeeming.set(true)
+	private fun getNeedToRedeemAddress() {
 		viewModelScope.launch(Dispatchers.IO) {
 			val alreadyRedeem = redeemStorage.allRedeem()
-			val unspentOutputs = bitcoinCore.storage.getUnspentOutputs().distinctBy { it.transaction.blockHash.toHexString() }
+			val unspentOutputs = bitcoinCore.storage.getUnspentOutputs()
+					.distinctBy { it.transaction.blockHash.toHexString() }
 
 			unspentOutputs.forEach {
+				it.output.scriptType
 				val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
+				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 0
 				if (isSuccess)	return@forEach
 				try {
 					val existAvailable = safe4.existAvailableNeedToRedeem(address)
 					val existLocked = safe4.existLockedNeedToRedeem(address)
 					val existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
 					if (existAvailable || existLocked || existMasterNode) {
-						redeemStorage.save(Redeem(
-								address,
-								existAvailable,
-								existLocked,
-								existMasterNode,
-								false
-						))
-//						val safe3Info = getAvailableSafe3Info(address) ?: return@forEach
-//						bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
-//							val (amount1, amount2) = getLockedAmount(address)
-							Log.d("Redeem", "existAvailable=$existAvailable, existLocked=$existLocked")
-							Log.e("Redeem", "redeemCurrentWalletSafe3: $address= ${evmKitWrapper.signer?.privateKey?.toHexString()}")
-
-							safe4.redeemSafe3(evmKitWrapper.signer!!.privateKey!!.toHexString()).blockingGet()
-							if (existMasterNode) {
-								safe4.redeemMasterNode(evmKitWrapper.signer!!.privateKey!!.toHexString(), "")
-							}
-
-//						}
+						val safe3Info = getAvailableSafe3Info(address)
+						val safe3LockedInfo = loadItems(address)
+						val lockedAmount = lockBalance(safe3LockedInfo)
+						val masterNodeAmount = masterLockBalance(safe3LockedInfo)
+						if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
+						bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
+							list.add(
+									RedeemSafe3Module.Safe3LocalInfo(
+											address,
+											safe3Info?.amount ?: BigInteger.ZERO,
+											lockedAmount,
+											existAvailable,
+											existLocked,
+											existMasterNode,
+											maxLockedCount,
+											masterNodeAmount,
+											privateKey
+											)
+							)
+						}
+						emitState()
 					}
-					redeemStorage.save(Redeem(
-							address,
-							existAvailable,
-							existLocked,
-							existMasterNode,
-							true
-					))
 				} catch (e: Exception) {
-					Log.e("Redeem", "redeemCurrentWalletSafe3 erro=$e")
+					Log.e("Redeem", "redeemCurrentWalletSafe3 error=$e")
 				}
 			}
+			syncing = false
+			step = 3
 			isRedeeming.set(false)
-			sendResult = SendResult.Sent
+			emitState()
 		}
 	}
 

@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.anwang.types.safe3.AvailableSafe3Info
+import com.anwang.types.safe3.LockedSafe3Info
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -13,6 +14,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourC
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import kotlinx.parcelize.Parcelize
+import java.math.BigInteger
 
 object RedeemSafe3Module {
 
@@ -27,9 +29,19 @@ object RedeemSafe3Module {
 		val adapterEvm = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
 		@Suppress("UNCHECKED_CAST")
 		override fun <T : ViewModel> create(modelClass: Class<T>): T {
-			val addressService = SendBitcoinAddressService(adapter, null)
-			val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-			return RedeemSafe3ViewModel(wallet, safe3Wallet, addressService, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
+			return when (modelClass) {
+				RedeemSafe3ViewModel::class.java -> {
+					val addressService = SendBitcoinAddressService(adapter, null)
+					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+					RedeemSafe3ViewModel(wallet, safe3Wallet, addressService, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
+				}
+				RedeemSafe3LocalViewModel::class.java -> {
+					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+					RedeemSafe3LocalViewModel(wallet, safe3Wallet, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
+				}
+				else -> throw IllegalArgumentException()
+			}
+
 		}
 	}
 
@@ -49,6 +61,40 @@ object RedeemSafe3Module {
 			val showConfirmationDialog: Boolean = false
 	)
 
+	data class RedeemSafe3LocalUiState(
+			val step: Int,
+			val syncing: Boolean,
+			val canRedeem: Boolean,
+			val safe4address: String,
+			val list: List<Safe3LocalItemView>,
+			val showConfirmationDialog: Boolean = false
+	)
+
+
+	data class Safe3LocalItemView(
+			val address: String,
+			val safe3Balance: String,
+			val safe3LockBalance: String,
+			val masterNodeLock: String?,
+			val existAvailable: Boolean,
+			val existLocked: Boolean,
+			val existMasterNode: Boolean,
+			val safe3LockNum: Int
+	)
+
+
+	data class Safe3LocalInfo(
+			val address: String,
+			val safe3Balance: BigInteger,
+			val safe3LockBalance: BigInteger,
+			val existAvailable: Boolean,
+			val existLocked: Boolean,
+			val existMasterNode: Boolean,
+			val safe3LockNum: Int = 0,
+			val masterNodeLock: BigInteger?,
+			val privateKey: BigInteger
+	)
+
 	data class Safe3LockItemView(
 			val safe3Addr: String,
 			val amount: String,
@@ -62,19 +108,11 @@ object RedeemSafe3Module {
 			val redeemHeight: Long,
 	)
 
-	data class NeedRedeemInfo(
-			val address: String,
-			val existAvailable: Boolean,
-			val existLocked: Boolean,
-			val existMasterNode: Boolean,
-			val availableSafe3Info: AvailableSafe3Info,
-			val privateKey: String
-	)
 
 	@Parcelize
 	data class Input(
 			val wallet: Wallet,
-			val safe3Wallet: Wallet,
+			val safe3Wallet: Wallet
 	) : Parcelable {
 	}
 

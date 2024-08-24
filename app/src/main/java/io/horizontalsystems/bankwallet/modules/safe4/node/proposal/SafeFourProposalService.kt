@@ -83,8 +83,12 @@ class SafeFourProposalService(
 	fun loadAllItems(page: Int) {
 		if (loading.get()) return
 		loading.set(true)
-		val itemsCount = /*allProposalNum - */page * itemsPerPage
-		val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, itemsPerPage)
+		/*val itemsCount = *//*allProposalNum - *//*page * itemsPerPage
+		val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, itemsPerPage)*/
+		var itemsCount = allProposalNum - (page + 1) * itemsPerPage
+		var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+		if (itemsCount < 0) itemsCount = 0
+		val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, pageCount)
 		enableSingle
 				.subscribeOn(Schedulers.io())
 				.map {
@@ -98,7 +102,7 @@ class SafeFourProposalService(
 				}
 				.subscribe( { enableRecord ->
 					allLoaded.set(enableRecord.isEmpty() || enableRecord.size < itemsPerPage)
-					allItems.addAll(enableRecord)
+					allItems.addAll(enableRecord.reversed())
 					allSubject.onNext(allItems)
 
 					loadedPageNumber = page
@@ -113,9 +117,12 @@ class SafeFourProposalService(
 		if (loadingMine.get()) return
 		loadingMine.set(true)
 
-		val itemsCount = /*mineProposalNum -*/ page * itemsPerPage
+//		val itemsCount = /*mineProposalNum -*/ page * itemsPerPage
+		var itemsCount = mineProposalNum - (page + 1) * itemsPerPage
+		var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+		if (itemsCount < 0) itemsCount = 0
 		// already vote
-		val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.signer!!.privateKey.toHexString(), itemsCount, itemsPerPage)
+		val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.signer!!.privateKey.toHexString(), itemsCount, pageCount)
 
 		disableSingle
 				.subscribeOn(Schedulers.io())
@@ -131,7 +138,7 @@ class SafeFourProposalService(
 				}
 				.subscribe( { disableRecord ->
 					allLoadedMine.set(disableRecord.isEmpty() || disableRecord.size < itemsPerPage)
-					mineItems.addAll(disableRecord)
+					mineItems.addAll(disableRecord.reversed())
 					mineItemsSubject.onNext(mineItems)
 
 					loadedPageNumberMine = page

@@ -196,7 +196,7 @@ object Safe4Module {
         }
     }
 
-    fun handlerNode(type: SafeFourType, navController: NavController) {
+    fun handlerNode(type: SafeFourType, navController: NavController, isLocal: Boolean = false) {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safe4Wallet: Wallet? = null
@@ -246,7 +246,7 @@ object Safe4Module {
                     val state =  balanceAdapterRepository.state(safeWallet)
                     if (state is AdapterState.Synced) {
                         navController.slideFromBottom(
-                                R.id.redeemSafe3Fragment,
+                                if (isLocal) R.id.redeemSafe3LocalFragment else R.id.redeemSafe3Fragment,
 
                                 RedeemSafe3Module.Input(safe4Wallet, safeWallet)
                         )

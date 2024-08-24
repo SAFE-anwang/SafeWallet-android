@@ -2081,11 +2081,14 @@
     <string name="Safe_Four_Node_Edit_Super_Hint">通过调用超级节点合约更新超级节点对应的属性信息.\n更新的超级节点数据在交易写入区块链后才会生效.</string>
     <string name="Safe_Four_Node_Edit_Master_Hint">通过调用主节点合约更新主节点对应的属性信息.\n更新的主节点数据在交易写入区块链后才会生效.</string>
 
-    <string name="Redeem_Safe3_Title">Safe3->Safe4</string>
+    <string name="Redeem_Safe3_Title">SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Other_Wallet">其他钱包SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Local_Wallet">本地钱包SAFE3=>SAFE4</string>
     <string name="Redeem_Safe3_Query">资产查询</string>
     <string name="Redeem_Safe3_Verify_Private_Key">验证私钥</string>
     <string name="Redeem_Safe3_Migration">资产迁移</string>
     <string name="Redeem_Safe3_Address_Hint">Safe3 钱包地址</string>
+    <string name="Redeem_Safe3_Address_Hint_2">Safe3 钱包地址\n%s</string>
     <string name="Redeem_Safe3_Private_Key">Safe3 钱包私钥</string>
     <string name="Redeem_Safe3_Private_Key_Hint">请输入钱包私钥</string>
     <string name="Redeem_Safe3_Account_Balance">账户余额</string>
@@ -2103,6 +2106,9 @@
     <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的Safe3到Safe4地址</string>
     <string name="Safe_Four">Safe4</string>
     <string name="Safe_Four_Node_Info_Ranking">排名: %d</string>
+    <string name="Master_Node_Search">主节点Id | 主节点地址</string>
+    <string name="Super_Node_Search">超级节点Id | 超级节点地址</string>
+    <string name="Proposal_Search">提案Id</string>
 
 
     <!-- safe 4  end-->

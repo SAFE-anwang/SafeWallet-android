@@ -90,13 +90,16 @@ class SafeFourCreateNodeViewModel(
             addressError = addressState.addressError,
             availableBalance = amountState.availableBalance,
             amountCaution = amountState.amountCaution,
-            canBeSend = if (isSuperNode)
-                    amountState.canBeSend && addressState.canBeSend /*&& superNodeName.isNotBlank()*/
-                            && superNodeName.length >= 8 && eNode.isNotBlank()
-                            /*&& introduction.isNotBlank()*/ && introduction.length >= 8
+            canBeSend =
+                if (isSuperNode)
+                    amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
+                    && amountState.canBeSend && addressState.canBeSend
+                    && superNodeName.length >= 8 && eNode.isNotBlank()
+                    && introduction.length >= 8
                 else
-                    amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank()
-                            && introduction.isNotBlank() && introduction.length >= 8
+                    amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
+                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank()
+                    && introduction.isNotBlank() && introduction.length >= 8
             ,
             lockAmount = "${getLockAmount()} SAFE"
     )
