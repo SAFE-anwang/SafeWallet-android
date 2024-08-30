@@ -41,6 +41,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
 
 @Composable
 fun SafeFourCreateProposalScreen(

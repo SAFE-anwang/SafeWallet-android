@@ -74,12 +74,13 @@ object NodeCovertFactory {
 	}
 
 
-	fun covertVoteRecord(voteRecords: List<VoteRecordInfo>?): List<VoteRecordView>? {
+	fun covertVoteRecord(voteRecords: List<VoteRecordInfo>?, walletAddress: String): List<VoteRecordView>? {
 		return voteRecords?.mapIndexed { index, voteRecordInfo ->
 			VoteRecordView(
 					index,
 					voteRecordInfo.address,
-					App.numberFormatter.formatCoinFull(valueConvert(voteRecordInfo.lockValue), "SAFE", 2)
+					App.numberFormatter.formatCoinFull(valueConvert(voteRecordInfo.lockValue), "SAFE", 2),
+					walletAddress.equals(voteRecordInfo.address, true)
 			)
 		}
 	}
@@ -134,12 +135,16 @@ object NodeCovertFactory {
 		val agreeNum = voteRecord?.filter { it.state == 0 }?.size ?: 0
 		val rejectNum = voteRecord?.filter { it.state == 1 }?.size ?: 0
 		val abstentionNum = voteRecord?.filter { it.state == 2 }?.size ?: 0
+		val status = if (info.endPayTime * 1000 < System.currentTimeMillis())
+						ProposalStatus.getStatus(2)
+					else
+						ProposalStatus.getStatus(info.state)
 		return ProposalInfoViewItem(
 				info.id,
 				info.title,
 				info.description,
 				info.creator,
-				ProposalStatus.getStatus(info.state),
+				status,
 				info.payTimes.toInt(),
 				App.numberFormatter.formatCoinFull(valueConvert(info.payAmount), "SAFE", 2),
 				DateFormatUtils.format(info.startPayTime * 1000, "yyyy-MM-dd HH:mm:ss"),
@@ -160,7 +165,7 @@ object NodeCovertFactory {
 
 	fun formatSafe(value: BigInteger): String {
 		val decimal = valueConvert(value)
-		return App.numberFormatter.formatCoinFull(decimal, "SAFE", 4)
+		return App.numberFormatter.formatCoinFull(decimal, "SAFE", 8)
 	}
 
 	fun formatDate(time: Long): String {

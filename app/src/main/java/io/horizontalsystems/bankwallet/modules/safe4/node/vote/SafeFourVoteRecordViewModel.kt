@@ -30,7 +30,8 @@ import java.math.BigDecimal
 import java.math.BigInteger
 
 class SafeFourVoteRecordViewModel(
-    private val service: SafeFourVoteRecordService
+    private val service: SafeFourVoteRecordService,
+    private val walletAddress: String
 ) : ViewModelUiState<VoteRecordUiState>() {
 
     private var voteRecords: List<VoteRecordInfo>? = null
@@ -52,7 +53,7 @@ class SafeFourVoteRecordViewModel(
     }
 
     override fun createState() = VoteRecordUiState(
-            NodeCovertFactory.covertVoteRecord(voteRecords)
+            NodeCovertFactory.covertVoteRecord(voteRecords, walletAddress)
         )
 
 
@@ -71,7 +72,8 @@ data class VoteRecordInfo(
 data class VoteRecordView(
         val index: Int,
         val address: String,
-        val lockValue: String
+        val lockValue: String,
+        val isMine: Boolean
 )
 
 data class VoteRecordUiState (

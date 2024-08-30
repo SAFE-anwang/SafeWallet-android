@@ -39,6 +39,10 @@ object RedeemSafe3Module {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 					RedeemSafe3LocalViewModel(wallet, safe3Wallet, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
 				}
+
+				RedeemSafe3SelectViewModel::class.java -> {
+					RedeemSafe3SelectViewModel() as T
+				}
 				else -> throw IllegalArgumentException()
 			}
 
@@ -67,7 +71,12 @@ object RedeemSafe3Module {
 			val canRedeem: Boolean,
 			val safe4address: String,
 			val list: List<Safe3LocalItemView>,
+			val isRedeemSuccess: Boolean,
 			val showConfirmationDialog: Boolean = false
+	)
+
+	data class RedeemSafe3SelectUiState(
+			val syncing: Boolean
 	)
 
 

@@ -86,8 +86,7 @@ fun ProposalInfoScreen(
     val proposalInfo = viewModel.uiState.proposalInfo
     val voteList = viewModel.uiState.voteList
     val voteEnable = uiState.voteEnable
-//    val isVoted = uiState.isVoted
-    val isVoted = true
+    val isVoted = uiState.isVoted
     val view = LocalView.current
 
     val sendResult = viewModel.sendResult

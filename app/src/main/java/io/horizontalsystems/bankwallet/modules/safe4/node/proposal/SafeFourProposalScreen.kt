@@ -70,7 +70,7 @@ fun SafeFourProposalScreen(
 					)
 				} else {
 					ListEmptyView(
-							text = stringResource(R.string.Safe_Four_No_Super_Node),
+							text = stringResource(R.string.Safe_Four_Proposal_No_Data),
 							icon = R.drawable.ic_no_data
 					)
 				}

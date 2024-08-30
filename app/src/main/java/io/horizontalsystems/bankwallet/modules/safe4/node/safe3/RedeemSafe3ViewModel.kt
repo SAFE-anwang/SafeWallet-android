@@ -8,6 +8,7 @@ import cash.z.ecc.android.sdk.ext.collectWith
 import com.anwang.safewallet.safekit.MainNetSafe
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
+import com.anwang.utils.Safe3Util
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -91,9 +92,15 @@ class RedeemSafe3ViewModel(
 
 	fun onEnterPrivateKey(privateKey: String) {
 		if (privateKey.startsWith("0x") && privateKey.length == 66) {
-			this.privateKey = privateKey
-			privateKeyError = false
-			step = 3
+			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privateKey.toBigInteger())
+			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
+			if (compressedSafe3Addr.equals(addressState.validAddress?.hex)) {
+				this.privateKey = privateKey
+				privateKeyError = false
+				step = 3
+			} else {
+				privateKeyError = true
+			}
 			emitState()
 		} else {
 			privateKeyError = true

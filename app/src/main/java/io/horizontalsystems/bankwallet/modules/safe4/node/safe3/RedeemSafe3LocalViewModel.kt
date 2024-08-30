@@ -8,8 +8,10 @@ import cash.z.ecc.android.sdk.ext.collectWith
 import com.anwang.safewallet.safekit.MainNetSafe
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
+import com.anwang.utils.Safe3Util
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
@@ -19,7 +21,10 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.createCaution
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bitcoincore.BitcoinCore
+import io.horizontalsystems.bitcoincore.extensions.toHexString
+import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.bitcoincore.transactions.scripts.ScriptType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
@@ -46,10 +51,7 @@ class RedeemSafe3LocalViewModel(
 	private var step = 1
 
 	private var maxLockedCount: Int = -1
-	private var existAvailable = false
-	private var existLocked = false
 	private var existMasterNode = false
-	private var privateKeyError = false
 
 	private var showConfirmationDialg = false
 	val list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
@@ -58,11 +60,17 @@ class RedeemSafe3LocalViewModel(
 
 	var sendResult by mutableStateOf<SendResult?>(null)
 	private var syncing = true
+	private var isRedeemSuccess = false
 
 	private val disposables = CompositeDisposable()
 
 	init {
-		getNeedToRedeemAddress()
+		isRedeemSuccess = App.preferences.getBoolean(evmKitWrapper.evmKit.receiveAddress.hex, false)
+		if (!isRedeemSuccess) {
+			getNeedToRedeemAddress()
+		} else {
+			syncing = false
+		}
 	}
 
 	fun receiveAddress(): String {
@@ -81,6 +89,7 @@ class RedeemSafe3LocalViewModel(
 				!syncing && list.size > 0,
 				receiveAddress(),
 				convert(),
+				isRedeemSuccess,
 				showConfirmationDialg
 		)
 	}
@@ -111,9 +120,7 @@ class RedeemSafe3LocalViewModel(
 
 	private fun lockBalance(lockList: List<LockedSafe3Info>?): BigInteger {
 		return if (lockList?.isNotEmpty() == true) {
-			lockList!!.sumOf { it.amount }.let {
-				it
-			}
+			lockList.sumOf { it.amount }
 		} else {
 			BigInteger.ZERO
 		}
@@ -121,9 +128,7 @@ class RedeemSafe3LocalViewModel(
 
 	private fun masterLockBalance(lockList: List<LockedSafe3Info>?): BigInteger {
 		return if (lockList?.isNotEmpty() == true) {
-			lockList!!.filter { it.isMN }.sumOf { it.amount }.let {
-				it
-			}
+			lockList.filter { it.isMN }.sumOf { it.amount }
 		} else {
 			BigInteger.ZERO
 		}
@@ -134,12 +139,14 @@ class RedeemSafe3LocalViewModel(
 		closeDialog()
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
+			var successCount = 0
 			list.forEach {
 				try {
 					val redeemResult = safe4.redeemSafe3(it.privateKey.toHexString()).blockingGet()
 					if (existMasterNode) {
 						safe4.redeemMasterNode(it.privateKey.toHexString(), "")
 					}
+					Log.e("Redeem", "redeem success ${it.address}")
 					redeemStorage.save(Redeem(
 							it.address,
 							it.existAvailable,
@@ -147,28 +154,20 @@ class RedeemSafe3LocalViewModel(
 							it.existMasterNode,
 							true
 					))
+					successCount ++
 				} catch (e: Exception) {
-					Log.e("Redeem", "redeem error=$e")
+					Log.e("Redeem", "redeem ${it.address} error=$e")
 				}
 
 			}
-			/*val privateKey = evmKitWrapper.signer!!.privateKey.toHexString()
-			try {
-				val redeemResult = safe4.redeemSafe3(privateKey).blockingGet()
-				if (existMasterNode) {
-					safe4.redeemMasterNode(privateKey, "")
-				}
+			if (successCount == list.size) {
 				sendResult = SendResult.Sent
-				existAvailable = false
-				existLocked = false
-				existMasterNode = false
-				step = 4
+				isRedeemSuccess = true
 				emitState()
-			} catch (e: Exception) {
-				Log.e("Redeem", "redeem error=$e")
-				sendResult = SendResult.Failed(createCaution(e))
-			}*/
-
+				App.preferences.edit().putBoolean(evmKitWrapper.evmKit.receiveAddress.hex, true).commit()
+			} else {
+				sendResult = SendResult.Failed(HSCaution(TranslatableString.PlainString("Fail: ${list.size - successCount}, Success: $successCount")))
+			}
 		}
 	}
 
@@ -182,9 +181,7 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	private fun loadItems(address: String): List<LockedSafe3Info>? {
-		if (maxLockedCount == -1) {
-			maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
-		}
+		maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
 		if (maxLockedCount <= 0) {
 			return null
 		}
@@ -202,7 +199,7 @@ class RedeemSafe3LocalViewModel(
 			lockList.addAll(list)
 			start = itemsPerPage * page
 			if (start + itemsPerPage > maxLockedCount) {
-				count = maxLockedCount
+				count = maxLockedCount - start
 			}
 			page ++
 		}
@@ -243,13 +240,11 @@ class RedeemSafe3LocalViewModel(
 	private fun getNeedToRedeemAddress() {
 		viewModelScope.launch(Dispatchers.IO) {
 			val alreadyRedeem = redeemStorage.allRedeem()
-			val unspentOutputs = bitcoinCore.storage.getUnspentOutputs()
-					.distinctBy { it.transaction.blockHash.toHexString() }
-
+			val unspentOutputs = allUtxo()
+					.distinctBy { it.transaction.hash.toHexString() }
 			unspentOutputs.forEach {
-				it.output.scriptType
 				val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 0
+				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
 				if (isSuccess)	return@forEach
 				try {
 					val existAvailable = safe4.existAvailableNeedToRedeem(address)
@@ -282,10 +277,46 @@ class RedeemSafe3LocalViewModel(
 					Log.e("Redeem", "redeemCurrentWalletSafe3 error=$e")
 				}
 			}
+			if (list.isEmpty() || unspentOutputs.isEmpty()) {
+				isRedeemSuccess = true
+			}
 			syncing = false
 			step = 3
 			isRedeeming.set(false)
 			emitState()
+		}
+	}
+
+	private fun allUtxo(): List<UnspentOutput> {
+		val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()
+		val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()
+		return spendableUtxo + spendableTimeLockUtxo
+		val unspentOutputs = bitcoinCore.storage.getUnspentOutputs()
+
+		val lastBlockHeight = bitcoinCore.storage.lastBlock()?.height ?: 0
+		return unspentOutputs.filter {
+			// If a transaction is an outgoing transaction, then it can be used
+			// even if it's not included in a block yet
+			if (it.transaction.isOutgoing) {
+				return@filter true
+			}
+
+			// If a transaction is an incoming transaction, then it can be used
+			// only if it's included in a block and has enough number of confirmations
+			val block = it.block ?: return@filter false
+
+			// - Update for Safe-Asset reserve
+			val reserve = it.output.reserve;
+			if ( reserve != null ){
+				if ( reserve.toHexString() != "73616665"  // 普通交易
+						// coinbase 收益
+						&& reserve.toHexString() != "7361666573706f730100c2f824c4364195b71a1fcfa0a28ebae20f3501b21b08ae6d6ae8a3bca98ad9d64136e299eba2400183cd0a479e6350ffaec71bcaf0714a024d14183c1407805d75879ea2bf6b691214c372ae21939b96a695c746a6"
+						// safe备注，也是属于safe交易
+						&& !reserve.toHexString().startsWith("736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a02010012")){
+					return@filter false
+				}
+			}
+			false
 		}
 	}
 

@@ -2385,6 +2385,7 @@
     <string name="Safe_Four_Proposal_Create_Instalments_Num">Instalments Num</string>
     <string name="Safe_Four_Proposal_Disable">The current account is not a top 49 online super node and cannot vote on the proposal!</string>
     <string name="Safe_Four_Proposal_Enable">The current account is a top 49 online super node, and can vote on the proposal!</string>
+    <string name="Safe_Four_Proposal_No_Data">Not Create Proposal</string>
     <string name="Safe_Four_Profit_Title">My Profit</string>
     <string name="Safe_Four_No_Profit">You don\'t have profit</string>
     <string name="Safe_Four_Profit_Title_Date">Date</string>
@@ -2407,8 +2408,8 @@
 
 
     <string name="Redeem_Safe3_Title">SAFE3=>SAFE4</string>
-    <string name="Redeem_Safe3_Other_Wallet">Other wallets SAFE3=>SAFE4</string>
-    <string name="Redeem_Safe3_Local_Wallet">Local wallet SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Other_Wallet">Other wallets</string>
+    <string name="Redeem_Safe3_Local_Wallet">Local wallet</string>
     <string name="Redeem_Safe3_Query">Query Asset</string>
     <string name="Redeem_Safe3_Verify_Private_Key">Verify Private Key</string>
     <string name="Redeem_Safe3_Migration">Asset Redeem</string>
@@ -2429,6 +2430,7 @@
     <string name="Redeem_Safe4_Redeem_Button">Redeem</string>
     <string name="Redeem_Safe4_Redeem_Onec">One-click migration Safe3</string>
     <string name="Redeem_Safe4_Redeem_Onec_Confrimation">One-click migration Safe3 to Safe4 address</string>
+    <string name="Redeem_Safe4_Redeem_Success">Migration completed</string>
     <string name="Safe_Four">Safe4</string>
     <string name="Safe_Four_Node_Info_Ranking">Rank: %d</string>
     <string name="Safe_Four_Vote_Amount">[%s]</string>
@@ -2446,5 +2448,7 @@
     <string name="Method_Change_Desc">Change Description</string>
     <string name="Method_Change_Address">Change Address</string>
     <string name="Method_Withdraw">Withdraw</string>
+    <string name="Method_Vote_Super_Node">Vote Super Node</string>
+    <string name="Method_Income">Income</string>
     <!-- safe 4  end-->
 </resources>

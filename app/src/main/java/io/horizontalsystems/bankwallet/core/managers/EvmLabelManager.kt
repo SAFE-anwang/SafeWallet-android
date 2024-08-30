@@ -58,6 +58,8 @@ class EvmLabelManager(
                 App.instance.getString(R.string.Method_Join_Super_Node)
             else App.instance.getString(R.string.Method_Join_Master_Node)
             "0x3ccfd60b" -> App.instance.getString(R.string.Method_Withdraw)
+            "0x092c8749" -> App.instance.getString(R.string.Method_Vote_Super_Node)
+            "0xcd9d6fca" -> App.instance.getString(R.string.Method_Income)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

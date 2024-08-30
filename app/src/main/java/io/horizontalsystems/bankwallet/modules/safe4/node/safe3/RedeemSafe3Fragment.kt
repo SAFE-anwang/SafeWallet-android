@@ -109,12 +109,12 @@ fun RedeemSafe3Screen(
 
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
-		AppBar(
+		/*AppBar(
 				title = stringResource(id = R.string.Redeem_Safe3_Other_Wallet),
 				navigationIcon = {
 					HsBackButton(onClick = { navController.popBackStack() })
 				}
-		)
+		)*/
 		Column(modifier = Modifier
 				.padding(16.dp)
 				.fillMaxSize()

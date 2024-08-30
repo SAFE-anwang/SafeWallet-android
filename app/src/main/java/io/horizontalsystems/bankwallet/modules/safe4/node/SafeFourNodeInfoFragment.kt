@@ -71,6 +71,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.body_green50
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
@@ -598,8 +599,13 @@ fun VoterRecordScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 10.dp, bottom = 10.dp)) {
-                    body_bran(text = item.address,
-                            modifier = Modifier.weight(4f))
+                    if (item.isMine) {
+                        body_green50(text = item.address,
+                                modifier = Modifier.weight(4f))
+                    } else {
+                        body_bran(text = item.address,
+                                modifier = Modifier.weight(4f))
+                    }
                     Spacer(modifier = Modifier.width(16.dp))
                     body_bran(text = item.lockValue,
                             modifier = Modifier.weight(2f))

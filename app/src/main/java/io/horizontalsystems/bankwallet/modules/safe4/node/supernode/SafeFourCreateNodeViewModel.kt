@@ -42,7 +42,7 @@ class SafeFourCreateNodeViewModel(
     var coinRate by mutableStateOf(xRateService.getRate(wallet.token.coin.uid))
         private set
 
-    private var isUnion = true
+    private var isUnion = false
     var superNodeName = ""
     private var eNode = ""
     var introduction = ""
@@ -124,7 +124,7 @@ class SafeFourCreateNodeViewModel(
     }
 
     fun onSelectType(index: Int) {
-        this.isUnion = index == 0
+        this.isUnion = index == 1
         onEnterAmount(BigDecimal(getLockAmount()))
         emitState()
     }

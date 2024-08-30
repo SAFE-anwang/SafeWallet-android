@@ -103,7 +103,8 @@ object SafeFourVoteModule {
 			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 			val voteRecordService = SafeFourVoteRecordService(isSuperNode, rpcBlockchainSafe4, nodeAddress, nodeId)
 			return SafeFourVoteRecordViewModel(
-					voteRecordService
+					voteRecordService,
+					adapter.evmKitWrapper.evmKit.receiveAddress.hex
 			) as T
 		}
 	}

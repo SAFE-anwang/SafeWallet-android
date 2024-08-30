@@ -35,7 +35,7 @@ class SafeFourVoteRecordService(
 		if (loading.get()) return
 		loading.set(true)
 		if (maxVoteCount == -1) {
-			maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeId).blockingGet().toInt()
+			maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
 		}
 		val itemsCount = page * itemsPerPage
 		if (maxVoteCount == -1) {

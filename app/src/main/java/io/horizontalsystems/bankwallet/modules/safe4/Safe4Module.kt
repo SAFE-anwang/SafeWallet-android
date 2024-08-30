@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.providers.Translator.getString
+import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
 import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
@@ -196,7 +197,8 @@ object Safe4Module {
         }
     }
 
-    fun handlerNode(type: SafeFourType, navController: NavController, isLocal: Boolean = false) {
+    fun handlerNode(type: SafeFourType, navController: NavController) {
+        if (App.accountManager.activeAccount?.type is AccountType.EvmAddress) return
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safe4Wallet: Wallet? = null
@@ -246,8 +248,7 @@ object Safe4Module {
                     val state =  balanceAdapterRepository.state(safeWallet)
                     if (state is AdapterState.Synced) {
                         navController.slideFromBottom(
-                                if (isLocal) R.id.redeemSafe3LocalFragment else R.id.redeemSafe3Fragment,
-
+                                R.id.redeemSafe3SelectFragment,
                                 RedeemSafe3Module.Input(safe4Wallet, safeWallet)
                         )
                     } else {

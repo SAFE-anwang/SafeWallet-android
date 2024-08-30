@@ -48,7 +48,7 @@ class SafeFourProposalInfoService(
 		if (loading.get()) return
 		loading.set(true)
 		if (maxVoteCount == -1) {
-			maxVoteCount = safe4RpcBlockChain.getVoterNum(proposalId).blockingGet().toInt()
+			maxVoteCount = safe4RpcBlockChain.getProposalVoterNum(proposalId).blockingGet().toInt()
 		}
 		val itemsCount = page * itemsPerPage
 		if (itemsCount >= maxVoteCount) {

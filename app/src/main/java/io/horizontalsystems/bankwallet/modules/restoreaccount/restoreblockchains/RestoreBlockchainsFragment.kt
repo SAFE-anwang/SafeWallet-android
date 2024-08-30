@@ -65,8 +65,8 @@ class RestoreBlockchainsFragment : BaseFragment() {
         RestoreBlockchainsModule.Factory(
             input!!.accountName!!,
             input.accountType!!,
-            false,
-            false
+            true,
+            true
         )
     }
 

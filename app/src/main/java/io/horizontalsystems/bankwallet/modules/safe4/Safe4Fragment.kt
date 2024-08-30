@@ -388,8 +388,7 @@ private fun Safe4Sections(
                         R.mipmap.ic_app_color,
                         showAlert = false,
                         onClick = {
-                            navController.navigate(R.id.redeemSafe3SelectFragment)
-//                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
+                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
                         }
                 )
             })

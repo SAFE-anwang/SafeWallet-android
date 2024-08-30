@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,6 +47,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
@@ -63,21 +65,22 @@ class RedeemSafe3LocalFragment(): BaseComposeFragment() {
 
 		val viewModel by viewModels<RedeemSafe3LocalViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
 
-		RedeemSafe3LocalScreen(viewModel = viewModel, navController = navController)
+		RedeemSafe3LocalScreen(viewModel = viewModel) {
+
+		}
 	}
 }
 
 @Composable
 fun RedeemSafe3LocalScreen(
 		viewModel: RedeemSafe3LocalViewModel,
-		navController: NavController
+		onStatus: (Boolean) -> Unit
 ) {
 	val uiState = viewModel.uiState
 	val safe3Wallet = viewModel.safe3Wallet
 	val currentStep = uiState.step
 	val syncing = uiState.syncing
 	val list = uiState.list
-
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
 	when (sendResult) {
@@ -108,16 +111,25 @@ fun RedeemSafe3LocalScreen(
 
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
-		AppBar(
+		onStatus.invoke(syncing)
+		/*AppBar(
 				title = stringResource(id = R.string.Redeem_Safe3_Local_Wallet),
 				showSpinner = syncing,
 				navigationIcon = {
 					HsBackButton(onClick = { navController.popBackStack() })
 				}
-		)
+		)*/
+		if (uiState.isRedeemSuccess) {
+			ListEmptyView(
+					text = stringResource(R.string.Redeem_Safe4_Redeem_Success),
+					icon = R.drawable.ic_no_data
+			)
+		} else {
+			Column {
+
 		Column(modifier = Modifier
 				.padding(16.dp)
-				.fillMaxSize()
+				.weight(5f)
 				.verticalScroll(rememberScrollState())) {
 			Column(
 					modifier = Modifier
@@ -143,10 +155,10 @@ fun RedeemSafe3LocalScreen(
 			}
 
 			Spacer(modifier = Modifier.height(16.dp))
-			Row (
+			Row(
 					verticalAlignment = Alignment.CenterVertically
-			){
-				StepView("1",  stringResource(id = R.string.Redeem_Safe3_Query), currentStep == 1, currentStep > 1)
+			) {
+				StepView("1", stringResource(id = R.string.Redeem_Safe3_Query), currentStep == 1, currentStep > 1)
 
 				Divider(
 						modifier = Modifier
@@ -154,14 +166,14 @@ fun RedeemSafe3LocalScreen(
 						thickness = 1.dp,
 						color = ComposeAppTheme.colors.steel10,
 				)
-				StepView("2",  stringResource(id = R.string.Redeem_Safe3_Verify_Private_Key), currentStep == 2, currentStep > 2)
+				StepView("2", stringResource(id = R.string.Redeem_Safe3_Verify_Private_Key), currentStep == 2, currentStep > 2)
 				Divider(
 						modifier = Modifier
 								.weight(1f),
 						thickness = 1.dp,
 						color = ComposeAppTheme.colors.steel10,
 				)
-				StepView("3",  stringResource(id = R.string.Redeem_Safe3_Migration), currentStep == 3, currentStep > 3)
+				StepView("3", stringResource(id = R.string.Redeem_Safe3_Migration), currentStep == 3, currentStep > 3)
 			}
 
 
@@ -207,50 +219,6 @@ fun RedeemSafe3LocalScreen(
 				Spacer(modifier = Modifier.height(3.dp))
 			}
 
-
-
-			/*if (currentStep >= 2) {
-				Spacer(modifier = Modifier.height(16.dp))
-
-
-				Spacer(modifier = Modifier.height(16.dp))
-				body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
-				FormsInput(
-						enabled = true,
-						pasteEnabled = false,
-						qrScannerEnabled = true,
-						hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint),
-				) {
-					viewModel.onEnterPrivateKey(it)
-				}
-
-				if (uiState.privateKeyError) {
-					Spacer(modifier = Modifier.height(8.dp))
-					Column(
-							modifier = Modifier
-									.clip(RoundedCornerShape(8.dp))
-									.border(1.dp, ComposeAppTheme.colors.yellow50, RoundedCornerShape(8.dp))
-									.background(ComposeAppTheme.colors.yellow20)
-									.fillMaxWidth()
-					) {
-						Row(
-								verticalAlignment = Alignment.CenterVertically
-						) {
-							Icon(
-									painter = painterResource(id = R.drawable.ic_error_48), contentDescription = null,
-									modifier = Modifier
-											.padding(start = 16.dp)
-											.width(24.dp)
-											.height(24.dp))
-							Text(
-									modifier = Modifier
-											.padding(16.dp),
-									text = stringResource(id = R.string.Redeem_Safe3_Private_Key_Error))
-						}
-					}
-				}
-			}*/
-
 			if (!syncing) {
 
 				Spacer(modifier = Modifier.height(16.dp))
@@ -282,11 +250,12 @@ fun RedeemSafe3LocalScreen(
 
 				Spacer(modifier = Modifier.height(6.dp))
 				body_bran(text = uiState.safe4address!!)
-
-				Spacer(modifier = Modifier.height(8.dp))
+			}
+		}
 				ButtonPrimaryYellow(
 						modifier = Modifier
-								.padding(16.dp)
+								.padding(horizontal = 16.dp, vertical = 8.dp)
+								.weight(0.4f)
 								.fillMaxWidth()
 								.height(40.dp),
 						title = stringResource(id = R.string.Redeem_Safe4_Redeem_Button),
@@ -295,8 +264,7 @@ fun RedeemSafe3LocalScreen(
 							viewModel.showConfirmation()
 						}
 				)
-			}
-
+		}
 		}
 	}
 	if (uiState.showConfirmationDialog) {
