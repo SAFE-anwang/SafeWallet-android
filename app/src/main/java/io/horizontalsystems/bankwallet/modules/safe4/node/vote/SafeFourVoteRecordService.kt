@@ -31,42 +31,47 @@ class SafeFourVoteRecordService(
 
 
 	fun loadItems(page: Int) {
-		if (!isSuperNode) return
-		if (loading.get()) return
-		loading.set(true)
-		if (maxVoteCount == -1) {
-			maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
-		}
-		val itemsCount = page * itemsPerPage
-		if (maxVoteCount == -1) {
-			loading.set(false)
-			return
-		}
-		Log.e("longwen", "maxVoteCount=$maxVoteCount")
-		val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
-		single.subscribeOn(Schedulers.io())
-				.map {
-					val recordList = it.addrs.mapIndexed { index, address ->
-						VoteRecordInfo(
-								address.value,
-								it.voteNums[index]
-						)
+		try {
+			if (!isSuperNode) return
+			if (loading.get()) return
+			loading.set(true)
+			if (maxVoteCount == -1) {
+				maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
+			}
+			val itemsCount = page * itemsPerPage
+			if (maxVoteCount == -1) {
+				loading.set(false)
+				return
+			}
+			Log.e("longwen", "maxVoteCount=$maxVoteCount")
+			val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
+			single.subscribeOn(Schedulers.io())
+					.map {
+						val recordList = it.addrs.mapIndexed { index, address ->
+							VoteRecordInfo(
+									address.value,
+									it.voteNums[index]
+							)
+						}
+						recordList
 					}
-					recordList
-				}
-				.doFinally {
-					loading.set(false)
-				}
-				.subscribe( {
-					allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
-					voteRecordItems.addAll(it)
-					itemsSubject.onNext(voteRecordItems)
+					.doFinally {
+						loading.set(false)
+					}
+					.subscribe({
+						allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
+						voteRecordItems.addAll(it)
+						itemsSubject.onNext(voteRecordItems)
 
-					loadedPageNumber = page
-				},{
-				}).let {
-					disposables.add(it)
-				}
+						loadedPageNumber = page
+					}, {
+					}).let {
+						disposables.add(it)
+					}
+		} catch (e: Exception) {
+			loading.set(false)
+			loadItems(page)
+		}
 	}
 
 

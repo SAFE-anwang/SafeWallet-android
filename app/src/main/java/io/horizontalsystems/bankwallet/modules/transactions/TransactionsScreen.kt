@@ -410,12 +410,20 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         )
                     }
                     is TransactionViewItem.Icon.Platform -> {
-                        Icon(
-                            modifier = Modifier.size(32.dp),
-                            painter = painterResource(icon.iconRes ?: R.drawable.coin_placeholder),
-                            tint = ComposeAppTheme.colors.leah,
-                            contentDescription = null
-                        )
+                        if (icon.iconRes == R.drawable.logo_safe_24) {
+                            Image(
+                                    modifier = Modifier.size(32.dp),
+                                    painter = painterResource(icon.iconRes),
+                                    contentDescription = null,
+                            )
+                        } else {
+                            Icon(
+                                    modifier = Modifier.size(32.dp),
+                                    painter = painterResource(icon.iconRes ?: R.drawable.coin_placeholder),
+                                    tint = ComposeAppTheme.colors.leah,
+                                    contentDescription = null
+                            )
+                        }
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape

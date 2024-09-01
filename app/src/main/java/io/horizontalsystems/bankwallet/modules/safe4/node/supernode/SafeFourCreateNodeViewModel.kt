@@ -159,7 +159,7 @@ class SafeFourCreateNodeViewModel(
     }
 
     private fun getLockAmount(): Int {
-        return if (isUnion) {
+        return if (!isUnion) {
             if (isSuperNode) Super_Node_Create_Amount else Master_Node_Create_Amount
         } else {
             if (isSuperNode) Super_Node_Create_Join_Amount else Master_Node_Create_Join_Amount

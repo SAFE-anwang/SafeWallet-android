@@ -160,7 +160,7 @@ fun SafeFourCreateNodeScreen(
 					)
 					Spacer(Modifier.weight(1f))
 					Text(
-							text = "$lockValue SAFE",
+							text = "$lockValue",
 							color = ComposeAppTheme.colors.grey,
 							style = ComposeAppTheme.typography.body,
 							maxLines = 1,
@@ -411,13 +411,17 @@ fun RangeSliderScreen(
 						// viewModel.updateSelectedSliderValue(sliderPosition)
 						var start = sliderPosition.start.toInt()
 						var end = sliderPosition.endInclusive.toInt()
-						val initStart = initValue.start.toInt()
-						val initEnd = initValue.endInclusive.toInt()
-						if (start < initStart) {
-							start = initStart
+						if (start < 45) {
+							start = 45
 						}
-						if (end > initEnd) {
-							end = initEnd
+						if (start > 50) {
+							start = 50
+						}
+						if (end < 50) {
+							end = 50
+						}
+						if (end > 55) {
+							end = 55
 						}
 						progressPartner = start
 						progressVoter = 100 - end

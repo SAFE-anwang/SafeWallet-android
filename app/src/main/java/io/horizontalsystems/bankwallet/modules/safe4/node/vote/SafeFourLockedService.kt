@@ -1,24 +1,14 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
-import com.anwang.types.masternode.MasterNodeInfo
-import com.anwang.types.supernode.SuperNodeInfo
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeIncentivePlan
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeMemberInfo
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeStatus
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import java.math.BigInteger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -47,7 +37,8 @@ class SafeFourLockedVoteService(
 	private val itemsSubjectLocked = PublishSubject.create<List<LockIdsInfo>>()
 	val itemsObservableLocked: Observable<List<LockIdsInfo>> get() = itemsSubjectLocked
 
-	private var lockedMaxCount = -1
+	private var enableLockedMaxCount = -1
+	private var disableLockedMaxCount = -1
 
 	private val disposables = CompositeDisposable()
 
@@ -55,7 +46,15 @@ class SafeFourLockedVoteService(
 	fun loadItems(page: Int) {
 		if (loading.get()) return
 		loading.set(true)
+
+		if (enableLockedMaxCount == -1) {
+			enableLockedMaxCount = safe4RpcBlockChain.getTotalVoteNum(address.hex).toInt()
+		}
 		val itemsCount = page * itemsPerPage
+		if (itemsCount >= enableLockedMaxCount) {
+			loadingLocked.set(false)
+			return
+		}
 		val enableSingle = safe4RpcBlockChain.getLockIds(address.hex, itemsCount, itemsPerPage)
 		enableSingle
 				.subscribeOn(Schedulers.io())
@@ -93,11 +92,11 @@ class SafeFourLockedVoteService(
 		if (loadingLocked.get()) return
 		loadingLocked.set(true)
 
-		if (lockedMaxCount == -1) {
-			lockedMaxCount = safe4RpcBlockChain.getVotedIDNum4Voter(address.hex).blockingGet().toInt()
+		if (disableLockedMaxCount == -1) {
+			disableLockedMaxCount = safe4RpcBlockChain.getVotedIDNum4Voter(address.hex).blockingGet().toInt()
 		}
 		val itemsCount = page * itemsPerPage
-		if (itemsCount >= lockedMaxCount) {
+		if (itemsCount >= disableLockedMaxCount) {
 			loadingLocked.set(false)
 			return
 		}

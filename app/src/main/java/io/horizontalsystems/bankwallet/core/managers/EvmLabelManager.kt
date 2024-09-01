@@ -60,6 +60,9 @@ class EvmLabelManager(
             "0x3ccfd60b" -> App.instance.getString(R.string.Method_Withdraw)
             "0x092c8749" -> App.instance.getString(R.string.Method_Vote_Super_Node)
             "0xcd9d6fca" -> App.instance.getString(R.string.Method_Income)
+            "0x2b56909b" -> App.instance.getString(R.string.Method_Redeem_Available)
+            "0x8000e9a6" -> App.instance.getString(R.string.Method_Redeem_MasterNode)
+            "0x6d5b08d3" -> App.instance.getString(R.string.Method_Redeem_Locked)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

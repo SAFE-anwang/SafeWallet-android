@@ -12,6 +12,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SafeFourProposalService(
@@ -48,104 +49,127 @@ class SafeFourProposalService(
 		getMinNum()
 	}
 
-	private fun getAllNum() {
-		if (allProposalNum == -1) {
-			safe4RpcBlockChain.getProposalNum()
-					.subscribeOn(Schedulers.io())
-					.subscribe( {
-						allProposalNum = it.toInt()
-						loadAllItems(loadedPageNumber)
-					},{
-					}).let {
-						disposables.add(it)
-					}
-		} else {
-			loadAllItems(loadedPageNumber)
+	fun getAllNum() {
+		try {
+			if (allProposalNum == -1) {
+				safe4RpcBlockChain.getProposalNum()
+						.subscribeOn(Schedulers.io())
+						.subscribe({
+							allProposalNum = it.toInt()
+							loadAllItems(loadedPageNumber)
+						}, {
+						}).let {
+							disposables.add(it)
+						}
+			} else {
+				loadAllItems(loadedPageNumber)
+			}
+		} catch (e: Exception) {
+			getAllNum()
 		}
 	}
 
-	private fun getMinNum() {
-		if (mineProposalNum == -1) {
-			safe4RpcBlockChain.getMineNum(evmKitWrapper.signer!!.privateKey.toHexString())
-					.subscribeOn(Schedulers.io())
-					.subscribe( {
-						mineProposalNum = it.toInt()
-						loadMineItems(loadedPageNumberMine)
-					},{
-					}).let {
-						disposables.add(it)
-					}
-		} else {
-			loadMineItems(loadedPageNumberMine)
+	fun getMinNum() {
+		try {
+			if (mineProposalNum == -1) {
+				safe4RpcBlockChain.getMineNum(evmKitWrapper.signer!!.privateKey.toHexString())
+						.subscribeOn(Schedulers.io())
+						.subscribe( {
+							mineProposalNum = it.toInt()
+							loadMineItems(loadedPageNumberMine)
+						},{
+						}).let {
+							disposables.add(it)
+						}
+			} else {
+				loadMineItems(loadedPageNumberMine)
+			}
+		} catch (e: Exception) {
+			Log.e("longwen", "error---$e")
+			if (!disposables.isDisposed) {
+				getMinNum()
+			}
 		}
 	}
 
 	fun loadAllItems(page: Int) {
-		if (loading.get()) return
-		loading.set(true)
-		/*val itemsCount = *//*allProposalNum - *//*page * itemsPerPage
-		val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, itemsPerPage)*/
-		var itemsCount = allProposalNum - (page + 1) * itemsPerPage
-		var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
-		if (itemsCount < 0) itemsCount = 0
-		val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, pageCount)
-		enableSingle
-				.subscribeOn(Schedulers.io())
-				.map {
-					it.map { id ->
-						val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
-						covert(info)
+		try {
+			if (loading.get()) return
+			loading.set(true)
+			var itemsCount = allProposalNum - (page + 1) * itemsPerPage
+			var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+			if (itemsCount < 0) itemsCount = 0
+			val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, pageCount)
+			enableSingle
+					.subscribeOn(Schedulers.io())
+					.map {
+						it.map { id ->
+							val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
+							covert(info)
+						}
 					}
-				}
-				.doFinally {
-					loading.set(false)
-				}
-				.subscribe( { enableRecord ->
-					allLoaded.set(enableRecord.isEmpty() || enableRecord.size < itemsPerPage)
-					allItems.addAll(enableRecord.reversed())
-					allSubject.onNext(allItems)
+					.doFinally {
+						loading.set(false)
+					}
+					.subscribe( { enableRecord ->
+						allLoaded.set(enableRecord.isEmpty() || enableRecord.size < itemsPerPage)
+						allItems.addAll(enableRecord.reversed())
+						allSubject.onNext(allItems)
 
-					loadedPageNumber = page
-				},{
-				}).let {
-					disposables.add(it)
-				}
+						loadedPageNumber = page
+					},{
+					}).let {
+						disposables.add(it)
+					}
+		} catch (e: Exception) {
+			loading.set(false)
+			loadAllItems(page)
+		}
+
 	}
 
 
 	fun loadMineItems(page: Int) {
-		if (loadingMine.get()) return
-		loadingMine.set(true)
+		try {
+			if (mineProposalNum == 0) {
+				mineItemsSubject.onNext(mineItems)
+				return
+			}
+			if (loadingMine.get()) return
+			loadingMine.set(true)
 
-//		val itemsCount = /*mineProposalNum -*/ page * itemsPerPage
-		var itemsCount = mineProposalNum - (page + 1) * itemsPerPage
-		var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
-		if (itemsCount < 0) itemsCount = 0
-		// already vote
-		val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.signer!!.privateKey.toHexString(), itemsCount, pageCount)
+			var itemsCount = mineProposalNum - (page + 1) * itemsPerPage
+			var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+			if (itemsCount < 0) itemsCount = 0
+			// already vote
+			val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.signer!!.privateKey.toHexString(), itemsCount, pageCount)
 
-		disableSingle
-				.subscribeOn(Schedulers.io())
-				.map {
-					it.map { id ->
-						val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
+			disableSingle
+					.subscribeOn(Schedulers.io())
+					.map {
+						it.map { id ->
+							val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
 
-						covert(info)
+							covert(info)
+						}
 					}
-				}
-				.doFinally {
-					loadingMine.set(false)
-				}
-				.subscribe( { disableRecord ->
-					allLoadedMine.set(disableRecord.isEmpty() || disableRecord.size < itemsPerPage)
-					mineItems.addAll(disableRecord.reversed())
-					mineItemsSubject.onNext(mineItems)
+					.doFinally {
+						loadingMine.set(false)
+					}
+					.subscribe( { disableRecord ->
+						allLoadedMine.set(disableRecord.isEmpty() || disableRecord.size < itemsPerPage)
+						mineItems.addAll(disableRecord.reversed())
+						mineItemsSubject.onNext(mineItems)
 
-					loadedPageNumberMine = page
-				},{
-				}).let {
-					disposables.add(it)
-				}
+						loadedPageNumberMine = page
+					},{
+					}).let {
+						disposables.add(it)
+					}
+		} catch (e: Exception) {
+			loadingMine.set(false)
+			loadMineItems(page)
+		}
 	}
 
 	private fun covert(info: com.anwang.types.proposal.ProposalInfo): ProposalInfo {

@@ -58,7 +58,9 @@ class SafeFourVoteRecordViewModel(
 
 
     fun onBottomReached() {
-        service.loadNext()
+        viewModelScope.launch(Dispatchers.IO) {
+            service.loadNext()
+        }
     }
 
 }

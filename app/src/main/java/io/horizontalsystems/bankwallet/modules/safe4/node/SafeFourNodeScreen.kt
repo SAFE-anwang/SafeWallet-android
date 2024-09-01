@@ -99,10 +99,6 @@ fun TabScreen(
 
 	val focusRequester = remember { FocusRequester() }
 
-	LaunchedEffect(Unit) {
-		focusRequester.requestFocus()
-	}
-
 	Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
 		AppBar(
 				title = title,

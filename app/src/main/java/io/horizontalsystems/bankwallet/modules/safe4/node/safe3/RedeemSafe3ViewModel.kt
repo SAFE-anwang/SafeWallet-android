@@ -5,12 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.anwang.safewallet.safekit.MainNetSafe
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
 import com.google.android.exoplayer2.util.Log
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
@@ -25,8 +23,6 @@ import io.horizontalsystems.bitcoincore.transactions.scripts.ScriptType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.toHexString
-import io.horizontalsystems.ethereumkit.spv.core.toBigInteger
-import io.horizontalsystems.hdwalletkit.HDWallet
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
@@ -91,8 +87,9 @@ class RedeemSafe3ViewModel(
 	}
 
 	fun onEnterPrivateKey(privateKey: String) {
-		if (privateKey.startsWith("0x") && privateKey.length == 66) {
-			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privateKey.toBigInteger())
+		try {
+			val privKey = Numeric.toBigInt(privateKey)
+			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privKey)
 			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
 			if (compressedSafe3Addr.equals(addressState.validAddress?.hex)) {
 				this.privateKey = privateKey
@@ -101,11 +98,10 @@ class RedeemSafe3ViewModel(
 			} else {
 				privateKeyError = true
 			}
-			emitState()
-		} else {
+		} catch (e: Exception) {
 			privateKeyError = true
-			emitState()
 		}
+		emitState()
 	}
 
 	fun receiveAddress(): String {

@@ -335,7 +335,7 @@ fun LockVoteScreen(
                 )
             } else {
                 ListEmptyView(
-                        text = stringResource(R.string.Safe_Four_No_Super_Node),
+                        text = stringResource(R.string.Safe_Four_No_Locked_Record),
                         icon = R.drawable.ic_no_data
                 )
             }

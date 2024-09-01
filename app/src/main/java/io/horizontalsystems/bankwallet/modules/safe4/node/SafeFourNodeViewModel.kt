@@ -64,6 +64,7 @@ class SafeFourNodeViewModel(
                     disposables.add(it)
                 }
         viewModelScope.launch(Dispatchers.IO) {
+            nodeService.getMineCreatorNode()
             nodeService.loadItems(0)
             nodeService.loadItemsMine(0)
         }

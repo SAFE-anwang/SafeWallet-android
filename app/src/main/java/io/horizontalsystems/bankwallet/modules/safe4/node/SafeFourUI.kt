@@ -102,7 +102,6 @@ fun SearchBar(
 				onValueChange = {
 					searchText = it
 					onSearchTextChanged.invoke(it)
-//					showClearButton = it.isNotEmpty()
 				},
 				placeholder = {
 					body_grey50(
@@ -148,8 +147,8 @@ fun SearchBar(
 				},
 		)
 
-		LaunchedEffect(Unit) {
+		/*LaunchedEffect(Unit) {
 			focusRequester.requestFocus()
-		}
+		}*/
 	}
 }

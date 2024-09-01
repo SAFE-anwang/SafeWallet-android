@@ -2303,6 +2303,7 @@
     <string name="Safe_Four_Register_Node_Send">Send</string>
     <string name="Safe_Four_No_Super_Node">You don\'t have create Super Node</string>
     <string name="Safe_Four_No_Master_Node">You don\'t have create Master Node</string>
+    <string name="Safe_Four_No_Locked_Record">You don\'t have locked record</string>
     <string name="Safe_Four_Node_Online">Online</string>
     <string name="Safe_Four_Node_Exception">Exception</string>
     <string name="Safe_Four_Node_Join_Partner">Join Partner</string>
@@ -2441,7 +2442,7 @@
     <string name="Method_Create_Proposal">Create Proposal</string>
     <string name="Method_Create_Super_Node">Create Super Node</string>
     <string name="Method_Create_Master_Node">Create Master Node</string>
-    <string name="Method_Vote">Voted</string>
+    <string name="Method_Vote">Lock Voted</string>
     <string name="Method_Join_Super_Node">Join Super Node</string>
     <string name="Method_Join_Master_Node">Join Master Node</string>
     <string name="Method_Change_Enode">Change Enode</string>
@@ -2450,5 +2451,8 @@
     <string name="Method_Withdraw">Withdraw</string>
     <string name="Method_Vote_Super_Node">Vote Super Node</string>
     <string name="Method_Income">Income</string>
+    <string name="Method_Redeem_Available">Redeem Available</string>
+    <string name="Method_Redeem_MasterNode">Redeem Master Node</string>
+    <string name="Method_Redeem_Locked">Redeem Locked</string>
     <!-- safe 4  end-->
 </resources>

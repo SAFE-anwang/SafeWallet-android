@@ -207,7 +207,6 @@ class TokenTransactionsService(
                 newRecords.add(record)
             }
 
-            if (record.mainValue?.decimalValue == null) return@forEach
             if (record.spam && spamManager.hideSuspiciousTx) return@forEach
             if (record.withdraw && spamManager.hideWithdrawTx) return@forEach
 

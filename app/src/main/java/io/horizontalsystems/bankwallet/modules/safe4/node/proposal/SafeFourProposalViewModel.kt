@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -11,6 +12,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.apache.commons.lang3.StringUtils
 import java.math.BigInteger
@@ -47,7 +50,11 @@ class SafeFourProposalViewModel(
                 .let {
                     disposables.add(it)
                 }
-        nodeService.loadAllItems(0)
+        viewModelScope.launch(Dispatchers.IO) {
+            nodeService.getAllNum()
+            nodeService.getMinNum()
+            nodeService.loadAllItems(0)
+        }
     }
 
     override fun createState() = SafeFourProposalModule.SafeFourProposalUiState(

@@ -1980,6 +1980,7 @@
     <string name="Safe_Four_Register_Node_Send">发送</string>
     <string name="Safe_Four_No_Super_Node">您还没有创建超级节点</string>
     <string name="Safe_Four_No_Master_Node">您还没有创建主节点</string>
+    <string name="Safe_Four_No_Locked_Record">您还没有锁仓记录</string>
     <string name="Safe_Four_Node_Online">在线</string>
     <string name="Safe_Four_Node_Exception">异常</string>
     <string name="Safe_Four_Node_Join_Partner">加入合伙人</string>
@@ -2115,7 +2116,7 @@
     <string name="Method_Create_Proposal">创建提案</string>
     <string name="Method_Create_Super_Node">创建超级节点</string>
     <string name="Method_Create_Master_Node">创建主节点</string>
-    <string name="Method_Vote">投票</string>
+    <string name="Method_Vote">锁仓投票</string>
     <string name="Method_Join_Super_Node">加入超级节点合伙人</string>
     <string name="Method_Join_Master_Node">加入主节点合伙人</string>
     <string name="Method_Change_Enode">修改Enode</string>
@@ -2124,6 +2125,9 @@
     <string name="Method_Withdraw">提现</string>
     <string name="Method_Vote_Super_Node">投票超级节点</string>
     <string name="Method_Income">收益</string>
+    <string name="Method_Redeem_Available">迁移余额</string>
+    <string name="Method_Redeem_MasterNode">迁移主节点余额</string>
+    <string name="Method_Redeem_Locked">锁仓余额迁移</string>
 
 
     <!-- safe 4  end-->
