@@ -486,7 +486,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 											.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
 											.background(ComposeAppTheme.colors.lawrence),
 									progress = item.progress,
-									color = ComposeAppTheme.colors.green50,
+									color = ComposeAppTheme.colors.issykBlue,
 									backgroundColor = ComposeAppTheme.colors.grey50)
 							Spacer(Modifier.width(8.dp))
 							Text(

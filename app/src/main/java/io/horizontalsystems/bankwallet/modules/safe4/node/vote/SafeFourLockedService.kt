@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -47,14 +48,11 @@ class SafeFourLockedVoteService(
 		if (loading.get()) return
 		loading.set(true)
 
-		if (enableLockedMaxCount == -1) {
-			enableLockedMaxCount = safe4RpcBlockChain.getTotalVoteNum(address.hex).toInt()
-		}
 		val itemsCount = page * itemsPerPage
-		if (itemsCount >= enableLockedMaxCount) {
+		/*if (itemsCount >= enableLockedMaxCount) {
 			loadingLocked.set(false)
 			return
-		}
+		}*/
 		val enableSingle = safe4RpcBlockChain.getLockIds(address.hex, itemsCount, itemsPerPage)
 		enableSingle
 				.subscribeOn(Schedulers.io())

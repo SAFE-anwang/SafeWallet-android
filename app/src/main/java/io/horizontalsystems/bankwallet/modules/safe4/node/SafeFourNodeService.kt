@@ -60,6 +60,9 @@ class SafeFourNodeService(
 	private var mineNodeMaxCount = -1
 	private var nodeMaxCount = -1
 
+	private var reloadCountAll = 0
+	private var reloadCountMine = 0
+
 	fun loadItems(page: Int) {
 		try {
 			if (loading.get()) return
@@ -147,8 +150,11 @@ class SafeFourNodeService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			loading.set(false)
-			loadItems(page)
+			if (reloadCountAll < 3) {
+				reloadCountAll ++
+				loading.set(false)
+				loadItems(page)
+			}
 		}
 	}
 
@@ -235,8 +241,11 @@ class SafeFourNodeService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			loadingMine.set(false)
-			loadItemsMine(page)
+			if (reloadCountMine < 3) {
+				reloadCountMine++
+				loadingMine.set(false)
+				loadItemsMine(page)
+			}
 		}
 	}
 

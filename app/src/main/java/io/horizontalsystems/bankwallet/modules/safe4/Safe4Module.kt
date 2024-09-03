@@ -246,14 +246,14 @@ object Safe4Module {
                     }
                     val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
                     val state =  balanceAdapterRepository.state(safeWallet)
-                    if (state is AdapterState.Synced) {
+//                    if (state is AdapterState.Synced) {
                         navController.slideFromBottom(
                                 R.id.redeemSafe3SelectFragment,
                                 RedeemSafe3Module.Input(safe4Wallet, safeWallet)
                         )
-                    } else {
+                    /*} else {
                         Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
-                    }
+                    }*/
                 }
                 SafeFourType.Profit -> {
                     navController.slideFromBottom(

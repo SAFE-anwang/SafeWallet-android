@@ -29,6 +29,7 @@ class SafeFourVoteRecordService(
 	private var maxVoteCount = -1
 	private val disposables = CompositeDisposable()
 
+	private var reloadCount = 0
 
 	fun loadItems(page: Int) {
 		try {
@@ -43,7 +44,6 @@ class SafeFourVoteRecordService(
 				loading.set(false)
 				return
 			}
-			Log.e("longwen", "maxVoteCount=$maxVoteCount")
 			val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
 			single.subscribeOn(Schedulers.io())
 					.map {
@@ -69,8 +69,11 @@ class SafeFourVoteRecordService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			loading.set(false)
-			loadItems(page)
+			if (reloadCount < 3) {
+				reloadCount ++
+				loading.set(false)
+				loadItems(page)
+			}
 		}
 	}
 

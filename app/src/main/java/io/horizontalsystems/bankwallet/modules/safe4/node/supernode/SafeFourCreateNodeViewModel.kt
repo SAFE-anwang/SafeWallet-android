@@ -63,10 +63,7 @@ class SafeFourCreateNodeViewModel(
         }
         onEnterAmount(BigDecimal(getLockAmount()))
 
-        if (isSuperNode) {
-            creatorIncentive = 50
-            partnerIncentive = 50
-        }
+        resetIncentive()
     }
 
     private fun handleUpdatedAmountState(amountState: SendAmountService.State) {
@@ -136,18 +133,25 @@ class SafeFourCreateNodeViewModel(
 
     private fun resetIncentive() {
         if (isSuperNode) {
-            if (isUnion) {
+            creatorIncentive = 10
+            partnerIncentive = 45
+            voterIncentive = 45
+            /*if (isUnion) {
                 creatorIncentive = 10
                 partnerIncentive = 45
                 voterIncentive = 45
-            }
+            } else {
+                creatorIncentive = 10
+                partnerIncentive = 45
+                voterIncentive = 45
+            }*/
         } else {
             if (isUnion) {
                 creatorIncentive = 50
                 partnerIncentive = 50
             } else {
-                creatorIncentive = 50
-                partnerIncentive = 50
+                creatorIncentive = 100
+                partnerIncentive = 0
             }
         }
     }

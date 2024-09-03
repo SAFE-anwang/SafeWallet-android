@@ -122,8 +122,8 @@ fun RedeemSafe3Screen(
 			Column(
 					modifier = Modifier
 							.clip(RoundedCornerShape(8.dp))
-							.border(1.dp, ComposeAppTheme.colors.green50, RoundedCornerShape(8.dp))
-							.background(ComposeAppTheme.colors.green50)
+							.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
+							.background(ComposeAppTheme.colors.lawrence)
 							.fillMaxWidth()
 			) {
 				Row(
@@ -138,7 +138,9 @@ fun RedeemSafe3Screen(
 					Text(
 							modifier = Modifier
 									.padding(16.dp),
-							text = stringResource(id = R.string.Redeem_Safe3_Redeem_Desc))
+							text = stringResource(id = R.string.Redeem_Safe3_Redeem_Desc),
+							fontSize = 14.sp
+					)
 				}
 			}
 
@@ -257,8 +259,8 @@ fun RedeemSafe3Screen(
 				Column(
 						modifier = Modifier
 								.clip(RoundedCornerShape(8.dp))
-								.border(1.dp, ComposeAppTheme.colors.green50, RoundedCornerShape(8.dp))
-								.background(ComposeAppTheme.colors.green50)
+								.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
+								.background(ComposeAppTheme.colors.lawrence)
 								.fillMaxWidth()
 				) {
 					Row(
@@ -273,7 +275,9 @@ fun RedeemSafe3Screen(
 						Text(
 								modifier = Modifier
 										.padding(16.dp),
-								text = stringResource(id = R.string.Redeem_Safe3_Redeem_Hint))
+								text = stringResource(id = R.string.Redeem_Safe3_Redeem_Hint),
+								fontSize = 14.sp
+						)
 					}
 				}
 

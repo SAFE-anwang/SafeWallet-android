@@ -393,6 +393,8 @@ fun RangeSliderScreen(
 		onValueChange: (Int, Int, Int) -> Unit) {
 
 	var sliderPosition by remember { mutableStateOf(initValue) }
+	var historyStart by remember { mutableStateOf(initValue.start.toInt()) }
+	var historyEnd by remember { mutableStateOf(initValue.endInclusive.toInt()) }
 	var progressPartner by remember { mutableStateOf(45) }
 	var progressCreator by remember { mutableStateOf(10) }
 	var progressVoter by remember { mutableStateOf(45) }
@@ -411,8 +413,14 @@ fun RangeSliderScreen(
 						// viewModel.updateSelectedSliderValue(sliderPosition)
 						var start = sliderPosition.start.toInt()
 						var end = sliderPosition.endInclusive.toInt()
-						if (start < 45) {
-							start = 45
+						var startOffset = 50 - historyStart
+						var endOffset = 60 - historyEnd
+						var startMin = 50 - endOffset
+						var endMax = 60 - startOffset
+
+
+						if (start < startMin) {
+							start = startMin
 						}
 						if (start > 50) {
 							start = 50
@@ -420,9 +428,15 @@ fun RangeSliderScreen(
 						if (end < 50) {
 							end = 50
 						}
-						if (end > 55) {
-							end = 55
+						if (end > endMax) {
+							end = endMax
 						}
+
+						if (end - start > 10) {
+							if (end > 50) end -= end - start - 10
+						}
+						historyStart = start
+						historyEnd = end
 						progressPartner = start
 						progressVoter = 100 - end
 						progressCreator = 100 - (progressPartner + progressVoter)

@@ -44,6 +44,11 @@ class SafeFourProposalService(
 	private var mineProposalNum = -1
 	private val disposables = CompositeDisposable()
 
+	private var getAllNumCount = 0
+	private var getMineNumCount = 0
+	private var getAllListCount = 0
+	private var getMineListCount = 0
+
 	init {
 		getAllNum()
 		getMinNum()
@@ -65,7 +70,10 @@ class SafeFourProposalService(
 				loadAllItems(loadedPageNumber)
 			}
 		} catch (e: Exception) {
-			getAllNum()
+			if (!disposables.isDisposed && getAllNumCount < 3) {
+				getAllNumCount ++
+				getAllNum()
+			}
 		}
 	}
 
@@ -85,8 +93,8 @@ class SafeFourProposalService(
 				loadMineItems(loadedPageNumberMine)
 			}
 		} catch (e: Exception) {
-			Log.e("longwen", "error---$e")
-			if (!disposables.isDisposed) {
+			if (!disposables.isDisposed && getMineNumCount < 3) {
+				getMineNumCount ++
 				getMinNum()
 			}
 		}
@@ -122,8 +130,11 @@ class SafeFourProposalService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			loading.set(false)
-			loadAllItems(page)
+			if (getAllListCount < 3) {
+				getAllListCount ++
+				loading.set(false)
+				loadAllItems(page)
+			}
 		}
 
 	}
@@ -167,8 +178,11 @@ class SafeFourProposalService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			loadingMine.set(false)
-			loadMineItems(page)
+			if (getMineListCount < 3) {
+				getMineListCount++
+				loadingMine.set(false)
+				loadMineItems(page)
+			}
 		}
 	}
 

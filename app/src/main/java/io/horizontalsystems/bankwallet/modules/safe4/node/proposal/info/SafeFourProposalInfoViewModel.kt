@@ -39,6 +39,7 @@ class SafeFourProposalInfoViewModel(
     private var voteType = 0
     private var showConfirmationDialg = false
     private var isAlreadyVote = false
+    private var voteStatus: Int? = null
 
     var sendResult by mutableStateOf<SendResult?>(null)
 
@@ -48,6 +49,9 @@ class SafeFourProposalInfoViewModel(
                     proposalVote = it
 
                     val voteInfo = it.filter { reciverAddress.equals(it.address, true)  }
+                    if (voteInfo.isNotEmpty()) {
+                        voteStatus = voteInfo[0].state
+                    }
                     isAlreadyVote = voteInfo.isNotEmpty()
                     if (isAlreadyVote) {
                         storage.update(
@@ -91,6 +95,7 @@ class SafeFourProposalInfoViewModel(
             },
             showConfirmationDialg,
             isAlreadyVote,
+            voteStatus,
             isTopsAddress
     )
 
@@ -117,6 +122,7 @@ class SafeFourProposalInfoViewModel(
                 nodeService?.vote(voteType)?.blockingGet()
                 sendResult = SendResult.Sent
                 storage.save(ProposalState(proposalInfo.id, reciverAddress, voteType))
+                voteStatus = voteType
                 isAlreadyVote = true
                 emitState()
             } catch (e: Exception) {
@@ -189,7 +195,7 @@ sealed class ProposalVoteStatus {
         fun getStatus(type: Int):ProposalVoteStatus {
             return if (type == 1) {
                 Agree
-            } else if (type == 0)  {
+            } else if (type == 2)  {
                 Refuse
             } else {
                 Abstain

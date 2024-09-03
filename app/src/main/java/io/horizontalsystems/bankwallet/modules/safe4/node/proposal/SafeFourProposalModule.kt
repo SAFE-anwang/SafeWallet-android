@@ -87,6 +87,7 @@ class SafeFourProposalModule {
             val voteList: List<ProposalVoteViewItem>?,
             val showConfirmationDialog: Boolean,
             val isVoted: Boolean = false,
+            val voteStatus: Int? = null,
             val voteEnable: Boolean = false
     )
 

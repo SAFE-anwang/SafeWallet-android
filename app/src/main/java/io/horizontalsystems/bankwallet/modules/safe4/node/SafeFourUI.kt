@@ -5,20 +5,28 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,10 +40,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +58,8 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey50
 
 @Composable
 fun HintView(
@@ -94,7 +110,7 @@ fun SearchBar(
 					.wrapContentHeight()
 					.background(ComposeAppTheme.colors.lawrence)
 	) {
-		OutlinedTextField(
+		CustomOutlinedTextField(
 				modifier = Modifier
 						.fillMaxWidth()
 						.focusRequester(focusRequester),
@@ -104,13 +120,13 @@ fun SearchBar(
 					onSearchTextChanged.invoke(it)
 				},
 				placeholder = {
-					body_grey50(
+					subhead1_grey50(
 							text = searchHintText,
 							maxLines = 1,
 							overflow = TextOverflow.Ellipsis
 					)
 				},
-				textStyle = ComposeAppTheme.typography.body,
+				textStyle = ComposeAppTheme.typography.subhead1,
 				colors = TextFieldDefaults.textFieldColors(
 						focusedIndicatorColor = Color.Transparent,
 						unfocusedIndicatorColor = Color.Transparent,
@@ -137,6 +153,7 @@ fun SearchBar(
 						}) {
 							val icon = if (searchText == "") R.drawable.ic_search else R.drawable.ic_close
 							Icon(
+									modifier = Modifier.size(24.dp),
 									painter = painterResource(icon),
 									contentDescription = stringResource(R.string.Button_Cancel),
 									tint = ComposeAppTheme.colors.jacob
@@ -151,4 +168,91 @@ fun SearchBar(
 			focusRequester.requestFocus()
 		}*/
 	}
+}
+
+@Composable
+fun CustomOutlinedTextField(
+		value: String,
+		onValueChange: (String) -> Unit,
+		modifier: Modifier = Modifier,
+		enabled: Boolean = true,
+		readOnly: Boolean = false,
+		textStyle: TextStyle = LocalTextStyle.current,
+		label: @Composable (() -> Unit)? = null,
+		placeholder: @Composable (() -> Unit)? = null,
+		leadingIcon: @Composable (() -> Unit)? = null,
+		trailingIcon: @Composable (() -> Unit)? = null,
+		isError: Boolean = false,
+		visualTransformation: VisualTransformation = VisualTransformation.None,
+		keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+		keyboardActions: KeyboardActions = KeyboardActions.Default,
+		singleLine: Boolean = false,
+		maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+		minLines: Int = 1,
+		interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+		shape: Shape = MaterialTheme.shapes.small,
+		colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+) {
+	// If color is not provided via the text style, use content color as a default
+	val textColor = textStyle.color.takeOrElse {
+		colors.textColor(enabled).value
+	}
+	val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+	@OptIn(ExperimentalMaterialApi::class)
+	(BasicTextField(
+				value = value,
+				modifier = if (label != null) {
+					modifier
+							// Merge semantics at the beginning of the modifier chain to ensure padding is
+							// considered part of the text field.
+							.semantics(mergeDescendants = true) {}
+							.padding(top = 8.dp)
+				} else {
+					modifier
+				}
+						.background(colors.backgroundColor(enabled).value, shape)
+//						.defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+						.defaultMinSize(
+								minWidth = TextFieldDefaults.MinWidth,
+								minHeight = 40.dp
+						),
+				onValueChange = onValueChange,
+				enabled = enabled,
+				readOnly = readOnly,
+				textStyle = mergedTextStyle,
+				cursorBrush = SolidColor(colors.cursorColor(isError).value),
+				visualTransformation = visualTransformation,
+				keyboardOptions = keyboardOptions,
+				keyboardActions = keyboardActions,
+				interactionSource = interactionSource,
+				singleLine = singleLine,
+				maxLines = maxLines,
+				minLines = minLines,
+				decorationBox = @Composable { innerTextField ->
+					TextFieldDefaults.OutlinedTextFieldDecorationBox(
+							value = value,
+							visualTransformation = visualTransformation,
+							innerTextField = innerTextField,
+							placeholder = placeholder,
+							label = label,
+							leadingIcon = leadingIcon,
+							trailingIcon = trailingIcon,
+							singleLine = singleLine,
+							enabled = enabled,
+							isError = isError,
+							interactionSource = interactionSource,
+							colors = colors,
+							border = {
+								TextFieldDefaults.BorderBox(
+										enabled,
+										isError,
+										interactionSource,
+										colors,
+										shape
+								)
+							}
+					)
+				}
+		))
 }

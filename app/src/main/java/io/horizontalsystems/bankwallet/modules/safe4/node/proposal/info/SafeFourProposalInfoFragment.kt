@@ -87,6 +87,7 @@ fun ProposalInfoScreen(
     val voteList = viewModel.uiState.voteList
     val voteEnable = uiState.voteEnable
     val isVoted = uiState.isVoted
+    val voteStatus = uiState.voteStatus
     val view = LocalView.current
 
     val sendResult = viewModel.sendResult
@@ -274,7 +275,8 @@ fun ProposalInfoScreen(
                                 Row(
                                         modifier = Modifier
                                                 .clip(RoundedCornerShape(8.dp))
-                                                .border(1.dp, ComposeAppTheme.colors.grey50, RoundedCornerShape(8.dp))) {
+                                                .border(1.dp, ComposeAppTheme.colors.grey50, RoundedCornerShape(8.dp))
+                                                .padding(horizontal = 8.dp, vertical = 6.dp)) {
                                     body_leah(
                                             text = stringResource(id = R.string.Safe_Four_Proposal_Already_Vote),
                                             maxLines = 1,
@@ -286,10 +288,15 @@ fun ProposalInfoScreen(
                                             contentDescription = null,
                                             tint = ComposeAppTheme.colors.remus
                                     )
+                                    val color = when (ProposalVoteStatus.getStatus(voteStatus!!)) {
+                                        is ProposalVoteStatus.Agree -> ComposeAppTheme.colors.greenD
+                                        is ProposalVoteStatus.Refuse -> ComposeAppTheme.colors.redD
+                                        is ProposalVoteStatus.Abstain -> ComposeAppTheme.colors.grey50
+                                    }
                                     Text(
-                                            text = ProposalVoteStatus.Agree.title().toString(),
+                                            text = ProposalVoteStatus.getStatus(voteStatus!!).title().toString(),
                                             style = ComposeAppTheme.typography.body,
-                                            color = ComposeAppTheme.colors.greenD,
+                                            color = color,
                                             overflow = TextOverflow.Ellipsis,
                                             maxLines = 1,
                                             textAlign = TextAlign.End

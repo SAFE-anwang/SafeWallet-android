@@ -185,7 +185,7 @@ fun ProposalItemCell(
 					val color = when (item.status) {
 						is ProposalStatus.Voting -> ComposeAppTheme.colors.issykBlue
 						is ProposalStatus.Lose -> ComposeAppTheme.colors.grey50
-						is ProposalStatus.Adopt -> ComposeAppTheme.colors.greenD
+						is ProposalStatus.Adopt -> ComposeAppTheme.colors.green50
 					}
 					Row(
 							modifier = Modifier

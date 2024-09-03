@@ -312,7 +312,7 @@ fun FormsInputPassword(
                     } else {
                         // Need to set textState to new instance of TextFieldValue with the same values
                         // Otherwise it getting set to empty string
-                        textState = TextFieldValue(text = textState.text, selection = textState.selection)
+//                        textState = TextFieldValue(text = textState.text, selection = textState.selection)
                     }
                 },
                 textStyle = ColoredTextStyle(

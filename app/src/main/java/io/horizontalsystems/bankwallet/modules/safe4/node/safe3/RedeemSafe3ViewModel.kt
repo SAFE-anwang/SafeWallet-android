@@ -219,7 +219,7 @@ class RedeemSafe3ViewModel(
 				existAvailable = false
 				existLocked = false
 				existMasterNode = false
-				step = 4
+				step = 1
 				emitState()
 			} catch (e: Exception) {
 				Log.e("Redeem", "redeem error=$e")

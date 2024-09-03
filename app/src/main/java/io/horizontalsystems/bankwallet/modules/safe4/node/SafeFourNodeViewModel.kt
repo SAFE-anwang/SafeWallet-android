@@ -165,7 +165,6 @@ class SafeFourNodeViewModel(
 
     fun searchByQuery(query: String) {
         this.query = query
-        Log.e("longwen", "searchByQuery=${this.query}")
         isFilterId = query.length > 1 && StringUtils.isNumeric(query)
         emitState()
     }

@@ -132,10 +132,10 @@ object NodeCovertFactory {
 	}
 
 	fun createProposalInfoItemView(info: ProposalInfo, voteRecord: List<ProposalVote>?): ProposalInfoViewItem {
-		val agreeNum = voteRecord?.filter { it.state == 0 }?.size ?: 0
-		val rejectNum = voteRecord?.filter { it.state == 1 }?.size ?: 0
-		val abstentionNum = voteRecord?.filter { it.state == 2 }?.size ?: 0
-		val status = if (info.endPayTime * 1000 < System.currentTimeMillis())
+		val agreeNum = voteRecord?.filter { it.state == 1 }?.size ?: 0
+		val rejectNum = voteRecord?.filter { it.state == 2 }?.size ?: 0
+		val abstentionNum = voteRecord?.filter { it.state == 3 }?.size ?: 0
+		val status = if (info.state == 0 && info.endPayTime * 1000 < System.currentTimeMillis())
 						ProposalStatus.getStatus(2)
 					else
 						ProposalStatus.getStatus(info.state)
