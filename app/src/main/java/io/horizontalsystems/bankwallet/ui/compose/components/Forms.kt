@@ -264,6 +264,7 @@ fun FormsInputPassword(
     hide: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     enabled: Boolean = true,
+    focusRequester: FocusRequester? = null,
     onValueChange: (String) -> Unit,
     onToggleHide: () -> Unit
 ) {
@@ -283,6 +284,13 @@ fun FormsInputPassword(
     } else {
         ComposeAppTheme.colors.lucian
     }
+    val textModifier = if (focusRequester != null) {
+        Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp).focusRequester(focusRequester)
+    } else {
+        Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+    }
 
     Column(modifier) {
         Row(
@@ -299,9 +307,7 @@ fun FormsInputPassword(
             }
 
             BasicTextField(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .weight(1f),
+                modifier = textModifier.weight(1f),
                 value = textState,
                 onValueChange = { textFieldValue ->
 

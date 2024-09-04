@@ -18,26 +18,15 @@ import java.math.BigInteger
 
 object RedeemSafe3Module {
 
-	class Factory(val wallet: Wallet, val safe3Wallet: Wallet) : ViewModelProvider.Factory {
-
-		val adapter =
-				(App.adapterManager.getAdapterForWallet(safe3Wallet) as? ISendBitcoinAdapter) ?: throw IllegalStateException("SendBitcoinAdapter is null")
-
-		val baseAdapter =
-				(App.adapterManager.getAdapterForWallet(safe3Wallet) as? BitcoinBaseAdapter) ?: throw IllegalStateException("SendBitcoinAdapter is null")
+	class Factory(val wallet: Wallet) : ViewModelProvider.Factory {
 
 		val adapterEvm = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
 		@Suppress("UNCHECKED_CAST")
 		override fun <T : ViewModel> create(modelClass: Class<T>): T {
 			return when (modelClass) {
 				RedeemSafe3ViewModel::class.java -> {
-					val addressService = SendBitcoinAddressService(adapter, null)
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-					RedeemSafe3ViewModel(wallet, safe3Wallet, addressService, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
-				}
-				RedeemSafe3LocalViewModel::class.java -> {
-					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-					RedeemSafe3LocalViewModel(wallet, safe3Wallet, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
+					RedeemSafe3ViewModel(wallet, rpcBlockchainSafe4, adapterEvm.evmKitWrapper) as T
 				}
 
 				RedeemSafe3SelectViewModel::class.java -> {
@@ -49,10 +38,30 @@ object RedeemSafe3Module {
 		}
 	}
 
+	class Factory2(val wallet: Wallet, val safe3Wallet: Wallet) : ViewModelProvider.Factory {
+
+		val adapter =
+				(App.adapterManager.getAdapterForWallet(safe3Wallet) as? ISendBitcoinAdapter) ?: throw IllegalStateException("SendBitcoinAdapter is null")
+
+		val baseAdapter =
+				(App.adapterManager.getAdapterForWallet(safe3Wallet) as? BitcoinBaseAdapter) ?: throw IllegalStateException("SendBitcoinAdapter is null")
+
+		val adapterEvm = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
+		@Suppress("UNCHECKED_CAST")
+		override fun <T : ViewModel> create(modelClass: Class<T>): T {
+			return when (modelClass) {
+				RedeemSafe3LocalViewModel::class.java -> {
+					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+					RedeemSafe3LocalViewModel(wallet, safe3Wallet, rpcBlockchainSafe4, adapterEvm.evmKitWrapper, baseAdapter.kit.bitcoinCore, App.redeemStorage) as T
+				}
+				else -> throw IllegalArgumentException()
+			}
+
+		}
+	}
+
 	data class RedeemSafe3UiState(
 			val step: Int,
-			val addressError: Throwable?,
-			val lockItemView: List<Safe3LockItemView>? = null,
 			val safe3Balance: String,
 			val safe3LockBalance: String,
 			val privateKeyError: Boolean,
@@ -61,8 +70,7 @@ object RedeemSafe3Module {
 			val canRedeem: Boolean,
 			val safe4address: String? = null,
 			val safe3LockNum: Int = 0,
-			val masterNodeLock: String? = null,
-			val showConfirmationDialog: Boolean = false
+			val masterNodeLock: String? = null
 	)
 
 	data class RedeemSafe3LocalUiState(
@@ -121,7 +129,7 @@ object RedeemSafe3Module {
 	@Parcelize
 	data class Input(
 			val wallet: Wallet,
-			val safe3Wallet: Wallet
+			val safe3Wallet: Wallet?
 	) : Parcelable {
 	}
 

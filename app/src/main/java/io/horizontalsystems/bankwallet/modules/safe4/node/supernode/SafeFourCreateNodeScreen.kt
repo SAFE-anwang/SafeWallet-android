@@ -212,7 +212,7 @@ fun SafeFourCreateNodeScreen(
 				if (nameErrorState) {
 					Text(
 							modifier = Modifier.padding(start = 16.dp),
-							text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+							text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 8),
 							color = ComposeAppTheme.colors.redD,
 							style = ComposeAppTheme.typography.caption,
 							maxLines = 1,
@@ -232,6 +232,15 @@ fun SafeFourCreateNodeScreen(
 			) {
 				viewModel.onEnterENode(it)
 			}
+			if (uiState.existEnode) {
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Exists_Enode),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
+			}
 
 			body_grey(modifier = Modifier.padding(start = 16.dp), text = stringResource(id = R.string.Safe_Four_Register_ENODE_Hint))
 
@@ -245,13 +254,13 @@ fun SafeFourCreateNodeScreen(
 					hint = "",
 			) {
 				viewModel.onEnterIntroduction(it)
-				descErrorState = it.length < 8
+				descErrorState = it.length < 12
 			}
 
 			if (descErrorState) {
 				Text(
 						modifier = Modifier.padding(start = 16.dp),
-						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 12),
 						color = ComposeAppTheme.colors.redD,
 						style = ComposeAppTheme.typography.caption,
 						maxLines = 1,
@@ -268,7 +277,6 @@ fun SafeFourCreateNodeScreen(
 
 				if (isSuper) {
 					RangeSliderScreen(
-							enabled = selectedOption == 1,
 					) { t1, t2, t3 ->
 						viewModel.onEnterIncentive(t1, t2, t3)
 					}

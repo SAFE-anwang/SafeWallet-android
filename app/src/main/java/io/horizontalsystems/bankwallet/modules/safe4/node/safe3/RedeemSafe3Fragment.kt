@@ -47,6 +47,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.headline1_bran
@@ -59,9 +60,8 @@ class RedeemSafe3Fragment(): BaseComposeFragment() {
 	override fun GetContent(navController: NavController) {
 		val input = navController.getInput<RedeemSafe3Module.Input>()
 		val wallet = input?.wallet ?: return
-		val safe3Wallet = input?.safe3Wallet ?: return
 
-		val viewModel by viewModels<RedeemSafe3ViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
+		val viewModel by viewModels<RedeemSafe3ViewModel> { RedeemSafe3Module.Factory(wallet) }
 		RedeemSafe3Screen(viewModel = viewModel, navController = navController)
 	}
 }
@@ -72,12 +72,7 @@ fun RedeemSafe3Screen(
 		navController: NavController
 ) {
 	val uiState = viewModel.uiState
-	val addressError = uiState.addressError
-	val safe3Wallet = viewModel.safe3Wallet
 	val currentStep = uiState.step
-	val paymentAddressViewModel = viewModel<AddressParserViewModel>(
-			factory = AddressParserModule.Factory(safe3Wallet.token, null)
-	)
 
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
@@ -148,7 +143,7 @@ fun RedeemSafe3Screen(
 			Row (
 					verticalAlignment = Alignment.CenterVertically
 			){
-				StepView("1",  stringResource(id = R.string.Redeem_Safe3_Query), currentStep == 1, currentStep > 1)
+				StepView("1",  stringResource(id = R.string.Redeem_Safe3_Verify_Private_Key), currentStep == 1, currentStep > 1)
 
 				Divider(
 						modifier = Modifier
@@ -156,7 +151,7 @@ fun RedeemSafe3Screen(
 						thickness = 1.dp,
 						color = ComposeAppTheme.colors.steel10,
 				)
-				StepView("2",  stringResource(id = R.string.Redeem_Safe3_Verify_Private_Key), currentStep == 2, currentStep > 2)
+				StepView("2",  stringResource(id = R.string.Redeem_Safe3_Query), currentStep == 2, currentStep > 2)
 				Divider(
 						modifier = Modifier
 								.weight(1f),
@@ -167,7 +162,7 @@ fun RedeemSafe3Screen(
 			}
 
 			Spacer(modifier = Modifier.height(16.dp))
-			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Address_Hint))
+			/*body_bran(text = stringResource(id = R.string.Redeem_Safe3_Address_Hint))
 			HSAddressInput(
 					tokenQuery = safe3Wallet.token.tokenQuery,
 					coinCode = safe3Wallet.coin.code,
@@ -176,6 +171,50 @@ fun RedeemSafe3Screen(
 					navController = navController
 			) {
 				viewModel.onEnterAddress(it)
+			}*/
+
+			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
+			FormsInput(
+					enabled = true,
+					pasteEnabled = false,
+					qrScannerEnabled = true,
+					hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint),
+					textPreprocessor = object : TextPreprocessor {
+						override fun process(text: String): String {
+							if (sendResult == SendResult.Sent) {
+								return ""
+							}
+							return text
+						}
+					}
+			) {
+				viewModel.onEnterPrivateKey(it)
+			}
+
+			if (uiState.privateKeyError) {
+				Spacer(modifier = Modifier.height(8.dp))
+				Column(
+						modifier = Modifier
+								.clip(RoundedCornerShape(8.dp))
+								.border(1.dp, ComposeAppTheme.colors.yellow50, RoundedCornerShape(8.dp))
+								.background(ComposeAppTheme.colors.yellow20)
+								.fillMaxWidth()
+				) {
+					Row(
+							verticalAlignment = Alignment.CenterVertically
+					) {
+						Icon(
+								painter = painterResource(id = R.drawable.ic_error_48), contentDescription = null,
+								modifier = Modifier
+										.padding(start = 16.dp)
+										.width(24.dp)
+										.height(24.dp))
+						Text(
+								modifier = Modifier
+										.padding(16.dp),
+								text = stringResource(id = R.string.Redeem_Safe3_Private_Key_Error))
+					}
+				}
 			}
 
 			if (currentStep >= 2) {
@@ -215,7 +254,7 @@ fun RedeemSafe3Screen(
 					}
 				}
 
-				Spacer(modifier = Modifier.height(16.dp))
+				/*Spacer(modifier = Modifier.height(16.dp))
 				body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
 				FormsInput(
 						enabled = true,
@@ -250,7 +289,7 @@ fun RedeemSafe3Screen(
 									text = stringResource(id = R.string.Redeem_Safe3_Private_Key_Error))
 						}
 					}
-				}
+				}*/
 			}
 
 			if (currentStep >= 3) {
@@ -302,16 +341,6 @@ fun RedeemSafe3Screen(
 			}
 			
 		}
-	}
-	if (uiState.showConfirmationDialog) {
-		RedeemConfirmationDialog(address = viewModel.receiveAddress(),
-				onOKClick = {
-					viewModel.redeemCurrentWalletSafe3()
-				},
-				onCancelClick = {
-					viewModel.closeDialog()
-				}
-		)
 	}
 }
 

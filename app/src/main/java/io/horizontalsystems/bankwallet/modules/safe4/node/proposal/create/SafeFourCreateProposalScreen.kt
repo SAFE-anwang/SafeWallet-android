@@ -92,7 +92,7 @@ fun SafeFourCreateProposalScreen(
 			if (nameErrorState) {
 				Text(
 						modifier = Modifier.padding(start = 16.dp),
-						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 8),
 						color = ComposeAppTheme.colors.redD,
 						style = ComposeAppTheme.typography.caption,
 						maxLines = 1,
@@ -115,7 +115,7 @@ fun SafeFourCreateProposalScreen(
 			if (descErrorState) {
 				Text(
 						modifier = Modifier.padding(start = 16.dp),
-						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error),
+						text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 8),
 						color = ComposeAppTheme.colors.redD,
 						style = ComposeAppTheme.typography.caption,
 						maxLines = 1,

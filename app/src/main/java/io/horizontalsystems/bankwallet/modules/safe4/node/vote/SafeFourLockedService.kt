@@ -49,10 +49,6 @@ class SafeFourLockedVoteService(
 		loading.set(true)
 
 		val itemsCount = page * itemsPerPage
-		/*if (itemsCount >= enableLockedMaxCount) {
-			loadingLocked.set(false)
-			return
-		}*/
 		val enableSingle = safe4RpcBlockChain.getLockIds(address.hex, itemsCount, itemsPerPage)
 		enableSingle
 				.subscribeOn(Schedulers.io())

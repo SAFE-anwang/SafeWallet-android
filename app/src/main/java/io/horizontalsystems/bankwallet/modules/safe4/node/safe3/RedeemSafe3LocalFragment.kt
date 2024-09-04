@@ -61,9 +61,8 @@ class RedeemSafe3LocalFragment(): BaseComposeFragment() {
 	override fun GetContent(navController: NavController) {
 		val input = navController.getInput<RedeemSafe3Module.Input>()
 		val wallet = input?.wallet ?: return
-		val safe3Wallet = input?.safe3Wallet ?: return
 
-		val viewModel by viewModels<RedeemSafe3LocalViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
+		val viewModel by viewModels<RedeemSafe3LocalViewModel> { RedeemSafe3Module.Factory(wallet) }
 
 		RedeemSafe3LocalScreen(viewModel = viewModel) {
 

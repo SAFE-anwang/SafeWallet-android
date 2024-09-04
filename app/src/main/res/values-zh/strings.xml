@@ -1966,7 +1966,8 @@
     <string name="Safe_Four_Register_Mode_Super_Node_Address">超级节点地址</string>
     <string name="Safe_Four_Register_Mode_Master_Node_Address">主节点地址</string>
     <string name="Safe_Four_Register_Mode_Name">名称</string>
-    <string name="Safe_Four_Register_Mode_Length_Error">长度不能小于8个字</string>
+    <string name="Safe_Four_Register_Mode_Length_Error">长度不能小于%d个字</string>
+    <string name="Safe_Four_Register_Mode_Exists_Enode">ENode已存在</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入\nadmin.nodeInfo\n获取节点的ENODE信息</string>
     <string name="Safe_Four_Register_Introduction">简介</string>

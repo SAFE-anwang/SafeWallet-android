@@ -77,6 +77,10 @@ class RedeemSafe3LocalViewModel(
 		return evmKitWrapper.evmKit.receiveAddress.eip55
 	}
 
+	private fun receivePrivateKey(): String {
+		return evmKitWrapper.signer!!.privateKey.toHexString()
+	}
+
 	fun closeDialog() {
 		showConfirmationDialg = false
 		emitState()
@@ -139,14 +143,15 @@ class RedeemSafe3LocalViewModel(
 		closeDialog()
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
-			var successCount = 0
-			list.forEach {
-				try {
-					val redeemResult = safe4.redeemSafe3(it.privateKey.toHexString()).blockingGet()
-					if (existMasterNode) {
-						safe4.redeemMasterNode(it.privateKey.toHexString(), "")
-					}
-					Log.e("Redeem", "redeem success ${it.address}")
+			val listPrivateKey = list.map { it.privateKey.toHexString() }
+			val masterNodeKey = list.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
+
+			try {
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey).blockingGet()
+				if (masterNodeKey.isNotEmpty()) {
+					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey)
+				}
+				list.forEach {
 					redeemStorage.save(Redeem(
 							it.address,
 							it.existAvailable,
@@ -154,19 +159,14 @@ class RedeemSafe3LocalViewModel(
 							it.existMasterNode,
 							true
 					))
-					successCount ++
-				} catch (e: Exception) {
-					Log.e("Redeem", "redeem ${it.address} error=$e")
 				}
-
-			}
-			if (successCount == list.size) {
 				sendResult = SendResult.Sent
 				isRedeemSuccess = true
 				emitState()
 				App.preferences.edit().putBoolean(evmKitWrapper.evmKit.receiveAddress.hex, true).commit()
-			} else {
-				sendResult = SendResult.Failed(HSCaution(TranslatableString.PlainString("Fail: ${list.size - successCount}, Success: $successCount")))
+			} catch (e: Exception) {
+				sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
+				Log.e("Redeem", "redeem error=$e")
 			}
 		}
 	}

@@ -1,68 +1,35 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.safe3
 
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.AdapterState
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.address.AddressParserModule
-import io.horizontalsystems.bankwallet.modules.address.AddressParserViewModel
-import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
-import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.SearchBar
-import io.horizontalsystems.bankwallet.modules.send.SendResult
+import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
+import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
-import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
-import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.headline1_bran
-import io.horizontalsystems.bankwallet.ui.compose.components.headline1_grey
-import io.horizontalsystems.core.SnackbarDuration
-import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
 class RedeemSafe3SelectFragment(): BaseComposeFragment() {
@@ -70,8 +37,8 @@ class RedeemSafe3SelectFragment(): BaseComposeFragment() {
 	override fun GetContent(navController: NavController) {
 		val input = navController.getInput<RedeemSafe3Module.Input>()
 		val wallet = input?.wallet ?: return
-		val safe3Wallet = input?.safe3Wallet ?: return
-		val viewModelSelect by viewModels<RedeemSafe3SelectViewModel> { RedeemSafe3Module.Factory(wallet, safe3Wallet) }
+		val safe3Wallet = input.safe3Wallet
+		val viewModelSelect by viewModels<RedeemSafe3SelectViewModel> { RedeemSafe3Module.Factory(wallet) }
 		RedeemSafe3SelectScreen(navController = navController, viewModelSelect,  wallet, safe3Wallet)
 	}
 }
@@ -81,7 +48,7 @@ fun RedeemSafe3SelectScreen(
 		navController: NavController,
 		viewModelSelect: RedeemSafe3SelectViewModel,
 		wallet: Wallet,
-		safe3Wallet: Wallet,
+		safe3Wallet: Wallet?,
 ) {
 
 	Column(modifier = Modifier
@@ -103,7 +70,7 @@ fun TabScreen(
 		navController: NavController,
 		viewModelSelect: RedeemSafe3SelectViewModel,
 		wallet: Wallet,
-		safe3Wallet: Wallet,
+		safe3Wallet: Wallet?,
 ) {
 
 	val tabs = viewModelSelect.tabs
@@ -128,12 +95,37 @@ fun TabScreen(
 	) { page ->
 		when (page) {
 			0 -> {
-				val viewModel = viewModel<RedeemSafe3ViewModel>(factory = RedeemSafe3Module.Factory(wallet, safe3Wallet) )
+				val viewModel = viewModel<RedeemSafe3ViewModel>(factory = RedeemSafe3Module.Factory(wallet) )
 				RedeemSafe3Screen(viewModel = viewModel, navController = navController)
 				viewModelSelect.updateSyncStatus(false)
 			}
 			1 -> {
-				val viewModel = viewModel<RedeemSafe3LocalViewModel> (factory = RedeemSafe3Module.Factory(wallet, safe3Wallet))
+				var safeWallet = safe3Wallet
+				if (safe3Wallet == null) {
+					val walletList: List<Wallet> = App.walletManager.activeWallets
+					for (it in walletList) {
+						if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
+							safeWallet = it
+						}
+					}
+				}
+				if (safeWallet == null) {
+					Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "Safe3"), Toast.LENGTH_SHORT).show()
+					coroutineScope.launch {
+						pagerState.scrollToPage(0)
+					}
+					return@HorizontalPager
+				}
+				val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+                val state =  balanceAdapterRepository.state(safeWallet)
+				if (state !is AdapterState.Synced) {
+					Toast.makeText(navController.context, Translator.getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+					coroutineScope.launch {
+						pagerState.scrollToPage(0)
+					}
+					return@HorizontalPager
+				}
+				val viewModel = viewModel<RedeemSafe3LocalViewModel> (factory = RedeemSafe3Module.Factory2(wallet, safe3Wallet!!))
 				RedeemSafe3LocalScreen(viewModel = viewModel) {
 					viewModelSelect.updateSyncStatus(it)
 				}

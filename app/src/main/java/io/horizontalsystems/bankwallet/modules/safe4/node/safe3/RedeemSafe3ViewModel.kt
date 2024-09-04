@@ -33,17 +33,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class RedeemSafe3ViewModel(
 		val wallet: Wallet,
-		val safe3Wallet: Wallet,
-		private val addressService: SendBitcoinAddressService,
 		private val safe4: RpcBlockchainSafe4,
 		private val evmKitWrapper: EvmKitWrapper,
-		private val bitcoinCore: BitcoinCore,
-		private val redeemStorage: RedeemStorage,
-		val isOneClickMigration: Boolean = false,
 ): ViewModelUiState<RedeemSafe3Module.RedeemSafe3UiState>() {
 
 	private var step = 1
-	private var addressState = addressService.stateFlow.value
 	private var availableSafe3Info: AvailableSafe3Info? = null
 	private var lockList: List<LockedSafe3Info>? = null
 
@@ -65,47 +59,41 @@ class RedeemSafe3ViewModel(
 
 	private val disposables = CompositeDisposable()
 
-	init {
-		addressService.stateFlow.collectWith(viewModelScope) {
-			handleUpdatedAddressState(it)
-		}
-	}
-
-	private fun handleUpdatedAddressState(addressState: SendBitcoinAddressService.State) {
-		val tempAddressState = this.addressState
-		this.addressState = addressState
-//		if (!tempAddressState.validAddress?.hex.equals(addressState.validAddress?.hex, true)) {
-			existAvailable = false
-			existLocked = false
-			existMasterNode = false
-			if (addressState.canBeSend) {
-				step = 1
-				check(addressState.validAddress!!.hex)
-			}
-//		}
-		emitState()
-	}
-
 	fun onEnterPrivateKey(privateKey: String) {
+		if (privateKey.isNullOrBlank()) {
+			reset()
+			return
+		}
 		try {
 			val privKey = Numeric.toBigInt(privateKey)
 			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privKey)
 			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
-			if (compressedSafe3Addr.equals(addressState.validAddress?.hex)) {
-				this.privateKey = privateKey
-				privateKeyError = false
-				step = 3
-			} else {
-				privateKeyError = true
-			}
+			this.privateKey = privateKey
+			privateKeyError = false
+			check(compressedSafe3Addr)
 		} catch (e: Exception) {
 			privateKeyError = true
 		}
 		emitState()
 	}
 
+	private fun reset() {
+		privateKeyError = false
+		step = 1
+		availableSafe3Info = null
+		existAvailable = false
+		existLocked = false
+		existMasterNode = false
+		lockList = null
+		emitState()
+	}
+
 	fun receiveAddress(): String {
 		return evmKitWrapper.evmKit.receiveAddress.eip55
+	}
+
+	private fun receivePrivateKey(): String {
+		return evmKitWrapper.signer!!.privateKey.toHexString()
 	}
 
 	fun closeDialog() {
@@ -117,8 +105,6 @@ class RedeemSafe3ViewModel(
 		val lockValue = lockBalance()
 		return RedeemSafe3Module.RedeemSafe3UiState(
 				step,
-				addressState.addressError,
-				convertLockInfo(),
 				availableBalance(),
 				lockValue,
 				privateKeyError,
@@ -127,8 +113,7 @@ class RedeemSafe3ViewModel(
 				existAvailable || existLocked,
 				getSafe4Address(privateKey),
 				if (maxLockedCount == -1) 0 else maxLockedCount,
-				masterLockBalance(),
-				showConfirmationDialg
+				masterLockBalance()
 		)
 	}
 
@@ -179,10 +164,6 @@ class RedeemSafe3ViewModel(
 		}
 	}
 
-	fun onEnterAddress(address: Address?) {
-		step = 1
-		addressService.setAddress(address)
-	}
 
 	private fun checkNeedToRedeem(address: String) {
 		existAvailable = safe4.existAvailableNeedToRedeem(address)
@@ -197,7 +178,7 @@ class RedeemSafe3ViewModel(
 				checkNeedToRedeem(address)
 				availableSafe3Info = getAvailableSafe3Info(address)
 				loadItems(0, address)
-				step = 2
+				step = 3
 			} catch (e: Exception) {
 				Log.e("Redeem", "error=$e")
 			}
@@ -211,16 +192,12 @@ class RedeemSafe3ViewModel(
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			try {
-				val redeemResult = safe4.redeemSafe3(privateKey).blockingGet()
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey)).blockingGet()
 				if (existMasterNode) {
-					safe4.redeemMasterNode(privateKey, "")
+					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey))
 				}
 				sendResult = SendResult.Sent
-				existAvailable = false
-				existLocked = false
-				existMasterNode = false
-				step = 1
-				emitState()
+				reset()
 			} catch (e: Exception) {
 				Log.e("Redeem", "redeem error=$e")
 				sendResult = SendResult.Failed(createCaution(e))
@@ -246,6 +223,7 @@ class RedeemSafe3ViewModel(
 		val itemsCount = page * itemsPerPage
 		if (itemsCount >= maxLockedCount) {
 			loading.set(false)
+			emitState()
 			return
 		}
 		val single = safe4.safe3GetLockedInfo(address, itemsCount, maxLockedCount)
@@ -291,72 +269,6 @@ class RedeemSafe3ViewModel(
 		return EthereumKit.ethereumAddress(Numeric.toBigInt(privateKey)).eip55
 	}
 
-	fun loadNext() {
-		if (!allLoaded.get()) {
-			viewModelScope.launch(Dispatchers.IO) {
-				loadItems(loadedPageNumber + 1, addressState.validAddress!!.hex)
-			}
-		}
-	}
-
-	fun showConfirmation() {
-		if (isRedeeming.get())	return
-		showConfirmationDialg = true
-		emitState()
-	}
-
-	fun redeemCurrentWalletSafe3() {
-		closeDialog()
-		sendResult = SendResult.Sending
-		isRedeeming.set(true)
-		viewModelScope.launch(Dispatchers.IO) {
-			val alreadyRedeem = redeemStorage.allRedeem()
-			val unspentOutputs = bitcoinCore.storage.getUnspentOutputs().distinctBy { it.transaction.blockHash.toHexString() }
-
-			unspentOutputs.forEach {
-				val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
-				if (isSuccess)	return@forEach
-				try {
-					val existAvailable = safe4.existAvailableNeedToRedeem(address)
-					val existLocked = safe4.existLockedNeedToRedeem(address)
-					val existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
-					if (existAvailable || existLocked || existMasterNode) {
-						redeemStorage.save(Redeem(
-								address,
-								existAvailable,
-								existLocked,
-								existMasterNode,
-								false
-						))
-//						val safe3Info = getAvailableSafe3Info(address) ?: return@forEach
-//						bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
-//							val (amount1, amount2) = getLockedAmount(address)
-							Log.d("Redeem", "existAvailable=$existAvailable, existLocked=$existLocked")
-							Log.e("Redeem", "redeemCurrentWalletSafe3: $address= ${evmKitWrapper.signer?.privateKey?.toHexString()}")
-
-							safe4.redeemSafe3(evmKitWrapper.signer!!.privateKey!!.toHexString()).blockingGet()
-							if (existMasterNode) {
-								safe4.redeemMasterNode(evmKitWrapper.signer!!.privateKey!!.toHexString(), "")
-							}
-
-//						}
-					}
-					redeemStorage.save(Redeem(
-							address,
-							existAvailable,
-							existLocked,
-							existMasterNode,
-							true
-					))
-				} catch (e: Exception) {
-					Log.e("Redeem", "redeemCurrentWalletSafe3 erro=$e")
-				}
-			}
-			isRedeeming.set(false)
-			sendResult = SendResult.Sent
-		}
-	}
 
 	override fun onCleared() {
 		super.onCleared()

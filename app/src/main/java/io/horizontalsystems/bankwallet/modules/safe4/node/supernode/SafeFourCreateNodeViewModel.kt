@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -22,6 +23,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourConfirmationModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
+import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
@@ -36,6 +38,7 @@ class SafeFourCreateNodeViewModel(
         private val ethereumKit: EthereumKit,
         val coinMaxAllowedDecimals: Int,
         private val xRateService: XRateService,
+        private val rpcBlockchainSafe4: RpcBlockchainSafe4,
 ) : ViewModelUiState<SafeFourCreateNodeModule.SafeFourCreateNodeUiState>()  {
 
     val fiatMaxAllowedDecimals = App.appConfigProvider.fiatDecimal
@@ -51,6 +54,8 @@ class SafeFourCreateNodeViewModel(
     private var creatorIncentive = 10
     private var partnerIncentive = 45
     private var voterIncentive = 45
+
+    private var existENode = false
 
     private val disposables = CompositeDisposable()
 
@@ -91,14 +96,15 @@ class SafeFourCreateNodeViewModel(
                 if (isSuperNode)
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
                     && amountState.canBeSend && addressState.canBeSend
-                    && superNodeName.length >= 8 && eNode.isNotBlank()
+                    && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode
                     && introduction.length >= 8
                 else
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
-                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank()
+                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank() && !existENode
                     && introduction.isNotBlank() && introduction.length >= 8
             ,
-            lockAmount = "${getLockAmount()} SAFE"
+            lockAmount = "${getLockAmount()} SAFE",
+            existENode
     )
 
 
@@ -117,7 +123,20 @@ class SafeFourCreateNodeViewModel(
 
     fun onEnterENode(eNode: String?) {
         this.eNode = eNode ?: ""
-        emitState()
+        existENode = false
+        existENode(eNode)
+    }
+
+    private fun existENode(eNode: String?) {
+        eNode?.let {
+            try {
+                existENode = rpcBlockchainSafe4.existEnode(isSuperNode, it)
+            } catch (e: Exception) {
+
+            } finally {
+                emitState()
+            }
+        }
     }
 
     fun onSelectType(index: Int) {

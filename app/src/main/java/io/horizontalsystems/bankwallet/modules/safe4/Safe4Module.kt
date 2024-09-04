@@ -240,20 +240,10 @@ object Safe4Module {
                             safeWallet = it
                         }
                     }
-                    if (safeWallet == null) {
-                        Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "Safe3"), Toast.LENGTH_SHORT).show()
-                        return
-                    }
-                    val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
-                    val state =  balanceAdapterRepository.state(safeWallet)
-//                    if (state is AdapterState.Synced) {
-                        navController.slideFromBottom(
-                                R.id.redeemSafe3SelectFragment,
-                                RedeemSafe3Module.Input(safe4Wallet, safeWallet)
-                        )
-                    /*} else {
-                        Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
-                    }*/
+                    navController.slideFromBottom(
+                            R.id.redeemSafe3SelectFragment,
+                            RedeemSafe3Module.Input(safe4Wallet, safeWallet)
+                    )
                 }
                 SafeFourType.Profit -> {
                     navController.slideFromBottom(

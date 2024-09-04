@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.safe4.node.supernode.SafeFourCreateNodeViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
+import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -34,7 +35,9 @@ class SafeFourCreateNodeModule {
 			)
 			val addressService = SendEvmAddressService(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
 
-			return SafeFourCreateNodeViewModel(wallet, isSuperNode, amountService, addressService, adapter.evmKitWrapper.evmKit, coinMaxAllowedDecimals, xRateService) as T
+			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+
+			return SafeFourCreateNodeViewModel(wallet, isSuperNode, amountService, addressService, adapter.evmKitWrapper.evmKit, coinMaxAllowedDecimals, xRateService, rpcBlockchainSafe4) as T
 		}
 	}
 
@@ -44,7 +47,8 @@ class SafeFourCreateNodeModule {
 			val availableBalance: BigDecimal,
 			val amountCaution: HSCaution?,
 			val canBeSend: Boolean,
-			val lockAmount: String
+			val lockAmount: String,
+			val existEnode: Boolean
 	)
 
 }

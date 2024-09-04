@@ -11,11 +11,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -93,6 +95,7 @@ fun LocalBackupPasswordScreen(
         viewModel.closeScreenCalled()
         onFinish()
     }
+    val focusRequester = remember { FocusRequester() }
 
     Scaffold(
         backgroundColor = ComposeAppTheme.colors.tyler,
@@ -125,7 +128,8 @@ fun LocalBackupPasswordScreen(
                     hide = hidePassphrase,
                     onToggleHide = {
                         hidePassphrase = !hidePassphrase
-                    }
+                    },
+                        focusRequester = focusRequester
                 )
                 VSpacer(16.dp)
                 FormsInputPassword(
@@ -137,7 +141,8 @@ fun LocalBackupPasswordScreen(
                     hide = hidePassphrase,
                     onToggleHide = {
                         hidePassphrase = !hidePassphrase
-                    }
+                    }/*,
+                        focusRequester = focusRequester*/
                 )
                 VSpacer(32.dp)
                 TextImportantWarning(
@@ -161,5 +166,8 @@ fun LocalBackupPasswordScreen(
                 )
             }
         }
+    }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
