@@ -131,6 +131,9 @@ fun LocalBackupPasswordScreen(
                     },
                         focusRequester = focusRequester
                 )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
                 VSpacer(16.dp)
                 FormsInputPassword(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -141,8 +144,7 @@ fun LocalBackupPasswordScreen(
                     hide = hidePassphrase,
                     onToggleHide = {
                         hidePassphrase = !hidePassphrase
-                    }/*,
-                        focusRequester = focusRequester*/
+                    }
                 )
                 VSpacer(32.dp)
                 TextImportantWarning(
@@ -166,8 +168,5 @@ fun LocalBackupPasswordScreen(
                 )
             }
         }
-    }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
     }
 }

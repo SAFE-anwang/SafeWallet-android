@@ -40,7 +40,8 @@ class SafeFourVoteRecordService(
 				maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
 			}
 			val itemsCount = page * itemsPerPage
-			if (maxVoteCount == -1) {
+			if (maxVoteCount <= 0) {
+				itemsSubject.onNext(voteRecordItems)
 				loading.set(false)
 				return
 			}

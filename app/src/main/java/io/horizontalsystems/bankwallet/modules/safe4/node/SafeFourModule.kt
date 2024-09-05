@@ -26,7 +26,7 @@ class SafeFourModule {
             val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
             val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)
             val isSuperNode = nodeType == NodeType.SuperNode.ordinal
-            return SafeFourNodeViewModel(wallet, title, service, isSuperNode) as T
+            return SafeFourNodeViewModel(wallet, title, service, isSuperNode, adapter.evmKitWrapper.evmKit) as T
         }
     }
 

@@ -20,12 +20,18 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -45,6 +51,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput2
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
@@ -76,6 +83,11 @@ fun RedeemSafe3Screen(
 
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
+
+	var textState by rememberSaveable("", stateSaver = TextFieldValue.Saver) {
+		mutableStateOf(TextFieldValue("", TextRange( 0)))
+	}
+
 	when (sendResult) {
 		SendResult.Sending -> {
 			HudHelper.showInProcessMessage(
@@ -91,6 +103,7 @@ fun RedeemSafe3Screen(
 					R.string.Redeem_Safe3_Send_Success,
 					SnackbarDuration.LONG
 			)
+			textState = textState.copy("")
 			viewModel.sendResult = null
 		}
 
@@ -104,12 +117,7 @@ fun RedeemSafe3Screen(
 
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
-		/*AppBar(
-				title = stringResource(id = R.string.Redeem_Safe3_Other_Wallet),
-				navigationIcon = {
-					HsBackButton(onClick = { navController.popBackStack() })
-				}
-		)*/
+
 		Column(modifier = Modifier
 				.padding(16.dp)
 				.fillMaxSize()
@@ -162,32 +170,17 @@ fun RedeemSafe3Screen(
 			}
 
 			Spacer(modifier = Modifier.height(16.dp))
-			/*body_bran(text = stringResource(id = R.string.Redeem_Safe3_Address_Hint))
-			HSAddressInput(
-					tokenQuery = safe3Wallet.token.tokenQuery,
-					coinCode = safe3Wallet.coin.code,
-					error = addressError,
-					textPreprocessor = paymentAddressViewModel,
-					navController = navController
-			) {
-				viewModel.onEnterAddress(it)
-			}*/
+
 
 			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
-			FormsInput(
+			FormsInput2(
+					textState = textState,
 					enabled = true,
 					pasteEnabled = false,
 					qrScannerEnabled = true,
-					hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint),
-					textPreprocessor = object : TextPreprocessor {
-						override fun process(text: String): String {
-							if (sendResult == SendResult.Sent) {
-								return ""
-							}
-							return text
-						}
-					}
+					hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint)
 			) {
+				textState = textState.copy(text = it, selection = TextRange(it.length))
 				viewModel.onEnterPrivateKey(it)
 			}
 

@@ -1968,6 +1968,8 @@
     <string name="Safe_Four_Register_Mode_Name">名称</string>
     <string name="Safe_Four_Register_Mode_Length_Error">长度不能小于%d个字</string>
     <string name="Safe_Four_Register_Mode_Exists_Enode">ENode已存在</string>
+    <string name="Safe_Four_Register_Mode_Exists_Super_Node">该地址已是超级节点</string>
+    <string name="Safe_Four_Register_Mode_Exists_Master_Node">该地址已是主节点</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入\nadmin.nodeInfo\n获取节点的ENODE信息</string>
     <string name="Safe_Four_Register_Introduction">简介</string>
@@ -1982,6 +1984,7 @@
     <string name="Safe_Four_No_Super_Node">您还没有创建超级节点</string>
     <string name="Safe_Four_No_Master_Node">您还没有创建主节点</string>
     <string name="Safe_Four_No_Locked_Record">您还没有锁仓记录</string>
+    <string name="Safe_Four_No_Vote_Record">没有投票人记录</string>
     <string name="Safe_Four_Node_Online">在线</string>
     <string name="Safe_Four_Node_Exception">异常</string>
     <string name="Safe_Four_Node_Join_Partner">加入合伙人</string>
@@ -1991,6 +1994,7 @@
     <string name="Safe_Four_Node_Pledge">质押SAFE: %s SAFE</string>
     <string name="Safe_Four_Node_Super_Node_Vote">超级节点投票</string>
     <string name="Safe_Four_Node_Master_Node_Vote">主节点联合创建</string>
+    <string name="Safe_Four_Node_Super_Node_Join">超级近节点联合创建</string>
     <string name="Safe_Four_Node_Info">节点详情</string>
     <string name="Safe_Four_Node_Info_Id">节点ID:</string>
     <string name="Safe_Four_Node_Info_Id_List">节点ID: %s</string>

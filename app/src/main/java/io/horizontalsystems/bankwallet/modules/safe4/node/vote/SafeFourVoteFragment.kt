@@ -66,6 +66,7 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeModule
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
+import io.horizontalsystems.bankwallet.modules.safe4.node.ListEmptyView2
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationModule
 import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
@@ -862,7 +863,7 @@ fun NodeInfoScreen(
                             .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                             .background(ComposeAppTheme.colors.lawrence),
                     progress = uiState.creator,
-                    color = ComposeAppTheme.colors.green50,
+                    color = ComposeAppTheme.colors.issykBlue,
                     backgroundColor = ComposeAppTheme.colors.grey50)
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -891,7 +892,7 @@ fun NodeInfoScreen(
                             .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                             .background(ComposeAppTheme.colors.lawrence),
                     progress = uiState.partner,
-                    color = ComposeAppTheme.colors.green50,
+                    color = ComposeAppTheme.colors.issykBlue,
                     backgroundColor = ComposeAppTheme.colors.grey50)
         }
         if (isSuperNode) {
@@ -921,7 +922,7 @@ fun NodeInfoScreen(
                                 .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                                 .background(ComposeAppTheme.colors.lawrence),
                         progress = uiState.voter,
-                        color = ComposeAppTheme.colors.green50,
+                        color = ComposeAppTheme.colors.issykBlue,
                         backgroundColor = ComposeAppTheme.colors.grey50)
             }
         }
@@ -991,17 +992,19 @@ fun VoterRecordScreen2(
     val recordList = uiState.voteRecords
     if (recordList.isNullOrEmpty()) {
         Column() {
+            Spacer(modifier = Modifier.height(16.dp))
             if (recordList == null) {
-                ListEmptyView(
+                ListEmptyView2(
                         text = stringResource(R.string.Transactions_WaitForSync),
                         icon = R.drawable.ic_clock
                 )
             } else {
-                ListEmptyView(
-                        text = stringResource(R.string.Safe_Four_No_Super_Node),
+                ListEmptyView2(
+                        text = stringResource(R.string.Safe_Four_No_Vote_Record),
                         icon = R.drawable.ic_no_data
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     } else {
         Column(modifier = Modifier

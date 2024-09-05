@@ -32,6 +32,7 @@ import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +63,9 @@ class SafeFourNodeEditViewModel(
 
     private var addressState = addressService.stateFlow.value
 
+    private var existENode = false
+    private var existNode = false
+
     var sendResult by mutableStateOf<SendResult?>(null)
 
     private val disposables = CompositeDisposable()
@@ -75,7 +79,12 @@ class SafeFourNodeEditViewModel(
 
     private fun handleUpdatedAddressState(addressState: SendEvmAddressService.State) {
         this.addressState = addressState
-
+        if (addressState.canBeSend && addressState.address != null) {
+            checkNodeExist(addressState.address.hex)
+        }
+        if (!addressState.canBeSend) {
+            existNode = false
+        }
         emitState()
     }
 
@@ -87,10 +96,12 @@ class SafeFourNodeEditViewModel(
                 nodeEnode,
                 nodeDesc,
                 addressState.addressError,
-                !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length > 7,
-                !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true) && addressState.canBeSend ,
-                !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank(),
-                !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length > 7
+                !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length >= 8,
+                !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true) && addressState.canBeSend && !existNode,
+                !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank() && !existENode,
+                !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length >= 12,
+                existENode,
+                existNode
 
         )
 
@@ -101,7 +112,7 @@ class SafeFourNodeEditViewModel(
 
     fun onEnterENODE(enode: String) {
         this.inputNodeEnode = enode
-        emitState()
+        existENode(enode)
     }
 
     fun onEnterDesc(desc: String) {
@@ -112,6 +123,34 @@ class SafeFourNodeEditViewModel(
     fun onEnterAddress(address: Address?) {
         addressService.setAddress(address)
     }
+
+
+    private fun existENode(eNode: String?) {
+        eNode?.let {
+            try {
+                existENode = safe4.existEnode(isSuper, it)
+            } catch (e: Exception) {
+
+            } finally {
+                emitState()
+            }
+        }
+    }
+
+    private fun checkNodeExist(address: String?) {
+        if (address == null || nodeAddress == address)    return
+        safe4.nodeExist(isSuper, address)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    existNode = it
+                    emitState()
+                }, {
+
+                }).let {
+                    disposables.add(it)
+                }
+    }
+
 
     fun updateName() {
         sendResult = SendResult.Sending
@@ -181,4 +220,6 @@ data class NodeEditUiState (
         val addressCanUpdate: Boolean = false,
         val enodeCanUpdate: Boolean = false,
         val descCanUpdate: Boolean = false,
+        val existsEnode: Boolean = false,
+        val existsNode: Boolean = false,
 )

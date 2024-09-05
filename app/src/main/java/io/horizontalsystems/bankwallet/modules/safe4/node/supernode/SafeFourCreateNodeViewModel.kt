@@ -27,6 +27,7 @@ import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -56,6 +57,7 @@ class SafeFourCreateNodeViewModel(
     private var voterIncentive = 45
 
     private var existENode = false
+    private var existNode = false
 
     private val disposables = CompositeDisposable()
 
@@ -79,7 +81,9 @@ class SafeFourCreateNodeViewModel(
 
     private fun handleUpdatedAddressState(addressState: SendEvmAddressService.State) {
         this.addressState = addressState
-
+        if (addressState.canBeSend) {
+            checkNodeExist(addressState.address?.hex)
+        }
         emitState()
     }
 
@@ -96,15 +100,17 @@ class SafeFourCreateNodeViewModel(
                 if (isSuperNode)
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
                     && amountState.canBeSend && addressState.canBeSend
-                    && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode
+                    && addressState.address?.hex != getReceiveAddress()
+                    && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.length >= 8
                 else
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
-                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank() && !existENode
+                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.isNotBlank() && introduction.length >= 8
             ,
             lockAmount = "${getLockAmount()} SAFE",
-            existENode
+            existENode,
+            existNode
     )
 
 
@@ -137,6 +143,20 @@ class SafeFourCreateNodeViewModel(
                 emitState()
             }
         }
+    }
+
+    private fun checkNodeExist(address: String?) {
+        if (address == null)    return
+        rpcBlockchainSafe4.nodeExist(isSuperNode, address)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    existNode = it
+                    emitState()
+                }, {
+
+                }).let {
+                    disposables.add(it)
+                }
     }
 
     fun onSelectType(index: Int) {

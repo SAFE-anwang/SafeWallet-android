@@ -2291,6 +2291,8 @@
     <string name="Safe_Four_Register_Mode_Name">Name</string>
     <string name="Safe_Four_Register_Mode_Length_Error">The length cannot be less than %d characters</string>
     <string name="Safe_Four_Register_Mode_Exists_Enode">Exists ENode</string>
+    <string name="Safe_Four_Register_Mode_Exists_Super_Node">This address already super node</string>
+    <string name="Safe_Four_Register_Mode_Exists_Master_Node">This address already master node</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">After deploying the node program on the server, use geth to connect to the console input\nadmin.nodeInfo\nObtain ENODE information of the node</string>
     <string name="Safe_Four_Register_Introduction">Brief Introduction</string>
@@ -2305,6 +2307,7 @@
     <string name="Safe_Four_No_Super_Node">You don\'t have create Super Node</string>
     <string name="Safe_Four_No_Master_Node">You don\'t have create Master Node</string>
     <string name="Safe_Four_No_Locked_Record">You don\'t have locked record</string>
+    <string name="Safe_Four_No_Vote_Record">Don\'t have vote record</string>
     <string name="Safe_Four_Node_Online">Online</string>
     <string name="Safe_Four_Node_Exception">Exception</string>
     <string name="Safe_Four_Node_Join_Partner">Join Partner</string>
@@ -2314,6 +2317,7 @@
     <string name="Safe_Four_Node_Pledge">Pledge SAFE:%s SAFE</string>
     <string name="Safe_Four_Node_Super_Node_Vote">Super node voting</string>
     <string name="Safe_Four_Node_Master_Node_Vote">Joint creation of master nodes</string>
+    <string name="Safe_Four_Node_Super_Node_Join">Joint creation of super node</string>
     <string name="Safe_Four_Node_Info">Node Information:</string>
     <string name="Safe_Four_Node_Info_Id_List">Node ID: %s</string>
     <string name="Safe_Four_Node_Info_Id">Node ID: </string>

@@ -215,7 +215,7 @@ fun SafeFourNodeScreen(
 										R.id.voteFragment,
 										SafeFourVoteFragment.Input(
 												viewModel.wallet,
-												navController.context.getString(viewModel.getVoteButtonName()),
+												navController.context.getString(viewModel.getJoinButtonName()),
 												it.id,
 												viewModel.getNodeType(),
 												it.address.hex,

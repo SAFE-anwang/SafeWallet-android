@@ -1,13 +1,18 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,10 +21,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
@@ -50,6 +58,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +69,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey50
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 
 @Composable
 fun HintView(
@@ -255,4 +265,63 @@ fun CustomOutlinedTextField(
 					)
 				}
 		))
+}
+
+
+
+@Composable
+fun ListEmptyView2(
+		paddingValues: PaddingValues = PaddingValues(),
+		text: String,
+		@DrawableRes icon: Int
+) {
+	ScreenMessageWithAction2(
+			paddingValues = paddingValues,
+			text = text,
+			icon = icon
+	)
+}
+
+@Composable
+fun ScreenMessageWithAction2(
+		text: String,
+		@DrawableRes icon: Int,
+		paddingValues: PaddingValues = PaddingValues(),
+		actionsComposable: (@Composable () -> Unit)? = null
+) {
+	Column(
+			modifier = Modifier
+					.padding(paddingValues)
+					.fillMaxSize(),
+			verticalArrangement = Arrangement.Center,
+			horizontalAlignment = Alignment.CenterHorizontally
+	) {
+		Box(
+				modifier = Modifier
+						.size(100.dp)
+						.background(
+								color = ComposeAppTheme.colors.raina,
+								shape = CircleShape
+						),
+				contentAlignment = Alignment.Center
+		) {
+			Icon(
+					modifier = Modifier.size(48.dp),
+					painter = painterResource(icon),
+					contentDescription = text,
+					tint = ComposeAppTheme.colors.grey
+			)
+		}
+		Spacer(Modifier.height(32.dp))
+		subhead2_grey(
+				modifier = Modifier.padding(horizontal = 48.dp),
+				text = text,
+				textAlign = TextAlign.Center,
+				overflow = TextOverflow.Ellipsis,
+		)
+		actionsComposable?.let { composable ->
+			Spacer(Modifier.height(32.dp))
+			composable.invoke()
+		}
+	}
 }

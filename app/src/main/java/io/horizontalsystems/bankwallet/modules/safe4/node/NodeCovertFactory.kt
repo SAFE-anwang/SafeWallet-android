@@ -33,7 +33,7 @@ object NodeCovertFactory {
 
 	val Node_Lock_Day = 720
 
-	fun createNoteItemView(index: Int, nodeItem: NodeInfo, isSuperNode: Boolean, isRegisterNode: Boolean = false): NodeViewItem {
+	fun createNoteItemView(index: Int, nodeItem: NodeInfo, isSuperNode: Boolean, receiveAddress: String? = null): NodeViewItem {
 		val totalVoteNum = valueConvert(nodeItem.totalVoteNum)
 		val totalAmount = valueConvert(nodeItem.totalAmount)
 		val allVoteNum = valueConvert(nodeItem.allVoteNum)
@@ -45,9 +45,9 @@ object NodeCovertFactory {
 		}
 		val creatorTotalAmount = valueConvert( nodeItem.founders.sumOf { it.amount })
 		val canJoin = if (isSuperNode)
-			if (isRegisterNode) false else creatorTotalAmount.toInt() < Super_Node_Create_Amount
+			nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Super_Node_Create_Amount
 		else
-			if (isRegisterNode) false else creatorTotalAmount.toInt() < Master_Node_Create_Amount
+			creatorTotalAmount.toInt() < Master_Node_Create_Amount
 
 		val createPledge = if (isSuperNode)
 			Super_Node_Create_Amount

@@ -127,37 +127,41 @@ fun TabInfoScreen(
     val coroutineScope = rememberCoroutineScope()
     val isSuperNode = NodeType.getType(nodeType) == NodeType.SuperNode
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
-            .verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier
+            .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
                 title = stringResource(id = R.string.Safe_Four_Node_Info_Title),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 }
         )
-        NodeBaseInfoScreen(navController, viewModel)
-        Spacer(modifier = Modifier.height(10.dp))
-        val selectedTab = tabs[pagerState.currentPage]
-        val tabItems = tabs.map {
-            TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
-        }
-        Tabs(tabItems, onClick = { tab ->
-            coroutineScope.launch {
-                pagerState.scrollToPage(tab.ordinal)
+        Column(modifier = Modifier
+                .verticalScroll(rememberScrollState())) {
+
+            NodeBaseInfoScreen(navController, viewModel)
+            Spacer(modifier = Modifier.height(10.dp))
+            val selectedTab = tabs[pagerState.currentPage]
+            val tabItems = tabs.map {
+                TabItem(stringResource(id = it.titleResId), it == selectedTab, it)
             }
-        })
-
-        HorizontalPager(
-                state = pagerState,
-                userScrollEnabled = false
-        ) { page ->
-            when (tabs[page]) {
-                SafeFourVoteModule.TabInfo.Creator -> {
-                    CreatorScreen(viewModel)
+            Tabs(tabItems, onClick = { tab ->
+                coroutineScope.launch {
+                    pagerState.scrollToPage(tab.ordinal)
                 }
+            })
 
-                SafeFourVoteModule.TabInfo.Voters -> {
-                    VoterRecordScreen(viewModel = voteRecordViewModel)
+            HorizontalPager(
+                    state = pagerState,
+                    userScrollEnabled = false
+            ) { page ->
+                when (tabs[page]) {
+                    SafeFourVoteModule.TabInfo.Creator -> {
+                        CreatorScreen(viewModel)
+                    }
+
+                    SafeFourVoteModule.TabInfo.Voters -> {
+                        VoterRecordScreen(viewModel = voteRecordViewModel)
+                    }
                 }
             }
         }
@@ -430,7 +434,7 @@ fun NodeInfoScreen(
                             .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                             .background(ComposeAppTheme.colors.lawrence),
                     progress = uiState.creator,
-                    color = ComposeAppTheme.colors.green50,
+                    color = ComposeAppTheme.colors.issykBlue,
                     backgroundColor = ComposeAppTheme.colors.grey50)
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -459,7 +463,7 @@ fun NodeInfoScreen(
                             .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                             .background(ComposeAppTheme.colors.lawrence),
                     progress = uiState.partner,
-                    color = ComposeAppTheme.colors.green50,
+                    color = ComposeAppTheme.colors.issykBlue,
                     backgroundColor = ComposeAppTheme.colors.grey50)
         }
         if (isSuperNode) {
@@ -489,7 +493,7 @@ fun NodeInfoScreen(
                                 .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
                                 .background(ComposeAppTheme.colors.lawrence),
                         progress = uiState.voter,
-                        color = ComposeAppTheme.colors.green50,
+                        color = ComposeAppTheme.colors.issykBlue,
                         backgroundColor = ComposeAppTheme.colors.grey50)
             }
         }
@@ -510,7 +514,7 @@ fun CreatorScreen(
             .background(ComposeAppTheme.colors.lawrence)) {
         Row(modifier = Modifier
                 .wrapContentHeight()
-                .padding(start = 10.dp, top = 16.dp, end = 10.dp , bottom = 16.dp)) {
+                .padding(start = 10.dp, top = 16.dp, end = 10.dp, bottom = 16.dp)) {
             body_bran(text = stringResource(R.string.Safe_Four_Node_Vote_Record_ID),
                     modifier = Modifier.weight(1.1f))
             Spacer(modifier = Modifier.width(10.dp))
@@ -560,17 +564,19 @@ fun VoterRecordScreen(
     val recordList = uiState.voteRecords
     if (recordList.isNullOrEmpty()) {
         Column() {
+            Spacer(modifier = Modifier.height(16.dp))
             if (recordList == null) {
-                ListEmptyView(
+                ListEmptyView2(
                         text = stringResource(R.string.Transactions_WaitForSync),
                         icon = R.drawable.ic_clock
                 )
             } else {
-                ListEmptyView(
-                        text = stringResource(R.string.Safe_Four_No_Super_Node),
+                ListEmptyView2(
+                        text = stringResource(R.string.Safe_Four_No_Vote_Record),
                         icon = R.drawable.ic_no_data
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     } else {
         Column(modifier = Modifier

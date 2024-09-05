@@ -48,7 +48,8 @@ class SafeFourCreateNodeModule {
 			val amountCaution: HSCaution?,
 			val canBeSend: Boolean,
 			val lockAmount: String,
-			val existEnode: Boolean
+			val existEnode: Boolean,
+			val existNode: Boolean
 	)
 
 }

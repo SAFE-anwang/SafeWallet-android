@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +20,8 @@ class SafeFourNodeViewModel(
         val wallet: Wallet,
         private val title: String,
         private val nodeService: SafeFourNodeService,
-        private val isSuperNode: Boolean
+        private val isSuperNode: Boolean,
+        private val ethereumKit: EthereumKit
 ) : ViewModelUiState<SafeFourModule.SafeFourNodeUiState>()  {
 
     val tabs = if (isSuperNode) listOf(
@@ -49,7 +51,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.itemsObservable
                 .subscribeIO {
-                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode) }
+                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, receiveAddress =  receiveAddress()) }
                     emitState()
                 }
                 .let {
@@ -57,7 +59,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.mineNodeItemsObservable
                 .subscribeIO {
-                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode) }
+                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, receiveAddress =  receiveAddress()) }
                     emitState()
                 }
                 .let {
@@ -76,6 +78,10 @@ class SafeFourNodeViewModel(
         } else {
             isRegisterNode.second
         }
+    }
+
+    private fun receiveAddress(): String {
+        return ethereumKit.receiveAddress.hex
     }
 
     override fun createState() = SafeFourModule.SafeFourNodeUiState(
@@ -158,6 +164,14 @@ class SafeFourNodeViewModel(
     fun getVoteButtonName(): Int {
         return if (isSuperNode) {
             R.string.Safe_Four_Node_Super_Node_Vote
+        } else {
+            R.string.Safe_Four_Node_Master_Node_Vote
+        }
+    }
+
+    fun getJoinButtonName(): Int {
+        return if (isSuperNode) {
+            R.string.Safe_Four_Node_Super_Node_Join
         } else {
             R.string.Safe_Four_Node_Master_Node_Vote
         }

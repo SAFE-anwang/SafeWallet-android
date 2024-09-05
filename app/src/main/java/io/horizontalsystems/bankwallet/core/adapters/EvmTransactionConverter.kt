@@ -71,13 +71,7 @@ class EvmTransactionConverter(
             }
 
             is Safe4DepositIncomingDecoration -> {
-                // 提案金额
-                val value = if (transaction.eventLogIndex > 0) {
-                    decoration.value.multiply((transaction.eventLogIndex).toBigInteger())
-                } else {
-                    decoration.value
-                }
-                Safe4DepositEvmIncomingTransactionRecord(transaction, baseToken, source, spamManager, decoration.from.eip55, baseCoinValue(value, false))
+                Safe4DepositEvmIncomingTransactionRecord(transaction, baseToken, source, spamManager, decoration.from.eip55, baseCoinValue(decoration.value, false))
             }
 
             is Safe4DepositOutgoingDecoration -> {
