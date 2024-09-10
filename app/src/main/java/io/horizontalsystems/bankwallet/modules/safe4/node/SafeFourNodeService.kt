@@ -54,6 +54,17 @@ class SafeFourNodeService(
 	private val mineItemsSubject = PublishSubject.create<List<NodeInfo>>()
 	val mineNodeItemsObservable: Observable<List<NodeInfo>> get() = mineItemsSubject
 
+	var creatorList = CopyOnWriteArrayList<String>()
+	private val creatorSubject = PublishSubject.create<List<String>>()
+	val creatorObservable: Observable<List<String>> get() = creatorSubject
+
+
+	var isSuperOrMasterNode = false
+	private val isSuperOrMasterNodeSubject = PublishSubject.create<Boolean>()
+	val isSuperOrMasterNodeObservable: Observable<Boolean> get() = isSuperOrMasterNodeSubject
+
+
+
 	private val disposables = CompositeDisposable()
 
 	private val isSuperNode = nodeType == NodeType.SuperNode
@@ -363,6 +374,34 @@ class SafeFourNodeService(
 		} catch (e: Exception) {
 
 		}
+	}
+
+	fun getTops4Creator() {
+		if (isSuperNode) {
+			safe4RpcBlockChain.getTops4Creator(walletAddress.hex)
+					.subscribeOn(Schedulers.io())
+					.subscribe({
+						creatorList.addAll(it)
+						creatorSubject.onNext(creatorList)
+					}, {
+
+					})?.let {
+						disposables.add(it)
+					}
+		}
+	}
+
+	fun checkNodeExist(address: String) {
+		safe4RpcBlockChain.existNodeAddress(address)
+				.subscribeOn(Schedulers.io())
+				.subscribe({
+					isSuperOrMasterNode = it
+					isSuperOrMasterNodeSubject.onNext(isSuperOrMasterNode)
+				}, {
+
+				}).let {
+					disposables.add(it)
+				}
 	}
 
 	fun loadNext() {

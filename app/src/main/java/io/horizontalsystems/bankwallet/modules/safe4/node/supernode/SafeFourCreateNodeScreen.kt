@@ -66,7 +66,7 @@ fun SafeFourCreateNodeScreen(
 		isSuper:Boolean
 ) {
 	val wallet = viewModel.wallet
-	val predefinedAddress = if (isSuper) null else viewModel.getReceiveAddress()
+	val predefinedAddress = null
 	val uiState = viewModel.uiState
 	val addressError = viewModel.uiState.addressError
 	val lockValue = uiState.lockAmount
@@ -193,12 +193,23 @@ fun SafeFourCreateNodeScreen(
 			) {
 				viewModel.onEnterAddress(it)
 			}
-			if (uiState.existNode) {
+			if (uiState.existNode || uiState.isFounder) {
 				Text(
 						modifier = Modifier.padding(start = 16.dp),
 						text = stringResource(
 								id = if (isSuper) R.string.Safe_Four_Register_Mode_Exists_Super_Node
 									else R.string.Safe_Four_Register_Mode_Exists_Master_Node
+						),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
+			}
+			if (uiState.isInputCurrentWalletAddress) {
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(
+								id =  R.string.Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address
 						),
 						color = ComposeAppTheme.colors.redD,
 						style = ComposeAppTheme.typography.caption,

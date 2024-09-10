@@ -1968,8 +1968,9 @@
     <string name="Safe_Four_Register_Mode_Name">名称</string>
     <string name="Safe_Four_Register_Mode_Length_Error">长度不能小于%d个字</string>
     <string name="Safe_Four_Register_Mode_Exists_Enode">ENode已存在</string>
-    <string name="Safe_Four_Register_Mode_Exists_Super_Node">该地址已是超级节点</string>
-    <string name="Safe_Four_Register_Mode_Exists_Master_Node">该地址已是主节点</string>
+    <string name="Safe_Four_Register_Mode_Exists_Super_Node">该地址已是超级节点或合伙人</string>
+    <string name="Safe_Four_Register_Mode_Exists_Master_Node">该地址已是主节点或合伙人</string>
+    <string name="Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address">不能使用当前钱包地址</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入\nadmin.nodeInfo\n获取节点的ENODE信息</string>
     <string name="Safe_Four_Register_Introduction">简介</string>

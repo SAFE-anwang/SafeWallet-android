@@ -49,7 +49,9 @@ class SafeFourCreateNodeModule {
 			val canBeSend: Boolean,
 			val lockAmount: String,
 			val existEnode: Boolean,
-			val existNode: Boolean
+			val existNode: Boolean,
+			val isFounder: Boolean,
+			val isInputCurrentWalletAddress: Boolean
 	)
 
 }

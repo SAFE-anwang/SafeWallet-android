@@ -2291,8 +2291,9 @@
     <string name="Safe_Four_Register_Mode_Name">Name</string>
     <string name="Safe_Four_Register_Mode_Length_Error">The length cannot be less than %d characters</string>
     <string name="Safe_Four_Register_Mode_Exists_Enode">Exists ENode</string>
-    <string name="Safe_Four_Register_Mode_Exists_Super_Node">This address already super node</string>
-    <string name="Safe_Four_Register_Mode_Exists_Master_Node">This address already master node</string>
+    <string name="Safe_Four_Register_Mode_Exists_Super_Node">This address already super node or partner</string>
+    <string name="Safe_Four_Register_Mode_Exists_Master_Node">This address already master node or partner</string>
+    <string name="Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address">Cannot use current wallet address</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
     <string name="Safe_Four_Register_ENODE_Hint">After deploying the node program on the server, use geth to connect to the console input\nadmin.nodeInfo\nObtain ENODE information of the node</string>
     <string name="Safe_Four_Register_Introduction">Brief Introduction</string>

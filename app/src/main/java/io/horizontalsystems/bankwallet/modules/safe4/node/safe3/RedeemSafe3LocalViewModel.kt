@@ -147,9 +147,9 @@ class RedeemSafe3LocalViewModel(
 			val masterNodeKey = list.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 
 			try {
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey).blockingGet()
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress()).blockingGet()
 				if (masterNodeKey.isNotEmpty()) {
-					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey)
+					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
 				list.forEach {
 					redeemStorage.save(Redeem(

@@ -86,6 +86,7 @@ object SafeFourVoteModule {
 					nodeId,
 					isSuperNode,
 					service,
+					adapter.evmKitWrapper.evmKit.receiveAddress.hex
 			) as T
 		}
 	}

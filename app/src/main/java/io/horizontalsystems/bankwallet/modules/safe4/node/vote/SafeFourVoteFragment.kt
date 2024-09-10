@@ -967,8 +967,13 @@ fun CreatorScreen2(
                 body_bran(text = item.id,
                         modifier = Modifier.weight(1.1f))
                 Spacer(modifier = Modifier.width(10.dp))
-                body_bran(text = item.address,
-                        modifier = Modifier.weight(4f))
+                if (item.isMine) {
+                    body_issykBlue(text = item.address,
+                            modifier = Modifier.weight(4f))
+                } else {
+                    body_bran(text = item.address,
+                            modifier = Modifier.weight(4f))
+                }
                 Spacer(modifier = Modifier.width(10.dp))
                 body_bran(text = item.amount,
                         modifier = Modifier.weight(2.5f))

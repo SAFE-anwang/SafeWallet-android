@@ -251,12 +251,23 @@ fun EditScreen(
             ) {
                 viewModel.onEnterAddress(it)
             }
-            if (uiState.existsNode) {
+            if (uiState.existsNode || uiState.isFounder) {
                 Text(
                         modifier = Modifier.padding(start = 16.dp),
                         text = stringResource(
                                 id = if (isSuperNode) R.string.Safe_Four_Register_Mode_Exists_Super_Node
                                 else R.string.Safe_Four_Register_Mode_Exists_Master_Node
+                        ),
+                        color = ComposeAppTheme.colors.redD,
+                        style = ComposeAppTheme.typography.caption,
+                        maxLines = 1,
+                )
+            }
+            if (uiState.isInputCurrentWalletAddress) {
+                Text(
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = stringResource(
+                                id =  R.string.Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address
                         ),
                         color = ComposeAppTheme.colors.redD,
                         style = ComposeAppTheme.typography.caption,

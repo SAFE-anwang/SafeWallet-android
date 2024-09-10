@@ -24,13 +24,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
+import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithSpinner
-import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputPassword
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
@@ -95,7 +96,8 @@ fun LocalBackupPasswordScreen(
         viewModel.closeScreenCalled()
         onFinish()
     }
-    val focusRequester = remember { FocusRequester() }
+    val focusRequester1 = remember { FocusRequester() }
+    val focusRequester2 = remember { FocusRequester() }
 
     Scaffold(
         backgroundColor = ComposeAppTheme.colors.tyler,
@@ -119,7 +121,7 @@ fun LocalBackupPasswordScreen(
 
                 InfoText(text = stringResource(R.string.LocalBackup_ProtextBackupWithPasswordInfo))
                 VSpacer(24.dp)
-                FormsInputPassword(
+                FormsInputPassword2(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     hint = stringResource(R.string.Password),
                     state = uiState.passphraseState,
@@ -129,13 +131,10 @@ fun LocalBackupPasswordScreen(
                     onToggleHide = {
                         hidePassphrase = !hidePassphrase
                     },
-                        focusRequester = focusRequester
+                        focusRequester = focusRequester1
                 )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
                 VSpacer(16.dp)
-                FormsInputPassword(
+                FormsInputPassword2(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     hint = stringResource(R.string.ConfirmPassphrase),
                     state = uiState.passphraseConfirmState,
@@ -144,7 +143,8 @@ fun LocalBackupPasswordScreen(
                     hide = hidePassphrase,
                     onToggleHide = {
                         hidePassphrase = !hidePassphrase
-                    }
+                    },
+                        focusRequester = focusRequester2
                 )
                 VSpacer(32.dp)
                 TextImportantWarning(
@@ -167,6 +167,16 @@ fun LocalBackupPasswordScreen(
                     },
                 )
             }
+        }
+
+        LaunchedEffect(Unit) {
+            view.post {
+                focusRequester2.requestFocus()
+                view.postDelayed({
+                    focusRequester1.requestFocus()
+                }, 150)
+            }
+
         }
     }
 }

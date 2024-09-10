@@ -48,7 +48,8 @@ class SafeFourNodeEditViewModel(
         val nodeDesc: String,
         private val safe4: RpcBlockchainSafe4,
         private val addressService: SendEvmAddressService,
-        private val privateKey: String
+        private val privateKey: String,
+        private val walletAddress: String
 ) : ViewModelUiState<NodeEditUiState>() {
 
     private var inputNodeName: String = nodeName
@@ -65,6 +66,8 @@ class SafeFourNodeEditViewModel(
 
     private var existENode = false
     private var existNode = false
+    private var existNodeFounder = false
+    private var isInputCurrentWalletAddress = false
 
     var sendResult by mutableStateOf<SendResult?>(null)
 
@@ -81,6 +84,7 @@ class SafeFourNodeEditViewModel(
         this.addressState = addressState
         if (addressState.canBeSend && addressState.address != null) {
             checkNodeExist(addressState.address.hex)
+            existNodeFounder(addressState.address.hex)
         }
         if (!addressState.canBeSend) {
             existNode = false
@@ -97,11 +101,14 @@ class SafeFourNodeEditViewModel(
                 nodeDesc,
                 addressState.addressError,
                 !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length >= 8,
-                !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true) && addressState.canBeSend && !existNode,
+                !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true)
+                        && addressState.canBeSend && !existNode && !existNodeFounder
+                        && addressState.address?.hex != walletAddress,
                 !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank() && !existENode,
                 !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length >= 12,
                 existENode,
-                existNode
+                existNode,
+                existNodeFounder
 
         )
 
@@ -121,14 +128,27 @@ class SafeFourNodeEditViewModel(
     }
 
     fun onEnterAddress(address: Address?) {
+        if (address?.hex != nodeAddress && address?.hex == walletAddress) {
+            isInputCurrentWalletAddress = true
+            emitState()
+            return
+        }
+        isInputCurrentWalletAddress = false
         addressService.setAddress(address)
     }
 
-
     private fun existENode(eNode: String?) {
-        eNode?.let {
+        eNode?.let { eNode ->
             try {
-                existENode = safe4.existEnode(isSuper, it)
+                safe4.existNodeEnode(eNode)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({
+                            existENode = it
+                        }, {
+
+                        }).let {
+                            disposables.add(it)
+                        }
             } catch (e: Exception) {
 
             } finally {
@@ -139,7 +159,7 @@ class SafeFourNodeEditViewModel(
 
     private fun checkNodeExist(address: String?) {
         if (address == null || nodeAddress == address)    return
-        safe4.nodeExist(isSuper, address)
+        safe4.existNodeAddress(address)
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     existNode = it
@@ -151,6 +171,19 @@ class SafeFourNodeEditViewModel(
                 }
     }
 
+    private fun existNodeFounder(address: String?) {
+        if (address == null || nodeAddress == address)    return
+        safe4.existNodeFounder(address)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    existNodeFounder = it
+                    emitState()
+                }, {
+
+                }).let {
+                    disposables.add(it)
+                }
+    }
 
     fun updateName() {
         sendResult = SendResult.Sending
@@ -222,4 +255,6 @@ data class NodeEditUiState (
         val descCanUpdate: Boolean = false,
         val existsEnode: Boolean = false,
         val existsNode: Boolean = false,
+        val isFounder: Boolean = false,
+        val isInputCurrentWalletAddress: Boolean = false,
 )

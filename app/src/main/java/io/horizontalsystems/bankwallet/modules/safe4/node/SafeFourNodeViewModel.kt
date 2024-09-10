@@ -35,6 +35,9 @@ class SafeFourNodeViewModel(
     private var nodes: List<NodeViewItem>? = null
     private var mineNodes: List<NodeViewItem>? = null
 
+    private var creatorList: List<String> = emptyList()
+    private var isSuperOrMasterNode: Boolean = false
+
     private var isRegisterNode = Pair(false, false)
     private var query: String? = null
     private var isFilterId: Boolean = false
@@ -51,7 +54,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.itemsObservable
                 .subscribeIO {
-                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, receiveAddress =  receiveAddress()) }
+                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isRegisterNode.first || creatorList.contains(receiveAddress()), receiveAddress =  receiveAddress()) }
                     emitState()
                 }
                 .let {
@@ -59,13 +62,31 @@ class SafeFourNodeViewModel(
                 }
         nodeService.mineNodeItemsObservable
                 .subscribeIO {
-                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, receiveAddress =  receiveAddress()) }
+                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isRegisterNode.first || creatorList.contains(receiveAddress()), receiveAddress =  receiveAddress()) }
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.creatorObservable
+                .subscribeIO {
+                    creatorList = it
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.isSuperOrMasterNodeObservable
+                .subscribeIO {
+                    isSuperOrMasterNode = it
                     emitState()
                 }
                 .let {
                     disposables.add(it)
                 }
         viewModelScope.launch(Dispatchers.IO) {
+            nodeService.checkNodeExist(receiveAddress())
+            nodeService.getTops4Creator()
             nodeService.getMineCreatorNode()
             nodeService.loadItems(0)
             nodeService.loadItemsMine(0)
@@ -252,13 +273,16 @@ data class NodeViewItem(
         val enode: String = "",
         val createPledge: String = "5,000 SAFE",
         val canJoin: Boolean = false,
-        val isEdit: Boolean = false
+        val isEdit: Boolean = false,
+        val isMine: Boolean = false,
+        val isVoteEnable: Boolean = false
 )
 
 data class CreateViewItem(
         val id: String,
         val address: String,
-        val amount: String
+        val amount: String,
+        val isMine: Boolean
 )
 
 sealed class NodeStatus {

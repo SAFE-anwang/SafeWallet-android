@@ -33,7 +33,10 @@ object NodeCovertFactory {
 
 	val Node_Lock_Day = 720
 
-	fun createNoteItemView(index: Int, nodeItem: NodeInfo, isSuperNode: Boolean, receiveAddress: String? = null): NodeViewItem {
+	fun createNoteItemView(index: Int, nodeItem: NodeInfo,
+						   isSuperNode: Boolean,
+						   isSuperOrMasterNode: Boolean = false,
+						   isCreatorNode: Boolean = false, receiveAddress: String? = null): NodeViewItem {
 		val totalVoteNum = valueConvert(nodeItem.totalVoteNum)
 		val totalAmount = valueConvert(nodeItem.totalAmount)
 		val allVoteNum = valueConvert(nodeItem.allVoteNum)
@@ -44,10 +47,11 @@ object NodeCovertFactory {
 			0
 		}
 		val creatorTotalAmount = valueConvert( nodeItem.founders.sumOf { it.amount })
+		// 加入规则： 加入超级节点S4时，调用者不是S4，也不可以在是超级节点和主节点。
 		val canJoin = if (isSuperNode)
-			nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Super_Node_Create_Amount
+			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Super_Node_Create_Amount
 		else
-			creatorTotalAmount.toInt() < Master_Node_Create_Amount
+			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Master_Node_Create_Amount
 
 		val createPledge = if (isSuperNode)
 			Super_Node_Create_Amount
@@ -69,7 +73,9 @@ object NodeCovertFactory {
 				nodeItem.enode,
 				createPledge = "$createPledge SAFE",
 				canJoin = canJoin,
-				isEdit = nodeItem.isEdit
+				isEdit = nodeItem.isEdit,
+				isMine = receiveAddress == nodeItem.addr.hex,
+				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex
 		)
 	}
 
@@ -106,13 +112,14 @@ object NodeCovertFactory {
 		}
 	}
 
-	fun convertCreatorList(nodeItem: NodeInfo?): List<CreateViewItem> {
+	fun convertCreatorList(nodeItem: NodeInfo?, walletAddress: String): List<CreateViewItem> {
 		nodeItem ?: return emptyList()
 		return nodeItem.founders.map {
 			CreateViewItem(
 					it.lockID.toString(),
 					it.addr.hex,
 					App.numberFormatter.formatCoinFull(valueConvert(it.amount), "SAFE", 2),
+					it.addr.hex == walletAddress
 			)
 		}
 	}

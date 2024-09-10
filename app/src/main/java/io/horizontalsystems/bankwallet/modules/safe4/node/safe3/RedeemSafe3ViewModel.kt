@@ -192,9 +192,9 @@ class RedeemSafe3ViewModel(
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			try {
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey)).blockingGet()
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), getSafe4Address(privateKey)!!).blockingGet()
 				if (existMasterNode) {
-					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey))
+					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), getSafe4Address(privateKey)!!)
 				}
 				sendResult = SendResult.Sent
 				reset()

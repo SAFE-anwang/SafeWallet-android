@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.entities.DataState
@@ -456,7 +458,6 @@ fun FormsInputPassword(
     hide: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     enabled: Boolean = true,
-    focusRequester: FocusRequester? = null,
     onValueChange: (String) -> Unit,
     onToggleHide: () -> Unit
 ) {
@@ -476,13 +477,6 @@ fun FormsInputPassword(
     } else {
         ComposeAppTheme.colors.lucian
     }
-    val textModifier = if (focusRequester != null) {
-        Modifier
-                .padding(horizontal = 16.dp, vertical = 12.dp).focusRequester(focusRequester)
-    } else {
-        Modifier
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-    }
 
     Column(modifier) {
         Row(
@@ -499,7 +493,9 @@ fun FormsInputPassword(
             }
 
             BasicTextField(
-                modifier = textModifier.weight(1f),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .weight(1f),
                 value = textState,
                 onValueChange = { textFieldValue ->
 

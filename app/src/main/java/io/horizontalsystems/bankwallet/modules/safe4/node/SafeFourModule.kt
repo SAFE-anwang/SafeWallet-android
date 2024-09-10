@@ -61,7 +61,8 @@ class SafeFourModule {
                     desc,
                     rpcBlockchainSafe4,
                     addressService,
-                    evmKitWrapper.signer!!.privateKey.toHexString()
+                    evmKitWrapper.signer!!.privateKey.toHexString(),
+                    evmKitWrapper.evmKit.receiveAddress.hex
             ) as T
         }
     }

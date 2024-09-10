@@ -117,7 +117,7 @@ class SafeFourVoteViewModel(
                 canBeSend = amountState.canBeSend,
                 recordVoteCanSend = getRecordVoteCanSend(),
                 lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
-                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo)
+                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex)
         )
     } else {
         VoteUiState(
@@ -133,7 +133,7 @@ class SafeFourVoteViewModel(
                 canBeSend = amountState.canBeSend || joinAmount > 0,
                 recordVoteCanSend = getRecordVoteCanSend(),
                 lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
-                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo),
+                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
                 remainingShares = App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(nodeInfo!!.availableLimit), "SAFE", 2),
                 joinAmountList = getJoinAmountList()
         )

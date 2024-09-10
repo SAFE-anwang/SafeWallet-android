@@ -76,7 +76,9 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalIte
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
+import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
 import kotlinx.coroutines.launch
@@ -413,7 +415,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								}
 						)
 					}
-					if (!isRegisterSuperNode) {
+					if (item.isVoteEnable) {
 						ButtonPrimaryYellow(
 								modifier = Modifier
 										.height(25.dp),
@@ -426,13 +428,13 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				}
 				Spacer(Modifier.height(2.dp))
 				Row {
-					Text(
-							text = item.address.hex.shorten(8),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
+					if (item.isMine) {
+						body_issykBlue(text = item.address.hex.shorten(8),
+								modifier = Modifier.weight(4f))
+					} else {
+						body_grey(text = item.address.hex.shorten(8),
+								modifier = Modifier.weight(4f))
+					}
 
 					Spacer(Modifier.weight(1f))
 
@@ -600,13 +602,13 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 
 				Spacer(Modifier.height(2.dp))
 				Row {
-					Text(
-							text = item.address.hex.shorten(8),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
+					if (item.isMine) {
+						body_issykBlue(text = item.address.hex.shorten(8),
+								modifier = Modifier.weight(4f))
+					} else {
+						body_grey(text = item.address.hex.shorten(8),
+								modifier = Modifier.weight(4f))
+					}
 					
 				}
 			}

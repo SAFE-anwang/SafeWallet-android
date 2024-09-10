@@ -38,6 +38,7 @@ class SafeFourNodeInfoViewModel(
         val nodeId: Int,
         val isSuper: Boolean,
         private val nodeService: SafeFourNodeService,
+        private val walletAddress: String,
 ) : ViewModelUiState<NodeInfoUiState>() {
 
     val tabs = if (isSuper) SafeFourVoteModule.TabInfo.values() else arrayOf(SafeFourVoteModule.TabInfo.Creator)
@@ -63,7 +64,7 @@ class SafeFourNodeInfoViewModel(
     override fun createState() = if (nodeInfo == null) {
         NodeInfoUiState(
                 nodeInfo = null,
-                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo)
+                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, walletAddress)
         )
     } else {
         NodeInfoUiState(
@@ -74,7 +75,7 @@ class SafeFourNodeInfoViewModel(
                 partnerText = "${nodeInfo!!.incentivePlan.partner}%",
                 voter = nodeInfo!!.incentivePlan.voter.toFloat() / 100,
                 voterText = "${nodeInfo!!.incentivePlan.voter}%",
-                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo),
+                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, walletAddress),
                 remainingShares = App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(nodeInfo!!.availableLimit), "SAFE", 2),
         )
     }

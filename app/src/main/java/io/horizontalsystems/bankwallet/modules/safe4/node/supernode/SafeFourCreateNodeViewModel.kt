@@ -58,6 +58,8 @@ class SafeFourCreateNodeViewModel(
 
     private var existENode = false
     private var existNode = false
+    private var existNodeFounder = false
+    private var isInputCurrentWalletAddress = false
 
     private val disposables = CompositeDisposable()
 
@@ -83,6 +85,7 @@ class SafeFourCreateNodeViewModel(
         this.addressState = addressState
         if (addressState.canBeSend) {
             checkNodeExist(addressState.address?.hex)
+            existNodeFounder(addressState.address?.hex)
         }
         emitState()
     }
@@ -99,26 +102,37 @@ class SafeFourCreateNodeViewModel(
             canBeSend =
                 if (isSuperNode)
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
+                    && !existNodeFounder
                     && amountState.canBeSend && addressState.canBeSend
                     && addressState.address?.hex != getReceiveAddress()
                     && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.length >= 8
                 else
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
-                    && amountState.canBeSend && addressState.canBeSend && eNode.isNotBlank() && !existENode && !existNode
+                    && !existNodeFounder
+                    && amountState.canBeSend && addressState.canBeSend
+                    && addressState.address?.hex != getReceiveAddress()
+                    && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.isNotBlank() && introduction.length >= 8
             ,
             lockAmount = "${getLockAmount()} SAFE",
             existENode,
-            existNode
+            existNode,
+            existNodeFounder,
+            isInputCurrentWalletAddress
     )
-
 
     fun onEnterAmount(amount: BigDecimal?) {
         amountService.setAmount(amount)
     }
 
     fun onEnterAddress(address: Address?) {
+        if (address?.hex == getReceiveAddress()) {
+            isInputCurrentWalletAddress = true
+            emitState()
+            return
+        }
+        isInputCurrentWalletAddress = false
         addressService.setAddress(address)
     }
 
@@ -134,9 +148,17 @@ class SafeFourCreateNodeViewModel(
     }
 
     private fun existENode(eNode: String?) {
-        eNode?.let {
+        eNode?.let { eNode ->
             try {
-                existENode = rpcBlockchainSafe4.existEnode(isSuperNode, it)
+                rpcBlockchainSafe4.existNodeEnode(eNode)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({
+                            existENode = it
+                        }, {
+
+                        }).let {
+                            disposables.add(it)
+                        }
             } catch (e: Exception) {
 
             } finally {
@@ -147,10 +169,24 @@ class SafeFourCreateNodeViewModel(
 
     private fun checkNodeExist(address: String?) {
         if (address == null)    return
-        rpcBlockchainSafe4.nodeExist(isSuperNode, address)
+        rpcBlockchainSafe4.existNodeAddress(address)
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     existNode = it
+                    emitState()
+                }, {
+
+                }).let {
+                    disposables.add(it)
+                }
+    }
+
+    private fun existNodeFounder(address: String?) {
+        if (address == null)    return
+        rpcBlockchainSafe4.existNodeFounder(address)
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    existNodeFounder = it
                     emitState()
                 }, {
 

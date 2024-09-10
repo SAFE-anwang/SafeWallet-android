@@ -72,6 +72,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_green50
+import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
@@ -539,8 +540,13 @@ fun CreatorScreen(
                 body_bran(text = item.id,
                         modifier = Modifier.weight(1.1f))
                 Spacer(modifier = Modifier.width(10.dp))
-                body_bran(text = item.address,
-                        modifier = Modifier.weight(4f))
+                if (item.isMine) {
+                    body_issykBlue(text = item.address,
+                            modifier = Modifier.weight(4f))
+                } else {
+                    body_bran(text = item.address,
+                            modifier = Modifier.weight(4f))
+                }
                 Spacer(modifier = Modifier.width(10.dp))
                 body_bran(text = item.amount,
                         modifier = Modifier.weight(2.5f))
@@ -606,7 +612,7 @@ fun VoterRecordScreen(
                         .padding(horizontal = 16.dp)
                         .padding(top = 10.dp, bottom = 10.dp)) {
                     if (item.isMine) {
-                        body_green50(text = item.address,
+                        body_issykBlue(text = item.address,
                                 modifier = Modifier.weight(4f))
                     } else {
                         body_bran(text = item.address,
