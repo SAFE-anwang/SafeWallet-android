@@ -72,7 +72,7 @@ class SafeFourCreateNodeViewModel(
         }
         onEnterAmount(BigDecimal(getLockAmount()))
 
-        resetIncentive()
+        initIncentive()
     }
 
     private fun handleUpdatedAmountState(amountState: SendAmountService.State) {
@@ -198,6 +198,7 @@ class SafeFourCreateNodeViewModel(
     fun onSelectType(index: Int) {
         this.isUnion = index == 1
         onEnterAmount(BigDecimal(getLockAmount()))
+        resetIncentive()
         emitState()
     }
 
@@ -208,18 +209,23 @@ class SafeFourCreateNodeViewModel(
 
     private fun resetIncentive() {
         if (isSuperNode) {
+
+        } else {
+            if (isUnion) {
+                creatorIncentive = 50
+                partnerIncentive = 50
+            } else {
+                creatorIncentive = 100
+                partnerIncentive = 0
+            }
+        }
+    }
+
+    private fun initIncentive() {
+        if (isSuperNode) {
             creatorIncentive = 10
             partnerIncentive = 45
             voterIncentive = 45
-            /*if (isUnion) {
-                creatorIncentive = 10
-                partnerIncentive = 45
-                voterIncentive = 45
-            } else {
-                creatorIncentive = 10
-                partnerIncentive = 45
-                voterIncentive = 45
-            }*/
         } else {
             if (isUnion) {
                 creatorIncentive = 50
@@ -246,9 +252,6 @@ class SafeFourCreateNodeViewModel(
     }
 
     fun getCreateNodeData(): SafeFourConfirmationModule.CreateNodeData {
-        if (isUnion) {
-            resetIncentive()
-        }
         return SafeFourConfirmationModule.CreateNodeData(
                 BigDecimal.valueOf(getLockAmount().toLong()).movePointRight(18).toBigInteger(),
                 isUnion,
