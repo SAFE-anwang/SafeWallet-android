@@ -252,7 +252,7 @@ class SafeFourCreateNodeViewModel(
         return SafeFourConfirmationModule.CreateNodeData(
                 BigDecimal.valueOf(getLockAmount().toLong()).movePointRight(18).toBigInteger(),
                 isUnion,
-                ethereumKit.receiveAddress.hex,
+                addressState.address!!.hex,
                 BigInteger.valueOf(Node_Lock_Day.toLong()),
                 superNodeName,
                 eNode,
