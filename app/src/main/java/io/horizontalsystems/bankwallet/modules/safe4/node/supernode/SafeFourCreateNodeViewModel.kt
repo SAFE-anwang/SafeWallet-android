@@ -104,14 +104,14 @@ class SafeFourCreateNodeViewModel(
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
                     && !existNodeFounder
                     && amountState.canBeSend && addressState.canBeSend
-                    && addressState.address?.hex != getReceiveAddress()
+                    && !isInputCurrentWalletAddress
                     && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.length >= 8
                 else
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
                     && !existNodeFounder
                     && amountState.canBeSend && addressState.canBeSend
-                    && addressState.address?.hex != getReceiveAddress()
+                    && !isInputCurrentWalletAddress
                     && eNode.isNotBlank() && !existENode && !existNode
                     && introduction.isNotBlank() && introduction.length >= 8
             ,
@@ -127,7 +127,7 @@ class SafeFourCreateNodeViewModel(
     }
 
     fun onEnterAddress(address: Address?) {
-        if (address?.hex == getReceiveAddress()) {
+        if (getReceiveAddress().equals(address?.hex, true)) {
             isInputCurrentWalletAddress = true
             emitState()
             return

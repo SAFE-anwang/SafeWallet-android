@@ -103,7 +103,7 @@ class SafeFourNodeEditViewModel(
                 !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length >= 8,
                 !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true)
                         && addressState.canBeSend && !existNode && !existNodeFounder
-                        && addressState.address?.hex != walletAddress,
+                        && !isInputCurrentWalletAddress,
                 !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank() && !existENode,
                 !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length >= 12,
                 existENode,
@@ -128,7 +128,7 @@ class SafeFourNodeEditViewModel(
     }
 
     fun onEnterAddress(address: Address?) {
-        if (address?.hex != nodeAddress && address?.hex == walletAddress) {
+        if (nodeAddress.equals(address?.hex, true) && walletAddress.equals(address?.hex, true)) {
             isInputCurrentWalletAddress = true
             emitState()
             return
