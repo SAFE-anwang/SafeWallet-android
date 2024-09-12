@@ -75,7 +75,7 @@ object NodeCovertFactory {
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
 				isMine = receiveAddress == nodeItem.addr.hex,
-				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex
+				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex
 		)
 	}
 

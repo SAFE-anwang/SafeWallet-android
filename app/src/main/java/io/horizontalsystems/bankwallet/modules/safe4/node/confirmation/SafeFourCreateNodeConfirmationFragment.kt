@@ -178,6 +178,37 @@ fun SafeFourCreateNodeConfirmationScreen(
 
 
             body_grey(modifier = Modifier.padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Address))
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        text = data.address)
+
+            Divider(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
+
+
+
+            body_grey(modifier = Modifier.padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Creator))
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        text = uiState.creator)
+
+            Divider(
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                    thickness = 1.dp,
+                    color = ComposeAppTheme.colors.steel10,
+            )
+
+
+            body_grey(modifier = Modifier.padding(start = 16.dp),
                     text = stringResource(id = R.string.Safe_Four_Register_ENODE))
 
             Spacer(modifier = Modifier.height(5.dp))

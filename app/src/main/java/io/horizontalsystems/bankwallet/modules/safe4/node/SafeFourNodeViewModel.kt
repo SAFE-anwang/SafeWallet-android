@@ -38,7 +38,7 @@ class SafeFourNodeViewModel(
     private var creatorList: List<String> = emptyList()
     private var isSuperOrMasterNode: Boolean = false
 
-    private var isRegisterNode = Pair(false, false)
+    private var isRegisterNode = Pair(true, true)
     private var query: String? = null
     private var isFilterId: Boolean = false
 
@@ -85,11 +85,15 @@ class SafeFourNodeViewModel(
                     disposables.add(it)
                 }
         viewModelScope.launch(Dispatchers.IO) {
-            nodeService.checkNodeExist(receiveAddress())
-            nodeService.getTops4Creator()
-            nodeService.getMineCreatorNode()
-            nodeService.loadItems(0)
-            nodeService.loadItemsMine(0)
+            try {
+                nodeService.getMineCreatorNode()
+                nodeService.checkNodeExist(receiveAddress())
+                nodeService.getTops4Creator()
+                nodeService.loadItems(0)
+                nodeService.loadItemsMine(0)
+            } catch (e: Exception) {
+                Log.e("longwen", "node e=$e")
+            }
         }
     }
 

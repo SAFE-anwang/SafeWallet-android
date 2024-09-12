@@ -31,7 +31,8 @@ class SafeFourConfirmationModule {
 
     data class SafeFourCreateNodeConfirmationUiState(
             val lockAmount: String,
-            val canBeSend: Boolean
+            val canBeSend: Boolean,
+            val creator: String
     )
 
     companion object {

@@ -85,7 +85,8 @@ class SafeFourCreateNodeConfirmationViewModel(
 
     override fun createState() = SafeFourConfirmationModule.SafeFourCreateNodeConfirmationUiState(
             NodeCovertFactory.formatSafe(createNodeData.value),
-        true
+        true,
+            evmKitWrapper.evmKit.receiveAddress.hex
     )
 
     override fun onCleared() {
