@@ -395,7 +395,6 @@ class SafeFourNodeService(
 				.subscribeOn(Schedulers.io())
 				.subscribe({
 					isSuperOrMasterNode = it
-					Log.e("longwen", "isSuperOrMasterNode=$isSuperOrMasterNode")
 					isSuperOrMasterNodeSubject.onNext(isSuperOrMasterNode)
 				}, {
 
@@ -410,7 +409,6 @@ class SafeFourNodeService(
 				.subscribeOn(Schedulers.io())
 				.subscribe({
 					isFounder = it
-					Log.e("longwen", "isFounder=$isFounder")
 					isFounderNodeSubject.onNext(isFounder)
 				}, {
 

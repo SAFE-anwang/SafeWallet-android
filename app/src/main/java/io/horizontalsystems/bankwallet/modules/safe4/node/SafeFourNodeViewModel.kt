@@ -101,7 +101,6 @@ class SafeFourNodeViewModel(
                 nodeService.loadItems(0)
                 nodeService.loadItemsMine(0)
             } catch (e: Exception) {
-                Log.e("longwen", "node e=$e")
             }
         }
     }
