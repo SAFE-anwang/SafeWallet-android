@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.net.URI
+import java.util.Random
 
 class EvmSyncSourceManager(
     private val appConfigProvider: AppConfigProvider,
@@ -63,32 +64,7 @@ class EvmSyncSourceManager(
                 )
             )
 
-            BlockchainType.BinanceSmartChain -> listOf(
-                evmSyncSource(
-                    blockchainType,
-                    "Binance",
-                    RpcSource.binanceSmartChainHttp(),
-                    defaultTransactionSource(blockchainType)
-                ),
-                evmSyncSource(
-                    blockchainType,
-                    "BSC RPC",
-                    RpcSource.bscRpcHttp(),
-                    defaultTransactionSource(blockchainType)
-                ),
-                evmSyncSource(
-                    blockchainType,
-                    "p2pify",
-                    RpcSource.p2pifyRpcHttp(),
-                    defaultTransactionSource(blockchainType)
-                ),
-                /*evmSyncSource(
-                    blockchainType,
-                    "Omnia",
-                    RpcSource.Http(listOf(URI("https://endpoints.omniatech.io/v1/bsc/mainnet/public")), null),
-                    defaultTransactionSource(blockchainType)
-                )*/
-            )
+            BlockchainType.BinanceSmartChain -> bscSourceList()
 
             BlockchainType.Polygon -> listOf(
                 evmSyncSource(
@@ -202,6 +178,33 @@ class EvmSyncSourceManager(
         }
     }
 
+    private fun bscSourceList() = listOf(
+            evmSyncSource(
+                    BlockchainType.BinanceSmartChain,
+                    "Binance",
+                    RpcSource.binanceSmartChainHttp(),
+                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
+            ),
+            evmSyncSource(
+                    BlockchainType.BinanceSmartChain,
+                    "BSC RPC",
+                    RpcSource.bscRpcHttp(),
+                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
+            ),
+            evmSyncSource(
+                    BlockchainType.BinanceSmartChain,
+                    "p2pify",
+                    RpcSource.p2pifyRpcHttp(),
+                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
+            ),
+            /*evmSyncSource(
+				blockchainType,
+				"Omnia",
+				RpcSource.Http(listOf(URI("https://endpoints.omniatech.io/v1/bsc/mainnet/public")), null),
+				defaultTransactionSource(blockchainType)
+			)*/
+    )
+
     fun customSyncSources(blockchainType: BlockchainType): List<EvmSyncSource> {
         val records = evmSyncSourceStorage.evmSyncSources(blockchainType)
         return try {
@@ -257,6 +260,14 @@ class EvmSyncSourceManager(
 
     fun getHttpSyncSource(blockchainType: BlockchainType): EvmSyncSource? {
         val syncSources = allSyncSources(blockchainType)
+        if (blockchainType == BlockchainType.BinanceSmartChain) {
+            val httpSources = syncSources.filter { it.isHttp }
+            if (httpSources.isNotEmpty()) {
+                val index = Random().nextInt(httpSources.size)
+                save(httpSources[index], BlockchainType.BinanceSmartChain)
+                return httpSources[index]
+            }
+        }
         blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)?.let { url ->
             syncSources.firstOrNull { it.uri.toString() == url && it.isHttp }?.let { syncSource ->
                 return syncSource
