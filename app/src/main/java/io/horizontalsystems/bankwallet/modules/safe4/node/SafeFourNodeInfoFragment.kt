@@ -267,7 +267,6 @@ fun NodeInfoScreen(
                 text = nodeInfo.address.hex,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.body,
-                maxLines = 1,
         )
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -288,7 +287,6 @@ fun NodeInfoScreen(
                 text = nodeInfo.creator.hex,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.body,
-                maxLines = 1,
         )
         if (isSuperNode) {
             Divider(

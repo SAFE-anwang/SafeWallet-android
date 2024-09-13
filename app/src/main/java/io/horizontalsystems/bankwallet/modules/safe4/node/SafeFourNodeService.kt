@@ -65,6 +65,11 @@ class SafeFourNodeService(
 
 
 
+	var isFounder = false
+	private val isFounderNodeSubject = PublishSubject.create<Boolean>()
+	val isFounderNodeObservable: Observable<Boolean> get() = isFounderNodeSubject
+
+
 	private val disposables = CompositeDisposable()
 
 	private val isSuperNode = nodeType == NodeType.SuperNode
@@ -93,6 +98,7 @@ class SafeFourNodeService(
 			}
 			if (itemsCount < 0) itemsCount = 0
 			if (itemsCount >= nodeMaxCount) {
+				itemsSubject.onNext(nodeItems)
 				loading.set(false)
 				return
 			}
@@ -350,22 +356,15 @@ class SafeFourNodeService(
 
 	fun getMineCreatorNode() {
 		try {
-			val superSingle = safe4RpcBlockChain.getAddrNum4Creator(isSuperNode = true, walletAddress.hex)
-			val masterSingle = safe4RpcBlockChain.getAddrNum4Creator(isSuperNode = false, walletAddress.hex)
+			val isSuperSingle = safe4RpcBlockChain.nodeExist(isSuper = true, walletAddress.hex)
+			val isMasterSingle = safe4RpcBlockChain.nodeExist(isSuper = false, walletAddress.hex)
 
-			Single.zip(superSingle, masterSingle) { t1, t2 ->
-				mineNodeMaxCount = if (isSuperNode) t1.toInt() else t2.toInt()
-				val superList = if (t1 > BigInteger.ZERO) safe4RpcBlockChain.getAddrs4Creator(isSuperNode = true, walletAddress.hex, 0, t1.toInt()).blockingGet() else emptyList()
-				val masterList = if (t2 > BigInteger.ZERO) safe4RpcBlockChain.getAddrs4Creator(isSuperNode = false, walletAddress.hex, 0, t2.toInt()).blockingGet() else emptyList()
-
-				Pair(superList.map { it.value }, masterList.map { it.value })
+			Single.zip(isSuperSingle, isMasterSingle) { t1, t2 ->
+				Pair(t1 , t2)
 			}
 					.subscribeOn(Schedulers.io())
-					.subscribe({ (superList, masterList) ->
-						val isRegisterSuper = superList.find { it.equals(walletAddress.hex, true) } != null
-						val isRegisterMaster = masterList.find { it.equals(walletAddress.hex, true) } != null
-						registerNodeSubject.onNext(Pair(isRegisterSuper, isRegisterMaster))
-
+					.subscribe({ (isSuperNode, isMasterNode) ->
+						registerNodeSubject.onNext(Pair(isSuperNode, isMasterNode))
 					}, {
 
 					})?.let {
@@ -396,7 +395,23 @@ class SafeFourNodeService(
 				.subscribeOn(Schedulers.io())
 				.subscribe({
 					isSuperOrMasterNode = it
+					Log.e("longwen", "isSuperOrMasterNode=$isSuperOrMasterNode")
 					isSuperOrMasterNodeSubject.onNext(isSuperOrMasterNode)
+				}, {
+
+				}).let {
+					disposables.add(it)
+				}
+		existNodeFounder(address)
+	}
+
+	private fun existNodeFounder(address: String) {
+		safe4RpcBlockChain.existNodeFounder(address)
+				.subscribeOn(Schedulers.io())
+				.subscribe({
+					isFounder = it
+					Log.e("longwen", "isFounder=$isFounder")
+					isFounderNodeSubject.onNext(isFounder)
 				}, {
 
 				}).let {

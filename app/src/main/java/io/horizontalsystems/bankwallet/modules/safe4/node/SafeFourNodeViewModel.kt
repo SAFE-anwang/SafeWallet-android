@@ -32,11 +32,12 @@ class SafeFourNodeViewModel(
 
     private val disposables = CompositeDisposable()
 
-    private var nodes: List<NodeViewItem>? = null
-    private var mineNodes: List<NodeViewItem>? = null
+    private var nodes: List<NodeInfo>? = null
+    private var mineNodes: List<NodeInfo>? = null
 
     private var creatorList: List<String> = emptyList()
-    private var isSuperOrMasterNode: Boolean = false
+    private var isSuperOrMasterNode: Boolean = true
+    private var isFounder: Boolean = true
 
     private var isRegisterNode = Pair(true, true)
     private var query: String? = null
@@ -54,7 +55,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.itemsObservable
                 .subscribeIO {
-                    nodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isRegisterNode.first || creatorList.contains(receiveAddress()), receiveAddress =  receiveAddress()) }
+                    nodes = it
                     emitState()
                 }
                 .let {
@@ -62,7 +63,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.mineNodeItemsObservable
                 .subscribeIO {
-                    mineNodes = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isRegisterNode.first || creatorList.contains(receiveAddress()), receiveAddress =  receiveAddress()) }
+                    mineNodes = it
                     emitState()
                 }
                 .let {
@@ -79,6 +80,14 @@ class SafeFourNodeViewModel(
         nodeService.isSuperOrMasterNodeObservable
                 .subscribeIO {
                     isSuperOrMasterNode = it
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.isFounderNodeObservable
+                .subscribeIO {
+                    isFounder = it
                     emitState()
                 }
                 .let {
@@ -112,26 +121,29 @@ class SafeFourNodeViewModel(
     override fun createState() = SafeFourModule.SafeFourNodeUiState(
         title = title,
         nodeList = if (this.query.isNullOrBlank()) {
-            nodes
+            nodes?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) }
         } else nodes?.filter {
             if (isFilterId) {
                 it.id.toString() == query
             } else {
-                it.id.toString() == query || it.address.hex.contains(query!!, true)
+                it.id.toString() == query || it.addr.hex.contains(query!!, true)
             }
-        },
+        }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) },
         mineList = if (this.query.isNullOrBlank()) {
-            mineNodes
+            mineNodes?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isCreator(), receiveAddress =  receiveAddress()) }
         } else mineNodes?.filter {
             if (isFilterId) {
                 it.id.toString() == query
             } else {
-                it.id.toString() == query || it.address.hex.contains(query!!, true)
+                it.id.toString() == query || it.addr.hex.contains(query!!, true)
             }
-        },
+        }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isCreator(), receiveAddress =  receiveAddress()) },
         isRegisterNode = isRegisterNode
     )
 
+    private fun isCreator(): Boolean {
+        return isRegisterNode.first || creatorList.contains(receiveAddress())
+    }
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -167,7 +179,7 @@ class SafeFourNodeViewModel(
     }
 
     fun menuEnable(): Boolean {
-        return !isRegisterNode.first && !isRegisterNode.second
+        return !isSuperOrMasterNode && !isFounder && !isRegisterNode.first && !isRegisterNode.second
     }
 
     fun getAlreadyRegisterText(): Int {

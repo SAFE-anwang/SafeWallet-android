@@ -577,40 +577,60 @@ fun JoinAmountBar(
         selectEnabled: Boolean,
 ) {
     Column(modifier = modifier) {
-//        BoxTyler44(borderTop = true) {
+        Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            percents.forEachIndexed { index, joinAmount  ->
+                if (index <= 2) JoinAmountView(modifier, joinAmount, onSelect, selectEnabled)
+            }
+        }
+        if (percents.size > 3) {
+            Spacer(modifier = Modifier.height(5.dp))
             Row(
                     modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.SpaceAround
             ) {
-                percents.forEach { percent ->
-                        ButtonSecondary(
-                                modifier = Modifier
-                                        .border(1.dp,
-                                                if (percent.selected) ComposeAppTheme.colors.jacob else ComposeAppTheme.colors.grey,
-                                                RoundedCornerShape(14.dp))
-                                        ,
-                                buttonColors = ButtonDefaults.buttonColors(
-                                    backgroundColor = ComposeAppTheme.colors.transparent,
-                                    contentColor = if (percent.selected) ComposeAppTheme.colors.jacob else ComposeAppTheme.colors.grey
-                                ),
-                                enabled = selectEnabled,
-                                onClick = { onSelect.invoke(percent.value) }
-                        ) {
-                            Text(
-                                    text = "${percent.value} SAFE",
-                                    modifier = modifier,
-                                    style = ComposeAppTheme.typography.subhead1,
-                                    color = if (percent.selected) {
-                                        ComposeAppTheme.colors.jacob
-                                    } else {
-                                        ComposeAppTheme.colors.grey
-                                    },
-                            )
-                        }
-                    }
+                percents.forEachIndexed { index, joinAmount ->
+                    if (index > 2) JoinAmountView(modifier, joinAmount, onSelect, selectEnabled)
                 }
-//        }
+            }
+        }
+    }
+}
+
+@Composable
+private fun JoinAmountView(
+        modifier: Modifier = Modifier,
+        percent: JoinAmount,
+        onSelect: (Int) -> Unit,
+        selectEnabled: Boolean,
+) {
+    ButtonSecondary(
+            modifier = Modifier
+                    .border(1.dp,
+                            if (percent.selected) ComposeAppTheme.colors.jacob else ComposeAppTheme.colors.grey,
+                            RoundedCornerShape(14.dp))
+            ,
+            buttonColors = ButtonDefaults.buttonColors(
+                    backgroundColor = ComposeAppTheme.colors.transparent,
+                    contentColor = if (percent.selected) ComposeAppTheme.colors.jacob else ComposeAppTheme.colors.grey
+            ),
+            enabled = selectEnabled,
+            onClick = { onSelect.invoke(percent.value) }
+    ) {
+        Text(
+                text = "${percent.value} SAFE",
+                modifier = modifier,
+                style = ComposeAppTheme.typography.subhead2,
+                color = if (percent.selected) {
+                    ComposeAppTheme.colors.jacob
+                } else {
+                    ComposeAppTheme.colors.grey
+                },
+        )
     }
 }
 
@@ -695,7 +715,6 @@ fun NodeInfoScreen(
                 text = nodeInfo.address.hex,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.body,
-                maxLines = 1,
         )
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -716,7 +735,6 @@ fun NodeInfoScreen(
                 text = nodeInfo.creator.hex,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.body,
-                maxLines = 1,
         )
         if (isSuperNode) {
             Divider(

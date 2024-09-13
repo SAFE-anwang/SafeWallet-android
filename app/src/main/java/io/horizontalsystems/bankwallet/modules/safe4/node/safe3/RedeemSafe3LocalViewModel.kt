@@ -65,12 +65,12 @@ class RedeemSafe3LocalViewModel(
 	private val disposables = CompositeDisposable()
 
 	init {
-		isRedeemSuccess = App.preferences.getBoolean(evmKitWrapper.evmKit.receiveAddress.hex, false)
-		if (!isRedeemSuccess) {
+//		isRedeemSuccess = App.preferences.getBoolean(evmKitWrapper.evmKit.receiveAddress.hex, false)
+//		if (!isRedeemSuccess) {
 			getNeedToRedeemAddress()
-		} else {
-			syncing = false
-		}
+//		} else {
+//			syncing = false
+//		}
 	}
 
 	fun receiveAddress(): String {

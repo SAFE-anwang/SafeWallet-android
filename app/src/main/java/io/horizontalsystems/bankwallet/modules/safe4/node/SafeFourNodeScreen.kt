@@ -408,7 +408,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 						ButtonPrimaryYellow(
 								modifier = Modifier
 										.wrapContentWidth()
-										.height(28.dp),
+										.height(25.dp),
 								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
 								onClick = {
 									joinClick.invoke()

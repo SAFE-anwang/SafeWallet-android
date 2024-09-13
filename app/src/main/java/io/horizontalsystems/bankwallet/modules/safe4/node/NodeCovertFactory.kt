@@ -74,7 +74,7 @@ object NodeCovertFactory {
 				createPledge = "$createPledge SAFE",
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
-				isMine = receiveAddress == nodeItem.addr.hex,
+				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex,
 				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex
 		)
 	}

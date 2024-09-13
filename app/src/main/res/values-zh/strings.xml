@@ -1995,7 +1995,7 @@
     <string name="Safe_Four_Node_Pledge">质押SAFE: %s SAFE</string>
     <string name="Safe_Four_Node_Super_Node_Vote">超级节点投票</string>
     <string name="Safe_Four_Node_Master_Node_Vote">主节点联合创建</string>
-    <string name="Safe_Four_Node_Super_Node_Join">超级近节点联合创建</string>
+    <string name="Safe_Four_Node_Super_Node_Join">超级节点联合创建</string>
     <string name="Safe_Four_Node_Info">节点详情</string>
     <string name="Safe_Four_Node_Info_Id">节点ID:</string>
     <string name="Safe_Four_Node_Info_Id_List">节点ID: %s</string>

@@ -107,6 +107,7 @@ class SafeFourVoteViewModel(
             lockVoteService.loadItemsLocked(0)
             nodeService.getNodeInfo(nodeId)
         }
+        onEnterAmount(BigDecimal(joinAmount))
     }
 
     override fun createState() = if (nodeInfo == null) {
@@ -130,7 +131,7 @@ class SafeFourVoteViewModel(
                 partnerText = "${nodeInfo!!.incentivePlan.partner}%",
                 voter = nodeInfo!!.incentivePlan.voter.toFloat() / 100,
                 voterText = "${nodeInfo!!.incentivePlan.voter}%",
-                canBeSend = amountState.canBeSend || joinAmount > 0,
+                canBeSend = amountState.canBeSend,
                 recordVoteCanSend = getRecordVoteCanSend(),
                 lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
                 creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
@@ -235,7 +236,8 @@ class SafeFourVoteViewModel(
 
     fun selectJoinAmount(amount: Int) {
         joinAmount = amount
-        emitState()
+
+        onEnterAmount(BigDecimal(amount))
     }
 
     private fun getJoinAmountList(): List<JoinAmount> {

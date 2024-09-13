@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
@@ -174,7 +173,7 @@ fun LocalBackupPasswordScreen(
                 focusRequester2.requestFocus()
                 view.postDelayed({
                     focusRequester1.requestFocus()
-                }, 150)
+                }, 300)
             }
 
         }
