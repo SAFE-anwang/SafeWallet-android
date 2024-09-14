@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.net.Uri
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
@@ -23,6 +24,7 @@ class EvmSyncSourceManager(
     private val evmSyncSourceStorage: EvmSyncSourceStorage,
 ) {
 
+    private var bscSourceIndex = -1
     private val syncSourceSubject = PublishSubject.create<BlockchainType>()
 
     private val _syncSourcesUpdatedFlow =
@@ -251,23 +253,22 @@ class EvmSyncSourceManager(
 
     fun getSyncSource(blockchainType: BlockchainType): EvmSyncSource {
         val syncSources = allSyncSources(blockchainType)
+        if (blockchainType == BlockchainType.BinanceSmartChain) {
+            if (bscSourceIndex == -1) {
+                bscSourceIndex = Random().nextInt(syncSources.size)
+            }
+            blockchainSettingsStorage.save(syncSources[bscSourceIndex].uri.toString(), blockchainType)
+            return syncSources[bscSourceIndex]
+        } else {
+            val syncSourceUrl = blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)
+            val syncSource = syncSources.firstOrNull { it.uri.toString() == syncSourceUrl }
 
-        val syncSourceUrl = blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)
-        val syncSource = syncSources.firstOrNull { it.uri.toString() == syncSourceUrl }
-
-        return syncSource ?: syncSources[0]
+            return syncSource ?: syncSources[0]
+        }
     }
 
     fun getHttpSyncSource(blockchainType: BlockchainType): EvmSyncSource? {
         val syncSources = allSyncSources(blockchainType)
-        if (blockchainType == BlockchainType.BinanceSmartChain) {
-            val httpSources = syncSources.filter { it.isHttp }
-            if (httpSources.isNotEmpty()) {
-                val index = Random().nextInt(httpSources.size)
-                save(httpSources[index], BlockchainType.BinanceSmartChain)
-                return httpSources[index]
-            }
-        }
         blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)?.let { url ->
             syncSources.firstOrNull { it.uri.toString() == url && it.isHttp }?.let { syncSource ->
                 return syncSource
