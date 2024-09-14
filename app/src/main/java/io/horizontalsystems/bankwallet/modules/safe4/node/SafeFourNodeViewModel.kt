@@ -178,7 +178,7 @@ class SafeFourNodeViewModel(
     }
 
     fun menuEnable(): Boolean {
-        return !isSuperOrMasterNode && !isFounder && !isRegisterNode.first && !isRegisterNode.second
+        return !isRegisterNode.first && !isRegisterNode.second
     }
 
     fun getAlreadyRegisterText(): Int {
