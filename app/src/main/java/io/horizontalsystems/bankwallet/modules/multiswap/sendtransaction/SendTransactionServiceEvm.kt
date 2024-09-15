@@ -18,6 +18,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.EvmError
+import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItemFactory
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinServiceFactory
@@ -28,6 +30,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.EvmCommonGasDataService
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeModule
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeService
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmSettingsInput
+import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsError
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.LegacyFeeSettings
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559FeeSettingsViewModel
@@ -64,7 +67,7 @@ import kotlinx.coroutines.rx2.await
 import java.math.BigDecimal
 
 class SendTransactionServiceEvm(
-    blockchainType: BlockchainType,
+    val blockchainType: BlockchainType,
     initialGasPrice: GasPrice? = null,
     initialNonce: Long? = null
 ) : ISendTransactionService() {
@@ -185,10 +188,16 @@ class SendTransactionServiceEvm(
 
         when (transactionState) {
             is DataState.Error -> {
-                cautions = cautionViewItemFactory.cautionViewItems(
-                    listOf(),
-                    listOf(transactionState.error)
-                )
+                val error = transactionState.error.convertedError
+                if (blockchainType is BlockchainType.BinanceSmartChain
+                        && (error is FeeSettingsError.InsufficientBalance || error is EvmError.InsufficientBalanceWithFee)) {
+                    sendable = true
+                } else {
+                    cautions = cautionViewItemFactory.cautionViewItems(
+                            listOf(),
+                            listOf(transactionState.error)
+                    )
+                }
             }
 
             is DataState.Success -> {
