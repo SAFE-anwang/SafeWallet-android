@@ -188,9 +188,8 @@ class SendTransactionServiceEvm(
 
         when (transactionState) {
             is DataState.Error -> {
-                val error = transactionState.error.convertedError
                 if (blockchainType is BlockchainType.BinanceSmartChain
-                        && (error is FeeSettingsError.InsufficientBalance || error is EvmError.InsufficientBalanceWithFee)) {
+                        && (transactionState.error is FeeSettingsError.InsufficientBalance || transactionState.error.convertedError is EvmError.InsufficientBalanceWithFee)) {
                     sendable = true
                 } else {
                     cautions = cautionViewItemFactory.cautionViewItems(
