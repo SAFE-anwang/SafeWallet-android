@@ -75,6 +75,12 @@ class EvmSyncSourceManager(
                     "BSC RPC",
                     RpcSource.bscRpcHttp(),
                     defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                        BlockchainType.BinanceSmartChain,
+                        "p2pify",
+                        RpcSource.p2pifyRpcHttp(),
+                        defaultTransactionSource(BlockchainType.BinanceSmartChain)
                 )/*,
                 evmSyncSource(
                     blockchainType,
