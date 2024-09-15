@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.net.Uri
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
@@ -16,7 +15,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.net.URI
-import java.util.Random
 
 class EvmSyncSourceManager(
     private val appConfigProvider: AppConfigProvider,
@@ -24,7 +22,6 @@ class EvmSyncSourceManager(
     private val evmSyncSourceStorage: EvmSyncSourceStorage,
 ) {
 
-    private var bscSourceIndex = -1
     private val syncSourceSubject = PublishSubject.create<BlockchainType>()
 
     private val _syncSourcesUpdatedFlow =
@@ -66,7 +63,26 @@ class EvmSyncSourceManager(
                 )
             )
 
-            BlockchainType.BinanceSmartChain -> bscSourceList()
+            BlockchainType.BinanceSmartChain -> listOf(
+                evmSyncSource(
+                    blockchainType,
+                    "Binance",
+                    RpcSource.binanceSmartChainHttp(),
+                    defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                    blockchainType,
+                    "BSC RPC",
+                    RpcSource.bscRpcHttp(),
+                    defaultTransactionSource(blockchainType)
+                )/*,
+                evmSyncSource(
+                    blockchainType,
+                    "Omnia",
+                    RpcSource.Http(listOf(URI("https://endpoints.omniatech.io/v1/bsc/mainnet/public")), null),
+                    defaultTransactionSource(blockchainType)
+                )*/
+            )
 
             BlockchainType.Polygon -> listOf(
                 evmSyncSource(
@@ -180,33 +196,6 @@ class EvmSyncSourceManager(
         }
     }
 
-    private fun bscSourceList() = listOf(
-            evmSyncSource(
-                    BlockchainType.BinanceSmartChain,
-                    "Binance",
-                    RpcSource.binanceSmartChainHttp(),
-                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
-            ),
-            evmSyncSource(
-                    BlockchainType.BinanceSmartChain,
-                    "BSC RPC",
-                    RpcSource.bscRpcHttp(),
-                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
-            ),
-            evmSyncSource(
-                    BlockchainType.BinanceSmartChain,
-                    "p2pify",
-                    RpcSource.p2pifyRpcHttp(),
-                    defaultTransactionSource(BlockchainType.BinanceSmartChain)
-            ),
-            /*evmSyncSource(
-				blockchainType,
-				"Omnia",
-				RpcSource.Http(listOf(URI("https://endpoints.omniatech.io/v1/bsc/mainnet/public")), null),
-				defaultTransactionSource(blockchainType)
-			)*/
-    )
-
     fun customSyncSources(blockchainType: BlockchainType): List<EvmSyncSource> {
         val records = evmSyncSourceStorage.evmSyncSources(blockchainType)
         return try {
@@ -253,18 +242,11 @@ class EvmSyncSourceManager(
 
     fun getSyncSource(blockchainType: BlockchainType): EvmSyncSource {
         val syncSources = allSyncSources(blockchainType)
-        if (blockchainType == BlockchainType.BinanceSmartChain) {
-            if (bscSourceIndex == -1) {
-                bscSourceIndex = Random().nextInt(syncSources.size)
-            }
-            blockchainSettingsStorage.save(syncSources[bscSourceIndex].uri.toString(), blockchainType)
-            return syncSources[bscSourceIndex]
-        } else {
-            val syncSourceUrl = blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)
-            val syncSource = syncSources.firstOrNull { it.uri.toString() == syncSourceUrl }
 
-            return syncSource ?: syncSources[0]
-        }
+        val syncSourceUrl = blockchainSettingsStorage.evmSyncSourceUrl(blockchainType)
+        val syncSource = syncSources.firstOrNull { it.uri.toString() == syncSourceUrl }
+
+        return syncSource ?: syncSources[0]
     }
 
     fun getHttpSyncSource(blockchainType: BlockchainType): EvmSyncSource? {
