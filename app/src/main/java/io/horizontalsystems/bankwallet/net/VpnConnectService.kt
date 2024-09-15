@@ -213,7 +213,6 @@ object VpnConnectService {
             }
             index = connectNodeIndex
         }
-        Log.e("longwen", "next node: $index")
         return noteList[index]
     }
 
