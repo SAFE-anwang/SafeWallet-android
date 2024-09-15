@@ -115,9 +115,6 @@ object RedeemSafe3Module {
 	data class Safe3LockItemView(
 			val safe3Addr: String,
 			val amount: String,
-			val txid: String,
-			val lockHeight: Long,
-			val unlockHeight: Long,
 			val remainLockHeight: Long,
 			val lockDay: Int,
 			val isMN: Boolean,

@@ -152,9 +152,6 @@ class RedeemSafe3ViewModel(
 			RedeemSafe3Module.Safe3LockItemView(
 					it.safe3Addr,
 					NodeCovertFactory.formatSafe(it.amount),
-					it.txid,
-					it.lockHeight.toLong(),
-					it.unlockHeight.toLong(),
 					it.remainLockHeight.toLong(),
 					it.lockDay.toInt(),
 					it.isMN,
