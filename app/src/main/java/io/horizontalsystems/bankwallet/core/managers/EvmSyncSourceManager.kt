@@ -64,12 +64,12 @@ class EvmSyncSourceManager(
             )
 
             BlockchainType.BinanceSmartChain -> listOf(
-                evmSyncSource(
+                /*evmSyncSource(
                     blockchainType,
                     "Binance",
                     RpcSource.binanceSmartChainHttp(),
                     defaultTransactionSource(blockchainType)
-                ),
+                ),*/
                 evmSyncSource(
                     blockchainType,
                     "BSC RPC",
@@ -77,11 +77,17 @@ class EvmSyncSourceManager(
                     defaultTransactionSource(blockchainType)
                 ),
                 evmSyncSource(
+                        BlockchainType.BinanceSmartChain,
+                        "p2pify",
+                        RpcSource.p2pifyRpcHttp(),
+                        defaultTransactionSource(BlockchainType.BinanceSmartChain)
+                )/*,
+                evmSyncSource(
                     blockchainType,
                     "Omnia",
                     RpcSource.Http(listOf(URI("https://endpoints.omniatech.io/v1/bsc/mainnet/public")), null),
                     defaultTransactionSource(blockchainType)
-                )
+                )*/
             )
 
             BlockchainType.Polygon -> listOf(
