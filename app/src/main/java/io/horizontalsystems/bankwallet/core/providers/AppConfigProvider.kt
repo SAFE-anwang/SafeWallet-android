@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.providers
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ILocalStorage
@@ -91,7 +92,12 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         Translator.getString(R.string.etherscanKey)
     }
     val bscscanApiKey by lazy {
-        Translator.getString(R.string.bscscanKey)
+        val key = when(index) {
+            0 -> Translator.getString(R.string.bscscanKey)
+            else -> Translator.getString(R.string.bscscanKey2)
+        }
+        Log.e("longwen", "$key")
+        key
     }
     val polygonscanApiKey by lazy {
         Translator.getString(R.string.polygonscanKey)
