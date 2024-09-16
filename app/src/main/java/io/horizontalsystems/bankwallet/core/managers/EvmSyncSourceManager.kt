@@ -64,12 +64,12 @@ class EvmSyncSourceManager(
             )
 
             BlockchainType.BinanceSmartChain -> listOf(
-                evmSyncSource(
+                /*evmSyncSource(
                     blockchainType,
                     "Binance",
                     RpcSource.binanceSmartChainHttp(),
                     defaultTransactionSource(blockchainType)
-                ),
+                ),*/
                 evmSyncSource(
                     blockchainType,
                     "BSC RPC",
