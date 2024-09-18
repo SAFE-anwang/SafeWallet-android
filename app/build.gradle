@@ -18,7 +18,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         versionCode 110
-        versionName "v0.38.0.1.0916"
+        versionName "v0.38.0.1.0918"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -77,6 +77,7 @@ android {
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "GKNHXT22ED7PRVCKZATFZQD1YI7FK9AAYE"
             resValue "string", "bscscanKey", "C4VUBXUJW871MFBD7EPD66VEZRGGPUTPM8"
+            resValue "string", "bscscanKey2", "3YH525P1PENTH5TDZP6T5R55Q2VPC5HV1B"
             resValue "string", "polygonscanKey", "TNQ44BCF1MS3S75Y6A2B6SN88I8UYFJFRM"
             resValue "string", "snowtraceApiKey", "DD8VX77TQ73KSNDFGBQQ31J7K5B51CXXPH"
             resValue "string", "optimisticEtherscanApiKey", "A4E6DAX46FFFW4CGZP6IMZ64ADI3TIRBTS"
@@ -123,6 +124,7 @@ android {
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "TTH1114D5VD5ZMCJZ4B74SGIDRCGSKWGX9"
             resValue "string", "bscscanKey", "C4VUBXUJW871MFBD7EPD66VEZRGGPUTPM8"
+            resValue "string", "bscscanKey2", "3YH525P1PENTH5TDZP6T5R55Q2VPC5HV1B"
             resValue "string", "polygonscanKey", "2JM7USE5YRI59RWFZQI2RECAZSNI5QEQGV"
             resValue "string", "snowtraceApiKey", "47IXTRAAFT1E1J4RNSPZPNB5EWUIQR16FG"
             resValue "string", "optimisticEtherscanApiKey", "745EUI4781T147M9QJRNS5G3Q5NFF2SJXP"

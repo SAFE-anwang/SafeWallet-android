@@ -254,7 +254,7 @@ class MainActivity : BaseActivity() {
                 .supportSilentInstall(true) // Set whether silent installation is supported. The default is true
                 .setIUpdateHttpService(OKHttpUpdateHttpService()) // This must be set! Realize the network request function.
                 .init(this.application)
-        XUpdate.newBuild(this)
+       val build =  XUpdate.newBuild(this)
                 .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
                 .updateParser(object : IUpdateParser {
                     override fun parseJson(json: String?): UpdateEntity? {
@@ -281,7 +281,10 @@ class MainActivity : BaseActivity() {
                         return false
                     }
                 })
-                .update()
+        if (App.localStorage.currentTheme == ThemeType.Blue) {
+            build.promptButtonTextColor(Color.BLACK)
+        }
+        build.update()
     }
 
     private fun getVersionCode(): Int {
