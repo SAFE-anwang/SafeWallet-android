@@ -57,7 +57,7 @@ object NodeCovertFactory {
 			Super_Node_Create_Amount
 		else
 			Master_Node_Create_Amount
-
+		val isPartner = nodeItem.founders.any { it.addr.hex == receiveAddress }
 		return NodeViewItem(
 				index + 1,
 				nodeItem.id,
@@ -74,8 +74,9 @@ object NodeCovertFactory {
 				createPledge = "$createPledge SAFE",
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
-				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex,
-				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex
+				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex || isPartner,
+				isVoteEnable = !isCreatorNode && !isPartner && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex,
+				isPartner = isPartner && receiveAddress != nodeItem.creator.hex
 		)
 	}
 

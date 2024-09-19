@@ -2343,6 +2343,8 @@
     <string name="Safe_Four_Node_Vote_Record_Num">Num</string>
     <string name="Safe_Four_Node_Vote_Record_ID">Locked ID</string>
     <string name="Safe_Four_Node_Join">Join Partner</string>
+    <string name="Safe_Four_Node_Partner">Partner</string>
+    <string name="Safe_Four_Node_Creator">Creator</string>
 
     <string name="Safe_Four_Proposal_All">All Proposal</string>
     <string name="Safe_Four_Proposal_Mine">Mine Proposal</string>

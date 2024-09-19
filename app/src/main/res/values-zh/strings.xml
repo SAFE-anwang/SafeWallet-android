@@ -2020,6 +2020,8 @@
     <string name="Safe_Four_Node_Vote_Record_Num">数量</string>
     <string name="Safe_Four_Node_Vote_Record_ID">锁仓ID</string>
     <string name="Safe_Four_Node_Join">成为合伙人</string>
+    <string name="Safe_Four_Node_Partner">合伙人</string>
+    <string name="Safe_Four_Node_Creator">创建者</string>
 
     <string name="Safe_Four_Proposal_Title">提案</string>
     <string name="Safe_Four_Proposal_All">所有提案</string>

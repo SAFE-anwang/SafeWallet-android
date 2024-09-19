@@ -37,6 +37,10 @@ class SafeFourNodeService(
 	private val loadingMine = AtomicBoolean(false)
 	private var allLoadedMine = AtomicBoolean(false)
 
+	private var loadedPageNumberPartner = 0
+	private val loadingPartner = AtomicBoolean(false)
+	private var allLoadedPartner = AtomicBoolean(false)
+
 	private val nodeItems = CopyOnWriteArrayList<NodeInfo>()
 
 	private val itemsSubject = PublishSubject.create<List<NodeInfo>>()
@@ -75,9 +79,11 @@ class SafeFourNodeService(
 	private val isSuperNode = nodeType == NodeType.SuperNode
 	private var mineNodeMaxCount = -1
 	private var nodeMaxCount = -1
+	private var partnerNodeMaxCount = -1
 
 	private var reloadCountAll = 0
 	private var reloadCountMine = 0
+	private var reloadCountPartner = 0
 
 	fun loadItems(page: Int) {
 		try {
@@ -177,6 +183,7 @@ class SafeFourNodeService(
 
 
 	fun loadItemsMine(page: Int) {
+		loadItemsPartner(page)
 		try {
 			if (loadingMine.get()) return
 			loadingMine.set(true)
@@ -185,9 +192,7 @@ class SafeFourNodeService(
 				mineNodeMaxCount = safe4RpcBlockChain.getAddrNum4Creator(isSuperNode, walletAddress.hex).blockingGet().toInt()
 			}
 			val isSuperNode = nodeType == NodeType.SuperNode
-			if (nodeMaxCount == -1) {
-				nodeMaxCount = safe4RpcBlockChain.getNodeNum(isSuperNode).toInt()
-			}
+
 			var itemsCount = if (isSuperNode)
 				page * itemsPerPage
 			else
@@ -262,6 +267,95 @@ class SafeFourNodeService(
 				reloadCountMine++
 				loadingMine.set(false)
 				loadItemsMine(page)
+			}
+		}
+	}
+
+
+	private fun loadItemsPartner(page: Int) {
+		try {
+			if (loadingPartner.get()) return
+			loadingPartner.set(true)
+
+			if (partnerNodeMaxCount == -1) {
+				partnerNodeMaxCount = safe4RpcBlockChain.getAddrNum4Partner(isSuperNode, walletAddress.hex).blockingGet().toInt()
+			}
+			val isSuperNode = nodeType == NodeType.SuperNode
+
+			var itemsCount = if (isSuperNode)
+				page * itemsPerPage
+			else
+				partnerNodeMaxCount - (page + 1) * itemsPerPage
+			var pageCount = if (isSuperNode) itemsPerPage else {
+				if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
+			}
+			if (itemsCount < 0) itemsCount = 0
+
+			if (itemsCount >= partnerNodeMaxCount) {
+				mineItemsSubject.onNext(mineNodeItems)
+				loadingPartner.set(false)
+				return
+			}
+			val single = safe4RpcBlockChain.getAddrs4Partner(isSuperNode, walletAddress.hex, itemsCount, pageCount)
+
+			var allVoteNum = BigInteger.ZERO
+			single.subscribeOn(Schedulers.io())
+					.map {
+						val nodeList = mutableListOf<NodeInfo>()
+						it.forEach { address ->
+							val info = when(nodeType) {
+								NodeType.SuperNode -> {
+									getSuperNodeInfo(address.value)
+								}
+								NodeType.MainNode -> {
+									getMasterNodeInfo(address.value)
+								}
+							}
+							when(nodeType) {
+								NodeType.SuperNode -> {
+									info?.totalVoteNum = getTotalVoteNum(address.value)
+									info?.totalAmount = getTotalAmount(address.value)
+								}
+								NodeType.MainNode -> {
+									info?.let {
+										info.totalVoteNum = info.founders.sumOf { it.amount }
+									}
+								}
+							}
+							if (allVoteNum == BigInteger.ZERO) {
+								allVoteNum = getAllVoteNum()
+							}
+
+							info?.allVoteNum = allVoteNum
+							info?.let {
+								nodeList.add(it)
+							}
+						}
+						nodeList
+					}
+					.doFinally {
+						loadingPartner.set(false)
+					}
+					.subscribe( {
+						allLoadedPartner.set(it.isEmpty() || it.size < itemsPerPage)
+						if (isSuperNode) {
+							mineNodeItems.addAll(it)
+						} else {
+							mineNodeItems.addAll(it.reversed())
+						}
+						mineItemsSubject.onNext(mineNodeItems)
+
+						loadedPageNumberPartner = page
+					},{
+						Log.e(TAG, "error=$it")
+					}).let {
+						disposables.add(it)
+					}
+		} catch (e: Exception) {
+			if (reloadCountPartner < 3) {
+				reloadCountPartner++
+				loadingPartner.set(false)
+				loadItemsPartner(page)
 			}
 		}
 	}

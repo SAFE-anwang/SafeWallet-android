@@ -369,6 +369,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 			) {
 				Row {
 					Text(
+							modifier = Modifier.weight(7f),
 							text = item.name,
 							style = ComposeAppTheme.typography.body,
 							color = ComposeAppTheme.colors.bran,
@@ -376,16 +377,17 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 							maxLines = 1,
 							fontWeight = FontWeight.Bold
 					)
-					Spacer(Modifier.weight(1f))
 					val color = when (item.status) {
 						is NodeStatus.Online -> ComposeAppTheme.colors.issykBlue
 						is NodeStatus.Exception -> ComposeAppTheme.colors.grey50
 					}
 					Row(
 							modifier = Modifier
+									.weight(1f)
 									.clip(RoundedCornerShape(5.dp))
 									.background(color)
-									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp)) {
+									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+							horizontalArrangement = Arrangement.Center) {
 						Text(
 								text = item.status.title().getString(),
 								style = ComposeAppTheme.typography.captionSB,
@@ -429,8 +431,26 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Spacer(Modifier.height(2.dp))
 				Row {
 					if (item.isMine) {
-						body_issykBlue(text = item.address.hex.shorten(8),
-								modifier = Modifier.weight(4f))
+						body_issykBlue(text = item.address.hex.shorten(8))
+						val text = if (item.isPartner)
+							R.string.Safe_Four_Node_Partner
+						else
+							R.string.Safe_Four_Node_Creator
+						Spacer(Modifier.width(4.dp))
+						Row(
+								modifier = Modifier
+										.clip(RoundedCornerShape(5.dp))
+										.background(ComposeAppTheme.colors.issykBlue)
+										.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+								horizontalArrangement = Arrangement.Center) {
+							Text(
+									text = stringResource(id = text),
+									style = ComposeAppTheme.typography.captionSB,
+									color = ComposeAppTheme.colors.white,
+									overflow = TextOverflow.Ellipsis,
+									maxLines = 1,
+							)
+						}
 					} else {
 						body_grey(text = item.address.hex.shorten(8),
 								modifier = Modifier.weight(4f))
@@ -603,11 +623,28 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Spacer(Modifier.height(2.dp))
 				Row {
 					if (item.isMine) {
-						body_issykBlue(text = item.address.hex.shorten(8),
-								modifier = Modifier.weight(4f))
+						body_issykBlue(text = item.address.hex.shorten(8))
+						val text = if (item.isPartner)
+							R.string.Safe_Four_Node_Partner
+						else
+							R.string.Safe_Four_Node_Creator
+						Spacer(Modifier.width(4.dp))
+						Row(
+								modifier = Modifier
+										.clip(RoundedCornerShape(5.dp))
+										.background(ComposeAppTheme.colors.issykBlue)
+										.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+								horizontalArrangement = Arrangement.Center) {
+							Text(
+									text = stringResource(id = text),
+									style = ComposeAppTheme.typography.captionSB,
+									color = ComposeAppTheme.colors.white,
+									overflow = TextOverflow.Ellipsis,
+									maxLines = 1,
+							)
+						}
 					} else {
-						body_grey(text = item.address.hex.shorten(8),
-								modifier = Modifier.weight(4f))
+						body_grey(text = item.address.hex.shorten(8))
 					}
 					
 				}
