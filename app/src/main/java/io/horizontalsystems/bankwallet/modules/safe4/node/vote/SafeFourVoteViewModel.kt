@@ -107,7 +107,9 @@ class SafeFourVoteViewModel(
             lockVoteService.loadItemsLocked(0)
             nodeService.getNodeInfo(nodeId)
         }
-        onEnterAmount(BigDecimal(joinAmount))
+        if(isJoin) {
+            onEnterAmount(BigDecimal(joinAmount))
+        }
     }
 
     override fun createState() = if (nodeInfo == null) {

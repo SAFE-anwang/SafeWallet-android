@@ -58,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -70,6 +71,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.Grey50
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputStateWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
@@ -137,11 +139,11 @@ fun SearchBar(
 					onSearchTextChanged.invoke(it)
 				},
 				placeholder = {
-					subhead1_grey50(
-							text = searchHintText,
+					Text(text = searchHintText,
 							maxLines = 1,
-							overflow = TextOverflow.Ellipsis
-					)
+							color = Grey50,
+							style = ComposeAppTheme.typography.subheadItalic,
+							overflow = TextOverflow.Ellipsis)
 				},
 				textStyle = ComposeAppTheme.typography.subhead1,
 				colors = TextFieldDefaults.textFieldColors(

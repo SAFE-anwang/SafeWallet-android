@@ -432,24 +432,40 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Row {
 					if (item.isMine) {
 						body_issykBlue(text = item.address.hex.shorten(8))
-						val text = if (item.isPartner)
-							R.string.Safe_Four_Node_Partner
-						else
-							R.string.Safe_Four_Node_Creator
-						Spacer(Modifier.width(4.dp))
-						Row(
-								modifier = Modifier
-										.clip(RoundedCornerShape(5.dp))
-										.background(ComposeAppTheme.colors.issykBlue)
-										.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
-								horizontalArrangement = Arrangement.Center) {
-							Text(
-									text = stringResource(id = text),
-									style = ComposeAppTheme.typography.captionSB,
-									color = ComposeAppTheme.colors.white,
-									overflow = TextOverflow.Ellipsis,
-									maxLines = 1,
-							)
+
+						if (item.isPartner) {
+							Spacer(Modifier.width(4.dp))
+							Row(
+									modifier = Modifier
+											.clip(RoundedCornerShape(5.dp))
+											.background(ComposeAppTheme.colors.issykBlue)
+											.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+									horizontalArrangement = Arrangement.Center) {
+								Text(
+										text = stringResource(id = R.string.Safe_Four_Node_Partner),
+										style = ComposeAppTheme.typography.captionSB,
+										color = ComposeAppTheme.colors.white,
+										overflow = TextOverflow.Ellipsis,
+										maxLines = 1,
+								)
+							}
+						}
+						if (item.isCreator) {
+							Spacer(Modifier.width(4.dp))
+							Row(
+									modifier = Modifier
+											.clip(RoundedCornerShape(5.dp))
+											.background(ComposeAppTheme.colors.issykBlue)
+											.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+									horizontalArrangement = Arrangement.Center) {
+								Text(
+										text = stringResource(id = R.string.Safe_Four_Node_Creator),
+										style = ComposeAppTheme.typography.captionSB,
+										color = ComposeAppTheme.colors.white,
+										overflow = TextOverflow.Ellipsis,
+										maxLines = 1,
+								)
+							}
 						}
 					} else {
 						body_grey(text = item.address.hex.shorten(8),
@@ -624,24 +640,40 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Row {
 					if (item.isMine) {
 						body_issykBlue(text = item.address.hex.shorten(8))
-						val text = if (item.isPartner)
-							R.string.Safe_Four_Node_Partner
-						else
-							R.string.Safe_Four_Node_Creator
-						Spacer(Modifier.width(4.dp))
-						Row(
-								modifier = Modifier
-										.clip(RoundedCornerShape(5.dp))
-										.background(ComposeAppTheme.colors.issykBlue)
-										.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
-								horizontalArrangement = Arrangement.Center) {
-							Text(
-									text = stringResource(id = text),
-									style = ComposeAppTheme.typography.captionSB,
-									color = ComposeAppTheme.colors.white,
-									overflow = TextOverflow.Ellipsis,
-									maxLines = 1,
-							)
+
+						if (item.isPartner) {
+							Spacer(Modifier.width(4.dp))
+							Row(
+									modifier = Modifier
+											.clip(RoundedCornerShape(5.dp))
+											.background(ComposeAppTheme.colors.issykBlue)
+											.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+									horizontalArrangement = Arrangement.Center) {
+								Text(
+										text = stringResource(id = R.string.Safe_Four_Node_Partner),
+										style = ComposeAppTheme.typography.captionSB,
+										color = ComposeAppTheme.colors.white,
+										overflow = TextOverflow.Ellipsis,
+										maxLines = 1,
+								)
+							}
+						}
+						if (item.isCreator) {
+							Spacer(Modifier.width(4.dp))
+							Row(
+									modifier = Modifier
+											.clip(RoundedCornerShape(5.dp))
+											.background(ComposeAppTheme.colors.issykBlue)
+											.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
+									horizontalArrangement = Arrangement.Center) {
+								Text(
+										text = stringResource(id = R.string.Safe_Four_Node_Creator),
+										style = ComposeAppTheme.typography.captionSB,
+										color = ComposeAppTheme.colors.white,
+										overflow = TextOverflow.Ellipsis,
+										maxLines = 1,
+								)
+							}
 						}
 					} else {
 						body_grey(text = item.address.hex.shorten(8))

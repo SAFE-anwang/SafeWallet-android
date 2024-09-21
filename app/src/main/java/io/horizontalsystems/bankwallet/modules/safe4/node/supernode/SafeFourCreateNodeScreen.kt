@@ -227,15 +227,16 @@ fun SafeFourCreateNodeScreen(
 						enabled = true,
 						pasteEnabled = false,
 						hint = "",
+						maxLength = 20
 				) {
 					viewModel.onEnterNodeName(it)
-					nameErrorState = it.length < 8
+					nameErrorState = it.length < 3
 				}
 
 				if (nameErrorState) {
 					Text(
 							modifier = Modifier.padding(start = 16.dp),
-							text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 8),
+							text = stringResource(id = R.string.Safe_Four_Register_Mode_Length_Error, 3),
 							color = ComposeAppTheme.colors.redD,
 							style = ComposeAppTheme.typography.caption,
 							maxLines = 1,
@@ -275,6 +276,7 @@ fun SafeFourCreateNodeScreen(
 					enabled = true,
 					pasteEnabled = false,
 					hint = "",
+					maxLength = 600
 			) {
 				viewModel.onEnterIntroduction(it)
 				descErrorState = it.length < 12

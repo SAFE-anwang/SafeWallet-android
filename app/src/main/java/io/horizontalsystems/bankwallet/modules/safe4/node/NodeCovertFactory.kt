@@ -76,7 +76,8 @@ object NodeCovertFactory {
 				isEdit = nodeItem.isEdit,
 				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex || isPartner,
 				isVoteEnable = !isCreatorNode && !isPartner && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex,
-				isPartner = isPartner && receiveAddress != nodeItem.creator.hex
+				isPartner = isPartner && receiveAddress != nodeItem.creator.hex,
+				isCreator = receiveAddress == nodeItem.creator.hex
 		)
 	}
 

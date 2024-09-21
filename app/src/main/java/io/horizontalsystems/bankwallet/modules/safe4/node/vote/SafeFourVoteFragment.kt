@@ -70,7 +70,9 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.ListEmptyView2
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationModule
 import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.LightGrey50
 import io.horizontalsystems.bankwallet.ui.compose.components.AdditionalDataCell2
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.BoxTyler44
@@ -446,7 +448,11 @@ fun LazyListScope.lockedList(
                         val color = if (item.enable) {
                             ComposeAppTheme.colors.bran
                         } else {
-                            ComposeAppTheme.colors.grey50
+                            if (App.localStorage.currentTheme == ThemeType.Blue) {
+                                if (item.enable) ComposeAppTheme.colors.grey  else LightGrey50
+                            } else {
+                                ComposeAppTheme.colors.grey
+                            }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(

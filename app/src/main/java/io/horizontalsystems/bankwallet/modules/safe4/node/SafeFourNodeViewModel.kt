@@ -291,7 +291,8 @@ data class NodeViewItem(
         val isEdit: Boolean = false,
         val isMine: Boolean = false,
         val isVoteEnable: Boolean = false,
-        val isPartner: Boolean = false
+        val isPartner: Boolean = false,
+        val isCreator: Boolean = false
 )
 
 data class CreateViewItem(

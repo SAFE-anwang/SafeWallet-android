@@ -105,8 +105,8 @@ class SafeFourCreateNodeViewModel(
                     && !existNodeFounder
                     && amountState.canBeSend && addressState.canBeSend
                     && !isInputCurrentWalletAddress
-                    && superNodeName.length >= 8 && eNode.isNotBlank() && !existENode && !existNode
-                    && introduction.length >= 8
+                    && superNodeName.length >= 3 && eNode.isNotBlank() && !existENode && !existNode
+                    && introduction.length >= 12
                 else
                     amountState.availableBalance.compareTo(BigDecimal(getLockAmount())) > 0
                     && !existNodeFounder

@@ -39,7 +39,7 @@ class Colors(
     val steel10 = Steel10
     val steel20 = if(App.localStorage.currentTheme == ThemeType.Blue) SteelLight else Steel20
     val grey = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Black else Grey
-    val grey50 = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Black else Grey50
+    val grey50 = Grey50
     val yellow50 = Yellow50
     val yellow20 = Yellow20
 

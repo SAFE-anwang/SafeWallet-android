@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -15,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -109,7 +112,146 @@ fun SafeFourCreateNodeConfirmationScreen(
         }
     }
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+    val listState = rememberLazyListState()
+    Scaffold(
+            backgroundColor = ComposeAppTheme.colors.tyler,
+            topBar = {
+                AppBar(
+                        title = stringResource(id = title),
+                        navigationIcon = {
+                            HsBackButton(onClick = { navController.popBackStack() })
+                        }
+                )
+            },
+            bottomBar = {
+                ButtonPrimaryYellow(
+                        modifier = Modifier.fillMaxWidth()
+                                .padding(16.dp)
+                                .height(40.dp),
+                        title = stringResource(R.string.Safe_Four_Register_Node_Send),
+                        onClick = {
+                            viewModel.send()
+                        }
+                )
+            }
+    ) {
+        LazyColumn(modifier = Modifier.padding(it), state = listState) {
+            item {
+                Column(modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                        .background(ComposeAppTheme.colors.lawrence)) {
+                    Text(
+                            modifier = Modifier
+                                    .padding(start = 16.dp, top = 16.dp),
+                            text = stringResource(id = R.string.Safe_Four_Register_Lock_Confirmation),
+                            style = ComposeAppTheme.typography.subhead1,
+                            color = ComposeAppTheme.colors.bran,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                            modifier = Modifier
+                                    .padding(start = 16.dp)) {
+                        Text(
+                                text = stringResource(id = R.string.Safe_Four_Register_Lock),
+                                style = ComposeAppTheme.typography.body,
+                                color = ComposeAppTheme.colors.grey,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                                modifier = Modifier.padding(end = 16.dp),
+                                text = uiState.lockAmount,
+                                color = ComposeAppTheme.colors.bran,
+                                style = ComposeAppTheme.typography.body,
+                                maxLines = 1,
+                        )
+                    }
+                    Divider(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+                    if (isSuperNode) {
+
+                        body_grey(
+                                modifier = Modifier
+                                        .padding(start = 16.dp),
+                                text = stringResource(id = R.string.Safe_Four_Register_Mode_Name))
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                                text = data.name)
+
+                        Divider(
+                                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                                thickness = 1.dp,
+                                color = ComposeAppTheme.colors.steel10,
+                        )
+                    }
+
+
+                    body_grey(modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = R.string.Safe_Four_Node_Info_Address))
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            text = data.address)
+
+                    Divider(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+
+
+
+                    body_grey(modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = R.string.Safe_Four_Node_Info_Creator))
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            text = uiState.creator)
+
+                    Divider(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+
+
+                    body_grey(modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = R.string.Safe_Four_Register_ENODE))
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            text = data.enode)
+
+                    Divider(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                            thickness = 1.dp,
+                            color = ComposeAppTheme.colors.steel10,
+                    )
+
+                    body_grey(modifier = Modifier.padding(start = 16.dp), text = stringResource(id = R.string.Safe_Four_Register_Introduction))
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    body_bran(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp), text = data.description)
+                }
+            }
+        }
+    }
+
+    /*Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
                 title = stringResource(id = title),
                 navigationIcon = {
@@ -240,5 +382,5 @@ fun SafeFourCreateNodeConfirmationScreen(
                     viewModel.send()
                 }
         )
-    }
+    }*/
 }

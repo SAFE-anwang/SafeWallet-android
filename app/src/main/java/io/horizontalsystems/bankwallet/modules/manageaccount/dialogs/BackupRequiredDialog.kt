@@ -87,7 +87,7 @@ fun BackupRequiredScreen(navController: NavController, account: Account, text: S
                 }
             )
             VSpacer(12.dp)
-            ButtonPrimaryDefaultWithIcon(
+            ButtonPrimaryYellowWithIcon(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),

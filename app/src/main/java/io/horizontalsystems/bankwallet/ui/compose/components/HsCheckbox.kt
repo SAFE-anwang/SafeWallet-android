@@ -8,7 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.LightGrey50
 
 @Composable
 fun HsCheckbox(
@@ -26,7 +29,11 @@ fun HsCheckbox(
         Icon(
             painter = painterResource(id = R.drawable.ic_checkbox_frame),
             contentDescription = null,
-            tint = ComposeAppTheme.colors.grey
+            tint = if (App.localStorage.currentTheme == ThemeType.Blue) {
+                if (enabled) ComposeAppTheme.colors.grey  else LightGrey50
+            } else {
+                ComposeAppTheme.colors.grey
+            }
         )
         if (checked) {
             Icon(
