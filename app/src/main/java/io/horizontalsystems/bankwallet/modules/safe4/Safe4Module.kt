@@ -208,7 +208,7 @@ object Safe4Module {
             }
         }
         if (safe4Wallet == null) {
-            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe4"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
             return
         }
         val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))

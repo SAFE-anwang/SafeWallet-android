@@ -110,7 +110,7 @@ fun TabScreen(
 					}
 				}
 				if (safeWallet == null) {
-					Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "Safe3"), Toast.LENGTH_SHORT).show()
+					Toast.makeText(navController.context, Translator.getString(R.string.Safe4_Wallet_Tips, "SAFE3"), Toast.LENGTH_SHORT).show()
 					coroutineScope.launch {
 						pagerState.scrollToPage(0)
 					}
