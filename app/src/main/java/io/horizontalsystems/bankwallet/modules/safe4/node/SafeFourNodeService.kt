@@ -364,6 +364,7 @@ class SafeFourNodeService(
 		try {
 			return safe4RpcBlockChain.getTotalVoteNum(address)
 		} catch (e: Exception) {
+			Log.e("longwen", "$e")
 			return BigInteger.ZERO
 		}
 	}
@@ -533,6 +534,7 @@ class SafeFourNodeService(
 				}
 			}
 
+			var allVoteNum = BigInteger.ZERO
 			single.subscribeOn(Schedulers.io())
 					.map {
 						val nodeInfo = when (it) {
@@ -549,8 +551,23 @@ class SafeFourNodeService(
 							}
 						}
 						nodeInfo?.apply {
-							this.totalAmount = getTotalAmount(this.creator.hex)
+							when (nodeType) {
+								NodeType.SuperNode -> {
+									this.totalVoteNum = getTotalVoteNum(this.addr.hex)
+									this.totalAmount = getTotalAmount(this.addr.hex)
+								}
+
+								NodeType.MainNode -> {
+									this.totalVoteNum = this.founders.sumOf { it.amount }
+								}
+							}
 						}
+
+						if (allVoteNum == BigInteger.ZERO) {
+							allVoteNum = getAllVoteNum()
+						}
+
+						nodeInfo?.allVoteNum = allVoteNum
 						nodeInfo
 					}
 					.subscribe({

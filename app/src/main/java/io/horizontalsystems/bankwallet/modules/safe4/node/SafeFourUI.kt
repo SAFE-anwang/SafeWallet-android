@@ -106,6 +106,7 @@ fun HintView(
 							.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 					fontSize = 14.sp,
 					text = stringResource(id = textId),
+					color = ComposeAppTheme.colors.bran,
 					style = ComposeAppTheme.typography.caption)
 		}
 	}

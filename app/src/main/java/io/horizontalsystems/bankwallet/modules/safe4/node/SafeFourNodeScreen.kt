@@ -54,10 +54,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -367,23 +369,19 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 							.padding(start = 16.dp, end = 16.dp)
 							.alpha(1f)
 			) {
+				if (!isMine) {
+					body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Ranking, item.ranking))
+					Spacer(Modifier.height(2.dp))
+				}
 				Row {
-					Text(
-							modifier = Modifier.weight(7f),
-							text = item.name,
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.bran,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-							fontWeight = FontWeight.Bold
-					)
+					body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id.toString()))
+					Spacer(modifier = Modifier.weight(1f))
 					val color = when (item.status) {
 						is NodeStatus.Online -> ComposeAppTheme.colors.issykBlue
 						is NodeStatus.Exception -> ComposeAppTheme.colors.grey50
 					}
 					Row(
 							modifier = Modifier
-									.weight(1f)
 									.clip(RoundedCornerShape(5.dp))
 									.background(color)
 									.padding(start = 2.dp, top = 1.dp, end = 2.dp, bottom = 2.dp),
@@ -398,43 +396,15 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 					}
 				}
 				Spacer(Modifier.height(2.dp))
-				Row {
-					if (!isMine) {
-						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Ranking, item.ranking), )
-						Spacer(Modifier.width(16.dp))
-					}
-					body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id.toString()),)
-					Spacer(Modifier.weight(1f))
-					if (item.canJoin) {
-
-						ButtonPrimaryYellow(
-								modifier = Modifier
-										.wrapContentWidth()
-										.height(25.dp),
-								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
-								onClick = {
-									joinClick.invoke()
-								}
-						)
-					}
-					if (item.isVoteEnable) {
-						ButtonPrimaryYellow(
-								modifier = Modifier
-										.height(25.dp),
-								title = stringResource(R.string.Safe_Four_Vote),
-								onClick = {
-									voteClick.invoke()
-								}
-						)
-					}
-				}
+				body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Name_List, item.name),
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis)
 				Spacer(Modifier.height(2.dp))
 				Row {
 					if (item.isMine) {
-						body_issykBlue(text = item.address.hex.shorten(8))
-
+						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						Spacer(Modifier.weight(1f))
 						if (item.isPartner) {
-							Spacer(Modifier.width(4.dp))
 							Row(
 									modifier = Modifier
 											.clip(RoundedCornerShape(5.dp))
@@ -451,7 +421,6 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 						if (item.isCreator) {
-							Spacer(Modifier.width(4.dp))
 							Row(
 									modifier = Modifier
 											.clip(RoundedCornerShape(5.dp))
@@ -468,54 +437,32 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 					} else {
-						body_grey(text = item.address.hex.shorten(8),
-								modifier = Modifier.weight(4f))
-					}
-
-					Spacer(Modifier.weight(1f))
-
-					if (item.isEdit) {
-						Spacer(Modifier.width(10.dp))
-						ButtonPrimaryYellow(
-								modifier = Modifier
-										.wrapContentWidth()
-										.height(25.dp),
-								title = stringResource(R.string.Safe_Four_Node_Edit),
-								onClick = {
-									onEditClick.invoke()
-								}
-						)
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
 					}
 				}
-
-				Spacer(Modifier.height(4.dp))
-
+				Spacer(Modifier.height(2.dp))
+				Row {
+					body_bran(
+							text = stringResource(id = R.string.Safe_Four_Node_Info_Vote_List, item.voteCount),
+							maxLines = 1)
+					Spacer(Modifier.weight(1f))
+					body_bran(
+							text = stringResource(id = R.string.Safe_Four_Node_Info_Pledge_List, item.voteCompleteCount),
+							maxLines = 1)
+					/*body_bran(
+							modifier = Modifier
+									.weight(1f),
+							text = item.progressText,
+							textAlign = TextAlign.End,
+							maxLines = 1)*/
+				}
+				Spacer(Modifier.height(2.dp))
 				Row{
 					Column(
 							horizontalAlignment = Alignment.CenterHorizontally
 					) {
 						Row(
 								verticalAlignment = Alignment.CenterVertically) {
-
-							Text(
-									text = item.voteCount,
-									style = ComposeAppTheme.typography.body,
-									color = ComposeAppTheme.colors.bran,
-									overflow = TextOverflow.Ellipsis,
-									maxLines = 1,
-							)
-							Spacer(Modifier.weight(1f))
-							Text(
-									text = stringResource(id = R.string.Safe_Four_Vote_Amount, item.voteCompleteCount),
-									style = ComposeAppTheme.typography.body,
-									color = ComposeAppTheme.colors.grey,
-									overflow = TextOverflow.Ellipsis,
-									maxLines = 1,
-							)
-						}
-						Row(
-								verticalAlignment = Alignment.CenterVertically) {
-
 
 							LinearProgressIndicator(
 									modifier = Modifier
@@ -539,6 +486,42 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 						}
 					}
 				}
+				Spacer(Modifier.height(2.dp))
+
+				Row {
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.weight(2f)
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
+								onClick = {
+									joinClick.invoke()
+								},
+								enabled = item.canJoin
+						)
+						Spacer(Modifier.width(10.dp))
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.weight(1f)
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Vote),
+								onClick = {
+									voteClick.invoke()
+								},
+								enabled = item.isVoteEnable
+						)
+						Spacer(Modifier.width(10.dp))
+						ButtonPrimaryYellow(
+								modifier = Modifier
+										.weight(1f)
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Node_Edit),
+								onClick = {
+									onEditClick.invoke()
+								},
+								enabled = item.isEdit
+						)
+					}
 			}
 		}
 
@@ -572,14 +555,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							.alpha(1f)
 			) {
 				Row {
-					Text(
-							text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.bran,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-							fontWeight = FontWeight.Bold
-					)
+					body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Id_List, item.id.toString()))
 					Spacer(Modifier.weight(1f))
 					val color = when (item.status) {
 						is NodeStatus.Online -> ComposeAppTheme.colors.issykBlue
@@ -602,47 +578,10 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Spacer(Modifier.height(2.dp))
 
 				Row {
-					Text(
-							text = stringResource(id = R.string.Safe_Four_Node_Pledge, item.voteCount),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.grey,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
-					)
-					if (item.canJoin) {
-						Spacer(Modifier.weight(1f))
-
-						ButtonPrimaryYellow(
-								modifier = Modifier
-										.wrapContentWidth()
-										.height(25.dp),
-								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
-								onClick = {
-									joinClick.invoke()
-								}
-						)
-					}
-					if (item.isEdit) {
-						Spacer(Modifier.weight(1f))
-						ButtonPrimaryYellow(
-								modifier = Modifier
-										.wrapContentWidth()
-										.height(25.dp),
-								title = stringResource(R.string.Safe_Four_Node_Edit),
-								onClick = {
-									onEditClick.invoke()
-								}
-						)
-					}
-				}
-
-				Spacer(Modifier.height(2.dp))
-				Row {
 					if (item.isMine) {
-						body_issykBlue(text = item.address.hex.shorten(8))
-
+						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						Spacer(Modifier.weight(1f))
 						if (item.isPartner) {
-							Spacer(Modifier.width(4.dp))
 							Row(
 									modifier = Modifier
 											.clip(RoundedCornerShape(5.dp))
@@ -659,7 +598,6 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 						if (item.isCreator) {
-							Spacer(Modifier.width(4.dp))
 							Row(
 									modifier = Modifier
 											.clip(RoundedCornerShape(5.dp))
@@ -676,10 +614,43 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 					} else {
-						body_grey(text = item.address.hex.shorten(8))
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
 					}
-					
 				}
+				Spacer(Modifier.height(2.dp))
+				Row {
+					body_bran(
+							text = stringResource(id = R.string.Safe_Four_Node_Info_Vote_List, item.voteCount))
+					Spacer(Modifier.weight(1f))
+					body_bran(
+							text = stringResource(id = R.string.Safe_Four_Node_Info_Pledge_List, item.voteCompleteCount))
+				}
+
+				Spacer(Modifier.height(2.dp))
+				Row {
+					ButtonPrimaryYellow(
+							modifier = Modifier
+									.weight(1f)
+									.height(25.dp),
+							title = stringResource(R.string.Safe_Four_Node_Join_Partner),
+							onClick = {
+								joinClick.invoke()
+							},
+							enabled = item.canJoin
+					)
+					Spacer(Modifier.width(16.dp))
+					ButtonPrimaryYellow(
+							modifier = Modifier
+									.weight(1f)
+									.height(25.dp),
+							title = stringResource(R.string.Safe_Four_Node_Edit),
+							onClick = {
+								onEditClick.invoke()
+							},
+							enabled = item.isEdit
+					)
+				}
+
 			}
 		}
 

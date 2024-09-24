@@ -1959,8 +1959,8 @@
     <string name="Safe_Four_Register_Master_Node">注册主节点</string>
     <string name="Safe_Four_Register_Super_Node_Register">已创建超级节点</string>
     <string name="Safe_Four_Register_Master_Node_Register">已注册主节点</string>
-    <string name="Safe_Four_Register_Super_Node_Register_Hint">注册成为超级节点,将不能再注册主节点\n注册成为超级节点,将不能再使用该账户下的锁仓记录进行超级节点投票</string>
-    <string name="Safe_Four_Register_Master_Node_Register_Hint">已注注册成为主节点，则不能再注册成为超级节点册主节点</string>
+    <string name="Safe_Four_Register_Super_Node_Register_Hint">超级节点不能是主节点，也不能使用该地址下的锁仓记录给超级节点投票。</string>
+    <string name="Safe_Four_Register_Master_Node_Register_Hint">主节点不能同时注册超级节点。</string>
     <string name="Safe_Four_Register_Mode_Stand_Alone">独立</string>
     <string name="Safe_Four_Register_Mode_Crowd_Funding">众筹</string>
     <string name="Safe_Four_Register_Mode_Super_Node_Address">超级节点地址</string>
@@ -1972,7 +1972,7 @@
     <string name="Safe_Four_Register_Mode_Exists_Master_Node">该地址已是主节点或合伙人</string>
     <string name="Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address">不能使用当前钱包地址</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
-    <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入\nadmin.nodeInfo\n获取节点的ENODE信息</string>
+    <string name="Safe_Four_Register_ENODE_Hint">服务器上部署节点程序后,使用geth连接到控制台输入 admin.nodeInfo 获取节点的ENODE信息</string>
     <string name="Safe_Four_Register_Introduction">简介</string>
     <string name="Safe_Four_Register_Reward">挖矿奖励分配方案</string>
     <string name="Safe_Four_Register_Partner">合伙人</string>
@@ -1999,6 +1999,10 @@
     <string name="Safe_Four_Node_Info">节点详情</string>
     <string name="Safe_Four_Node_Info_Id">节点ID:</string>
     <string name="Safe_Four_Node_Info_Id_List">节点ID: %s</string>
+    <string name="Safe_Four_Node_Info_Name_List">节点名称: %s</string>
+    <string name="Safe_Four_Node_Info_Address_List">节点地址: %s</string>
+    <string name="Safe_Four_Node_Info_Vote_List">投票数: %s</string>
+    <string name="Safe_Four_Node_Info_Pledge_List">质押数: %s</string>
     <string name="Safe_Four_Node_Info_Status">节点状态:</string>
     <string name="Safe_Four_Node_Info_Address">节点地址:</string>
     <string name="Safe_Four_Node_Info_Name">节点名称:</string>
@@ -2011,7 +2015,8 @@
     <string name="Safe_Four_Node_Vote_Tab_Safe_Vote">SAFE投票</string>
     <string name="Safe_Four_Node_Vote_Tab_Lock_Vote">锁仓投票</string>
     <string name="Safe_Four_Node_Vote_Tab_Creator">创建人 | 合伙人</string>
-    <string name="Safe_Four_Node_Info_Title">节点信息</string>
+    <string name="Safe_Four_Node_Info_Title">超级节点信息</string>
+    <string name="Safe_Four_Node_Info_Title_Master">主节点信息</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">投票人</string>
     <string name="Safe_Four_Node_Vote_Lock_Id">锁仓记录Id:%s</string>
     <string name="Safe_Four_Node_Vote_Lock_All">选择全部可用锁仓记录</string>

@@ -748,7 +748,7 @@ fun NodeInfoScreen(
                     thickness = 1.dp,
                     color = ComposeAppTheme.colors.steel10,
             )
-            Row {
+//            Row {
                 Text(
                         modifier = Modifier.padding(start = 8.dp),
                         text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
@@ -757,7 +757,7 @@ fun NodeInfoScreen(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                 )
-                Spacer(Modifier.weight(1f))
+//                Spacer(Modifier.weight(1f))
                 Text(
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                         text = nodeInfo.name,
@@ -765,7 +765,7 @@ fun NodeInfoScreen(
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )
-            }
+//            }
         }
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),

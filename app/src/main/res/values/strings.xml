@@ -2270,8 +2270,8 @@
     <string name="Safe_Four_Master_Node">Master Node</string>
     <string name="Safe_Four_Super_Node_All">Super Node List</string>
     <string name="Safe_Four_Master_Node_All">Master Node List</string>
-    <string name="Safe_Four_Super_Node_Mine">My Master Node</string>
-    <string name="Safe_Four_Master_Node_Mine">My Super Node</string>
+    <string name="Safe_Four_Super_Node_Mine">My Super Node</string>
+    <string name="Safe_Four_Master_Node_Mine">My Master Node</string>
     <string name="Safe_Four_Proposal">Proposal</string>
     <string name="Safe_Four_Vote">Vote</string>
     <string name="Safe_Four_Profit">Profit</string>
@@ -2281,8 +2281,8 @@
     <string name="Safe_Four_Register_Master_Node">Create Master Node</string>
     <string name="Safe_Four_Register_Super_Node_Register">Already create super node</string>
     <string name="Safe_Four_Register_Master_Node_Register">Already create master node</string>
-    <string name="Safe_Four_Register_Super_Node_Register_Hint">If you register as a super node, you will no longer be able to register as a master node\nIf you register as a super node, you will no longer be able to use the lock-up records under this account to vote for super nodes</string>
-    <string name="Safe_Four_Register_Master_Node_Register_Hint">If you have registered as a master node, you can no longer register as a super node master node</string>
+    <string name="Safe_Four_Register_Super_Node_Register_Hint">The super node cannot be the master node, nor can it use the lock record under this address to vote for the super node.</string>
+    <string name="Safe_Four_Register_Master_Node_Register_Hint">The master node cannot register the super node at the same time.</string>
     <string name="Safe_Four_Register_Rgister_Mode">Create Mode</string>
     <string name="Safe_Four_Register_Mode_Stand_Alone">Stand Alone</string>
     <string name="Safe_Four_Register_Mode_Crowd_Funding">Crowd-funding</string>
@@ -2295,7 +2295,7 @@
     <string name="Safe_Four_Register_Mode_Exists_Master_Node">This address already master node or partner</string>
     <string name="Safe_Four_Register_Mode_Dont_User_Current_Wallet_Address">Cannot use current wallet address</string>
     <string name="Safe_Four_Register_ENODE">ENODE</string>
-    <string name="Safe_Four_Register_ENODE_Hint">After deploying the node program on the server, use geth to connect to the console input\nadmin.nodeInfo\nObtain ENODE information of the node</string>
+    <string name="Safe_Four_Register_ENODE_Hint">After deploying the node program on the server, use geth to connect to the console input admin.nodeInfo Obtain ENODE information of the node</string>
     <string name="Safe_Four_Register_Introduction">Brief Introduction</string>
     <string name="Safe_Four_Register_Reward">Reward distribution plan</string>
     <string name="Safe_Four_Register_Partner">Partner</string>
@@ -2319,8 +2319,12 @@
     <string name="Safe_Four_Node_Super_Node_Vote">Super node voting</string>
     <string name="Safe_Four_Node_Master_Node_Vote">Joint creation of master nodes</string>
     <string name="Safe_Four_Node_Super_Node_Join">Joint creation of super node</string>
-    <string name="Safe_Four_Node_Info">Node Information:</string>
+    <string name="Safe_Four_Node_Info">Node Information</string>
     <string name="Safe_Four_Node_Info_Id_List">Node ID: %s</string>
+    <string name="Safe_Four_Node_Info_Name_List">Node Name: %s</string>
+    <string name="Safe_Four_Node_Info_Address_List">Node Address: %s</string>
+    <string name="Safe_Four_Node_Info_Vote_List">Votes: %s</string>
+    <string name="Safe_Four_Node_Info_Pledge_List">Pledge: %s</string>
     <string name="Safe_Four_Node_Info_Id">Node ID: </string>
     <string name="Safe_Four_Node_Info_Status">Status:</string>
     <string name="Safe_Four_Node_Info_Address">Address:</string>
@@ -2333,7 +2337,8 @@
     <string name="Safe_Four_Node_Super_Node_Vote_Address">Super Node Address</string>
     <string name="Safe_Four_Node_Vote_Tab_Safe_Vote">SAFE Vote</string>
     <string name="Safe_Four_Node_Vote_Tab_Lock_Vote">Lock Vote</string>
-    <string name="Safe_Four_Node_Info_Title">Node Info</string>
+    <string name="Safe_Four_Node_Info_Title">Super Node Info</string>
+    <string name="Safe_Four_Node_Info_Title_Master">Master Node Info</string>
     <string name="Safe_Four_Node_Vote_Tab_Creator">Creator | Partner</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">Voters</string>
     <string name="Safe_Four_Node_Vote_Lock_Id">Lock Id:%s</string>

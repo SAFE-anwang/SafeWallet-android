@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,6 +77,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.launch
@@ -131,7 +133,12 @@ fun TabInfoScreen(
     Column(modifier = Modifier
             .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
-                title = stringResource(id = R.string.Safe_Four_Node_Info_Title),
+                title = stringResource(id =
+                if (isSuperNode)
+                    R.string.Safe_Four_Node_Info_Title
+                else
+                    R.string.Safe_Four_Node_Info_Title_Master
+                ),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 }
@@ -193,6 +200,9 @@ fun NodeInfoScreen(
 ) {
     val nodeInfo = viewModel.uiState.nodeInfo ?: return
     val uiState = viewModel.uiState
+
+    val view = LocalView.current
+
     Column {
         Spacer(Modifier.height(16.dp))
         Text(
@@ -263,9 +273,13 @@ fun NodeInfoScreen(
         )
         Spacer(Modifier.height(4.dp))
         Text(
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                        .clickable {
+                            TextHelper.copyText(nodeInfo.address.hex)
+                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                        },
                 text = nodeInfo.address.hex,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.issykBlue,
                 style = ComposeAppTheme.typography.body,
         )
         Divider(
@@ -283,9 +297,13 @@ fun NodeInfoScreen(
         )
         Spacer(Modifier.height(4.dp))
         Text(
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                        .clickable {
+                            TextHelper.copyText(nodeInfo.creator.hex)
+                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                        },
                 text = nodeInfo.creator.hex,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.issykBlue,
                 style = ComposeAppTheme.typography.body,
         )
         if (isSuperNode) {
@@ -294,7 +312,7 @@ fun NodeInfoScreen(
                     thickness = 1.dp,
                     color = ComposeAppTheme.colors.steel10,
             )
-            Row {
+//            Row {
                 Text(
                         modifier = Modifier.padding(start = 8.dp),
                         text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
@@ -303,7 +321,7 @@ fun NodeInfoScreen(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                 )
-                Spacer(Modifier.weight(1f))
+//                Spacer(Modifier.weight(1f))
                 Text(
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                         text = nodeInfo.name,
@@ -311,7 +329,7 @@ fun NodeInfoScreen(
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )
-            }
+//            }
         }
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -351,7 +369,7 @@ fun NodeInfoScreen(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                    text = nodeInfo.voteCompleteCount,
+                    text = "${nodeInfo.voteCompleteCount} SAFE",
                     color = ComposeAppTheme.colors.bran,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
@@ -372,9 +390,13 @@ fun NodeInfoScreen(
         )
         Spacer(Modifier.height(4.dp))
         Text(
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                        .clickable {
+                            TextHelper.copyText(nodeInfo.enode)
+                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                        },
                 text = nodeInfo.enode,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.issykBlue,
                 style = ComposeAppTheme.typography.body
         )
         Divider(

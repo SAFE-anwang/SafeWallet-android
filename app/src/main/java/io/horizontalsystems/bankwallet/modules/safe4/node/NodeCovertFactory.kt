@@ -64,7 +64,7 @@ object NodeCovertFactory {
 				nodeItem.name,
 				nodeItem.description,
 				App.numberFormatter.formatCoinFull(totalVoteNum, null, 2),
-				App.numberFormatter.formatCoinFull(if (isSuperNode) totalAmount else creatorTotalAmount, "SAFE", 2),
+				App.numberFormatter.formatCoinFull(if (isSuperNode) totalAmount else creatorTotalAmount, null, 2),
 				progress.toFloat(),
 				"${"%.2f".format((progress).toFloat() * 100)}%",
 				nodeItem.addr,
@@ -75,7 +75,7 @@ object NodeCovertFactory {
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
 				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex || isPartner,
-				isVoteEnable = !isCreatorNode && !isPartner && receiveAddress != nodeItem.addr.hex && receiveAddress != nodeItem.creator.hex,
+				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex,
 				isPartner = isPartner && receiveAddress != nodeItem.creator.hex,
 				isCreator = receiveAddress == nodeItem.creator.hex
 		)
