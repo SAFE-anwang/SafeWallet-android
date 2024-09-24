@@ -650,7 +650,7 @@ fun NodeInfoScreen(
     Column {
         Spacer(Modifier.height(16.dp))
         Text(
-                modifier = Modifier.padding(start = 16.dp),
+                modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(id = R.string.Safe_Four_Node_Info),
                 style = ComposeAppTheme.typography.subhead1,
                 color = ComposeAppTheme.colors.bran,
@@ -748,24 +748,21 @@ fun NodeInfoScreen(
                     thickness = 1.dp,
                     color = ComposeAppTheme.colors.steel10,
             )
-//            Row {
-                Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
-                        style = ComposeAppTheme.typography.body,
-                        color = ComposeAppTheme.colors.grey,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                )
-//                Spacer(Modifier.weight(1f))
-                Text(
-                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                        text = nodeInfo.name,
-                        color = ComposeAppTheme.colors.bran,
-                        style = ComposeAppTheme.typography.body,
-                        maxLines = 1,
-                )
-//            }
+            Text(
+                    modifier = Modifier.padding(start = 8.dp),
+                    text = stringResource(id = R.string.Safe_Four_Node_Info_Name),
+                    style = ComposeAppTheme.typography.body,
+                    color = ComposeAppTheme.colors.grey,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+            )
+            Text(
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    text = nodeInfo.name,
+                    color = ComposeAppTheme.colors.bran,
+                    style = ComposeAppTheme.typography.body,
+                    maxLines = 1,
+            )
         }
         Divider(
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),

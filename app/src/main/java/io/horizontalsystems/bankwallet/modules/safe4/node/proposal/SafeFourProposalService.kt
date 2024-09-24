@@ -80,7 +80,7 @@ class SafeFourProposalService(
 	fun getMinNum() {
 		try {
 			if (mineProposalNum == -1) {
-				safe4RpcBlockChain.getMineNum(evmKitWrapper.signer!!.privateKey.toHexString())
+				safe4RpcBlockChain.getMineNum(evmKitWrapper.evmKit.receiveAddress.hex)
 						.subscribeOn(Schedulers.io())
 						.subscribe( {
 							mineProposalNum = it.toInt()
@@ -153,7 +153,7 @@ class SafeFourProposalService(
 			var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
 			if (itemsCount < 0) itemsCount = 0
 			// already vote
-			val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.signer!!.privateKey.toHexString(), itemsCount, pageCount)
+			val disableSingle = safe4RpcBlockChain.getMineProposal(evmKitWrapper.evmKit.receiveAddress.hex, itemsCount, pageCount)
 
 			disableSingle
 					.subscribeOn(Schedulers.io())

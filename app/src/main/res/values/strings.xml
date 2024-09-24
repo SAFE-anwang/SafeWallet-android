@@ -2279,8 +2279,8 @@
     <string name="Safe_Four_Register_Node_Create_Mode">Mode</string>
     <string name="Safe_Four_Register_Super_Node">Create Super Node</string>
     <string name="Safe_Four_Register_Master_Node">Create Master Node</string>
-    <string name="Safe_Four_Register_Super_Node_Register">Already create super node</string>
-    <string name="Safe_Four_Register_Master_Node_Register">Already create master node</string>
+    <string name="Safe_Four_Register_Super_Node_Register">Already register super node</string>
+    <string name="Safe_Four_Register_Master_Node_Register">Already register master node</string>
     <string name="Safe_Four_Register_Super_Node_Register_Hint">The super node cannot be the master node, nor can it use the lock record under this address to vote for the super node.</string>
     <string name="Safe_Four_Register_Master_Node_Register_Hint">The master node cannot register the super node at the same time.</string>
     <string name="Safe_Four_Register_Rgister_Mode">Create Mode</string>

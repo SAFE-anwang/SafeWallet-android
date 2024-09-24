@@ -1957,7 +1957,7 @@
     <string name="Safe_Four_Register_Node_Create_Mode">创建模式</string>
     <string name="Safe_Four_Register_Super_Node">创建超级节点</string>
     <string name="Safe_Four_Register_Master_Node">注册主节点</string>
-    <string name="Safe_Four_Register_Super_Node_Register">已创建超级节点</string>
+    <string name="Safe_Four_Register_Super_Node_Register">已注册超级节点</string>
     <string name="Safe_Four_Register_Master_Node_Register">已注册主节点</string>
     <string name="Safe_Four_Register_Super_Node_Register_Hint">超级节点不能是主节点，也不能使用该地址下的锁仓记录给超级节点投票。</string>
     <string name="Safe_Four_Register_Master_Node_Register_Hint">主节点不能同时注册超级节点。</string>
