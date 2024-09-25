@@ -6,7 +6,7 @@ import io.horizontalsystems.ethereumkit.models.Transaction
 import io.horizontalsystems.marketkit.models.Token
 
 class ContractCallTransactionRecord(
-    transaction: Transaction,
+    val transaction: Transaction,
     baseToken: Token,
     source: TransactionSource,
     val contractAddress: String,

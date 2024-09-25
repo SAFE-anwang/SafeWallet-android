@@ -243,6 +243,7 @@ class TransactionViewItemFactory(
 
             is ContractCallTransactionRecord -> {
                 val (incomingValues, outgoingValues) = EvmTransactionRecord.combined(record.incomingEvents, record.outgoingEvents)
+                val locked = if ("0x092c8749" == record.transaction.input?.take(4)?.toByteArray().toHexString()) true else null
                 createViewItemFromContractCallTransactionRecord(
                     uid = record.uid,
                     incomingValues = incomingValues,
@@ -255,7 +256,8 @@ class TransactionViewItemFactory(
                     progress = progress,
                     icon = icon,
                     spam = record.spam,
-                    nftMetadata = transactionItem.nftMetadata
+                    nftMetadata = transactionItem.nftMetadata,
+                    locked = locked
                 )
             }
 
@@ -890,7 +892,8 @@ class TransactionViewItemFactory(
         progress: Float?,
         spam: Boolean,
         icon: TransactionViewItem.Icon?,
-        nftMetadata: Map<NftUid, NftAssetBriefMetadata>
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
+        locked: Boolean? = null
     ): TransactionViewItem {
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, nftMetadata)
         val title = method ?: Translator.getString(R.string.Transactions_ContractCall)
@@ -905,7 +908,8 @@ class TransactionViewItemFactory(
             showAmount = showAmount,
             date = Date(timestamp * 1000),
             spam = spam,
-            icon = icon ?: iconType(blockchainType, incomingValues, outgoingValues, nftMetadata)
+            icon = icon ?: iconType(blockchainType, incomingValues, outgoingValues, nftMetadata),
+            locked = locked
         )
     }
 

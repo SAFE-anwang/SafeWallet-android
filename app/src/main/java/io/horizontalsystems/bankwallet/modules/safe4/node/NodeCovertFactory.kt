@@ -48,10 +48,15 @@ object NodeCovertFactory {
 		}
 		val creatorTotalAmount = valueConvert( nodeItem.founders.sumOf { it.amount })
 		// 加入规则： 加入超级节点S4时，调用者不是S4，也不可以在是超级节点和主节点。
-		val canJoin = if (isSuperNode)
-			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Super_Node_Create_Amount
+		val isPledgeAll = if (isSuperNode)
+			creatorTotalAmount.toInt() < Super_Node_Create_Amount
 		else
-			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && creatorTotalAmount.toInt() < Master_Node_Create_Amount
+			creatorTotalAmount.toInt() < Master_Node_Create_Amount
+
+		val canJoin = if (isSuperNode)
+			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && isPledgeAll
+		else
+			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && isPledgeAll
 
 		val createPledge = if (isSuperNode)
 			Super_Node_Create_Amount
@@ -71,11 +76,11 @@ object NodeCovertFactory {
 				nodeItem.creator,
 				nodeItem.state,
 				nodeItem.enode,
-				createPledge = "$createPledge SAFE",
+				createPledge = "${creatorTotalAmount.toInt()} SAFE",
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
 				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex || isPartner,
-				isVoteEnable = !isCreatorNode && receiveAddress != nodeItem.addr.hex,
+				isVoteEnable = !isPledgeAll && !isCreatorNode && receiveAddress != nodeItem.addr.hex,
 				isPartner = isPartner && receiveAddress != nodeItem.creator.hex,
 				isCreator = receiveAddress == nodeItem.creator.hex
 		)

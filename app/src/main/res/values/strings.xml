@@ -2453,6 +2453,7 @@
     <string name="Proposal_Search">Proposal Id</string>
 
     <string name="Method_Create_Proposal">Create Proposal</string>
+    <string name="Method_Create_Proposal_Vote">Proposal Vote</string>
     <string name="Method_Create_Super_Node">Create Super Node</string>
     <string name="Method_Create_Master_Node">Create Master Node</string>
     <string name="Method_Vote">Lock Voted</string>
@@ -2467,5 +2468,6 @@
     <string name="Method_Redeem_Available">Redeem Available</string>
     <string name="Method_Redeem_MasterNode">Redeem Master Node</string>
     <string name="Method_Redeem_Locked">Redeem Locked</string>
+    <string name="Method_Node_Status_Upload">Node status upload</string>
     <!-- safe 4  end-->
 </resources>

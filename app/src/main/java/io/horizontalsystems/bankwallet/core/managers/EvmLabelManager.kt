@@ -48,6 +48,7 @@ class EvmLabelManager(
         return when(methodId) {
             "0x03c4c7f3" -> App.instance.getString(R.string.Method_Vote)
             "0xc54256ed" -> App.instance.getString(R.string.Method_Create_Proposal)
+            "0xb384abef" -> App.instance.getString(R.string.Method_Create_Proposal_Vote)
             "0xa57afda4" -> App.instance.getString(R.string.Method_Create_Super_Node)
             "0x082ed4d5" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)
                 App.instance.getString(R.string.Method_Create_Super_Node)
@@ -70,6 +71,7 @@ class EvmLabelManager(
             "0xd885085f",
             "0x4c9e906a",
             "0x6d5b08d3" -> App.instance.getString(R.string.Method_Redeem_Locked)
+            "0xa6aa19d2" -> App.instance.getString(R.string.Method_Node_Status_Upload)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

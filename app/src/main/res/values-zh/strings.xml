@@ -2127,6 +2127,7 @@
     <string name="Proposal_Search">提案Id</string>
 
     <string name="Method_Create_Proposal">创建提案</string>
+    <string name="Method_Create_Proposal_Vote">提案投票</string>
     <string name="Method_Create_Super_Node">创建超级节点</string>
     <string name="Method_Create_Master_Node">创建主节点</string>
     <string name="Method_Vote">锁仓投票</string>
@@ -2141,6 +2142,7 @@
     <string name="Method_Redeem_Available">迁移余额</string>
     <string name="Method_Redeem_MasterNode">迁移主节点余额</string>
     <string name="Method_Redeem_Locked">锁仓余额迁移</string>
+    <string name="Method_Node_Status_Upload">节点状态上传</string>
 
 
     <!-- safe 4  end-->
