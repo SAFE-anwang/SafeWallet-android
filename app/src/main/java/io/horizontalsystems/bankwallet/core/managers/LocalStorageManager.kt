@@ -84,6 +84,7 @@ class LocalStorageManager(
     private val UTXO_EXPERT_MODE = "utxo_expert_mode"
     private val RBF_ENABLED = "rbf_enabled"
     private val HIDE_WITHDRAW_TX = "hide_withdraw_tx"
+    private val HIDE_UPLOAD_TX = "hide_upload_tx"
 
     private val _utxoExpertModeEnabledFlow = MutableStateFlow(false)
     override val utxoExpertModeEnabledFlow = _utxoExpertModeEnabledFlow
@@ -539,6 +540,12 @@ class LocalStorageManager(
         get() = preferences.getBoolean(HIDE_WITHDRAW_TX, true)
         set(value) {
             preferences.edit().putBoolean(HIDE_WITHDRAW_TX, value).apply()
+        }
+
+    override var hideUploadTransactions: Boolean
+        get() = preferences.getBoolean(HIDE_UPLOAD_TX, true)
+        set(value) {
+            preferences.edit().putBoolean(HIDE_UPLOAD_TX, value).apply()
         }
 
 }

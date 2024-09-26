@@ -20,6 +20,7 @@ abstract class TransactionRecord(
     val failed: Boolean = false,
     val spam: Boolean = false,
     val withdraw: Boolean = false,
+    val uploadTransaction: Boolean = false,
     val source: TransactionSource
 ) : Comparable<TransactionRecord> {
 

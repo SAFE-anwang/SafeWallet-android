@@ -214,6 +214,7 @@ class TransactionsService(
 
             if (record.spam && spamManager.hideSuspiciousTx) return@forEach
             if (record.withdraw && spamManager.hideWithdrawTx) return@forEach
+            if (record.uploadTransaction && spamManager.hideUploadTx) return@forEach
 
             transactionItem = if (transactionItem == null) {
                 val lastBlockInfo = transactionSyncStateRepository.getLastBlockInfo(record.source)
@@ -227,7 +228,7 @@ class TransactionsService(
             tmpList.add(transactionItem)
         }
 
-        if (newRecords.isNotEmpty() && newRecords.all { it.spam || it.withdraw }) {
+        if (newRecords.isNotEmpty() && newRecords.all { it.spam || it.withdraw || it.uploadTransaction}) {
             loadNext()
         }
 

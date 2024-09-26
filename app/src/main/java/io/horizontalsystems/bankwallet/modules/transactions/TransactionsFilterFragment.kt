@@ -69,6 +69,7 @@ fun FilterScreen(
     val filterBlockchains by viewModel.filterBlockchainsLiveData.observeAsState()
     val filterHideUnknownTokens = viewModel.filterHideSuspiciousTx.observeAsState(true)
     val filterHideWithdrawTokens = viewModel.filterHideWithdrawTx.observeAsState(true)
+    val filterHideUploadTokens = viewModel.filterHideUploadTx.observeAsState(true)
     val filterContact by viewModel.filterContactLiveData.observeAsState()
 
     val filterCoin = filterCoins?.find { it.selected }?.item
@@ -174,6 +175,18 @@ fun FilterScreen(
                             enabled = filterHideWithdrawTokens.value,
                             onChecked = { checked ->
                                 viewModel.updateFilterHideWithdrawTx(checked)
+                            }
+                        )
+                    }
+                )
+                VSpacer(32.dp)
+                CellSingleLineLawrenceSection(
+                    listOf {
+                        FilterSwitch(
+                            title = stringResource(R.string.Transactions_Filter_HideUploadTx),
+                            enabled = filterHideUploadTokens.value,
+                            onChecked = { checked ->
+                                viewModel.updateFilterHideUploadTx(checked)
                             }
                         )
                     }

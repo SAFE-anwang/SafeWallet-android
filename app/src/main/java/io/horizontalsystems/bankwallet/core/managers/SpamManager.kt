@@ -18,6 +18,9 @@ class SpamManager(
     var hideWithdrawTx = localStorage.hideWithdrawTransactions
         private set
 
+    var hideUploadTx = localStorage.hideUploadTransactions
+        private set
+
     fun isSpam(
         incomingEvents: List<TransferEvent>,
         outgoingEvents: List<TransferEvent>
@@ -63,6 +66,11 @@ class SpamManager(
     fun updateFilterHideWithdrawTx(hide: Boolean) {
         localStorage.hideWithdrawTransactions = hide
         hideWithdrawTx = hide
+    }
+
+    fun updateFilterHideUploadTx(hide: Boolean) {
+        localStorage.hideUploadTransactions = hide
+        hideUploadTx = hide
     }
 
 }

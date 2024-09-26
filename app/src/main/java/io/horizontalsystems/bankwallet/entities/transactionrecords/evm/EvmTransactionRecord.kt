@@ -25,6 +25,7 @@ open class EvmTransactionRecord(
         failed = transaction.isFailed,
         spam = spam,
         withdraw = transaction.isWithdraw(),
+        uploadTransaction = transaction.isUploadTransaction(),
         source = source
     ) {
 

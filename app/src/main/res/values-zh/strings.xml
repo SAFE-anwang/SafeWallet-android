@@ -2088,6 +2088,7 @@
     <string name="Safe_Four_No_Data">暂无数据</string>
     <string name="Safe_Four_Proposal_Hint">支付 1 SAFE 来创建提案从资金池里获取SAFE\n只有在线且排名前49的超级节点才可以进行投票</string>
     <string name="Transactions_Filter_HideWithdrawTx">隐藏挖矿收益</string>
+    <string name="Transactions_Filter_HideUploadTx">隐藏节点状态上传交易</string>
 
     <string name="Safe_Four_Node_Edit">编辑</string>
     <string name="Safe_Four_Node_Edit_Super_Title">编辑超级节点</string>

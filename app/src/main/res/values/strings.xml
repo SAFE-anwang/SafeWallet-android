@@ -2411,6 +2411,7 @@
     <string name="Safe_Four_No_Data">No Data</string>
     <string name="Safe_Four_Proposal_Hint">Pay 1 SAFE to create a proposal and get SAFE from the fund pool\nOnly online and top 49 super nodes can vote</string>
     <string name="Transactions_Filter_HideWithdrawTx">Hide mining profits</string>
+    <string name="Transactions_Filter_HideUploadTx">Hide node status upload tx</string>
 
     <string name="Safe_Four_Node_Edit">Edit</string>
     <string name="Safe_Four_Node_Edit_Super_Title">Edit Super Node</string>

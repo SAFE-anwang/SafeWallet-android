@@ -129,6 +129,7 @@ interface ILocalStorage {
     val utxoExpertModeEnabledFlow: StateFlow<Boolean>
 
     var hideWithdrawTransactions: Boolean
+    var hideUploadTransactions: Boolean
 
     fun getSwapProviderId(blockchainType: BlockchainType): String?
     fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
