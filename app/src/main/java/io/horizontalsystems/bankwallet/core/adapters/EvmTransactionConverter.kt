@@ -1,10 +1,13 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
 import cash.z.ecc.android.sdk.ext.toHex
+import com.anwang.utils.Safe4Contract
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.managers.SpamManager
+import io.horizontalsystems.bankwallet.core.toHexString
 import io.horizontalsystems.bankwallet.core.tokenIconPlaceholder
 import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
@@ -178,14 +181,24 @@ class EvmTransactionConverter(
                 val incomingEip1155Transfers = eip1155Transfers.filter { it.to == address && it.from != address }
                 val outgoingEip1155Transfers = eip1155Transfers.filter { it.from == address }
 
-                val contractAddress = transaction.to
+                var contractAddress = transaction.to
+                if (contractAddress?.hex == Safe4Contract.SNVoteContractAddr) {
+                    transaction.input?.let {
+                        try {
+                            val hex = it.toHexString()
+                            contractAddress = Address(hex.substring(98, 138))
+                        } catch (e: Exception) {
+
+                        }
+                    }
+                }
                 val value = transaction.value
 
                 when {
                     transaction.from == address && contractAddress != null && value != null -> {
                         ContractCallTransactionRecord(
                             transaction, baseToken, source,
-                            contractAddress.eip55,
+                            contractAddress!!.eip55,
                             transaction.input?.let { evmLabelManager.methodLabel(it, transaction.to?.eip55) },
                             getInternalEvents(internalTransactions) +
                                     getIncomingEip20Events(incomingEip20Transfers) +
