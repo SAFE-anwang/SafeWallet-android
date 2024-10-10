@@ -2470,5 +2470,6 @@
     <string name="Method_Redeem_MasterNode">Redeem Master Node</string>
     <string name="Method_Redeem_Locked">Redeem Locked</string>
     <string name="Method_Node_Status_Upload">Node status upload</string>
+    <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <!-- safe 4  end-->
 </resources>

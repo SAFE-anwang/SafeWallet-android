@@ -2144,6 +2144,7 @@
     <string name="Method_Redeem_MasterNode">迁移主节点余额</string>
     <string name="Method_Redeem_Locked">锁仓余额迁移</string>
     <string name="Method_Node_Status_Upload">节点状态上传</string>
+    <string name="Method_Node_Contract_Deployment">合约部署</string>
 
 
     <!-- safe 4  end-->

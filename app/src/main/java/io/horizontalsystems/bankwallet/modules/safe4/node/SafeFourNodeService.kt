@@ -364,7 +364,6 @@ class SafeFourNodeService(
 		try {
 			return safe4RpcBlockChain.getTotalVoteNum(address)
 		} catch (e: Exception) {
-			Log.e("longwen", "$e")
 			return BigInteger.ZERO
 		}
 	}
