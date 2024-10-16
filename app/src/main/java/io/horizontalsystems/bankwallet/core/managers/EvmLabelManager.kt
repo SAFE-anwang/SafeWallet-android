@@ -54,6 +54,7 @@ class EvmLabelManager(
                 App.instance.getString(R.string.Method_Create_Super_Node)
             else App.instance.getString(R.string.Method_Create_Master_Node)
             "0x7255acae" -> App.instance.getString(R.string.Method_Change_Enode)
+            "0x45ca25ed" -> App.instance.getString(R.string.Method_Change_Name)
             "0x1ed6f423" -> App.instance.getString(R.string.Method_Change_Desc)
             "0xefe08a7d" -> App.instance.getString(R.string.Method_Change_Address)
             "0x978a11d1" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)

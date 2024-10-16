@@ -2135,6 +2135,7 @@
     <string name="Method_Join_Super_Node">加入超级节点合伙人</string>
     <string name="Method_Join_Master_Node">加入主节点合伙人</string>
     <string name="Method_Change_Enode">修改Enode</string>
+    <string name="Method_Change_Name">修改超级节点名称</string>
     <string name="Method_Change_Desc">修改描述</string>
     <string name="Method_Change_Address">修改地址</string>
     <string name="Method_Withdraw">提现</string>
