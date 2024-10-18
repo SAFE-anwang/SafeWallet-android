@@ -182,11 +182,14 @@ class EvmTransactionConverter(
                 val outgoingEip1155Transfers = eip1155Transfers.filter { it.from == address }
 
                 var contractAddress = transaction.to
-                if (contractAddress?.hex == Safe4Contract.SNVoteContractAddr) {
+                if (contractAddress?.hex == Safe4Contract.SNVoteContractAddr
+                        || contractAddress?.hex == Safe4Contract.MasterNodeLogicContractAddr
+                        || contractAddress?.hex == Safe4Contract.SuperNodeLogicContractAddr) {
                     transaction.input?.let {
                         try {
+                            val methodId = it.take(4).toByteArray().toHexString()
                             val hex = it.toHexString()
-                            contractAddress = Address(hex.substring(98, 138))
+                            contractAddress = if(methodId == "0x978a11d1") Address(hex.substring(34, 74)) else Address(hex.substring(98, 138))
                         } catch (e: Exception) {
 
                         }

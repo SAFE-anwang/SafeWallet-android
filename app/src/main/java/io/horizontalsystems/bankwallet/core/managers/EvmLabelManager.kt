@@ -46,7 +46,7 @@ class EvmLabelManager(
     fun methodLabel(input: ByteArray, to: String? = ""): String? {
         val methodId = input.take(4).toByteArray().toHexString()
         return when(methodId) {
-            "0x03c4c7f3" -> App.instance.getString(R.string.Method_Vote)
+            "0x03c4c7f3" -> App.instance.getString(R.string.Method_Vote_Super_Node)
             "0xc54256ed" -> App.instance.getString(R.string.Method_Create_Proposal)
             "0xb384abef" -> App.instance.getString(R.string.Method_Create_Proposal_Vote)
             "0xa57afda4" -> App.instance.getString(R.string.Method_Create_Super_Node)
