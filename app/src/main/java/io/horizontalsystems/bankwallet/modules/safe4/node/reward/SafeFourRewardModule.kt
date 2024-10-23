@@ -26,7 +26,7 @@ class SafeFourRewardModule {
                     wallet.account,
                     BlockchainType.SafeFour
             )
-            val safeFourProvider = SafeFourProvider("https://safe4.anwang.com/api/")
+            val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
             return SafeFourRewardViewModel(evmKitWrapper.evmKit.receiveAddress.hex, safeFourProvider) as T
         }
     }

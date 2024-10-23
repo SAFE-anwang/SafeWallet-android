@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
+import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
@@ -21,7 +22,7 @@ class SafeFourModule {
     class Factory(val address: Address, val nodeType: Int, val title: String, val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val safeFourProvider = SafeFourProvider("https://safe4.anwang.com/api/")
+            val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
             val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
             val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
             val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)

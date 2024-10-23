@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.entities.Currency
+import io.horizontalsystems.ethereumkit.models.Chain
 import java.util.*
 import io.horizontalsystems.marketkit.models.BlockchainType
 
@@ -47,6 +48,16 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
+    private val testSafe4Api = "https://safe4-testnet.anwang.com/api/"
+    private val mainSafe4Api = "https://safe4.anwang.com/api/"
+
+    val safe4Api by lazy {
+        if (Chain.SafeFour.isSafe4TestNetId) {
+            testSafe4Api
+        } else {
+            mainSafe4Api
+        }
+    }
 
     val blocksDecodedEthereumRpc by lazy {
         Translator.getString(R.string.blocksDecodedEthereumRpc)
