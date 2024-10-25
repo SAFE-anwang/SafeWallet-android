@@ -62,37 +62,36 @@ import io.horizontalsystems.bankwallet.ui.compose.components.headline1_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
-class RedeemSafe3Fragment(): BaseComposeFragment() {
+class GetSafe3TestCoinFragment(): BaseComposeFragment() {
 	@Composable
 	override fun GetContent(navController: NavController) {
-		val input = navController.getInput<RedeemSafe3Module.Input>()
-		val wallet = input?.wallet ?: return
+		val input = navController.getInput<RedeemSafe3Module.GetTestCoinInput>()
+		val wallet = input?.safe3Wallet ?: return
 
-		val viewModel by viewModels<RedeemSafe3ViewModel> { RedeemSafe3Module.Factory(wallet) }
-		RedeemSafe3Screen(viewModel = viewModel, navController = navController)
+		val viewModel by viewModels<GetSafe3TestCoinViewModel> { RedeemSafe3Module.Factory3(wallet) }
+		GetSafe3TestCoinScreen(viewModel = viewModel, navController = navController)
 	}
 }
 
 @Composable
-fun RedeemSafe3Screen(
-		viewModel: RedeemSafe3ViewModel,
+fun GetSafe3TestCoinScreen(
+		viewModel: GetSafe3TestCoinViewModel,
 		navController: NavController
 ) {
 	val uiState = viewModel.uiState
-	val currentStep = uiState.step
 
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
 
 	var textState by rememberSaveable("", stateSaver = TextFieldValue.Saver) {
-		mutableStateOf(TextFieldValue("", TextRange( 0)))
+		mutableStateOf(TextFieldValue(uiState.initAddress, TextRange( 0)))
 	}
 
 	when (sendResult) {
 		SendResult.Sending -> {
 			HudHelper.showInProcessMessage(
 					view,
-					R.string.Redeem_Safe3_Send_Sending,
+					R.string.Get_Safe3_Test_Coin_Send_Sending,
 					SnackbarDuration.INDEFINITE
 			)
 		}
@@ -100,7 +99,7 @@ fun RedeemSafe3Screen(
 		SendResult.Sent -> {
 			HudHelper.showSuccessMessage(
 					view,
-					R.string.Redeem_Safe3_Send_Success,
+					R.string.Get_Safe3_Test_Coin_Send_Success,
 					SnackbarDuration.LONG
 			)
 			textState = textState.copy("")
@@ -117,74 +116,104 @@ fun RedeemSafe3Screen(
 
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
-
+		AppBar(
+				title = stringResource(id = R.string.Get_Safe3_Test_Coin),
+				navigationIcon = {
+					HsBackButton(onClick = { navController.popBackStack() })
+				}
+		)
 		Column(modifier = Modifier
 				.padding(16.dp)
 				.fillMaxSize()
 				.verticalScroll(rememberScrollState())) {
-			Column(
-					modifier = Modifier
-							.clip(RoundedCornerShape(8.dp))
-							.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
-							.background(ComposeAppTheme.colors.lawrence)
-							.fillMaxWidth()
-			) {
-				Row(
-						verticalAlignment = Alignment.CenterVertically
-				) {
-					Icon(
-							painter = painterResource(id = R.drawable.ic_info_20), contentDescription = null,
-							modifier = Modifier
-									.padding(start = 16.dp)
-									.width(24.dp)
-									.height(24.dp))
-					Text(
-							modifier = Modifier
-									.padding(16.dp),
-							text = stringResource(id = R.string.Redeem_Safe3_Redeem_Desc),
-							fontSize = 14.sp
-					)
-				}
-			}
 
-			Spacer(modifier = Modifier.height(16.dp))
-			Row (
-					verticalAlignment = Alignment.CenterVertically
-			){
-				StepView("1",  stringResource(id = R.string.Redeem_Safe3_Verify_Private_Key), currentStep == 1, currentStep > 1)
-
-				Divider(
-						modifier = Modifier
-								.weight(1f),
-						thickness = 1.dp,
-						color = ComposeAppTheme.colors.steel10,
-				)
-				StepView("2",  stringResource(id = R.string.Redeem_Safe3_Query), currentStep == 2, currentStep > 2)
-				Divider(
-						modifier = Modifier
-								.weight(1f),
-						thickness = 1.dp,
-						color = ComposeAppTheme.colors.steel10,
-				)
-				StepView("3",  stringResource(id = R.string.Redeem_Safe3_Migration), currentStep == 3, currentStep > 3)
-			}
-
-			Spacer(modifier = Modifier.height(16.dp))
-
-
-			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
+			body_bran(text = stringResource(id = R.string.Safe3_Test_Coin_Address))
 			FormsInput2(
 					textState = textState,
 					enabled = true,
 					pasteEnabled = false,
 					qrScannerEnabled = true,
-					hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint)
+					hint = stringResource(R.string.Safe3_Test_Coin_Address_Hint)
 			) {
 				textState = textState.copy(text = it, selection = TextRange(it.length))
-				viewModel.onEnterPrivateKey(it)
+				viewModel.enterAddress(it)
 			}
 
-			if (uiState.privateKeyError) {
+			if (uiState.success) {
+				Spacer(modifier = Modifier.height(16.dp))
+				Column(
+						modifier = Modifier
+								.clip(RoundedCornerShape(8.dp))
+								.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
+								.background(ComposeAppTheme.colors.lawrence)
+								.fillMaxWidth()
+								.padding(16.dp)
+				) {
+					uiState.amount?.let {
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_Amount))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.amount)
+					}
+
+					uiState.transactionHash?.let {
+						Divider(
+								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+								thickness = 1.dp,
+								color = ComposeAppTheme.colors.steel10,
+						)
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_Transaction_Hash))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.transactionHash)
+					}
+
+					uiState.dateTimestamp?.let {
+						Divider(
+								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+								thickness = 1.dp,
+								color = ComposeAppTheme.colors.steel10,
+						)
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_DateTimestamp))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.dateTimestamp)
+					}
+
+					uiState.from?.let {
+						Divider(
+								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+								thickness = 1.dp,
+								color = ComposeAppTheme.colors.steel10,
+						)
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_From))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.from)
+					}
+
+					uiState.from?.let {
+						Divider(
+								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+								thickness = 1.dp,
+								color = ComposeAppTheme.colors.steel10,
+						)
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_From))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.from)
+					}
+
+					uiState.nonce?.let {
+						Divider(
+								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+								thickness = 1.dp,
+								color = ComposeAppTheme.colors.steel10,
+						)
+						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_Nonce))
+						Spacer(modifier = Modifier.height(6.dp))
+						body_bran(text = uiState.nonce)
+					}
+
+				}
+			}
+
+			uiState.error?.let {
 				Spacer(modifier = Modifier.height(8.dp))
 				Column(
 						modifier = Modifier
@@ -205,182 +234,23 @@ fun RedeemSafe3Screen(
 						Text(
 								modifier = Modifier
 										.padding(16.dp),
-								text = stringResource(id = R.string.Redeem_Safe3_Private_Key_Error))
+								text = it)
 					}
 				}
 			}
 
-			if (currentStep >= 2) {
-				Spacer(modifier = Modifier.height(16.dp))
-				Column(
-						modifier = Modifier
-								.clip(RoundedCornerShape(8.dp))
-								.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
-								.background(ComposeAppTheme.colors.lawrence)
-								.fillMaxWidth()
-								.padding(16.dp)
-				) {
-
-					body_grey(text = stringResource(id = R.string.Redeem_Safe3_Account_Balance))
-
-					Spacer(modifier = Modifier.height(6.dp))
-					body_bran(text = uiState.safe3Balance,
-							textDecoration = if (uiState.existAvailable) TextDecoration.None else TextDecoration.LineThrough)
-
-					Spacer(modifier = Modifier.height(16.dp))
-					Row {
-						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Balance))
-						Spacer(modifier = Modifier.width(16.dp))
-						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Num, uiState.safe3LockNum))
+			Spacer(modifier = Modifier.height(8.dp))
+			ButtonPrimaryYellow(
+					modifier = Modifier
+							.padding(16.dp)
+							.fillMaxWidth()
+							.height(40.dp),
+					title = stringResource(id = R.string.Get_Safe3_Test_Coin_Button),
+					enabled = uiState.enable,
+					onClick = {
+						viewModel.getTestCoin(textState.text)
 					}
-
-					Spacer(modifier = Modifier.height(6.dp))
-					body_bran(text = uiState.safe3LockBalance,
-							textDecoration = if (uiState.existLocked) TextDecoration.None else TextDecoration.LineThrough)
-					if (uiState.masterNodeLock != null) {
-						Spacer(modifier = Modifier.height(16.dp))
-						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Master_Balance))
-
-						Spacer(modifier = Modifier.height(6.dp))
-						body_bran(text = uiState.masterNodeLock,
-								textDecoration = if (uiState.existLocked) TextDecoration.None else TextDecoration.LineThrough)
-					}
-				}
-
-				/*Spacer(modifier = Modifier.height(16.dp))
-				body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
-				FormsInput(
-						enabled = true,
-						pasteEnabled = false,
-						qrScannerEnabled = true,
-						hint = stringResource(R.string.Redeem_Safe3_Private_Key_Hint),
-				) {
-					viewModel.onEnterPrivateKey(it)
-				}
-
-				if (uiState.privateKeyError) {
-					Spacer(modifier = Modifier.height(8.dp))
-					Column(
-							modifier = Modifier
-									.clip(RoundedCornerShape(8.dp))
-									.border(1.dp, ComposeAppTheme.colors.yellow50, RoundedCornerShape(8.dp))
-									.background(ComposeAppTheme.colors.yellow20)
-									.fillMaxWidth()
-					) {
-						Row(
-								verticalAlignment = Alignment.CenterVertically
-						) {
-							Icon(
-									painter = painterResource(id = R.drawable.ic_error_48), contentDescription = null,
-									modifier = Modifier
-											.padding(start = 16.dp)
-											.width(24.dp)
-											.height(24.dp))
-							Text(
-									modifier = Modifier
-											.padding(16.dp),
-									text = stringResource(id = R.string.Redeem_Safe3_Private_Key_Error))
-						}
-					}
-				}*/
-			}
-
-			if (currentStep >= 3) {
-
-				Spacer(modifier = Modifier.height(16.dp))
-				Column(
-						modifier = Modifier
-								.clip(RoundedCornerShape(8.dp))
-								.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
-								.background(ComposeAppTheme.colors.lawrence)
-								.fillMaxWidth()
-				) {
-					Row(
-							verticalAlignment = Alignment.CenterVertically
-					) {
-						Icon(
-								painter = painterResource(id = R.drawable.ic_info_20), contentDescription = null,
-								modifier = Modifier
-										.padding(start = 16.dp)
-										.width(24.dp)
-										.height(24.dp))
-						Text(
-								modifier = Modifier
-										.padding(16.dp),
-								text = stringResource(id = R.string.Redeem_Safe3_Redeem_Hint),
-								fontSize = 14.sp
-						)
-					}
-				}
-
-				Spacer(modifier = Modifier.height(16.dp))
-				body_grey(text = stringResource(id = R.string.Redeem_Safe4_Address))
-
-				Spacer(modifier = Modifier.height(6.dp))
-				body_bran(text = uiState.safe4address!!)
-
-				Spacer(modifier = Modifier.height(8.dp))
-				ButtonPrimaryYellow(
-						modifier = Modifier
-								.padding(16.dp)
-								.fillMaxWidth()
-								.height(40.dp),
-						title = stringResource(id = R.string.Redeem_Safe4_Redeem_Button),
-						enabled = uiState.canRedeem,
-						onClick = {
-							viewModel.redeem()
-						}
-				)
-			}
-			
+			)
 		}
-	}
-}
-
-@Composable
-fun StepView(
-		step: String,
-		stepName: String,
-		enable: Boolean,
-		success: Boolean
-) {
-	val background = if (enable) ComposeAppTheme.colors.issykBlue else ComposeAppTheme.colors.grey50
-	val textColor = if (enable) ComposeAppTheme.colors.white else ComposeAppTheme.colors.black50
-	Row(
-			verticalAlignment = Alignment.CenterVertically
-	) {
-		Box(
-				modifier = Modifier
-						.size(30.dp)
-						.clip(CircleShape)
-//						.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-						.background(background),
-				contentAlignment = Alignment.Center
-				) {
-			if (success) {
-				Icon(
-						painter = painterResource(id = R.drawable.ic_check_20),
-						contentDescription = null,
-						tint = ComposeAppTheme.colors.remus
-				)
-			} else {
-				Text(
-						text = step,
-						color = textColor,
-						style = ComposeAppTheme.typography.body,
-						fontSize = 14.sp,
-						textAlign = TextAlign.Center
-				)
-			}
-		}
-
-		Text(
-				text = stepName,
-				modifier = Modifier
-						.padding(start = 8.dp),
-				color = ComposeAppTheme.colors.black50,
-				style = ComposeAppTheme.typography.body,
-				fontSize = 14.sp
-		)
 	}
 }

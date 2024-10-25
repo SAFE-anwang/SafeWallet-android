@@ -9,6 +9,7 @@ import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
 import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
@@ -18,6 +19,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.createCaution
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
+import io.horizontalsystems.bankwallet.net.SafeNetWork
+import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.transactions.scripts.ScriptType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -29,243 +32,88 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.web3j.utils.Numeric
 import java.math.BigInteger
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.atomic.AtomicBoolean
 
-class RedeemSafe3ViewModel(
-		val wallet: Wallet,
-		private val safe4: RpcBlockchainSafe4,
-		private val evmKitWrapper: EvmKitWrapper,
-): ViewModelUiState<RedeemSafe3Module.RedeemSafe3UiState>() {
+class GetSafe3TestCoinViewModel(
+		val wallet: Wallet?,
+		val defaultAddress: String? = null
+): ViewModelUiState<RedeemSafe3Module.GetSafe3TestCoinUiState>() {
 
-	private var step = 1
-	private var availableSafe3Info: AvailableSafe3Info? = null
-	private var lockList: List<LockedSafe3Info>? = null
-
-	private var loadedPageNumber = 0
-	private val loading = AtomicBoolean(false)
-	private var allLoaded = AtomicBoolean(false)
-	private var maxLockedCount: Int = -1
-	private var existAvailable = false
-	private var existLocked = false
-	private var existMasterNode = false
-	private var privateKeyError = false
-
-	private var showConfirmationDialg = false
-	private var privateKey: String = ""
-
-	private var isRedeeming = AtomicBoolean(false)
-
+	var getSafe3TestCoinService: Safe3TestCoinService? = null
 	var sendResult by mutableStateOf<SendResult?>(null)
+
+	var canEnable = false
+	var getStatus = false
+	var getResponse: Map<String, String>? = null
+	val dataFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
 	private val disposables = CompositeDisposable()
 
-	fun onEnterPrivateKey(privateKey: String) {
-		if (privateKey.isNullOrBlank()) {
-			reset()
-			return
+	init {
+		canEnable = defaultAddress?.isNotEmpty() ?: false
+		emitState()
+	}
+
+	private fun initService() {
+		if (getSafe3TestCoinService == null) {
+			getSafe3TestCoinService = Safe3TestCoinService()
 		}
-		try {
-			val privKey = Numeric.toBigInt(privateKey)
-			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privKey)
-			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
-			this.privateKey = privateKey
-			privateKeyError = false
-			check(compressedSafe3Addr)
-		} catch (e: Exception) {
-			privateKeyError = true
-		}
-		emitState()
 	}
 
-	private fun reset() {
-		privateKeyError = false
-		step = 1
-		availableSafe3Info = null
-		existAvailable = false
-		existLocked = false
-		existMasterNode = false
-		lockList = null
-		emitState()
-	}
-
-	fun receiveAddress(): String {
-		return evmKitWrapper.evmKit.receiveAddress.eip55
-	}
-
-	private fun receivePrivateKey(): String {
-		return evmKitWrapper.signer!!.privateKey.toHexString()
-	}
-
-	fun closeDialog() {
-		showConfirmationDialg = false
-		emitState()
-	}
-
-	override fun createState() : RedeemSafe3Module.RedeemSafe3UiState{
-		val lockValue = lockBalance()
-		return RedeemSafe3Module.RedeemSafe3UiState(
-				step,
-				availableBalance(),
-				lockValue,
-				privateKeyError,
-				existAvailable,
-				existLocked,
-				existAvailable || existLocked,
-				getSafe4Address(privateKey),
-				if (maxLockedCount == -1) 0 else maxLockedCount,
-				masterLockBalance()
+	override fun createState() : RedeemSafe3Module.GetSafe3TestCoinUiState{
+		return RedeemSafe3Module.GetSafe3TestCoinUiState(
+				canEnable,
+				defaultAddress ?: "",
+				getStatus,
+				getResponse?.get("message"),
+				getResponse?.get("amount"),
+				getResponse?.get("transactionHash"),
+				getResponse?.get("dateTimestamp")?.let {
+					dataFormat.format(Date(it.toLong()))
+				},
+				getResponse?.get("from"),
+				getResponse?.get("nonce"),
 		)
 	}
 
-	private fun  availableBalance(): String {
-		return if (availableSafe3Info != null) {
-			NodeCovertFactory.formatSafe(availableSafe3Info!!.amount)
-		} else {
-			NodeCovertFactory.formatSafe(BigInteger.ZERO)
-		}
+	fun enterAddress(address: String) {
+		canEnable = address.isNotEmpty()
+		getResponse = null
+		emitState()
 	}
 
-	private fun lockBalance(): String {
-		return if (lockList?.isNotEmpty() == true) {
-			lockList!!.sumOf { it.amount }.let {
-				if (it == BigInteger.ZERO)	existLocked = false
-				NodeCovertFactory.formatSafe(it)
-			}
-		} else {
-			existLocked = false
-			NodeCovertFactory.formatSafe(BigInteger.ZERO)
-		}
-	}
-
-	private fun masterLockBalance(): String? {
-		return if (lockList?.isNotEmpty() == true) {
-			lockList!!.filter { it.isMN }.sumOf { it.amount }.let {
-				NodeCovertFactory.formatSafe(it)
-			}
-		} else {
-			null
-		}
-	}
-
-	private fun convertLockInfo(): List<RedeemSafe3Module.Safe3LockItemView>? {
-		return lockList?.map {
-			RedeemSafe3Module.Safe3LockItemView(
-					it.safe3Addr,
-					NodeCovertFactory.formatSafe(it.amount),
-					it.remainLockHeight.toLong(),
-					it.lockDay.toInt(),
-					it.isMN,
-					it.safe4Addr.value,
-					it.redeemHeight.toLong()
-			)
-		}
-	}
-
-
-	private fun checkNeedToRedeem(address: String) {
-		existAvailable = safe4.existAvailableNeedToRedeem(address)
-		existLocked = safe4.existLockedNeedToRedeem(address)
-		existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
-	}
-
-	private fun check(address: String?) {
-		if (address == null) return
-		viewModelScope.launch(Dispatchers.IO) {
-			try {
-				checkNeedToRedeem(address)
-				availableSafe3Info = getAvailableSafe3Info(address)
-				loadItems(0, address)
-				step = 3
-			} catch (e: Exception) {
-				Log.e("Redeem", "error=$e")
-			}
-		}
-	}
-
-	fun redeem() {
-		redeem(privateKey)
-	}
-	fun redeem(privateKey: String) {
-		sendResult = SendResult.Sending
-		viewModelScope.launch(Dispatchers.IO) {
-			try {
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), getSafe4Address(privateKey)!!).blockingGet()
-				if (existMasterNode) {
-					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), getSafe4Address(privateKey)!!)
-				}
-				sendResult = SendResult.Sent
-				reset()
-			} catch (e: Exception) {
-				Log.e("Redeem", "redeem error=$e")
-				sendResult = SendResult.Failed(createCaution(e))
-			}
-		}
-	}
-
-	private fun getAvailableSafe3Info(address: String): AvailableSafe3Info? {
-		return try {
-			 safe4.safe3GetAvailableInfo(address).blockingGet()
-		} catch (e: Exception) {
-			Log.e("Redeem", "getAvailableSafe3Info error=$e")
-			null
-		}
-	}
-
-	private fun loadItems(page: Int, address: String) {
-		if (loading.get()) return
-		loading.set(true)
-		if (maxLockedCount == -1) {
-			maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
-		}
-		val itemsCount = page * itemsPerPage
-		if (itemsCount >= maxLockedCount) {
-			loading.set(false)
-			emitState()
+	fun getTestCoin(address: String) {
+		initService()
+		if (getSafe3TestCoinService == null) {
+			sendResult = SendResult.Failed(createCaution(Throwable("领取失败")))
 			return
 		}
-		val single = safe4.safe3GetLockedInfo(address, itemsCount, maxLockedCount)
-		single.subscribeOn(Schedulers.io())
-				.doFinally {
-					loading.set(false)
-				}
-				.subscribe( {
-					allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
-
-					lockList = it
-					loadedPageNumber = page
-					emitState()
-				},{
-					Log.e("Redeem", "get locked error=$it")
-				}).let {
-					disposables.add(it)
-				}
-	}
-
-	private fun getLockedAmount(address: String): Pair<BigInteger, BigInteger> {
-		val maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
-		val listLockInfo = safe4.safe3GetLockedInfo(address, 0, maxLockedCount).blockingGet()
-		val lockAmount = if (listLockInfo?.isNotEmpty() == true) {
-			listLockInfo!!.sumOf { it.amount }.let {
-				it
-			}
-		} else {
-			BigInteger.ZERO
+		sendResult = SendResult.Sending
+		try {
+			getSafe3TestCoinService?.getTestCoin(address)
+					?.subscribeOn(Schedulers.io())
+					?.subscribe({
+						Log.e("longwen", "response=$it")
+						getResponse = it
+						getStatus = it.get("code") == "0"
+						if (getStatus) {
+							sendResult = SendResult.Sent
+						} else {
+							sendResult = SendResult.Failed(createCaution(Throwable(it.get("message"))))
+						}
+						emitState()
+					},
+							{
+								sendResult = SendResult.Failed(createCaution(it))
+							}).let {
+					}
+		} catch (e: Exception) {
+			Log.e("GetTestCoin", "error=$e")
+			sendResult = SendResult.Failed(createCaution(e))
 		}
-		val materLockAmount = if (listLockInfo?.isNotEmpty() == true) {
-			listLockInfo!!.filter { it.isMN }.sumOf { it.amount }.let {
-				it
-			}
-		} else {
-			BigInteger.ZERO
-		}
-		return Pair(lockAmount, materLockAmount)
 	}
-
-	private fun getSafe4Address(privateKey: String): String? {
-		if (privateKey.isNullOrBlank())	return null
-		return EthereumKit.ethereumAddress(Numeric.toBigInt(privateKey)).eip55
-	}
-
 
 	override fun onCleared() {
 		super.onCleared()

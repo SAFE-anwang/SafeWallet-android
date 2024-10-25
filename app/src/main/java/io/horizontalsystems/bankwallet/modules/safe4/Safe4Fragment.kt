@@ -391,6 +391,15 @@ private fun Safe4Sections(
                             Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
                         }
                 )
+            },{
+                HsSettingCell(
+                        R.string.Get_Safe3_Test_Coin,
+                        R.mipmap.ic_app_color,
+                        showAlert = false,
+                        onClick = {
+                            Safe4Module.getSafe3TestCoin(navController)
+                        }
+                )
             })
     )
 

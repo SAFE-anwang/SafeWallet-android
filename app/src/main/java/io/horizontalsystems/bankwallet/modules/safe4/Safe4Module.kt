@@ -257,6 +257,23 @@ object Safe4Module {
         }
     }
 
+    fun getSafe3TestCoin(navController: NavController) {
+        if (App.accountManager.activeAccount?.type is AccountType.EvmAddress) return
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.Safe && it.coin.uid == "safe-coin") {
+                safeWallet = it
+            }
+        }
+        navController.slideFromBottom(
+                R.id.getSafe3TestCoinFragment,
+                RedeemSafe3Module.GetTestCoinInput(safeWallet)
+        )
+
+    }
+
     enum class SafeFourType {
         SuperNode, MasterNode, Proposal, Redeem, Profit
     }

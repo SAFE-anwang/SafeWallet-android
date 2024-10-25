@@ -60,6 +60,26 @@ object RedeemSafe3Module {
 		}
 	}
 
+	class Factory3(val safe3Wallet: Wallet?) : ViewModelProvider.Factory {
+
+		val adapter =
+				(safe3Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? ISendBitcoinAdapter)
+
+		val baseAdapter =
+				(safe3Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? BitcoinBaseAdapter)
+
+		@Suppress("UNCHECKED_CAST")
+		override fun <T : ViewModel> create(modelClass: Class<T>): T {
+			return when (modelClass) {
+				GetSafe3TestCoinViewModel::class.java -> {
+					GetSafe3TestCoinViewModel(safe3Wallet, baseAdapter?.kit?.bitcoinCore?.receiveAddress()) as T
+				}
+				else -> throw IllegalArgumentException()
+			}
+
+		}
+	}
+
 	data class RedeemSafe3UiState(
 			val step: Int,
 			val safe3Balance: String,
@@ -130,4 +150,22 @@ object RedeemSafe3Module {
 	) : Parcelable {
 	}
 
+	@Parcelize
+	data class GetTestCoinInput(
+			val safe3Wallet: Wallet? = null
+	) : Parcelable {
+	}
+
+
+	data class GetSafe3TestCoinUiState(
+		val enable: Boolean = false,
+		val initAddress: String = "",
+		val success: Boolean = false,
+		val error: String? = null,
+		val amount: String? = "",
+		val transactionHash: String? = "",
+		val dateTimestamp: String? = "0",
+		val from: String? = "",
+		val nonce: String? = "",
+	)
 }

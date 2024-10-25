@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.net
+package io.horizontalsystems.bankwallet.modules.safe4.node.safe3
 
 import com.anwang.safewallet.safekit.netwok.RetrofitUtils
 import com.google.gson.Gson
@@ -13,37 +13,40 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Field
 import retrofit2.http.GET
+import retrofit2.http.POST
 import java.util.logging.Logger
 
-class SafeNetService() {
+class Safe3TestCoinService() {
 
-    private val logger = Logger.getLogger("SafeNetService")
-    private val service: SafeNetServiceApi
+    private val logger = Logger.getLogger("Safe3TestCoinService")
+    private val service: GetTestCoinServiceApi
     private val gson: Gson
 
-    private val url: String = "https://chain.anwang.org/"
+    private val url: String = "https://safe4testnet.anwang.com/"
 
     init {
         gson = GsonBuilder()
             .setLenient()
             .create()
 
-        service = RetrofitUtils.build(url).create(SafeNetServiceApi::class.java)
+        service = RetrofitUtils.build(url).create(GetTestCoinServiceApi::class.java)
     }
 
-    fun getVpnNodes(): Single<List<Map<String, String>>> {
-        return service.getVpnNode().map {
+    fun getTestCoin(address: String): Single<Map<String, String>> {
+        return service.getTestCoin(mapOf("address" to address)).map {
             parseResponse(it)
         }.retryWhenError(RequestError.RateLimitExceed::class)
     }
 
-    private fun parseResponse(response: JsonElement): List<Map<String, String>> {
+    private fun parseResponse(response: JsonElement): Map<String, String> {
         try {
-            val responseObj = response.asJsonArray
+            val responseObj = response.asJsonObject
             return gson.fromJson(
                 responseObj,
-                object : TypeToken<List<Map<String, String>>>() {}.type
+                object : TypeToken<Map<String, String>>() {}.type
             )
         } catch (rateLimitExceeded: EtherscanService.RequestError.RateLimitExceed) {
             throw rateLimitExceeded
@@ -57,13 +60,8 @@ class SafeNetService() {
         class RateLimitExceed : RequestError()
     }
 
-    private interface SafeNetServiceApi {
-        @GET("/insight-api-safe/utils/address/vpn")
-        fun getVpnNode(): Single<JsonElement>
+    private interface GetTestCoinServiceApi {
+        @POST("/5005/get_test_coin")
+        fun getTestCoin(@Body body: Map<String, String>): Single<JsonElement>
     }
-
-    data class VpnInfo(
-        val endpoint: String,
-        val uid: String
-    )
 }
