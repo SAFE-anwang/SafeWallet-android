@@ -95,7 +95,6 @@ class GetSafe3TestCoinViewModel(
 			getSafe3TestCoinService?.getTestCoin(address)
 					?.subscribeOn(Schedulers.io())
 					?.subscribe({
-						Log.e("longwen", "response=$it")
 						getResponse = it
 						getStatus = it.get("code") == "0"
 						if (getStatus) {

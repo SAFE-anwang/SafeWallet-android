@@ -40,6 +40,9 @@ class SafeFourProposalService(
 	private val mineItemsSubject = PublishSubject.create<List<ProposalInfo>>()
 	val mineItemsObservable: Observable<List<ProposalInfo>> get() = mineItemsSubject
 
+	private val lastBlockHeightSubject = PublishSubject.create<Long>()
+	val lastBlockHeightObservable: Observable<Long> get() = lastBlockHeightSubject
+
 	private var allProposalNum = -1
 	private var mineProposalNum = -1
 	private val disposables = CompositeDisposable()
@@ -50,8 +53,18 @@ class SafeFourProposalService(
 	private var getMineListCount = 0
 
 	init {
+		lastBlockHeight()
 		getAllNum()
 		getMinNum()
+	}
+
+	private fun lastBlockHeight() {
+		evmKitWrapper.evmKit.lastBlockHeightFlowable
+				.subscribeOn(Schedulers.io())
+				.subscribe {
+					lastBlockHeightSubject.onNext(it)
+				}
+				.let { disposables.add(it) }
 	}
 
 	fun getAllNum() {

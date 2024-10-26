@@ -31,6 +31,10 @@ object NodeCovertFactory {
 	val Super_Node_Create_Join_Amount = 1000
 	val Master_Node_Create_Join_Amount = 200
 
+	// 加入合伙人的最低数量
+	val Super_Node_Partner_Join_Amount = 500
+	val Master_Node_Partner_Join_Amount = 100
+
 	val Node_Lock_Day = 720
 
 	fun createNoteItemView(index: Int, nodeItem: NodeInfo,
@@ -75,6 +79,7 @@ object NodeCovertFactory {
 				nodeItem.addr,
 				nodeItem.creator,
 				nodeItem.state,
+				nodeItem.founders,
 				nodeItem.enode,
 				createPledge = "${creatorTotalAmount.toInt()} SAFE",
 				canJoin = canJoin,

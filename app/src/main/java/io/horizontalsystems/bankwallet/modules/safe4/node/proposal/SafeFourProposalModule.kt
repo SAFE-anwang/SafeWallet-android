@@ -79,7 +79,8 @@ class SafeFourProposalModule {
 
     data class SafeFourProposalUiState(
             val allProposalList: List<ProposalViewItem>?,
-            val mineProposalList: List<ProposalViewItem>?
+            val mineProposalList: List<ProposalViewItem>?,
+            val createProposalEnable: Boolean = false
     )
 
     data class SafeFourProposalInfoUiState(

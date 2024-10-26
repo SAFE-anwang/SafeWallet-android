@@ -238,6 +238,44 @@ fun ButtonPrimaryYellow(
 }
 
 @Composable
+fun ButtonPrimaryYellow2(
+    modifier: Modifier = Modifier,
+    title: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    loadingIndicator: Boolean = false
+) {
+    ButtonPrimary2(
+        modifier = modifier,
+        onClick = onClick,
+        buttonColors = ButtonPrimaryDefaults.textButtonColors(
+            backgroundColor = ComposeAppTheme.colors.yellowD,
+            contentColor = ComposeAppTheme.colors.dark,
+            disabledBackgroundColor = ComposeAppTheme.colors.steel20,
+            disabledContentColor = ComposeAppTheme.colors.grey50,
+        ),
+        content = {
+            if (loadingIndicator) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = ComposeAppTheme.colors.grey,
+                    strokeWidth = 2.dp
+                )
+                HSpacer(width = 8.dp)
+            }
+
+            Text(
+                title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = ComposeAppTheme.typography.subhead1,
+            )
+        },
+        enabled = enabled
+    )
+}
+
+@Composable
 fun ButtonPrimaryYellowWithIcon(
     modifier: Modifier = Modifier,
     icon: Int,
@@ -373,12 +411,57 @@ fun ButtonPrimary(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ButtonPrimary2(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    buttonColors: ButtonColors,
+    enabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(25.dp),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonPrimaryDefaults.ContentPadding2,
+    content: @Composable RowScope.() -> Unit
+) {
+
+    Surface(
+        modifier = modifier,
+        shape = shape,
+        color = buttonColors.backgroundColor(enabled).value,
+        contentColor = buttonColors.contentColor(enabled).value,
+        border = border,
+        onClick = onClick,
+        enabled = enabled,
+    ) {
+        ProvideTextStyle(
+            value = ComposeAppTheme.typography.headline2
+        ) {
+            Row(
+                Modifier
+                    .defaultMinSize(
+                        minWidth = ButtonPrimaryDefaults.MinWidth,
+                        minHeight = ButtonPrimaryDefaults.MinHeight
+                    )
+                    .padding(contentPadding),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                content = content
+            )
+        }
+    }
+}
+
 object ButtonPrimaryDefaults {
     private val ButtonHorizontalPadding = 16.dp
 
     val ContentPadding = PaddingValues(
         start = ButtonHorizontalPadding,
         end = ButtonHorizontalPadding
+    )
+
+    val ContentPadding2 = PaddingValues(
+        start = 12.dp,
+        end = 12.dp
     )
 
 

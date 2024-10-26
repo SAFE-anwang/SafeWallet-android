@@ -81,7 +81,8 @@ fun TabScreen(
                                             R.id.createProposalFragment,
                                             viewModel.wallet
                                     )
-                                }
+                                },
+                                enabled = viewModel.uiState.createProposalEnable
                         )
                 )
 

@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
+import io.horizontalsystems.bankwallet.core.toRawHexString
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
@@ -19,6 +20,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.crea
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
 import io.horizontalsystems.bitcoincore.BitcoinCore
+import io.horizontalsystems.bitcoincore.crypto.Base58
 import io.horizontalsystems.bitcoincore.transactions.scripts.ScriptType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
@@ -64,6 +66,12 @@ class RedeemSafe3ViewModel(
 			reset()
 			return
 		}
+		var privateKey = privateKey
+		val isWIF = isWIFPrivateKey(privateKey)
+		if (isWIF) {
+			val base58 = Base58.decode(privateKey)
+			privateKey = base58.copyOfRange(1, 33).toRawHexString()
+		}
 		try {
 			val privKey = Numeric.toBigInt(privateKey)
 			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privKey)
@@ -75,6 +83,13 @@ class RedeemSafe3ViewModel(
 			privateKeyError = true
 		}
 		emitState()
+	}
+
+	private fun isWIFPrivateKey(wifPrivateKey: String): Boolean {
+		wifPrivateKey.lowercase().forEach {
+			if (it.code >= 103) return true
+		}
+		return false
 	}
 
 	private fun reset() {

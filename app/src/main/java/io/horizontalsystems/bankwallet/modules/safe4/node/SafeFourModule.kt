@@ -1,15 +1,13 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
 import android.os.Parcelable
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
-import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
+import io.horizontalsystems.bankwallet.modules.safe4.node.addlockday.AddLockDayViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.toHexString
@@ -69,6 +67,35 @@ class SafeFourModule {
     }
 
 
+
+    class FactoryAddLockDay(
+            private val wallet: Wallet,
+            private val lockId: List<Int>
+    ) : ViewModelProvider.Factory {
+        val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val evmKitWrapper =App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).getEvmKitWrapper(
+                    wallet.account,
+                    BlockchainType.SafeFour
+            )
+            val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+
+            return AddLockDayViewModel(
+                    lockId,
+                    rpcBlockchainSafe4,
+                    evmKitWrapper.signer!!.privateKey.toHexString()
+            ) as T
+        }
+    }
+
+    data class AddLockDayUiState(
+          val addEnable: Boolean = false,
+          val error: Int? = null,
+          val showConfirmationDialog: Boolean = false
+    )
+
     data class SafeFourNodeUiState(
             val title: String,
             val nodeList: List<NodeViewItem>?,
@@ -85,6 +112,14 @@ class SafeFourModule {
     data class Input(
             val titleRes: Int,
             val nodeType: Int,
+            val wallet: Wallet
+    ): Parcelable {
+
+    }
+
+    @Parcelize
+    data class AddLockDayInput(
+            val lockId: List<Int>,
             val wallet: Wallet
     ): Parcelable {
 

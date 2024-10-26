@@ -113,7 +113,7 @@ class SafeFourNodeViewModel(
         }
     }
 
-    private fun receiveAddress(): String {
+    fun receiveAddress(): String {
         return ethereumKit.receiveAddress.hex
     }
 
@@ -285,6 +285,7 @@ data class NodeViewItem(
         val address: Address,
         val creator: Address,
         val status: NodeStatus,
+        val founders: List<NodeMemberInfo> = emptyList(),
         val enode: String = "",
         val createPledge: String = "5,000 SAFE",
         val canJoin: Boolean = false,

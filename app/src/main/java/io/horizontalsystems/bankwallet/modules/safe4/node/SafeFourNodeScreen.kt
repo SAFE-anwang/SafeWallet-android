@@ -68,6 +68,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow2
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
@@ -241,6 +242,15 @@ fun SafeFourNodeScreen(
 										)
 								)
 							},
+							onAddLockDayClick = {
+								navController.slideFromBottom(
+										R.id.addLockDayFragment,
+										SafeFourModule.AddLockDayInput(
+												it.founders.filter { it.addr.hex == viewModel.receiveAddress() }.map { it.lockID },
+												viewModel.wallet
+										)
+								)
+							},
 							isRegisterSuperNode = isRegisterNode.first,
 							isMine = isMine
 					)
@@ -268,6 +278,7 @@ fun LazyListScope.nodeList(
 		voteClick: (NodeViewItem) -> Unit,
 		joinClick: (NodeViewItem) -> Unit,
 		onEditClick: (NodeViewItem) -> Unit,
+		onAddLockDayClick: (NodeViewItem) -> Unit,
 		isSuperNode: Boolean,
 		isRegisterSuperNode: Boolean,
 		isMine: Boolean
@@ -303,6 +314,9 @@ fun LazyListScope.nodeList(
 							},
 							onEditClick = {
 								onEditClick.invoke(item)
+							},
+							onAddLockDayClick = {
+								onAddLockDayClick.invoke(item)
 							}
 					)
 
@@ -316,6 +330,9 @@ fun LazyListScope.nodeList(
 						},
 						onEditClick = {
 							onEditClick.invoke(item)
+						},
+						onAddLockDayClick = {
+							onAddLockDayClick.invoke(item)
 						}
 					)
 				}
@@ -350,6 +367,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 			 voteClick: () -> Unit,
 			 joinClick: () -> Unit,
 			 onEditClick: () -> Unit,
+			 onAddLockDayClick: () -> Unit,
 ) {
 	val divider = position == SectionItemPosition.Middle || position == SectionItemPosition.Last
 	SectionUniversalItem(
@@ -489,7 +507,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Spacer(Modifier.height(2.dp))
 
 				Row {
-						ButtonPrimaryYellow(
+						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(2f)
 										.height(25.dp),
@@ -500,7 +518,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								enabled = item.canJoin
 						)
 						Spacer(Modifier.width(10.dp))
-						ButtonPrimaryYellow(
+						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(1f)
 										.height(25.dp),
@@ -511,7 +529,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								enabled = item.isVoteEnable
 						)
 						Spacer(Modifier.width(10.dp))
-						ButtonPrimaryYellow(
+						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(1f)
 										.height(25.dp),
@@ -520,6 +538,17 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 									onEditClick.invoke()
 								},
 								enabled = item.isEdit
+						)
+						Spacer(Modifier.width(10.dp))
+						ButtonPrimaryYellow2(
+								modifier = Modifier
+										.weight(1.5f)
+										.height(25.dp),
+								title = stringResource(R.string.Safe_Four_Node_Add_Lock_Day),
+								onClick = {
+									onAddLockDayClick.invoke()
+								},
+								enabled = item.isMine
 						)
 					}
 			}
@@ -535,6 +564,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 				   onClick: () -> Unit,
 				   joinClick: () -> Unit,
 				   onEditClick: () -> Unit,
+				   onAddLockDayClick: () -> Unit,
 ) {
 	val divider = position == SectionItemPosition.Middle || position == SectionItemPosition.Last
 	SectionUniversalItem(
@@ -628,7 +658,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 
 				Spacer(Modifier.height(2.dp))
 				Row {
-					ButtonPrimaryYellow(
+					ButtonPrimaryYellow2(
 							modifier = Modifier
 									.weight(1f)
 									.height(25.dp),
@@ -639,7 +669,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							enabled = item.canJoin
 					)
 					Spacer(Modifier.width(16.dp))
-					ButtonPrimaryYellow(
+					ButtonPrimaryYellow2(
 							modifier = Modifier
 									.weight(1f)
 									.height(25.dp),
@@ -648,6 +678,17 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 								onEditClick.invoke()
 							},
 							enabled = item.isEdit
+					)
+					Spacer(Modifier.width(10.dp))
+					ButtonPrimaryYellow2(
+							modifier = Modifier
+									.weight(1f)
+									.height(25.dp),
+							title = stringResource(R.string.Safe_Four_Node_Add_Lock_Day),
+							onClick = {
+								onAddLockDayClick.invoke()
+							},
+							enabled = item.isMine
 					)
 				}
 

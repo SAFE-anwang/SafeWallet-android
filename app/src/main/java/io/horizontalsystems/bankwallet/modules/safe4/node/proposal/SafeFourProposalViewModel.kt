@@ -29,6 +29,7 @@ class SafeFourProposalViewModel(
 
     private var allProposal: List<ProposalViewItem>? = null
     private var mineProposal: List<ProposalViewItem>? = null
+    private var createProposalEnable = false
 
     private var query: String? = null
     var currentScreen = 0
@@ -46,6 +47,13 @@ class SafeFourProposalViewModel(
                 .subscribeIO {
                     mineProposal = it.mapIndexed { index, nodeItem -> NodeCovertFactory.createProposalItemView(index, nodeItem) }
                     emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+        nodeService.lastBlockHeightObservable
+                .subscribeIO {
+                    createProposalEnable = it > 86400
                 }
                 .let {
                     disposables.add(it)
@@ -68,6 +76,7 @@ class SafeFourProposalViewModel(
             } else mineProposal?.filter {
             it.id.toString() == query
         },
+        createProposalEnable
     )
 
     fun getProposalInfo(id: Int, type: Int): ProposalInfo? {

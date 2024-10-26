@@ -599,4 +599,8 @@
         android:id="@+id/getSafe3TestCoinFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.node.safe3.GetSafe3TestCoinFragment" />
 
+    <fragment
+        android:id="@+id/addLockDayFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.node.addlockday.AddLockDayFragment" />
+
 </navigation>

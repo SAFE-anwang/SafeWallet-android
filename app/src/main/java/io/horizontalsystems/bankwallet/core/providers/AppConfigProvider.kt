@@ -48,7 +48,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
-    private val testSafe4Api = "https://safe4-testnet.anwang.com/api/"
+    private val testSafe4Api = "https://safe4testnet.anwang.com/api/"
     private val mainSafe4Api = "https://safe4.anwang.com/api/"
 
     val safe4Api by lazy {

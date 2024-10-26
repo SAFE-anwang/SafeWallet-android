@@ -252,16 +252,16 @@ class SafeFourVoteViewModel(
             NodeCovertFactory.Master_Node_Create_Amount - amount
         }
         val count = if (isSuper) {
-            availableAmount / NodeCovertFactory.Super_Node_Create_Join_Amount
+            availableAmount / NodeCovertFactory.Super_Node_Partner_Join_Amount
         } else {
-            availableAmount / NodeCovertFactory.Master_Node_Create_Join_Amount
+            availableAmount / NodeCovertFactory.Master_Node_Partner_Join_Amount
         }
         val list = mutableListOf<JoinAmount>()
         for (i in 0 until count) {
             val amount = if (isSuper) {
-                (i + 1 ) * NodeCovertFactory.Super_Node_Create_Join_Amount
+                (i + 1 ) * NodeCovertFactory.Super_Node_Partner_Join_Amount
             } else {
-                (i + 1 ) *  NodeCovertFactory.Master_Node_Create_Join_Amount
+                (i + 1 ) *  NodeCovertFactory.Master_Node_Partner_Join_Amount
             }
             val bean = JoinAmount(
                     amount,

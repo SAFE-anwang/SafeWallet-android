@@ -2106,7 +2106,7 @@
     <string name="Redeem_Safe3_Address_Hint">SAFE3 钱包地址</string>
     <string name="Redeem_Safe3_Address_Hint_2">SAFE3 钱包地址\n%s</string>
     <string name="Redeem_Safe3_Private_Key">SAFE3 钱包私钥</string>
-    <string name="Redeem_Safe3_Private_Key_Hint">请输入钱包16进制私钥</string>
+    <string name="Redeem_Safe3_Private_Key_Hint">请输入钱包16进制私钥或WIF私钥</string>
     <string name="Redeem_Safe3_Account_Balance">账户余额</string>
     <string name="Redeem_Safe3_Master_Balance">主节点</string>
     <string name="Redeem_Safe3_Lock_Balance">锁仓余额</string>
@@ -2157,6 +2157,13 @@
     <string name="Get_Safe3_Test_Coin_DateTimestamp">领取时间</string>
     <string name="Get_Safe3_Test_Coin_From">发送者</string>
     <string name="Get_Safe3_Test_Coin_Nonce">Nonce</string>
+    <string name="Safe_Four_Node_Add_Lock_Day">追加锁定</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Period">追加锁定期限,期限360天到3600天</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Button">追加锁定日期</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Input_Hint">请输入大于360的数字</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Input_Error_Not_Number">请输入数字</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Text">%d 天</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Alert">追加锁定: %d 天</string>
 
 
     <!-- safe 4  end-->

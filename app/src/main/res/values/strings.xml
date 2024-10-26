@@ -2431,7 +2431,7 @@
     <string name="Redeem_Safe3_Address_Hint">SAFE3 Address</string>
     <string name="Redeem_Safe3_Address_Hint_2">SAFE3 Address\n%s</string>
     <string name="Redeem_Safe3_Private_Key">SAFE3 Private Key</string>
-    <string name="Redeem_Safe3_Private_Key_Hint">Enter hexadecimal private key</string>
+    <string name="Redeem_Safe3_Private_Key_Hint">Enter hexadecimal or WIF private key</string>
     <string name="Redeem_Safe3_Account_Balance">Balance</string>
     <string name="Redeem_Safe3_Master_Balance">Master Node</string>
     <string name="Redeem_Safe3_Lock_Balance">Lock Amount</string>
@@ -2483,5 +2483,12 @@
     <string name="Get_Safe3_Test_Coin_DateTimestamp">Receive Time</string>
     <string name="Get_Safe3_Test_Coin_From">From</string>
     <string name="Get_Safe3_Test_Coin_Nonce">Nonce</string>
+    <string name="Safe_Four_Node_Add_Lock_Day">Add Lock Day</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Period">Additional lock up period, ranging from 360 days to 3600 days</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Button">Add Lock Day</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Input_Hint">Please enter a number not less than 360</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Input_Error_Not_Number">Please enter a number</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Text">%d day</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Alert">Add lock day: %d</string>
     <!-- safe 4  end-->
 </resources>
