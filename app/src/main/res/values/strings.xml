@@ -2472,6 +2472,7 @@
     <string name="Method_Redeem_Locked">Redeem Locked</string>
     <string name="Method_Node_Status_Upload">Node status upload</string>
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
+    <string name="Method_Add_Lock_Day">Add Lock Day</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE3 Test Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>

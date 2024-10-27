@@ -74,6 +74,7 @@ class EvmLabelManager(
             "0x6d5b08d3" -> App.instance.getString(R.string.Method_Redeem_Locked)
             "0xa6aa19d2" -> App.instance.getString(R.string.Method_Node_Status_Upload)
             "0x60806040" -> App.instance.getString(R.string.Method_Node_Contract_Deployment)
+            "0x38e06620" -> App.instance.getString(R.string.Method_Add_Lock_Day)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }
