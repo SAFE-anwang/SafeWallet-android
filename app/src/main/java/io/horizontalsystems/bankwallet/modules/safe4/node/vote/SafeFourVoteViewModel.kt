@@ -60,9 +60,9 @@ class SafeFourVoteViewModel(
     private var lockIdsInfoLocked: List<LockIdsInfo>? = null
     private var joinAmount =
         if (isSuper)
-            NodeCovertFactory.Super_Node_Create_Join_Amount
+            NodeCovertFactory.Super_Node_Partner_Join_Amount
         else
-            NodeCovertFactory.Master_Node_Create_Join_Amount
+            NodeCovertFactory.Master_Node_Partner_Join_Amount
 
     private var isLockVote = false
 

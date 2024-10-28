@@ -548,7 +548,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								onClick = {
 									onAddLockDayClick.invoke()
 								},
-								enabled = item.isMine
+								enabled = item.isAddLockDay
 						)
 					}
 			}
@@ -688,7 +688,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							onClick = {
 								onAddLockDayClick.invoke()
 							},
-							enabled = item.isMine
+							enabled = item.isAddLockDay
 					)
 				}
 

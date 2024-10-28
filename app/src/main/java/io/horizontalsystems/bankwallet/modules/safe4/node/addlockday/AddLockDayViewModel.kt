@@ -70,17 +70,19 @@ class AddLockDayViewModel(
 					safe4.addLockDay(privateKey, lockId, inputDay)
 							.subscribe({
 								sendResult = SendResult.Sent
+								emitState()
 							}, {
 								sendResult = SendResult.Failed(NodeCovertFactory.createCaution(it))
+								emitState()
 							}).let {
 								disposables.add(it)
 							}
 
 				}
 
-				emitState()
 			} catch (e: Exception) {
 				sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
+				emitState()
 			}
 		}
 	}

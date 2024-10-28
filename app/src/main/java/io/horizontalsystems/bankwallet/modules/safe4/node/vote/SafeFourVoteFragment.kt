@@ -582,8 +582,24 @@ fun JoinAmountBar(
         onSelect: (Int) -> Unit,
         selectEnabled: Boolean,
 ) {
-    Column(modifier = modifier) {
-        Row(
+    Column() {
+        val columNum = 3
+        val columCount = (percents.size + columNum - 1) / columNum
+        for(i in 0 until columCount) {
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                for(j in i * columNum until (i + 1) * columNum) {
+                    if (j < percents.size) {
+                        JoinAmountView(modifier, percents[j], onSelect, selectEnabled)
+                    }
+                }
+            }
+        }
+        /*Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceAround
@@ -603,7 +619,7 @@ fun JoinAmountBar(
                     if (index > 2) JoinAmountView(modifier, joinAmount, onSelect, selectEnabled)
                 }
             }
-        }
+        }*/
     }
 }
 
