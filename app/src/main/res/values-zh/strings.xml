@@ -2147,12 +2147,12 @@
     <string name="Method_Node_Status_Upload">节点状态上传</string>
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
-    <string name="Get_Safe3_Test_Coin">SAFE3测试币领取</string>
+    <string name="Get_Safe3_Test_Coin">SAFE4测试币领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Success">领取成功</string>
-    <string name="Safe3_Test_Coin_Address">SAFE3 钱包地址</string>
-    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE3测试币地址</string>
+    <string name="Safe3_Test_Coin_Address">SAFE4 钱包地址</string>
+    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE4测试币地址</string>
     <string name="Get_Safe3_Test_Coin_Amount">领取数量</string>
     <string name="Get_Safe3_Test_Coin_Transaction_Hash">交易Hash</string>
     <string name="Get_Safe3_Test_Coin_DateTimestamp">领取时间</string>

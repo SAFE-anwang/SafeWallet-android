@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 import io.horizontalsystems.bitcoincore.utils.NetworkUtils
+import io.horizontalsystems.ethereumkit.api.models.EtherscanResponse
 import io.horizontalsystems.ethereumkit.core.retryWhenError
 import io.horizontalsystems.ethereumkit.network.EtherscanService
 import io.reactivex.Single
@@ -35,19 +36,28 @@ class Safe3TestCoinService() {
         service = RetrofitUtils.build(url).create(GetTestCoinServiceApi::class.java)
     }
 
-    fun getTestCoin(address: String): Single<Map<String, String>> {
+    fun getTestCoin(address: String): Single<GetSafe3TestCoinViewModel.GetResult> {
         return service.getTestCoin(mapOf("address" to address)).map {
             parseResponse(it)
         }.retryWhenError(RequestError.RateLimitExceed::class)
     }
 
-    private fun parseResponse(response: JsonElement): Map<String, String> {
+    private fun parseResponse(response: JsonElement): GetSafe3TestCoinViewModel.GetResult {
         try {
             val responseObj = response.asJsonObject
+            val status = responseObj["code"].asJsonPrimitive.asString == "0"
+            val message = responseObj["message"].asJsonPrimitive.asString
+
+            if (!status) {
+                return GetSafe3TestCoinViewModel.GetResult(status, message, null)
+            }
+            val data: GetSafe3TestCoinViewModel.Data = gson.fromJson(responseObj["data"], object : TypeToken<GetSafe3TestCoinViewModel.Data>() {}.type)
+            return GetSafe3TestCoinViewModel.GetResult(status, message, data)
+            /*val responseObj = response.asJsonObject
             return gson.fromJson(
                 responseObj,
                 object : TypeToken<Map<String, String>>() {}.type
-            )
+            )*/
         } catch (rateLimitExceeded: EtherscanService.RequestError.RateLimitExceed) {
             throw rateLimitExceeded
         } catch (err: Throwable) {

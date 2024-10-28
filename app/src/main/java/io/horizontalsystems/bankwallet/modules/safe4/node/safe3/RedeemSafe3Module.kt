@@ -60,19 +60,17 @@ object RedeemSafe3Module {
 		}
 	}
 
-	class Factory3(val safe3Wallet: Wallet?) : ViewModelProvider.Factory {
+	class Factory3(val safe4Wallet: Wallet?) : ViewModelProvider.Factory {
 
 		val adapter =
-				(safe3Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? ISendBitcoinAdapter)
+				(safe4Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? ISendEthereumAdapter)
 
-		val baseAdapter =
-				(safe3Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? BitcoinBaseAdapter)
 
 		@Suppress("UNCHECKED_CAST")
 		override fun <T : ViewModel> create(modelClass: Class<T>): T {
 			return when (modelClass) {
 				GetSafe3TestCoinViewModel::class.java -> {
-					GetSafe3TestCoinViewModel(safe3Wallet, baseAdapter?.kit?.bitcoinCore?.receiveAddress()) as T
+					GetSafe3TestCoinViewModel(safe4Wallet, adapter?.evmKitWrapper?.evmKit?.receiveAddress?.hex) as T
 				}
 				else -> throw IllegalArgumentException()
 			}
@@ -152,7 +150,7 @@ object RedeemSafe3Module {
 
 	@Parcelize
 	data class GetTestCoinInput(
-			val safe3Wallet: Wallet? = null
+			val safe4Wallet: Wallet? = null
 	) : Parcelable {
 	}
 

@@ -66,7 +66,7 @@ class GetSafe3TestCoinFragment(): BaseComposeFragment() {
 	@Composable
 	override fun GetContent(navController: NavController) {
 		val input = navController.getInput<RedeemSafe3Module.GetTestCoinInput>()
-		val wallet = input?.safe3Wallet
+		val wallet = input?.safe4Wallet
 
 		val viewModel by viewModels<GetSafe3TestCoinViewModel> { RedeemSafe3Module.Factory3(wallet) }
 		GetSafe3TestCoinScreen(viewModel = viewModel, navController = navController)

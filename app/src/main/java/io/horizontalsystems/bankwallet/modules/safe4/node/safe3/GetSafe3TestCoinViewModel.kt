@@ -46,7 +46,7 @@ class GetSafe3TestCoinViewModel(
 
 	var canEnable = false
 	var getStatus = false
-	var getResponse: Map<String, String>? = null
+	var getResponse: GetResult? = null
 	val dataFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
 	private val disposables = CompositeDisposable()
@@ -67,14 +67,14 @@ class GetSafe3TestCoinViewModel(
 				canEnable,
 				defaultAddress ?: "",
 				getStatus,
-				getResponse?.get("message"),
-				getResponse?.get("amount"),
-				getResponse?.get("transactionHash"),
-				getResponse?.get("dateTimestamp")?.let {
+				getResponse?.message,
+				getResponse?.data?.amount,
+				getResponse?.data?.transactionHash,
+				getResponse?.data?.dateTimestamp?.let {
 					dataFormat.format(Date(it.toLong()))
 				},
-				getResponse?.get("from"),
-				getResponse?.get("nonce"),
+				getResponse?.data?.from,
+				getResponse?.data?.nonce,
 		)
 	}
 
@@ -95,12 +95,13 @@ class GetSafe3TestCoinViewModel(
 			getSafe3TestCoinService?.getTestCoin(address)
 					?.subscribeOn(Schedulers.io())
 					?.subscribe({
+						Log.e("longwen", "getResponse=$getResponse")
 						getResponse = it
-						getStatus = it.get("code") == "0"
+						getStatus = it.status
 						if (getStatus) {
 							sendResult = SendResult.Sent
 						} else {
-							sendResult = SendResult.Failed(createCaution(Throwable(it.get("message"))))
+							sendResult = SendResult.Failed(createCaution(Throwable(it.message)))
 						}
 						emitState()
 					},
@@ -121,7 +122,17 @@ class GetSafe3TestCoinViewModel(
 		sendResult = SendResult.Sent
 	}
 
-	companion object {
-		const val itemsPerPage = 10
-	}
+	data class GetResult(
+			val status: Boolean,
+			val message: String? = null,
+			val data: Data? = null
+	)
+
+	data class Data(
+			val amount: String,
+			val transactionHash: String,
+			val dateTimestamp: String,
+			val from: String,
+			val nonce: String,
+	)
 }
