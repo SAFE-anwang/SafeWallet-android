@@ -66,13 +66,14 @@ class RedeemSafe3ViewModel(
 			reset()
 			return
 		}
-		var privateKey = privateKey
-		val isWIF = isWIFPrivateKey(privateKey)
-		if (isWIF) {
-			val base58 = Base58.decode(privateKey)
-			privateKey = base58.copyOfRange(1, 33).toRawHexString()
-		}
 		try {
+			var privateKey = privateKey
+			val isWIF = isWIFPrivateKey(privateKey)
+			if (isWIF) {
+				val base58 = Base58.decode(privateKey)
+				privateKey = base58.copyOfRange(1, 33).toRawHexString()
+			}
+
 			val privKey = Numeric.toBigInt(privateKey)
 			val compressedPublicKey = Safe3Util.getCompressedPublicKey(privKey)
 			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
@@ -86,6 +87,7 @@ class RedeemSafe3ViewModel(
 	}
 
 	private fun isWIFPrivateKey(wifPrivateKey: String): Boolean {
+		if (wifPrivateKey.startsWith(("0x")))	return false
 		wifPrivateKey.lowercase().forEach {
 			if (it.code >= 103) return true
 		}

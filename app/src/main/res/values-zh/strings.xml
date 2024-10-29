@@ -2165,6 +2165,7 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Input_Error_Not_Number">请输入数字</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Text">%d 天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">追加锁定: %d 天</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Max">最多可追加锁定%d天</string>
 
 
     <!-- safe 4  end-->

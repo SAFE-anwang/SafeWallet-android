@@ -91,8 +91,10 @@ class SafeFourModule {
     }
 
     data class AddLockDayUiState(
+          val maxLockDay: Int,
           val addEnable: Boolean = false,
           val error: Int? = null,
+          val errorMaxDay: Int? = null,
           val showConfirmationDialog: Boolean = false
     )
 

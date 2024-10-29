@@ -172,8 +172,8 @@ fun AddLockDayScreen(
 									.padding(start = 16.dp)
 									.width(32.dp)
 									.height(32.dp)
-									.clickable(enabled = day.toInt() < 3600) {
-										if (day.toInt() < 3600) {
+									.clickable(enabled = day.toInt() < uiState.maxLockDay) {
+										if (day.toInt() < uiState.maxLockDay) {
 											day += 360
 											viewModel.onEnterDay(day)
 										}
@@ -203,6 +203,17 @@ fun AddLockDayScreen(
 				)
 			}
 
+			uiState.errorMaxDay?.let{
+				Spacer(modifier = Modifier.height(6.dp))
+				Text(
+						modifier = Modifier.padding(start = 16.dp),
+						text = stringResource(id = it, uiState.maxLockDay),
+						color = ComposeAppTheme.colors.redD,
+						style = ComposeAppTheme.typography.caption,
+						maxLines = 1,
+				)
+			}
+
 			Spacer(modifier = Modifier.height(16.dp))
 
 			ButtonPrimaryYellow(
@@ -210,6 +221,7 @@ fun AddLockDayScreen(
 							.fillMaxWidth()
 							.height(40.dp),
 					title = stringResource(R.string.Safe_Four_Node_Add_Lock_Day_Button),
+					enabled = uiState.addEnable,
 					onClick = {
 						viewModel.showConfirmation()
 					}

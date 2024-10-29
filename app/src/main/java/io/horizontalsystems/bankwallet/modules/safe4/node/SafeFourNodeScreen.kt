@@ -509,7 +509,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Row {
 						ButtonPrimaryYellow2(
 								modifier = Modifier
-										.weight(2f)
+										.weight(1.7f)
 										.height(25.dp),
 								title = stringResource(R.string.Safe_Four_Node_Join_Partner),
 								onClick = {
@@ -517,7 +517,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								},
 								enabled = item.canJoin
 						)
-						Spacer(Modifier.width(10.dp))
+						Spacer(Modifier.width(5.dp))
 						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(1f)
@@ -528,7 +528,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								},
 								enabled = item.isVoteEnable
 						)
-						Spacer(Modifier.width(10.dp))
+						Spacer(Modifier.width(5.dp))
 						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(1f)
@@ -539,7 +539,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 								},
 								enabled = item.isEdit
 						)
-						Spacer(Modifier.width(10.dp))
+						Spacer(Modifier.width(5.dp))
 						ButtonPrimaryYellow2(
 								modifier = Modifier
 										.weight(1.5f)
@@ -668,7 +668,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							},
 							enabled = item.canJoin
 					)
-					Spacer(Modifier.width(16.dp))
+					Spacer(Modifier.width(10.dp))
 					ButtonPrimaryYellow2(
 							modifier = Modifier
 									.weight(1f)

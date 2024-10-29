@@ -2491,5 +2491,6 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Input_Error_Not_Number">Please enter a number</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Text">%d day</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">Add lock day: %d</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Max">Up to% d days of lock can be added</string>
     <!-- safe 4  end-->
 </resources>

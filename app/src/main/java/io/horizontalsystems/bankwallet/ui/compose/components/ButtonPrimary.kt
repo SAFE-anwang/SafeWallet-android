@@ -460,8 +460,8 @@ object ButtonPrimaryDefaults {
     )
 
     val ContentPadding2 = PaddingValues(
-        start = 12.dp,
-        end = 12.dp
+        start = 6.dp,
+        end = 6.dp
     )
 
 

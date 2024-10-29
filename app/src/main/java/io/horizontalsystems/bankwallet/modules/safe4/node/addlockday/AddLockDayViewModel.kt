@@ -17,6 +17,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.min
 
 class AddLockDayViewModel(
 	val lockIds: List<Int>,
@@ -24,25 +25,59 @@ class AddLockDayViewModel(
 	private val privateKey: String,
 ) : ViewModelUiState<SafeFourModule.AddLockDayUiState>() {
 
+	var maxLockDay = 3600
 	var inputDay = 360
 	var error: Int? = null
+	var errorMaxDay: Int? = null
 	private var showConfirmationDialog = false
 
 	var sendResult by mutableStateOf<SendResult?>(null)
 
 	private val disposables = CompositeDisposable()
 
+	init {
+		getRecordInfo()
+	}
+
 	override fun createState(): SafeFourModule.AddLockDayUiState {
 		return SafeFourModule.AddLockDayUiState(
-				this.inputDay >= 360,
+				maxLockDay,
+				this.inputDay >= 360 && this.inputDay <= maxLockDay,
 				error,
+				errorMaxDay,
 				showConfirmationDialog
 		)
+	}
+
+	private fun getRecordInfo() {
+		viewModelScope.launch(Dispatchers.IO) {
+			var minLockDay = 3600
+			lockIds.forEach { lockId ->
+				try {
+					val recordInfo = safe4.getRecordByID(lockId)
+					val unlockHeight = recordInfo.unlockHeight.toLong() - (safe4.lastBlockHeight
+							?: 0)
+					// 剩余解锁时间
+					val remainDay = unlockHeight / DAILY_BLOCK_PRODUCTION_SPEED
+					val lockDay = ((3600 - remainDay.toInt()) / 360) * 360
+					minLockDay = min(minLockDay, lockDay)
+				} catch (e: Exception) {
+
+				}
+			}
+			maxLockDay = minLockDay
+			emitState()
+		}
 	}
 
 	fun onEnterDay(day: Int) {
 		try {
 			this.inputDay = day
+			if (inputDay > maxLockDay) {
+				errorMaxDay = R.string.Safe_Four_Node_Add_Lock_Day_Max
+			} else {
+				errorMaxDay = null
+			}
 			if (inputDay < 360) {
 				error = R.string.Safe_Four_Node_Add_Lock_Day_Input_Hint
 			} else {
@@ -70,7 +105,7 @@ class AddLockDayViewModel(
 		viewModelScope.launch(Dispatchers.IO) {
 			try {
 				lockIds.forEach { lockId ->
-					val recordInfo = safe4.getRecordByID(lockId)
+					/*val recordInfo = safe4.getRecordByID(lockId)
 					val unlockHeight = recordInfo.unlockHeight.toLong() - (safe4.lastBlockHeight ?: 0)
 					// 剩余解锁时间
 					val remainDay = unlockHeight / DAILY_BLOCK_PRODUCTION_SPEED
@@ -78,7 +113,8 @@ class AddLockDayViewModel(
 						((3600 - remainDay.toInt()) / 360) * 360
 					} else {
 						inputDay
-					}
+					}*/
+					val lockDay = inputDay
 					if (lockDay <= 0) {
 						sendResult = SendResult.Sent
 						emitState()
