@@ -37,6 +37,9 @@ object NodeCovertFactory {
 
 	val Node_Lock_Day = 720
 
+	// 每天产块数量
+	val DAILY_BLOCK_PRODUCTION_SPEED = 2880
+
 	fun createNoteItemView(index: Int, nodeItem: NodeInfo,
 						   isSuperNode: Boolean,
 						   isSuperOrMasterNode: Boolean = false,
