@@ -67,6 +67,10 @@ class SafeFourProposalService(
 				.let { disposables.add(it) }
 	}
 
+	fun getLastBlockHeight(): Long {
+		return safe4RpcBlockChain.lastBlockHeight ?: 0
+	}
+
 	fun getAllNum() {
 		try {
 			if (allProposalNum == -1) {

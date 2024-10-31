@@ -77,7 +77,7 @@ class SafeFourProposalViewModel(
             } else mineProposal?.filter {
             it.id.toString() == query
         },
-        createProposalEnable
+        createProposalEnable || nodeService.getLastBlockHeight() > 86400
     )
 
     fun getProposalInfo(id: Int, type: Int): ProposalInfo? {
