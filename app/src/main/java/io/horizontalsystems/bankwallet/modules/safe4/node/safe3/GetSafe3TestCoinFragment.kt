@@ -188,17 +188,6 @@ fun GetSafe3TestCoinScreen(
 						body_bran(text = uiState.from)
 					}
 
-					uiState.from?.let {
-						Divider(
-								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
-								thickness = 1.dp,
-								color = ComposeAppTheme.colors.steel10,
-						)
-						body_grey(text = stringResource(id = R.string.Get_Safe3_Test_Coin_From))
-						Spacer(modifier = Modifier.height(6.dp))
-						body_bran(text = uiState.from)
-					}
-
 					uiState.nonce?.let {
 						Divider(
 								modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),

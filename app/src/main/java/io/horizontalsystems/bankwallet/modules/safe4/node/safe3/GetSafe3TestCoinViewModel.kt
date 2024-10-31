@@ -99,7 +99,7 @@ class GetSafe3TestCoinViewModel(
 						getStatus = it.status
 						if (getStatus) {
 							sendResult = SendResult.Sent
-							enterAddress("")
+							canEnable = false
 						} else {
 							sendResult = SendResult.Failed(createCaution(Throwable(it.message)))
 						}
