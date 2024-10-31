@@ -33,11 +33,14 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Slider
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -502,8 +505,10 @@ fun MasterVoteScreen(
     val proceedEnabled = uiState.canBeSend
     val remainingShares = uiState.remainingShares
     val amountInputType = amountInputModeViewModel.inputType
-    val joinAmountList = uiState.joinAmountList
     val view = LocalView.current
+
+    val joinAmountSlider = uiState.joinSlider
+    var sliderPosition by remember { mutableFloatStateOf(joinAmountSlider.min.toFloat()) }
 
     ComposeAppTheme {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -528,17 +533,41 @@ fun MasterVoteScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            subhead2_grey(
+            /*subhead2_grey(
                     modifier = Modifier.padding(start = 16.dp),
-                    text = stringResource(R.string.Safe_Four_Node_Register_Num))
+                    text = stringResource(R.string.Safe_Four_Node_Register_Num))*/
+            joinAmountSlider?.let {
+                body_bran(
+                        modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp),
+                        text = "${sliderPosition.toInt()} SAFE")
+                Spacer(modifier = Modifier.height(6.dp))
+                Slider(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp),
+                        value = sliderPosition,
+                        enabled = true,
+                        onValueChange = {
+                            sliderPosition = it
+                        },
+                        onValueChangeFinished = {
+                            val temp = sliderPosition.toInt()
+                            var tempSliderPosition = sliderPosition
+                            if (temp < it.min) {
+                                tempSliderPosition = it.min.toFloat()
+                            }
+                            if (temp > it.max) {
+                                tempSliderPosition = it.max.toFloat()
+                            }
+                            sliderPosition = (tempSliderPosition.toInt() - (tempSliderPosition.toInt() % it.step)).toFloat()
+                            viewModel.selectJoinAmount(sliderPosition.toInt())
+                        },
+                        steps = it.step,
+                        valueRange = 0f .. it.max.toFloat()
+                )
+            }
 
-            JoinAmountBar(
-                    percents = joinAmountList,
-                    onSelect = {
-                        viewModel.selectJoinAmount(it)
-                    },
-                    selectEnabled = true,
-            )
 
             ButtonPrimaryYellow(
                     modifier = Modifier

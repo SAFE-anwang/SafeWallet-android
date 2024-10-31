@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.util.Log
-import com.anwang.Safe4
 import com.anwang.utils.Safe4Contract
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -11,12 +10,21 @@ import io.horizontalsystems.bankwallet.core.storage.EvmAddressLabelDao
 import io.horizontalsystems.bankwallet.core.storage.EvmMethodLabelDao
 import io.horizontalsystems.bankwallet.core.storage.SyncerStateDao
 import io.horizontalsystems.bankwallet.core.toHexString
+import io.horizontalsystems.bankwallet.core.toRawHexString
 import io.horizontalsystems.bankwallet.entities.EvmAddressLabel
 import io.horizontalsystems.bankwallet.entities.EvmMethodLabel
 import io.horizontalsystems.bankwallet.entities.SyncerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import org.web3j.abi.FunctionReturnDecoder
+import org.web3j.abi.TypeReference
+import org.web3j.abi.datatypes.Bool
+import org.web3j.abi.datatypes.Function
+import org.web3j.abi.datatypes.Type
+import org.web3j.abi.datatypes.Utf8String
+import org.web3j.abi.datatypes.generated.Uint256
+import java.util.Arrays
 import java.util.concurrent.Executors
 
 class EvmLabelManager(
@@ -49,10 +57,41 @@ class EvmLabelManager(
             "0x03c4c7f3" -> App.instance.getString(R.string.Method_Vote_Super_Node)
             "0xc54256ed" -> App.instance.getString(R.string.Method_Create_Proposal)
             "0xb384abef" -> App.instance.getString(R.string.Method_Create_Proposal_Vote)
-            "0xa57afda4" -> App.instance.getString(R.string.Method_Create_Super_Node)
-            "0x082ed4d5" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)
-                App.instance.getString(R.string.Method_Create_Super_Node)
-            else App.instance.getString(R.string.Method_Create_Master_Node)
+            "0xa57afda4" -> {
+                var isUnion = false
+                try {
+                    isUnion = NodeRegister.decodeCreateSuperNode(input.toRawHexString())[0].value as Boolean
+                } catch (e: Exception) {
+                }
+                if (isUnion) {
+                    App.instance.getString(R.string.Method_Create_Super_Node_Union)
+                } else {
+                    App.instance.getString(R.string.Method_Create_Super_Node)
+                }
+            }
+            "0x082ed4d5" -> if (to == Safe4Contract.SuperNodeLogicContractAddr) {
+                var isUnion = false
+                try {
+                    isUnion = NodeRegister.decodeCreateSuperNode(input.toRawHexString())[0].value as Boolean
+                } catch (e: Exception) {
+                }
+                if (isUnion) {
+                    App.instance.getString(R.string.Method_Create_Super_Node_Union)
+                } else {
+                    App.instance.getString(R.string.Method_Create_Super_Node)
+                }
+            } else {
+                var isUnion = false
+                try {
+                    isUnion = NodeRegister.decodeCreateMasterNode(input.toRawHexString())[0].value as Boolean
+                } catch (e: Exception) {
+                }
+                if (isUnion) {
+                    App.instance.getString(R.string.Method_Create_Master_Node_Union)
+                } else {
+                    App.instance.getString(R.string.Method_Create_Master_Node)
+                }
+            }
             "0x7255acae" -> App.instance.getString(R.string.Method_Change_Enode)
             "0x45ca25ed" -> App.instance.getString(R.string.Method_Change_Name)
             "0x1ed6f423" -> App.instance.getString(R.string.Method_Change_Desc)

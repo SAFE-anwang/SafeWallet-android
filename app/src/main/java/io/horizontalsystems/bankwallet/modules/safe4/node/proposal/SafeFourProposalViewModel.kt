@@ -54,6 +54,7 @@ class SafeFourProposalViewModel(
         nodeService.lastBlockHeightObservable
                 .subscribeIO {
                     createProposalEnable = it > 86400
+                    emitState()
                 }
                 .let {
                     disposables.add(it)

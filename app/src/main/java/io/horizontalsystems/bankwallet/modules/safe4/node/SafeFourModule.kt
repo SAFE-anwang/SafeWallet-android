@@ -14,6 +14,7 @@ import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.parcelize.Parcelize
+import java.math.BigInteger
 
 class SafeFourModule {
 
@@ -93,9 +94,17 @@ class SafeFourModule {
     data class AddLockDayUiState(
           val maxLockDay: Int,
           val addEnable: Boolean = false,
+          val recordList: List<AddLockRecordInfo> = listOf(),
           val error: Int? = null,
           val errorMaxDay: Int? = null,
           val showConfirmationDialog: Boolean = false
+    )
+
+    data class AddLockRecordInfo(
+            val recordId: Long,
+            val lockedDay: Int,
+            val maxLockDay: Int,
+            val enable: Boolean = false,
     )
 
     data class SafeFourNodeUiState(

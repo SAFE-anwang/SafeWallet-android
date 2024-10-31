@@ -95,11 +95,11 @@ class GetSafe3TestCoinViewModel(
 			getSafe3TestCoinService?.getTestCoin(address)
 					?.subscribeOn(Schedulers.io())
 					?.subscribe({
-						Log.e("longwen", "getResponse=$getResponse")
 						getResponse = it
 						getStatus = it.status
 						if (getStatus) {
 							sendResult = SendResult.Sent
+							enterAddress("")
 						} else {
 							sendResult = SendResult.Failed(createCaution(Throwable(it.message)))
 						}

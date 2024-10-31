@@ -25,11 +25,13 @@ class AddLockDayViewModel(
 	private val privateKey: String,
 ) : ViewModelUiState<SafeFourModule.AddLockDayUiState>() {
 
-	var maxLockDay = 3600
-	var inputDay = 360
+	private var maxLockDay = 3600
+	private var inputDay = 0
+	private var selectLockId = -1L
 	var error: Int? = null
 	var errorMaxDay: Int? = null
 	private var showConfirmationDialog = false
+	private var recordInfos: List<SafeFourModule.AddLockRecordInfo> = listOf()
 
 	var sendResult by mutableStateOf<SendResult?>(null)
 
@@ -42,7 +44,8 @@ class AddLockDayViewModel(
 	override fun createState(): SafeFourModule.AddLockDayUiState {
 		return SafeFourModule.AddLockDayUiState(
 				maxLockDay,
-				this.inputDay >= 360 && this.inputDay <= maxLockDay,
+				this.inputDay >= 360,
+				recordInfos,
 				error,
 				errorMaxDay,
 				showConfirmationDialog
@@ -51,7 +54,7 @@ class AddLockDayViewModel(
 
 	private fun getRecordInfo() {
 		viewModelScope.launch(Dispatchers.IO) {
-			var minLockDay = 3600
+			val info = mutableListOf<SafeFourModule.AddLockRecordInfo>()
 			lockIds.forEach { lockId ->
 				try {
 					val recordInfo = safe4.getRecordByID(lockId)
@@ -60,18 +63,19 @@ class AddLockDayViewModel(
 					// 剩余解锁时间
 					val remainDay = unlockHeight / DAILY_BLOCK_PRODUCTION_SPEED
 					val lockDay = ((3600 - remainDay.toInt()) / 360) * 360
-					minLockDay = min(minLockDay, lockDay)
+					info.add(SafeFourModule.AddLockRecordInfo(recordInfo.id.toLong(), remainDay.toInt(), lockDay, lockDay > 0))
 				} catch (e: Exception) {
 
 				}
 			}
-			maxLockDay = minLockDay
+			recordInfos = info
 			emitState()
 		}
 	}
 
-	fun onEnterDay(day: Int) {
+	fun onEnterDay(day: Int, lockId: Long) {
 		try {
+			this.selectLockId = lockId
 			this.inputDay = day
 			if (inputDay > maxLockDay) {
 				errorMaxDay = R.string.Safe_Four_Node_Add_Lock_Day_Max
@@ -101,10 +105,11 @@ class AddLockDayViewModel(
 
 	fun addLockDay() {
 		closeDialog()
+		if (selectLockId == -1L) return
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			try {
-				lockIds.forEach { lockId ->
+//				lockIds.forEach { lockId ->
 					/*val recordInfo = safe4.getRecordByID(lockId)
 					val unlockHeight = recordInfo.unlockHeight.toLong() - (safe4.lastBlockHeight ?: 0)
 					// 剩余解锁时间
@@ -118,9 +123,9 @@ class AddLockDayViewModel(
 					if (lockDay <= 0) {
 						sendResult = SendResult.Sent
 						emitState()
-						return@forEach
+						return@launch
 					}
-					safe4.addLockDay(privateKey, lockId, lockDay)
+					safe4.addLockDay(privateKey, selectLockId, lockDay)
 							.subscribe({
 								sendResult = SendResult.Sent
 								emitState()
@@ -130,8 +135,6 @@ class AddLockDayViewModel(
 							}).let {
 								disposables.add(it)
 							}
-
-				}
 
 			} catch (e: Exception) {
 				sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))

@@ -2457,6 +2457,8 @@
     <string name="Method_Create_Proposal_Vote">Proposal Vote</string>
     <string name="Method_Create_Super_Node">Create Super Node</string>
     <string name="Method_Create_Master_Node">Create Master Node</string>
+    <string name="Method_Create_Super_Node_Union">Create crowd-funding Super Node</string>
+    <string name="Method_Create_Master_Node_Union">Create crowd-funding Master Node</string>
     <string name="Method_Vote">Lock Voted</string>
     <string name="Method_Join_Super_Node">Join Super Node</string>
     <string name="Method_Join_Master_Node">Join Master Node</string>
@@ -2473,12 +2475,12 @@
     <string name="Method_Node_Status_Upload">Node status upload</string>
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
-    <string name="Get_Safe3_Test_Coin">Get SAFE4 Test Coin</string>
+    <string name="Get_Safe3_Test_Coin">Get SAFE4 Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>
     <string name="Get_Safe3_Test_Coin_Send_Success">Receive Success</string>
     <string name="Safe3_Test_Coin_Address">SAFE4 Address</string>
-    <string name="Safe3_Test_Coin_Address_Hint">Input SAFE4 test coin address</string>
+    <string name="Safe3_Test_Coin_Address_Hint">Input SAFE4 coin address</string>
     <string name="Get_Safe3_Test_Coin_Amount">Receive amount</string>
     <string name="Get_Safe3_Test_Coin_Transaction_Hash">Transaction Hash</string>
     <string name="Get_Safe3_Test_Coin_DateTimestamp">Receive Time</string>
@@ -2492,5 +2494,8 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Text">%d day</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">Add lock day: %d</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Max">Up to% d days of lock can be added</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Id">Locked Id: </string>
+    <string name="Safe_Four_Node_Aready_Lock_Day">Locked: </string>
+    <string name="Safe_Four_Node_Max_Lock_Day">Max Locked: </string>
     <!-- safe 4  end-->
 </resources>

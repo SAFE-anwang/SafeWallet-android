@@ -2131,6 +2131,8 @@
     <string name="Method_Create_Proposal_Vote">提案投票</string>
     <string name="Method_Create_Super_Node">创建超级节点</string>
     <string name="Method_Create_Master_Node">创建主节点</string>
+    <string name="Method_Create_Super_Node_Union">创建众筹超级节点</string>
+    <string name="Method_Create_Master_Node_Union">创建众筹主节点</string>
     <string name="Method_Vote">锁仓投票</string>
     <string name="Method_Join_Super_Node">加入超级节点合伙人</string>
     <string name="Method_Join_Master_Node">加入主节点合伙人</string>
@@ -2147,12 +2149,12 @@
     <string name="Method_Node_Status_Upload">节点状态上传</string>
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
-    <string name="Get_Safe3_Test_Coin">SAFE4测试币领取</string>
+    <string name="Get_Safe3_Test_Coin">SAFE4领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Success">领取成功</string>
     <string name="Safe3_Test_Coin_Address">SAFE4 钱包地址</string>
-    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE4测试币地址</string>
+    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE4地址</string>
     <string name="Get_Safe3_Test_Coin_Amount">领取数量</string>
     <string name="Get_Safe3_Test_Coin_Transaction_Hash">交易Hash</string>
     <string name="Get_Safe3_Test_Coin_DateTimestamp">领取时间</string>
@@ -2166,6 +2168,9 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Text">%d 天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">追加锁定: %d 天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Max">最多可追加锁定%d天</string>
+    <string name="Safe_Four_Node_Add_Lock_Day_Id">锁仓Id: </string>
+    <string name="Safe_Four_Node_Aready_Lock_Day">已锁定: </string>
+    <string name="Safe_Four_Node_Max_Lock_Day">最大可锁定: </string>
 
 
     <!-- safe 4  end-->

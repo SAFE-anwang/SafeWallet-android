@@ -120,7 +120,8 @@ class SafeFourVoteViewModel(
                 canBeSend = amountState.canBeSend,
                 recordVoteCanSend = getRecordVoteCanSend(),
                 lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
-                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex)
+                creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
+                joinSlider = getJoinAmountSlider()
         )
     } else {
         VoteUiState(
@@ -138,7 +139,7 @@ class SafeFourVoteViewModel(
                 lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
                 creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
                 remainingShares = App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(nodeInfo!!.availableLimit), "SAFE", 2),
-                joinAmountList = getJoinAmountList()
+                joinSlider = getJoinAmountSlider()
         )
     }
 
@@ -271,6 +272,36 @@ class SafeFourVoteViewModel(
         }
         return list
     }
+
+    private fun getJoinAmountSlider(): JoinAmountSlider {
+        val step = if (isSuper) {
+            NodeCovertFactory.Super_Node_Partner_Join_Amount
+        } else {
+            NodeCovertFactory.Master_Node_Partner_Join_Amount
+        }
+        if (nodeInfo == null) return JoinAmountSlider(step, step, 0)
+
+        val amount = NodeCovertFactory.valueConvert(nodeInfo!!.founders.sumOf { it.amount }).toInt()
+        val availableAmount = if (isSuper) {
+            NodeCovertFactory.Super_Node_Create_Amount - amount
+        } else {
+            NodeCovertFactory.Master_Node_Create_Amount - amount
+        }
+        /*val list = mutableListOf<JoinAmount>()
+        for (i in 0 until count) {
+            val amount = if (isSuper) {
+                (i + 1 ) * NodeCovertFactory.Super_Node_Partner_Join_Amount
+            } else {
+                (i + 1 ) *  NodeCovertFactory.Master_Node_Partner_Join_Amount
+            }
+            val bean = JoinAmount(
+                    amount,
+                    joinAmount == amount
+            )
+            list.add(bean)
+        }*/
+        return JoinAmountSlider(step, step, availableAmount)
+    }
 }
 
 @Parcelize
@@ -310,6 +341,13 @@ data class JoinAmount(
         val value: Int,
         var selected: Boolean
 )
+
+data class JoinAmountSlider(
+        val step: Int = 0,
+        val min: Int = 0,
+        val max: Int = 0
+)
+
 data class VoteUiState (
         val nodeInfo: NodeViewItem?,
         val availableBalance: BigDecimal,
@@ -325,5 +363,5 @@ data class VoteUiState (
         val remainingShares: String = "",
         val lockIdInfo: List<LockIdsView>? = null,
         val creatorList: List<CreateViewItem> = listOf(),
-        val joinAmountList: List<JoinAmount> = listOf()
+        val joinSlider: JoinAmountSlider
 )

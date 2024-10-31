@@ -240,17 +240,19 @@ fun GetSafe3TestCoinScreen(
 			}
 
 			Spacer(modifier = Modifier.height(8.dp))
-			ButtonPrimaryYellow(
-					modifier = Modifier
-							.padding(16.dp)
-							.fillMaxWidth()
-							.height(40.dp),
-					title = stringResource(id = R.string.Get_Safe3_Test_Coin_Button),
-					enabled = uiState.enable,
-					onClick = {
-						viewModel.getTestCoin(textState.text)
-					}
-			)
+			if (uiState.enable) {
+				ButtonPrimaryYellow(
+						modifier = Modifier
+								.padding(16.dp)
+								.fillMaxWidth()
+								.height(40.dp),
+						title = stringResource(id = R.string.Get_Safe3_Test_Coin_Button),
+						enabled = uiState.enable,
+						onClick = {
+							viewModel.getTestCoin(textState.text)
+						}
+				)
+			}
 		}
 	}
 }

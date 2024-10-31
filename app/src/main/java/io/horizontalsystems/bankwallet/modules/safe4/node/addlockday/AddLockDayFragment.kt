@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.addlockday
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
@@ -40,6 +42,8 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.delay
@@ -69,11 +73,12 @@ fun AddLockDayScreen(
 		navController: NavController
 ) {
 	val uiState = viewModel.uiState
+	val recordList = uiState.recordList
 
 	val sendResult = viewModel.sendResult
 	val view = LocalView.current
 
-	var day by remember{ mutableStateOf(360) }
+	var selectDay by remember{ mutableStateOf(360) }
 
 	when (sendResult) {
 		SendResult.Sending -> {
@@ -126,61 +131,96 @@ fun AddLockDayScreen(
 					maxLines = 1,
 			)
 			Spacer(modifier = Modifier.height(6.dp))
-			Column(
-					modifier = Modifier
-							.fillMaxWidth()
-							.clip(RoundedCornerShape(8.dp))
-							.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
-							.background(ComposeAppTheme.colors.lawrence),
-					horizontalAlignment = Alignment.CenterHorizontally
-			) {
 
-				Row(
-						modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-						verticalAlignment = Alignment.CenterVertically
+			recordList.forEach {
+				var day by remember{ mutableStateOf(360) }
+				Column(
+						modifier = Modifier
+								.fillMaxWidth()
+								.clip(RoundedCornerShape(8.dp))
+								.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+								.background(ComposeAppTheme.colors.lawrence)
+								.padding(16.dp),
 				) {
-					Icon(
-							painter = painterResource(id = R.drawable.ic_reduce_circle_24), contentDescription = null,
-							tint = ComposeAppTheme.colors.grey,
+					Row {
+						body_grey(text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Id))
+						Spacer(modifier = Modifier.weight(1f))
+						body_bran(text = it.recordId.toString())
+					}
+
+					Row {
+						body_grey(text = stringResource(id = R.string.Safe_Four_Node_Aready_Lock_Day))
+						Spacer(modifier = Modifier.weight(1f))
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, it.lockedDay))
+
+					}
+					Row {
+						body_grey(text = stringResource(id = R.string.Safe_Four_Node_Max_Lock_Day))
+						Spacer(modifier = Modifier.weight(1f))
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, it.maxLockDay))
+
+					}
+					Row(
+							modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 16.dp),
+							verticalAlignment = Alignment.CenterVertically,
+							horizontalArrangement = Arrangement.Center
+					) {
+						Icon(
+								painter = painterResource(id = R.drawable.ic_reduce_circle_24), contentDescription = null,
+								tint = ComposeAppTheme.colors.grey,
+								modifier = Modifier
+										.padding(start = 16.dp)
+										.width(32.dp)
+										.height(32.dp)
+										.clickable(enabled = day > 360) {
+											if (day.toInt() > 360) {
+												day -= 360
+												selectDay = day
+											}
+										})
+
+						Spacer(modifier = Modifier.width(16.dp))
+
+						Text(
+								text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, day.toInt()),
+								style = ComposeAppTheme.typography.body,
+								color = ComposeAppTheme.colors.bran,
+								overflow = TextOverflow.Ellipsis,
+								maxLines = 1,
+						)
+
+						Spacer(modifier = Modifier.width(16.dp))
+
+						Icon(
+								painter = painterResource(id = R.drawable.ic_add_circle_24), contentDescription = null,
+								tint = ComposeAppTheme.colors.grey,
+								modifier = Modifier
+										.padding(start = 16.dp)
+										.width(32.dp)
+										.height(32.dp)
+										.clickable(enabled = day.toInt() < it.maxLockDay) {
+											if (day.toInt() < it.maxLockDay) {
+												day += 360
+												selectDay = day
+											}
+										})
+
+					}
+
+					ButtonPrimaryYellow(
 							modifier = Modifier
-									.padding(start = 16.dp)
-									.width(32.dp)
-									.height(32.dp)
-									.clickable(enabled = day > 360) {
-										if (day.toInt() > 360) {
-											day -= 360
-											viewModel.onEnterDay(day)
-										}
-									})
-
-					Spacer(modifier = Modifier.width(16.dp))
-
-					Text(
-							text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, day.toInt()),
-							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.bran,
-							overflow = TextOverflow.Ellipsis,
-							maxLines = 1,
+									.fillMaxWidth()
+									.height(40.dp),
+							title = stringResource(R.string.Safe_Four_Node_Add_Lock_Day_Button),
+							enabled = it.enable,
+							onClick = {
+								selectDay = day
+								viewModel.onEnterDay(day, it.recordId)
+								viewModel.showConfirmation()
+							}
 					)
-
-					Spacer(modifier = Modifier.width(16.dp))
-
-					Icon(
-							painter = painterResource(id = R.drawable.ic_add_circle_24), contentDescription = null,
-							tint = ComposeAppTheme.colors.grey,
-							modifier = Modifier
-									.padding(start = 16.dp)
-									.width(32.dp)
-									.height(32.dp)
-									.clickable(enabled = day.toInt() < uiState.maxLockDay) {
-										if (day.toInt() < uiState.maxLockDay) {
-											day += 360
-											viewModel.onEnterDay(day)
-										}
-									})
-
 				}
-
+				Spacer(modifier = Modifier.height(10.dp))
 			}
 			/*FormsInput(
 					enabled = uiState.addEnable,
@@ -213,24 +253,11 @@ fun AddLockDayScreen(
 						maxLines = 1,
 				)
 			}
-
-			Spacer(modifier = Modifier.height(16.dp))
-
-			ButtonPrimaryYellow(
-					modifier = Modifier
-							.fillMaxWidth()
-							.height(40.dp),
-					title = stringResource(R.string.Safe_Four_Node_Add_Lock_Day_Button),
-					enabled = uiState.addEnable,
-					onClick = {
-						viewModel.showConfirmation()
-					}
-			)
 		}
 	}
 
 	if (uiState.showConfirmationDialog) {
-		AddLockDayConfirmationDialog(day,
+		AddLockDayConfirmationDialog(selectDay,
 				onOKClick = {
 					viewModel.addLockDay()
 				},
