@@ -217,7 +217,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.aar', '*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraint_version"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
@@ -430,7 +430,7 @@ dependencies {
     implementation 'com.lambdaworks:scrypt:1.4.0'
 
     implementation 'com.github.xuexiangjys:XUpdate:2.1.5'
-    implementation 'com.zhy:okhttputils:2.6.2'
+//    implementation 'com.zhy:okhttputils:2.6.2'
 }
 
 configurations.all {
