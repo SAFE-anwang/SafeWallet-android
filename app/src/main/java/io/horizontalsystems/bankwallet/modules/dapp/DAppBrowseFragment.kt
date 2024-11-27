@@ -269,6 +269,13 @@ class DAppBrowseFragment: BaseFragment(){
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 Log.e("connectWallet", "shouldOverrideUrlLoading: $url")
+                if (url?.contains("/wc?uri=") == true) {
+                    val connectLink = url.substring(url.indexOf("wc?uri=") + 7)
+                    val decode = URLDecoder.decode(connectLink)
+                    Log.d("connectWallet", "shouldOverrideUrlLoading: ${decode}")
+                    connectWallet(decode)
+                    return true
+                }
                 if (url?.startsWith("wc:") == true) {
                     connectWallet(url)
                     return true
@@ -281,7 +288,7 @@ class DAppBrowseFragment: BaseFragment(){
         }
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                Log.e("connectWallet", "progress: $newProgress")
+//                Log.e("connectWallet", "progress: $newProgress")
                 binding.progressBar.progress = newProgress
                 super.onProgressChanged(view, newProgress)
                 if (newProgress == 100 && autoConnect) {

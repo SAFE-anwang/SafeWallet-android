@@ -40,15 +40,15 @@ class LegacyGasPriceService(
                 }
 
     init {
+        start()
+    }
+
+    override fun start() {
         if (initialGasPrice != null) {
             setGasPrice(initialGasPrice)
         } else {
             setRecommended()
         }
-    }
-
-    override fun start() {
-
     }
 
     override fun setRecommended() {

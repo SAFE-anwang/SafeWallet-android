@@ -66,7 +66,9 @@ class WCSessionViewModel(
         "eth_signTypedData",
         "eth_signTypedData_v4",
         "wallet_addEthereumChain",
-        "wallet_switchEthereumChain"
+        "wallet_switchEthereumChain",
+        "solana_signTransaction",
+        "solana_signMessage",
     )
 
     private val supportedEvents = listOf("chainChanged", "accountsChanged" /*"connect", "disconnect", "message"*/)
@@ -306,7 +308,13 @@ class WCSessionViewModel(
         }
 
         viewModelScope.launch {
-            approve(proposal.proposerPublicKey)
+//            approve(proposal.proposerPublicKey)
+            try {
+                approve(proposal.proposerPublicKey)
+            } catch (t: Throwable) {
+                WCDelegate.sessionProposalEvent = null
+//                showErrorLiveEvent.postValue(t.message)
+            }
         }
     }
 
@@ -331,7 +339,7 @@ class WCSessionViewModel(
         return suspendCoroutine { continuation ->
             if (Web3Wallet.getSessionProposals().isNotEmpty()) {
                 val blockchains = getSupportedBlockchains(accountNonNull)
-                val namespaces = getSupportedNamespaces(blockchains.map { it.getAccount() })
+                val namespaces = getSupportedNamespaces(blockchains.map { it.getAccount() } + blockchains.map { it.getSolanaAccount() })
                 val sessionProposal: Wallet.Model.SessionProposal = requireNotNull(
                     Web3Wallet.getSessionProposals()
                         .find { it.proposerPublicKey == proposalPublicKey })

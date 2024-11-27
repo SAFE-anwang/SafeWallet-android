@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.evmfee.eip1559
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.Bound
@@ -64,6 +65,10 @@ class Eip1559GasPriceService(
     ) : this(gasProvider, evmKit.lastBlockHeightFlowable, minGasPrice, initialGasPrice)
 
     init {
+        start()
+    }
+
+    override fun start() {
         if (initialBaseFee != null && initialPriorityFee != null) {
             setGasPrice(initialBaseFee, initialPriorityFee)
         } else {
@@ -75,10 +80,6 @@ class Eip1559GasPriceService(
                 syncRecommended()
             }
         }
-    }
-
-    override fun start() {
-
     }
 
     override fun setRecommended() {

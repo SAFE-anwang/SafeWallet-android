@@ -48,6 +48,7 @@ data class WCBlockchain(
     val address: String,
 ) {
     val chainNamespace = "eip155"
+    val solanaNamespace = "solana"
 
     override fun equals(other: Any?): Boolean {
         return other is WCBlockchain && this.chainId == other.chainId
@@ -58,6 +59,7 @@ data class WCBlockchain(
     }
 
     fun getAccount() = "$chainNamespace:$chainId:$address"
+    fun getSolanaAccount() = "$solanaNamespace:0:$address"
 }
 
 data class WCRequestViewItem(

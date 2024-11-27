@@ -29,6 +29,7 @@ private const val TYPED_DATA_METHOD_V4 = "eth_signTypedData_v4"
 private const val ETH_SIGN_METHOD = "eth_sign"
 private const val SEND_TRANSACTION_METHOD = "eth_sendTransaction"
 private const val SIGN_TRANSACTION_METHOD = "eth_signTransaction"
+private const val SOLANA_SIGN_TRANSACTION_METHOD = "solana_signTransaction"
 
 class WCNewRequestViewModel(
     private val accountManager: IAccountManager,
@@ -86,7 +87,8 @@ class WCNewRequestViewModel(
                 }
             }
 
-            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD -> {
+            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD,
+            SIGN_TRANSACTION_METHOD, SOLANA_SIGN_TRANSACTION_METHOD -> {
                 val params = JsonParser.parseString(sessionRequest.request.params).asJsonArray
                 params.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
                     ?: throw Exception("Invalid Data")
