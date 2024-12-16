@@ -525,6 +525,7 @@ fun Token.supports(accountType: AccountType): Boolean {
                     }
                 }
 
+                BlockchainType.Safe,
                 BlockchainType.BitcoinCash,
                 BlockchainType.ECash,
                 BlockchainType.Dash -> {

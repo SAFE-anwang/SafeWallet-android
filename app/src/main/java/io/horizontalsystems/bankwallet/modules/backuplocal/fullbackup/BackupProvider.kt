@@ -132,7 +132,8 @@ class BackupProvider(
     }
 
     fun restoreCexAccount(accountType: AccountType, accountName: String) {
-        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, true)
+        val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
+        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, true, isAnBaoWallet)
         accountManager.save(account)
     }
 
@@ -141,7 +142,8 @@ class BackupProvider(
         accountName: String,
         backup: BackupLocalModule.WalletBackup
     ) {
-        val account = accountFactory.account(accountName, type, AccountOrigin.Restored, backup.manualBackup, true)
+        val isAnBaoWallet = if (type is AccountType.Mnemonic) type.isAnBaoWallet else false
+        val account = accountFactory.account(accountName, type, AccountOrigin.Restored, backup.manualBackup, true, isAnBaoWallet)
         accountManager.save(account)
 
         val enabledWalletBackups = backup.enabledWallets ?: listOf()
@@ -349,9 +351,10 @@ class BackupProvider(
             val account = if (type.isWatchAccountType) {
                 accountFactory.watchAccount(name, type)
             } else if (type is AccountType.Cex) {
-                accountFactory.account(name, type, AccountOrigin.Restored, true, true)
+                accountFactory.account(name, type, AccountOrigin.Restored, true, true, false)
             } else {
-                accountFactory.account(name, type, AccountOrigin.Restored, backup.manualBackup, backup.fileBackup)
+                val isAnBaoWallet = if (type is AccountType.Mnemonic) type.isAnBaoWallet else false
+                accountFactory.account(name, type, AccountOrigin.Restored, backup.manualBackup, backup.fileBackup, isAnBaoWallet)
             }
 
             walletBackupItems.add(
@@ -600,7 +603,8 @@ class BackupProvider(
             manualBackup = account.isBackedUp,
             fileBackup = account.isFileBackedUp,
             timestamp = System.currentTimeMillis() / 1000,
-            version = version
+            version = version,
+            account.isAnBaoWallet
         )
     }
 

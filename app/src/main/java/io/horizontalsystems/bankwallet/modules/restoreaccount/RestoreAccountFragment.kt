@@ -27,11 +27,13 @@ class RestoreAccountFragment : BaseComposeFragment(screenshotEnabled = false) {
         val input = navController.getInput<ManageAccountsModule.Input>()
         val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.restoreAccountFragment
         val inclusive = input?.popOffInclusive ?: false
+        val isAnBaoWallet = input?.isAnBaoWallet ?: false
 
         RestoreAccountNavHost(
             navController,
             popUpToInclusiveId,
-            inclusive
+            inclusive,
+            isAnBaoWallet
         )
     }
 
@@ -41,7 +43,8 @@ class RestoreAccountFragment : BaseComposeFragment(screenshotEnabled = false) {
 private fun RestoreAccountNavHost(
     fragmentNavController: NavController,
     popUpToInclusiveId: Int,
-    inclusive: Boolean
+    inclusive: Boolean,
+    isAnBaoWallet: Boolean
 ) {
     val navController = rememberNavController()
     val restoreMenuViewModel: RestoreMenuViewModel = viewModel(factory = RestoreMenuModule.Factory())

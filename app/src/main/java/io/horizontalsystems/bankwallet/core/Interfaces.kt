@@ -186,7 +186,8 @@ interface IAccountFactory {
         type: AccountType,
         origin: AccountOrigin,
         backedUp: Boolean,
-        fileBackedUp: Boolean
+        fileBackedUp: Boolean,
+        isAnBaoWallet: Boolean
     ): Account
     fun watchAccount(name: String, type: AccountType): Account
     fun getNextWatchAccountName(): String

@@ -119,7 +119,7 @@ class AdapterFactory(
                 try {
                     val syncMode =
                         btcBlockchainManager.syncMode(BlockchainType.Safe, wallet.account.origin)
-                    SafeAdapter(wallet, syncMode, backgroundManager)
+                    SafeAdapter(wallet, syncMode, backgroundManager, TokenType.Derivation.Bip44)
                 } catch (e: Exception) {
                     null
                 }

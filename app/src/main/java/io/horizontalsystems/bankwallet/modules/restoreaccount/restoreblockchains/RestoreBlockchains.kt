@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.blockchaintokens.BlockchainTokensViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreViewModel
@@ -69,8 +70,9 @@ fun ManageWalletsScreen(
     }
     val manualBackup = mainViewModel.manualBackup
     val fileBackup = mainViewModel.fileBackup
+    val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
 
-    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup)
+    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet)
     val viewModel: RestoreBlockchainsViewModel = viewModel(factory = factory)
     val restoreSettingsViewModel: RestoreSettingsViewModel = viewModel(factory = factory)
     val blockchainTokensViewModel: BlockchainTokensViewModel = viewModel(factory = factory)

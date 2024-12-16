@@ -17,7 +17,8 @@ data class AccountRecord(
     val words: SecretList?,
     val passphrase: SecretString?,
     val key: SecretString?,
-    val level: Int
+    val level: Int,
+    val isAnBaoWallet: Boolean = false
 ) {
 
     var deleted = false

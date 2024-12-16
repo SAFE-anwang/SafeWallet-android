@@ -31,6 +31,7 @@ data class Account(
     val level: Int,
     val isBackedUp: Boolean = false,
     val isFileBackedUp: Boolean = false,
+    val isAnBaoWallet: Boolean = false,
 ) : Parcelable {
 
     @IgnoredOnParcel
@@ -166,7 +167,7 @@ sealed class AccountType : Parcelable {
     }
 
     @Parcelize
-    data class Mnemonic(val words: List<String>, val passphrase: String) : AccountType() {
+    data class Mnemonic(val words: List<String>, val passphrase: String, val isAnBaoWallet: Boolean = false) : AccountType() {
         @IgnoredOnParcel
         val seed by lazy { Mnemonic().toSeed(words, passphrase) }
 

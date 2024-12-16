@@ -227,7 +227,8 @@ class SafeAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = SafeKit.NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold
+                        confirmationsThreshold = confirmationsThreshold,
+                        isAnBaoWallet = accountType.isAnBaoWallet
                     )
                 }
                 else -> throw UnsupportedAccountException()

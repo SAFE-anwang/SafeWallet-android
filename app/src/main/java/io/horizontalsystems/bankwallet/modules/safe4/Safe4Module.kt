@@ -130,10 +130,10 @@ object Safe4Module {
             bundle.putParcelable(SafeConvertSendActivity.WALLET_SAFE, safeWallet)
             bundle.putParcelable(SafeConvertSendActivity.WALLET_WSAFE, wsafeWallet)
             bundle.putBoolean(SafeConvertSendActivity.IS_ETH, chainType == ChainType.ETH)
-            bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.ETH)
+            bundle.putBoolean(SafeConvertSendActivity.IS_MATIC, chainType == ChainType.MATIC)
             navController.slideFromBottom(
                 R.id.sendWsafeFragment,
-                SendEvmModule.Input(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.ETH)
+                SendEvmModule.Input(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.MATIC)
             )
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()

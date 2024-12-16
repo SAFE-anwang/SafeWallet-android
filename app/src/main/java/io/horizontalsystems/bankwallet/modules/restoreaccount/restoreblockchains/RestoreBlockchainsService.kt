@@ -31,6 +31,7 @@ class RestoreBlockchainsService(
     private val accountType: AccountType,
     private val manualBackup: Boolean,
     private val fileBackup: Boolean,
+    private val isAnBaoWallet: Boolean,
     private val accountFactory: IAccountFactory,
     private val accountManager: IAccountManager,
     private val walletManager: IWalletManager,
@@ -190,6 +191,7 @@ class RestoreBlockchainsService(
             AccountOrigin.Restored,
             manualBackup,
             fileBackup,
+            isAnBaoWallet
         )
         accountManager.save(account)
 

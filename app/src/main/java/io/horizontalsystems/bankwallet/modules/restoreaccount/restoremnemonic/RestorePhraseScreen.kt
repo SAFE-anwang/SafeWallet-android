@@ -59,12 +59,13 @@ fun RestorePhrase(
     advanced: Boolean,
     restoreMenuViewModel: RestoreMenuViewModel,
     mainViewModel: RestoreViewModel,
+    isAnBaoWallet: Boolean = false,
     openRestoreAdvanced: (() -> Unit)? = null,
     openSelectCoins: () -> Unit,
     openNonStandardRestore: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    val viewModel = viewModel<RestoreMnemonicViewModel>(factory = RestoreMnemonicModule.Factory())
+    val viewModel = viewModel<RestoreMnemonicViewModel>(factory = RestoreMnemonicModule.Factory(isAnBaoWallet))
     val uiState = viewModel.uiState
     val context = LocalContext.current
 

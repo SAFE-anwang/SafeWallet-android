@@ -10,13 +10,14 @@ import io.horizontalsystems.hdwalletkit.Language
 
 object RestoreMnemonicModule {
 
-    class Factory : ViewModelProvider.Factory {
+    class Factory(val isAnBaoWallet: Boolean) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return RestoreMnemonicViewModel(
                 App.accountFactory,
                 App.wordsManager,
                 App.thirdKeyboardStorage,
+                isAnBaoWallet
             ) as T
         }
     }

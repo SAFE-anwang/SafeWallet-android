@@ -32,7 +32,8 @@ object BackupLocalModule {
         @SerializedName("file_backup")
         val fileBackup: Boolean,
         val timestamp: Long,
-        val version: Int
+        val version: Int,
+        val isAnBaoWallet: Boolean
     )
 
     data class BackupCrypto(

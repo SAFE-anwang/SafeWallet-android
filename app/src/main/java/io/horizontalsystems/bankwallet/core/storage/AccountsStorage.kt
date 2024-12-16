@@ -74,7 +74,8 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                             AccountOrigin.valueOf(record.origin),
                             record.level,
                             record.isBackedUp,
-                            record.isFileBackedUp
+                            record.isFileBackedUp,
+                            record.isAnBaoWallet
                         )
                     } catch (ex: Exception) {
                         null

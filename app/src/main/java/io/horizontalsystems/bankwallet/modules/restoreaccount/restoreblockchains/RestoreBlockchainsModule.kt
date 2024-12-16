@@ -20,6 +20,7 @@ object RestoreBlockchainsModule {
         private val accountType: AccountType,
         private val manualBackup: Boolean,
         private val fileBackup: Boolean,
+        private val isAnBaoWallet: Boolean = false,
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
@@ -35,6 +36,7 @@ object RestoreBlockchainsModule {
                 accountType,
                 manualBackup,
                 fileBackup,
+                isAnBaoWallet,
                 App.accountFactory,
                 App.accountManager,
                 App.walletManager,

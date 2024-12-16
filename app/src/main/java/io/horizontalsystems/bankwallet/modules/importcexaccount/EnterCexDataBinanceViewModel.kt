@@ -100,6 +100,7 @@ class EnterCexDataBinanceViewModel : ViewModelUiState<EnterCexDataBinanceViewMod
             AccountOrigin.Restored,
             true,
             false,
+                false
         )
 
         accountManager.save(account)
