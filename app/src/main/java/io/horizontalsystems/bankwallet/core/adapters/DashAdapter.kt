@@ -111,7 +111,8 @@ class DashAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = NetworkType.MainNet,
-                        confirmationsThreshold = confirmationsThreshold
+                        confirmationsThreshold = confirmationsThreshold,
+                        isAnBaoWallet = accountType.isAnBaoWallet
                     )
                 }
                 is AccountType.BitcoinAddress -> {
