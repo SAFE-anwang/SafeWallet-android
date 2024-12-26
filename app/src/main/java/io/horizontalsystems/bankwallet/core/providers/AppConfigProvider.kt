@@ -114,7 +114,14 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         key
     }
     val polygonscanApiKey by lazy {
-        Translator.getString(R.string.polygonscanKey)
+        val index = Random().nextInt(4)
+        val key = when(index) {
+            0 -> Translator.getString(R.string.polygonscanKey)
+            1 -> Translator.getString(R.string.polygonscanKey2)
+            2 -> Translator.getString(R.string.polygonscanKey3)
+            else -> Translator.getString(R.string.polygonscanKey4)
+        }
+        key
     }
     val snowtraceApiKey by lazy {
         Translator.getString(R.string.snowtraceApiKey)
