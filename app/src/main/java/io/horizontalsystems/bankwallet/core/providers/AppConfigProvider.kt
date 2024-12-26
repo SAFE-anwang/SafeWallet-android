@@ -102,12 +102,14 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         Translator.getString(R.string.etherscanKey)
     }
     val bscscanApiKey by lazy {
-        val index = Random().nextInt(4)
+        val index = Random().nextInt(6)
         val key = when(index) {
             0 -> Translator.getString(R.string.bscscanKey)
             1 -> Translator.getString(R.string.bscscanKey2)
             2 -> Translator.getString(R.string.bscscanKey3)
-            else -> Translator.getString(R.string.bscscanKey4)
+            3 -> Translator.getString(R.string.bscscanKey4)
+            4 -> Translator.getString(R.string.bscscanKey5)
+            else -> Translator.getString(R.string.bscscanKey6)
         }
         key
     }
