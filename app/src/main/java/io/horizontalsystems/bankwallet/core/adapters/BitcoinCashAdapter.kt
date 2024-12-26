@@ -125,7 +125,8 @@ class BitcoinCashAdapter(
                         walletId = account.id,
                         syncMode = syncMode,
                         networkType = networkType,
-                        confirmationsThreshold = confirmationsThreshold
+                        confirmationsThreshold = confirmationsThreshold,
+                        isAnBaoWallet = accountType.isAnBaoWallet
                     )
                 }
 

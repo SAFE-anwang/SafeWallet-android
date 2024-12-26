@@ -129,7 +129,8 @@ class BitcoinAdapter(
                         syncMode = syncMode,
                         networkType = NetworkType.MainNet,
                         confirmationsThreshold = confirmationsThreshold,
-                        purpose = derivation.purpose
+                        purpose = derivation.purpose,
+                            isAnBaoWallet = accountType.isAnBaoWallet
                     )
                 }
                 is AccountType.BitcoinAddress -> {
