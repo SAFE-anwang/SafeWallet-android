@@ -51,7 +51,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 .mapNotNull { record: AccountRecord ->
                     try {
                         val accountType = when (record.type) {
-                            MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "")
+                            MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "", record.isAnBaoWallet)
                             PRIVATE_KEY -> AccountType.PrivateKey(record.key!!.value.hexToByteArray())
                             EVM_PRIVATE_KEY -> AccountType.EvmPrivateKey(record.key!!.value.toBigInteger())
                             ADDRESS -> AccountType.EvmAddress(record.key!!.value)
@@ -124,12 +124,14 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         var passphrase: SecretString? = null
         var key: SecretString? = null
         val accountType: String
+        var isAnBaoWallet = false
 
         when (account.type) {
             is AccountType.Mnemonic -> {
                 words = SecretList(account.type.words)
                 passphrase = SecretString(account.type.passphrase)
                 accountType = MNEMONIC
+                isAnBaoWallet = account.isAnBaoWallet
             }
             is AccountType.EvmPrivateKey -> {
                 key = SecretString(account.type.key.toString())
@@ -179,7 +181,8 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             words = words,
             passphrase = passphrase,
             key = key,
-            level = account.level
+            level = account.level,
+            isAnBaoWallet = isAnBaoWallet
         )
     }
 
