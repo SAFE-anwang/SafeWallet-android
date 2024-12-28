@@ -23,10 +23,12 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.BCH_ADDRESS_FORMAT_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.COIN_SELECT_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.DERIVATION_SELECT_SCREEN
+import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.MORE_ADDRESS_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.NETWORK_SELECT_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.RECEIVE_ADDRESS_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveRoutes.USED_ADDRESSES_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ui.AddressFormatSelectScreen
+import io.horizontalsystems.bankwallet.modules.receive.ui.MoreAddressScreen
 import io.horizontalsystems.bankwallet.modules.receive.ui.NetworkSelectScreen
 import io.horizontalsystems.bankwallet.modules.receive.ui.ReceiveAddressScreen
 import io.horizontalsystems.bankwallet.modules.receive.ui.ReceiveTokenSelectScreen
@@ -58,6 +60,7 @@ object ReceiveRoutes {
     const val BCH_ADDRESS_FORMAT_SCREEN = "bch_address_format_screen"
     const val DERIVATION_SELECT_SCREEN = "derivation_select_screen"
     const val NETWORK_SELECT_SCREEN = "network_select_screen"
+    const val MORE_ADDRESS_SCREEN = "more_address_screen"
 }
 
 @Composable
@@ -105,7 +108,10 @@ fun ReceiveScreen(
                         navController.navigate(USED_ADDRESSES_SCREEN)
                     },
                     onBackPress = navigateBack(fragmentNavController, navController),
-                    closeModule = { fragmentNavController.popBackStack() }
+                    closeModule = { fragmentNavController.popBackStack() },
+                    onMoreClikc = {
+                        navController.navigate(MORE_ADDRESS_SCREEN)
+                    }
                 )
             }
             composablePage(USED_ADDRESSES_SCREEN) { entry ->
@@ -202,6 +208,17 @@ fun ReceiveScreen(
                         navController.navigate(RECEIVE_ADDRESS_SCREEN)
                     }
                 )
+            }
+            composablePage(MORE_ADDRESS_SCREEN) { entry ->
+                val walletNonNull = wallet
+                if (walletNonNull == null) {
+                    CloseWithMessage(fragmentNavController)
+                    return@composablePage
+                }
+
+                val addressViewModel = viewModel<ReceiveAddressViewModel>(factory = ReceiveModule.Factory(walletNonNull))
+
+                MoreAddressScreen(addressViewModel.uiState.moreAddress) { navController.popBackStack() }
             }
         }
     }

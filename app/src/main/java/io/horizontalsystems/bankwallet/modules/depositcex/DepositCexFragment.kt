@@ -94,6 +94,9 @@ fun CexDepositScreen(
                     },
                     onBackPress = navigateBack(fragmentNavController, navController),
                     closeModule = { fragmentNavController.popBackStack() },
+                        onMoreClikc = {
+
+                        }
                 )
             }
             composablePage(USED_ADDRESS_SCREEN) { entry ->

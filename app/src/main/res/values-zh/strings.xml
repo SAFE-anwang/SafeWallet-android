@@ -2171,6 +2171,10 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Id">锁仓Id: </string>
     <string name="Safe_Four_Node_Aready_Lock_Day">已锁定: </string>
     <string name="Safe_Four_Node_Max_Lock_Day">最大可锁定: </string>
+    <string name="Balance_Receive_MoreAddresses">更多地址</string>
+    <string name="AnBao_Addresses">地址:</string>
+    <string name="AnBao_Private_Key">私钥:</string>
+    <string name="AnBao_Balance">余额:</string>
 
 
     <!-- safe 4  end-->

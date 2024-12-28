@@ -2497,5 +2497,9 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Id">Locked Id: </string>
     <string name="Safe_Four_Node_Aready_Lock_Day">Locked: </string>
     <string name="Safe_Four_Node_Max_Lock_Day">Max Locked: </string>
+    <string name="Balance_Receive_MoreAddresses">All Address</string>
+    <string name="AnBao_Addresses">Address:</string>
+    <string name="AnBao_Private_Key">Private Key:</string>
+    <string name="AnBao_Balance">Balance:</string>
     <!-- safe 4  end-->
 </resources>

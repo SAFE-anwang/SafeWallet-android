@@ -105,6 +105,7 @@ fun ReceiveAddressScreen(
     showUsedAddresses: (List<UsedAddress>, List<UsedAddress>) -> Unit,
     onBackPress: () -> Unit,
     closeModule: () -> Unit,
+    onMoreClikc: () -> Unit,
 ) {
     val localView = LocalView.current
     val openAmountDialog = remember { mutableStateOf(false) }
@@ -283,6 +284,8 @@ fun ReceiveAddressScreen(
                                         watchAccount = uiState.watchAccount,
                                         openAmountDialog = openAmountDialog,
                                         onShareClick = onShareClick,
+                                        onMoreClikc = onMoreClikc,
+                                        isAnBaoWallet = uiState.isAnBaoWallet
                                     )
 
                                     VSpacer(32.dp)
@@ -331,8 +334,10 @@ private fun WarningTextView(
 private fun ActionButtonsRow(
     uri: String,
     watchAccount: Boolean,
+    isAnBaoWallet: Boolean,
     openAmountDialog: MutableState<Boolean>,
     onShareClick: (String) -> Unit,
+    onMoreClikc: () -> Unit,
 ) {
     val localView = LocalView.current
     Row(
@@ -372,6 +377,16 @@ private fun ActionButtonsRow(
                 HudHelper.showSuccessMessage(localView, R.string.Hud_Text_Copied)
             },
         )
+        if (isAnBaoWallet) {
+            ReceiveActionButton(
+                    modifier = itemModifier,
+                    icon = R.drawable.ic_more2_20,
+                    buttonText = stringResource(R.string.Contacts_ActionMore),
+                    onClick = {
+                        onMoreClikc.invoke()
+                    },
+            )
+        }
     }
 }
 

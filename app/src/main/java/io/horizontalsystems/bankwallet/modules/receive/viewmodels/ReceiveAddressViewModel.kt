@@ -1,20 +1,28 @@
 package io.horizontalsystems.bankwallet.modules.receive.viewmodels
 
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.UsedAddress
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.accountTypeDerivation
 import io.horizontalsystems.bankwallet.core.bitcoinCashCoinType
 import io.horizontalsystems.bankwallet.core.factories.uriScheme
+import io.horizontalsystems.bankwallet.core.managers.EvmKitManager
+import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.utils.AddressUriParser
 import io.horizontalsystems.bankwallet.entities.AddressUri
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule.AdditionalData
+import io.horizontalsystems.bankwallet.modules.receive.ui.MoreAddressInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
+import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +31,8 @@ import java.math.BigDecimal
 
 class ReceiveAddressViewModel(
     private val wallet: Wallet,
-    private val adapterManager: IAdapterManager
+    private val adapterManager: IAdapterManager,
+    private val evmKitManager: EvmKitManager?
 ) : ViewModelUiState<ReceiveModule.UiState>() {
 
     private var viewState: ViewState = ViewState.Loading
@@ -37,6 +46,7 @@ class ReceiveAddressViewModel(
     private var mainNet = true
     private var watchAccount = wallet.account.isWatchAccount
     private var alertText: ReceiveModule.AlertText? = getAlertText(watchAccount)
+    private var moreAddressInfo: List<MoreAddressInfo> = listOf()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -47,6 +57,26 @@ class ReceiveAddressViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             setData()
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            evmKitManager?.evmKitWrapper?.evmKit?.anBaoAddressList?.let {
+                moreAddressInfo = it.map {
+                    MoreAddressInfo(it.address.eip55, it.privateKey.toString(16),
+                            App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), null, 2))
+                }
+                emitState()
+            }
+            evmKitManager?.evmKitWrapper?.evmKit?.anBaoAddressFlowable
+                    ?.subscribeIO {
+                        moreAddressInfo = it.map {
+                            MoreAddressInfo(it.address.eip55, it.privateKey.toString(16),
+                                    App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), null, 2))
+                        }
+                        emitState()
+                    }
+                    .let {
+
+                    }
         }
         setNetworkName()
     }
@@ -62,6 +92,8 @@ class ReceiveAddressViewModel(
         additionalItems = getAdditionalData(),
         amount = amount,
         alertText = alertText,
+            isAnBaoWallet = wallet.account.isAnBaoWallet,
+            moreAddress = moreAddressInfo
     )
 
     private fun setNetworkName() {

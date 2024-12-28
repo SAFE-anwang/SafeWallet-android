@@ -110,10 +110,11 @@ class EvmKitManager(
 
         val address: Address
         var signer: Signer? = null
+        var seed: ByteArray? = null
 
         when (accountType) {
             is AccountType.Mnemonic -> {
-                val seed: ByteArray = accountType.seed
+                seed = accountType.seed
                 address = Signer.address(seed, chain)
                 signer = Signer.getInstance(seed, chain)
             }
@@ -171,6 +172,9 @@ class EvmKitManager(
         }
 
         evmKit.start()
+        seed?.let {
+            evmKit.getAnBaoAllAddressInfo(it)
+        }
 
         return EvmKitWrapper(evmKit, nftKit, blockchainType, signer)
     }
