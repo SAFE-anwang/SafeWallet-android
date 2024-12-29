@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.receive.viewmodels
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAdapterManager
@@ -11,7 +10,6 @@ import io.horizontalsystems.bankwallet.core.accountTypeDerivation
 import io.horizontalsystems.bankwallet.core.bitcoinCashCoinType
 import io.horizontalsystems.bankwallet.core.factories.uriScheme
 import io.horizontalsystems.bankwallet.core.managers.EvmKitManager
-import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.utils.AddressUriParser
@@ -22,7 +20,7 @@ import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule.AdditionalData
 import io.horizontalsystems.bankwallet.modules.receive.ui.MoreAddressInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.ethereumkit.core.toHexString
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,7 +90,7 @@ class ReceiveAddressViewModel(
         additionalItems = getAdditionalData(),
         amount = amount,
         alertText = alertText,
-            isAnBaoWallet = wallet.account.isAnBaoWallet,
+            showMoreButton = wallet.account.isAnBaoWallet && wallet.token.blockchainType is BlockchainType.Ethereum,
             moreAddress = moreAddressInfo
     )
 

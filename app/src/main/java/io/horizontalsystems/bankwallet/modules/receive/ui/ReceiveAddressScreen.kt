@@ -285,7 +285,7 @@ fun ReceiveAddressScreen(
                                         openAmountDialog = openAmountDialog,
                                         onShareClick = onShareClick,
                                         onMoreClikc = onMoreClikc,
-                                        isAnBaoWallet = uiState.isAnBaoWallet
+                                        isAnBaoWallet = uiState.showMoreButton
                                     )
 
                                     VSpacer(32.dp)

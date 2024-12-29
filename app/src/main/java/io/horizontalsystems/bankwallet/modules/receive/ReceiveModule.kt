@@ -15,7 +15,11 @@ object ReceiveModule {
     class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val evmKitManager = App.evmBlockchainManager.getEvmKitManager(wallet.token.blockchainType)
+            val evmKitManager = try {
+                App.evmBlockchainManager.getEvmKitManager(wallet.token.blockchainType)
+            } catch (e: Exception) {
+                null
+            }
             return ReceiveAddressViewModel(wallet, App.adapterManager, evmKitManager) as T
         }
     }
@@ -37,7 +41,7 @@ object ReceiveModule {
         val additionalItems: List<AdditionalData>,
         val amount: BigDecimal?,
         val alertText: AlertText?,
-        val isAnBaoWallet: Boolean = false,
+        val showMoreButton: Boolean = false,
         val moreAddress: List<MoreAddressInfo> = listOf()
     )
 
