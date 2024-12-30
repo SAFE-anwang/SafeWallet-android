@@ -114,17 +114,6 @@ fun MoreAddressScreen(
                 )
             }
     ) {
-        /*Scaffold(
-            backgroundColor = ComposeAppTheme.colors.tyler,
-            topBar = {
-                AppBar(
-                        title = stringResource(id = R.string.Balance_Receive_MoreAddresses),
-                        navigationIcon = {
-                            HsBackButton(onClick = onBackPress)
-                        }
-                )
-            }
-    ) {*/
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
                     title = stringResource(R.string.Balance_Receive_MoreAddresses),
