@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -114,7 +115,8 @@ fun MoreAddressScreen(
                 )
             }
     ) {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
+        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
+                .fillMaxHeight()) {
             AppBar(
                     title = stringResource(R.string.Balance_Receive_MoreAddresses),
                     navigationIcon = {
