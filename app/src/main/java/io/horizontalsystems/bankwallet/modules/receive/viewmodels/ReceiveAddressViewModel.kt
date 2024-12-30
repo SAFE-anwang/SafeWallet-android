@@ -60,7 +60,7 @@ class ReceiveAddressViewModel(
             evmKitManager?.evmKitWrapper?.evmKit?.anBaoAddressList?.let {
                 moreAddressInfo = it.map {
                     MoreAddressInfo(it.address.eip55, it.privateKey.toString(16),
-                            App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), null, 2))
+                            App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), wallet.coin.code, 8))
                 }
                 emitState()
             }
@@ -68,7 +68,7 @@ class ReceiveAddressViewModel(
                     ?.subscribeIO {
                         moreAddressInfo = it.map {
                             MoreAddressInfo(it.address.eip55, it.privateKey.toString(16),
-                                    App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), null, 2))
+                                    App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(it.balance), wallet.coin.code, 8))
                         }
                         emitState()
                     }
