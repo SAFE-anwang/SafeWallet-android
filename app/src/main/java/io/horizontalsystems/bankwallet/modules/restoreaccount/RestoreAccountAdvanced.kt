@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreprivatekey.
 fun AdvancedRestoreScreen(
     restoreMenuViewModel: RestoreMenuViewModel,
     mainViewModel: RestoreViewModel,
+    isAnBaoWallet: Boolean = false,
     openSelectCoinsScreen: () -> Unit,
     openNonStandardRestore: () -> Unit,
     onBackClick: () -> Unit,
@@ -20,6 +21,7 @@ fun AdvancedRestoreScreen(
                 advanced = true,
                 restoreMenuViewModel = restoreMenuViewModel,
                 mainViewModel = mainViewModel,
+                isAnBaoWallet = isAnBaoWallet,
                 openSelectCoins = openSelectCoinsScreen,
                 openNonStandardRestore = openNonStandardRestore,
                 onBackClick = onBackClick,

@@ -69,6 +69,7 @@ private fun RestoreAccountNavHost(
             AdvancedRestoreScreen(
                 restoreMenuViewModel = restoreMenuViewModel,
                 mainViewModel = mainViewModel,
+                    isAnBaoWallet = isAnBaoWallet,
                 openSelectCoinsScreen = { navController.navigate("restore_select_coins") },
                 openNonStandardRestore = { navController.navigate("restore_phrase_nonstandard") },
                 onBackClick = { navController.popBackStack() }
