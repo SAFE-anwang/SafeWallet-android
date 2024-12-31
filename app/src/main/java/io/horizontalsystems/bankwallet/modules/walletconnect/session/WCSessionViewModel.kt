@@ -501,7 +501,7 @@ class WCSessionViewModel(
         when (val accountType = account.type) {
             is AccountType.Mnemonic -> {
                 val seed: ByteArray = accountType.seed
-                Signer.address(seed, chain)
+                Signer.address(seed, chain, accountType.isAnBaoWallet)
             }
 
             is AccountType.EvmPrivateKey -> {

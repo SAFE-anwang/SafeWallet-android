@@ -27,7 +27,7 @@ class PublicKeysViewModel(
         val evmAddress: String? = when (val accountType = account.type) {
             is AccountType.Mnemonic -> {
                 val chain = evmBlockchainManager.getChain(BlockchainType.Ethereum)
-                Signer.address(accountType.words, accountType.passphrase, chain).eip55
+                Signer.address(accountType.words, accountType.passphrase, chain, accountType.isAnBaoWallet).eip55
             }
             is AccountType.EvmPrivateKey -> {
                 Signer.address(accountType.key).eip55

@@ -376,7 +376,7 @@ sealed class AccountType : Parcelable {
         }
 
     fun evmAddress(chain: Chain) = when (this) {
-        is Mnemonic -> Signer.address(seed, chain)
+        is Mnemonic -> Signer.address(seed, chain, isAnBaoWallet)
         is EvmPrivateKey -> Signer.address(key)
         else -> null
     }
@@ -384,7 +384,7 @@ sealed class AccountType : Parcelable {
     fun sign(message: ByteArray, isLegacy: Boolean = false): ByteArray? {
         val signer = when (this) {
             is Mnemonic -> {
-                Signer.getInstance(seed, App.evmBlockchainManager.getChain(BlockchainType.Ethereum))
+                Signer.getInstance(seed, App.evmBlockchainManager.getChain(BlockchainType.Ethereum), isAnBaoWallet)
             }
             is EvmPrivateKey -> {
                 Signer.getInstance(key, App.evmBlockchainManager.getChain(BlockchainType.Ethereum))

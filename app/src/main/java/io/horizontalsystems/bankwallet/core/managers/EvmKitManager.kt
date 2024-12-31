@@ -111,20 +111,22 @@ class EvmKitManager(
         val address: Address
         var signer: Signer? = null
         var seed: ByteArray? = null
+        var isAnBaoWallet = false
 
         when (accountType) {
             is AccountType.Mnemonic -> {
+                isAnBaoWallet = accountType.isAnBaoWallet
                 seed = accountType.seed
-                address = Signer.address(seed, chain)
-                signer = Signer.getInstance(seed, chain)
+                address = Signer.address(seed, chain, isAnBaoWallet)
+                signer = Signer.getInstance(seed, chain, isAnBaoWallet)
             }
             is AccountType.PrivateKey -> {
                 address = Signer.address(accountType.key.toBigInteger())
-                signer = Signer.getInstance(accountType.key, chain)
+                signer = Signer.getInstance(accountType.key, chain, isAnBaoWallet)
             }
             is AccountType.EvmPrivateKey -> {
                 address = Signer.address(accountType.key)
-                signer = Signer.getInstance(accountType.key, chain)
+                signer = Signer.getInstance(accountType.key, chain, isAnBaoWallet)
             }
             is AccountType.EvmAddress -> {
                 address = Address(accountType.address)
@@ -138,7 +140,8 @@ class EvmKitManager(
             chain,
             syncSource.rpcSource,
             syncSource.transactionSource,
-            account.id
+            account.id,
+            isAnBaoWallet
         )
 
         Erc20Kit.addTransactionSyncer(evmKit)

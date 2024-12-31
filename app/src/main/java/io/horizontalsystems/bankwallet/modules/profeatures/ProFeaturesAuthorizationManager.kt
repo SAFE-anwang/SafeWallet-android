@@ -64,7 +64,7 @@ class ProFeaturesAuthorizationManager(
                     }
 
                     is AccountType.Mnemonic -> {
-                        val address = Signer.address(account.type.seed, Chain.Ethereum)
+                        val address = Signer.address(account.type.seed, Chain.Ethereum, account.type.isAnBaoWallet)
                         AccountData(account.id, address)
                     }
 
@@ -108,7 +108,7 @@ class ProFeaturesAuthorizationManager(
             }
 
             is AccountType.Mnemonic -> {
-                Signer.privateKey(account.type.seed, Chain.Ethereum)
+                Signer.privateKey(account.type.seed, Chain.Ethereum, account.type.isAnBaoWallet)
             }
 
             else -> throw Exception("AccountType not supported")
