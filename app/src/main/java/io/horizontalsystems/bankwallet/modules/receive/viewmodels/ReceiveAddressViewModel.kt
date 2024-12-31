@@ -90,7 +90,8 @@ class ReceiveAddressViewModel(
         additionalItems = getAdditionalData(),
         amount = amount,
         alertText = alertText,
-            showMoreButton = wallet.account.isAnBaoWallet && wallet.token.blockchainType is BlockchainType.Ethereum,
+            showMoreButton = wallet.account.isAnBaoWallet
+                    && (wallet.token.blockchainType is BlockchainType.Ethereum || wallet.token.blockchainType is BlockchainType.BinanceSmartChain),
             moreAddress = moreAddressInfo
     )
 
