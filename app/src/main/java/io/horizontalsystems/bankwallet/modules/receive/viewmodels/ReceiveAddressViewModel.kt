@@ -132,9 +132,15 @@ class ReceiveAddressViewModel(
             usedAddresses = adapter.usedAddresses(false)
             usedChangeAddresses = adapter.usedAddresses(true)
             uri = getUri()
-            accountActive = adapter.isAddressActive(adapter.receiveAddress)
             mainNet = adapter.isMainNet
             viewState = ViewState.Success
+
+            accountActive = try {
+                adapter.isAddressActive(adapter.receiveAddress)
+            } catch (e: Exception) {
+                viewState = ViewState.Error(e)
+                false
+            }
         } else {
             viewState = ViewState.Error(NullPointerException())
         }

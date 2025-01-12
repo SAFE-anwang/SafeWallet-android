@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.settings.appearance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.gson.annotations.SerializedName
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.theme.ThemeService
@@ -20,9 +21,8 @@ object AppearanceModule {
                 launchScreenService,
                 appIconService,
                 themeService,
-                App.baseTokenManager,
                 App.balanceViewTypeManager,
-                App.localStorage
+                App.localStorage,
             ) as T
         }
     }
@@ -38,7 +38,9 @@ enum class AppIcon(val icon: Int, val titleText: String) : WithTranslatableTitle
     Yak(R.drawable.launcher_yak_preview, "Yak"),
     Punk(R.drawable.launcher_punk_preview, "Punk"),
     Ape(R.drawable.launcher_ape_preview, "#1874"),
-    Ball8(R.drawable.launcher_8ball_preview, "8ball");
+    Ball8(R.drawable.launcher_8ball_preview, "8ball"),
+    Ivfun(R.drawable.launcher_ivfun_preview, "Ivfun"),
+    Duck(R.drawable.launcher_duck_preview, "Duck");
 
     override val title: TranslatableString
         get() = TranslatableString.PlainString(titleText)
@@ -53,5 +55,18 @@ enum class AppIcon(val icon: Int, val titleText: String) : WithTranslatableTitle
 
         fun fromString(type: String?): AppIcon? = map[type]
         fun fromTitle(title: String?): AppIcon? = titleMap[title]
+    }
+}
+
+enum class PriceChangeInterval(val raw: String, override val title: TranslatableString): WithTranslatableTitle {
+    @SerializedName("hour_24")
+    LAST_24H("hour_24", TranslatableString.ResString(R.string.Market_PriceChange_24H)),
+    @SerializedName("midnight_utc")
+    FROM_UTC_MIDNIGHT("midnight_utc", TranslatableString.ResString(R.string.Market_PriceChange_Utc));
+
+    companion object {
+        fun fromRaw(raw: String): PriceChangeInterval? {
+            return entries.find { it.raw == raw }
+        }
     }
 }

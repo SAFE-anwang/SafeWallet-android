@@ -7,6 +7,9 @@ import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.ISendTransactionService
@@ -14,7 +17,6 @@ import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTra
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionSettings
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
 import io.horizontalsystems.bankwallet.modules.send.SendModule
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -183,6 +185,8 @@ class SwapConfirmViewModel(
         emitState()
 
         fetchFinalQuote()
+
+        stat(page = StatPage.SwapConfirmation, event = StatEvent.Refresh)
     }
 
     private fun fetchFinalQuote() {
@@ -207,6 +211,8 @@ class SwapConfirmViewModel(
     }
 
     suspend fun swap() = withContext(Dispatchers.Default) {
+        stat(page = StatPage.SwapConfirmation, event = StatEvent.Send)
+
         sendTransactionService.sendTransaction()
     }
 
@@ -248,7 +254,7 @@ data class SwapConfirmUiState(
     val cautions: List<CautionViewItem>,
     val validQuote: Boolean,
     val priceImpact: BigDecimal?,
-    val priceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    val priceImpactLevel: PriceImpactLevel?,
     val quoteFields: List<DataField>,
     val transactionFields: List<DataField>,
 )

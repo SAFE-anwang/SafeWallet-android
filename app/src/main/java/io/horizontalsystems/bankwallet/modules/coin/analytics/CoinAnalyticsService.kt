@@ -21,7 +21,6 @@ import kotlinx.coroutines.rx2.await
 
 class CoinAnalyticsService(
     val fullCoin: FullCoin,
-    private val apiTag: String,
     private val marketKit: MarketKitWrapper,
     private val currencyManager: CurrencyManager,
     private val subscriptionManager: SubscriptionManager,
@@ -60,12 +59,12 @@ class CoinAnalyticsService(
 
             try {
                 if (fullCoin.coin.isSafeCoin()) {
-                    marketKit.safeAnalyticsSingle("safe-anwang", currency.code, apiTag).await()
+                    marketKit.safeAnalyticsSingle("safe-anwang", currency.code).await()
                         .let {
                             _stateFlow.emit(DataState.Success(AnalyticData(analytics = it)))
                         }
                 } else {
-                    marketKit.analyticsSingle(fullCoin.coin.uid, currency.code, apiTag).await()
+                    marketKit.analyticsSingle(fullCoin.coin.uid, currency.code).await()
                         .let {
                             _stateFlow.emit(DataState.Success(AnalyticData(analytics = it)))
                         }
@@ -96,12 +95,12 @@ class CoinAnalyticsService(
 
         try {
             if (fullCoin.coin.isSafeCoin()) {
-                marketKit.safeAnalyticsPreviewSingle(fullCoin.coin.uid, addresses, apiTag).await()
+                marketKit.safeAnalyticsPreviewSingle(fullCoin.coin.uid, addresses).await()
                     .let {
                         _stateFlow.emit(DataState.Success(AnalyticData(analyticsPreview = it)))
                     }
             } else {
-                marketKit.analyticsPreviewSingle(fullCoin.coin.uid, addresses, apiTag).await()
+                marketKit.analyticsPreviewSingle(fullCoin.coin.uid, addresses).await()
                     .let {
                         _stateFlow.emit(DataState.Success(AnalyticData(analyticsPreview = it)))
                     }

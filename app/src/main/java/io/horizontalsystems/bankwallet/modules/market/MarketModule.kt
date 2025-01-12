@@ -13,11 +13,12 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
-import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesModule.Period
 import io.horizontalsystems.bankwallet.modules.market.filters.TimePeriod
+import io.horizontalsystems.bankwallet.modules.settings.appearance.PriceChangeInterval
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
 import io.horizontalsystems.marketkit.models.FullCoin
+import io.horizontalsystems.marketkit.models.MarketGlobal
 import io.horizontalsystems.marketkit.models.MarketInfo
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -29,21 +30,32 @@ object MarketModule {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val service = MarketService(App.marketStorage, App.localStorage)
-            return MarketViewModel(service) as T
+            return MarketViewModel(
+                App.marketStorage,
+                App.marketKit,
+                App.currencyManager,
+                App.localStorage
+            ) as T
         }
 
     }
 
+    data class UiState(
+        val selectedTab: Tab,
+        val marketGlobal: MarketGlobal?,
+        val currency: Currency
+    )
+
     enum class Tab(@StringRes val titleResId: Int) {
-        Overview(R.string.Market_Tab_Overview),
-        Posts(R.string.Market_Tab_Posts),
+        Coins(R.string.Market_Tab_Coins),
         Watchlist(R.string.Market_Tab_Watchlist),
+        Posts(R.string.Market_Tab_Posts),
+        Platform(R.string.Market_Tab_Platform),
         Tweets(R.string.Coin_Tab_Tweets),
         DApp(R.string.DApp_Tab_Name);
 
         companion object {
-            private val map = values().associateBy(Tab::name)
+            private val map = entries.associateBy(Tab::name)
 
             fun fromString(type: String?): Tab? = map[type]
         }
@@ -73,28 +85,13 @@ data class MarketItem(
         fun createFromCoinMarket(
             marketInfo: MarketInfo,
             currency: Currency,
-            period: Period,
+            period: TimePeriod = TimePeriod.TimePeriod_1D
         ): MarketItem {
             return MarketItem(
                 fullCoin = marketInfo.fullCoin,
                 volume = CurrencyValue(currency, marketInfo.totalVolume ?: BigDecimal.ZERO),
                 rate = CurrencyValue(currency, marketInfo.price ?: BigDecimal.ZERO),
                 diff = marketInfo.priceChangeValue(period),
-                marketCap = CurrencyValue(currency, marketInfo.marketCap ?: BigDecimal.ZERO),
-                rank = marketInfo.marketCapRank
-            )
-        }
-
-        fun createFromCoinMarket(
-            marketInfo: MarketInfo,
-            currency: Currency,
-            pricePeriod: TimePeriod = TimePeriod.TimePeriod_1D
-        ): MarketItem {
-            return MarketItem(
-                fullCoin = marketInfo.fullCoin,
-                volume = CurrencyValue(currency, marketInfo.totalVolume ?: BigDecimal.ZERO),
-                rate = CurrencyValue(currency, marketInfo.price ?: BigDecimal.ZERO),
-                diff = marketInfo.priceChangeValue(pricePeriod),
                 marketCap = CurrencyValue(currency, marketInfo.marketCap ?: BigDecimal.ZERO),
                 rank = marketInfo.marketCapRank
             )
@@ -147,25 +144,38 @@ enum class MarketField(@StringRes val titleResId: Int) : WithTranslatableTitle, 
 }
 
 @Parcelize
-enum class TopMarket(val value: Int) : WithTranslatableTitle, Parcelable {
-    Top100(100), Top200(200), Top300(300);
+enum class TopMarket(val value: Int, val titleResId: Int) : WithTranslatableTitle, Parcelable {
+    Top100(100, R.string.Market_Top_100),
+    Top200(200, R.string.Market_Top_200),
+    Top300(300, R.string.Market_Top_300),
+    Top500(500, R.string.Market_Top_500);
 
-    fun next() = values()[if (ordinal == values().size - 1) 0 else ordinal + 1]
+    fun next() = entries[if (ordinal == entries.size - 1) 0 else ordinal + 1]
 
     override val title: TranslatableString
-        get() = TranslatableString.PlainString(value.toString())
+        get() = TranslatableString.ResString(titleResId)
 }
 
 sealed class ImageSource {
     class Local(@DrawableRes val resId: Int) : ImageSource()
-    class Remote(val url: String, @DrawableRes val placeholder: Int = R.drawable.ic_placeholder) : ImageSource()
+    class Remote(
+        val url: String,
+        @DrawableRes
+        val placeholder: Int = R.drawable.ic_placeholder,
+        val alternativeUrl: String? = null
+    ) : ImageSource()
 
     @Composable
     fun painter(): Painter = when (this) {
         is Local -> painterResource(resId)
         is Remote -> rememberAsyncImagePainter(
             model = url,
-            error = painterResource(placeholder)
+            error = alternativeUrl?.let {
+                rememberAsyncImagePainter(
+                    model = alternativeUrl,
+                    error = painterResource(placeholder)
+                )
+            } ?: painterResource(placeholder)
         )
     }
 }
@@ -196,26 +206,26 @@ inline fun <T, R : Comparable<R>> Iterable<T>.sortedByNullLast(crossinline selec
 }
 
 fun MarketInfo.priceChangeValue(period: TimePeriod) = when (period) {
-    TimePeriod.TimePeriod_1D -> priceChange24h
+    TimePeriod.TimePeriod_1D -> {
+        when(App.priceManager.priceChangeInterval) {
+            PriceChangeInterval.LAST_24H ->  priceChange24h
+            PriceChangeInterval.FROM_UTC_MIDNIGHT -> priceChange1d
+        }
+    }
     TimePeriod.TimePeriod_1W -> priceChange7d
     TimePeriod.TimePeriod_2W -> priceChange14d
     TimePeriod.TimePeriod_1M -> priceChange30d
+    TimePeriod.TimePeriod_3M -> priceChange90d
     TimePeriod.TimePeriod_6M -> priceChange200d
     TimePeriod.TimePeriod_1Y -> priceChange1y
 }
 
-fun MarketInfo.priceChangeValue(period: Period) = when (period) {
-    Period.OneDay -> priceChange24h
-    Period.SevenDay -> priceChange7d
-    Period.ThirtyDay -> priceChange30d
-}
-
 @Parcelize
 enum class TimeDuration(val titleResId: Int) : WithTranslatableTitle, Parcelable {
-    OneDay(R.string.CoinPage_TimeDuration_Day),
-    SevenDay(R.string.CoinPage_TimeDuration_Week),
-    ThirtyDay(R.string.CoinPage_TimeDuration_Month),
-    ThreeMonths(R.string.CoinPage_TimeDuration_Month3);
+    OneDay(R.string.Market_Filter_TimePeriod_1D),
+    SevenDay(R.string.Market_Filter_TimePeriod_1W),
+    ThirtyDay(R.string.Market_Filter_TimePeriod_1M),
+    ThreeMonths(R.string.Market_Filter_TimePeriod_3M);
 
     @IgnoredOnParcel
     override val title = TranslatableString.ResString(titleResId)

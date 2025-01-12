@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -12,12 +13,12 @@ import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockcha
 import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BtcBlockchainSettingsModule.ViewItem
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class BtcBlockchainSettingsViewModel(
     private val service: BtcBlockchainSettingsService
 ) : ViewModel() {
-
-    private val disposables = CompositeDisposable()
 
     var closeScreen by mutableStateOf(false)
         private set
@@ -34,19 +35,14 @@ class BtcBlockchainSettingsViewModel(
     val isSafe = service.blockchain.type == BlockchainType.Safe
 
     init {
-        service.hasChangesObservable
-            .subscribe {
+        viewModelScope.launch {
+            service.hasChangesObservable.asFlow().collect {
                 saveButtonEnabled = it
                 syncRestoreModeState()
-            }.let {
-                disposables.add(it)
             }
+        }
 
         syncRestoreModeState()
-    }
-
-    override fun onCleared() {
-        disposables.clear()
     }
 
     fun onSelectRestoreMode(viewItem: ViewItem) {

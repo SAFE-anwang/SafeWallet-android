@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.navigation.navGraphViewModels
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
@@ -47,11 +49,20 @@ import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
 class FilterCoinFragment : BaseComposeFragment() {
 
-//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
-    val viewModel by viewModels<TransactionsViewModel> {TransactionsModule.Factory()}
-
     @Composable
     override fun GetContent(navController: NavController) {
+        val viewModel: TransactionsViewModel? = try {
+            viewModels<TransactionsViewModel> {TransactionsModule.Factory()}.value
+        } catch (e: IllegalStateException) {
+            Toast.makeText(App.instance, "ViewModel is Null", Toast.LENGTH_SHORT).show()
+            null
+        }
+
+        if (viewModel == null) {
+            navController.popBackStack(R.id.filterCoinFragment, true)
+            return
+        }
+
         FilterCoinScreen(navController, viewModel)
     }
 

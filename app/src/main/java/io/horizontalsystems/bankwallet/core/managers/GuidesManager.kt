@@ -28,7 +28,7 @@ object GuidesManager {
                     .build()
 
             val response = OkHttpClient().newCall(request).execute()
-            val categories = gson.fromJson(response.body.charStream(), Array<GuideCategoryMultiLang>::class.java)
+            val categories = gson.fromJson(response.body?.charStream(), Array<GuideCategoryMultiLang>::class.java)
             response.close()
 
             categories
@@ -42,10 +42,8 @@ object GuidesManager {
             val jsonObject = json.asJsonObject
 
             return Guide(
-                    jsonObject.get("title").asString,
-                    context.deserialize(jsonObject.get("updated_at"), Date::class.java),
-                    jsonObject["image"].asString?.let { absolutify(it) },
-                    absolutify(jsonObject["file"].asString)
+                jsonObject.get("title").asString,
+                absolutify(jsonObject.get("markdown").asString)
             )
         }
 

@@ -2,47 +2,52 @@ package io.horizontalsystems.bankwallet.modules.coin.coinmarkets
 
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.MarketTicker
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
-import java.math.BigDecimal
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 
 class CoinMarketsService(
     val fullCoin: FullCoin,
     private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper,
 ) {
-
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var marketTickers = listOf<MarketTicker>()
-    private val price = marketKit.coinPrice(fullCoin.coin.uid, currencyManager.baseCurrency.code)?.value ?: BigDecimal.ZERO
 
     private var verifiedType: VerifiedType = VerifiedType.All
 
-    val verifiedMenu = Select(verifiedType, VerifiedType.values().toList())
+    val verifiedMenu = Select(verifiedType, VerifiedType.entries)
     val stateObservable: BehaviorSubject<DataState<List<MarketTickerItem>>> = BehaviorSubject.create()
 
     val currency get() = currencyManager.baseCurrency
 
 
     fun start() {
-        marketKit.marketTickersSingle(fullCoin.coin.uid)
-            .subscribeIO({ marketTickers ->
-                this.marketTickers = marketTickers.sortedByDescending { it.volume }
-                emitItems()
-            }, {
-                stateObservable.onNext(DataState.Error(it))
-            }).let {
-                disposables.add(it)
-            }
+        coroutineScope.launch {
+            syncMarketTickers()
+        }
+    }
+
+    private suspend fun syncMarketTickers() {
+        try {
+            val tickers =
+                marketKit.marketTickersSingle(fullCoin.coin.uid, currency.code).await()
+            marketTickers = tickers.sortedByDescending { it.volume }
+            emitItems()
+        } catch (e: Throwable) {
+            stateObservable.onNext(DataState.Error(e))
+        }
     }
 
     fun stop() {
-        disposables.clear()
+        coroutineScope.cancel()
     }
 
     fun setVerifiedType(verifiedType: VerifiedType) {
@@ -66,7 +71,7 @@ class CoinMarketsService(
         marketImageUrl = marketTicker.marketImageUrl,
         baseCoinCode = marketTicker.base,
         targetCoinCode = marketTicker.target,
-        volumeFiat = marketTicker.volume.multiply(price),
+        volumeFiat = marketTicker.fiatVolume,
         volumeToken = marketTicker.volume,
         tradeUrl = marketTicker.tradeUrl,
         verified = marketTicker.verified

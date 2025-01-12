@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.factories
 
 import android.content.Context
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
@@ -13,12 +14,15 @@ import io.horizontalsystems.bankwallet.core.adapters.ECashAdapter
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmTransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.JettonAdapter
 import io.horizontalsystems.bankwallet.core.adapters.LitecoinAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionConverter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SplAdapter
 import io.horizontalsystems.bankwallet.core.adapters.TonAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TonTransactionConverter
+import io.horizontalsystems.bankwallet.core.adapters.TonTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.Trc20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.TronAdapter
 import io.horizontalsystems.bankwallet.core.adapters.TronTransactionConverter
@@ -32,6 +36,7 @@ import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.managers.EvmSyncSourceManager
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
 import io.horizontalsystems.bankwallet.core.managers.SolanaKitManager
+import io.horizontalsystems.bankwallet.core.managers.TonKitManager
 import io.horizontalsystems.bankwallet.core.managers.TronKitManager
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
@@ -39,6 +44,7 @@ import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.tonkit.Address
 
 class AdapterFactory(
     private val context: Context,
@@ -48,6 +54,7 @@ class AdapterFactory(
     private val binanceKitManager: BinanceKitManager,
     private val solanaKitManager: SolanaKitManager,
     private val tronKitManager: TronKitManager,
+    private val tonKitManager: TonKitManager,
     private val backgroundManager: BackgroundManager,
     private val restoreSettingsManager: RestoreSettingsManager,
     private val coinManager: ICoinManager,
@@ -85,7 +92,20 @@ class AdapterFactory(
         return Trc20Adapter(tronKitWrapper, address, wallet)
     }
 
-    fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
+    private fun getJettonAdapter(wallet: Wallet, address: String): IAdapter {
+        val tonKitWrapper = tonKitManager.getTonKitWrapper(wallet.account)
+
+        return JettonAdapter(tonKitWrapper, address, wallet)
+    }
+
+    fun getAdapterOrNull(wallet: Wallet) = try {
+        getAdapter(wallet)
+    } catch (e: Throwable) {
+        Log.e("AAA", "get adapter error", e)
+        null
+    }
+
+    private fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
         is TokenType.Derived -> {
             when (wallet.token.blockchainType) {
                 BlockchainType.Bitcoin -> {
@@ -137,6 +157,7 @@ class AdapterFactory(
             BlockchainType.Polygon,
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
+            BlockchainType.Base,
             BlockchainType.Gnosis,
             BlockchainType.Fantom,
             BlockchainType.ArbitrumOne -> {
@@ -155,7 +176,7 @@ class AdapterFactory(
                 TronAdapter(tronKitManager.getTronKitWrapper(wallet.account))
             }
             BlockchainType.Ton -> {
-                TonAdapter(wallet)
+                TonAdapter(tonKitManager.getTonKitWrapper(wallet.account))
             }
 
             else -> null
@@ -169,6 +190,7 @@ class AdapterFactory(
         }
         is TokenType.Bep2 -> getBinanceAdapter(wallet, tokenType.symbol)
         is TokenType.Spl -> getSplAdapter(wallet, tokenType.address)
+        is TokenType.Jetton -> getJettonAdapter(wallet, tokenType.address)
         is TokenType.Unsupported -> null
     }
 
@@ -206,12 +228,36 @@ class AdapterFactory(
         return TronTransactionsAdapter(tronKitWrapper, tronTransactionConverter)
     }
 
+    fun tonTransactionsAdapter(source: TransactionSource): ITransactionsAdapter? {
+        val tonKitWrapper = tonKitManager.getTonKitWrapper(source.account)
+        val address = tonKitWrapper.tonKit.receiveAddress
+
+        val tonTransactionConverter = tonTransactionConverter(address, source) ?: return null
+
+        return TonTransactionsAdapter(tonKitWrapper, tonTransactionConverter)
+    }
+
+    fun tonTransactionConverter(
+        address: Address,
+        source: TransactionSource,
+    ): TonTransactionConverter? {
+        val query = TokenQuery(BlockchainType.Ton, TokenType.Native)
+        val baseToken = coinManager.getToken(query) ?: return null
+        return TonTransactionConverter(
+            address,
+            coinManager,
+            source,
+            baseToken
+        )
+    }
+
     fun unlinkAdapter(wallet: Wallet) {
         when (val blockchainType = wallet.transactionSource.blockchain.type) {
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
+            BlockchainType.Base,
             BlockchainType.ArbitrumOne -> {
                 val evmKitManager = evmBlockchainManager.getEvmKitManager(blockchainType)
                 evmKitManager.unlink(wallet.account)
@@ -225,6 +271,9 @@ class AdapterFactory(
             BlockchainType.Tron -> {
                 tronKitManager.unlink(wallet.account)
             }
+            BlockchainType.Ton -> {
+                tonKitManager.unlink(wallet.account)
+            }
             else -> Unit
         }
     }
@@ -235,6 +284,7 @@ class AdapterFactory(
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
+            BlockchainType.Base,
             BlockchainType.ArbitrumOne -> {
                 val evmKitManager = evmBlockchainManager.getEvmKitManager(blockchainType)
                 evmKitManager.unlink(transactionSource.account)
@@ -244,6 +294,9 @@ class AdapterFactory(
             }
             BlockchainType.Tron -> {
                 tronKitManager.unlink(transactionSource.account)
+            }
+            BlockchainType.Ton -> {
+                tonKitManager.unlink(transactionSource.account)
             }
             else -> Unit
         }

@@ -20,7 +20,6 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val appGithubLink by lazy { Translator.getString(R.string.appGithubLink) }
     val appTwitterLink by lazy { Translator.getString(R.string.appTwitterLink) }
     val appTelegramLink by lazy { Translator.getString(R.string.appTelegramLink) }
-    val appRedditLink by lazy { Translator.getString(R.string.appRedditLink) }
     val reportEmail by lazy { Translator.getString(R.string.reportEmail) }
     val releaseNotesUrl by lazy { Translator.getString(R.string.releaseNotesUrl) }
     val mempoolSpaceUrl: String = "https://mempool.space"
@@ -104,7 +103,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             0 -> Translator.getString(R.string.etherscanKey)
             else -> Translator.getString(R.string.etherscanKey1)
         }
-        key
+        key.split(",")
     }
     val bscscanApiKey by lazy {
         val index = Random().nextInt(6)
@@ -116,7 +115,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             4 -> Translator.getString(R.string.bscscanKey5)
             else -> Translator.getString(R.string.bscscanKey6)
         }
-        key
+        key.split(",")
     }
     val polygonscanApiKey by lazy {
         val index = Random().nextInt(4)
@@ -126,22 +125,25 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             2 -> Translator.getString(R.string.polygonscanKey3)
             else -> Translator.getString(R.string.polygonscanKey4)
         }
-        key
+        key.split(",")
     }
     val snowtraceApiKey by lazy {
-        Translator.getString(R.string.snowtraceApiKey)
+        Translator.getString(R.string.snowtraceApiKey).split(",")
     }
     val optimisticEtherscanApiKey by lazy {
-        Translator.getString(R.string.optimisticEtherscanApiKey)
+        Translator.getString(R.string.optimisticEtherscanApiKey).split(",")
     }
     val arbiscanApiKey by lazy {
-        Translator.getString(R.string.arbiscanApiKey)
+        Translator.getString(R.string.arbiscanApiKey).split(",")
     }
     val gnosisscanApiKey by lazy {
-        Translator.getString(R.string.gnosisscanApiKey)
+        Translator.getString(R.string.gnosisscanApiKey).split(",")
     }
     val ftmscanApiKey by lazy {
-        Translator.getString(R.string.ftmscanApiKey)
+        Translator.getString(R.string.ftmscanApiKey).split(",")
+    }
+    val basescanApiKey by lazy {
+        Translator.getString(R.string.basescanApiKey).split(",")
     }
     val guidesUrl by lazy {
         Translator.getString(R.string.guidesUrl)
@@ -229,6 +231,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             BlockchainType.Polygon to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Avalanche to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Optimism to "0x731352dcF66014156B1560B832B56069e7b38ab1",
+            BlockchainType.Base to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.ArbitrumOne to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Solana to "ELFQmFXqdS6C1zVqZifs7WAmLKovdEPbWSnqomhZoK3B",
             BlockchainType.Gnosis to "0x731352dcF66014156B1560B832B56069e7b38ab1",

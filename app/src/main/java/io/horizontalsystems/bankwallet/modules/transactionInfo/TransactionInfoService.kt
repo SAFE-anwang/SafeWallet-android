@@ -78,7 +78,37 @@ class TransactionInfoService(
             val coinUids = mutableListOf<String?>()
 
             val txCoinTypes = when (val tx = transactionRecord) {
-                is TonTransactionRecord -> listOf(tx.mainValue.coinUid, tx.fee?.coinUid)
+                is TonTransactionRecord -> buildList {
+                    add(tx.mainValue?.coinUid)
+                    add(tx.fee.coinUid)
+
+                    tx.actions.forEach { action ->
+                        val actionType = action.type
+                        when (actionType) {
+                            is TonTransactionRecord.Action.Type.Burn -> {
+                                add(actionType.value.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.ContractCall -> {
+                                add(actionType.value.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.Mint -> {
+                                add(actionType.value.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.Receive -> {
+                                add(actionType.value.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.Send -> {
+                                add(actionType.value.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.Swap -> {
+                                add(actionType.valueIn.coinUid)
+                                add(actionType.valueOut.coinUid)
+                            }
+                            is TonTransactionRecord.Action.Type.ContractDeploy,
+                            is TonTransactionRecord.Action.Type.Unsupported -> Unit
+                        }
+                    }
+                }
                 is Safe4DepositEvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
                 is Safe4DepositEvmOutgoingTransactionRecord -> listOf(tx.fee?.coinUid, tx.value.coinUid)
                 is EvmIncomingTransactionRecord -> listOf(tx.value.coinUid)
@@ -239,57 +269,5 @@ class TransactionInfoService(
     fun getRawTransaction(): String? {
         return adapter.getRawTransaction(transactionRecord.transactionHash)
     }
-
-    /*private fun getExplorerData(record: TransactionRecord): TransactionInfoModule.ExplorerData {
-        val hash = record.transactionHash
-        val blockchain = record.source.blockchain
-        val account = record.source.account
-
-        return when (blockchain) {
-            is TransactionSource.Blockchain.Bitcoin -> TransactionInfoModule.ExplorerData(
-                "blockchair.com",
-                if (testMode) null else "https://blockchair.com/bitcoin/transaction/$hash"
-            )
-            is TransactionSource.Blockchain.BitcoinCash -> TransactionInfoModule.ExplorerData(
-                "btc.com",
-                if (testMode) null else "https://bch.btc.com/$hash"
-            )
-            is TransactionSource.Blockchain.Litecoin -> TransactionInfoModule.ExplorerData(
-                "blockchair.com",
-                if (testMode) null else "https://blockchair.com/litecoin/transaction/$hash"
-            )
-            is TransactionSource.Blockchain.Dash -> TransactionInfoModule.ExplorerData(
-                "dash.org",
-                if (testMode) null else "https://insight.dash.org/insight/tx/$hash"
-            )
-            is TransactionSource.Blockchain.Safe -> TransactionInfoModule.ExplorerData(
-                "anwang.com",
-                if (testMode) null else "https://${SafeNetWork.getSafeDomainName()}/tx/$hash"
-            )
-            is TransactionSource.Blockchain.Ethereum -> {
-                val domain = when (ethereumChain(account)) {
-                    Chain.Ethereum -> "etherscan.io"
-                    Chain.EthereumRopsten -> "ropsten.etherscan.io"
-                    Chain.EthereumKovan -> "kovan.etherscan.io"
-                    Chain.EthereumRinkeby -> "rinkeby.etherscan.io"
-                    Chain.EthereumGoerli -> "goerli.etherscan.io"
-                    else -> throw IllegalArgumentException("")
-                }
-                TransactionInfoModule.ExplorerData("etherscan.io", "https://$domain/tx/0x$hash")
-            }
-            is TransactionSource.Blockchain.Bep2 -> TransactionInfoModule.ExplorerData(
-                "binance.org",
-                if (testMode) "https://testnet-explorer.binance.org/tx/$hash" else "https://explorer.binance.org/tx/$hash"
-            )
-            is TransactionSource.Blockchain.BinanceSmartChain -> TransactionInfoModule.ExplorerData(
-                "bscscan.com",
-                "https://bscscan.com/tx/0x$hash"
-            )
-            is TransactionSource.Blockchain.Zcash -> TransactionInfoModule.ExplorerData(
-                "blockchair.com",
-                if (testMode) null else "https://blockchair.com/zcash/transaction/$hash"
-            )
-        }
-    }*/
 
 }

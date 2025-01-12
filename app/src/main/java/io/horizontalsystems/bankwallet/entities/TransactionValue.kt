@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.entities
 
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
@@ -16,6 +18,7 @@ sealed class TransactionValue {
     abstract val coin: Coin?
     abstract val badge: String?
     abstract val coinIconUrl: String?
+    abstract val alternativeCoinIconUrl: String?
     abstract val coinIconPlaceholder: Int?
     abstract val decimalValue: BigDecimal?
     abstract val decimals: Int?
@@ -26,10 +29,38 @@ sealed class TransactionValue {
 
     open val nftUid: NftUid? = null
 
+    data class JettonValue(
+        val name: String,
+        val symbol: String,
+        override val decimals: Int,
+        val value: BigDecimal,
+        val image: String?
+    ) : TransactionValue() {
+        override val fullName = name
+        override val coinUid = symbol
+        override val coinCode = symbol
+        override val coin = null
+        override val badge = "JETTON"
+        override val coinIconUrl = image
+        override val alternativeCoinIconUrl = null
+        override val coinIconPlaceholder = R.drawable.the_open_network_jetton
+        override val decimalValue = value
+        override val zeroValue: Boolean
+            get() = value.compareTo(BigDecimal.ZERO) == 0
+        override val isMaxValue: Boolean
+            get() = value.isMaxValue(decimals)
+        override val abs: TransactionValue
+            get() = copy(value = value.abs())
+        override val formattedString: String
+            get() = "n/a"
+
+    }
+
     data class CoinValue(val token: Token, val value: BigDecimal) : TransactionValue() {
         override val coin: Coin = token.coin
         override val badge: String? = token.badge
         override val coinIconUrl = token.coin.imageUrl
+        override val alternativeCoinIconUrl = token.coin.alternativeImageUrl
         override val coinIconPlaceholder = token.fullCoin.iconPlaceholder
         override val coinUid: String = coin.uid
         override val fullName: String = coin.name
@@ -52,6 +83,7 @@ sealed class TransactionValue {
         override val coin: Coin? = null
         override val badge: String? = null
         override val coinIconUrl = null
+        override val alternativeCoinIconUrl = null
         override val coinIconPlaceholder = null
         override val fullName: String = ""
         override val coinCode: String = ""
@@ -78,6 +110,7 @@ sealed class TransactionValue {
         override val coin: Coin? = null
         override val badge: String? = null
         override val coinIconUrl = null
+        override val alternativeCoinIconUrl = null
         override val fullName: String
             get() = tokenName
         override val coinCode: String
@@ -105,6 +138,7 @@ sealed class TransactionValue {
         override val coin: Coin? = null
         override val badge: String? = null
         override val coinIconUrl = null
+        override val alternativeCoinIconUrl = null
         override val coinIconPlaceholder: Int? = null
         override val fullName: String
             get() = "${tokenName ?: ""} #${nftUid.tokenId}"

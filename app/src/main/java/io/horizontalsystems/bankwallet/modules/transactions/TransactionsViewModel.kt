@@ -13,7 +13,6 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.TransactionAdapterManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -28,11 +27,11 @@ import io.horizontalsystems.bankwallet.modules.transactionInfo.ColoredValue
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.util.Calendar
 import java.util.Date
 
@@ -61,7 +60,6 @@ class TransactionsViewModel(
     private var viewState: ViewState = ViewState.Loading
     private var syncing = false
 
-    private val disposables = CompositeDisposable()
     private var refreshViewItemsJob: Job? = null
 
     private var isHideZeroTransaction = true
@@ -135,22 +133,18 @@ class TransactionsViewModel(
             }
         }
 
-        service.syncingObservable
-            .subscribeIO {
+        viewModelScope.launch {
+            service.syncingObservable.asFlow().collect {
                 syncing = it
                 emitState()
             }
-            .let {
-                disposables.add(it)
-            }
+        }
 
-        service.itemsObservable
-            .subscribeIO { items ->
+        viewModelScope.launch {
+            service.itemsObservable.asFlow().collect { items ->
                 handleUpdatedItems(items)
             }
-            .let {
-                disposables.add(it)
-            }
+        }
 
         viewModelScope.launch(Dispatchers.Default) {
             balanceHiddenManager.balanceHiddenFlow.collect {
@@ -296,7 +290,7 @@ data class TransactionViewItem(
 
     sealed class Icon {
         class ImageResource(val resourceId: Int) : Icon()
-        class Regular(val url: String?, val placeholder: Int?, val rectangle: Boolean = false) : Icon()
+        class Regular(val url: String?, val alternativeUrl: String?, val placeholder: Int?, val rectangle: Boolean = false) : Icon()
         class Double(val back: Regular, val front: Regular) : Icon()
         object Failed : Icon()
         class Platform(blockchainType: BlockchainType) : Icon() {
@@ -306,10 +300,12 @@ data class TransactionViewItem(
                 BlockchainType.Polygon -> R.drawable.logo_chain_polygon_trx_24
                 BlockchainType.Avalanche -> R.drawable.logo_chain_avalanche_trx_24
                 BlockchainType.Optimism -> R.drawable.logo_chain_optimism_trx_24
+                BlockchainType.Base -> R.drawable.logo_chain_base_trx_24
                 BlockchainType.ArbitrumOne -> R.drawable.logo_chain_arbitrum_one_trx_24
                 BlockchainType.Gnosis -> R.drawable.logo_chain_gnosis_trx_32
                 BlockchainType.Fantom -> R.drawable.logo_chain_fantom_trx_32
                 BlockchainType.Tron -> R.drawable.logo_chain_tron_trx_32
+                BlockchainType.Ton -> R.drawable.logo_chain_ton_trx_32
                 BlockchainType.Safe -> R.drawable.logo_safe_24
                 BlockchainType.SafeFour -> R.drawable.logo_safe_24
                 else -> null

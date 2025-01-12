@@ -31,6 +31,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeModule
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeService
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmSettingsInput
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsError
+import io.horizontalsystems.bankwallet.modules.evmfee.EvmSettingsInput
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.LegacyFeeSettings
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559FeeSettingsViewModel

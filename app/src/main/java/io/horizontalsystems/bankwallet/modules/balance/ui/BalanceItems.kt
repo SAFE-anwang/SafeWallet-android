@@ -53,6 +53,9 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceUiState
@@ -212,6 +215,8 @@ fun BalanceItems(
                 R.id.tokenBalanceFragment,
                 it.wallet
             )
+
+            stat(page = StatPage.Balance, event = StatEvent.OpenTokenPage(it.wallet.token))
         }
     }
 
@@ -240,7 +245,7 @@ fun BalanceItems(
             modifier = Modifier.fillMaxSize(),
             state = rememberSaveable(
                 accountViewItem.id,
-                viewModel.sortType,
+                uiState.sortType,
                 saver = LazyListState.Saver
             ) {
                 LazyListState()
@@ -253,18 +258,22 @@ fun BalanceItems(
                         {
                             viewModel.toggleBalanceVisibility()
                             HudHelper.vibrate(context)
+
+                            stat(page = StatPage.Balance, event = StatEvent.ToggleBalanceHidden)
                         }
                     },
                     onClickSubtitle = remember {
                         {
                             viewModel.toggleTotalType()
                             HudHelper.vibrate(context)
+
+                            stat(page = StatPage.Balance, event = StatEvent.ToggleConversionCoin)
                         }
                     }
                 )
             }
 
-            if (!accountViewItem.isWatchAccount) {
+            if (uiState.balanceTabButtonsEnabled && !accountViewItem.isWatchAccount) {
                 item {
                     Row(
                         modifier = Modifier.padding(horizontal = 24.dp),
@@ -275,6 +284,8 @@ fun BalanceItems(
                             title = stringResource(R.string.Balance_Send),
                             onClick = {
                                 navController.slideFromRight(R.id.sendTokenSelectFragment)
+
+                                stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.SendTokenList))
                             }
                         )
                         HSpacer(8.dp)
@@ -285,6 +296,8 @@ fun BalanceItems(
                                 when (val receiveAllowedState = viewModel.getReceiveAllowedState()) {
                                     ReceiveAllowedState.Allowed -> {
                                         navController.slideFromRight(R.id.receiveFragment)
+
+                                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.ReceiveTokenList))
                                     }
 
                                     is ReceiveAllowedState.BackupRequired -> {
@@ -297,20 +310,26 @@ fun BalanceItems(
                                             R.id.backupRequiredDialog,
                                             BackupRequiredDialog.Input(account, text)
                                         )
+
+                                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.BackupRequired))
                                     }
 
                                     null -> Unit
                                 }
                             }
                         )
-                        HSpacer(8.dp)
-                        ButtonThirdCircle(
-                            icon = R.drawable.ic_swap_24,
-                            contentDescription = stringResource(R.string.Swap),
-                            onClick = {
-                                navController.slideFromRight(R.id.multiswap)
-                            }
-                        )
+                        if (viewModel.isSwapEnabled) {
+                            HSpacer(8.dp)
+                            ButtonThirdCircle(
+                                icon = R.drawable.ic_swap_24,
+                                contentDescription = stringResource(R.string.Swap),
+                                onClick = {
+                                    navController.slideFromRight(R.id.multiswap)
+
+                                    stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.Swap))
+                                }
+                            )
+                        }
                     }
                     VSpacer(12.dp)
                 }
@@ -326,10 +345,10 @@ fun BalanceItems(
             stickyHeader {
                 HeaderSorting {
                     BalanceSortingSelector(
-                        sortType = viewModel.sortType,
-                        sortTypes = viewModel.sortTypes
+                        sortType = uiState.sortType,
+                        sortTypes = uiState.sortTypes
                     ) {
-                        viewModel.sortType = it
+                        viewModel.setSortType(it)
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -377,25 +396,27 @@ fun BalanceItems(
                         Spacer(modifier = Modifier.padding(start = 16.dp))
 
                         ButtonSecondaryCircle(
-                            icon = R.drawable.ic_transactions,
-                            onClick = {
-                                navController.slideFromRight(
-                                    R.id.transactionFragment
-                                )
-                            }
+                                icon = R.drawable.ic_transactions,
+                                onClick = {
+                                    navController.slideFromRight(
+                                            R.id.transactionFragment
+                                    )
+                                    // TODO:
+                                    stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.CoinManager))
+                                }
                         )
 
                         Spacer(modifier = Modifier.padding(start = 16.dp))
+
                         ButtonSecondaryCircle(
-                            icon = R.drawable.ic_manage_2,
-                            contentDescription = stringResource(R.string.ManageCoins_title),
-                            onClick = {
-                                navController.slideFromRight(R.id.manageWalletsFragment,
-                                        RestoreBlockchainsFragment.Input("", accountViewItem.type )
-                                )
-                            }
-                        )
-                    }
+                        icon = R.drawable.ic_manage_2,
+                        contentDescription = stringResource(R.string.ManageCoins_title),
+                        onClick = {
+                            navController.slideFromRight(R.id.manageWalletsFragment)
+
+                            stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.CoinManager))
+                        }
+                    )
 
                     HSpacer(16.dp)
                 }

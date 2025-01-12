@@ -6,25 +6,25 @@ import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.entities.BtcRestoreMode
 
 object Migration_40_41 : Migration(40, 41) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE EnabledWallet ADD `coinName` TEXT")
-        database.execSQL("ALTER TABLE EnabledWallet ADD `coinCode` TEXT")
-        database.execSQL("ALTER TABLE EnabledWallet ADD `coinDecimals` INTEGER")
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE EnabledWallet ADD `coinName` TEXT")
+        db.execSQL("ALTER TABLE EnabledWallet ADD `coinCode` TEXT")
+        db.execSQL("ALTER TABLE EnabledWallet ADD `coinDecimals` INTEGER")
 
-        database.execSQL(
-            "UPDATE EnabledWallet " +
-                    "SET coinName = (SELECT coinName FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId), " +
-                    "coinCode = (SELECT coinCode FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId), " +
-                    "coinDecimals = (SELECT decimal FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId) " +
-                    "WHERE EXISTS (SELECT * FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId)"
+        db.execSQL(
+                "UPDATE EnabledWallet " +
+                        "SET coinName = (SELECT coinName FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId), " +
+                        "coinCode = (SELECT coinCode FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId), " +
+                        "coinDecimals = (SELECT decimal FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId) " +
+                        "WHERE EXISTS (SELECT * FROM CustomToken WHERE CustomToken.coinType = EnabledWallet.coinId)"
         )
 
-        database.execSQL("DELETE FROM CustomToken")
+        db.execSQL("DELETE FROM CustomToken")
 
         val btcRestoreKey = BlockchainSettingsStorage.keyBtcRestore
-        database.execSQL("CREATE TABLE IF NOT EXISTS `BlockchainSettingRecord` (`blockchainUid` TEXT NOT NULL, `key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`blockchainUid`, `key`))")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `BlockchainSettingRecord` (`blockchainUid` TEXT NOT NULL, `key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`blockchainUid`, `key`))")
 
-        val cursor = database.query("SELECT * FROM BlockchainSetting")
+        val cursor = db.query("SELECT * FROM BlockchainSetting")
         while (cursor.moveToNext()) {
             val coinTypeColumnIndex = cursor.getColumnIndex("coinType")
             val keyColumnIndex = cursor.getColumnIndex("key")
@@ -49,7 +49,7 @@ object Migration_40_41 : Migration(40, 41) {
                         else -> BtcRestoreMode.Hybrid
                     }
                     btcBlockchain?.let { blockchain ->
-                        database.execSQL(
+                        db.execSQL(
                             """
                                 INSERT INTO BlockchainSettingRecord (`blockchainUid`,`key`,`value`) 
                                 VALUES ('${blockchain.raw}', '$btcRestoreKey', '${btcRestoreMode.raw}')
@@ -61,8 +61,8 @@ object Migration_40_41 : Migration(40, 41) {
             }
 
         }
-        database.execSQL("DROP TABLE BlockchainSetting")
-        database.execSQL("DROP TABLE AccountSettingRecord")
+        db.execSQL("DROP TABLE BlockchainSetting")
+        db.execSQL("DROP TABLE AccountSettingRecord")
     }
 }
 

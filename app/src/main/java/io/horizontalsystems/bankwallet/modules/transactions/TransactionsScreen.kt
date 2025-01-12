@@ -56,6 +56,10 @@ import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statTab
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAccountsViewModel
@@ -70,6 +74,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HSCircularProgressIndicator
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderStick
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -149,6 +154,8 @@ fun TransactionsScreen(
                         showAlertDot = showFilterAlertDot,
                         onClick = {
                             navController.slideFromRight(R.id.transactionFilterFragment)
+
+                            stat(page = StatPage.Transactions, event = StatEvent.Open(StatPage.TransactionFilter))
                         },
                     )
                 )
@@ -156,7 +163,11 @@ fun TransactionsScreen(
             filterTypes?.let { filterTypes ->
                 FilterTypeTabs(
                     filterTypes = filterTypes,
-                    onTransactionTypeClick = viewModel::setFilterTransactionType
+                    onTransactionTypeClick = {
+                        viewModel.setFilterTransactionType(it)
+
+                        stat(page = StatPage.Transactions, event = StatEvent.SwitchTab(it.statTab))
+                    }
                 )
             }
 
@@ -429,18 +440,18 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         if (icon.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(32.dp)
-                                    .clip(shape))
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .size(32.dp)
+                                            .clip(shape))
                         } else {
-                            CoinImage(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(shape),
-                                iconUrl = icon.url,
-                                placeholder = icon.placeholder
+                            HsImage(
+                                    modifier = Modifier.size(32.dp)
+                                            .clip(shape),
+                                    url = icon.url,
+                                    alternativeUrl = icon.alternativeUrl,
+                                    placeholder = icon.placeholder
                             )
                         }
                     }
@@ -449,21 +460,22 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         if (icon.back.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(top = 6.dp, start = 6.dp)
-                                    .size(24.dp)
-                                    .clip(backShape))
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .align(Alignment.TopStart)
+                                            .padding(top = 6.dp, start = 6.dp)
+                                            .size(24.dp)
+                                            .clip(backShape))
                         } else {
-                            CoinImage(
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(top = 4.dp, start = 6.dp)
-                                    .size(24.dp)
-                                    .clip(backShape),
-                                iconUrl = icon.back.url,
-                                placeholder = icon.back.placeholder,
+                            HsImage(
+                                    modifier = Modifier
+                                            .align(Alignment.TopStart)
+                                            .padding(top = 4.dp, start = 6.dp)
+                                            .size(24.dp)
+                                            .clip(backShape),
+                                    url = icon.back.url,
+                                    alternativeUrl = icon.back.alternativeUrl,
+                                    placeholder = icon.back.placeholder,
                             )
                         }
 
@@ -477,21 +489,22 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                         )
                         if (icon.front.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(bottom = 6.dp, end = 6.dp)
-                                    .size(20.dp)
-                                    .clip(frontShape))
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .padding(bottom = 6.dp, end = 6.dp)
+                                            .size(20.dp)
+                                            .clip(frontShape))
                         } else {
-                            CoinImage(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(bottom = 4.dp, end = 6.dp)
-                                    .size(24.dp)
-                                    .clip(frontShape),
-                                iconUrl = icon.front.url,
-                                placeholder = icon.front.placeholder,
+                            HsImage(
+                                    modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .padding(bottom = 4.dp, end = 6.dp)
+                                            .size(24.dp)
+                                            .clip(frontShape),
+                                    url = icon.front.url,
+                                    alternativeUrl = icon.front.alternativeUrl,
+                                    placeholder = icon.front.placeholder,
                             )
                         }
                     }

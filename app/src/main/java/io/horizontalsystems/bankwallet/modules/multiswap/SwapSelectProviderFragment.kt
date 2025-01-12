@@ -24,6 +24,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -32,7 +35,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_green50
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 
@@ -63,6 +65,8 @@ fun SwapSelectProviderScreen(navController: NavController) {
     ) {
         swapViewModel.onSelectQuote(it)
         navController.popBackStack()
+
+        stat(page = StatPage.SwapProvider, event = StatEvent.SwapSelectProvider(it.provider.id))
     }
 }
 
@@ -121,13 +125,6 @@ private fun SwapSelectProviderScreenInner(
                             text = provider.title,
                             textAlign = TextAlign.End
                         )
-                        if (i == 0) {
-                            VSpacer(height = 1.dp)
-                            subhead2_green50(
-                                text = stringResource(R.string.Swap_BestPrice),
-                                textAlign = TextAlign.End
-                            )
-                        }
                     }
                     HFillSpacer(minWidth = 8.dp)
                     Column(horizontalAlignment = Alignment.End) {

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
@@ -29,7 +30,6 @@ import io.horizontalsystems.bankwallet.core.managers.AccountCleaner
 import io.horizontalsystems.bankwallet.core.managers.AccountManager
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.bankwallet.core.managers.AppVersionManager
-import io.horizontalsystems.bankwallet.core.managers.BackgroundStateChangeListener
 import io.horizontalsystems.bankwallet.core.managers.BackupManager
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.BaseTokenManager
@@ -53,6 +53,7 @@ import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
 import io.horizontalsystems.bankwallet.core.managers.NumberFormatter
+import io.horizontalsystems.bankwallet.core.managers.PriceManager
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
@@ -64,6 +65,9 @@ import io.horizontalsystems.bankwallet.core.managers.SubscriptionManager
 import io.horizontalsystems.bankwallet.core.managers.SystemInfoManager
 import io.horizontalsystems.bankwallet.core.managers.TermsManager
 import io.horizontalsystems.bankwallet.core.managers.TokenAutoEnableManager
+import io.horizontalsystems.bankwallet.core.managers.TonAccountManager
+import io.horizontalsystems.bankwallet.core.managers.TonConnectManager
+import io.horizontalsystems.bankwallet.core.managers.TonKitManager
 import io.horizontalsystems.bankwallet.core.managers.TorManager
 import io.horizontalsystems.bankwallet.core.managers.TransactionAdapterManager
 import io.horizontalsystems.bankwallet.core.managers.TronAccountManager
@@ -79,6 +83,7 @@ import io.horizontalsystems.bankwallet.core.providers.CexProviderManager
 import io.horizontalsystems.bankwallet.core.providers.EvmLabelProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeRateProvider
 import io.horizontalsystems.bankwallet.core.providers.FeeTokenProvider
+import io.horizontalsystems.bankwallet.core.stats.StatsManager
 import io.horizontalsystems.bankwallet.core.storage.AccountsStorage
 import io.horizontalsystems.bankwallet.core.storage.AppDatabase
 import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
@@ -92,9 +97,6 @@ import io.horizontalsystems.bankwallet.modules.backuplocal.fullbackup.BackupProv
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewTypeManager
 import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorManager
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
-import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
-import io.horizontalsystems.bankwallet.modules.launcher.LauncherActivity
-import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesMenuService
 import io.horizontalsystems.bankwallet.modules.market.topnftcollections.TopNftCollectionsRepository
 import io.horizontalsystems.bankwallet.modules.market.topnftcollections.TopNftCollectionsViewItemFactory
@@ -126,6 +128,10 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.marketkit.MarketKit
 import io.reactivex.plugins.RxJavaPlugins
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.security.MessageDigest
 import io.reactivex.schedulers.Schedulers
 import org.telegram.messenger.ApplicationLoader
 import java.util.*
@@ -156,7 +162,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var btcBlockchainManager: BtcBlockchainManager
         lateinit var wordsManager: WordsManager
         lateinit var networkManager: INetworkManager
-        lateinit var backgroundStateChangeListener: BackgroundStateChangeListener
         lateinit var appConfigProvider: AppConfigProvider
         lateinit var adapterManager: IAdapterManager
         lateinit var transactionAdapterManager: TransactionAdapterManager
@@ -178,6 +183,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var binanceKitManager: BinanceKitManager
         lateinit var solanaKitManager: SolanaKitManager
         lateinit var tronKitManager: TronKitManager
+        lateinit var tonKitManager: TonKitManager
         lateinit var numberFormatter: IAppNumberFormatter
         lateinit var feeCoinProvider: FeeTokenProvider
         lateinit var accountCleaner: IAccountCleaner
@@ -189,6 +195,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var termsManager: ITermsManager
         lateinit var marketFavoritesManager: MarketFavoritesManager
         lateinit var marketKit: MarketKitWrapper
+        lateinit var priceManager: PriceManager
         lateinit var releaseNotesManager: ReleaseNotesManager
         lateinit var restoreSettingsManager: RestoreSettingsManager
         lateinit var evmSyncSourceManager: EvmSyncSourceManager
@@ -210,11 +217,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var chartIndicatorManager: ChartIndicatorManager
         lateinit var backupProvider: BackupProvider
         lateinit var spamManager: SpamManager
+        lateinit var statsManager: StatsManager
+        lateinit var tonConnectManager: TonConnectManager
 
         lateinit var safeProvider: SafeProvider
         lateinit var binanceRefreshManager: BinanceRefreshManager
         var tmpItemToShow: TransactionItem? = null
     }
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     override fun onCreate() {
         super.onCreate()
@@ -255,9 +266,10 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             context = this,
             hsApiBaseUrl = appConfig.marketApiBaseUrl,
             hsApiKey = appConfig.marketApiKey,
-            appConfigProvider = appConfigProvider,
             subscriptionManager = subscriptionManager
         )
+
+        priceManager = PriceManager(localStorage)
 
         feeRateProvider = FeeRateProvider(appConfigProvider)
         backgroundManager = BackgroundManager(this)
@@ -297,6 +309,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         solanaKitManager = SolanaKitManager(appConfigProvider, solanaRpcSourceManager, solanaWalletManager, backgroundManager)
 
         tronKitManager = TronKitManager(appConfigProvider, backgroundManager)
+        tonKitManager = TonKitManager(backgroundManager)
 
         blockchainSettingsStorage = BlockchainSettingsStorage(appDatabase)
 
@@ -342,6 +355,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         )
         tronAccountManager.start()
 
+        val tonAccountManager = TonAccountManager(accountManager, walletManager, tonKitManager, tokenAutoEnableManager)
+        tonAccountManager.start()
+
         systemInfoManager = SystemInfoManager(appConfigProvider)
 
         languageManager = LanguageManager()
@@ -368,31 +384,35 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             binanceKitManager = binanceKitManager,
             solanaKitManager = solanaKitManager,
             tronKitManager = tronKitManager,
+            tonKitManager = tonKitManager,
             backgroundManager = backgroundManager,
             restoreSettingsManager = restoreSettingsManager,
             coinManager = coinManager,
             evmLabelManager = evmLabelManager,
             localStorage = localStorage
         )
-        adapterManager = AdapterManager(walletManager, adapterFactory, btcBlockchainManager, evmBlockchainManager, binanceKitManager, solanaKitManager, tronKitManager)
+        adapterManager = AdapterManager(
+            walletManager,
+            adapterFactory,
+            btcBlockchainManager,
+            evmBlockchainManager,
+            binanceKitManager,
+            solanaKitManager,
+            tronKitManager,
+            tonKitManager,
+        )
         transactionAdapterManager = TransactionAdapterManager(adapterManager, adapterFactory)
 
         feeCoinProvider = FeeTokenProvider(marketKit)
 
         pinComponent = PinComponent(
             pinSettingsStorage = pinSettingsStorage,
-            excludedActivityNames = listOf(
-                KeyStoreActivity::class.java.name,
-                LockScreenActivity::class.java.name,
-                LauncherActivity::class.java.name,
-            ),
             userManager = userManager,
-            pinDbStorage = PinDbStorage(appDatabase.pinDao())
+            pinDbStorage = PinDbStorage(appDatabase.pinDao()),
+            backgroundManager = backgroundManager
         )
 
-        backgroundStateChangeListener = BackgroundStateChangeListener(pinComponent).apply {
-            backgroundManager.registerListener(this)
-        }
+        statsManager = StatsManager(appDatabase.statsDao(), localStorage, marketKit, appConfigProvider, backgroundManager)
 
         rateAppManager = RateAppManager(walletManager, adapterManager, localStorage)
 
@@ -402,7 +422,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         termsManager = TermsManager(localStorage)
 
         marketWidgetManager = MarketWidgetManager()
-        marketFavoritesManager = MarketFavoritesManager(appDatabase, marketWidgetManager)
+        marketFavoritesManager = MarketFavoritesManager(appDatabase, localStorage, marketWidgetManager)
 
         marketWidgetRepository = MarketWidgetRepository(
             marketKit,
@@ -410,7 +430,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             MarketFavoritesMenuService(localStorage, marketWidgetManager),
             TopNftCollectionsRepository(marketKit),
             TopNftCollectionsViewItemFactory(numberFormatter),
-            TopPlatformsRepository(marketKit, currencyManager, "widget"),
+            TopPlatformsRepository(marketKit),
             currencyManager
         )
 
@@ -467,6 +487,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         )
 
         spamManager = SpamManager(localStorage)
+
+        tonConnectManager = TonConnectManager(this, adapterFactory)
+        tonConnectManager.start()
 
         vpnServerStorage = VpnServerStorage(appDatabase)
         redeemStorage = RedeemStorage(appDatabase)
@@ -559,8 +582,35 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         localeAwareContext(this)
     }
 
+    override val isSwapEnabled = true
+
+    override fun getApplicationSignatures() = try {
+        val signatureList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val signingInfo = packageManager.getPackageInfo(
+                packageName,
+                PackageManager.GET_SIGNING_CERTIFICATES
+            ).signingInfo
+
+            when {
+                signingInfo.hasMultipleSigners() -> signingInfo.apkContentsSigners // Send all with apkContentsSigners
+                else -> signingInfo.signingCertificateHistory // Send one with signingCertificateHistory
+            }
+        } else {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+        }
+
+        signatureList.map {
+            val digest = MessageDigest.getInstance("SHA")
+            digest.update(it.toByteArray())
+            digest.digest()
+        }
+    } catch (e: Exception) {
+        // Handle error
+        emptyList()
+    }
+
     private fun startTasks() {
-        Thread {
+        coroutineScope.launch {
             EthereumKit.init()
             adapterManager.startAdapterManager()
             marketKit.sync()
@@ -580,7 +630,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
             evmLabelManager.sync()
             contactsRepository.initialize()
-
-        }.start()
+        }
     }
 }

@@ -34,61 +34,7 @@
     <!--  New themed gradient colors -->
     <attr name="ColorGradientWhite" format="reference" />
     <attr name="ColorWindowBackground" format="reference" />
-    <declare-styleable name="GlobalAttributesDeclaration">
-        <attr name="title" format="string" />
-        <attr name="description" format="string" />
-        <attr name="value" format="string" />
-    </declare-styleable>
-    <declare-styleable name="FullTransactionInfoItemView">
-        <attr name="infoTitle" format="string" />
-        <attr name="infoValue" format="string" />
-        <attr name="infoValueIcon" format="integer" />
-    </declare-styleable>
-    <declare-styleable name="MarketFilterView">
-        <attr name="title" />
-        <attr name="value" />
-    </declare-styleable>
-    <declare-styleable name="MarketFilterSwitchView">
-        <attr name="title" />
-        <attr name="checked" format="boolean" />
-    </declare-styleable>
-    <declare-styleable name="MarketMetricLargeView">
-        <attr name="title" />
-        <attr name="value" />
-    </declare-styleable>
-    <declare-styleable name="MarketMetricSmallView">
-        <attr name="title" />
-        <attr name="value" />
-    </declare-styleable>
-    <declare-styleable name="PriceGradientView">
-        <attr name="gradient" format="reference" />
-        <attr name="gradientSecond" format="reference" />
-    </declare-styleable>
-    <declare-styleable name="RateDiffView">
-        <attr name="negativeColor" format="color" />
-        <attr name="positiveColor" format="color" />
-    </declare-styleable>
-    <declare-styleable name="SettingItemWithCheckmark">
-        <attr name="title" />
-        <attr name="subtitle" />
-    </declare-styleable>
-    <declare-styleable name="SwapCardView">
-        <attr name="title" />
-    </declare-styleable>
-    <declare-styleable name="InputWithButtonsView">
-        <attr name="title" />
-        <attr name="description" />
-        <attr name="android:inputType" />
-    </declare-styleable>
-    <declare-styleable name="AddressInputView">
-        <attr name="title" />
-        <attr name="description" />
-    </declare-styleable>
-    <declare-styleable name="InputView">
-        <attr name="android:inputType" />
-        <attr name="android:hint" />
-    </declare-styleable>
-    <declare-styleable name="PicassoRoundedImageView">
-        <attr name="radius" format="integer" />
-    </declare-styleable>
+
+    <!--  Customise the class that is used to determine that the app is running in a test environment for LeakCanary -->
+    <string name="leak_canary_test_class_name">org.mockito.Mockito</string>
 </resources>

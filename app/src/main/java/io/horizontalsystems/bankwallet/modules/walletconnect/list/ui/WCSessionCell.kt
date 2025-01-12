@@ -31,7 +31,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.WCSessionModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.BadgeCount
+import io.horizontalsystems.bankwallet.ui.compose.components.BadgeText
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 
@@ -92,7 +92,7 @@ fun WCSessionCell(
                 subhead2_grey(text = session.subtitle)
             }
             if (session.pendingRequestsCount > 0) {
-                BadgeCount(
+                BadgeText(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     text = session.pendingRequestsCount.toString()
                 )

@@ -16,6 +16,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.StatSection
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -35,6 +39,8 @@ fun MarketPostsScreen(viewModel: MarketPostsViewModel = viewModel(factory = Mark
         refreshing = isRefreshing,
         onRefresh = {
             viewModel.refresh()
+
+            stat(page = StatPage.Markets, section = StatSection.News, event = StatEvent.Refresh)
         }
     ) {
         Crossfade(viewState) { viewState ->
@@ -56,6 +62,8 @@ fun MarketPostsScreen(viewModel: MarketPostsViewModel = viewModel(factory = Mark
                                 date = postItem.timeAgo,
                             ) {
                                 LinkHelper.openLinkInAppBrowser(context, postItem.url)
+
+                                stat(page = StatPage.Markets, section = StatSection.News, event = StatEvent.Open(StatPage.ExternalNews))
                             }
                         }
                         item {

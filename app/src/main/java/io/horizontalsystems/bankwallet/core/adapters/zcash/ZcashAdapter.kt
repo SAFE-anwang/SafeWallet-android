@@ -17,7 +17,6 @@ import cash.z.ecc.android.sdk.model.PercentDecimal
 import cash.z.ecc.android.sdk.model.WalletBalance
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.model.ZcashNetwork
-import cash.z.ecc.android.sdk.model.defaultForNetwork
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.AddressType
 import co.electriccoin.lightwallet.client.model.LightWalletEndpoint
@@ -66,7 +65,7 @@ class ZcashAdapter(
     private val decimalCount = 8
     private val network: ZcashNetwork = ZcashNetwork.Mainnet
     private val feeChangeHeight: Long = 1_077_550
-    private val lightWalletEndpoint = LightWalletEndpoint.defaultForNetwork(network)
+    private val lightWalletEndpoint = LightWalletEndpoint(host = "zec.rocks", port = 443, isSecure = true)
 
     private val synchronizer: CloseableSynchronizer
     private val transactionsProvider: ZcashTransactionsProvider
@@ -101,7 +100,7 @@ class ZcashAdapter(
                     max(network.saplingActivationHeight.value, height)
                 }
                 ?.let {
-                    BlockHeight.new(network, it)
+                    BlockHeight.new(it)
                 }
         }
 
@@ -157,7 +156,7 @@ class ZcashAdapter(
         get() = adapterStateUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
     override val balanceData: BalanceData
-        get() = BalanceData(balance, balanceLocked)
+        get() = BalanceData(balance, pending = balancePending)
 
     val statusInfo: Map<String, Any>
         get() {
@@ -174,7 +173,7 @@ class ZcashAdapter(
             return walletBalance.available.convertZatoshiToZec(decimalCount)
         }
 
-    private val balanceLocked: BigDecimal
+    private val balancePending: BigDecimal
         get() {
             val walletBalance = synchronizer.saplingBalances.value ?: return BigDecimal.ZERO
             return walletBalance.pending.convertZatoshiToZec(decimalCount)
@@ -257,6 +256,7 @@ class ZcashAdapter(
             is AddressType.Invalid -> throw ZcashError.InvalidAddress
             is AddressType.Transparent -> ZCashAddressType.Transparent
             is AddressType.Shielded -> ZCashAddressType.Shielded
+            is AddressType.Tex -> ZCashAddressType.Shielded
             AddressType.Unified -> ZCashAddressType.Unified
         }
     }

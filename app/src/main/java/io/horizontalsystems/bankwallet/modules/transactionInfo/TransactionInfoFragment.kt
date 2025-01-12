@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,10 +16,15 @@ import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
@@ -160,10 +166,15 @@ fun TransactionInfoSection(
                                 fiatAmount = viewItem.fiatValue,
                                 coinAmount = viewItem.coinValue,
                                 coinIconUrl = viewItem.coinIconUrl,
+                                alternativeCoinIconUrl = viewItem.alternativeCoinIconUrl,
                                 badge = viewItem.badge,
                                 coinIconPlaceholder = viewItem.coinIconPlaceholder,
                                 onClick = viewItem.coinUid?.let {
-                                    { navController.slideFromRight(R.id.coinFragment, CoinFragment.Input(it, "transaction_info")) }
+                                    {
+                                        navController.slideFromRight(R.id.coinFragment, CoinFragment.Input(it))
+
+                                        stat(page = StatPage.TransactionInfo, event = StatEvent.OpenCoin(it))
+                                    }
                                 }
                             )
                         }
@@ -209,7 +220,16 @@ fun TransactionInfoSection(
                                 showAdd = viewItem.showAdd,
                                 blockchainType = viewItem.blockchainType,
                                 navController = navController,
-                                showCopy = viewItem.showCopy
+                                showCopy = viewItem.showCopy,
+                                onCopy = {
+                                    stat(page = StatPage.TransactionInfo, section = viewItem.statSection, event = StatEvent.Copy(StatEntity.Address))
+                                },
+                                onAddToExisting = {
+                                    stat(page = StatPage.TransactionInfo, section = viewItem.statSection, event = StatEvent.Open(StatPage.ContactAddToExisting))
+                                },
+                                onAddToNew = {
+                                    stat(page = StatPage.TransactionInfo, section = viewItem.statSection, event = StatEvent.Open(StatPage.ContactNew))
+                                }
                             )
                         }
                     }

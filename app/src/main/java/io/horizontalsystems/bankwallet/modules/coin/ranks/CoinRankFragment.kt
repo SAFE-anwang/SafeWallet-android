@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.coin.ranks
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +39,9 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statPage
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.modules.coin.analytics.CoinAnalyticsModule.RankType
@@ -53,7 +56,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTogg
 import io.horizontalsystems.bankwallet.ui.compose.components.DescriptionCard
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
-import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -103,17 +105,25 @@ private fun CoinRankScreen(
     val uiState = viewModel.uiState
     val viewItems = viewModel.uiState.rankViewItems
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.Button_Close),
-                    icon = R.drawable.ic_close,
-                    onClick = { navController.popBackStack() }
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
+            AppBar(
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Button_Close),
+                        icon = R.drawable.ic_close,
+                        onClick = { navController.popBackStack() }
+                    )
                 )
             )
-        )
-        Crossfade(uiState.viewState, label = "") { viewItemState ->
+        }
+    ) { padding ->
+        Crossfade(
+            targetState = uiState.viewState,
+            modifier = Modifier.padding(padding),
+            label = ""
+        ) { viewItemState ->
             when (viewItemState) {
                 ViewState.Loading -> {
                     Loading()
@@ -163,7 +173,7 @@ private fun CoinRankScreen(
                                 }
                             }
                         }
-                        coinRankList(viewItems, navController)
+                        coinRankList(viewItems, type, navController)
                     }
                 }
             }
@@ -173,6 +183,7 @@ private fun CoinRankScreen(
 
 private fun LazyListScope.coinRankList(
     items: List<CoinRankModule.RankViewItem>,
+    type: RankType,
     navController: NavController
 ) {
     item {
@@ -189,8 +200,10 @@ private fun LazyListScope.coinRankList(
             iconUrl = item.iconUrl,
             value = item.value,
             onClick = {
-                val arguments = CoinFragment.Input(item.coinUid, "coin_rank")
+                val arguments = CoinFragment.Input(item.coinUid)
                 navController.slideFromRight(R.id.coinFragment, arguments)
+
+                stat(page = type.statPage, event = StatEvent.OpenCoin(item.coinUid))
             }
         )
     }

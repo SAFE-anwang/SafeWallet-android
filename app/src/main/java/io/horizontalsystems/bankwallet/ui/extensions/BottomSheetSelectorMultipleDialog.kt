@@ -26,7 +26,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
@@ -120,11 +120,11 @@ class BottomSheetSelectorMultipleDialog(
                             )
                         } else {
                             item.icon?.let { url ->
-                                CoinImage(
-                                    iconUrl = url,
-                                    modifier = Modifier
-                                        .padding(end = 16.dp)
-                                        .size(32.dp)
+                                HsImage(
+                                        url = url,
+                                        modifier = Modifier
+                                                .padding(end = 16.dp)
+                                                .size(32.dp)
                                 )
                             }
                         }

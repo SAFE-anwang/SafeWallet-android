@@ -2,13 +2,13 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.core.supportedNftTypes
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.core.BackgroundManagerState
 import io.horizontalsystems.erc20kit.core.Erc20Kit
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.signer.Signer
@@ -29,30 +29,30 @@ import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.math.BigInteger
 import java.net.URI
 
 class EvmKitManager(
     val chain: Chain,
-    backgroundManager: BackgroundManager,
+    private val backgroundManager: BackgroundManager,
     private val syncSourceManager: EvmSyncSourceManager
-) : BackgroundManager.Listener {
-
-    private val disposables = CompositeDisposable()
+) {
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var job: Job? = null
 
     init {
-        backgroundManager.registerListener(this)
-
-        syncSourceManager.syncSourceObservable
-            .subscribeIO { blockchain ->
+        coroutineScope.launch {
+            syncSourceManager.syncSourceObservable.asFlow().collect { blockchain ->
                 handleUpdateNetwork(blockchain)
             }
-            .let {
-                disposables.add(it)
-            }
+        }
     }
 
     private fun handleUpdateNetwork(blockchainType: BlockchainType) {
@@ -95,6 +95,7 @@ class EvmKitManager(
             evmKitWrapper = createKitInstance(accountType, account, blockchainType)
             useCount = 0
             currentAccount = account
+            subscribeToEvents()
         }
 
         useCount++
@@ -155,24 +156,25 @@ class EvmKitManager(
         }
         OneInchKit.addDecorators(evmKit)
 
-        var nftKit: NftKit? = null
-        val supportedNftTypes = blockchainType.supportedNftTypes
-        if (supportedNftTypes.isNotEmpty()) {
-            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
-            supportedNftTypes.forEach {
-                when (it) {
-                    NftType.Eip721 -> {
-                        nftKitInstance.addEip721TransactionSyncer()
-                        nftKitInstance.addEip721Decorators()
-                    }
-                    NftType.Eip1155 -> {
-                        nftKitInstance.addEip1155TransactionSyncer()
-                        nftKitInstance.addEip1155Decorators()
-                    }
-                }
-            }
-            nftKit = nftKitInstance
-        }
+        val nftKit: NftKit? = null
+//        var nftKit: NftKit? = null
+//        val supportedNftTypes = blockchainType.supportedNftTypes
+//        if (supportedNftTypes.isNotEmpty()) {
+//            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
+//            supportedNftTypes.forEach {
+//                when (it) {
+//                    NftType.Eip721 -> {
+//                        nftKitInstance.addEip721TransactionSyncer()
+//                        nftKitInstance.addEip721Decorators()
+//                    }
+//                    NftType.Eip1155 -> {
+//                        nftKitInstance.addEip1155TransactionSyncer()
+//                        nftKitInstance.addEip1155Decorators()
+//                    }
+//                }
+//            }
+//            nftKit = nftKitInstance
+//        }
 
         evmKit.start()
         seed?.let {
@@ -188,30 +190,32 @@ class EvmKitManager(
             useCount -= 1
 
             if (useCount < 1) {
+                Log.d("AAA", "stopEvmKit()")
                 stopEvmKit()
             }
         }
     }
 
+    private fun subscribeToEvents(){
+        job = coroutineScope.launch {
+            backgroundManager.stateFlow.collect { state ->
+                if (state == BackgroundManagerState.EnterForeground) {
+                    evmKitWrapper?.evmKit?.let { kit ->
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            kit.refresh()
+                        }, 1000)
+                    }
+                }
+            }
+        }
+    }
+
     private fun stopEvmKit() {
+        job?.cancel()
         evmKitWrapper?.evmKit?.stop()
         evmKitWrapper = null
         currentAccount = null
     }
-
-    //
-    // BackgroundManager.Listener
-    //
-
-    override fun willEnterForeground() {
-        this.evmKitWrapper?.evmKit?.let { kit ->
-            Handler(Looper.getMainLooper()).postDelayed({
-                kit.refresh()
-            }, 1000)
-        }
-    }
-
-    override fun didEnterBackground() = Unit
 }
 
 val RpcSource.uris: List<URI>

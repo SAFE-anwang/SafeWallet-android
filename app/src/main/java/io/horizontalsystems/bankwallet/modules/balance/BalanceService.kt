@@ -6,16 +6,23 @@ import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statSortType
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.math.BigDecimal
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -38,6 +45,8 @@ class BalanceService(
             localStorage.sortType = value
 
             sortAndEmitItems()
+
+            stat(page = StatPage.Balance, event = StatEvent.SwitchSortType(value.statSortType))
         }
 
     var isWatchAccount = false
@@ -60,41 +69,29 @@ class BalanceService(
     private val _balanceItemsFlow = MutableStateFlow<List<BalanceModule.BalanceItem>?>(null)
     val balanceItemsFlow = _balanceItemsFlow.asStateFlow()
 
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     fun start() {
-        activeWalletRepository.itemsObservable
-            .subscribeIO { wallets ->
+        coroutineScope.launch {
+            activeWalletRepository.itemsObservable.asFlow().collect { wallets ->
                 handleWalletsUpdate(wallets)
             }
-            .let {
-                disposables.add(it)
-            }
-
-        xRateRepository.itemObservable
-            .subscribeIO { latestRates ->
+        }
+        coroutineScope.launch {
+            xRateRepository.itemObservable.asFlow().collect { latestRates ->
                 handleXRateUpdate(latestRates)
             }
-            .let {
-                disposables.add(it)
-            }
-
-        adapterRepository.readyObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            adapterRepository.readyObservable.asFlow().collect {
                 handleAdaptersReady()
             }
-            .let {
-                disposables.add(it)
-            }
-
-        adapterRepository.updatesObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            adapterRepository.updatesObservable.asFlow().collect {
                 handleAdapterUpdate(it)
             }
-            .let {
-                disposables.add(it)
-            }
-
+        }
     }
 
     @Synchronized
@@ -181,13 +178,13 @@ class BalanceService(
         sortAndEmitItems()
     }
 
-    fun refresh() {
+    suspend fun refresh() {
         xRateRepository.refresh()
         adapterRepository.refresh()
     }
 
     override fun clear() {
-        disposables.clear()
+        coroutineScope.cancel()
         adapterRepository.clear()
     }
 

@@ -57,8 +57,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import io.github.alexzhirkevich.qrose.options.QrBallShape
+import io.github.alexzhirkevich.qrose.options.QrErrorCorrectionLevel
+import io.github.alexzhirkevich.qrose.options.QrFrameShape
+import io.github.alexzhirkevich.qrose.options.QrLogoPadding
+import io.github.alexzhirkevich.qrose.options.QrLogoShape
+import io.github.alexzhirkevich.qrose.options.QrPixelShape
+import io.github.alexzhirkevich.qrose.options.roundCorners
+import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.UsedAddress
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
@@ -160,7 +172,6 @@ fun ReceiveAddressScreen(
                             }
 
                             ViewState.Success -> {
-                                val qrCodeBitmap = TextHelper.getQrCodeBitmap(uiState.uri)
                                 Column(
                                     modifier = Modifier
                                         .weight(1f)
@@ -185,7 +196,15 @@ fun ReceiveAddressScreen(
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     TextHelper.copyText(uiState.uri)
-                                                    HudHelper.showSuccessMessage(localView, R.string.Hud_Text_Copied)
+                                                    HudHelper.showSuccessMessage(
+                                                        localView,
+                                                        R.string.Hud_Text_Copied
+                                                    )
+
+                                                    stat(
+                                                        page = StatPage.Receive,
+                                                        event = StatEvent.Copy(StatEntity.ReceiveAddress)
+                                                    )
                                                 },
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
@@ -197,32 +216,7 @@ fun ReceiveAddressScreen(
                                                     .size(224.dp),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                qrCodeBitmap?.let { qrCode ->
-                                                    Image(
-                                                        modifier = Modifier
-                                                            .padding(8.dp)
-                                                            .fillMaxSize(),
-                                                        bitmap = qrCode.asImageBitmap(),
-                                                        contentScale = ContentScale.FillWidth,
-                                                        contentDescription = null
-                                                    )
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(8.dp))
-                                                            .background(ComposeAppTheme.colors.white)
-                                                            .size(64.dp),
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Image(
-                                                            modifier = Modifier.size(48.dp),
-                                                            painter = adaptiveIconPainterResource(
-                                                                    id = R.drawable.logo_safe_24,
-                                                                    fallbackDrawable = R.drawable.logo_safe_24
-                                                            ),
-                                                            contentDescription = null
-                                                        )
-                                                    }
-                                                }
+                                                QrCodeImage(uiState.uri)
                                             }
                                             VSpacer(12.dp)
                                             subhead2_leah(
@@ -241,7 +235,11 @@ fun ReceiveAddressScreen(
                                         if (uiState.additionalItems.isNotEmpty()) {
                                             AdditionalDataSection(
                                                 items = uiState.additionalItems,
-                                                onClearAmount = { setAmount(null) },
+                                                onClearAmount = {
+                                                    setAmount(null)
+
+                                                    stat(page = StatPage.Receive, event = StatEvent.RemoveAmount)
+                                                },
                                                 showAccountNotActiveWarningDialog = {
                                                     scope.launch { sheetState.show() }
                                                 }
@@ -301,12 +299,47 @@ fun ReceiveAddressScreen(
                         onAmountConfirm = { amount ->
                             setAmount(amount)
                             openAmountDialog.value = false
+
+                            stat(page = StatPage.Receive, event = StatEvent.SetAmount)
                         }
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun QrCodeImage(address: String) {
+    val logoPainter: Painter =
+    adaptiveIconPainterResource(
+            id = R.drawable.logo_safe_24,
+            fallbackDrawable = R.drawable.logo_safe_24
+    ),
+    val qrcodePainter: Painter =
+        rememberQrCodePainter(address) {
+            errorCorrectionLevel = QrErrorCorrectionLevel.Medium
+            logo {
+                painter = logoPainter
+                padding = QrLogoPadding.Natural(.3f)
+                shape = QrLogoShape.roundCorners(0.8f)
+                size = 0.2f
+            }
+
+            shapes {
+                ball = QrBallShape.roundCorners(.25f)
+                darkPixel = QrPixelShape.roundCorners()
+                frame = QrFrameShape.roundCorners(.25f)
+            }
+        }
+    Image(
+        painter = qrcodePainter,
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize(),
+        contentScale = ContentScale.FillWidth,
+        contentDescription = null
+    )
 }
 
 @Composable
@@ -346,7 +379,7 @@ private fun ActionButtonsRow(
             .padding(horizontal = 48.dp),
         horizontalArrangement = if (watchAccount) Arrangement.Center else Arrangement.SpaceBetween,
     ) {
-        val itemModifier = if(watchAccount) Modifier else Modifier.weight(1f)
+        val itemModifier = if (watchAccount) Modifier else Modifier.weight(1f)
         if (!watchAccount) {
             ReceiveActionButton(
                 modifier = itemModifier,
@@ -363,6 +396,8 @@ private fun ActionButtonsRow(
             buttonText = stringResource(R.string.Button_Share),
             onClick = {
                 onShareClick.invoke(uri)
+
+                stat(page = StatPage.Receive, event = StatEvent.Share(StatEntity.ReceiveAddress))
             },
         )
         if (watchAccount) {
@@ -375,6 +410,8 @@ private fun ActionButtonsRow(
             onClick = {
                 TextHelper.copyText(uri)
                 HudHelper.showSuccessMessage(localView, R.string.Hud_Text_Copied)
+
+                stat(page = StatPage.Receive, event = StatEvent.Copy(StatEntity.ReceiveAddress))
             },
         )
         if (isAnBaoWallet) {

@@ -9,9 +9,11 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +21,7 @@ import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.fragment.NavHostFragment
+import com.walletconnect.web3.wallet.client.Wallet
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
@@ -32,6 +35,10 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
+import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
+import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
+import io.horizontalsystems.core.hideKeyboard
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
@@ -58,6 +65,11 @@ class MainActivity : BaseActivity() {
                 VpnConnectService.startVpn(this)
             }
         }
+
+    override fun onResume() {
+        super.onResume()
+        validate()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -141,6 +153,7 @@ class MainActivity : BaseActivity() {
         LockScreenActivity.start(this)
     }
 
+
     private fun handleWeb3WalletEvents(
         navController: NavController,
         wcViewModel: WCViewModel,
@@ -158,17 +171,41 @@ class MainActivity : BaseActivity() {
                         navController.slideFromBottom(R.id.wcRequestFragment,)
                     }
 
-                    is SignEvent.Disconnect -> {
-                    }
-
-                    is AuthEvent.OnRequest -> {
-                    }
-
-                    else -> Unit
-                }
+        viewModel.tcSendRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottom(R.id.tcSendRequestFragment)
             }
-            .launchIn(lifecycleScope)
+        }
+
+        viewModel.tcDappRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottom(R.id.tcNewFragment, request)
+                viewModel.onTcDappRequestHandled()
+            }
+        }
     }
+
+    private fun validate() = try {
+        viewModel.validate()
+    } catch (e: MainScreenValidationError.NoSystemLock) {
+        KeyStoreActivity.startForNoSystemLock(this)
+        finish()
+    } catch (e: MainScreenValidationError.KeyInvalidated) {
+        KeyStoreActivity.startForInvalidKey(this)
+        finish()
+    } catch (e: MainScreenValidationError.UserAuthentication) {
+        KeyStoreActivity.startForUserAuthentication(this)
+        finish()
+    } catch (e: MainScreenValidationError.Welcome) {
+        IntroActivity.start(this)
+        finish()
+    } catch (e: MainScreenValidationError.Unlock) {
+        LockScreenActivity.start(this)
+    } catch (e: MainScreenValidationError.KeystoreRuntimeException) {
+        Toast.makeText(App.instance, "Issue with Keystore", Toast.LENGTH_SHORT).show()
+        finish()
+    }
+}
 
     fun openSend(wallet: Wallet) {
         /*startActivity(Intent(this, SendActivity::class.java).apply {

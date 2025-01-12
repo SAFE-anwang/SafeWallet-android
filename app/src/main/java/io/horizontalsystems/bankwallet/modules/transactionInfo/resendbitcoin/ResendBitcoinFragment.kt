@@ -16,6 +16,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
@@ -23,7 +25,11 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.getInputX
-import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.StatSection
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmSettingsInput
@@ -33,9 +39,8 @@ import io.horizontalsystems.bankwallet.modules.send.ConfirmAmountCell
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.advanced.FeeRateCaution
 import io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoViewModel
-import io.horizontalsystems.bankwallet.modules.transactionInfo.options.TransactionInfoOptionsModule
+import io.horizontalsystems.bankwallet.modules.transactionInfo.options.SpeedUpCancelType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
@@ -53,7 +58,7 @@ import kotlinx.parcelize.Parcelize
 class ResendBitcoinFragment : BaseComposeFragment() {
 
     @Parcelize
-    data class Input(val optionType: TransactionInfoOptionsModule.Type) : Parcelable
+    data class Input(val optionType: SpeedUpCancelType) : Parcelable
 
     private val transactionInfoViewModel by navGraphViewModels<TransactionInfoViewModel>(R.id.transactionInfoFragment)
 
@@ -119,14 +124,12 @@ class ResendBitcoinFragment : BaseComposeFragment() {
             }
         }
 
-        DisposableLifecycleCallbacks(
+        LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
             //additional close for cases when user closes app immediately after sending
-            onResume = {
-                if (uiState.sendResult == SendResult.Sent) {
-                    navController.popBackStack(closeUntilDestId, true)
-                }
+            if (uiState.sendResult == SendResult.Sent) {
+                navController.popBackStack(closeUntilDestId, true)
             }
-        )
+        }
 
         Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
@@ -163,7 +166,7 @@ class ResendBitcoinFragment : BaseComposeFragment() {
                                 .getFormattedFull()
                         }
 
-                        ConfirmAmountCell(currencyAmount, coinAmount, uiState.coin.imageUrl)
+                        ConfirmAmountCell(currencyAmount, coinAmount, uiState.coin)
                     }
                     add {
                         TransactionInfoAddressCell(
@@ -171,7 +174,16 @@ class ResendBitcoinFragment : BaseComposeFragment() {
                             value = uiState.address.hex,
                             showAdd = uiState.contact == null,
                             blockchainType = uiState.blockchainType,
-                            navController = navController
+                            navController = navController,
+                            onCopy = {
+                                stat(page = StatPage.Resend, section = StatSection.AddressTo, event = StatEvent.Copy(StatEntity.Address))
+                            },
+                            onAddToExisting = {
+                                stat(page = StatPage.Resend, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactAddToExisting))
+                            },
+                            onAddToNew = {
+                                stat(page = StatPage.Resend, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactNew))
+                            }
                         )
                     }
                     uiState.contact?.let {

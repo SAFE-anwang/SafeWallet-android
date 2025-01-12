@@ -22,57 +22,57 @@ import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 
 @Composable
 fun ConfirmTransactionScreen(
-        title: String = stringResource(R.string.Swap_Confirm_Title),
-        onClickBack: () -> Unit,
-        onClickSettings: (() -> Unit)?,
-        onClickClose: (() -> Unit)?,
-        buttonsSlot: @Composable() (ColumnScope.() -> Unit),
-        content: @Composable() (ColumnScope.() -> Unit)
+    title: String = stringResource(R.string.Swap_Confirm_Title),
+    onClickBack: () -> Unit,
+    onClickSettings: (() -> Unit)?,
+    onClickClose: (() -> Unit)?,
+    buttonsSlot: @Composable() (ColumnScope.() -> Unit),
+    content: @Composable() (ColumnScope.() -> Unit)
 ) {
     Scaffold(
-            topBar = {
-                AppBar(
-                        title = title,
-                        navigationIcon = {
-                            HsBackButton(onClick = onClickBack)
-                        },
-                        menuItems = buildList<MenuItem> {
-                            onClickSettings?.let {
-                                add(
-                                        MenuItem(
-                                                title = TranslatableString.ResString(R.string.Settings_Title),
-                                                icon = R.drawable.ic_manage_2_24,
-                                                onClick = onClickSettings
-                                        )
-                                )
-                            }
-                            onClickClose?.let {
-                                add(
-                                        MenuItem(
-                                                title = TranslatableString.ResString(R.string.Button_Close),
-                                                icon = R.drawable.ic_close,
-                                                onClick = onClickClose
-                                        )
-                                )
-                            }
-                        },
+        topBar = {
+            AppBar(
+                title = title,
+                navigationIcon = {
+                    HsBackButton(onClick = onClickBack)
+                },
+                menuItems = buildList<MenuItem> {
+                    onClickSettings?.let {
+                        add(
+                            MenuItem(
+                                title = TranslatableString.ResString(R.string.Settings_Title),
+                                icon = R.drawable.ic_manage_2_24,
+                                onClick = onClickSettings
+                            )
+                        )
+                    }
+                    onClickClose?.let {
+                        add(
+                            MenuItem(
+                                title = TranslatableString.ResString(R.string.Button_Close),
+                                icon = R.drawable.ic_close,
+                                onClick = onClickClose
+                            )
+                        )
+                    }
+                },
+            )
+        },
+        bottomBar = {
+            ButtonsGroupWithShade {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    content = buttonsSlot
                 )
-            },
-            bottomBar = {
-                ButtonsGroupWithShade {
-                    Column(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            content = buttonsSlot
-                    )
-                }
-            },
-            backgroundColor = ComposeAppTheme.colors.tyler,
+            }
+        },
+        backgroundColor = ComposeAppTheme.colors.tyler,
     ) {
         Column(
-                modifier = Modifier
-                        .padding(it)
-                        .verticalScroll(rememberScrollState())
+            modifier = Modifier
+                .padding(it)
+                .verticalScroll(rememberScrollState())
         ) {
             VSpacer(height = 12.dp)
 

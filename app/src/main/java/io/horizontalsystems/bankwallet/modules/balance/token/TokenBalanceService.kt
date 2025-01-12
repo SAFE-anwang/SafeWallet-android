@@ -1,16 +1,18 @@
 package io.horizontalsystems.bankwallet.modules.balance.token
 
 import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceXRateRepository
 import io.horizontalsystems.marketkit.models.CoinPrice
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class TokenBalanceService(
     private val wallet: Wallet,
@@ -28,11 +30,10 @@ class TokenBalanceService(
             _balanceItemFlow.update { value }
         }
 
-    private val disposables = CompositeDisposable()
-
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
     val baseCurrency by xRateRepository::baseCurrency
 
-    fun start() {
+    suspend fun start() {
         balanceAdapterRepository.setWallet(listOf(wallet))
         xRateRepository.setCoinUids(listOf(wallet.coin.uid))
 
@@ -43,33 +44,25 @@ class TokenBalanceService(
             balanceData = balanceAdapterRepository.balanceData(wallet),
             state = balanceAdapterRepository.state(wallet),
             sendAllowed = balanceAdapterRepository.sendAllowed(wallet),
-            coinPrice = latestRates[wallet.coin.uid]
+            coinPrice = latestRates[wallet.coin.uid],
+            warning = balanceAdapterRepository.warning(wallet)
         )
 
-        xRateRepository.itemObservable
-            .subscribeIO {
+        coroutineScope.launch {
+            xRateRepository.itemObservable.asFlow().collect {
                 handleXRateUpdate(it)
             }
-            .let {
-                disposables.add(it)
-            }
-
-        balanceAdapterRepository.readyObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            balanceAdapterRepository.readyObservable.asFlow().collect {
                 handleAdapterUpdate()
             }
-            .let {
-                disposables.add(it)
-            }
-
-        balanceAdapterRepository.updatesObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            balanceAdapterRepository.updatesObservable.asFlow().collect {
                 handleAdapterUpdate()
             }
-            .let {
-                disposables.add(it)
-            }
-
+        }
     }
 
     private fun handleXRateUpdate(latestRates: Map<String, CoinPrice?>) {
@@ -87,7 +80,6 @@ class TokenBalanceService(
     }
 
     override fun clear() {
-        disposables.clear()
         balanceAdapterRepository.clear()
     }
 }

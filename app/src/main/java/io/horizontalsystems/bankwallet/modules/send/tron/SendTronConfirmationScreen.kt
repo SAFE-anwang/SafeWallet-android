@@ -24,12 +24,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
-import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.StatSection
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.fee.HSFeeRaw
@@ -38,7 +44,6 @@ import io.horizontalsystems.bankwallet.modules.send.ConfirmAmountCell
 import io.horizontalsystems.bankwallet.modules.send.MemoCell
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
@@ -88,13 +93,11 @@ fun SendTronConfirmationScreen(
     val feeCoin = confirmationData.feeCoin
     val amount = confirmationData.amount
     val address = confirmationData.address
-    val isInactiveAddress = confirmationData.isInactiveAddress
     val contact = confirmationData.contact
     val fee = confirmationData.fee
     val activationFee = confirmationData.activationFee
     val resourcesConsumed = confirmationData.resourcesConsumed
     val memo = confirmationData.memo
-    val onClickSend = sendViewModel::onClickSend
 
     val view = LocalView.current
     when (sendResult) {
@@ -128,14 +131,12 @@ fun SendTronConfirmationScreen(
         }
     }
 
-    DisposableLifecycleCallbacks(
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
         //additional close for cases when user closes app immediately after sending
-        onResume = {
-            if (sendResult == SendResult.Sent) {
-                navController.popBackStack(closeUntilDestId, true)
-            }
+        if (sendResult == SendResult.Sent) {
+            navController.popBackStack(closeUntilDestId, true)
         }
-    )
+    }
 
     Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
@@ -174,7 +175,7 @@ fun SendTronConfirmationScreen(
                                 .getFormattedFull()
                         }
 
-                        ConfirmAmountCell(currencyAmount, coinAmount, coin.imageUrl)
+                        ConfirmAmountCell(currencyAmount, coinAmount, coin)
                     }
                     add {
                         TransactionInfoAddressCell(
@@ -182,13 +183,17 @@ fun SendTronConfirmationScreen(
                             value = address.hex,
                             showAdd = contact == null,
                             blockchainType = blockchainType,
-                            navController = navController
+                            navController = navController,
+                            onCopy = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Copy(StatEntity.Address))
+                            },
+                            onAddToExisting = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactAddToExisting))
+                            },
+                            onAddToNew = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactNew))
+                            }
                         )
-                    }
-                    if (isInactiveAddress) {
-                        add {
-                            InactiveAddressWarningItem(navController)
-                        }
                     }
                     contact?.let {
                         add {
@@ -263,7 +268,11 @@ fun SendTronConfirmationScreen(
                     .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
 
                 sendResult = sendResult,
-                onClickSend = onClickSend,
+                onClickSend = {
+                    sendViewModel.onClickSend()
+
+                    stat(page = StatPage.SendConfirmation, event = StatEvent.Send)
+                },
                 enabled = sendEnabled
             )
         }

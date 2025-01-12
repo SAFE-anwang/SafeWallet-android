@@ -7,11 +7,13 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.liquidity
+import io.horizontalsystems.bankwallet.core.diff
 import io.horizontalsystems.bankwallet.core.providers.CexAsset
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.swappable
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.balance.BalanceModule.warningText
 import io.horizontalsystems.bankwallet.modules.balance.cex.BalanceCexViewItem
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.core.helpers.DateHelper
@@ -27,10 +29,6 @@ import java.math.BigDecimal
 @Immutable
 data class BalanceViewItem(
     val wallet: Wallet,
-    val coinCode: String,
-    val coinTitle: String,
-    val coinIconUrl: String,
-    val coinIconPlaceholder: Int,
     val primaryValue: DeemedValue<String>,
     val exchangeValue: DeemedValue<String>,
     val secondaryValue: DeemedValue<String>,
@@ -46,8 +44,14 @@ data class BalanceViewItem(
     val swapEnabled: Boolean = false,
     val errorMessage: String?,
     val isWatchAccount: Boolean,
+    val warning: WarningText?,
     val isLpToken: Boolean = false,
     val liquidityVisible: Boolean = false
+)
+
+data class WarningText(
+    val title: TranslatableString,
+    val text: TranslatableString
 )
 
 data class LockedValue(
@@ -60,10 +64,6 @@ data class LockedValue(
 @Immutable
 data class BalanceViewItem2(
     val wallet: Wallet,
-    val coinCode: String,
-    val coinTitle: String,
-    val coinIconUrl: String,
-    val coinIconPlaceholder: Int,
     val primaryValue: DeemedValue<String>,
     val exchangeValue: DeemedValue<String>,
     val diff: BigDecimal?,
@@ -110,6 +110,7 @@ class BalanceViewItemFactory {
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
+        BlockchainType.Base,
         BlockchainType.Solana,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
@@ -193,7 +194,6 @@ class BalanceViewItemFactory {
         balanceViewType: BalanceViewType
     ): BalanceViewItem {
         val wallet = item.wallet
-        val coin = wallet.coin
         val state = item.state
         val latestRate = item.coinPrice
 
@@ -222,7 +222,24 @@ class BalanceViewItemFactory {
                     LockedValue(
                         title = TranslatableString.ResString(R.string.Balance_LockedAmount_Title),
                         infoTitle = TranslatableString.ResString(R.string.Info_LockTime_Title),
-                        info = TranslatableString.ResString(R.string.Info_LockTime_Description_Static),
+                        info = TranslatableString.ResString(R.string.Info_ProcessingBalance_Description),
+                        coinValue = it
+                    )
+                )
+            }
+
+            lockedCoinValue(
+                state,
+                item.balanceData.pending,
+                hideBalance,
+                wallet.decimal,
+                wallet.token
+            )?.let {
+                add(
+                    LockedValue(
+                        title = TranslatableString.ResString(R.string.Balance_ProcessingBalance_Title),
+                        infoTitle = TranslatableString.ResString(R.string.Info_ProcessingBalance_Title),
+                        info = TranslatableString.ResString(R.string.Info_ProcessingBalance_Description),
                         coinValue = it
                     )
                 )
@@ -248,10 +265,6 @@ class BalanceViewItemFactory {
 
         return BalanceViewItem(
             wallet = item.wallet,
-            coinCode = coin.code,
-            coinTitle = coin.name,
-            coinIconUrl = coin.imageUrl,
-            coinIconPlaceholder = wallet.token.iconPlaceholder,
             primaryValue = primaryValue,
             secondaryValue = secondaryValue,
             lockedValues = lockedValues,
@@ -263,10 +276,11 @@ class BalanceViewItemFactory {
             failedIconVisible = state is AdapterState.NotSynced,
             coinIconVisible = state !is AdapterState.NotSynced,
             badge = wallet.badge,
-            swapVisible = wallet.token.swappable,
+            swapVisible = App.instance.isSwapEnabled && wallet.token.swappable,
             swapEnabled = state is AdapterState.Synced,
             errorMessage = (state as? AdapterState.NotSynced)?.error?.message,
             isWatchAccount = watchAccount,
+            warning = item.warning?.warningText,
             isLpToken = item.wallet.coin.name == "Pancake LPs",
             liquidityVisible = wallet.token.liquidity
         )
@@ -281,7 +295,6 @@ class BalanceViewItemFactory {
         networkAvailable: Boolean
     ): BalanceViewItem2 {
         val wallet = item.wallet
-        val coin = wallet.coin
         val state = item.state
         val latestRate = item.coinPrice
 
@@ -306,10 +319,6 @@ class BalanceViewItemFactory {
 
         return BalanceViewItem2(
             wallet = item.wallet,
-            coinCode = coin.code,
-            coinTitle = coin.name,
-            coinIconUrl = coin.imageUrl,
-            coinIconPlaceholder = wallet.token.iconPlaceholder,
             primaryValue = primaryValue,
             secondaryValue = secondaryValue,
             exchangeValue = BalanceViewHelper.rateValue(latestRate, currency, true),
@@ -359,8 +368,7 @@ class BalanceViewItemFactory {
         val errorMessage = (adapterState as? AdapterState.NotSynced)?.error?.message
 
         return BalanceCexViewItem(
-            coinIconUrl = cexAsset.coin?.imageUrl,
-            coinIconPlaceholder = R.drawable.coin_placeholder,
+            coin = cexAsset.coin,
             coinCode = cexAsset.id,
             badge = null,
             primaryValue = primaryValue,
@@ -381,7 +389,6 @@ class BalanceViewItemFactory {
                 currency = currency,
                 dimmed = false
             ),
-            coinUid = cexAsset.coin?.uid,
             assetId = cexAsset.id,
             cexAsset = cexAsset,
             coinPrice = latestRate,

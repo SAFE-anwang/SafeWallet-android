@@ -2,13 +2,13 @@
 <resources>
     <!--Common-->
     <string name="Error_ParameterNotSet">Parametre ayarlanmadı</string>
-    <string name="LargeNumberFormat">%s%s</string>
+    <string name="LargeNumberFormat">%1$s%2$s</string>
     <string name="Alert_Cancel">İptal</string>
     <string name="Alert_Copy">Kopyala</string>
     <string name="Alert_Close">Kapat</string>
     <string name="Alert_Loading">Yükleniyor...</string>
     <string name="Alert_Restart">Yeniden başlat</string>
-    <string name="Suspended">SUSPENDED</string>
+    <string name="Suspended">ASKIYA ALINDI</string>
     <string name="Action_Undo">GERİ ALMA</string>
     <string name="Button_Show">Göster</string>
     <string name="Button_Hide">Gizle</string>
@@ -49,7 +49,9 @@
     <string name="Button_Browser">Tarayıcı</string>
     <string name="Button_Delete">Sil</string>
     <string name="Button_LearnMore">Daha fazla bilgi edin</string>
+    <string name="Button_Activate">Activate</string>
     <string name="Button_Sign">kaydol</string>
+    <string name="Button_Activating">Activating</string>
     <string name="Button_GetApiKeys">API Anahtarı alın</string>
     <string name="Button_Login">Giriş yapmak</string>
     <string name="Button_SignUp">Üye olmak</string>
@@ -58,8 +60,8 @@
     <string name="Button_Share">Paylaş</string>
     <string name="Button_Apply">Uygula</string>
     <string name="Button_SetAmount">Miktarı Ayarla</string>
-    <string name="Error_OutOfRange">Can\'t be less than %1$s or more than %2$s</string>
-    <string name="Error_NotInteger">Wrong integer number</string>
+    <string name="Error_OutOfRange">%1$s\'den küçük veya %2$s\'den büyük olamaz</string>
+    <string name="Error_NotInteger">Hatalı tam sayı numarası</string>
     <string name="Error">Hata</string>
     <string name="NotAvailable">N/A</string>
     <string name="Any">Herhangi</string>
@@ -171,7 +173,7 @@
     <string name="Market_Field_LowestPrice">En Düşük Fiyat</string>
     <string name="Market_Sort_PopupTitle">Sıralama şekli</string>
     <string name="Market_TotalMarketCap">Total Cap</string>
-    <string name="Market_BtcDominance">BTC Dominance</string>
+    <string name="Market_BtcDominance">BTC Hakimiyeti</string>
     <string name="Market_Volume24h">24 saat hacim</string>
     <string name="Market_TvlDeFi">TVL in DeFi</string>
     <string name="Market_DeFiCap">DeFi Cap</string>
@@ -181,14 +183,35 @@
     <string name="Market_PoweredByDefiLlamaApi">DefiLlama API İle Güçlendirildi</string>
     <string name="Market_Tab_Overview">İzleme</string>
     <string name="Market_Tab_Posts">Haberler</string>
+    <string name="Market_Tab_Coins">Coin\'ler</string>
+    <string name="Market_Tab_Platform">Platformlar</string>
+    <string name="Market_Tab_Pairs">Çiftler</string>
+    <string name="Market_Tab_Sectors">Sektörler</string>
     <string name="Market_Tab_Watchlist">İzleme Listesi</string>
     <string name="Market_Tab_Watchlist_EmptyList">İzleme listeniz boş.</string>
     <string name="Market_Category_TopCoins">En iyi Coinler</string>
     <string name="Market_Category_TopCoins_Description">P. Değerine Göre En Iyi Coinler</string>
-    <string name="TopPairs_Title">Top Market Pairs</string>
+    <string name="Market_Signals">Sinyaller</string>
+    <string name="Market_Volume">Hacim</string>
+    <string name="Market_MarketCap">Piyasa Değeri</string>
+    <string name="Market_TVL">TVL</string>
+    <string name="Market_Signal_Description">Aşağıdaki sinyaller yaklaşık olarak son 30 gün boyunca Bollinger Bantları ve RSI teknik fiyat göstergelerine dayanmaktadır. Bu sinyaller algoritmiktir ve sık sık değişebilir.</string>
+    <string name="Market_Signal_StrongBuy_Description">Fiyat artışında yüksek güven.</string>
+    <string name="Market_Signal_Buy_Description">Yakın gelecekte muhtemel fiyat artışı.</string>
+    <string name="Market_Signal_Neutral_Descripion">Net bir trend yok, piyasa denge durumunda.</string>
+    <string name="Market_Signal_Sell_Description">Yakın gelecekte muhtemel fiyat düşüşü.</string>
+    <string name="Market_Signal_StrongSell_Description">Fiyatın yüksek olasılıkla düşeceği.</string>
+    <string name="Market_Signal_Risky_Description">Yüksek risk seviyesi, dikkat gerektirir.</string>
+    <string name="Market_Signal_Warning">Her zaman risk yönetimini uygulamayı unutmayın ve bu finansal tavsiye değildir.</string>
+    <string name="Market_Signal_TurnOn">Aç</string>
+    <string name="Market_Top_100">Top 100</string>
+    <string name="Market_Top_200">Top 200</string>
+    <string name="Market_Top_300">Top 300</string>
+    <string name="Market_Top_500">Top 500</string>
+    <string name="TopPairs_Title">En İyi Piyasa Çiftleri</string>
     <string name="TopPairs_Description">Her borsada hacme göre en üstte olan işlem çiftleri</string>
     <!--Market Overview-->
-    <string name="Market_Overview_TopPairs">Top Market Pairs</string>
+    <string name="Market_Overview_TopPairs">En İyi Piyasa Çiftleri</string>
     <string name="Market_Overview_TopSectors">En İyi Sektörler</string>
     <string name="Market_Overview_Sectors">Sektörler</string>
     <!--Market Top Platforms-->
@@ -196,15 +219,16 @@
     <string name="MarketTopPlatforms_PlatofrmsRank">En İyi Blok Zinciri Platformları</string>
     <string name="MarketTopPlatforms_Description">Leading blockchain platforms by the cumulative market of projects built on top.</string>
     <string name="MarketTopPlatforms_Protocols">Protocols: %s</string>
-    <string name="MarketPlatformCoins_PlatformEcosystem">%s Ecosystem</string>
+    <string name="MarketPlatformCoins_PlatformEcosystem">%s Ekosistemi</string>
     <string name="MarketPlatformCoins_PlatformEcosystemDescription">%s zincirindeki tüm protokollerin piyasa değeri</string>
     <!--Market Global Metrics-->
     <string name="MarketGlobalMetrics_Chart">Chart</string>
-    <string name="MarketGlobalMetrics_TotalMarketCap">Total Cap</string>
-    <string name="MarketGlobalMetrics_BtcDominance">Bitcoin Dominance</string>
-    <string name="MarketGlobalMetrics_Volume">24 saat hacim</string>
+    <string name="MarketGlobalMetrics_TotalMarketCap">Toplam Piyasa Değeri</string>
+    <string name="MarketGlobalMetrics_BtcDominance">BTC Hakimiyeti</string>
+    <string name="MarketGlobalMetrics_Volume">24s Hacim</string>
     <string name="MarketGlobalMetrics_DefiCap">DeFi Cap</string>
     <string name="MarketGlobalMetrics_TvlInDefi">TVL in DeFi</string>
+    <string name="MarketGlobalMetrics_EtfInflow">ETF Girişi</string>
     <string name="MarketGlobalMetrics_TotalMarketCapDescription">Tüm kripto paraların toplam piyasa değeri.</string>
     <string name="MarketGlobalMetrics_BtcDominanceDescription">The historical change in ratio between the market cap of Bitcoin to the rest of the cryptocurrency markets. \n\nTypically, when Bitcoin dominance trending higher the rest of the crypto market trends down and vice versa.</string>
     <string name="MarketGlobalMetrics_VolumeDescription">Kripto piyasa 24 saatlik işlem hacmi.</string>
@@ -215,6 +239,15 @@
     <string name="MarketGlobalMetrics_ChainSelectorAll">Hepsi</string>
     <string name="MarketGlobalMetrics_CoinNotSupported">Bu kripto para henüz desteklenmiyor</string>
     <string name="MarketGlobalMetrics_NoCoin">This project doesn’t have a coin</string>
+    <!-- ETF-->
+    <string name="MarketEtf_Title">Toplam Net Giriş</string>
+    <string name="MarketEtf_Description">Bir ETF\'nin net girişi, nakit girişlerinin çıkışlardan çıkarılmasıyla eşittir.</string>
+    <string name="MarketEtf_HighestAssets">En Yüksek Varlıklar</string>
+    <string name="MarketEtf_LowestAssets">En Düşük Varlıklar</string>
+    <string name="MarketEtf_Inflow">Giriş</string>
+    <string name="MarketEtf_Outflow">Çıkış</string>
+    <string name="MarketEtf_Period_All">Hepsi</string>
+    <string name="MarketEtf_TotalNetAssets">Toplam Net Varlıklar</string>
     <!--Market Search-->
     <string name="EmptyResults">Sonuç bulunamadı</string>
     <string name="Market_Filters">Filtreler</string>
@@ -228,6 +261,8 @@
     <string name="Market_Filter_PricePeriod">Fiyat Periyodu</string>
     <string name="Market_Filter_TradingSignals">Ticaret Sinyalleri</string>
     <string name="Market_Filter_PriceChange">Fiyat Değişimi</string>
+    <string name="Market_PriceChange_24H">24 Saat</string>
+    <string name="Market_PriceChange_Utc">Gece Yarısı UTC</string>
     <string name="Market_Filter_Blockchains">Blockchains</string>
     <string name="Market_Filter_OutperformedBtc">BTC\'yi Geride Bıraktı</string>
     <string name="Market_Filter_OutperformedEth">ETH\'yi Geride Bıraktı</string>
@@ -246,7 +281,8 @@
     <string name="Market_Filter_Neutral">Tarafsız</string>
     <string name="Market_Filter_StrongSell">Kuvvetli Satış</string>
     <string name="Market_Filter_Sell">Sat</string>
-    <string name="Market_Filter_RiskToTrade">Ticaret Riski</string>
+    <string name="Market_Filter_RiskToTrade">Riskli</string>
+    <string name="Market_Filter_Gainers">Kazanlar</string>
     <string name="Market_Filter_Top_100">Top 100</string>
     <string name="Market_Filter_Top_250">Top 250</string>
     <string name="Market_Filter_Top_500">Top 500</string>
@@ -281,9 +317,14 @@
     <string name="Market_Filter_TimePeriod_1W">1 Hafta</string>
     <string name="Market_Filter_TimePeriod_2W">2 Hafta</string>
     <string name="Market_Filter_TimePeriod_1M">1 Ay</string>
+    <string name="Market_Filter_TimePeriod_3M">3 Ay</string>
     <string name="Market_Filter_TimePeriod_6M">6 Ay</string>
     <string name="Market_Filter_TimePeriod_1Y">1 Yıl</string>
-    <string name="TimePeriod_24h">24sa</string>
+    <string name="Market_Sorting_Manual">Manuel</string>
+    <string name="Market_Sorting_Gainers">Kazanlar</string>
+    <string name="Market_Sorting_Losers">Kaybedenler</string>
+    <string name="Market_Sorting_HighestCap">En Yüksek</string>
+    <string name="Market_Sorting_LowestCap">En Düşük</string>
     <!--Coin Markets-->
     <string name="CoinMarket_Title">%s Markets</string>
     <!--TVL Rank-->
@@ -302,8 +343,6 @@
     <string name="Balance_SearchingTransactions">İşlemler aranıyor ...</string>
     <string name="Balance_FoundTx">%s tx</string>
     <string name="Balance_Syncing_WithProgress">Eşitleniyor...%s%%</string>
-    <string name="Balance_AddCoins">Kredi Ekle</string>
-    <string name="Balance_AddCoin">Para Ekle</string>
     <string name="Balance_CoinDisabled">engelli madeni para %s</string>
     <string name="Balance_Sort_Balance">Bakiye</string>
     <string name="Balance_Sort_PopupTitle">Sıralama şekli</string>
@@ -312,7 +351,6 @@
     <string name="Balance_Hidden">gizli</string>
     <string name="Balance_DownloadingBlocks">Blokları İndirme</string>
     <string name="Balance_ScanningBlocks">Tarama Blokları</string>
-    <string name="Balance_Backup_Alert">Öncelikle %s cüzdanınızı yedeklemeniz gerekiyor daha sonra %s kripto parasını alabilirsiniz.</string>
     <string name="Balance_NoWalletAlert">Henüz cüzdan yok</string>
     <string name="Balance_NoCoinsAlert">Bu cüzdana hiç jeton eklemediniz.</string>
     <string name="Balance_WatchAccount_NoBalance">Bu cüzdan adresinde bakiye bulunmuyor</string>
@@ -333,7 +371,7 @@
     <string name="Balance_Receive_SetAmount">Miktarı Ayarla</string>
     <string name="Balance_Receive_AddressType">Adres tipi</string>
     <string name="Balance_LockedAmount_Title">Kilitli</string>
-    <string name="Balance_NotRelayedAmount_Title">Broadcasting</string>
+    <string name="Balance_NotRelayedAmount_Title">Yayınlama</string>
     <string name="Balance_Receive_Memo">Memo (Tag)</string>
     <string name="Balance_Error_InvalidQrCode">Tanıyamıyorum</string>
     <string name="Balance_Receive_WatchAddressAlert">Bu adres izlenen hesabın adresidir</string>
@@ -390,10 +428,6 @@
     <string name="Send_Error_SendToSelf">Kendine gönderme desteklenmiyor</string>
     <string name="Send_DialogAvailableBalance">Mevcut Bakiye</string>
     <string name="Send_DialogSpeed">İşlem hızı</string>
-    <string name="Send_TxSpeed_Low">Yavaş</string>
-    <string name="Send_TxSpeed_High">Hızlı</string>
-    <string name="Send_TxSpeed_Recommended">Tavsiye Edilen</string>
-    <string name="Send_TxSpeed_Custom">Özel</string>
     <string name="Send_DialogFee">Masraf:</string>
     <string name="Send_DialogProceed">İleri</string>
     <string name="Send_LockTime_Off">Kapat</string>
@@ -403,7 +437,7 @@
     <string name="Send_LockTime_Year">1 yıl</string>
     <string name="Send_Sending">Gönderiliyor</string>
     <string name="Send_FeeRate">Ücret oranı</string>
-    <string name="Send_Token_InsufficientFeeAlert">%s (%s) için ișlem ücreti %s hesabından ödenir. Asgari %s gerekiyor.</string>
+    <string name="Send_Token_InsufficientFeeAlert">%1$s (%2$s) için ișlem ücreti %3$s hesabından ödenir. Asgari %4$s gerekiyor.</string>
     <string name="Send_Warning_LowFee">Uyarı! Takılma riski</string>
     <string name="Send_Error_LowFee">Ücret Hatası</string>
     <string name="Send_Error_LowFee_Description">Ücret Oranı çok düşük.</string>
@@ -459,7 +493,7 @@
     <string name="FeeInfo_TronFee_Title">Masraf</string>
     <string name="FeeInfo_TronFee_Description">Ağda belirli bir işlemi göndermenin tahmini maliyeti. (Enerji, Bant Genişliği ve Aktivasyon Ücreti hariç)</string>
     <string name="FeeInfo_TronActivationFee_Title">Aktivasyon ücreti</string>
-    <string name="FeeInfo_TronActivationFee_Description">TRX veya TRC-10 jetonlarını etkin olmayan bir hesap adresine aktarmak, hesabı etkinleştirir.</string>
+    <string name="FeeInfo_TronActivationFee_Description">Bu adres aktif değil. TRX veya TRC-10 jetonlarını aktif olmayan bir hesap adresine transfer etmek, hesabı aktif hale getirecektir.</string>
     <string name="FeeInfo_TronResourcesConsumed_Title">Tüketilen Kaynaklar</string>
     <string name="FeeInfo_TronResourcesConsumed_Description">Band Width, blockchain veritabanında saklanan işlem baytlarının boyutunu ölçen birimdir. İşlem ne kadar büyük olursa, o kadar fazla bant genişliği kaynağı tüketilir.\n\nEnergy, TRON sanal makinesinin TRON ağında belirli işlemleri gerçekleştirmek için ihtiyaç duyduğu hesaplama miktarını ölçen birimdir.\n\nAkıllı sözleşmeden beri işlemlerin yürütülmesi için bilgi işlem kaynakları gerekir, her akıllı sözleşme işleminin energy ücretini ödemesi gerekir.</string>
     <!--Tron-->
@@ -469,6 +503,8 @@
     <string name="Tron_AddressNotActive_Info">TRON blok zincirinde yeni oluşturulan hesaplar etkin değildir ve sorgulanamaz veya araştırılamaz. Etkinleştirilmeleri gerekiyor.\n\nTRX veya TRC-10 jetonlarını etkin olmayan bir hesap adresine aktarmak, hesabı etkinleştirir. Tron zincirinde yeni bir hesabın etkinleştirilmesi 1 TRX ücret gerektirir</string>
     <string name="Tron_SelfSendTrxNotAllowed">TRX kendinize aktarılamıyor</string>
     <string name="Tron_ZeroAmountTrxNotAllowed">0 %s aktarılamıyor</string>
+    <string name="Tron_TokenPage_AddressNotActive_Title">Hesap aktif değil</string>
+    <string name="Tron_TokenPage_AddressNotActive_Info">Yeni TRON cüzdanları aktif hale gelmek için en az 1 TRX yatırılmasını gerektirir. Aktif olmayan cüzdanlar, tokenları alabilir ve saklayabilir, ancak etkinleştirilene kadar bakiyeleri güncellemez.</string>
     <!--WalletConnect-->
     <string name="WalletConnect_Request">İstek</string>
     <string name="WalletConnect_SendRequest_Title">Gönder</string>
@@ -501,6 +537,9 @@
     <string name="WalletConnect_Error_NoSuitableAccount">Uygun hesap yok</string>
     <string name="WalletConnect_Error_NoSuitableEvmKit">Uygun evm kiti yok</string>
     <string name="WalletConnect_Error_DataParsingError">Veri ayrıştırma hatası</string>
+    <string name="WalletConnect_Error_UnsupportedChains">Desteklenmeyen zincirler: %s</string>
+    <string name="WalletConnect_Error_UnsupportedMethods">Desteklenmeyen yöntemler: %s</string>
+    <string name="WalletConnect_Error_UnsupportedEvents">Desteklenmeyen olaylar: %s</string>
     <string name="WalletConnect_Error_RequestNotFoundError">İstek bulunamadı hatası</string>
     <string name="WalletConnect_NoConnection">Bağlı dapp\'niz yok</string>
     <string name="WalletConnect_PendingRequests">bekleyen istekler</string>
@@ -611,7 +650,6 @@
     <string name="SwapSettings_Apply">Uygula</string>
     <string name="SwapSettings_DeadlineMinute">%s dk</string>
     <string name="SwapSettings_RecipientPlaceholder">Adres veya Domain</string>
-    <string name="SwapSettings_FeeSettingsAlert">Platformdaki takas işlemi için bir hizmet ücreti genellikle %0,3 veya %0,6\'dır</string>
     <string name="SwapSettings_Error_DeadlineZero">Geçersiz Son Tarih</string>
     <string name="SwapSettings_Error_SlippageZero">Geçersiz Kayma</string>
     <string name="SwapSettings_Error_SlippageTooLow">İşleminizin başarısız olması muhtemeldir.</string>
@@ -637,6 +675,11 @@
     <string name="Approve_Spender">Harcayan</string>
     <string name="Approve_YouApprove">Sen Onaylıyorsun</string>
     <string name="Approve_YouRevoke">Sen iptal et</string>
+    <!--Swap Unlock Access-->
+    <string name="Swap_Unlock_PageTitle">Erişimi Aç</string>
+    <string name="Swap_Unlock_Subtitle">Aşağıdaki miktar için erişime izin ver</string>
+    <string name="Swap_Unlock_Info">Akıllı bir sözleşmeye, adınıza token ticareti yapabilmesi için izin verin ve izin verilen miktarı belirtin. Bakiyenize herhangi bir etkisi olmaz, ancak onay için küçük bir ücret alınır.\n\nGelecekteki işlemler için daha yüksek bir miktarın önceden onaylanması, talep üzerine onaylara göre maliyet açısından daha avantajlıdır.</string>
+    <string name="Swap_Unlock_Unlimited">Sınırsız</string>
     <!--Uniswap Info -->
     <string name="SwapInfo_AllowanceTitle">Ödenek</string>
     <string name="SwapInfo_AllowanceDescription">Bir borsanın, token takaslarını yürütürken kullanıcının adına harcayabileceği ödenek miktarı. Fiili bir takas işleminin gerçekleşmesinde yeterli ödenek gereklidir.</string>
@@ -753,7 +796,7 @@
     <!-- Info -->
     <string name="Info_LockTime_Description">Gönderici bu fonları %s.\n\n tarihte sona erecek şekilde bir harcama kilidiyle gönderdi. Endişelenmeyin, alınan Bitcoin\'ler zaten sizindir ancak kilitleme süresi sona erene kadar bunları harcayamazsınız.</string>
     <string name="Info_LockTime_Description_Static">Gönderici bu fonları belirtilen tarihte sona erecek şekilde bir harcama kilidiyle gönderdi.\n\nEndişelenmeyin, alınan Bitcoin\'ler zaten sizindir ancak kilitleme süresi sona erene kadar bunları Bitcoin ağında harcayamazsınız.</string>
-    <string name="Info_NotRelayed_Title">Broadcast</string>
+    <string name="Info_NotRelayed_Title">Yayın</string>
     <string name="Info_NotRelayed_Description">Bu miktarı içeren işlem yayınlandı ancak henüz ağ tarafından kabul edilmedi.</string>
     <string name="Info_DoubleSpend_Title">Çifte Harcama</string>
     <string name="Info_DoubleSpend_Description">Çifte Harcama Riski! Blockchain\'de, bu işlemde kullanılan girdileri harcamaya çalışan başka bir işlem var. Ağ tarafından yalnızca bir işlem kabul edilecektir</string>
@@ -787,8 +830,10 @@
     <string name="Settings_Contact_ViaTelegram">Telegram aracılığıyla</string>
     <string name="Settings_Contact_ViaEmail">E-posta yoluyla</string>
     <string name="Settings_AutoLock">Otomatik kilit</string>
+    <string name="Settings_JoinUnstoppables">Be Unstoppable</string>
+    <string name="Settings_JoinUnstoppables_Description">Özel videolar aracılığıyla kripto para birimini öğrenin ve ustalaşın. Bizi resmi olmayan bir şekilde tanıyın. Üzerinde çalıştığımız şeyleri ilk gören siz olun.</string>
     <string name="Settings_PersonalSupport">Kişisel Destek</string>
-    <string name="Settings_PersonalSupport_EnterTelegramAccountDescription">Enter your Telegram account name to start a personal support chat with our team. We\'ll get back to you and start working on your problem as soon as we see it.</string>
+    <string name="Settings_PersonalSupport_EnterTelegramAccountDescription">Takımımızla kişisel destek sohbeti başlatmak için Telegram hesap adınızı girin. Sorununuzu gördüğümüzde hemen size geri dönecek ve çalışmaya başlayacağız.</string>
     <string name="Settings_PersonalSupport_YouAlreadyRequestedSupportDescription">Zaten özel bir sohbet talep ettiniz, bunu Telegram\'da bulun</string>
     <string name="Settings_PersonalSupport_Account">Hesap</string>
     <string name="Settings_PersonalSupport_UsernameHint">\@username</string>
@@ -812,19 +857,25 @@
     <string name="SettingsSecurity_AutoLock_After1Hour">1 saat</string>
     <string name="Appearance_Theme">TEMA</string>
     <string name="Appearance_Tab">TAB AYARLARI</string>
+    <string name="Appearance_MarketsTab">MARKETS TAB</string>
+    <string name="Appearance_BalanceTab">BALANCE TAB</string>
     <string name="Appearance_LaunchScreen">BAŞLANGIÇ EKRANI</string>
     <string name="Appearance_AppIcon">UYGULAMA IKONLARI</string>
-    <string name="Appearance_BalanceConversion">BAKIYE ÇEVRIMI</string>
-    <string name="Appearance_BalanceValue">BAKIYE DEĞERI</string>
+    <string name="Appearance_BalanceConversion">Bakiye çevrimi</string>
+    <string name="Appearance_BalanceValue">Bakiye değeri</string>
     <string name="Appearance_Warning_CloseApplication">Simgeyi değiştirmek uygulamayı kapatır</string>
-    <string name="Appearance_MarketsTab">Piyasalar Sekmesi</string>
+    <string name="Appearance_HideMarketsTab">Piyasaları Gizle</string>
+    <string name="Appearance_HideBalanceTabButtons">Düğmeleri Gizle</string>
+    <string name="Appearance_HideBalanceTabButtonsDescription">Bu yapılandırma, Bakiye sekmesinde Gönder, Al ve Değiştir düğmelerini gizler.</string>
     <string name="Appearance_BalanceAutoHide">Denge Otomatik Gizleme</string>
     <string name="Appearance_BalanceAutoHide_Description">Uygulama her açıldığında, önceki tercihlere bakılmaksızın bakiyeyi otomatik olarak gizler.</string>
+    <string name="Appearance_PriceChangeInterval">Fiyat Değişimi %</string>
     <string name="BalanceViewType_CoinValue">Para değeri</string>
     <string name="BalanceViewType_FiatValue">Fiat Değeri</string>
     <string name="SettingsAboutApp_Title">Uygulama Hakkında</string>
     <string name="SettingsAboutApp_Site">Web sitesi</string>
     <string name="SettingsAboutApp_WhatsNew">Neler yeni</string>
+    <string name="SettingsAboutApp_AppVersion">Uygulama Sürümü</string>
     <!-- Blockchain Settings  -->
     <string name="BlockchainSettings_Title">Blockchain Ayarları</string>
     <!-- Backup Manager -->
@@ -846,11 +897,11 @@
     <string name="BackupManager_AppSettingsTitle">Uygulama Ayarları</string>
     <string name="BackupManager_AppSettingsDescription">Dil, Para Birimi, Görünüm...</string>
     <!-- Privacy  -->
-    <string name="Privacy_Information">Unstoppable herhangi bir veri toplamaz veya kullanıcıları hakkında herhangi bir veriyi ifşa edebilecek analiz araçları kullanmaz. Unstoppable cüzdanı kullanıcıları için yüksek düzeyde gizlilik sağlamak üzere tasarlanmıştır.</string>
-    <string name="Privacy_BulletedText1">Kullanıcı verileri her zaman kullanıcının cihazında kalır.</string>
-    <string name="Privacy_BulletedText2">Bu cüzdan, kullanıcılar hakkında herhangi bir veri toplamaz.</string>
-    <string name="Privacy_BulletedText3">Bu cüzdan, kullanıcılar hakkında herhangi bir veri paylaşmaz.</string>
-    <string name="Privacy_BulletedText4">Kullanıcı verilerini herhangi bir yerde kaida alan hesaplar veya veritabanları yoktur.</string>
+    <string name="Privacy_Information">Unstoppable, coin bakiyelerinizi veya adreslerinizi açığa çıkaran kişisel verileri toplamaz. Biraz kullanıcı arayüzü kullanım istatistikleri topluyoruz, ancak bunlar yalnızca kullanıcı tabanımızı ve uygulama kullanım eğilimlerini anlamak içindir. İsterseniz bunu devre dışı bırakabilirsiniz.</string>
+    <string name="Privacy_BulletedText1">Cüzdan herhangi bir kişisel veri toplamaz.</string>
+    <string name="Privacy_BulletedText2">Kullanıcı hesapları veya kullanıcı verilerini depolayan veritabanları yoktur.</string>
+    <string name="Privacy_BulletedText3">İzin verilirse, cüzdan, Unstoppable ekibiyle uygulama kullanım alışkanlıklarını paylaşacak. Bu, kullanıcılarımızın hangi özellikleri kullandığını (veya kullanmadığını) anlamak için. Gizliliğe odaklanan bir uygulama olarak, çabalarımızı değerlendirmenin bir yolu olmalı ve bu olmadan, oluşturduğumuz özelliklerin kullanılıp kullanılmadığını bilmiyoruz.</string>
+    <string name="ShareUiData">UI Verilerini Paylaş</string>
     <!-- Security Center -->
     <string name="SecurityCenter_Internet">INTERNET</string>
     <!--Evm Network-->
@@ -1104,6 +1155,7 @@
     <string name="Bip32RootKey">BIP32 Root Key</string>
     <!-- Account Extended Keys -->
     <string name="ExtendedKey_TapToShowPrivateKey">Özel anahtarı göstermek için dokunun</string>
+    <string name="ExtendedKey_AccountInfo">Yapılacak</string>
     <!-- Private Keys -->
     <string name="PrivateKeys_Title">Gizli Anahtar</string>
     <string name="PrivateKeys_EvmPrivateKey">EVM Özel anahtar</string>
@@ -1198,11 +1250,11 @@
     <!--Coin Page-->
     <string name="Coin_Info">Koin Bilgisi</string>
     <string name="Coin_Tab_Overview">Fiyat</string>
-    <string name="Coin_Tab_Market">Markets</string>
+    <string name="Coin_Tab_Market">Marketler</string>
     <string name="Coin_Tab_Details">Analitik</string>
     <string name="Coin_Tab_Tweets">Tweets</string>
     <string name="CoinPage_TimeDuration_Today">Bugün</string>
-    <string name="CoinPage_TimeDuration_Day">24S</string>
+    <string name="CoinPage_TimeDuration_Day">1G</string>
     <string name="CoinPage_TimeDuration_Week">7G</string>
     <string name="CoinPage_TimeDuration_Month">1A</string>
     <string name="CoinPage_TimeDuration_TwoWeeks">2H</string>
@@ -1214,26 +1266,26 @@
     <string name="CoinPage_TimeDuration_All">Hepsi</string>
     <string name="CoinPage_Markets">Marketler</string>
     <string name="CoinPage_TradingVolume">İşlem Hacmi</string>
-    <string name="CoinPage_MajorHolders">Major Holders</string>
+    <string name="CoinPage_MajorHolders">Önemli Sahipler</string>
     <string name="CoinPage_MajorHolders_InfoDescription">İlk 10 cüzdanda tutulan token sayısı. Kaliteli projeler genellikle geniş bir şekilde dağıtılmış tokene sahiptir.</string>
     <string name="CoinPage_Audits">Denetimler</string>
     <string name="CoinPage_Audits_Empty">Denetim raporu yok</string>
-    <string name="CoinPage_Audits_PoweredBy">Powered by Defiyield.app</string>
-    <string name="CoinPage_Audits_Issues">Issues: %d</string>
+    <string name="CoinPage_Audits_PoweredBy">Defiyield.app tarafından desteklenmektedir</string>
+    <string name="CoinPage_Audits_Issues">Sorunlar: %d</string>
     <string name="CoinPage_InvestorData">Yatırımcı Verileri</string>
     <string name="CoinPage_Treasuries_FilterTitle">Filtreler</string>
-    <string name="CoinPage_Treasuries_PoweredBy">Powered by Bitcointreasuries.net</string>
+    <string name="CoinPage_Treasuries_PoweredBy">Bitcointreasuries.net tarafından desteklenmektedir</string>
     <string name="CoinPage_Reports">Raporlar</string>
     <string name="CoinPage_FundsInvested">Yatırılan Fonlar</string>
     <string name="CoinPage_SecurityParams_Privacy">Gizlilik</string>
     <string name="CoinPage_SecurityParams_Low">Yavaş</string>
     <string name="CoinPage_SecurityParams_Medium">Ortadüzey</string>
     <string name="CoinPage_SecurityParams_High">Hızlı</string>
-    <string name="CoinPage_SecurityParams_Issuance">Issuance</string>
+    <string name="CoinPage_SecurityParams_Issuance">Çıkarım</string>
     <string name="CoinPage_SecurityParams_Centralized">Merkezi</string>
     <string name="CoinPage_SecurityParams_Decentralized">Merkezi olmayan</string>
-    <string name="CoinPage_SecurityParams_ConfiscationResistance">Confiscation-resistance</string>
-    <string name="CoinPage_SecurityParams_CensorshipResistance">Censorship-resistance</string>
+    <string name="CoinPage_SecurityParams_ConfiscationResistance">El koyma direnci</string>
+    <string name="CoinPage_SecurityParams_CensorshipResistance">Sansür direnci</string>
     <string name="CoinPage_SecurityParams_Audits">Denetimler</string>
     <string name="CoinPage_Range24">24 Saatlik Aralık</string>
     <string name="CoinPage_About">Hakkında</string>
@@ -1244,7 +1296,7 @@
     <string name="CoinPage_Blockchains">Blockchains</string>
     <string name="CoinPage_Bips">BIPs</string>
     <string name="CoinPage_CoinTypes">Coin çeşitleri</string>
-    <string name="CoinPage_Links">Links</string>
+    <string name="CoinPage_Links">Bağlantılar</string>
     <string name="CoinPage_Guide">Kılavuzu</string>
     <string name="CoinPage_Website">Web sitesi</string>
     <string name="CoinPage_Whitepaper">Whitepaper</string>
@@ -1292,6 +1344,7 @@
     <string name="CoinPage_MajorHolders_InTopWallets">ilk 10 sahibinde</string>
     <string name="CoinPage_MajorHolders_HoldersNumber">Toplam Sahip: %s</string>
     <string name="CoinPage_CoinInvestments_Lead">Önderlik</string>
+    <string name="CoinPage_NftBannerDescription">Get access to advanced wallet features by holding Unstoppable NFTs.</string>
     <string name="CoinPage_CoinNotFound">[%s]\nBulunamadı</string>
     <string name="CoinPage_Indicators">Göstergeler</string>
     <string name="CoinPage_MovingAverages">Hareketli Ortalamalar</string>
@@ -1416,17 +1469,68 @@
     <string name="Coin_Analytics_Indicators_Neutral">Tarafsız</string>
     <string name="Coin_Analytics_Indicators_NoData">Veri Yok</string>
     <string name="CoinAnalytics_SmartContractAnalysis">Smart Contract Analysis</string>
+    <string name="CoinAnalytics_HighRiskItems">Yüksek Riskli Ögeler</string>
+    <string name="CoinAnalytics_MediumRiskItems">Orta Riskli Ögeler</string>
+    <string name="Coin_Analytics_Indicators_Risky">Riskli</string>
+    <string name="CoinAnalytics_AttentionRequired">İlgilenmeniz Gerekiyor</string>
     <string name="CoinAnalytics_PoweredByDeFi">De.Fi tarafından desteklenmektedir</string>
     <string name="CoinAnalytics_CountItems">%d adet</string>
     <string name="TechnicalAdvice_Title">Teknik Göstergeleri</string>
+    <string name="TechnicalAdvice_IndicatorsDisclaimer">Her zaman risk yönetimini uygulamayı unutmayın ve bu finansal tavsiye değildir.</string>
+    <string name="TechnicalAdvice_OverBought">aşırı alım</string>
+    <string name="TechnicalAdvice_OverSold">aşırı satım</string>
+    <string name="TechnicalAdvice_Down">aşağı</string>
+    <string name="TechnicalAdvice_Up">yukarı</string>
+    <string name="TechnicalAdvice_OverMain">Varlık ile yapılan işlemler risklidir.</string>
+    <string name="TechnicalAdvice_OverIndicators_SignalDate">%s\'den başlayarak</string>
+    <string name="TechnicalAdvice_OverIndicators">Varlık, Bollinger Band kanalı dışında ve %s.</string>
+    <string name="TechnicalAdvice_OverRsi"> RSI = %1$s, Bu aynı zamanda varlığın %2$s olduğunu gösterir.</string>
+    <string name="TechnicalAdvice_OverAdvice"> Güçlü bir %s yönlü hareket olabilir, bu yüzden varlık fiyatının kanala dönmesini beklemek daha iyi olur.</string>
+    <string name="TechnicalAdvice_StrongIndicators">varlık %s idi, ancak şimdi Bollinger Band kanalına geri döndü. Bu, olası bir trend dönüşünü gösterir.</string>
+    <string name="TechnicalAdvice_StrongRsi">Bu arada, RSI %1$s, hala %2$s olduğunu gösteriyor.</string>
+    <string name="TechnicalAdvice_StrongAdvice">Bu piyasaya giriş için çok güçlü bir sinyal olabilir. Kanala dönüşten sonra %s yönlü hareketin birkaç denemesi olabileceğini unutmayın, bu yüzden risk yönetimini unutmayın.</string>
+    <string name="TechnicalAdvice_StableRsi">Bu arada, RSI %s, bu da bir trend dönüşünü gösteriyor (RSI 70\%% sınırını geçti).</string>
+    <string name="TechnicalAdvice_StableAdvice">Fiyat nötr seviyelere geri dönüyor, ancak hala yukarı yönlü hareket potansiyeli var. RSI = 50 ve Bollinger Bantlarının ortası güçlü dirençler ve olası trend dönüş noktalarıdır. Risk yönetimini unutmayın.</string>
+    <string name="TechnicalAdvice_NeutralRsi">RSI = $s ayrıca güçlü bir trendin olmadığını doğruluyor.</string>
+    <string name="TechnicalAdvice_NeutralIndicators">varlık aşırı alım/aşırı satım bölgesindeydi, ancak şu anda fiyat nötr bölgedeki Bollinger Band kanalına geri döndü. RSI = %s ayrıca güçlü bir trendin olmadığını doğruluyor, bu nedenle genel olarak varlık fiyatı ortalama yapmaya doğru hareket ediyor ve daha fazla hareket herhangi bir yönde mümkün olabilir.</string>
+    <string name="TechnicalAdvice_NeutralAdvice">Genel olarak, varlık fiyatı ortalama hareket ediyor ve daha fazla hareket herhangi bir yönde mümkün olabilir.</string>
+    <string name="TechnicalAdvice_OtherTitle">Lütfen dikkate alın:</string>
+    <string name="TechnicalAdvice_EmaAbove">yukarıda</string>
+    <string name="TechnicalAdvice_EmaBelow">aşağıda</string>
+    <string name="TechnicalAdvice_EmaGrowth">büyüme</string>
+    <string name="TechnicalAdvice_EmaDecrease">azalış</string>
+    <string name="TechnicalAdvice_EmaAdvice">EMA 200. Genel duygu ve trendi belirler. Varlığın günlük fiyatı EMA (%1$s) \'nin %2$s\'den geçtiği yerde bulunuyor. Bu, genel olarak varlığın %3$s olduğu anlamına gelir.</string>
+    <string name="TechnicalAdvice_MacdPositive">yukarıda</string>
+    <string name="TechnicalAdvice_MacdNegative">aşağıda</string>
+    <string name="TechnicalAdvice_MacdAdvice">MACD. Ortalama fiyat değişimini dikkate alarak trendin gücünü değerlendirir. Histogramın günlük değeri %1$s (%2$s). Varlığın fiyatı genel olarak %3$s hareket edebilir.</string>
     <string name="TechnicalAdvice_InfoTitle">Teknik Göstergeleri</string>
+    <string name="TechnicalAdvice_InfoDescription">Bollinger Bantları + RSI stratejisini kullanarak işlem sinyallerini belirliyoruz. Tüm hesaplamalar günlük mum grafiklerine dayanmakta ve ortalama uzun vadeli bir strateji için tavsiyeler sunmaktadır. Stratejinin özü, varlık fiyatının Bollinger Bantları kanalından çıkarak aşırı seviyelere ulaşması ve RSI\'nin aşırı alım/aşırı satım bölgesinde olması gerektiğidir. Fiyat kanala geri döndükten sonra, fiyatın ortalama değerlere geri dönme veya kanalı diğer taraftan kırmaya yönelik yüksek bir olasılığı vardır. Stratejinin güçlü piyasa hareketleri sırasında birkaç yanlış sinyal verebileceğini unutmayın, doğru bir sinyal ortaya çıkmadan önce.\n\nLütfen ticarette risk yönetimini uygulamanın çok önemli olduğunu ve piyasa durumu değişirse kayıpları kesmeyi unutmayın!</string>
+    <string name="TechnicalAdvice_ShowDetails">Detayları Göster</string>
+    <string name="TechnicalAdvice_HideDetails">Detayları Gizle</string>
+    <string name="TechnicalAdvice_Indicators_StrongBuy">Kuvvetli Al</string>
+    <string name="TechnicalAdvice_Indicators_Buy">Al</string>
     <string name="TechnicalAdvice_Indicators_Neutral">Tarafsız</string>
+    <string name="TechnicalAdvice_Indicators_Sell">Sat</string>
+    <string name="TechnicalAdvice_Indicators_StrongSell">Kuvvetli Satış</string>
+    <string name="TechnicalAdvice_Indicators_RiskyToTrade">Riskli</string>
+    <string name="Detectors_TokenDetectors">Token Tespit Ediciler</string>
+    <string name="Detectors_GeneralDetectors">Genel Tespit Ediciler</string>
+    <string name="Detectors_IssuesCount">Sorunlar: %d</string>
+    <string name="ActivateSubscription_Title">Activate</string>
     <string name="ActivateSubscription_Wallet">Cüzdanı</string>
     <string name="ActivateSubscription_Address">Adres</string>
     <string name="ActivateSubscription_MessageToSign">İmza için mesaj</string>
+    <string name="ActivateSubscription_SignMessageDescription">Aboneliğinizi etkinleştirmek için bu mesajı imzalamanız gerekiyor.</string>
+    <string name="ActivateSubscription_NoSubscriptionError">Cüzdan adresinizin premium özelliklere aboneliği yok, aboneliği etkinleştirmek için satın almanız gerekiyor.</string>
     <string name="SubscriptionInfo_Title">Premium Ayrıcalıkları</string>
     <string name="SubscriptionInfo_Analytics_Title">Kripto Para Analitiği</string>
+    <string name="SubscriptionInfo_Analytics_Info">Her token hakkında kapsamlı piyasa ve zincir içi istatistiklere erişin.</string>
+    <string name="SubscriptionInfo_Indicators_Title">Fiyat Trend Göstergeleri</string>
+    <string name="SubscriptionInfo_Indicators_Info">Teknik analiz göstergelerine dayanarak yükselen tokenları keşfedin.</string>
     <string name="SubscriptionInfo_PersonalSupport_Title">Kişisel Destek</string>
+    <string name="SubscriptionInfo_PersonalSupport_Info">Kişisel yardım için ekibimizle doğrudan Telegram üzerinden iletişime geçin.</string>
+    <string name="SubscriptionInfo_GetPremium">Get Premium</string>
+    <string name="SubscriptionInfo_HavePremium">I already have Premium</string>
     <string name="Nfts_PriceType_Days_7">Ortalama 7G</string>
     <string name="Nfts_PriceType_Days_30">Ortalama 30G</string>
     <string name="Nfts_PriceType_LastSale">Son İndirim</string>
@@ -1489,8 +1593,8 @@
     <string name="NftCollection_EventType_Mint">Mint</string>
     <string name="NftCollection_EventType_Unknown">Bilinmeyen</string>
     <!--Rate list-->
-    <string name="RateList_TopGainers">En Kazançlılar</string>
-    <string name="RateList_TopLosers">Çok Kaybedenler</string>
+    <string name="RateList_TopGainers">Kazanlar</string>
+    <string name="RateList_TopLosers">Kaybedenler</string>
     <string name="RateList_Posts">Haberler</string>
     <string name="Market_DaysAgo">%dg önce</string>
     <string name="Market_HoursAgo">%dsa önce</string>
@@ -1502,6 +1606,7 @@
     <string name="BalanceSyncError_ButtonReport">Şikayet Et</string>
     <string name="BalanceSyncError_ReportButtonExplanation">Bildirmeye karar verirseniz hata metni clipboardnıza kopyalanır.</string>
     <!--Release notes-->
+    <string name="ReleaseNotes_JoinUnstoppables">KATIL UNSTOPPABLES</string>
     <string name="ReleaseNotes_FollowUs">Bizi Takip Et</string>
     <string name="CoinPage_Chart_Locked">Kilitli</string>
     <string name="ProUsersInfo_Title">Pro Users</string>
@@ -1521,7 +1626,7 @@
     <!--Widget-->
     <string name="WidgetList_Config_Title">Türü Seç</string>
     <string name="NftAssetActivity_Empty">Henüz öğe etkinliği yok</string>
-    <string name="Widget_EnableAutostartWarning">To make sure that this widget works properly, you should enable Autostart.</string>
+    <string name="Widget_EnableAutostartWarning">Bu widget\'ın düzgün çalışması için Otomatik Başlatmayı etkinleştirmelisiniz.</string>
     <!--Alert-->
     <string name="Alert_KeysInvalidatedTitle">Android anahtar deposu hatası</string>
     <string name="Alert_KeysInvalidatedDescription">Android cihazınızın kilidi değiştirildiğinden cüzdan bilginizi tutan şifreli dosya artık geçersiz</string>

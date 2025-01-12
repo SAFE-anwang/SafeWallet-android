@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.ActiveAccountState
 import io.horizontalsystems.bankwallet.core.managers.Bep2TokenInfoService
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
+import io.horizontalsystems.bankwallet.core.managers.MiniAppRegisterService.RegisterAppResponse
 import io.horizontalsystems.bankwallet.core.providers.FeeRates
 import io.horizontalsystems.bankwallet.core.utils.AddressUriResult
 import io.horizontalsystems.bankwallet.entities.Account
@@ -28,9 +29,11 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceSortType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewType
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.modules.market.MarketModule
+import io.horizontalsystems.bankwallet.modules.market.TimeDuration
 import io.horizontalsystems.bankwallet.modules.market.Value
-import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesModule.Period
+import io.horizontalsystems.bankwallet.modules.market.favorites.WatchlistSorting
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
+import io.horizontalsystems.bankwallet.modules.settings.appearance.PriceChangeInterval
 import io.horizontalsystems.bankwallet.modules.settings.security.autolock.AutoLockInterval
 import io.horizontalsystems.bankwallet.modules.settings.security.tor.TorStatus
 import io.horizontalsystems.bankwallet.modules.settings.terms.TermsModule
@@ -46,6 +49,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.solanakit.models.FullTransaction
+import io.horizontalsystems.tonkit.FriendlyAddress
 import io.horizontalsystems.tronkit.transaction.Fee
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.models.*
@@ -63,7 +67,7 @@ import io.horizontalsystems.tronkit.models.Address as TronAddress
 interface IAdapterManager {
     val adaptersReadyObservable: Flowable<Map<Wallet, IAdapter>>
     fun startAdapterManager()
-    fun refresh()
+    suspend fun refresh()
     fun getAdapterForWallet(wallet: Wallet): IAdapter?
     fun getAdapterForToken(token: Token): IAdapter?
     fun getBalanceAdapterForWallet(wallet: Wallet): IBalanceAdapter?
@@ -114,25 +118,30 @@ interface ILocalStorage {
     var launchPage: LaunchPage?
     var appIcon: AppIcon?
     var mainTab: MainModule.MainNavigation?
-    var marketFavoritesSortDescending: Boolean
-    var marketFavoritesPeriod: Period?
+    var marketFavoritesSorting: WatchlistSorting?
+    var marketFavoritesShowSignals: Boolean
+    var marketFavoritesManualSortingOrder: List<String>
+    var marketFavoritesPeriod: TimeDuration?
     var relaunchBySettingChange: Boolean
     var marketsTabEnabled: Boolean
     val marketsTabEnabledFlow: StateFlow<Boolean>
+    var balanceTabButtonsEnabled: Boolean
+    val balanceTabButtonsEnabledFlow: StateFlow<Boolean>
     var nonRecommendedAccountAlertDismissedAccounts: Set<String>
     var personalSupportEnabled: Boolean
     var hideSuspiciousTransactions: Boolean
     var pinRandomized: Boolean
     var utxoExpertModeEnabled: Boolean
     var rbfEnabled: Boolean
+    var statsLastSyncTime: Long
+    var uiStatsEnabled: Boolean?
 
     val utxoExpertModeEnabledFlow: StateFlow<Boolean>
 
+    var priceChangeInterval: PriceChangeInterval
+    val priceChangeIntervalFlow: StateFlow<PriceChangeInterval>
     var hideWithdrawTransactions: Boolean
     var hideUploadTransactions: Boolean
-
-    fun getSwapProviderId(blockchainType: BlockchainType): String?
-    fun setSwapProviderId(blockchainType: BlockchainType, providerId: String)
 
     fun getLiquidityProviderId(blockchainType: BlockchainType): String?
     fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String)
@@ -220,6 +229,7 @@ interface INetworkManager {
     fun ping(host: String, url: String, isSafeCall: Boolean): Flowable<Any>
     fun getEvmInfo(host: String, path: String): Single<JsonObject>
     suspend fun getBep2Tokens(): List<Bep2TokenInfoService.Bep2Token>
+    suspend fun registerApp(userId: String, referralCode: String): RegisterAppResponse
 }
 
 interface IClipboardManager {
@@ -304,9 +314,10 @@ interface IBalanceAdapter {
 data class BalanceData(
     val available: BigDecimal,
     val timeLocked: BigDecimal = BigDecimal.ZERO,
-    val notRelayed: BigDecimal = BigDecimal.ZERO
+    val notRelayed: BigDecimal = BigDecimal.ZERO,
+    val pending: BigDecimal = BigDecimal.ZERO,
 ) {
-    val total get() = available + timeLocked + notRelayed
+    val total get() = available + timeLocked + notRelayed + pending
 }
 
 interface IReceiveAdapter {
@@ -422,8 +433,8 @@ interface ISendSolanaAdapter {
 
 interface ISendTonAdapter {
     val availableBalance: BigDecimal
-    suspend fun send(amount: BigDecimal, address: String, memo: String?)
-    suspend fun estimateFee() : BigDecimal
+    suspend fun send(amount: BigDecimal, address: FriendlyAddress, memo: String?)
+    suspend fun estimateFee(amount: BigDecimal, address: FriendlyAddress, memo: String?) : BigDecimal
 }
 
 interface ISendTronAdapter {

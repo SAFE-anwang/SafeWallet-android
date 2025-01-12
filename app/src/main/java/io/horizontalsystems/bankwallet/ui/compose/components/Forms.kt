@@ -104,8 +104,8 @@ fun FormsInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 44.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp))
                 .background(ComposeAppTheme.colors.lawrence),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -483,8 +483,8 @@ fun FormsInputPassword(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 44.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp))
                 .background(ComposeAppTheme.colors.lawrence),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -587,6 +587,9 @@ fun FormsInputMultiline(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit,
+    onClear: (() -> Unit)? = null,
+    onPaste: (() -> Unit)? = null,
+    onScanQR: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -611,8 +614,8 @@ fun FormsInputMultiline(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp))
                 .background(ComposeAppTheme.colors.lawrence),
         ) {
             var textState by rememberSaveable(initial, stateSaver = TextFieldValue.Saver) {
@@ -704,6 +707,8 @@ fun FormsInputMultiline(
                             val text = textPreprocessor.process("")
                             textState = textState.copy(text = text, selection = TextRange(0))
                             onValueChange.invoke(text)
+
+                            onClear?.invoke()
                         }
                     )
                 } else {
@@ -723,6 +728,8 @@ fun FormsInputMultiline(
                             icon = R.drawable.ic_qr_scan_20,
                             onClick = {
                                 qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(context))
+
+                                onScanQR?.invoke()
                             }
                         )
                     }
@@ -740,6 +747,8 @@ fun FormsInputMultiline(
                                     textState = textState.copy(text = textProcessed, selection = TextRange(textProcessed.length))
                                     onValueChange.invoke(textProcessed)
                                 }
+
+                                onPaste?.invoke()
                             },
                         )
                     }

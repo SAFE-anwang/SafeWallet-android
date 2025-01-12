@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statSection
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
@@ -45,7 +49,7 @@ fun BoardsView(
         {
             navController.slideFromRight(
                 R.id.coinFragment,
-                CoinFragment.Input(it.coinUid, "market_overview")
+                CoinFragment.Input(it.coinUid)
             )
         }
     }
@@ -67,7 +71,11 @@ fun BoardsView(
                 .background(ComposeAppTheme.colors.lawrence)
         ){
             boardItem.marketViewItems.forEach { coin ->
-                MarketCoinWithBackground(coin) { onItemClick.invoke(coin) }
+                MarketCoinWithBackground(coin) {
+                    onItemClick.invoke(coin)
+
+                    stat(page = StatPage.MarketOverview, section = boardItem.type.statSection, event = StatEvent.OpenCoin(coin.coinUid))
+                }
             }
 
             SeeAllButton { onClickSeeAll(boardItem.type) }
@@ -106,11 +114,12 @@ private fun MarketCoinWithBackground(
     onClick: () -> Unit
 ) {
     MarketCoinClear(
-        marketViewItem.coinName,
         marketViewItem.coinCode,
+        marketViewItem.coinName,
         marketViewItem.iconUrl,
+        marketViewItem.alternativeIconUrl,
         marketViewItem.iconPlaceHolder,
-        marketViewItem.coinRate,
+        marketViewItem.value,
         marketViewItem.marketDataValue,
         marketViewItem.rank,
         false,

@@ -1,18 +1,20 @@
 package io.horizontalsystems.bankwallet.modules.market.filtersresult
 
 import io.horizontalsystems.bankwallet.core.managers.MarketFavoritesManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
-import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
-import io.horizontalsystems.bankwallet.modules.market.category.MarketCategoryModule
 import io.horizontalsystems.bankwallet.modules.market.category.MarketItemWrapper
 import io.horizontalsystems.bankwallet.modules.market.filters.IMarketListFetcher
 import io.horizontalsystems.bankwallet.modules.market.sort
-import io.horizontalsystems.bankwallet.ui.compose.Select
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
 
 class MarketFiltersResultService(
     private val fetcher: IMarketListFetcher,
@@ -23,34 +25,30 @@ class MarketFiltersResultService(
 
     var marketItems: List<MarketItem> = listOf()
 
-    val sortingFields = SortingField.values().toList()
-    private val marketFields = MarketField.values().toList()
+    val sortingFields = listOf(
+        SortingField.HighestCap,
+        SortingField.LowestCap,
+        SortingField.TopGainers,
+        SortingField.TopLosers,
+    )
+
     var sortingField = SortingField.HighestCap
-    var marketField = MarketField.PriceDiff
 
-    val menu: MarketCategoryModule.Menu
-        get() = MarketCategoryModule.Menu(
-            Select(sortingField, sortingFields),
-            Select(marketField, marketFields)
-        )
-
-    private var fetchDisposable: Disposable? = null
-    private var favoriteDisposable: Disposable? = null
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var fetchJob: Job? = null
 
     fun start() {
-        fetch()
-
-        favoritesManager.dataUpdatedAsync
-            .subscribeIO {
+        coroutineScope.launch {
+            favoritesManager.dataUpdatedAsync.asFlow().collect {
                 syncItems()
-            }.let {
-                favoriteDisposable = it
             }
+        }
+
+        fetch()
     }
 
     fun stop() {
-        favoriteDisposable?.dispose()
-        fetchDisposable?.dispose()
+        coroutineScope.cancel()
     }
 
     fun refresh() {
@@ -71,17 +69,16 @@ class MarketFiltersResultService(
     }
 
     private fun fetch() {
-        fetchDisposable?.dispose()
+        fetchJob?.cancel()
 
-        fetcher.fetchAsync()
-            .subscribeIO({
-                marketItems = it
+        fetchJob = coroutineScope.launch {
+            try {
+                marketItems = fetcher.fetchAsync().await()
                 syncItems()
-            }, {
-                stateObservable.onNext(DataState.Error(it))
-            }).let {
-                fetchDisposable = it
+            } catch (e: Throwable) {
+                stateObservable.onNext(DataState.Error(e))
             }
+        }
     }
 
     private fun syncItems() {

@@ -4,6 +4,10 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statAccountType
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.BitcoinAddress
@@ -147,6 +151,7 @@ class WatchAddressViewModel(
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
+        BlockchainType.Base,
         BlockchainType.ArbitrumOne,
         BlockchainType.Gnosis,
         BlockchainType.Fantom -> Type.EvmAddress
@@ -180,6 +185,8 @@ class WatchAddressViewModel(
 
             accountCreated = true
             emitState()
+
+            stat(page = StatPage.WatchWallet, event = StatEvent.WatchWallet(accountType.statAccountType))
         } catch (_: Exception) {
 
         }

@@ -4,7 +4,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -14,14 +13,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -33,6 +30,9 @@ import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
@@ -49,14 +49,16 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AlertGroup
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryWithIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.DescriptionCard
+import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinFirstRow
 import io.horizontalsystems.bankwallet.ui.compose.components.MarketCoinSecondRow
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemBorderedRowUniversalClear
-import io.horizontalsystems.bankwallet.ui.compose.components.SortMenu
+import io.horizontalsystems.bankwallet.ui.compose.hsRememberLazyListState
 import io.horizontalsystems.core.helpers.HudHelper
 
 class TvlFragment : BaseComposeFragment() {
@@ -72,8 +74,10 @@ class TvlFragment : BaseComposeFragment() {
 
     private fun onCoinClick(coinUid: String?, navController: NavController) {
         if (coinUid != null) {
-            val arguments = CoinFragment.Input(coinUid, "market_tvl")
+            val arguments = CoinFragment.Input(coinUid)
             navController.slideFromRight(R.id.coinFragment, arguments)
+
+            stat(page = StatPage.GlobalMetricsTvlInDefi, event = StatEvent.OpenCoin(coinUid))
         } else {
             HudHelper.showWarningMessage(requireView(), R.string.MarketGlobalMetrics_NoCoin)
         }
@@ -113,7 +117,7 @@ class TvlFragment : BaseComposeFragment() {
                     tvlViewModel.refresh()
                 }
             ) {
-                Crossfade(viewState) { viewState ->
+                Crossfade(viewState, label = "") { viewState ->
                     when (viewState) {
                         ViewState.Loading -> {
                             Loading()
@@ -124,13 +128,11 @@ class TvlFragment : BaseComposeFragment() {
                         }
 
                         ViewState.Success -> {
-                            val listState = rememberSaveable(
+                            val listState = hsRememberLazyListState(
+                                2,
                                 tvlData?.chainSelect?.selected,
-                                tvlData?.sortDescending,
-                                saver = LazyListState.Saver
-                            ) {
-                                LazyListState()
-                            }
+                                tvlData?.sortDescending
+                            )
 
                             LazyColumn(
                                 state = listState,
@@ -219,24 +221,31 @@ class TvlFragment : BaseComposeFragment() {
         onToggleSortType: () -> Unit,
         onToggleTvlDiffType: () -> Unit
     ) {
-        HeaderSorting(borderBottom = true) {
-            Box(modifier = Modifier.weight(1f)) {
-                SortMenu(chainSelect.selected.title) {
-                    onClickChainSelector()
-                }
-            }
-            ButtonSecondaryCircle(
-                modifier = Modifier.padding(end = 16.dp),
-                icon = if (sortDescending) R.drawable.ic_sort_l2h_20 else R.drawable.ic_sort_h2l_20,
-                onClick = { onToggleSortType() }
+        HeaderSorting(borderBottom = true, borderTop = true) {
+            HSpacer(16.dp)
+            ButtonSecondaryWithIcon(
+                modifier = Modifier.height(28.dp),
+                onClick = onClickChainSelector,
+                title =chainSelect.selected.title.getString(),
+                iconRight = painterResource(R.drawable.ic_down_arrow_20),
+            )
+            HSpacer(8.dp)
+            ButtonSecondaryWithIcon(
+                title = stringResource(R.string.Market_TVL),
+                iconRight = painterResource(
+                    if (sortDescending) R.drawable.ic_arrow_down_20 else R.drawable.ic_arrow_up_20
+                ),
+                onClick = onToggleSortType
             )
             tvlDiffType?.let {
+                HSpacer(8.dp)
                 ButtonSecondaryCircle(
                     modifier = Modifier.padding(end = 16.dp),
                     icon = if (tvlDiffType == TvlDiffType.Percent) R.drawable.ic_percent_20 else R.drawable.ic_usd_20,
                     onClick = { onToggleTvlDiffType() }
                 )
             }
+            HSpacer(width = 16.dp)
         }
     }
 

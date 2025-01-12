@@ -33,6 +33,7 @@ import io.horizontalsystems.bitcoincore.storage.FullTransaction
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.core.BackgroundManagerState
 import io.horizontalsystems.hdwalletkit.HDWallet.Purpose
 import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.hodler.HodlerOutputData
@@ -45,6 +46,10 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Collections
@@ -53,27 +58,15 @@ import java.util.Date
 abstract class BitcoinBaseAdapter(
     open val kit: AbstractKit,
     open val syncMode: BitcoinCore.SyncMode,
-    backgroundManager: BackgroundManager,
+    private val backgroundManager: BackgroundManager,
     val wallet: Wallet,
     private val confirmationsThreshold: Int,
     protected val decimal: Int = 8
-) : IAdapter, ITransactionsAdapter, IBalanceAdapter, IReceiveAdapter, BackgroundManager.Listener {
+) : IAdapter, ITransactionsAdapter, IBalanceAdapter, IReceiveAdapter {
 
-    init {
-        backgroundManager.registerListener(this)
-    }
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     abstract val satoshisInBitcoin: BigDecimal
-
-    override fun willEnterForeground() {
-        super.willEnterForeground()
-        kit.onEnterForeground()
-    }
-
-    override fun didEnterBackground() {
-        super.didEnterBackground()
-        kit.onEnterBackground()
-    }
 
     //
     // Adapter implementation
@@ -123,11 +116,11 @@ abstract class BitcoinBaseAdapter(
         transactionType: FilterTransactionType,
         address: String?,
     ): Flowable<List<TransactionRecord>> = when (address) {
-        null -> getTransactionRecordsFlowable(token, transactionType)
+        null -> getTransactionRecordsFlowable(transactionType)
         else -> Flowable.empty()
     }
 
-    private fun getTransactionRecordsFlowable(token: Token?, transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
+    private fun getTransactionRecordsFlowable(transactionType: FilterTransactionType): Flowable<List<TransactionRecord>> {
         val observable: Observable<List<TransactionRecord>> = when (transactionType) {
             FilterTransactionType.All -> {
                 transactionRecordsSubject
@@ -179,10 +172,12 @@ abstract class BitcoinBaseAdapter(
 
     override fun start() {
         kit.start()
+        subscribeToEvents()
     }
 
     override fun stop() {
         kit.stop()
+        scope.cancel()
     }
 
     override fun refresh() {
@@ -196,13 +191,12 @@ abstract class BitcoinBaseAdapter(
         transactionType: FilterTransactionType,
         address: String?,
     ) = when (address) {
-        null -> getTransactionsAsync(from, token, limit, transactionType)
+        null -> getTransactionsAsync(from, limit, transactionType)
         else -> Single.just(listOf())
     }
 
     private fun getTransactionsAsync(
         from: TransactionRecord?,
-        token: Token?,
         limit: Int,
         transactionType: FilterTransactionType
     ): Single<List<TransactionRecord>> {
@@ -219,6 +213,24 @@ abstract class BitcoinBaseAdapter(
             FilterTransactionType.Incoming -> TransactionFilterType.Incoming
             FilterTransactionType.Outgoing -> TransactionFilterType.Outgoing
             else -> throw UnsupportedFilterException()
+        }
+    }
+
+    private fun subscribeToEvents() {
+        scope.launch {
+            backgroundManager.stateFlow.collect { state ->
+                when (state) {
+                    BackgroundManagerState.EnterForeground -> {
+                        kit.onEnterForeground()
+                    }
+                    BackgroundManagerState.EnterBackground -> {
+                        kit.onEnterBackground()
+                    }
+                    BackgroundManagerState.AllActivitiesDestroyed -> {
+
+                    }
+                }
+            }
         }
     }
 

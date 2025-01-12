@@ -7,10 +7,12 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.multiswap.action.ISwapProviderAction
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -184,9 +186,22 @@ class SwapViewModel(
 
         quoteService.setAmount(amount)
     }
-    fun onSelectTokenIn(token: Token) = quoteService.setTokenIn(token)
-    fun onSelectTokenOut(token: Token) = quoteService.setTokenOut(token)
-    fun onSwitchPairs() = quoteService.switchPairs()
+    fun onSelectTokenIn(token: Token)  {
+        quoteService.setTokenIn(token)
+
+        stat(page = StatPage.Swap, event = StatEvent.SwapSelectTokenIn(token))
+    }
+    fun onSelectTokenOut(token: Token) {
+        quoteService.setTokenOut(token)
+
+        stat(page = StatPage.Swap, event = StatEvent.SwapSelectTokenOut(token))
+    }
+    fun onSwitchPairs() {
+        quoteService.switchPairs()
+
+        stat(page = StatPage.Swap, event = StatEvent.SwapSwitchPairs)
+    }
+
     fun onUpdateSettings(settings: Map<String, Any?>) = quoteService.setSwapSettings(settings)
     fun onEnterFiatAmount(v: BigDecimal?) = fiatServiceIn.setFiatAmount(v)
     fun reQuote() = quoteService.reQuote()
@@ -229,14 +244,14 @@ data class SwapUiState(
     val error: Throwable?,
     val availableBalance: BigDecimal?,
     val priceImpact: BigDecimal?,
-    val priceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    val priceImpactLevel: PriceImpactLevel?,
     val priceImpactCaution: HSCaution?,
     val fiatAmountIn: BigDecimal?,
     val fiatAmountOut: BigDecimal?,
     val fiatPriceImpact: BigDecimal?,
     val currency: Currency,
     val fiatAmountInputEnabled: Boolean,
-    val fiatPriceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    val fiatPriceImpactLevel: PriceImpactLevel?,
     val timeRemaining: Long?,
     val timeout: Boolean,
     val timeRemainingProgress: Float?

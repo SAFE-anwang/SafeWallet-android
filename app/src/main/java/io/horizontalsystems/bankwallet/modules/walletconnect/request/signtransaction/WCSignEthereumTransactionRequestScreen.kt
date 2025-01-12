@@ -26,74 +26,74 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun WCSignEthereumTransactionRequestScreen(
-        navController: NavController,
-        logger: AppLogger,
-        blockchainType: BlockchainType,
-        transaction: WalletConnectTransaction,
-        peerName: String,
+    navController: NavController,
+    logger: AppLogger,
+    blockchainType: BlockchainType,
+    transaction: WalletConnectTransaction,
+    peerName: String,
 ) {
     val viewModelStoreOwner = remember(navController.currentBackStackEntry) {
         navController.getBackStackEntry(R.id.wcRequestFragment)
     }
     val viewModel = viewModel<WCSignEthereumTransactionRequestViewModel>(
-            viewModelStoreOwner = viewModelStoreOwner,
-            factory = WCSignEthereumTransactionRequestViewModel.Factory(
-                    blockchainType = blockchainType,
-                    transaction = transaction,
-                    peerName = peerName
-            )
+        viewModelStoreOwner = viewModelStoreOwner,
+        factory = WCSignEthereumTransactionRequestViewModel.Factory(
+            blockchainType = blockchainType,
+            transaction = transaction,
+            peerName = peerName
+        )
     )
     val uiState = viewModel.uiState
 
     ConfirmTransactionScreen(
-            title = stringResource(id = R.string.WalletConnect_SignMessageRequest_Title),
-            onClickBack = navController::popBackStack,
-            onClickSettings = null,
-            onClickClose = navController::popBackStack,
-            buttonsSlot = {
-                val coroutineScope = rememberCoroutineScope()
-                val view = LocalView.current
+        title = stringResource(id = R.string.WalletConnect_SignMessageRequest_Title),
+        onClickBack = navController::popBackStack,
+        onClickSettings = null,
+        onClickClose = navController::popBackStack,
+        buttonsSlot = {
+            val coroutineScope = rememberCoroutineScope()
+            val view = LocalView.current
 
 
-                ButtonPrimaryYellow(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.Button_Sign),
-                        onClick = {
-                            coroutineScope.launch {
-                                try {
-                                    logger.info("click sign button")
-                                    viewModel.sign()
-                                    logger.info("success")
+            ButtonPrimaryYellow(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.Button_Sign),
+                onClick = {
+                    coroutineScope.launch {
+                        try {
+                            logger.info("click sign button")
+                            viewModel.sign()
+                            logger.info("success")
 
-                                    HudHelper.showSuccessMessage(view, R.string.Hud_Text_Done)
-                                    delay(1200)
-                                } catch (t: Throwable) {
-                                    logger.warning("failed", t)
-                                    HudHelper.showErrorMessage(view, t.javaClass.simpleName)
-                                }
-
-                                navController.popBackStack()
-                            }
+                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Done)
+                            delay(1200)
+                        } catch (t: Throwable) {
+                            logger.warning("failed", t)
+                            HudHelper.showErrorMessage(view, t.javaClass.simpleName)
                         }
-                )
-                VSpacer(16.dp)
-                ButtonPrimaryDefault(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.Button_Reject),
-                        onClick = {
-                            viewModel.reject()
-                            navController.popBackStack()
-                        }
-                )
-            }
+
+                        navController.popBackStack()
+                    }
+                }
+            )
+            VSpacer(16.dp)
+            ButtonPrimaryDefault(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.Button_Reject),
+                onClick = {
+                    viewModel.reject()
+                    navController.popBackStack()
+                }
+            )
+        }
     ) {
         SendEvmTransactionView(
-                navController,
-                uiState.sectionViewItems,
-                uiState.cautions,
-                uiState.transactionFields,
-                uiState.networkFee,
-                StatPage.WalletConnect
+            navController,
+            uiState.sectionViewItems,
+            uiState.cautions,
+            uiState.transactionFields,
+            uiState.networkFee,
+            StatPage.WalletConnect
         )
     }
 }

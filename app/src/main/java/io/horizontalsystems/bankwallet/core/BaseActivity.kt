@@ -9,12 +9,9 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import io.horizontalsystems.core.CoreApp
-import io.horizontalsystems.core.hideKeyboard
 
-abstract class BaseActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
+abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,11 +43,5 @@ abstract class BaseActivity : AppCompatActivity(), NavController.OnDestinationCh
             // Making status bar overlaps with the activity
             WindowCompat.setDecorFitsSystemWindows(window, false)
         }
-    }
-
-    // NavController Listener
-
-    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        currentFocus?.hideKeyboard(this)
     }
 }

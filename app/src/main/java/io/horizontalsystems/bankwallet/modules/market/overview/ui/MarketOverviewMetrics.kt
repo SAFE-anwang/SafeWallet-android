@@ -23,10 +23,13 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statPage
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
 import io.horizontalsystems.bankwallet.modules.metricchart.MetricsType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.extensions.MetricData
 import io.horizontalsystems.chartview.ChartMinimal
 import java.math.BigDecimal
@@ -55,7 +58,7 @@ private fun ChartView(metricsData: MetricData, navController: NavController) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
-            caption_grey(text = stringResource(metricsData.type.title))
+//            caption_grey(text = stringResource(metricsData.type.title))
             Spacer(modifier = Modifier.height(10.dp))
             if (metricsData.value != null) {
                 Text(
@@ -115,4 +118,6 @@ private fun openMetricsPage(metricsType: MetricsType, navController: NavControll
     } else {
         navController.slideFromBottom(R.id.metricsPageFragment, metricsType)
     }
+
+    stat(page = StatPage.MarketOverview, event = StatEvent.Open(metricsType.statPage))
 }

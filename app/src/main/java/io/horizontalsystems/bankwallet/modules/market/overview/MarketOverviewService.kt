@@ -2,30 +2,31 @@ package io.horizontalsystems.bankwallet.modules.market.overview
 
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.market.TimeDuration
 import io.horizontalsystems.bankwallet.modules.market.TopMarket
 import io.horizontalsystems.bankwallet.modules.market.topcoins.MarketTopMoversRepository
 import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.core.BackgroundManagerState
 import io.horizontalsystems.marketkit.models.MarketOverview
 import io.horizontalsystems.marketkit.models.TopMovers
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
 
 class MarketOverviewService(
     private val marketTopMoversRepository: MarketTopMoversRepository,
     private val marketKit: MarketKitWrapper,
     private val backgroundManager: BackgroundManager,
     private val currencyManager: CurrencyManager
-) : BackgroundManager.Listener {
-
-    private var currencyManagerDisposable: Disposable? = null
-    private var topMoversDisposable: Disposable? = null
-    private var marketOverviewDisposable: Disposable? = null
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+) {
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var topMoversJob: Job? = null
+    private var marketOverviewJob: Job? = null
 
     val topMarketOptions: List<TopMarket> = TopMarket.values().toList()
     val timeDurationOptions: List<TimeDuration> = listOf(
@@ -37,26 +38,28 @@ class MarketOverviewService(
     val marketOverviewObservable: BehaviorSubject<Result<MarketOverview>> = BehaviorSubject.create()
 
     private fun updateTopMovers() {
-        topMoversDisposable?.dispose()
-
-        marketTopMoversRepository
-            .getTopMovers(currencyManager.baseCurrency)
-            .subscribeIO(
-                { topMoversObservable.onNext(Result.success(it)) },
-                { topMoversObservable.onNext(Result.failure(it)) }
-            )
-            .let { topMoversDisposable = it }
+        topMoversJob?.cancel()
+        topMoversJob = coroutineScope.launch {
+            try {
+                val topMovers = marketTopMoversRepository.getTopMovers(currencyManager.baseCurrency).await()
+                topMoversObservable.onNext(Result.success(topMovers))
+            } catch (e: Throwable) {
+                topMoversObservable.onNext(Result.failure(e))
+            }
+        }
     }
 
     private fun updateMarketOverview() {
-        marketOverviewDisposable?.dispose()
-
-        marketKit.marketOverviewSingle(currencyManager.baseCurrency.code)
-            .subscribeIO(
-                { marketOverviewObservable.onNext(Result.success(it)) },
-                { marketOverviewObservable.onNext(Result.failure(it)) }
-            )
-            .let { marketOverviewDisposable = it }
+        marketOverviewJob?.cancel()
+        marketOverviewJob = coroutineScope.launch {
+            try {
+                val marketOverview =
+                    marketKit.marketOverviewSingle(currencyManager.baseCurrency.code).await()
+                marketOverviewObservable.onNext(Result.success(marketOverview))
+            } catch (e: Throwable) {
+                marketOverviewObservable.onNext(Result.failure(e))
+            }
+        }
     }
 
     private fun forceRefresh() {
@@ -65,24 +68,25 @@ class MarketOverviewService(
     }
 
     fun start() {
-        backgroundManager.registerListener(this)
-        currencyManager.baseCurrencyUpdatedSignal
-            .subscribeIO { forceRefresh() }
-            .let { currencyManagerDisposable = it }
+        coroutineScope.launch {
+            backgroundManager.stateFlow.collect { state ->
+                if (state == BackgroundManagerState.EnterForeground) {
+                    forceRefresh()
+                }
+            }
+        }
+
+        coroutineScope.launch {
+            currencyManager.baseCurrencyUpdatedSignal.asFlow().collect {
+                forceRefresh()
+            }
+        }
 
         forceRefresh()
     }
 
     fun stop() {
-        currencyManagerDisposable?.dispose()
-        topMoversDisposable?.dispose()
-        marketOverviewDisposable?.dispose()
-        backgroundManager.unregisterListener(this)
         coroutineScope.cancel()
-    }
-
-    override fun willEnterForeground() {
-        forceRefresh()
     }
 
     fun refresh() {

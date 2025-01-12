@@ -11,7 +11,10 @@ import io.horizontalsystems.bankwallet.core.managers.TokenAutoEnableManager
 import io.horizontalsystems.bankwallet.core.nativeTokenQueries
 import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.core.restoreSettingTypes
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statAccountType
 import io.horizontalsystems.bankwallet.core.supported
 import io.horizontalsystems.bankwallet.core.supports
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
@@ -22,9 +25,14 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.Restor
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import java.util.concurrent.CopyOnWriteArrayList
 
 class RestoreBlockchainsService(
     private val accountName: String,
@@ -38,13 +46,13 @@ class RestoreBlockchainsService(
     private val marketKit: MarketKitWrapper,
     private val tokenAutoEnableManager: TokenAutoEnableManager,
     private val blockchainTokensService: BlockchainTokensService,
-    private val restoreSettingsService: RestoreSettingsService
+    private val restoreSettingsService: RestoreSettingsService,
+    private val statPage: StatPage
 ) : Clearable {
-
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     private var tokens = listOf<Token>()
-    private val enabledTokens = mutableListOf<Token>()
+    private val enabledTokens = CopyOnWriteArrayList<Token>()
 
     private var restoreSettingsMap = mutableMapOf<Token, RestoreSettings>()
 
@@ -59,29 +67,26 @@ class RestoreBlockchainsService(
         }
 
     init {
-        blockchainTokensService.approveTokensObservable
-            .subscribeIO {
+        coroutineScope.launch {
+            blockchainTokensService.approveTokensObservable.asFlow().collect {
                 handleApproveTokens(it.blockchain, it.tokens)
             }
-            .let { disposables.add(it) }
-
-        blockchainTokensService.rejectApproveTokensObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            blockchainTokensService.rejectApproveTokensObservable.asFlow().collect {
                 handleCancelEnable(it)
             }
-            .let { disposables.add(it) }
-
-        restoreSettingsService.approveSettingsObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            restoreSettingsService.approveSettingsObservable.asFlow().collect {
                 handleApproveRestoreSettings(it.token, it.settings)
             }
-            .let { disposables.add(it) }
-
-        restoreSettingsService.rejectApproveSettingsObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            restoreSettingsService.rejectApproveSettingsObservable.asFlow().collect {
                 handleCancelEnable(it.blockchain)
             }
-            .let { disposables.add(it) }
+        }
 
         syncInternalItems()
         syncState()
@@ -207,9 +212,13 @@ class RestoreBlockchainsService(
 
         val wallets = enabledTokens.map { Wallet(it, account) }
         walletManager.save(wallets)
+
+        stat(page = statPage, event = StatEvent.ImportWallet(accountType.statAccountType))
     }
 
-    override fun clear() = disposables.clear()
+    override fun clear() {
+        coroutineScope.cancel()
+    }
 
     data class Item(
         val blockchain: Blockchain,

@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.net.Uri
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.BackHandler
@@ -18,14 +19,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Badge
 import androidx.compose.material.BadgedBox
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +39,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
@@ -52,6 +55,11 @@ import io.horizontalsystems.bankwallet.core.findActivity
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statTab
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceScreen
 import io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
@@ -74,6 +82,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSup
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager.SupportState
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.components.BadgeText
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigation
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBottomNavigationItem
 import io.horizontalsystems.bankwallet.ui.extensions.WalletSwitchBottomSheet
@@ -92,24 +101,30 @@ class MainFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        ComposeAppTheme {
-            MainScreenWithRootedDeviceCheck(
-//                transactionsViewModel = transactionsViewModel,
-                deepLink = intentUri,
-                navController = navController,
-                clearActivityData = { activity?.intent?.data = null },
-                safe4ViewModel = safe4ViewModel,
-                openLink = {
-                    openLink(it)
-                }
-            )
+        val backStackEntry = navController.safeGetBackStackEntry(R.id.mainFragment)
+
+        backStackEntry?.let {
+            ComposeAppTheme {
+                MainScreenWithRootedDeviceCheck(
+    //                transactionsViewModel = transactionsViewModel,
+                    deepLink = intentUri,
+                    navController = navController,
+                    clearActivityData = { activity?.intent?.data = null },
+                    safe4ViewModel = safe4ViewModel,
+                    openLink = {
+                        openLink(it)
+                    }
+                )
+            }
+        } ?: run {
+            // Back stack entry doesn't exist, restart activity
+            val intent = Intent(context, MainActivity::class.java)
+            requireActivity().startActivity(intent)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intentUri = activity?.intent?.data
-        activity?.intent?.data = null //clear intent data
 
         requireActivity().onBackPressedDispatcher.addCallback(
             this,
@@ -188,7 +203,6 @@ private fun MainScreen(
     safe4ViewModel: Safe4ViewModel,
     openLink: (String) -> Unit
 ) {
-
     val uiState = viewModel.uiState
     val context = LocalContext.current
     val selectedPage = uiState.selectedTabIndex
@@ -219,6 +233,8 @@ private fun MainScreen(
                     coroutineScope.launch {
                         modalBottomSheetState.hide()
                         viewModel.onSelect(it)
+
+                        stat(page = StatPage.SwitchWallet, event = StatEvent.Select(StatEntity.Wallet))
                     }
                 },
                 onCancelClick = {
@@ -260,12 +276,21 @@ private fun MainScreen(
                                             openLink.invoke(App.appConfigProvider.appTelegramLink)
                                         } else {
                                             viewModel.onSelect(item.mainNavItem)
+                                            stat(
+                                                    page = StatPage.Main,
+                                                    event = StatEvent.SwitchTab(item.mainNavItem.statTab)
+                                            )
                                         }
                                     },
                                     onLongClick = {
                                         if (item.mainNavItem == MainNavigation.Balance) {
                                             coroutineScope.launch {
                                                 modalBottomSheetState.show()
+
+                                                stat(
+                                                        page = StatPage.Main,
+                                                        event = StatEvent.Open(StatPage.SwitchWallet)
+                                                )
                                             }
                                         }
                                     }
@@ -344,6 +369,8 @@ private fun MainScreen(
                     R.id.backupRequiredDialog,
                     BackupRequiredDialog.Input(wcSupportState.account, text)
                 )
+
+                stat(page = StatPage.Main, event = StatEvent.Open(StatPage.BackupRequired))
             }
 
             is SupportState.NotSupported -> {
@@ -381,7 +408,10 @@ private fun HideContentBox(contentHidden: Boolean) {
     } else {
         Modifier
     }
-    Box(Modifier.fillMaxSize().then(backgroundModifier))
+    Box(
+        Modifier
+            .fillMaxSize()
+            .then(backgroundModifier))
 }
 
 @Composable
@@ -393,15 +423,9 @@ private fun BadgedIcon(
         is MainModule.BadgeType.BadgeNumber ->
             BadgedBox(
                 badge = {
-                    Badge(
-                        backgroundColor = ComposeAppTheme.colors.lucian
-                    ) {
-                        Text(
-                            text = badge.number.toString(),
-                            style = ComposeAppTheme.typography.micro,
-                            color = ComposeAppTheme.colors.white,
-                        )
-                    }
+                    BadgeText(
+                        text = badge.number.toString(),
+                    )
                 },
                 content = icon
             )
@@ -426,5 +450,13 @@ private fun BadgedIcon(
                 icon()
             }
         }
+    }
+}
+
+fun NavController.safeGetBackStackEntry(destinationId: Int): NavBackStackEntry? {
+    return try {
+        this.getBackStackEntry(destinationId)
+    } catch (e: IllegalArgumentException) {
+        null
     }
 }

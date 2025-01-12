@@ -120,6 +120,7 @@ class MarketFiltersViewModel(val service: MarketFiltersService)
         solidDexOn = false
         goodDistributionOn = false
         selectedBlockchains = emptyList()
+        filterTradingSignal = FilterViewItemWrapper.getAny()
         updateSelectedBlockchains()
         emitState()
         reloadData()
@@ -221,23 +222,18 @@ class MarketFiltersViewModel(val service: MarketFiltersService)
     fun anyBlockchains() {
         selectedBlockchains = emptyList()
         updateSelectedBlockchains()
-        emitState()
+        reloadData()
     }
 
     fun onBlockchainCheck(blockchain: Blockchain) {
         selectedBlockchains += blockchain
         updateSelectedBlockchains()
-        emitState()
+        reloadData()
     }
 
     fun onBlockchainUncheck(blockchain: Blockchain) {
         selectedBlockchains -= blockchain
         updateSelectedBlockchains()
-        emitState()
-    }
-
-    fun updateListBySelectedBlockchains() {
-        emitState()
         reloadData()
     }
 

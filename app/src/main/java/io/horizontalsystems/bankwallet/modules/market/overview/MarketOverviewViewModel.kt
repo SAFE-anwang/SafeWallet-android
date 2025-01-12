@@ -7,19 +7,14 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.market.MarketField
-import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.MarketModule.ListType
-import io.horizontalsystems.bankwallet.modules.market.MarketViewItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
 import io.horizontalsystems.bankwallet.modules.market.TimeDuration
 import io.horizontalsystems.bankwallet.modules.market.TopMarket
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule.Board
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule.BoardHeader
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule.MarketMetrics
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule.MarketMetricsPoint
 import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule.TopNftCollectionsBoard
@@ -43,10 +38,10 @@ import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.horizontalsystems.marketkit.models.MarketOverview
 import io.horizontalsystems.marketkit.models.NftPrice
 import io.horizontalsystems.marketkit.models.TopMovers
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.math.BigDecimal
 
 class MarketOverviewViewModel(
@@ -54,8 +49,6 @@ class MarketOverviewViewModel(
     private val topNftCollectionsViewItemFactory: TopNftCollectionsViewItemFactory,
     private val currencyManager: CurrencyManager
 ) : ViewModel() {
-
-    private val disposables = CompositeDisposable()
 
     val viewStateLiveData = MutableLiveData<ViewState>(ViewState.Loading)
     val viewItem = MutableLiveData<MarketOverviewModule.ViewItem>()
@@ -94,14 +87,13 @@ class MarketOverviewViewModel(
 
 
     init {
-        Observable
-            .combineLatest(
-                service.topMoversObservable,
-                service.marketOverviewObservable
-            ) { t1, t2 ->
-                Pair(t1, t2)
-            }
-            .subscribeIO { overviewItems ->
+        viewModelScope.launch {
+            val overviewItemsFlow = service.topMoversObservable.asFlow()
+                .combine(service.marketOverviewObservable.asFlow()) { t1, t2 ->
+                    Pair(t1, t2)
+                }
+
+            overviewItemsFlow.collect { overviewItems ->
                 val error = listOfNotNull(
                     overviewItems.first.exceptionOrNull(),
                     overviewItems.second.exceptionOrNull(),
@@ -120,9 +112,8 @@ class MarketOverviewViewModel(
                         syncViewItems()
                     }
                 }
-            }.let {
-                disposables.add(it)
             }
+        }
 
         service.start()
     }
@@ -144,12 +135,12 @@ class MarketOverviewViewModel(
         }
         val nftCollectionItems = marketOverview.nftCollections.getOrElse(timePeriod) { listOf() }.map { it.nftCollectionItem }
 
-        val topGainersBoard = getBoard(ListType.TopGainers, topMovers)
-        val topLosersBoard = getBoard(ListType.TopLosers, topMovers)
+//        val topGainersBoard = getBoard(ListType.TopGainers, topMovers)
+//        val topLosersBoard = getBoard(ListType.TopLosers, topMovers)
 
         return MarketOverviewModule.ViewItem(
             marketMetrics = getMarketMetrics(marketOverview.globalMarketPoints, baseCurrency),
-            boards = listOf(topGainersBoard, topLosersBoard),
+//            boards = listOf(topGainersBoard, topLosersBoard),
             topNftCollectionsBoard = topNftCollectionsBoard(nftCollectionItems),
             topSectorsBoard = topSectorsBoard(coinCategoryItems),
             topPlatformsBoard = topPlatformsBoard(topPlatformItems),
@@ -199,41 +190,41 @@ class MarketOverviewViewModel(
             }
         )
 
-    private fun getBoard(type: ListType, topMovers: TopMovers): Board {
-        val topMarket: TopMarket
-
-        val marketInfoList = when (type) {
-            ListType.TopGainers -> {
-                topMarket = gainersTopMarket
-
-                when (gainersTopMarket) {
-                    TopMarket.Top100 -> topMovers.gainers100
-                    TopMarket.Top200 -> topMovers.gainers200
-                    TopMarket.Top300 -> topMovers.gainers300
-                }
-            }
-
-            ListType.TopLosers -> {
-                topMarket = losersTopMarket
-
-                when (losersTopMarket) {
-                    TopMarket.Top100 -> topMovers.losers100
-                    TopMarket.Top200 -> topMovers.losers200
-                    TopMarket.Top300 -> topMovers.losers300
-                }
-            }
-        }
-
-        val marketItems = marketInfoList.map { MarketItem.createFromCoinMarket(it, baseCurrency) }
-        val topList = marketItems.map { MarketViewItem.create(it, type.marketField) }
-
-        val boardHeader = BoardHeader(
-            getSectionTitle(type),
-            getSectionIcon(type),
-            Select(topMarket, service.topMarketOptions)
-        )
-        return Board(boardHeader, topList, type)
-    }
+//    private fun getBoard(type: ListType, topMovers: TopMovers): Board {
+//        val topMarket: TopMarket
+//
+//        val marketInfoList = when (type) {
+//            ListType.TopGainers -> {
+//                topMarket = gainersTopMarket
+//
+//                when (gainersTopMarket) {
+//                    TopMarket.Top100 -> topMovers.gainers100
+//                    TopMarket.Top200 -> topMovers.gainers200
+//                    TopMarket.Top300 -> topMovers.gainers300
+//                }
+//            }
+//
+//            ListType.TopLosers -> {
+//                topMarket = losersTopMarket
+//
+//                when (losersTopMarket) {
+//                    TopMarket.Top100 -> topMovers.losers100
+//                    TopMarket.Top200 -> topMovers.losers200
+//                    TopMarket.Top300 -> topMovers.losers300
+//                }
+//            }
+//        }
+//
+//        val marketItems = marketInfoList.map { MarketItem.createFromCoinMarket(it, baseCurrency) }
+//        val topList = marketItems.map { MarketViewItem.create(it, type.marketField) }
+//
+//        val boardHeader = BoardHeader(
+//            getSectionTitle(type),
+//            getSectionIcon(type),
+//            Select(topMarket, service.topMarketOptions)
+//        )
+//        return Board(boardHeader, topList, type)
+//    }
 
     private fun getMarketMetrics(globalMarketPoints: List<GlobalMarketPoint>, baseCurrency: Currency): MarketMetrics {
         var marketCap: BigDecimal? = null
@@ -284,7 +275,7 @@ class MarketOverviewViewModel(
                 defiMarketCap?.let { formatFiatShortened(it, baseCurrency.symbol) },
                 defiMarketCapDiff,
                 getChartData(defiMarketCapPoints),
-                MetricsType.DefiCap
+                MetricsType.Etf
             ),
             defiTvl = MetricData(
                 tvl?.let { formatFiatShortened(it, baseCurrency.symbol) },
@@ -378,7 +369,6 @@ class MarketOverviewViewModel(
 
     override fun onCleared() {
         service.stop()
-        disposables.clear()
     }
 }
 

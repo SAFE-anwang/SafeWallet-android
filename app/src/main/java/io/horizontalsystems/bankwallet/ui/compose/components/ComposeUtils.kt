@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,49 +15,105 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imagePlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.market.Value
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 
 @Composable
-fun RateColor(diff: BigDecimal?) =
-    if ((diff ?: BigDecimal.ZERO) >= BigDecimal.ZERO) ComposeAppTheme.colors.remus else ComposeAppTheme.colors.lucian
-
-@Composable
-fun diffColor(value: BigDecimal) =
-    if (value.signum() >= 0) {
-        ComposeAppTheme.colors.remus
-    } else {
-        ComposeAppTheme.colors.lucian
+fun diffColor(value: BigDecimal?) : Color {
+    val diff = value ?: BigDecimal.ZERO
+    return when {
+        diff.signum() == 0 -> ComposeAppTheme.colors.grey
+        diff.signum() >= 0 -> ComposeAppTheme.colors.remus
+        else -> ComposeAppTheme.colors.lucian
     }
+}
 
 @Composable
 fun formatValueAsDiff(value: Value): String =
     App.numberFormatter.formatValueAsDiff(value)
 
 @Composable
-fun RateText(diff: BigDecimal?): String {
+fun diffText(diff: BigDecimal?): String {
     if (diff == null) return ""
-    val sign = if (diff >= BigDecimal.ZERO) "+" else "-"
+    val sign = when {
+        diff == BigDecimal.ZERO -> ""
+        diff >= BigDecimal.ZERO -> "+"
+        else -> "-"
+    }
     return App.numberFormatter.format(diff.abs(), 0, 2, sign, "%")
 }
 
 @Composable
 fun CoinImage(
-    iconUrl: String?,
+    coin: Coin?,
+    modifier: Modifier,
+    colorFilter: ColorFilter? = null
+) = HsImage(
+    url = coin?.imageUrl,
+    alternativeUrl = coin?.alternativeImageUrl,
+    placeholder = coin?.imagePlaceholder,
+    modifier = modifier.clip(CircleShape),
+    colorFilter = colorFilter
+)
+
+@Composable
+fun CoinImage(
+    token: Token?,
+    modifier: Modifier,
+    colorFilter: ColorFilter? = null
+) = HsImageCircle(
+    modifier,
+    token?.coin?.imageUrl,
+    token?.coin?.alternativeImageUrl,
+    token?.iconPlaceholder,
+    colorFilter
+)
+
+@Composable
+fun HsImageCircle(
+    modifier: Modifier,
+    url: String?,
+    alternativeUrl: String? = null,
+    placeholder: Int? = null,
+    colorFilter: ColorFilter? = null
+) {
+    HsImage(
+        url = url,
+        alternativeUrl = alternativeUrl,
+        placeholder = placeholder,
+        modifier = modifier.clip(CircleShape),
+        colorFilter = colorFilter
+    )
+}
+
+@Composable
+fun HsImage(
+    url: String?,
+    alternativeUrl: String? = null,
     placeholder: Int? = null,
     modifier: Modifier,
     colorFilter: ColorFilter? = null
 ) {
     val fallback = placeholder ?: R.drawable.coin_placeholder
     when {
-        iconUrl != null -> Image(
+        url != null -> Image(
             painter = rememberAsyncImagePainter(
-                model = iconUrl,
-                error = painterResource(fallback),
+                model = url,
+                error = alternativeUrl?.let {
+                    rememberAsyncImagePainter(
+                        model = alternativeUrl,
+                        error = painterResource(fallback)
+                    )
+                } ?: painterResource(fallback),
                 onError = {
 
                 }
@@ -67,6 +124,7 @@ fun CoinImage(
             colorFilter = colorFilter,
             contentScale = ContentScale.FillBounds,
         )
+
         else -> Image(
             painter = painterResource(fallback),
             contentDescription = null,
@@ -97,6 +155,7 @@ fun NftIcon(
             colorFilter = colorFilter,
             contentScale = ContentScale.Crop
         )
+
         else -> Image(
             painter = painterResource(fallback),
             contentDescription = null,

@@ -87,8 +87,7 @@ class WCNewRequestViewModel(
                 }
             }
 
-            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD,
-            SIGN_TRANSACTION_METHOD, SOLANA_SIGN_TRANSACTION_METHOD -> {
+            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD, SOLANA_SIGN_TRANSACTION_METHOD -> {
                 val params = JsonParser.parseString(sessionRequest.request.params).asJsonArray
                 params.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
                     ?: throw Exception("Invalid Data")

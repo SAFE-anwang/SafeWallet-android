@@ -68,7 +68,7 @@ class SendTokenSelectFragment : BaseComposeFragment() {
                     }
 
                     it.errorMessage != null -> {
-                        HudHelper.showErrorMessage(view, it.errorMessage ?: "")
+                        HudHelper.showErrorMessage(view, it.errorMessage)
                     }
                 }
             },

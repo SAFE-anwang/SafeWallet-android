@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -57,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
@@ -73,6 +75,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CoinList(
+    listState: LazyListState = rememberLazyListState(),
     items: List<MarketViewItem>,
     scrollToTop: Boolean,
     onAddFavorite: (String) -> Unit,
@@ -82,7 +85,6 @@ fun CoinList(
     preItems: LazyListScope.() -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
     var revealedCardId by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(state = listState, userScrollEnabled = userScrollEnabled,
@@ -135,14 +137,17 @@ fun CoinList(
                     },
                     content = {
                         MarketCoin(
-                            item.fullCoin.coin.name,
-                            item.fullCoin.coin.code,
-                            item.fullCoin.coin.imageUrl,
-                            item.fullCoin.iconPlaceholder,
-                            item.coinRate,
-                            item.marketDataValue,
-                            item.rank
-                        ) { onCoinClick.invoke(item.fullCoin.coin.uid) }
+                            title = item.fullCoin.coin.code,
+                            subtitle = item.subtitle,
+                            coinIconUrl = item.fullCoin.coin.imageUrl,
+                            alternativeCoinIconUrl = item.fullCoin.coin.alternativeImageUrl,
+                            coinIconPlaceholder = item.fullCoin.iconPlaceholder,
+                            value = item.value,
+                            marketDataValue = item.marketDataValue,
+                            label = item.rank,
+                            advice = item.signal,
+                            onClick = { onCoinClick.invoke(item.fullCoin.coin.uid) }
+                        )
                     }
                 )
                 Divider(
@@ -494,8 +499,8 @@ fun CategoryCard(
                                     ) {
                                         marketData.diff?.let { diff ->
                                             Text(
-                                                text = RateText(diff),
-                                                color = RateColor(diff),
+                                                text = diffText(diff),
+                                                color = diffColor(diff),
                                                 style = ComposeAppTheme.typography.caption,
                                                 maxLines = 1,
                                                 modifier = Modifier.padding(start = 6.dp)

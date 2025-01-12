@@ -16,13 +16,14 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 @Composable
 fun HSSwipeRefresh(
     refreshing: Boolean,
+    modifier: Modifier = Modifier,
     onRefresh: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {

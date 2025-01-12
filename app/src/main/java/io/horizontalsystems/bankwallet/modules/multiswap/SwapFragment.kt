@@ -24,7 +24,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,10 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -46,26 +45,24 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.getInput
-import io.horizontalsystems.bankwallet.core.iconPlaceholder
-import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.slideFromRightForResult
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.getPriceImpactColor
-import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard
@@ -139,9 +136,13 @@ fun SwapScreen(navController: NavController, tokenIn: Token?) {
         onEnterFiatAmount = viewModel::onEnterFiatAmount,
         onClickProvider = {
             navController.slideFromBottom(R.id.swapSelectProvider)
+
+            stat(page = StatPage.Swap, event = StatEvent.Open(StatPage.SwapProvider))
         },
         onClickProviderSettings = {
             navController.slideFromRight(R.id.swapSettings)
+
+            stat(page = StatPage.Swap, event = StatEvent.Open(StatPage.SwapSettings))
         },
         onTimeout = viewModel::reQuote,
         onClickNext = {
@@ -150,6 +151,8 @@ fun SwapScreen(navController: NavController, tokenIn: Token?) {
                     navController.popBackStack()
                 }
             }
+
+            stat(page = StatPage.Swap, event = StatEvent.Open(StatPage.SwapConfirmation))
         },
         onActionStarted = {
             viewModel.onActionStarted()
@@ -179,13 +182,12 @@ private fun SwapScreenInner(
     onActionCompleted: () -> Unit,
     navController: NavController,
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
-
-    LaunchedEffect(uiState.timeout, lifecycleState) {
-        if (uiState.timeout && lifecycleState == Lifecycle.State.RESUMED) {
+    LifecycleResumeEffect(uiState.timeout) {
+        if (uiState.timeout) {
             onTimeout.invoke()
         }
+
+        onPauseOrDispose { }
     }
 
     val quote = uiState.quote
@@ -276,7 +278,7 @@ private fun SwapScreenInner(
 
                     is SwapStep.Error -> {
                         val errorText = when (val error = currentStep.error) {
-                            SwapMainModule.SwapError.InsufficientBalanceFrom -> stringResource(id = R.string.Swap_ErrorInsufficientBalance)
+                            SwapError.InsufficientBalanceFrom -> stringResource(id = R.string.Swap_ErrorInsufficientBalance)
                             is NoSupportedSwapProvider -> stringResource(id = R.string.Swap_ErrorNoProviders)
                             is SwapRouteNotFound -> stringResource(id = R.string.Swap_ErrorNoQuote)
                             is PriceImpactTooHigh -> stringResource(id = R.string.Swap_ErrorHighPriceImpact)
@@ -333,7 +335,7 @@ private fun SwapScreenInner(
                 if (quote != null) {
                     CardsSwapInfo {
                         ProviderField(quote.provider, onClickProvider, onClickProviderSettings)
-                        PriceField(quote.tokenIn, quote.tokenOut, quote.amountIn, quote.amountOut)
+                        PriceField(quote.tokenIn, quote.tokenOut, quote.amountIn, quote.amountOut, StatPage.Swap)
                         PriceImpactField(uiState.priceImpact, uiState.priceImpactLevel, navController)
                         quote.fields.forEach {
                             it.GetContent(navController, false)
@@ -409,7 +411,7 @@ private fun AvailableBalanceField(tokenIn: Token?, availableBalance: BigDecimal?
 @Composable
 fun PriceImpactField(
     priceImpact: BigDecimal?,
-    priceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    priceImpactLevel: PriceImpactLevel?,
     navController: NavController
 ) {
     if (priceImpact == null || priceImpactLevel == null) return
@@ -490,7 +492,7 @@ private fun ProviderField(
 }
 
 @Composable
-fun PriceField(tokenIn: Token, tokenOut: Token, amountIn: BigDecimal, amountOut: BigDecimal) {
+fun PriceField(tokenIn: Token, tokenOut: Token, amountIn: BigDecimal, amountOut: BigDecimal, statPage: StatPage) {
     var showRegularPrice by remember { mutableStateOf(true) }
     val swapPriceUIHelper = SwapPriceUIHelper(tokenIn, tokenOut, amountIn, amountOut)
 
@@ -506,6 +508,8 @@ fun PriceField(tokenIn: Token, tokenOut: Token, amountIn: BigDecimal, amountOut:
                         indication = null,
                         onClick = {
                             showRegularPrice = !showRegularPrice
+
+                            stat(page = statPage, event = StatEvent.TogglePrice)
                         }
                     ),
                 verticalAlignment = Alignment.CenterVertically,
@@ -537,7 +541,7 @@ private fun SwapInput(
     amountOut: BigDecimal?,
     fiatAmountOut: BigDecimal?,
     fiatPriceImpact: BigDecimal?,
-    fiatPriceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    fiatPriceImpactLevel: PriceImpactLevel?,
     onValueChange: (BigDecimal?) -> Unit,
     onFiatValueChange: (BigDecimal?) -> Unit,
     onClickCoinFrom: () -> Unit,
@@ -631,7 +635,7 @@ private fun SwapCoinInputTo(
     coinAmount: BigDecimal?,
     fiatAmount: BigDecimal?,
     fiatPriceImpact: BigDecimal?,
-    fiatPriceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    fiatPriceImpactLevel: PriceImpactLevel?,
     currency: Currency,
     token: Token?,
     onClickCoin: () -> Unit,
@@ -689,8 +693,7 @@ private fun CoinSelector(
                 )
             } else {
                 CoinImage(
-                        iconUrl = token?.coin?.imageUrl,
-                        placeholder = token?.iconPlaceholder,
+                        token = token,
                         modifier = Modifier.size(32.dp)
                 )
             }
@@ -855,4 +858,15 @@ private fun AmountInput(
             innerTextField()
         },
     )
+}
+
+@Composable
+fun getPriceImpactColor(priceImpactLevel: PriceImpactLevel?): Color {
+    return when (priceImpactLevel) {
+        PriceImpactLevel.Normal -> ComposeAppTheme.colors.jacob
+        PriceImpactLevel.Warning,
+        PriceImpactLevel.Forbidden -> ComposeAppTheme.colors.lucian
+
+        else -> ComposeAppTheme.colors.grey
+    }
 }

@@ -8,12 +8,14 @@ import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.adapters.BitcoinBaseAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TonAdapter
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.BinanceKitManager
 import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.SolanaKitManager
+import io.horizontalsystems.bankwallet.core.managers.TonKitManager
 import io.horizontalsystems.bankwallet.core.managers.TronKitManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.settings.appstatus.AppStatusModule.BlockContent
@@ -35,6 +37,7 @@ class AppStatusViewModel(
     private val evmBlockchainManager: EvmBlockchainManager,
     private val binanceKitManager: BinanceKitManager,
     private val tronKitManager: TronKitManager,
+    private val tonKitManager: TonKitManager,
     private val solanaKitManager: SolanaKitManager,
     private val btcBlockchainManager: BtcBlockchainManager,
 ) : ViewModelUiState<AppStatusModule.UiState>() {
@@ -202,6 +205,10 @@ class AppStatusViewModel(
             blockchainStatus["Tron"] = statusInfo
         }
 
+        tonKitManager.statusInfo?.let { statusInfo ->
+            blockchainStatus["Ton"] = statusInfo
+        }
+
         solanaKitManager.statusInfo?.let { statusInfo ->
             blockchainStatus["Solana"] = statusInfo
         }
@@ -283,6 +290,15 @@ class AppStatusViewModel(
                 (adapterManager.getAdapterForWallet(wallet) as? ZcashAdapter)?.let { adapter ->
                     val title = if (blocks.isEmpty()) "Blockchain Status" else null
                     val block = getBlockchainInfoBlock(title, "Zcash", adapter.statusInfo)
+                    blocks.add(block)
+                }
+            }
+
+        walletManager.activeWallets.firstOrNull { it.token.blockchainType == BlockchainType.Ton }
+            ?.let { wallet ->
+                (adapterManager.getAdapterForWallet(wallet) as? TonAdapter)?.let { adapter ->
+                    val title = if (blocks.isEmpty()) "Blockchain Status" else null
+                    val block = getBlockchainInfoBlock(title, "Ton", adapter.statusInfo)
                     blocks.add(block)
                 }
             }

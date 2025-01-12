@@ -1,16 +1,13 @@
 package io.horizontalsystems.bankwallet.modules.addtoken
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,11 +25,11 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.addtoken.blockchainselector.AddTokenBlockchainSelectorScreen
 import io.horizontalsystems.bankwallet.modules.addtoken.blockchainselector.BlockchainSelectorResult
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.ui.TitleValueCell
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -41,9 +38,11 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputStateWarning
+import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.core.SnackbarDuration
@@ -119,26 +118,30 @@ private fun AddTokenScreen(
         }
     }
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = stringResource(R.string.AddToken_Title),
-            navigationIcon = {
-                HsBackButton(onClick = closeScreen)
-            },
-            menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.Button_Add),
-                    onClick = viewModel::onAddClick,
-                    enabled = uiState.addButtonEnabled
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
+            AppBar(
+                title = stringResource(R.string.AddToken_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = closeScreen)
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Button_Add),
+                        onClick = viewModel::onAddClick,
+                        enabled = uiState.addButtonEnabled
+                    )
                 )
             )
-        )
+        },
+    ) { innerPaddings ->
         Column(
             modifier = Modifier
-                .weight(1f)
+                .padding(innerPaddings)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            VSpacer(12.dp)
 
             CellUniversalLawrenceSection(
                 listOf {
@@ -152,7 +155,7 @@ private fun AddTokenScreen(
                             painter = painterResource(R.drawable.ic_blocks_24),
                             contentDescription = null
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
+                        HSpacer(16.dp)
                         body_leah(
                             text = stringResource(R.string.AddToken_Blockchain),
                             modifier = Modifier.weight(1f)
@@ -170,7 +173,7 @@ private fun AddTokenScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            VSpacer(32.dp)
 
             FormsInput(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -182,7 +185,7 @@ private fun AddTokenScreen(
                 viewModel.onEnterText(it)
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            VSpacer(32.dp)
 
             uiState.tokenInfo?.let { tokenInfo ->
                 CellUniversalLawrenceSection(

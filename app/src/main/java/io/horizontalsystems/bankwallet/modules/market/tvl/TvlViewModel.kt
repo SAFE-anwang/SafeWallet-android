@@ -3,32 +3,34 @@ package io.horizontalsystems.bankwallet.modules.market.tvl
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statType
 import io.horizontalsystems.bankwallet.entities.ViewState
+import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.market.MarketModule
 import io.horizontalsystems.bankwallet.modules.market.tvl.TvlModule.SelectorDialogState
 import io.horizontalsystems.bankwallet.modules.market.tvl.TvlModule.TvlDiffType
-import io.horizontalsystems.bankwallet.modules.metricchart.MetricsType
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.marketkit.models.HsTimePeriod
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class TvlViewModel(
     private val service: TvlService,
     private val tvlViewItemFactory: TvlViewItemFactory,
 ) : ViewModel() {
 
-    private val disposables = CompositeDisposable()
     private var tvlDiffType: TvlDiffType = TvlDiffType.Percent
         set(value) {
             field = value
             tvlDiffTypeLiveData.postValue(value)
         }
     private var tvlItems: List<TvlModule.MarketTvlItem> = listOf()
-    private val metricsType = MetricsType.TvlInDefi
 
     val isRefreshingLiveData = MutableLiveData<Boolean>()
     val tvlLiveData = MutableLiveData<TvlModule.TvlData>()
@@ -37,14 +39,14 @@ class TvlViewModel(
     val chainSelectorDialogStateLiveData = MutableLiveData<SelectorDialogState>()
 
     var header = MarketModule.Header(
-        title = Translator.getString(metricsType.title),
-        description = Translator.getString(metricsType.description),
-        icon = metricsType.headerIcon
+        title = Translator.getString(R.string.MarketGlobalMetrics_TvlInDefi),
+        description = Translator.getString(R.string.MarketGlobalMetrics_TvlInDefiDescription),
+        icon = ImageSource.Remote("https://cdn.blocksdecoded.com/header-images/tvl@3x.png")
     )
 
     init {
-        service.marketTvlItemsObservable
-            .subscribeIO { tvlItemsDataState ->
+        viewModelScope.launch {
+            service.marketTvlItemsObservable.asFlow().collect { tvlItemsDataState ->
                 tvlItemsDataState.viewState?.let {
                     viewStateLiveData.postValue(it)
                 }
@@ -54,7 +56,7 @@ class TvlViewModel(
                     syncTvlItems(it)
                 }
             }
-            .let { disposables.add(it) }
+        }
 
         service.start()
     }
@@ -77,14 +79,20 @@ class TvlViewModel(
     fun onSelectChain(chain: TvlModule.Chain) {
         service.chain = chain
         chainSelectorDialogStateLiveData.postValue(SelectorDialogState.Closed)
+
+        stat(page = StatPage.GlobalMetricsTvlInDefi, event = StatEvent.SwitchTvlChain(chain.name))
     }
 
     fun onToggleSortType() {
         service.sortDescending = !service.sortDescending
+
+        stat(page = StatPage.GlobalMetricsTvlInDefi, event = StatEvent.ToggleSortDirection)
     }
 
     fun onToggleTvlDiffType() {
         tvlDiffType = if (tvlDiffType == TvlDiffType.Percent) TvlDiffType.Currency else TvlDiffType.Percent
+
+        stat(page = StatPage.GlobalMetricsTvlInDefi, event = StatEvent.ToggleTvlField(tvlDiffType.statType))
     }
 
     fun onClickChainSelector() {
@@ -107,7 +115,6 @@ class TvlViewModel(
 
     override fun onCleared() {
         service.stop()
-        disposables.clear()
     }
 
     fun onSelectChartInterval(chartInterval: HsTimePeriod?) {

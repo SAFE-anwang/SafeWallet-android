@@ -19,10 +19,16 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.StatSection
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
@@ -30,7 +36,6 @@ import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.fee.HSFeeRaw
 import io.horizontalsystems.bankwallet.modules.hodler.HSHodler
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
@@ -58,7 +63,6 @@ fun SendConfirmationScreen(
     navController: NavController,
     coinMaxAllowedDecimals: Int,
     feeCoinMaxAllowedDecimals: Int,
-    fiatMaxAllowedDecimals: Int,
     amountInputType: AmountInputType,
     rate: CurrencyValue?,
     feeCoinRate: CurrencyValue?,
@@ -100,7 +104,7 @@ fun SendConfirmationScreen(
         }
 
         is SendResult.Failed -> {
-            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            HudHelper.showErrorMessage(view, sendResult.caution.getDescription() ?: sendResult.caution.getString())
         }
 
         null -> Unit
@@ -113,14 +117,11 @@ fun SendConfirmationScreen(
         }
     }
 
-    DisposableLifecycleCallbacks(
-        //additional close for cases when user closes app immediately after sending
-        onResume = {
-            if (sendResult == SendResult.Sent) {
-                navController.popBackStack(closeUntilDestId, true)
-            }
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        if (sendResult == SendResult.Sent) {
+            navController.popBackStack(closeUntilDestId, true)
         }
-    )
+    }
 
     Column(Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
@@ -159,7 +160,7 @@ fun SendConfirmationScreen(
                                 .getFormattedFull()
                         }
 
-                        ConfirmAmountCell(currencyAmount, coinAmount, coin.imageUrl)
+                        ConfirmAmountCell(currencyAmount, coinAmount, coin)
                     }
                     add {
                         TransactionInfoAddressCell(
@@ -167,7 +168,16 @@ fun SendConfirmationScreen(
                             value = address.hex,
                             showAdd = contact == null,
                             blockchainType = blockchainType,
-                            navController = navController
+                            navController = navController,
+                            onCopy = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Copy(StatEntity.Address))
+                            },
+                            onAddToExisting = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactAddToExisting))
+                            },
+                            onAddToNew = {
+                                stat(page = StatPage.SendConfirmation, section = StatSection.AddressTo, event = StatEvent.Open(StatPage.ContactNew))
+                            }
                         )
                     }
                     contact?.let {
@@ -219,7 +229,11 @@ fun SendConfirmationScreen(
                     .align(Alignment.BottomCenter)
                     .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
                 sendResult = sendResult,
-                onClickSend = onClickSend
+                onClickSend = {
+                    onClickSend()
+
+                    stat(page = StatPage.SendConfirmation, event = StatEvent.Send)
+                }
             )
         }
     }
@@ -258,13 +272,12 @@ fun SendButton(modifier: Modifier, sendResult: SendResult?, onClickSend: () -> U
 }
 
 @Composable
-fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, iconUrl: String?) {
+fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, coin: Coin) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp),
     ) {
         CoinImage(
-            iconUrl = iconUrl,
-            placeholder = R.drawable.coin_placeholder,
+            coin = coin,
             modifier = Modifier.size(32.dp)
         )
         subhead2_leah(

@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.evmfee.eip1559
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.Bound

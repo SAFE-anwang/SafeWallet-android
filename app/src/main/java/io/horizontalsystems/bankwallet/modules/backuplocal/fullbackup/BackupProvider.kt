@@ -43,7 +43,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIconService
 import io.horizontalsystems.bankwallet.modules.settings.appearance.LaunchScreenService
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.settings.appearance.PriceChangeInterval
 import io.horizontalsystems.bankwallet.modules.theme.ThemeService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.core.toHexString
@@ -66,8 +66,7 @@ class BackupFileValidator {
         val fullBackup = gson.fromJson(json, FullBackup::class.java)
         val walletBackup = gson.fromJson(json, BackupLocalModule.WalletBackup::class.java)
 
-        val isSingleWalletBackup =
-            fullBackup.settings == null && walletBackup.crypto != null && walletBackup.type != null && walletBackup.version in 1..2
+        val isSingleWalletBackup = fullBackup.settings == null && walletBackup.crypto != null && walletBackup.type != null && walletBackup.version in 1..2
         val isFullBackup = fullBackup.settings != null && fullBackup.version == 2 && walletBackup.crypto == null && walletBackup.type == null
 
         if (!isSingleWalletBackup && !isFullBackup) {
@@ -153,7 +152,8 @@ class BackupProvider(
                 accountId = account.id,
                 coinName = it.coinName,
                 coinCode = it.coinCode,
-                coinDecimals = it.decimals
+                coinDecimals = it.decimals,
+                coinImage = null
             )
         }
         walletManager.saveEnabledWallets(enabledWallets)
@@ -183,7 +183,8 @@ class BackupProvider(
                     accountId = account.id,
                     coinName = it.coinName,
                     coinCode = it.coinCode,
-                    coinDecimals = it.decimals
+                    coinDecimals = it.decimals,
+                    coinImage = null
                 )
             }
 
@@ -227,12 +228,10 @@ class BackupProvider(
 
         settings.conversionTokenQueryId?.let { baseTokenManager.setBaseTokenQueryId(it) }
 
-        settings.swapProviders.forEach {
-            localStorage.setSwapProviderId(BlockchainType.fromUid(it.blockchainTypeId), it.provider)
-        }
-
         launchScreenService.setLaunchScreen(settings.launchScreen)
         localStorage.marketsTabEnabled = settings.marketsTabEnabled
+        localStorage.balanceTabButtonsEnabled = settings.balanceHideButtons ?: false
+        localStorage.priceChangeInterval = settings.priceChangeMode ?: PriceChangeInterval.LAST_24H
         currencyManager.setBaseCurrencyCode(settings.baseCurrency)
 
 
@@ -435,11 +434,6 @@ class BackupProvider(
 
         val watchlist = marketFavoritesManager.getAll().map { it.coinUid }
 
-        val swapProviders = EvmBlockchainManager.blockchainTypes.map { blockchainType ->
-            val provider = localStorage.getSwapProviderId(blockchainType) ?: SwapMainModule.OneInchProvider.id
-            SwapProvider(blockchainType.uid, provider)
-        }
-
         val btcModes = btcBlockchainManager.allBlockchains.map { blockchain ->
             val restoreMode = btcBlockchainManager.restoreMode(blockchain.type)
             val sortMode = btcBlockchainManager.transactionSortMode(blockchain.type)
@@ -468,17 +462,18 @@ class BackupProvider(
         val settings = Settings(
             balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value,
             appIcon = localStorage.appIcon?.titleText ?: AppIcon.Main.titleText,
-            currentTheme = themeService.optionsFlow.value.selected,
+            currentTheme = themeService.selectedTheme,
             chartIndicatorsEnabled = localStorage.chartIndicatorsEnabled,
             chartIndicators = chartIndicators,
             balanceAutoHidden = balanceHiddenManager.balanceAutoHidden,
             conversionTokenQueryId = baseTokenManager.token?.tokenQuery?.id,
-            swapProviders = swapProviders,
             language = languageManager.currentLocaleTag,
-            launchScreen = launchScreenService.optionsFlow.value.selected,
+            launchScreen = launchScreenService.selectedLaunchScreen,
             marketsTabEnabled = localStorage.marketsTabEnabled,
+            balanceHideButtons = localStorage.balanceTabButtonsEnabled,
             baseCurrency = currencyManager.baseCurrency.code,
             btcModes = btcModes,
+            priceChangeMode = localStorage.priceChangeInterval,
             evmSyncSources = evmSyncSources,
             solanaSyncSource = solanaSyncSource,
         )
@@ -578,7 +573,7 @@ class BackupProvider(
             val tokenQuery = TokenQuery.fromId(it.tokenQueryId) ?: return@mapNotNull null
             val settings = settingsManager.settings(account, tokenQuery.blockchainType).values
             BackupLocalModule.EnabledWalletBackup(
-                tokenQueryId = it.tokenQueryId.lowercase(),
+                tokenQueryId = it.tokenQueryId,
                 coinName = it.coinName,
                 coinCode = it.coinCode,
                 decimals = it.coinDecimals,
@@ -650,13 +645,6 @@ data class FullBackup(
     val id: String
 )
 
-data class SwapProvider(
-    @SerializedName("blockchain_type_id")
-    val blockchainTypeId: String,
-    @SerializedName("provider")
-    val provider: String
-)
-
 data class BtcMode(
     @SerializedName("blockchain_type_id")
     val blockchainTypeId: String,
@@ -723,18 +711,20 @@ data class Settings(
     val balanceAutoHidden: Boolean,
     @SerializedName("conversion_token_query_id")
     val conversionTokenQueryId: String?,
-    @SerializedName("swap_providers")
-    val swapProviders: List<SwapProvider>,
     val language: String,
     @SerializedName("launch_screen")
     val launchScreen: LaunchPage,
     @SerializedName("show_market")
     val marketsTabEnabled: Boolean,
+    @SerializedName("balance_hide_buttons")
+    val balanceHideButtons: Boolean?,
     @SerializedName("currency")
     val baseCurrency: String,
 
     @SerializedName("btc_modes")
     val btcModes: List<BtcMode>,
+    @SerializedName("price_change_mode")
+    val priceChangeMode: PriceChangeInterval?,
     @SerializedName("evm_sync_sources")
     val evmSyncSources: EvmSyncSources,
     @SerializedName("solana_sync_source")

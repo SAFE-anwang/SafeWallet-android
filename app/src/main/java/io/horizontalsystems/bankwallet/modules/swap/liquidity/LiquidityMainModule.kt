@@ -13,7 +13,6 @@ import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.swap.*
-import io.horizontalsystems.bankwallet.modules.swap.allowance.*
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService

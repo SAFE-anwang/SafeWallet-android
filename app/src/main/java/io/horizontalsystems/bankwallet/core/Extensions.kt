@@ -6,7 +6,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Parcelable
 import android.widget.ImageView
-import androidx.annotation.CheckResult
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
@@ -22,11 +21,11 @@ import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.ethereumkit.core.toRawHexString
 import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.hodler.LockTimeInterval
-import io.horizontalsystems.marketkit.models.Auditor
 import io.horizontalsystems.marketkit.models.CoinCategory
 import io.horizontalsystems.marketkit.models.CoinInvestment
 import io.horizontalsystems.marketkit.models.CoinTreasury
 import io.horizontalsystems.marketkit.models.FullCoin
+import kotlinx.coroutines.delay
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -44,6 +43,12 @@ val <T> Optional<T>.orNull: T?
 
 val Platform.iconUrl: String
     get() = "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
+
+val String.coinIconUrl: String
+    get() = "https://cdn.blocksdecoded.com/coin-icons/32px/$this@3x.png"
+
+val String.fiatIconUrl: String
+    get()= "https://cdn.blocksdecoded.com/fiat-icons/$this@3x.png"
 
 val CoinCategory.imageUrl: String
     get() = "https://cdn.blocksdecoded.com/category-icons/$uid@3x.png"
@@ -145,52 +150,6 @@ fun LockTimeInterval?.stringResId(): Int {
         LockTimeInterval.year_10 -> R.string.Send_LockTime_Year_10
         null -> R.string.Send_LockTime_Off
     }
-}
-
-@CheckResult
-fun <T> Observable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
-    return this
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(onNext)
-}
-
-@CheckResult
-fun <T> Observable<T>.subscribeIO(
-    onSuccess: (t: T) -> Unit,
-    onError: (e: Throwable) -> Unit
-): Disposable {
-    return this
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(onSuccess, onError)
-}
-
-@CheckResult
-fun <T> Flowable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
-    return this
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(onNext)
-}
-
-@CheckResult
-fun <T> Single<T>.subscribeIO(
-    onSuccess: (t: T) -> Unit,
-    onError: (e: Throwable) -> Unit
-): Disposable {
-    return this
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(onSuccess, onError)
-}
-
-@CheckResult
-fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
-    return this
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .subscribe(onSuccess)
 }
 
 fun String.shorten(characters: Int = 4): String {

@@ -87,7 +87,11 @@ class WCSessionFragment : BaseFragment() {
             findNavController().popBackStack()
         }
 
-        viewModel.showErrorLiveEvent.observe(viewLifecycleOwner) {
+        viewModel.showErrorLiveEvent.observe(viewLifecycleOwner) { error ->
+            HudHelper.showErrorMessage(requireView(), error ?: getString(R.string.Error))
+        }
+
+        viewModel.showNoInternetErrorLiveEvent.observe(viewLifecycleOwner) {
             HudHelper.showErrorMessage(requireView(), getString(R.string.Hud_Text_NoInternet))
         }
 
