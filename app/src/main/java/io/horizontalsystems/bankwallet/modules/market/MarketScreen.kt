@@ -176,10 +176,6 @@ fun TabsSection(
             Tab.DApp -> {
                 DAppFragment2(navController)
             }
-
-            Tab.Tweets -> {
-                CoinTweetsScreen()
-            }
         }
     }
 }

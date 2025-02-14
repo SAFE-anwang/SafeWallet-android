@@ -51,7 +51,6 @@ object MarketModule {
         Watchlist(R.string.Market_Tab_Watchlist),
         Posts(R.string.Market_Tab_Posts),
         Platform(R.string.Market_Tab_Platform),
-        Tweets(R.string.Coin_Tab_Tweets),
         DApp(R.string.DApp_Tab_Name),
         Pairs(R.string.Market_Tab_Pairs);
 

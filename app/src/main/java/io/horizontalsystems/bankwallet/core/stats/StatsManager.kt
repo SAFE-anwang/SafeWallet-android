@@ -332,8 +332,7 @@ val MarketModule.Tab.statTab: StatTab
         MarketModule.Tab.Coins -> StatTab.Coins
         MarketModule.Tab.Platform -> StatTab.Platforms
         MarketModule.Tab.Pairs -> StatTab.Pairs
-        MarketModule.Tab.DApp -> StatTab.Pairs
-        MarketModule.Tab.Tweets -> StatTab.Pairs
+        MarketModule.Tab.DApp -> StatTab.Dapp
     }
 
 val MarketSearchSection.statSection: StatSection
