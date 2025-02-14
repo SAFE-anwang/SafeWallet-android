@@ -39,7 +39,6 @@ val Token.isSupported: Boolean
 val Token.iconPlaceholder: Int
     get() = when (type) {
         is TokenType.Eip20 -> blockchainType.tokenIconPlaceholder
-        is TokenType.Bep2 -> R.drawable.bep2
         else -> R.drawable.coin_placeholder
     }
 
@@ -72,13 +71,11 @@ val Token.protocolInfo: String
             when (this.blockchainType) {
                 BlockchainType.Ethereum -> parts.add("(ERC20)")
                 BlockchainType.BinanceSmartChain -> parts.add("(BEP20)")
-                BlockchainType.BinanceChain -> parts.add("(BEP2)")
                 else -> {}
             }
             parts.joinToString(" ")
         }
         is TokenType.Eip20,
-        is TokenType.Bep2,
         is TokenType.Spl,
         is TokenType.Jetton -> protocolType ?: ""
         else -> ""
@@ -90,7 +87,6 @@ val Token.typeInfo: String
         is TokenType.AddressTyped,
         TokenType.Native -> Translator.getString(R.string.CoinPlatforms_Native)
         is TokenType.Eip20 -> type.address.shorten()
-        is TokenType.Bep2 -> type.symbol
         is TokenType.Spl -> type.address.shorten()
         is TokenType.Jetton -> type.address.shorten()
         is TokenType.Unsupported -> ""
@@ -99,7 +95,6 @@ val Token.typeInfo: String
 val Token.copyableTypeInfo: String?
     get() = when (val type = type) {
         is TokenType.Eip20 -> type.address
-        is TokenType.Bep2 -> type.symbol
         is TokenType.Spl -> type.address
         is TokenType.Jetton -> type.address
         else -> null
@@ -115,7 +110,6 @@ val TokenQuery.protocolType: String?
                 BlockchainType.Tron,
                 BlockchainType.Ton -> null
 
-                BlockchainType.BinanceChain -> "BEP2"
                 else -> blockchainType.title
             }
         }
@@ -129,7 +123,6 @@ val TokenQuery.protocolType: String?
             }
         }
 
-        is TokenType.Bep2 -> "BEP2"
         is TokenType.Jetton -> "JETTON"
         else -> blockchainType.title
     }
@@ -168,9 +161,6 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.Avalanche -> {
             tokenType is TokenType.Native || tokenType is TokenType.Eip20
         }
-        BlockchainType.BinanceChain -> {
-            tokenType is TokenType.Native || tokenType is TokenType.Bep2
-        }
         BlockchainType.Solana -> {
             tokenType is TokenType.Native || tokenType is TokenType.Spl
         }
@@ -194,7 +184,6 @@ val Blockchain.description: String
         BlockchainType.Dash -> "DASH"
         BlockchainType.SafeFour -> "SAFE4"
         BlockchainType.Safe -> "SAFE"
-        BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
         BlockchainType.Ethereum -> "ETH, ERC20 tokens"
         BlockchainType.BinanceSmartChain -> "BNB, BEP20 tokens"
         BlockchainType.Polygon -> "MATIC, ERC20 tokens"
@@ -275,7 +264,6 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Litecoin,
         BlockchainType.Dogecoin,
         BlockchainType.Dash,
-        BlockchainType.BinanceChain,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
         BlockchainType.ArbitrumOne,
@@ -293,7 +281,6 @@ val BlockchainType.tokenIconPlaceholder: Int
     get() = when (this) {
         BlockchainType.Ethereum -> R.drawable.erc20
         BlockchainType.BinanceSmartChain -> R.drawable.bep20
-        BlockchainType.BinanceChain -> R.drawable.bep2
         BlockchainType.Avalanche -> R.drawable.avalanche_erc20
         BlockchainType.Polygon -> R.drawable.polygon_erc20
         BlockchainType.Optimism -> R.drawable.optimism_erc20
@@ -323,7 +310,6 @@ val BlockchainType.title: String
     BlockchainType.Polygon -> "Polygon"
     BlockchainType.Avalanche -> "Avalanche"
     BlockchainType.ArbitrumOne -> "ArbitrumOne"
-    BlockchainType.BinanceChain -> "BNB Beacon Coin"
     BlockchainType.Optimism -> "Optimism"
     BlockchainType.Base -> "Base"
     BlockchainType.Solana -> "Solana"
@@ -684,13 +670,12 @@ val TokenType.isNative: Boolean
     get() = this is TokenType.Native || this is TokenType.Derived || this is TokenType.AddressTyped
 
 val TokenType.isCustom: Boolean
-    get() = this is TokenType.Bep2 || this is TokenType.Eip20 || this is TokenType.Spl
+    get() = this is TokenType.Eip20 || this is TokenType.Spl
 
 val TokenType.meta: String?
     get() = when (this) {
         is TokenType.Derived -> this.derivation.name
         is TokenType.AddressTyped -> this.type.name
-        is TokenType.Bep2 -> this.symbol
         else -> null
     }
 
@@ -712,7 +697,6 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Dash,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
-        BlockchainType.BinanceChain,
         BlockchainType.Solana,
         BlockchainType.ECash,
         BlockchainType.Tron,

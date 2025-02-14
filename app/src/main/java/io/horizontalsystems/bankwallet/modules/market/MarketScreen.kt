@@ -173,8 +173,12 @@ fun TabsSection(
                 TopPairsScreen()
             }
 
-            MarketModule.Tab.DApp -> {
+            Tab.DApp -> {
                 DAppFragment2(navController)
+            }
+
+            Tab.Tweets -> {
+                CoinTweetsScreen()
             }
         }
     }

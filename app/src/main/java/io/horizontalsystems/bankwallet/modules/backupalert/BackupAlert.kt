@@ -7,19 +7,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import kotlinx.coroutines.delay
 
 @Composable
 fun BackupAlert(navController: NavController) {
     val viewModel = viewModel<BackupAlertViewModel>()
 
-    LifecycleResumeEffect {
-        viewModel.resume()
-
-        onPauseOrDispose {
-            viewModel.pause()
-        }
-    }
+    DisposableLifecycleCallbacks(
+        onResume = viewModel::resume,
+        onPause = viewModel::pause
+    )
 
     val account = viewModel.account
     if (account != null) {

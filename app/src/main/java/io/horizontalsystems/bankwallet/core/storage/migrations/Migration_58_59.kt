@@ -9,6 +9,5 @@ object Migration_58_59 : Migration(58, 59) {
         db.execSQL("INSERT INTO ActiveAccount_new (`accountId`, `level`) SELECT `accountId`, 0 FROM ActiveAccount LIMIT 0, 1")
         db.execSQL("DROP TABLE ActiveAccount")
         db.execSQL("ALTER TABLE ActiveAccount_new RENAME TO ActiveAccount")
-        db.execSQL("CREATE TABLE IF NOT EXISTS `StatRecord` (`json` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
     }
 }

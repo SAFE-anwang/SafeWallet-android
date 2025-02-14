@@ -55,7 +55,7 @@ public class NativeLoader {
                 file.delete();
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
 
         ZipFile zipFile = null;
@@ -85,24 +85,24 @@ public class NativeLoader {
                 System.load(destLocalFile.getAbsolutePath());
                 nativeLoaded = true;
             } catch (Error e) {
-                FileLog.e(e);
+//                FileLog.e(e);
             }
             return true;
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         } finally {
             if (stream != null) {
                 try {
                     stream.close();
                 } catch (Exception e) {
-                    FileLog.e(e);
+//                    FileLog.e(e);
                 }
             }
             if (zipFile != null) {
                 try {
                     zipFile.close();
                 } catch (Exception e) {
-                    FileLog.e(e);
+//                    FileLog.e(e);
                 }
             }
         }
@@ -119,12 +119,12 @@ public class NativeLoader {
             try {
                 System.loadLibrary(LIB_NAME);
                 nativeLoaded = true;
-                if (BuildVars.LOGS_ENABLED) {
+                /*if (BuildVars.LOGS_ENABLED) {
                     FileLog.d("loaded normal lib");
-                }
+                }*/
                 return;
             } catch (Error e) {
-                FileLog.e(e);
+//                FileLog.e(e);
                 log.append("128: ").append(e).append("\n");
             }
 
@@ -150,21 +150,21 @@ public class NativeLoader {
             File destLocalFile = new File(destDir, LOCALE_LIB_SO_NAME);
             if (destLocalFile.exists()) {
                 try {
-                    if (BuildVars.LOGS_ENABLED) {
+                    /*if (BuildVars.LOGS_ENABLED) {
                         FileLog.d("Load local lib");
-                    }
+                    }*/
                     System.load(destLocalFile.getAbsolutePath());
                     nativeLoaded = true;
                     return;
                 } catch (Error e) {
                     log.append(e).append("\n");
-                    FileLog.e(e);
+//                    FileLog.e(e);
                 }
                 destLocalFile.delete();
             }
 
             if (BuildVars.LOGS_ENABLED) {
-                FileLog.e("Library not found, arch = " + folder);
+//                FileLog.e("Library not found, arch = " + folder);
                 log.append("Library not found, arch = " + folder).append("\n");
             }
 
@@ -180,7 +180,7 @@ public class NativeLoader {
             System.loadLibrary(LIB_NAME);
             nativeLoaded = true;
         } catch (Error e) {
-            FileLog.e(e);
+//            FileLog.e(e);
             log.append("184: ").append(e).append("\n");
         }
     }
@@ -203,12 +203,12 @@ public class NativeLoader {
                 folder = "mips";
             } else {
                 folder = "armeabi";
-                if (BuildVars.LOGS_ENABLED) {
+                /*if (BuildVars.LOGS_ENABLED) {
                     FileLog.e("Unsupported arch: " + Build.CPU_ABI);
-                }
+                }*/
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
             folder = "armeabi";
         }
 

@@ -313,31 +313,32 @@ fun TransactionInfoAddressCell(
             )
         }
 
-    if (showSaveAddressDialog) {
-        SelectorDialogCompose(
-            title = stringResource(R.string.Contacts_AddAddress),
-            items = ContactsModule.AddAddressAction.values().map {
-                SelectorItem(stringResource(it.title), false, it)
-            },
-            onDismissRequest = {
-                showSaveAddressDialog = false
-            },
-            onSelectItem = { action ->
-                blockchainType?.let {
-                    val args = when (action) {
-                        ContactsModule.AddAddressAction.AddToNewContact -> {
-                            onAddToNew?.invoke()
-                            ContactsFragment.Input(Mode.AddAddressToNewContact(blockchainType, value))
-                        }
+        if (showSaveAddressDialog) {
+            SelectorDialogCompose(
+                    title = stringResource(R.string.Contacts_AddAddress),
+                    items = ContactsModule.AddAddressAction.values().map {
+                        SelectorItem(stringResource(it.title), false, it)
+                    },
+                    onDismissRequest = {
+                        showSaveAddressDialog = false
+                    },
+                    onSelectItem = { action ->
+                        blockchainType?.let {
+                            val args = when (action) {
+                                ContactsModule.AddAddressAction.AddToNewContact -> {
+                                    onAddToNew?.invoke()
+                                    ContactsFragment.Input(Mode.AddAddressToNewContact(blockchainType, value))
+                                }
 
-                        ContactsModule.AddAddressAction.AddToExistingContact -> {
-                            onAddToExisting?.invoke()
-                            ContactsFragment.Input(Mode.AddAddressToExistingContact(blockchainType, value))
+                                ContactsModule.AddAddressAction.AddToExistingContact -> {
+                                    onAddToExisting?.invoke()
+                                    ContactsFragment.Input(Mode.AddAddressToExistingContact(blockchainType, value))
+                                }
+                            }
+                            navController?.slideFromRight(R.id.contactsFragment, args)
                         }
-                    }
-                    navController?.slideFromRight(R.id.contactsFragment, args)
-                }
-            })
+                    })
+        }
     }
 }
 
@@ -731,7 +732,6 @@ private fun openTransactionOptionsModule(
         BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
-        BlockchainType.BinanceChain,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,

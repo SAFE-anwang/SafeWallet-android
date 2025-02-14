@@ -19,13 +19,11 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.fragment.NavHostFragment
 import com.walletconnect.web3.wallet.client.Wallet
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
-import com.walletconnect.web3.wallet.client.Wallet
 import com.xuexiang.xupdate.XUpdate
 import com.xuexiang.xupdate.entity.UpdateEntity
 import com.xuexiang.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION
@@ -40,16 +38,11 @@ import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.core.hideKeyboard
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
-import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
-import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
-import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
-import io.horizontalsystems.bankwallet.net.SafeNetWork
-import io.horizontalsystems.bankwallet.net.VpnConnectService
-
-import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
+import io.horizontalsystems.bankwallet.net.SafeNetWork
+import io.horizontalsystems.bankwallet.net.VpnConnectService
 import io.horizontalsystems.core.hideKeyboard
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -65,11 +58,6 @@ class MainActivity : BaseActivity() {
                 VpnConnectService.startVpn(this)
             }
         }
-
-    override fun onResume() {
-        super.onResume()
-        validate()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -125,6 +113,19 @@ class MainActivity : BaseActivity() {
             registerReceiver(mMsgReceiver, filter)
         }
 
+
+        viewModel.tcSendRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottom(R.id.tcSendRequestFragment)
+            }
+        }
+
+        viewModel.tcDappRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottom(R.id.tcNewFragment, request)
+                viewModel.onTcDappRequestHandled()
+            }
+        }
         startVpn()
         startUpgradeVersion()
     }
@@ -151,6 +152,9 @@ class MainActivity : BaseActivity() {
         finish()
     } catch (e: MainScreenValidationError.Unlock) {
         LockScreenActivity.start(this)
+    } catch (e: MainScreenValidationError.KeystoreRuntimeException) {
+        Toast.makeText(App.instance, "Issue with Keystore", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
 
@@ -167,172 +171,150 @@ class MainActivity : BaseActivity() {
                             navController.slideFromBottom(R.id.wcSessionFragment)
                         }
                     }
+
                     is SignEvent.SessionRequest -> {
                         navController.slideFromBottom(R.id.wcRequestFragment,)
                     }
 
-        viewModel.tcSendRequest.observe(this) { request ->
-            if (request != null) {
-                navController.slideFromBottom(R.id.tcSendRequestFragment)
-            }
-        }
-
-        viewModel.tcDappRequest.observe(this) { request ->
-            if (request != null) {
-                navController.slideFromBottom(R.id.tcNewFragment, request)
-                viewModel.onTcDappRequestHandled()
-            }
-        }
-    }
-
-    private fun validate() = try {
-        viewModel.validate()
-    } catch (e: MainScreenValidationError.NoSystemLock) {
-        KeyStoreActivity.startForNoSystemLock(this)
-        finish()
-    } catch (e: MainScreenValidationError.KeyInvalidated) {
-        KeyStoreActivity.startForInvalidKey(this)
-        finish()
-    } catch (e: MainScreenValidationError.UserAuthentication) {
-        KeyStoreActivity.startForUserAuthentication(this)
-        finish()
-    } catch (e: MainScreenValidationError.Welcome) {
-        IntroActivity.start(this)
-        finish()
-    } catch (e: MainScreenValidationError.Unlock) {
-        LockScreenActivity.start(this)
-    } catch (e: MainScreenValidationError.KeystoreRuntimeException) {
-        Toast.makeText(App.instance, "Issue with Keystore", Toast.LENGTH_SHORT).show()
-        finish()
-    }
-}
-
-    fun openSend(wallet: Wallet) {
-        /*startActivity(Intent(this, SendActivity::class.java).apply {
-        putExtra(SendActivity.WALLET, wallet)
-    })*/
-    }
-
-    private fun startVpn() {
-        if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean(
-                "vpnOpen",
-                true
-            )
-        ) {
-            return
-        }
-        val intent = VpnService.prepare(this)
-        if (intent == null) {
-            VpnConnectService.startVpn(this)
-        } else {
-            requestVpnPermission.launch(intent)
-        }
-    }
-
-    private val mMsgReceiver = object : BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: Intent?) {
-            if (intent?.action == "com.anwang.safe.connect") {
-                Log.e("VpnConnectService", "connect node broadcast")
-                VpnConnectService.connectVpn(this@MainActivity)
-                return
-            }
-            if (intent?.action == "com.anwang.safe.reconnect") {
-                Log.e("VpnConnectService", "re connect node broadcast")
-                VpnConnectService.reConnectVpn(this@MainActivity)
-                return
-            }
-            when (intent?.getIntExtra("key", 0)) {
-                AppConfig.MSG_STATE_RUNNING -> {
-
-                    Log.e("VpnConnectService", "connect running")
-                }
-                AppConfig.MSG_STATE_NOT_RUNNING -> {
-                    Log.e("VpnConnectService", "connect not running")
-                    VpnConnectService.connecting = false
-                }
-                AppConfig.MSG_STATE_START_SUCCESS -> {
-                    Log.e("VpnConnectService", "connect success-")
-                    VpnConnectService.connecting = false
-                    // 测试是否能范围外网
-                    VpnConnectService.lookCheckVpnConnection(this@MainActivity)
-                    // 检查chain.anwang.com 是否可连接
-                    SafeNetWork.testAnWangConnect()
-                }
-                AppConfig.MSG_STATE_START_FAILURE -> {
-                    Log.e("VpnConnectService", "connect failure")
-                }
-                AppConfig.MSG_STATE_STOP_SUCCESS -> {
-                    Log.e("VpnConnectService", "stop success")
-                    VpnConnectService.startLoopCheckConnection = false
-                    VpnConnectService.connecting = false
                 }
             }
-        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(mMsgReceiver)
-        Utils.stopVService(this)
-        VpnConnectService.startLoopCheckConnection = false
-    }
 
-    private fun startUpgradeVersion() {
-        XUpdate.get()
-                .isWifiOnly(false) // By default, only version updates are checked under WiFi
-                .isGet(true) // The default setting uses Get request to check versions
-                .isAutoMode(false) // The default setting is non automatic mode
-                .setOnUpdateFailureListener { error ->
-                    // Set listening for version update errors
-                    if (error.code != CHECK_NO_NEW_VERSION) {          // Handling different errors
 
+            fun openSend(wallet: Wallet) {
+                /*startActivity(Intent(this, SendActivity::class.java).apply {
+    putExtra(SendActivity.WALLET, wallet)
+})*/
+            }
+
+            private fun startVpn() {
+                if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean(
+                        "vpnOpen",
+                        true
+                    )
+                ) {
+                    return
+                }
+                val intent = VpnService.prepare(this)
+                if (intent == null) {
+                    VpnConnectService.startVpn(this)
+                } else {
+                    requestVpnPermission.launch(intent)
+                }
+            }
+
+            private val mMsgReceiver = object : BroadcastReceiver() {
+                override fun onReceive(ctx: Context?, intent: Intent?) {
+                    if (intent?.action == "com.anwang.safe.connect") {
+                        Log.e("VpnConnectService", "connect node broadcast")
+                        VpnConnectService.connectVpn(this@MainActivity)
+                        return
+                    }
+                    if (intent?.action == "com.anwang.safe.reconnect") {
+                        Log.e("VpnConnectService", "re connect node broadcast")
+                        VpnConnectService.reConnectVpn(this@MainActivity)
+                        return
+                    }
+                    when (intent?.getIntExtra("key", 0)) {
+                        AppConfig.MSG_STATE_RUNNING -> {
+
+                            Log.e("VpnConnectService", "connect running")
+                        }
+
+                        AppConfig.MSG_STATE_NOT_RUNNING -> {
+                            Log.e("VpnConnectService", "connect not running")
+                            VpnConnectService.connecting = false
+                        }
+
+                        AppConfig.MSG_STATE_START_SUCCESS -> {
+                            Log.e("VpnConnectService", "connect success-")
+                            VpnConnectService.connecting = false
+                            // 测试是否能范围外网
+                            VpnConnectService.lookCheckVpnConnection(this@MainActivity)
+                            // 检查chain.anwang.com 是否可连接
+                            SafeNetWork.testAnWangConnect()
+                        }
+
+                        AppConfig.MSG_STATE_START_FAILURE -> {
+                            Log.e("VpnConnectService", "connect failure")
+                        }
+
+                        AppConfig.MSG_STATE_STOP_SUCCESS -> {
+                            Log.e("VpnConnectService", "stop success")
+                            VpnConnectService.startLoopCheckConnection = false
+                            VpnConnectService.connecting = false
+                        }
                     }
                 }
-                .supportSilentInstall(true) // Set whether silent installation is supported. The default is true
-                .setIUpdateHttpService(OKHttpUpdateHttpService()) // This must be set! Realize the network request function.
-                .init(this.application)
-       val build =  XUpdate.newBuild(this)
-                .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
-                .updateParser(object : IUpdateParser {
-                    override fun parseJson(json: String?): UpdateEntity? {
-                        Log.e("VersionUpdate", "json=$json")
-                        val gson = Gson()
-                        val result = gson.fromJson<UpgradeVersion>(json, UpgradeVersion::class.java)
-                        if (result != null) {
-                            return UpdateEntity()
+            }
+
+            override fun onDestroy() {
+                super.onDestroy()
+                unregisterReceiver(mMsgReceiver)
+                Utils.stopVService(this)
+                VpnConnectService.startLoopCheckConnection = false
+            }
+
+            private fun startUpgradeVersion() {
+                XUpdate.get()
+                    .isWifiOnly(false) // By default, only version updates are checked under WiFi
+                    .isGet(true) // The default setting uses Get request to check versions
+                    .isAutoMode(false) // The default setting is non automatic mode
+                    .setOnUpdateFailureListener { error ->
+                        // Set listening for version update errors
+                        if (error.code != CHECK_NO_NEW_VERSION) {          // Handling different errors
+
+                        }
+                    }
+                    .supportSilentInstall(true) // Set whether silent installation is supported. The default is true
+                    .setIUpdateHttpService(OKHttpUpdateHttpService()) // This must be set! Realize the network request function.
+                    .init(this.application)
+                val build = XUpdate.newBuild(this)
+                    .updateUrl("https://safewallet.anwang.com/v1/getLatestApp")
+                    .updateParser(object : IUpdateParser {
+                        override fun parseJson(json: String?): UpdateEntity? {
+                            Log.e("VersionUpdate", "json=$json")
+                            val gson = Gson()
+                            val result =
+                                gson.fromJson<UpgradeVersion>(json, UpgradeVersion::class.java)
+                            if (result != null) {
+                                return UpdateEntity()
                                     .setHasUpdate(getVersionCode() < result.versionCode)
                                     .setIsIgnorable(true)
                                     .setVersionCode(result.versionCode)
                                     .setVersionName(result.version)
                                     .setUpdateContent(result.upgradeMsg)
                                     .setDownloadUrl(result.url)
+                            }
+                            return null
                         }
-                        return null
-                    }
 
-                    override fun parseJson(json: String?, callback: IUpdateParseCallback?) {
+                        override fun parseJson(json: String?, callback: IUpdateParseCallback?) {
 
-                    }
+                        }
 
-                    override fun isAsyncParser(): Boolean {
-                        return false
-                    }
-                })
-        if (App.localStorage.currentTheme == ThemeType.Blue) {
-            build.promptButtonTextColor(Color.BLACK)
+                        override fun isAsyncParser(): Boolean {
+                            return false
+                        }
+                    })
+                if (App.localStorage.currentTheme == ThemeType.Blue) {
+                    build.promptButtonTextColor(Color.BLACK)
+                }
+                build.update()
+            }
+
+            private fun getVersionCode(): Int {
+                try {
+                    val packageManager = packageManager
+                    val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                    return packageInfo.versionCode
+                } catch (e: PackageManager.NameNotFoundException) {
+
+                }
+                return 0
+            }
         }
-        build.update()
-    }
 
-    private fun getVersionCode(): Int {
-        try {
-            val packageManager = packageManager
-            val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            return packageInfo.versionCode
-        } catch (e: PackageManager.NameNotFoundException) {
 
-        }
-        return 0
-    }
-}
 

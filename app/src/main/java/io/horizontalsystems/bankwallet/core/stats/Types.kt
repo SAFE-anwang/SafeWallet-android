@@ -59,6 +59,7 @@ enum class StatPage(val key: String) {
     DoubleSpend("double_spend"),
     EvmAddress("evm_address"),
     EvmPrivateKey("evm_private_key"),
+    PrivateKey("private_key"),
     ExportFull("export_full"),
     ExportFullToFiles("export_full_to_files"),
     ExportWalletToFiles("export_wallet_to_files"),
@@ -548,6 +549,10 @@ enum class StatTab(val key: String) {
     Coins("coins"),
     Pairs("pairs"),
     Platforms("platforms"),
+    Safe4("safe4"),
+    Tg("tg"),
+    Dapp("dapp"),
+    Tweets("tweets"),
 }
 
 enum class StatSortType(val key: String) {
@@ -564,7 +569,9 @@ enum class StatSortType(val key: String) {
     HighestAssets("highest_assets"),
     LowestAssets("lowest_assets"),
     Inflow("inflow"),
-    Outflow("outflow")
+    Outflow("outflow"),
+    HighestPrice("highest_price"),
+    LowestPrice("lowest_price")
 }
 
 enum class StatPeriod(val key: String) {
@@ -602,6 +609,7 @@ enum class StatEntity(val key: String) {
     Derivation("derivation"),
     EvmAddress("evm_address"),
     EvmPrivateKey("evm_private_key"),
+    PrivateKey("private_key"),
     Key("key"),
     Passphrase("passphrase"),
     ReceiveAddress("receive_address"),

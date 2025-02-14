@@ -19,13 +19,12 @@ class SendAmountInteractor(
     private val localStorage: ILocalStorage,
     private val token: Token,
     private val backgroundManager: BackgroundManager)
-    : SendAmountModule.IInteractor, BackgroundManager.Listener {
+    : SendAmountModule.IInteractor{
 
     private val disposables = CompositeDisposable()
     var delegate: SendAmountModule.IInteractorDelegate? = null
 
     init {
-        backgroundManager.registerListener(this)
 
         if (!token.isCustom) {
             marketKit.coinPriceObservable("xrate-service", token.coin.uid, baseCurrency.code)
@@ -48,13 +47,12 @@ class SendAmountInteractor(
         return marketKit.coinPrice(token.coin.uid, baseCurrency.code)?.value
     }
 
-    override fun willEnterForeground() {
+    fun willEnterForeground() {
         delegate?.willEnterForeground()
     }
 
     override fun onCleared() {
         disposables.clear()
-        backgroundManager.unregisterListener(this)
     }
 
 }

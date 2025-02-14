@@ -257,14 +257,14 @@ public class ApplicationLoader {
 
         }
 
-        if (BuildVars.LOGS_ENABLED) {
-            FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));
+        /*if (BuildVars.LOGS_ENABLED) {
             try {
+                FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));
                 FileLog.d("buildVersion = " + ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0).versionCode);
             } catch (Exception e) {
                 FileLog.e(e);
             }
-        }
+        }*/
         if (applicationContext == null) {
             applicationContext = context.getApplicationContext();
         }
@@ -285,9 +285,9 @@ public class ApplicationLoader {
                 }
             }
         };
-        if (BuildVars.LOGS_ENABLED) {
+        /*if (BuildVars.LOGS_ENABLED) {
             FileLog.d("load libs time = " + (SystemClock.elapsedRealtime() - startTime));
-        }
+        }*/
 
         applicationHandler = new Handler(applicationContext.getMainLooper());
 
@@ -350,9 +350,9 @@ public class ApplicationLoader {
             if (getPushProvider().hasServices()) {
                 getPushProvider().onRequestPushToken();
             } else {
-                if (BuildVars.LOGS_ENABLED) {
+                /*if (BuildVars.LOGS_ENABLED) {
                     FileLog.d("No valid " + getPushProvider().getLogTitle() + " APK found.");
-                }
+                }*/
                 SharedConfig.pushStringStatus = "__NO_GOOGLE_PLAY_SERVICES__";
                 PushListenerController.sendRegistrationToServer(getPushProvider().getPushType(), null);
             }
@@ -364,7 +364,7 @@ public class ApplicationLoader {
             int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(applicationContext);
             return resultCode == ConnectionResult.SUCCESS;
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
         return true;
     }
@@ -410,7 +410,7 @@ public class ApplicationLoader {
             ensureCurrentNetworkGet(false);
             return currentNetworkInfo != null && currentNetworkInfo.isRoaming();
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
         return false;
     }
@@ -425,7 +425,7 @@ public class ApplicationLoader {
                 }
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
         return false;
     }
@@ -437,7 +437,7 @@ public class ApplicationLoader {
                 return true;
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
         return false;
     }
@@ -483,7 +483,7 @@ public class ApplicationLoader {
                 return StatsController.TYPE_ROAMING;
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
         }
         return StatsController.TYPE_MOBILE;
     }
@@ -518,7 +518,7 @@ public class ApplicationLoader {
                 }
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
             return true;
         }
         return false;
@@ -543,7 +543,7 @@ public class ApplicationLoader {
                 }
             }
         } catch (Exception e) {
-            FileLog.e(e);
+//            FileLog.e(e);
             return true;
         }
         return false;
@@ -554,7 +554,7 @@ public class ApplicationLoader {
         if (BuildVars.DEBUG_PRIVATE_VERSION) {
             boolean result2 = isNetworkOnlineFast();
             if (result != result2) {
-                FileLog.d("network online mismatch");
+//                FileLog.d("network online mismatch");
             }
         }
         return result;

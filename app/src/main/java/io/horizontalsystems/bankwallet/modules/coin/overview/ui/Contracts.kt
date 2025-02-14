@@ -28,7 +28,7 @@ fun ContractsPreview() {
     ComposeAppTheme(darkTheme = true) {
         val contracts = listOf(
             ContractInfo("0xda123as34290098asd0098asdasd9098asd90123asd", BlockchainType.Ethereum.imageUrl,"https://etherscan.io/token/0xda123as34290098asd0098asdasd9098asd90123asd"),
-            ContractInfo("0x34290098asd8asdasd98asd8asdasd9098asd098as9", BlockchainType.BinanceChain.imageUrl,"https://bscscan.com/token/0x34290098asd8asdasd98asd8asdasd9098asd098as9"),
+//            ContractInfo("0x34290098asd8asdasd98asd8asdasd9098asd098as9", BlockchainType.BinanceChain.imageUrl,"https://bscscan.com/token/0x34290098asd8asdasd98asd8asdasd9098asd098as9"),
             ContractInfo("BNB", BlockchainType.BinanceSmartChain.imageUrl,"https://explorer.binance.org/asset/BNB"),
         )
         Contracts(contracts = contracts, {}, {})

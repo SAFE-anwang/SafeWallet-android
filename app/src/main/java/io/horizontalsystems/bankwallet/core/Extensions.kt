@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Parcelable
 import android.widget.ImageView
+import androidx.annotation.CheckResult
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
@@ -150,6 +151,52 @@ fun LockTimeInterval?.stringResId(): Int {
         LockTimeInterval.year_10 -> R.string.Send_LockTime_Year_10
         null -> R.string.Send_LockTime_Off
     }
+}
+
+@CheckResult
+fun <T> Observable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
+    return this
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(onNext)
+}
+
+@CheckResult
+fun <T> Observable<T>.subscribeIO(
+    onSuccess: (t: T) -> Unit,
+    onError: (e: Throwable) -> Unit
+): Disposable {
+    return this
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(onSuccess, onError)
+}
+
+@CheckResult
+fun <T> Flowable<T>.subscribeIO(onNext: (t: T) -> Unit): Disposable {
+    return this
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(onNext)
+}
+
+@CheckResult
+fun <T> Single<T>.subscribeIO(
+    onSuccess: (t: T) -> Unit,
+    onError: (e: Throwable) -> Unit
+): Disposable {
+    return this
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(onSuccess, onError)
+}
+
+@CheckResult
+fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
+    return this
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe(onSuccess)
 }
 
 fun String.shorten(characters: Int = 4): String {

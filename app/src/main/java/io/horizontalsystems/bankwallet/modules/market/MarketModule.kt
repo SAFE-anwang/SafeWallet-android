@@ -52,7 +52,8 @@ object MarketModule {
         Posts(R.string.Market_Tab_Posts),
         Platform(R.string.Market_Tab_Platform),
         Tweets(R.string.Coin_Tab_Tweets),
-        DApp(R.string.DApp_Tab_Name);
+        DApp(R.string.DApp_Tab_Name),
+        Pairs(R.string.Market_Tab_Pairs);
 
         companion object {
             private val map = entries.associateBy(Tab::name)

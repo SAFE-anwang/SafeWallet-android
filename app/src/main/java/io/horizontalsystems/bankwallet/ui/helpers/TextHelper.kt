@@ -33,6 +33,28 @@ object TextHelper : IClipboardManager {
         } ?: ""
     }
 
+    fun getQrCodeBitmap(address: String, size: Float = 150F): Bitmap? {
+        val multiFormatWriter = MultiFormatWriter()
+        return try {
+            val imageSize = LayoutHelper.dp(size, App.instance)
+            val hints = hashMapOf(EncodeHintType.MARGIN to 0, EncodeHintType.ERROR_CORRECTION to "H")
+            val bitMatrix = multiFormatWriter.encode(address, BarcodeFormat.QR_CODE, imageSize, imageSize, hints)
+            val barcodeEncoder = BarcodeEncoder()
+            val bitmap = barcodeEncoder.createBitmap(bitMatrix)
+            bitmap
+        } catch (e: WriterException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getFeeRatePriorityString(context: Context, priority: FeeRatePriority): String = when (priority) {
+        FeeRatePriority.LOW -> context.getString(R.string.Send_TxSpeed_Low)
+        FeeRatePriority.RECOMMENDED -> context.getString(R.string.Send_TxSpeed_Recommended)
+        FeeRatePriority.HIGH -> context.getString(R.string.Send_TxSpeed_High)
+        is FeeRatePriority.Custom -> context.getString(R.string.Send_TxSpeed_Custom)
+    }
+
     fun getCleanedUrl(link: String): String{
         var cleanedUrl = link.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)".toRegex(),"")
         if (cleanedUrl.endsWith("/")) {

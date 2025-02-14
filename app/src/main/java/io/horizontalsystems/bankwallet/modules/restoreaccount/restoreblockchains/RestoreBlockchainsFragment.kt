@@ -35,6 +35,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
@@ -66,7 +67,8 @@ class RestoreBlockchainsFragment : BaseFragment() {
             input!!.accountName!!,
             input.accountType!!,
             true,
-            true
+            true,
+            StatPage.RestoreSelect
         )
     }
 

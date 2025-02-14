@@ -1,10 +1,12 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
+import com.anwang.utils.Safe4Contract
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
 import io.horizontalsystems.bankwallet.core.isCustom
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.core.stats.StatSection
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
@@ -22,9 +24,12 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.SwapTrans
 import io.horizontalsystems.bankwallet.entities.transactionrecords.solana.SolanaOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.tron.TronTransactionRecord
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
+import io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoViewItem.Address
+import io.horizontalsystems.bankwallet.modules.transactionInfo.TransactionInfoViewItem.ContactItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionStatus
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.core.helpers.DateHelper
+import io.horizontalsystems.ethereumkit.core.Safe4Web3jUtils
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -70,7 +75,7 @@ object TransactionViewItemFactoryHelper {
                 if (it.locked) R.string.TransactionInfo_LockedUntil else R.string.TransactionInfo_UnlockedAt,
                 date
             )
-            TransactionInfoViewItem.LockState(title, leftIcon, it.date, it.locked)
+            TransactionInfoViewItem.LockState(title, leftIcon, it.date, it.locked, it.unlockedHeight)
         }
     }
 
@@ -663,5 +668,103 @@ object TransactionViewItemFactoryHelper {
                 explorerData.url
             )
         )
+
+
+    fun getReceiveSectionItemsSafe4(
+        value: TransactionValue,
+        fromAddress: String?,
+        coinPrice: CurrencyValue?,
+        hideAmount: Boolean,
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf(),
+        input: String? = null,
+        blockchainType: BlockchainType,
+    ): List<TransactionInfoViewItem> {
+        val mint = fromAddress == zeroAddress
+        val title: String = if (mint) getString(R.string.Transactions_Mint) else getString(R.string.Transactions_Receive)
+
+        val amount: TransactionInfoViewItem
+        val rate: TransactionInfoViewItem?
+
+        when (value) {
+            is TransactionValue.NftValue -> {
+                amount = getNftAmount(title, value, true, hideAmount, nftMetadata[value.nftUid])
+                rate = null
+            }
+
+            else -> {
+                amount = getAmount(coinPrice, value, true, hideAmount, AmountType.Received)
+                rate = getHistoricalRate(coinPrice, value)
+            }
+        }
+
+        val items: MutableList<TransactionInfoViewItem> = mutableListOf(
+            amount
+        )
+
+        if (!mint && fromAddress != null) {
+            val contact = getContact(fromAddress, blockchainType)
+            val realAddress = Safe4Web3jUtils.depositDecode(input) ?: fromAddress
+            items.add(
+                Address(getString(R.string.TransactionInfo_From), realAddress, contact == null, blockchainType, StatSection.AddressFrom, realAddress != Safe4Contract.AccountManagerContractAddr)
+            )
+            contact?.let {
+                items.add(
+                    ContactItem(it)
+                )
+            }
+        }
+
+        rate?.let { items.add(it) }
+
+        return items
+    }
+
+    fun getSendSectionItemsSafe4(
+        value: TransactionValue,
+        toAddress: String?,
+        coinPrice: CurrencyValue?,
+        hideAmount: Boolean,
+        sentToSelf: Boolean = false,
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf(),
+        input: String? = null,
+        blockchainType: BlockchainType,
+    ): List<TransactionInfoViewItem> {
+        val burn = toAddress == zeroAddress
+
+        val title: String = if (burn) getString(R.string.Transactions_Burn) else getString(R.string.Transactions_Send)
+
+        val amount: TransactionInfoViewItem
+        val rate: TransactionInfoViewItem?
+
+        when (value) {
+            is TransactionValue.NftValue -> {
+                amount = getNftAmount(title, value, if (sentToSelf) null else false, hideAmount, nftMetadata[value.nftUid])
+                rate = null
+            }
+
+            else -> {
+                amount = getAmount(coinPrice, value, if (sentToSelf) null else false, hideAmount, AmountType.Sent)
+                rate = getHistoricalRate(coinPrice, value)
+            }
+        }
+
+        val items: MutableList<TransactionInfoViewItem> = mutableListOf(amount)
+
+        if (!burn && toAddress != null) {
+            val contact = getContact(toAddress, blockchainType)
+            val realAddress = Safe4Web3jUtils.depositDecode(input) ?: toAddress
+            items.add(
+                Address(getString(R.string.TransactionInfo_To), realAddress, contact == null, blockchainType, StatSection.AddressTo, realAddress != Safe4Contract.AccountManagerContractAddr)
+            )
+
+            contact?.let {
+                items.add(ContactItem(it))
+            }
+        }
+
+        rate?.let { items.add(it) }
+
+        return items
+    }
 
 }

@@ -28,6 +28,7 @@ enum class ThemeType(
         TranslatableString.ResString(R.string.SettingsTheme_System),
         R.drawable.ic_theme_system
     ),
+    @SerializedName("blue")
     Blue(
         "Blue",
         TranslatableString.ResString(R.string.SettingsTheme_Blue),

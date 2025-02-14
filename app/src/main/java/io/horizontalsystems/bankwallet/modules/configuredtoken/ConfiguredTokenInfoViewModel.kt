@@ -29,9 +29,9 @@ class ConfiguredTokenInfoViewModel(
             is TokenType.Eip20 -> {
                 ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
-            is TokenType.Bep2 -> {
+            /*is TokenType.Bep2 -> {
                 ConfiguredTokenInfoType.Contract(type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
-            }
+            }*/
             is TokenType.Spl -> {
                 ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }

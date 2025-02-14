@@ -39,7 +39,6 @@ class TransactionsService(
     private val typesSubject = BehaviorSubject.create<Pair<List<FilterTransactionType>, FilterTransactionType>>()
     val typesObservable get() = typesSubject
 
-    private val disposables = CompositeDisposable()
     private val transactionItems = CopyOnWriteArrayList<TransactionItem>()
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)

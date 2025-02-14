@@ -143,8 +143,8 @@ class MetricsPageFragment : BaseComposeFragment() {
                                         )
                                         HSpacer(width = 16.dp)
                                     }
-                                    var i = 1
-                                    itemsIndexed(uiState.viewItems, key = { _, item -> item.coinUid }) { index, marketViewItem ->
+                                    this@LazyColumn.itemsIndexed(items = uiState.viewItems,
+                                        key = { _, item -> item.fullCoin.coin.uid }) { index, viewItem ->
                                         MarketCoinClear(
                                             title = viewItem.fullCoin.coin.code,
                                             subtitle = viewItem.subtitle,
@@ -155,8 +155,8 @@ class MetricsPageFragment : BaseComposeFragment() {
                                             marketDataValue = viewItem.marketDataValue,
                                             label = viewItem.rank,
                                             isTop = index == 0,
-                                            isBottom = index == marketData.marketViewItems.size
-                                        ) { onCoinClick(marketViewItem.fullCoin.coin.uid) }
+                                            isBottom = index == uiState.viewItems.size
+                                        ) { onCoinClick(viewItem.fullCoin.coin.uid) }
                                     }
                                 }
                             }

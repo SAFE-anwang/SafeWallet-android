@@ -61,8 +61,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaul
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
-import io.horizontalsystems.bankwallet.ui.compose.components.RateColor
-import io.horizontalsystems.bankwallet.ui.compose.components.RateText
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -535,10 +533,8 @@ private fun WalletIcon(viewItem: Wallet) {
                     .size(32.dp))
         } else {
             CoinImage(
-                iconUrl = viewItem.coin.imageUrl,
-                placeholder = viewItem.token.iconPlaceholder,
-                modifier = Modifier
-                    .size(32.dp)
+                token = viewItem.token,
+                modifier = Modifier.size(32.dp)
             )
         }
     }

@@ -9,7 +9,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-parcelize'
-//    id 'com.google.devtools.ksp'
+//    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -23,9 +24,9 @@ android {
         versionName "v0.38.0.1.1231"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-//        ksp {
-//            arg("room.schemaLocation", "$projectDir/schemas".toString())
-//        }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+        }
         vectorDrawables.useSupportLibrary = true
         lintOptions {
             checkReleaseBuilds false
@@ -47,9 +48,9 @@ android {
         resValue "string", "walletConnectV1PeerMetaUrl", "https://unstoppable.money"
         resValue "string", "accountsBackupFileSalt", "Safe Wallet"
 
-        ndk {
+        /*ndk {
             abiFilters "armeabi-v7a", "arm64-v8a"
-        }
+        }*/
     }
 
     buildFeatures {
@@ -74,8 +75,10 @@ android {
             applicationIdSuffix ".dev"
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
-            resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
+            resValue "string", "infuraProjectId", "0c91eab4cc774d3887f218376a725da2"
+            resValue "string", "infuraSecretKey", "8adb3155a2df42dd9db26ce311ec74b3"
+            resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
+            resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
             resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "GKNHXT22ED7PRVCKZATFZQD1YI7FK9AAYE"
@@ -130,8 +133,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
-            resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
+            resValue "string", "infuraProjectId", "0c91eab4cc774d3887f218376a725da2"
+            resValue "string", "infuraSecretKey", "8adb3155a2df42dd9db26ce311ec74b3"
+            resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
+            resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
             resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "FJBFQ5BF7BUQZNQBH4ZZFQ9D98UJI6Y7K1"
@@ -211,7 +216,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0'
+        kotlinCompilerExtensionVersion '1.5.12'
     }
     namespace 'io.horizontalsystems.bankwallet'
     lint {
@@ -271,7 +276,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
-//    ksp "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     // alternately - if using Java8, use the following instead of compiler
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     // optional - ReactiveStreams support for LiveData
@@ -340,6 +345,7 @@ dependencies {
     implementation project(':bitcoin-kit-android:ecashkit')
     implementation project(':bitcoin-kit-android:dogecoinkit')
 
+//    implementation 'com.github.horizontalsystems:ton-kit-kmm:2b7df9d'
     implementation 'com.github.horizontalsystems:ton-kit-android:763a5c3'
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:c1509a2'
@@ -461,6 +467,8 @@ dependencies {
 
     implementation 'com.github.xuexiangjys:XUpdate:2.1.5'
 //    implementation 'com.zhy:okhttputils:2.6.2'
+
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version'
 }
 
 configurations.all {

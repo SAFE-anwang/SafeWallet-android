@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -23,21 +25,14 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
-import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.stats.StatEntity
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
-import io.horizontalsystems.bankwallet.core.stats.StatEntity
-import io.horizontalsystems.bankwallet.core.stats.StatEvent
-import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
 import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
 import io.horizontalsystems.bankwallet.modules.fee.FeeCell
-import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
-import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataFieldFee
-import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataFieldFee
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -70,39 +65,43 @@ import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 
 @Composable
-fun SendEvmTransactionView(
+fun SendEvmTransactionView2(
+    transactionViewModel: SendEvmTransactionViewModel,
+    feeCellViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
     navController: NavController,
-    items: List<SectionViewItem>,
-    cautions: List<CautionViewItem>,
-    transactionFields: List<DataField>,
-    networkFee: SendModule.AmountData?,
     statPage: StatPage
 ) {
+
+    val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
+    val fee by feeCellViewModel.feeLiveData.observeAsState(null)
+    val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
+
     Column {
         items.forEach { sectionViewItem ->
             SectionView(sectionViewItem.viewItems, navController, statPage)
         }
 
-        if (transactionFields.isNotEmpty()) {
-            VSpacer(height = 16.dp)
-            SectionUniversalLawrence {
-                transactionFields.forEachIndexed { index, field ->
-                    field.GetContent(navController, index != 0)
+        NonceView(nonceViewModel)
+
+            Spacer(Modifier.height(16.dp))
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+//                listOf {
+                    FeeCell(
+                        title = stringResource(R.string.FeeSettings_NetworkFee),
+                        info = stringResource(R.string.FeeSettings_NetworkFee_Info),
+                        value = fee,
+                        viewState = viewState,
+                        navController = navController
+                    )
                 }
-            }
-        }
+//            )
 
-        VSpacer(height = 16.dp)
-        SectionUniversalLawrence {
-            DataFieldFee(
-                navController,
-                networkFee?.primary?.getFormattedPlain() ?: "---",
-                networkFee?.secondary?.getFormattedPlain() ?: "---"
-            )
-        }
-
-        if (cautions.isNotEmpty()) {
-            Cautions(cautions)
+        val cautions by transactionViewModel.cautionsLiveData.observeAsState()
+        cautions?.let {
+            Cautions(it)
         }
     }
 }

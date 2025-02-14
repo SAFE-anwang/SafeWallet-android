@@ -8,6 +8,8 @@ object SafeSwapProvider : BaseUniswapProvider() {
     override val title = "SafeSwap"
     override val url = "https://safecoreswap.com/"
     override val icon = R.drawable.ic_safe_20
+    override val priority: Int
+        get() = 100
 
     override fun supports(blockchainType: BlockchainType): Boolean {
         return blockchainType == BlockchainType.Ethereum || blockchainType == BlockchainType.BinanceSmartChain

@@ -108,8 +108,6 @@ class TonTransactionRecord(
     timestamp = event.timestamp,
     failed = false,
     spam = event.scam,
-    withdraw = event.withdraw,
-    uploadTx = event.uploadTx,
     source = source,
 ) {
     val lt = event.lt

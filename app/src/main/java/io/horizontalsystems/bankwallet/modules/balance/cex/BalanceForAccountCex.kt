@@ -338,7 +338,7 @@ fun WalletIconCex(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.coinUid.isSafeCoin()) {
+            if (viewItem.coin?.uid.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp)

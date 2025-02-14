@@ -55,6 +55,7 @@ import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Dark
+import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 import io.horizontalsystems.bankwallet.ui.compose.SteelLight
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimary
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
@@ -212,13 +213,10 @@ private fun ScannerView(onScan: (String) -> Unit) {
         }
     }
     AndroidView(factory = { barcodeView })
-    LifecycleResumeEffect {
-        barcodeView.resume()
-
-        onPauseOrDispose {
-            barcodeView.pause()
-        }
-    }
+    DisposableLifecycleCallbacks(
+        onResume = barcodeView::resume,
+        onPause = barcodeView::pause
+    )
 }
 
 @Composable

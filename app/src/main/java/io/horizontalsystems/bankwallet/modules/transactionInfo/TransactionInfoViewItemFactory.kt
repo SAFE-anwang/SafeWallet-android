@@ -86,12 +86,13 @@ class TransactionInfoViewItemFactory(
 
             is Safe4DepositEvmIncomingTransactionRecord ->
                 itemSections.add(
-                   getReceiveSectionItemsSafe4(
+                    TransactionViewItemFactoryHelper.getReceiveSectionItemsSafe4(
                         value = transaction.value,
                         fromAddress = transaction.from,
                         coinPrice = rates[transaction.value.coinUid],
                         hideAmount = transactionItem.hideAmount,
-                        input = transaction.transaction.input?.toHexString()
+                        input = transaction.transaction.input?.toHexString(),
+                        blockchainType = blockchainType,
                     )
                 )
 
@@ -124,14 +125,15 @@ class TransactionInfoViewItemFactory(
             is Safe4DepositEvmOutgoingTransactionRecord -> {
                 sentToSelf = transaction.sentToSelf
                 itemSections.add(
-                    getSendSectionItemsSafe4(
+                    TransactionViewItemFactoryHelper.getSendSectionItemsSafe4(
                         value = transaction.value,
                         toAddress = transaction.to,
                         coinPrice = rates[transaction.value.coinUid],
                         hideAmount = transactionItem.hideAmount,
                         sentToSelf = transaction.sentToSelf,
                         nftMetadata = nftMetadata,
-                        transaction.transaction.input?.toHexString()
+                        transaction.transaction.input?.toHexString(),
+                        blockchainType = blockchainType
                     )
                 )
             }

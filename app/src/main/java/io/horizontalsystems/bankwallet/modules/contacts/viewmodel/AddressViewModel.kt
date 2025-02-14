@@ -60,7 +60,6 @@ class AddressViewModel(
                 BlockchainType.Dogecoin,
                 BlockchainType.Zcash,
                 BlockchainType.Solana,
-                BlockchainType.BinanceChain,
                 BlockchainType.ECash,
                 BlockchainType.Tron,
                 BlockchainType.Ton,

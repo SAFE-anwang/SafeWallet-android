@@ -56,7 +56,6 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
-import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -134,8 +133,7 @@ fun SwapCoinCardView(
             } else {
                 CoinImage(
                     modifier = Modifier.size(32.dp),
-                    iconUrl = cardState.token?.coin?.imageUrl,
-                    placeholder = cardState.token?.iconPlaceholder ?: R.drawable.coin_placeholder
+                    token = cardState.token
                 )
             }
             Spacer(Modifier.width(8.dp))

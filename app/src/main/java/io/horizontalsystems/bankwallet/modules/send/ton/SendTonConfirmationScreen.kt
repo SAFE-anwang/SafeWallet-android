@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
+import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 
 @Composable
 fun SendTonConfirmationScreen(
@@ -20,15 +21,16 @@ fun SendTonConfirmationScreen(
     var confirmationData by remember { mutableStateOf(sendViewModel.getConfirmationData()) }
     var refresh by remember { mutableStateOf(false) }
 
-    LifecycleResumeEffect {
-        if (refresh) {
-            confirmationData = sendViewModel.getConfirmationData()
-        }
-
-        onPauseOrDispose {
+    DisposableLifecycleCallbacks(
+        onResume = {
+            if (refresh) {
+                confirmationData = sendViewModel.getConfirmationData()
+            }
+        },
+        onPause = {
             refresh = true
         }
-    }
+    )
 
     SendConfirmationScreen(
         navController = navController,

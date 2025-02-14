@@ -7,10 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.tonapps.wallet.data.core.entity.SendRequestEntity
 import com.tonapps.wallet.data.tonconnect.entities.DAppRequestEntity
 import com.walletconnect.web3.wallet.client.Wallet
-import com.walletconnect.web3.wallet.client.Wallet
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.IAccountManager
-import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.managers.TonConnectManager

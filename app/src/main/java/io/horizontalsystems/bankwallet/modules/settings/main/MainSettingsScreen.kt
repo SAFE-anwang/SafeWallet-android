@@ -183,7 +183,7 @@ private fun SettingSections(
     VSpacer(32.dp)
 
     CellUniversalLawrenceSection(
-        listOf {
+        listOf( {
             HsSettingCell(
                 R.string.Settings_WalletConnect,
                 R.drawable.ic_wallet_connect_20,

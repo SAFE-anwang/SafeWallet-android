@@ -67,20 +67,18 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
 
     val infuraProjectId by lazy {
         val projectId = when(index) {
-            0 -> Translator.getString(R.string.infuraProjectId)
-//            1 -> infuraProjectId2
-            else -> infuraProjectId3
+            0 -> Translator.getString(R.string.infuraProjectId3)
+            1 -> Translator.getString(R.string.infuraProjectId2)
+            else -> Translator.getString(R.string.infuraProjectId)
         }
-//        Translator.getString(R.string.infuraProjectId)
         projectId
     }
     val infuraProjectSecret by lazy {
         val projectKey = when(index) {
-            0 -> Translator.getString(R.string.infuraSecretKey)
-//            1 -> infuraProjectSecret2
-            else -> infuraProjectSecret3
+            0 -> Translator.getString(R.string.infuraSecretKey3)
+            1 -> Translator.getString(R.string.infuraSecretKey2)
+            else -> Translator.getString(R.string.infuraSecretKey)
         }
-//        Translator.getString(R.string.infuraSecretKey)
         projectKey
     }
 
@@ -227,7 +225,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
             BlockchainType.Zcash to "zs1r9gf53xg3206g7wlhwwq7lcdrtzalepnvk7kwpm8yxr0z3ng0y898scd505rsekj8c4xgwddz4m",
             BlockchainType.Ethereum to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.BinanceSmartChain to "0x731352dcF66014156B1560B832B56069e7b38ab1",
-            BlockchainType.BinanceChain to "bnb14ll2wtw7xezkhdmh9n4khlydsua5kf74q5r6vg",
+//            BlockchainType.BinanceChain to "bnb14ll2wtw7xezkhdmh9n4khlydsua5kf74q5r6vg",
             BlockchainType.Polygon to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Avalanche to "0x731352dcF66014156B1560B832B56069e7b38ab1",
             BlockchainType.Optimism to "0x731352dcF66014156B1560B832B56069e7b38ab1",

@@ -79,6 +79,19 @@ fun CoinImage(
 )
 
 @Composable
+fun CoinImage(
+    iconUrl: String?,
+    modifier: Modifier,
+    colorFilter: ColorFilter? = null,
+    placeholder: Int? = null,
+) = HsImage(
+    modifier = modifier,
+    url = iconUrl,
+    placeholder = placeholder,
+    colorFilter = colorFilter
+)
+
+@Composable
 fun HsImageCircle(
     modifier: Modifier,
     url: String?,

@@ -25,8 +25,7 @@ object AddressInputModule {
                 BlockchainType.Dogecoin,
                 BlockchainType.Dash,
                 BlockchainType.Safe,
-                BlockchainType.Zcash,
-                BlockchainType.BinanceChain -> {
+                BlockchainType.Zcash -> {
                     addressParserChain.addHandler(AddressHandlerPure(tokenQuery.blockchainType))
                 }
                 BlockchainType.SafeFour,
@@ -80,8 +79,7 @@ object AddressInputModule {
                 BlockchainType.Dogecoin,
                 BlockchainType.Dash,
                 BlockchainType.Safe,
-                BlockchainType.Zcash,
-                BlockchainType.BinanceChain -> {
+                BlockchainType.Zcash -> {
                     addressParserChain.addHandler(AddressHandlerPure(blockchainType))
                 }
                 BlockchainType.SafeFour,

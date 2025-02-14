@@ -315,7 +315,7 @@ private fun QrCodeImage(address: String) {
     adaptiveIconPainterResource(
             id = R.drawable.logo_safe_24,
             fallbackDrawable = R.drawable.logo_safe_24
-    ),
+    )
     val qrcodePainter: Painter =
         rememberQrCodePainter(address) {
             errorCorrectionLevel = QrErrorCorrectionLevel.Medium

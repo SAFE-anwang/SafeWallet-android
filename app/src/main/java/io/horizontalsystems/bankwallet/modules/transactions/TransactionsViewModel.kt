@@ -242,7 +242,6 @@ class TransactionsViewModel(
 
     override fun onCleared() {
         service.clear()
-        disposables.clear()
         App.tmpItemToShow = null
     }
 

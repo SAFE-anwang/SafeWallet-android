@@ -141,8 +141,7 @@ class SendEvmFragment : BaseFragment() {
                             )
                         } else {
                             CoinImage(
-                                iconUrl = fullCoin.coin.imageUrl,
-                                placeholder = fullCoin.iconPlaceholder,
+                                coin = fullCoin.coin,
                                 modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
                             )
                         }

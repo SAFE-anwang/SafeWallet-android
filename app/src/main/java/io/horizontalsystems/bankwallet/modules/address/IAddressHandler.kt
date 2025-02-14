@@ -106,7 +106,6 @@ class AddressHandlerUdn(
         private fun chainCoinCode(blockchainType: BlockchainType) = when (blockchainType) {
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
-            BlockchainType.BinanceChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
             BlockchainType.Base,
@@ -221,7 +220,7 @@ class AddressHandlerBitcoinCash(network: Network, override val blockchainType: B
     }
 }
 
-class AddressHandlerBinanceChain : IAddressHandler {
+/*class AddressHandlerBinanceChain : IAddressHandler {
     override val blockchainType = BlockchainType.BinanceChain
     override fun isSupported(value: String) = try {
         Crypto.decodeAddress(value)
@@ -234,7 +233,7 @@ class AddressHandlerBinanceChain : IAddressHandler {
         Crypto.decodeAddress(value)
         return Address(value, blockchainType = blockchainType)
     }
-}
+}*/
 
 class AddressHandlerSolana : IAddressHandler {
     override fun isSupported(value: String): Boolean {

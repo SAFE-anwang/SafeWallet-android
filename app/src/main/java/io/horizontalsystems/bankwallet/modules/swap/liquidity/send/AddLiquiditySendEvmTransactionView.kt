@@ -200,8 +200,7 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
         } else {
             CoinImage(
                 modifier = Modifier.size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
+                coin = item.token.coin
             )
         }
         Column(
@@ -256,8 +255,7 @@ private fun Amount(item: ViewItem.Amount) {
                 modifier = Modifier
                     .padding(end = 16.dp)
                     .size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
+                coin = item.token.coin
             )
         }
         Text(
@@ -306,8 +304,7 @@ private fun Token(item: ViewItem.TokenItem) {
                 modifier = Modifier
                     .padding(end = 16.dp)
                     .size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
+                coin = item.token.coin
             )
         }
         subhead1_leah(item.token.coin.code)

@@ -7,12 +7,14 @@ import io.horizontalsystems.bankwallet.modules.evmfee.GasPriceInfo
 import io.horizontalsystems.bankwallet.modules.evmfee.IEvmGasPriceService
 import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.models.GasPrice
+import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import java.math.BigDecimal
+import kotlin.math.max
 
 class LegacyGasPriceService(
     private val gasPriceProvider: LegacyGasPriceProvider,

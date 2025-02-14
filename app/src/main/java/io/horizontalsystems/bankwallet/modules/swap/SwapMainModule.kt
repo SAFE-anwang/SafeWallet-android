@@ -61,7 +61,7 @@ object SwapMainModule {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
             return when (modelClass) {
-                SwapMainViewModel::class.java -> {
+                /*SwapMainViewModel::class.java -> {
                     val fromFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
                     switchService.fromListener = fromFiatService
                     val toFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
@@ -94,7 +94,7 @@ object SwapMainModule {
                         App.currencyManager,
                         App.adapterManager
                     ) as T
-                }
+                }*/
 
                 SwapAllowanceViewModel::class.java -> {
                     SwapAllowanceViewModel(

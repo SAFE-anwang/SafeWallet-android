@@ -200,6 +200,8 @@ val SortingField.statSortType: StatSortType
         SortingField.LowestVolume -> StatSortType.LowestVolume
         SortingField.TopGainers -> StatSortType.TopGainers
         SortingField.TopLosers -> StatSortType.TopLosers
+        SortingField.HighestPrice -> StatSortType.TopLosers
+        SortingField.LowestPrice -> StatSortType.TopLosers
     }
 
 val WatchlistSorting.statSortType: StatSortType
@@ -276,6 +278,10 @@ val AccountType.statAccountType: String
         is AccountType.TronAddress -> {
             "tron_address"
         }
+
+        is AccountType.PrivateKey -> {
+            "private_key"
+        }
     }
 
 
@@ -291,7 +297,9 @@ val MainModule.MainNavigation.statTab: StatTab
     get() = when (this) {
         MainModule.MainNavigation.Market -> StatTab.Markets
         MainModule.MainNavigation.Balance -> StatTab.Balance
-        MainModule.MainNavigation.Transactions -> StatTab.Transactions
+//        MainModule.MainNavigation.Transactions -> StatTab.Transactions
+        MainModule.MainNavigation.Safe4 -> StatTab.Safe4
+        MainModule.MainNavigation.Tg -> StatTab.Tg
         MainModule.MainNavigation.Settings -> StatTab.Settings
     }
 
@@ -324,6 +332,8 @@ val MarketModule.Tab.statTab: StatTab
         MarketModule.Tab.Coins -> StatTab.Coins
         MarketModule.Tab.Platform -> StatTab.Platforms
         MarketModule.Tab.Pairs -> StatTab.Pairs
+        MarketModule.Tab.DApp -> StatTab.Pairs
+        MarketModule.Tab.Tweets -> StatTab.Pairs
     }
 
 val MarketSearchSection.statSection: StatSection
@@ -364,6 +374,7 @@ val ThemeType.statValue: String
         ThemeType.Dark -> "dark"
         ThemeType.Light -> "light"
         ThemeType.System -> "system"
+        ThemeType.Blue -> "blue"
     }
 
 val PriceChangeInterval.statValue: String
@@ -384,6 +395,7 @@ val LaunchPage.statValue: String
         LaunchPage.Balance -> "balance"
         LaunchPage.Market -> "market_overview"
         LaunchPage.Watchlist -> "watchlist"
+        LaunchPage.SAFE -> "safe"
     }
 
 val TvlModule.TvlDiffType.statType: String

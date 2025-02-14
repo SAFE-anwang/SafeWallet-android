@@ -46,7 +46,7 @@ fun HsCheckbox(
         )
         if (checked) {
             Icon(
-                    painter = painterResource(id = R.drawable.ic_checkbox_check),
+                    painter = painterResource(id = R.drawable.checkbox_active_24),
                     contentDescription = null,
                     tint = ComposeAppTheme.colors.jacob
             )

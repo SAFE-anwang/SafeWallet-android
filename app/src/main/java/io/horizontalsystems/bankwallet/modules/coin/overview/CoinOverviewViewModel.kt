@@ -188,7 +188,7 @@ class CoinOverviewViewModel(
                         )
                     }
 
-                    is TokenType.Bep2 -> {
+                    /*is TokenType.Bep2 -> {
                         val inWallet =
                             canAddToWallet && activeWallets.any { it.token == token }
                         items.add(
@@ -203,7 +203,7 @@ class CoinOverviewViewModel(
                                 inWallet = inWallet
                             )
                         )
-                    }
+                    }*/
 
                     is TokenType.Spl -> {
                         val inWallet =

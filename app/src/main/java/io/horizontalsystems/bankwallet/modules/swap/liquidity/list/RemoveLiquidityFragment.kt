@@ -34,7 +34,6 @@ import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityCardSwipable
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityItems
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.RemoveLiquidityCard
-import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString

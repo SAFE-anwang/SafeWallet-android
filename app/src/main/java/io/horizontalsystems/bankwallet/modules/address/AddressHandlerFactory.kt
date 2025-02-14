@@ -59,9 +59,9 @@ class AddressHandlerFactory(
                 addressHandlers.add(AddressHandlerBase58(network, blockchainType))
             }
 
-            BlockchainType.BinanceChain -> {
+            /*BlockchainType.BinanceChain -> {
                 addressHandlers.add(AddressHandlerBinanceChain())
-            }
+            }*/
 
             BlockchainType.Zcash -> {
                 addressHandlers.add(AddressHandlerZcash())

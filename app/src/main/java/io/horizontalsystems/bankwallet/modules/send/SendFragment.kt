@@ -85,7 +85,7 @@ class SendFragment : BaseFragment() {
                         }
                     }
 
-                    is BlockchainType.BinanceChain -> {
+                    /*is BlockchainType.BinanceChain -> {
                         val factory = SendBinanceModule.Factory(wallet, predefinedAddress)
                         val sendBinanceViewModel by navGraphViewModels<SendBinanceViewModel>(R.id.sendXFragment) {
                             factory
@@ -100,7 +100,7 @@ class SendFragment : BaseFragment() {
                                 prefilledData,
                             )
                         }
-                    }
+                    }*/
 
                     BlockchainType.Zcash -> {
                         val factory = SendZCashModule.Factory(wallet, predefinedAddress)

@@ -285,7 +285,10 @@ fun BalanceItems(
                             onClick = {
                                 navController.slideFromRight(R.id.sendTokenSelectFragment)
 
-                                stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.SendTokenList))
+                                stat(
+                                    page = StatPage.Balance,
+                                    event = StatEvent.Open(StatPage.SendTokenList)
+                                )
                             }
                         )
                         HSpacer(8.dp)
@@ -293,11 +296,15 @@ fun BalanceItems(
                             modifier = Modifier.weight(1f),
                             title = stringResource(R.string.Balance_Receive),
                             onClick = {
-                                when (val receiveAllowedState = viewModel.getReceiveAllowedState()) {
+                                when (val receiveAllowedState =
+                                    viewModel.getReceiveAllowedState()) {
                                     ReceiveAllowedState.Allowed -> {
                                         navController.slideFromRight(R.id.receiveFragment)
 
-                                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.ReceiveTokenList))
+                                        stat(
+                                            page = StatPage.Balance,
+                                            event = StatEvent.Open(StatPage.ReceiveTokenList)
+                                        )
                                     }
 
                                     is ReceiveAllowedState.BackupRequired -> {
@@ -311,7 +318,10 @@ fun BalanceItems(
                                             BackupRequiredDialog.Input(account, text)
                                         )
 
-                                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.BackupRequired))
+                                        stat(
+                                            page = StatPage.Balance,
+                                            event = StatEvent.Open(StatPage.BackupRequired)
+                                        )
                                     }
 
                                     null -> Unit
@@ -326,7 +336,10 @@ fun BalanceItems(
                                 onClick = {
                                     navController.slideFromRight(R.id.multiswap)
 
-                                    stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.Swap))
+                                    stat(
+                                        page = StatPage.Balance,
+                                        event = StatEvent.Open(StatPage.Swap)
+                                    )
                                 }
                             )
                         }
@@ -396,50 +409,61 @@ fun BalanceItems(
                         Spacer(modifier = Modifier.padding(start = 16.dp))
 
                         ButtonSecondaryCircle(
-                                icon = R.drawable.ic_transactions,
-                                onClick = {
-                                    navController.slideFromRight(
-                                            R.id.transactionFragment
-                                    )
-                                    // TODO:
-                                    stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.CoinManager))
-                                }
+                            icon = R.drawable.ic_transactions,
+                            onClick = {
+                                navController.slideFromRight(
+                                    R.id.transactionFragment
+                                )
+                                // TODO:
+                                stat(
+                                    page = StatPage.Balance,
+                                    event = StatEvent.Open(StatPage.CoinManager)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.padding(start = 16.dp))
 
                         ButtonSecondaryCircle(
-                        icon = R.drawable.ic_manage_2,
-                        contentDescription = stringResource(R.string.ManageCoins_title),
-                        onClick = {
-                            navController.slideFromRight(R.id.manageWalletsFragment)
-
-                            stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.CoinManager))
-                        }
-                    )
-
-                    HSpacer(16.dp)
-                }
-            }
-
-            item {
-                when (uiState.headerNote) {
-                    HeaderNote.None -> Unit
-                    HeaderNote.NonStandardAccount -> {
-                        NoteError(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
-                            text = stringResource(R.string.AccountRecovery_MigrationRequired),
+                            icon = R.drawable.ic_manage_2,
+                            contentDescription = stringResource(R.string.ManageCoins_title),
                             onClick = {
-                                FaqManager.showFaqPage(
-                                    navController,
-                                    FaqManager.faqPathMigrationRequired
+                                navController.slideFromRight(R.id.manageWalletsFragment)
+
+                                stat(
+                                    page = StatPage.Balance,
+                                    event = StatEvent.Open(StatPage.CoinManager)
                                 )
                             }
                         )
-                    }
 
-                    HeaderNote.NonRecommendedAccount -> {
-                        /*NoteWarning(
+                        HSpacer(16.dp)
+                    }
+                }
+
+                this@LazyColumn.item {
+                    when (uiState.headerNote) {
+                        HeaderNote.None -> Unit
+                        HeaderNote.NonStandardAccount -> {
+                            NoteError(
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    top = 12.dp,
+                                    bottom = 24.dp
+                                ),
+                                text = stringResource(R.string.AccountRecovery_MigrationRequired),
+                                onClick = {
+                                    FaqManager.showFaqPage(
+                                        navController,
+                                        FaqManager.faqPathMigrationRequired
+                                    )
+                                }
+                            )
+                        }
+
+                        HeaderNote.NonRecommendedAccount -> {
+                            /*NoteWarning(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
                             text = stringResource(R.string.AccountRecovery_MigrationRecommended),
                             onClick = {
@@ -452,57 +476,58 @@ fun BalanceItems(
                                 viewModel.onCloseHeaderNote(HeaderNote.NonRecommendedAccount)
                             }
                         )*/
-                    }
-                }
-            }
-
-            if (balanceViewItems.isEmpty()) {
-                item {
-                    NoCoinsBlock()
-                }
-            } else {
-                wallets(
-                    items = balanceViewItems,
-                    key = {
-                        it.wallet.hashCode()
-                    }
-                ) { item ->
-                    BalanceCardSwipable(
-                        viewItem = item,
-                        revealed = revealedCardId == item.wallet.hashCode(),
-                        onReveal = { walletHashCode ->
-                            if (revealedCardId != walletHashCode) {
-                                revealedCardId = walletHashCode
-                            }
-                        },
-                        onConceal = {
-                            revealedCardId = null
-                        },
-                        onClick = {
-                            navigateToTokenBalance.invoke(item)
-                        },
-                        onClickSyncError = {
-                            onClickSyncError.invoke(item)
-                        },
-                        onDisable = {
-                            onDisable.invoke(item)
                         }
-                    )
+                    }
+                }
+
+                if (balanceViewItems.isEmpty()) {
+                    this@LazyColumn.item {
+                        NoCoinsBlock()
+                    }
+                } else {
+                    this@LazyColumn.wallets(
+                        items = balanceViewItems,
+                        key = {
+                            it.wallet.hashCode()
+                        }
+                    ) { item ->
+                        BalanceCardSwipable(
+                            viewItem = item,
+                            revealed = revealedCardId == item.wallet.hashCode(),
+                            onReveal = { walletHashCode ->
+                                if (revealedCardId != walletHashCode) {
+                                    revealedCardId = walletHashCode
+                                }
+                            },
+                            onConceal = {
+                                revealedCardId = null
+                            },
+                            onClick = {
+                                navigateToTokenBalance.invoke(item)
+                            },
+                            onClickSyncError = {
+                                onClickSyncError.invoke(item)
+                            },
+                            onDisable = {
+                                onDisable.invoke(item)
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
-    uiState.openSend?.let { openSend ->
-        navController.slideFromRight(
-            R.id.sendTokenSelectFragment,
-            SendTokenSelectFragment.Input(
-                openSend.blockchainTypes,
-                openSend.tokenTypes,
-                openSend.address,
-                openSend.amount
+        uiState.openSend?.let { openSend ->
+            navController.slideFromRight(
+                R.id.sendTokenSelectFragment,
+                SendTokenSelectFragment.Input(
+                    openSend.blockchainTypes,
+                    openSend.tokenTypes,
+                    openSend.address,
+                    openSend.amount
+                )
             )
-        )
-        viewModel.onSendOpened()
+            viewModel.onSendOpened()
+        }
     }
 }
 

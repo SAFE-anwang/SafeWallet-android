@@ -13,9 +13,9 @@ import io.horizontalsystems.marketkit.models.TokenType
 class AddBep2TokenBlockchainService(
     private val blockchain: Blockchain,
     private val networkManager: INetworkManager
-) : IAddTokenBlockchainService {
+) /*: IAddTokenBlockchainService*/ {
 
-    override fun isValid(reference: String): Boolean {
+    /*override fun isValid(reference: String): Boolean {
         //check reference for period in the middle
         val regex = "\\w+-\\w+".toRegex()
         return regex.matches(reference)
@@ -40,5 +40,5 @@ class AddBep2TokenBlockchainService(
             type = tokenQuery.tokenType,
             decimals = 0
         )
-    }
+    }*/
 }

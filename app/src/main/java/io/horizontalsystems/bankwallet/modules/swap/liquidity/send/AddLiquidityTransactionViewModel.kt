@@ -29,7 +29,6 @@ import io.horizontalsystems.bankwallet.modules.sendevmtransaction.*
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
 import io.horizontalsystems.bankwallet.modules.swap.scaleUp
-import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
 import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
@@ -677,7 +676,7 @@ class AddLiquidityTransactionViewModel(
     }
 
     private fun getFormattedSlippage(slippage: BigDecimal): String? {
-        return if (slippage.compareTo(OneInchSwapSettingsModule.defaultSlippage) == 0) {
+        return if (slippage.compareTo(BigDecimal("1")) == 0) {
             null
         } else {
             "$slippage%"

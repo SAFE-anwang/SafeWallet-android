@@ -24,6 +24,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceVie
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmViewModel
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView2
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
@@ -142,11 +143,12 @@ class SendEvmConfirmationFragment : BaseFragment() {
 
     private fun setSendButton(enabled: Boolean = false) {
         binding.sendEvmTransactionView.setContent {
-            SendEvmTransactionView(
+            SendEvmTransactionView2(
                 sendEvmTransactionViewModel,
                 feeViewModel,
                 nonceServiceViewModel,
-                findNavController()
+                findNavController(),
+                statPage = StatPage.SendConfirmation
                 /*R.id.sendWsafeConfirmationFragment,*/
             )
         }
