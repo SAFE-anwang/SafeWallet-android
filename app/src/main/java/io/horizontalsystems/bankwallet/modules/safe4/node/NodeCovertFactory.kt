@@ -49,7 +49,11 @@ object NodeCovertFactory {
 		val allVoteNum = valueConvert(nodeItem.allVoteNum)
 
 		val progress = try {
-			totalVoteNum.toFloat() / allVoteNum.toFloat()
+			if (allVoteNum.toInt() > 0) {
+				totalVoteNum.toFloat() / allVoteNum.toFloat()
+			} else {
+				0
+			}
 		} catch (e: Exception) {
 			0
 		}
