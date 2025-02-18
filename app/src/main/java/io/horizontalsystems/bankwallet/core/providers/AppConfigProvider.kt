@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.entities.Currency
+import io.horizontalsystems.bankwallet.net.ApiKeyUtil
 import io.horizontalsystems.ethereumkit.models.Chain
 import java.util.*
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -26,6 +27,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val mempoolSpaceUrl: String = "https://mempool.space"
     val walletConnectUrl = "relay.walletconnect.com"
     val walletConnectProjectId by lazy {
+        ApiKeyUtil.getApiKey("walletConnectV2")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         when(index) {
             0 -> Translator.getString(R.string.walletConnectV2Key)
             else -> Translator.getString(R.string.walletConnectV2Key1)
@@ -60,29 +65,37 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val blocksDecodedEthereumRpc by lazy {
-        Translator.getString(R.string.blocksDecodedEthereumRpc)
+        ApiKeyUtil.getEthRpcEndpoint() ?: Translator.getString(R.string.blocksDecodedEthereumRpc)
     }
     val twitterBearerToken by lazy {
+        ApiKeyUtil.getApiKey("twitterBearerToken")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.twitterBearerToken)
     }
 
+    val infuraApiKey by  lazy {
+        ApiKeyUtil.getApiKey("infura")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
+        return@lazy null
+    }
+
     val infuraProjectId by lazy {
-        val projectId = when(index) {
+        infuraApiKey?.split("#")?.get(0) ?: when(index) {
             0 -> Translator.getString(R.string.infuraProjectId)
 //            1 -> infuraProjectId2
             else -> infuraProjectId3
         }
-//        Translator.getString(R.string.infuraProjectId)
-        projectId
     }
     val infuraProjectSecret by lazy {
-        val projectKey = when(index) {
+        infuraApiKey?.split("#")?.get(1) ?:  when(index) {
             0 -> Translator.getString(R.string.infuraSecretKey)
 //            1 -> infuraProjectSecret2
             else -> infuraProjectSecret3
         }
-//        Translator.getString(R.string.infuraSecretKey)
-        projectKey
     }
 
     /*val infuraProjectId2 by lazy {
@@ -98,49 +111,104 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val infuraProjectSecret3 by lazy {
         Translator.getString(R.string.infuraSecretKey3)
     }
+
+    val cacheEtherscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("etherscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
+        return@lazy null
+    }
+
     val etherscanApiKey by lazy {
-        val index = Random().nextInt(2)
-        val key = when(index) {
-            0 -> Translator.getString(R.string.etherscanKey)
-            else -> Translator.getString(R.string.etherscanKey1)
+        if (cacheEtherscanApiKey != null) {
+            cacheEtherscanApiKey!!
+        } else {
+            val index = Random().nextInt(2)
+            when (index) {
+                0 -> Translator.getString(R.string.etherscanKey)
+                else -> Translator.getString(R.string.etherscanKey1)
+            }
         }
-        key
     }
+
+    val cacheBscscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("bscscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
+        return@lazy null
+    }
+
     val bscscanApiKey by lazy {
-        val index = Random().nextInt(6)
-        val key = when(index) {
-            0 -> Translator.getString(R.string.bscscanKey)
-            1 -> Translator.getString(R.string.bscscanKey2)
-            2 -> Translator.getString(R.string.bscscanKey3)
-            3 -> Translator.getString(R.string.bscscanKey4)
-            4 -> Translator.getString(R.string.bscscanKey5)
-            else -> Translator.getString(R.string.bscscanKey6)
+        if (cacheBscscanApiKey != null) {
+            cacheBscscanApiKey!!
+        } else {
+            val index = Random().nextInt(6)
+            when(index) {
+                0 -> Translator.getString(R.string.bscscanKey)
+                1 -> Translator.getString(R.string.bscscanKey2)
+                2 -> Translator.getString(R.string.bscscanKey3)
+                3 -> Translator.getString(R.string.bscscanKey4)
+                4 -> Translator.getString(R.string.bscscanKey5)
+                else -> Translator.getString(R.string.bscscanKey6)
+            }
         }
-        key
     }
-    val polygonscanApiKey by lazy {
-        val index = Random().nextInt(4)
-        val key = when(index) {
-            0 -> Translator.getString(R.string.polygonscanKey)
-            1 -> Translator.getString(R.string.polygonscanKey2)
-            2 -> Translator.getString(R.string.polygonscanKey3)
-            else -> Translator.getString(R.string.polygonscanKey4)
+
+
+    val cachePolygonscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("polygonscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
         }
-        key
+        return@lazy null
+    }
+
+
+    val polygonscanApiKey by lazy {
+        if (cachePolygonscanApiKey != null) {
+            cachePolygonscanApiKey!!
+        } else {
+            val index = Random().nextInt(4)
+            val key = when (index) {
+                0 -> Translator.getString(R.string.polygonscanKey)
+                1 -> Translator.getString(R.string.polygonscanKey2)
+                2 -> Translator.getString(R.string.polygonscanKey3)
+                else -> Translator.getString(R.string.polygonscanKey4)
+            }
+            key
+        }
     }
     val snowtraceApiKey by lazy {
         Translator.getString(R.string.snowtraceApiKey)
     }
     val optimisticEtherscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("optimisticEtherscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.optimisticEtherscanApiKey)
     }
     val arbiscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("arbiscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.arbiscanApiKey)
     }
     val gnosisscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("gnosisscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.gnosisscanApiKey)
     }
     val ftmscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("ftmscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.ftmscanApiKey)
     }
     val guidesUrl by lazy {
@@ -169,6 +237,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val solscanApiKey by lazy {
+        ApiKeyUtil.getApiKey("solscan")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         Translator.getString(R.string.solscanApiKey)
     }
 
@@ -181,6 +253,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val oneInchApiKey by lazy {
+        ApiKeyUtil.getApiKey("oneInch")?.let {
+            val index = Random().nextInt(it.size)
+            return@lazy it.get(index)
+        }
         val projectKey = when(index) {
             0 -> Translator.getString(R.string.oneInchApiKey)
             1 -> Translator.getString(R.string.oneInchApiKey2)

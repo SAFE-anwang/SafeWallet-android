@@ -105,8 +105,8 @@ android {
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
-            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "blocksDecodedEthereumRpc", "https://ethereum-mainnet.core.chainstack.com/a1911ee247f4f8de22c1f4e55865f616"
+            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -160,8 +160,8 @@ android {
             resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
-            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "blocksDecodedEthereumRpc", "https://ethereum-mainnet.core.chainstack.com/a1911ee247f4f8de22c1f4e55865f616"
+            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'

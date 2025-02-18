@@ -114,6 +114,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCWalletRequestHandler
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionStorage
+import io.horizontalsystems.bankwallet.net.ApiKeyUtil
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetManager
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetRepository
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetWorker
@@ -561,6 +562,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
     private fun startTasks() {
         Thread {
+            ApiKeyUtil.initApiKey()
             EthereumKit.init()
             adapterManager.startAdapterManager()
             marketKit.sync()
