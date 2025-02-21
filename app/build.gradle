@@ -109,6 +109,9 @@ android {
             resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
+            resValue "string", "safeswapv2safe4factory", "0xc394953741CA409426Bf6C3489294375BaE1629D"
+            resValue "string", "safeswapv2safe4codehash", "ad0e51aa7a058efb9eb40fd6385473f0175ee7419e8d4f91a4e0294ec12b2d13"
+            resValue "string", "safeswapv2safe4router", "0x1Ef5BC9eCac0E1dd69497506A977Cc3f002DB034"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -164,6 +167,9 @@ android {
             resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
+            resValue "string", "safeswapv2safe4factory", "0xc394953741CA409426Bf6C3489294375BaE1629D"
+            resValue "string", "safeswapv2safe4codehash", "ad0e51aa7a058efb9eb40fd6385473f0175ee7419e8d4f91a4e0294ec12b2d13"
+            resValue "string", "safeswapv2safe4router", "0x1Ef5BC9eCac0E1dd69497506A977Cc3f002DB034"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 

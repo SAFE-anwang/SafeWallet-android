@@ -126,6 +126,7 @@ import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.marketkit.MarketKit
+import io.horizontalsystems.uniswapkit.TradeManager
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.telegram.messenger.ApplicationLoader
@@ -248,6 +249,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         val appConfig = AppConfigProvider(Random().nextInt(2), localStorage)
         appConfigProvider = appConfig
+        TradeManager.safeSwapv2Safe4Router = appConfigProvider.safeSwapv2Safe4Router
+        TradeManager.safeSwapv2Safe4Factory = appConfigProvider.safeSwapv2Safe4Factory
+        TradeManager.safeSwapv2Safe4CodeHash = appConfigProvider.safeSwapv2Safe4CodeHash
 
         torKitManager = TorManager(instance, localStorage)
         subscriptionManager = SubscriptionManager()

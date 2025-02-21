@@ -265,6 +265,18 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         projectKey
     }
 
+    val safeSwapv2Safe4Factory by lazy {
+        Translator.getString(R.string.safeswapv2safe4factory)
+    }
+
+    val safeSwapv2Safe4CodeHash by lazy {
+        Translator.getString(R.string.safeswapv2safe4codehash)
+    }
+
+    val safeSwapv2Safe4Router by lazy {
+        Translator.getString(R.string.safeswapv2safe4router)
+    }
+
     val fiatDecimal: Int = 2
     val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
     val maxDecimal: Int = 8
