@@ -157,6 +157,7 @@ class LiquidityV2TradeService(
     @Throws
     private fun uniswapToken(token: Token?) = when (val tokenType = token?.type) {
         TokenType.Native -> when (token.blockchainType) {
+            BlockchainType.SafeFour,
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,

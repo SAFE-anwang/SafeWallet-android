@@ -270,12 +270,14 @@ class LiquidityMainViewModel(
 
     private fun getTradeService(provider: SwapMainModule.ISwapProvider): LiquidityMainModule.ISwapTradeService = when (provider) {
         LiquidityMainModule.PancakeLiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        LiquidityMainModule.Safe4LiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
         else -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
     }
 
     private fun getSpenderAddress(provider: SwapMainModule.ISwapProvider) = when (provider) {
 //        SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
         LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
+        LiquidityMainModule.Safe4LiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
         else -> uniswapKit.routerAddress(evmKit.chain)
     }
 

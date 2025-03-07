@@ -2260,6 +2260,7 @@
     <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
     <string name="Liquidity_Add">Add</string>
     <string name="Liquidity_Add_Success">Add success</string>
+    <string name="Liquidity_Tab_SAFE4">SAFE4</string>
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
@@ -2475,6 +2476,7 @@
     <string name="Method_Node_Status_Upload">Node status upload</string>
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
+    <string name="Method_Add_Liquidity">Add Liquidity</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE4 Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>

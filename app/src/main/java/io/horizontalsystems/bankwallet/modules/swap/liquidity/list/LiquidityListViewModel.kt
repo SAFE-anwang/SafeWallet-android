@@ -31,6 +31,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TokenAmount
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TotalSupply
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
 import io.horizontalsystems.core.SingleLiveEvent
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenEntity
 import io.reactivex.disposables.CompositeDisposable
@@ -49,6 +50,7 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
 import org.web3j.crypto.StructuredDataEncoder
+import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.utils.Numeric
 import java.math.BigDecimal
@@ -70,8 +72,10 @@ class LiquidityListViewModel(
 
     private var liquidityItemsBSC = mutableListOf<LiquidityListModule.LiquidityItem>()
     private var liquidityItemsEth = mutableListOf<LiquidityListModule.LiquidityItem>()
+    private var liquidityItemsSafe4 = mutableListOf<LiquidityListModule.LiquidityItem>()
     private var liquidityViewItemsBSC = listOf<LiquidityViewItem>()
     private var liquidityViewItemsEth = listOf<LiquidityViewItem>()
+    private var liquidityViewItemsSafe4 = listOf<LiquidityViewItem>()
     private var viewState: ViewState = ViewState.Loading
     private var isRefreshing = false
 
@@ -95,11 +99,12 @@ class LiquidityListViewModel(
         private set
 
     val tabs = LiquidityListModule.Tab.values()
-    var selectedTab by mutableStateOf(LiquidityListModule.Tab.BSC)
+    var selectedTab by mutableStateOf(LiquidityListModule.Tab.SAFE4)
         private set
 
-    private var web3jBsc = Connect.connect(false)
-    private var web3jEth = Connect.connect(true)
+    private var web3jBsc = Connect.connect(Chain.BinanceSmartChain)
+    private var web3jEth = Connect.connect(Chain.Ethereum)
+    private var web3jSafe4 = Connect.connect(Chain.SafeFour)
 
     val removeErrorMessage = SingleLiveEvent<String?>()
     val removeSuccessMessage = SingleLiveEvent<String>()
@@ -130,13 +135,14 @@ class LiquidityListViewModel(
             BlockchainType.Polygon -> "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"
             BlockchainType.Avalanche -> "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
             BlockchainType.ArbitrumOne -> "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+            BlockchainType.SafeFour -> "0x64c5aB0DFeCCe653751B463AFb05352085c5f2f9"
             else -> ""
         }
         return wethAddressHex
     }
 
     init {
-        getAllLiquidity(isSelectBSC())
+        getAllLiquidity()
     }
 
     fun onEnterAmount(amount: BigDecimal?, availableBalance: BigDecimal) {
@@ -162,7 +168,7 @@ class LiquidityListViewModel(
     }
 
     fun refresh() {
-        getAllLiquidity(isSelectBSC())
+        getAllLiquidity()
     }
 
     private fun getTokenEntity(uids: List<String>, type: String):List<TokenEntity> {
@@ -178,7 +184,7 @@ class LiquidityListViewModel(
         emitState()
     }
 
-    private fun getAllLiquidity(isBSC: Boolean) {
+    private fun getAllLiquidity() {
         viewState = ViewState.Loading
         val activeWallets = accountManager.activeAccount?.let {
             storage.wallets(it).filter {
@@ -192,19 +198,34 @@ class LiquidityListViewModel(
                             && it.token.coin.code != "UNI-V2"
             }
         } ?: listOf()
-        if (activeWallets.isEmpty() && activeETHWallets.isEmpty()) return
+        val activeSafe4Wallets = accountManager.activeAccount?.let {
+            storage.wallets(it).filter {
+                    it.token.blockchainType is BlockchainType.SafeFour
+                            && it.token.coin.code != "UNI-V2"
+            }
+        } ?: listOf()
+        if (activeWallets.isEmpty() && activeETHWallets.isEmpty() && activeSafe4Wallets.isEmpty()) return
         val uids = activeWallets.map { it.coin.uid }
         val uidsEth = activeETHWallets.map { it.coin.uid }
+        val uidsSafe4 = activeSafe4Wallets.map { it.coin.uid }
         val tokenEntityList = getTokenEntity(uids,"binance-smart-chain")
         val ethTokenEntityList = getTokenEntity(uidsEth,"ethereum")
+        val customSafe4Entity = activeSafe4Wallets.filter { it.coin.uid.startsWith("custom-safe4-coin") }
+            .map {
+                TokenEntity(it.coin.uid, "safe4-coin", it.token.type.id.split(":")[0], it.decimal, it.coin.uid.substring(it.coin.uid.indexOf(":") + 1))
+            }
+        val safe4TokenEntityList = getTokenEntity(uidsSafe4,"safe4-coin") + customSafe4Entity
+
         liquidityItemsBSC.clear()
         liquidityItemsEth.clear()
+        liquidityItemsSafe4.clear()
         /*getLiquidityJob = */viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
             var requestError = false
             val list = mutableListOf<LiquidityViewItem>()
             val listEth = mutableListOf<LiquidityViewItem>()
+            val listSafe4 = mutableListOf<LiquidityViewItem>()
             getAllPair(activeWallets).forEach { pair ->
                 requestCount = 1
                 requestError = false
@@ -212,7 +233,7 @@ class LiquidityListViewModel(
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, false)?.let {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
                             liquidityItemsBSC.add(it)
                             list.add(liquidityViewItemFactory.viewItem(it))
                         }
@@ -233,9 +254,36 @@ class LiquidityListViewModel(
                 val tokenEntityB = ethTokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, true)?.let {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
                             liquidityItemsEth.add(it)
                             listEth.add(liquidityViewItemFactory.viewItem(it))
+                        }
+                    } catch (e: Exception) {
+                        if (requestCount == Max_Request_Count) {
+                            viewState = ViewState.Error(e)
+                        } else {
+                            requestCount ++
+                        }
+                        requestError = true
+                    }
+                }
+            }
+            getAllPair(activeSafe4Wallets).forEach { pair ->
+                requestCount = 1
+                requestError = false
+                var tokenEntityA = safe4TokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference
+                if (tokenEntityA.isNullOrEmpty()) {
+                    tokenEntityA = getWethAddress(pair.first.token.blockchain.type)
+                }
+                var tokenEntityB = safe4TokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference
+                if (tokenEntityB.isNullOrEmpty()) {
+                    tokenEntityB = getWethAddress(pair.second.token.blockchain.type)
+                }
+                if (tokenEntityA != null && tokenEntityB != null) {
+                    try {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
+                            liquidityItemsSafe4.add(it)
+                            listSafe4.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
                         if (requestCount == Max_Request_Count) {
@@ -253,6 +301,7 @@ class LiquidityListViewModel(
             viewState = ViewState.Success
             liquidityViewItemsBSC = list.map { it }
             liquidityViewItemsEth = listEth.map { it }
+            liquidityViewItemsSafe4 = listSafe4.map { it }
             isRefreshing = false
             emitState()
          }
@@ -270,7 +319,7 @@ class LiquidityListViewModel(
         return pairs
     }
 
-    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String, isEth: Boolean): LiquidityListModule.LiquidityItem? {
+    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String): LiquidityListModule.LiquidityItem? {
         val adapterA = adapterManager.getReceiveAdapterForWallet(walletA) ?: return null
         val tokenA = Token(
             tokenAAddress,
@@ -284,8 +333,8 @@ class LiquidityListViewModel(
             walletB.coin.code,
             walletB.decimal
         )
-        val web3j = if (isEth) web3jEth else web3jBsc
-        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, isEth) ?: return null
+        val web3j = getWeb3j()
+        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain()) ?: return null
 
         val pairAddress = pair.get(0) as String
         val token0 = pair.get(1) as Token
@@ -336,7 +385,7 @@ class LiquidityListViewModel(
 
     private fun emitState() {
         val newUiState = LiquidityUiState(
-            liquidityViewItems = if (isSelectBSC()) liquidityViewItemsBSC else liquidityViewItemsEth,
+            liquidityViewItems = viewItems(),
             viewState = viewState,
             isRefreshing = isRefreshing,
             removePercent,
@@ -348,14 +397,67 @@ class LiquidityListViewModel(
         }
     }
 
+    private fun getWeb3j(): Web3j {
+        return when(selectedTab) {
+            LiquidityListModule.Tab.BSC -> web3jBsc
+            LiquidityListModule.Tab.ETH -> web3jEth
+            LiquidityListModule.Tab.SAFE4 -> web3jSafe4
+        }
+    }
+
+    private fun getRouter(): String {
+        return when(selectedTab) {
+            LiquidityListModule.Tab.BSC -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+            LiquidityListModule.Tab.ETH -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+            LiquidityListModule.Tab.SAFE4 -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
+        }
+    }
+
+    private fun getChain(): Chain {
+        return when(selectedTab) {
+            LiquidityListModule.Tab.BSC -> Chain.BinanceSmartChain
+            LiquidityListModule.Tab.ETH -> Chain.Ethereum
+            LiquidityListModule.Tab.SAFE4 -> Chain.SafeFour
+        }
+    }
+
+    private fun viewItems(): List<LiquidityViewItem> {
+        return when(selectedTab) {
+            LiquidityListModule.Tab.BSC -> liquidityViewItemsBSC
+            LiquidityListModule.Tab.ETH -> liquidityViewItemsEth
+            LiquidityListModule.Tab.SAFE4 -> liquidityViewItemsSafe4
+        }
+    }
+
     private fun removeItem(removeIndex: Int) {
         val list = mutableListOf<LiquidityViewItem>()
-        liquidityViewItemsBSC.forEachIndexed{ index, liquidityViewItem ->
-            if (removeIndex != index) {
-                list.add(liquidityViewItem)
+
+        when(selectedTab) {
+            LiquidityListModule.Tab.BSC -> {
+                liquidityViewItemsBSC.forEachIndexed{ index, liquidityViewItem ->
+                    if (removeIndex != index) {
+                        list.add(liquidityViewItem)
+                    }
+                }
+                liquidityViewItemsBSC = list
+            }
+            LiquidityListModule.Tab.ETH -> {
+                liquidityViewItemsEth.forEachIndexed{ index, liquidityViewItem ->
+                    if (removeIndex != index) {
+                        list.add(liquidityViewItem)
+                    }
+                }
+                liquidityViewItemsEth = list
+            }
+            LiquidityListModule.Tab.SAFE4 -> {
+                liquidityViewItemsSafe4.forEachIndexed{ index, liquidityViewItem ->
+                    if (removeIndex != index) {
+                        list.add(liquidityViewItem)
+                    }
+                }
+                liquidityViewItemsSafe4 = list
             }
         }
-        liquidityViewItemsBSC = list
         emitState()
     }
 
@@ -378,9 +480,9 @@ class LiquidityListViewModel(
                     walletB.coin.code,
                     walletB.decimal
                 )
-                val web3j = if (isSelectBSC()) web3jBsc else web3jEth
+                val web3j = getWeb3j()
                 val pair =
-                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, !isSelectBSC()) ?: return@launch
+                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain()) ?: return@launch
                 val pairAddress = pair.get(0) as String
                 val token00 = pair.get(1) as Token
                 val token11 = pair.get(2) as Token
@@ -456,16 +558,8 @@ class LiquidityListViewModel(
                     evmKitWrapper!!.evmKit.receiveAddress.hex
                 )
                 val deadline = Constants.getDeadLine()
-                val routerAddress = if (isSelectBSC()) {
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
-                } else {
-                    Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
-                }
-                val chainId = if (isSelectBSC()) {
-                    56
-                } else {
-                    1
-                }
+                val routerAddress = getRouter()
+                val chainId = getChain().id
                 val json = buildSignJson(
                     name,
                     chainId,
@@ -600,11 +694,6 @@ class LiquidityListViewModel(
     override fun onCleared() {
         disposable.dispose()
     }
-
-    private fun isSelectBSC(): Boolean {
-        return selectedTab == LiquidityListModule.Tab.BSC
-    }
-
 }
 
 data class LiquidityUiState(

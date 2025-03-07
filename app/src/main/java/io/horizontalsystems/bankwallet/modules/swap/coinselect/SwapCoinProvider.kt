@@ -52,6 +52,7 @@ class SwapCoinProvider(
         BlockchainType.Avalanche -> dex.blockchainType == BlockchainType.Avalanche
         BlockchainType.Gnosis -> dex.blockchainType == BlockchainType.Gnosis
         BlockchainType.Fantom -> dex.blockchainType == BlockchainType.Fantom
+        BlockchainType.SafeFour -> dex.blockchainType == BlockchainType.SafeFour
         else -> false
     }
 

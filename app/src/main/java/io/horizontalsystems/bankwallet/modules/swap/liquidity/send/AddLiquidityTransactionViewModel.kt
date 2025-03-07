@@ -36,6 +36,7 @@ import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
 import io.horizontalsystems.ethereumkit.decorations.OutgoingDecoration
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
@@ -110,7 +111,13 @@ class AddLiquidityTransactionViewModel(
     private fun getFee() {
         GlobalScope.launch {
             try {
-                val web3j: Web3j = Connect.connect(chainToken.blockchainType is BlockchainType.Ethereum)
+                val chain = when(chainToken.blockchainType) {
+                    is BlockchainType.Ethereum -> Chain.Ethereum
+                    is BlockchainType.BinanceSmartChain -> Chain.BinanceSmartChain
+                    is BlockchainType.SafeFour -> Chain.SafeFour
+                    else -> Chain.Ethereum
+                }
+                val web3j: Web3j = Connect.connect(chain)
                 val gasPrice: BigInteger = web3j.ethGasPrice()
                     .send()
                     .getGasPrice()

@@ -63,7 +63,7 @@ object VpnConnectService {
                 it.forEach {
                     App.vpnServerStorage.save(it)
                 }
-                SafeNetWork.vpnNodes =  it
+                if (it.isNotEmpty()) SafeNetWork.vpnNodes =  it
                 connectVpn(activity)
             },
             {

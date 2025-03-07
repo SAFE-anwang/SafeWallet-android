@@ -51,7 +51,8 @@ object LiquidityMainModule {
         private val tokenFrom: Token? = input?.getParcelable(tokenFromKey)
         private val swapProviders: List<SwapMainModule.ISwapProvider> = listOf(
             PancakeLiquidityProvider,
-            UniswapLiquidityProvider
+            UniswapLiquidityProvider,
+            Safe4LiquidityProvider
         )
         private val switchService by lazy { AmountTypeSwitchService() }
         private val swapMainXService by lazy { LiquidityMainService(tokenFrom, swapProviders, App.localStorage) }
@@ -277,6 +278,19 @@ object LiquidityMainModule {
 
         override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
             BlockchainType.Ethereum -> true
+            else -> false
+        }
+    }
+
+    @Parcelize
+    object Safe4LiquidityProvider : SwapMainModule.ISwapProvider {
+        override val id get() = "safe4_liquidity"
+        override val title get() = "Safe4"
+        override val url get() = "https://safecoreswap.com/"
+        override val supportsExactOut get() = true
+
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.SafeFour -> true
             else -> false
         }
     }

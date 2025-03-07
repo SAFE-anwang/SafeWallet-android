@@ -5,16 +5,18 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.GetReserves
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.PairAddress
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Token
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TokenAmount
+import io.horizontalsystems.ethereumkit.models.Chain
 import org.web3j.protocol.Web3j
 
 object LiquidityPair {
 
     @Throws(Exception::class)
-    fun getPairReservesForPancakeSwap(web3j: Web3j?, tokenA: Token, tokenB: Token, isEth: Boolean = false): Array<Any>? {
-        val pairAddress = if (isEth) {
-            PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
-        } else {
-            PairAddress.getPairAddressForPancakeSwap(tokenA.address, tokenB.address)
+    fun getPairReservesForPancakeSwap(web3j: Web3j?, tokenA: Token, tokenB: Token, chain: Chain): Array<Any>? {
+        val pairAddress = when(chain) {
+            Chain.Ethereum -> PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
+            Chain.BinanceSmartChain -> PairAddress.getPairAddressForPancakeSwap(tokenA.address, tokenB.address)
+            Chain.SafeFour -> PairAddress.getPairAddressForSafe4Swap(tokenA.address, tokenB.address)
+            else -> PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
         }
         Log.i(
             "getPairReservesForPancakeSwap",

@@ -95,6 +95,18 @@ public class PairAddress {
         );
     }
 
+    public static String getPairAddressForSafe4Swap(
+            String tokenA,
+            String tokenB
+    ){
+        return getPairAddress(
+                Constants.DEX.SAFESWAP_SAFE4_V2_FACTORY_ADDRESS ,
+                Constants.INIT_CODE_HASH.SAFE_SWAP_SAFE4_FACTORY_INIT_CODE_HASH,
+                tokenA,
+                tokenB
+        );
+    }
+
 
 
     public static void main(String[] args) {

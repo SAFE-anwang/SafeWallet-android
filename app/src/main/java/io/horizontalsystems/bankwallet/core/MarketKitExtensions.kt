@@ -56,6 +56,7 @@ val Token.swappable: Boolean
 
 val Token.liquidity: Boolean
     get() = when (blockchainType) {
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain -> true
         else -> false

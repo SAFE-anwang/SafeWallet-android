@@ -10,6 +10,6 @@ object SafeSwapProvider : BaseUniswapProvider() {
     override val icon = R.drawable.ic_safe_20
 
     override fun supports(blockchainType: BlockchainType): Boolean {
-        return blockchainType == BlockchainType.Ethereum || blockchainType == BlockchainType.BinanceSmartChain
+        return blockchainType == BlockchainType.Ethereum || blockchainType == BlockchainType.BinanceSmartChain || blockchainType == BlockchainType.SafeFour
     }
 }

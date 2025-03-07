@@ -10,6 +10,7 @@ import org.web3j.protocol.http.HttpService;
 import java.io.IOException;
 
 import io.horizontalsystems.bankwallet.core.App;
+import io.horizontalsystems.ethereumkit.models.Chain;
 import okhttp3.Credentials;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -25,10 +26,10 @@ public class Connect {
     private static final String endpoint = "https://bsc-dataseed.binance.org/";
 
     private static final String eth_endpoint = "https://mainnet.infura.io/v3/" + App.appConfigProvider.getInfuraProjectId();
-    public static Web3j connect(Boolean isETH){
+    public static Web3j connect(Chain chain){
         log.info("connect to {}" , endpoint);
         OkHttpClient.Builder builder = HttpService.getOkHttpClientBuilder();
-        if (isETH) {
+        if (chain == Chain.Ethereum) {
             Interceptor headersInterceptor = new Interceptor() {
                 @NonNull
                 @Override
@@ -40,12 +41,23 @@ public class Connect {
             };
             builder.addInterceptor(headersInterceptor);
         }
-        String url;
-        if (isETH) {
+        String url = "";
+        switch (chain) {
+            case Ethereum -> url = eth_endpoint;
+            case BinanceSmartChain -> url = endpoint;
+            case SafeFour -> {
+                if (Chain.SafeFour.isSafe4TestNetId()) {
+                    url = "https://safe4testnet.anwang.com/rpc";
+                } else {
+                    url = "https://safe4.anwang.com/rpc";
+                }
+            }
+        }
+        /*if (isETH) {
             url = eth_endpoint;
         } else {
             url = endpoint;
-        }
+        }*/
         return Web3j.build(new HttpService(url, builder.build()));
     }
 
