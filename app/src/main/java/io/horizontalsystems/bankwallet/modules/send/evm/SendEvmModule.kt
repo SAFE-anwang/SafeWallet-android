@@ -126,13 +126,15 @@ object SendEvmModule {
         val toAddress: String,
         val value: BigInteger,
         val input: ByteArray,
-        val lockTime: Int?
+        val lockTime: Int?,
+        val isBothErc: Boolean
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
             transactionData.input,
-            transactionData.lockTime
+            transactionData.lockTime,
+            transactionData.isBothErc
         )
     }
 

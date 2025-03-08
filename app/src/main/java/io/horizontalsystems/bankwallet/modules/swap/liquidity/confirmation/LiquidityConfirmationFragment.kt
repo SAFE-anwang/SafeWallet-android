@@ -90,7 +90,9 @@ class LiquidityConfirmationFragment(
             get() = TransactionData(
                     Address(transactionDataParcelable.toAddress),
                     transactionDataParcelable.value,
-                    transactionDataParcelable.input
+                    transactionDataParcelable.input,
+                    transactionDataParcelable.lockTime,
+                    transactionDataParcelable.isBothErc
             )
 
         constructor(sendEvmData: SendEvmData, dex: SwapMainModule.Dex, token: Token) :
