@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
-import android.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ICoinManager
@@ -103,11 +102,7 @@ class EvmTransactionsAdapter(
         address: String?,
     ) = buildList {
         token?.let {
-            if (it.blockchainType == BlockchainType.SafeFour) {
-                // Safe 4, query all transaction
-            } else {
-                add(listOf(coinTagName(it)))
-            }
+            add(listOf(coinTagName(it)))
         }
 
         val filterType = when (transactionType) {

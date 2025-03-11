@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.entities.TransactionValue
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.ethereumkit.models.Transaction
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 
@@ -20,7 +21,10 @@ open class EvmTransactionRecord(
         transactionHash = transaction.hashString,
         transactionIndex = transaction.transactionIndex ?: 0,
         blockHeight = transaction.blockNumber?.toInt(),
-        confirmationsThreshold = BaseEvmAdapter.confirmationsThreshold,
+        confirmationsThreshold = if(baseToken.blockchainType == BlockchainType.SafeFour)
+                                    BaseEvmAdapter.confirmationsThresholdSafe4
+                                else
+                                    BaseEvmAdapter.confirmationsThreshold,
         timestamp = transaction.timestamp,
         failed = transaction.isFailed,
         spam = spam,
