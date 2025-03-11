@@ -227,6 +227,7 @@ fun VoteScreen(
     val tabs2 = viewModel.tabs2
     val pagerState = rememberPagerState(initialPage = 0) { tabs2.size }
     val coroutineScope = rememberCoroutineScope()
+    var inputAmountErrorState by remember{ mutableStateOf(false) }
 
     ComposeAppTheme {
         val focusRequester = remember { FocusRequester() }
@@ -259,11 +260,24 @@ fun VoteScreen(
                         amountInputModeViewModel.onToggleInputType()
                     },
                     onValueChange = {
+                        it?.let {
+                            inputAmountErrorState = it.toInt() < 1
+                        }
                         viewModel.onEnterAmount(it)
                     },
                     inputType = amountInputType,
                     rate = viewModel.coinRate
             )
+
+            if (inputAmountErrorState) {
+                Text(
+                    modifier = Modifier.padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Vote_Amount_Error),
+                    color = ComposeAppTheme.colors.redD,
+                    style = ComposeAppTheme.typography.caption,
+                    maxLines = 1,
+                )
+            }
 
             ButtonPrimaryYellow(
                     modifier = Modifier
