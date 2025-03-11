@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.balance
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.IAccountManager
@@ -65,7 +66,8 @@ class BalanceService(
     fun start() {
         activeWalletRepository.itemsObservable
             .subscribeIO { wallets ->
-                handleWalletsUpdate(wallets)
+                val filterWallets = wallets.filter { it.token.coin.code != "safeswap-V2" }
+                handleWalletsUpdate(filterWallets)
             }
             .let {
                 disposables.add(it)

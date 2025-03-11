@@ -49,6 +49,7 @@ abstract class BaseEvmAdapter(
 
     companion object {
         const val confirmationsThreshold: Int = 12
+        const val confirmationsThresholdSafe4: Int = 6
     }
 
 }
