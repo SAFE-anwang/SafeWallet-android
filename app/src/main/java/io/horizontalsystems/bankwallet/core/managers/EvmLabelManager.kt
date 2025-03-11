@@ -5,6 +5,7 @@ import com.anwang.utils.Safe4Contract
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.providers.EvmLabelProvider
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.storage.EvmAddressLabelDao
 import io.horizontalsystems.bankwallet.core.storage.EvmMethodLabelDao
@@ -54,9 +55,9 @@ class EvmLabelManager(
     fun methodLabel(input: ByteArray, to: String? = ""): String? {
         val methodId = input.take(4).toByteArray().toHexString()
         return when(methodId) {
-            "0x03c4c7f3" -> App.instance.getString(R.string.Method_Vote_Super_Node)
-            "0xc54256ed" -> App.instance.getString(R.string.Method_Create_Proposal)
-            "0xb384abef" -> App.instance.getString(R.string.Method_Create_Proposal_Vote)
+            "0x03c4c7f3" -> Translator.getString(R.string.Method_Vote_Super_Node)
+            "0xc54256ed" -> Translator.getString(R.string.Method_Create_Proposal)
+            "0xb384abef" -> Translator.getString(R.string.Method_Create_Proposal_Vote)
             "0xa57afda4" -> {
                 var isUnion = false
                 try {
@@ -64,9 +65,9 @@ class EvmLabelManager(
                 } catch (e: Exception) {
                 }
                 if (isUnion) {
-                    App.instance.getString(R.string.Method_Create_Super_Node_Union)
+                    Translator.getString(R.string.Method_Create_Super_Node_Union)
                 } else {
-                    App.instance.getString(R.string.Method_Create_Super_Node)
+                    Translator.getString(R.string.Method_Create_Super_Node)
                 }
             }
             "0x082ed4d5" -> if (to == Safe4Contract.SuperNodeLogicContractAddr) {
@@ -76,9 +77,9 @@ class EvmLabelManager(
                 } catch (e: Exception) {
                 }
                 if (isUnion) {
-                    App.instance.getString(R.string.Method_Create_Super_Node_Union)
+                    Translator.getString(R.string.Method_Create_Super_Node_Union)
                 } else {
-                    App.instance.getString(R.string.Method_Create_Super_Node)
+                    Translator.getString(R.string.Method_Create_Super_Node)
                 }
             } else {
                 var isUnion = false
@@ -87,35 +88,35 @@ class EvmLabelManager(
                 } catch (e: Exception) {
                 }
                 if (isUnion) {
-                    App.instance.getString(R.string.Method_Create_Master_Node_Union)
+                    Translator.getString(R.string.Method_Create_Master_Node_Union)
                 } else {
-                    App.instance.getString(R.string.Method_Create_Master_Node)
+                    Translator.getString(R.string.Method_Create_Master_Node)
                 }
             }
-            "0x7255acae" -> App.instance.getString(R.string.Method_Change_Enode)
-            "0x45ca25ed" -> App.instance.getString(R.string.Method_Change_Name)
-            "0x1ed6f423" -> App.instance.getString(R.string.Method_Change_Desc)
-            "0xefe08a7d" -> App.instance.getString(R.string.Method_Change_Address)
+            "0x7255acae" -> Translator.getString(R.string.Method_Change_Enode)
+            "0x45ca25ed" -> Translator.getString(R.string.Method_Change_Name)
+            "0x1ed6f423" -> Translator.getString(R.string.Method_Change_Desc)
+            "0xefe08a7d" -> Translator.getString(R.string.Method_Change_Address)
             "0x978a11d1" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)
-                App.instance.getString(R.string.Method_Join_Super_Node)
-            else App.instance.getString(R.string.Method_Join_Master_Node)
-            "0x3ccfd60b" -> App.instance.getString(R.string.Method_Withdraw)
-            "0x092c8749" -> App.instance.getString(R.string.Method_Vote_Super_Node)
-            "0xcd9d6fca" -> App.instance.getString(R.string.Method_Income)
+                Translator.getString(R.string.Method_Join_Super_Node)
+            else Translator.getString(R.string.Method_Join_Master_Node)
+            "0x3ccfd60b" -> Translator.getString(R.string.Method_Withdraw)
+            "0x092c8749" -> Translator.getString(R.string.Method_Vote_Super_Node)
+            "0xcd9d6fca" -> Translator.getString(R.string.Method_Income)
             "0x8e5cd5ec",
             "0xdb5b287d",
-            "0x2b56909b" -> App.instance.getString(R.string.Method_Redeem_Available)
+            "0x2b56909b" -> Translator.getString(R.string.Method_Redeem_Available)
             "0xe70c2626",
             "0x3ecc9516",
-            "0x8000e9a6" -> App.instance.getString(R.string.Method_Redeem_MasterNode)
+            "0x8000e9a6" -> Translator.getString(R.string.Method_Redeem_MasterNode)
             "0xd885085f",
             "0x4c9e906a",
-            "0x6d5b08d3" -> App.instance.getString(R.string.Method_Redeem_Locked)
-            "0xa6aa19d2" -> App.instance.getString(R.string.Method_Node_Status_Upload)
-            "0x60806040" -> App.instance.getString(R.string.Method_Node_Contract_Deployment)
-            "0x38e06620" -> App.instance.getString(R.string.Method_Add_Lock_Day)
-//            "0xe8e33700",
-            "0xf305d719" -> App.instance.getString(R.string.Method_Add_Liquidity)
+            "0x6d5b08d3" -> Translator.getString(R.string.Method_Redeem_Locked)
+            "0xa6aa19d2" -> Translator.getString(R.string.Method_Node_Status_Upload)
+            "0x60806040" -> Translator.getString(R.string.Method_Node_Contract_Deployment)
+            "0x38e06620" -> Translator.getString(R.string.Method_Add_Lock_Day)
+            "0xe8e33700",
+            "0xf305d719" -> Translator.getString(R.string.Method_Add_Liquidity)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

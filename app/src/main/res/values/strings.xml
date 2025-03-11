@@ -2263,7 +2263,7 @@
     <string name="Liquidity_Tab_SAFE4">SAFE4</string>
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>
-    <string name="qutoe_expire_hint">报价即将过期</string>
+    <string name="qutoe_expire_hint">The quotation is about to expire</string>
     <string name="Send_Safe_Four_Hodler_Description">TimeLock works only for sending to Safe 4 (starting with 1)</string>
     
     <!-- safe 4  start-->
@@ -2351,6 +2351,7 @@
     <string name="Safe_Four_Node_Join">Join Partner</string>
     <string name="Safe_Four_Node_Partner">Partner</string>
     <string name="Safe_Four_Node_Creator">Creator</string>
+    <string name="Safe_Four_Vote_Amount_Error">Enter at least one coin</string>
 
     <string name="Safe_Four_Proposal_All">All Proposal</string>
     <string name="Safe_Four_Proposal_Mine">Mine Proposal</string>
