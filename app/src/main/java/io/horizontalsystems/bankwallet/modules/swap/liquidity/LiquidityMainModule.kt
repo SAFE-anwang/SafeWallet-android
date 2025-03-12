@@ -285,7 +285,7 @@ object LiquidityMainModule {
     @Parcelize
     object Safe4LiquidityProvider : SwapMainModule.ISwapProvider {
         override val id get() = "safe4_liquidity"
-        override val title get() = "Safe4"
+        override val title get() = "SafeSwap"
         override val url get() = "https://safecoreswap.com/"
         override val supportsExactOut get() = true
 

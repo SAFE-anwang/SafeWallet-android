@@ -11,5 +11,6 @@ data class SendUiState(
         val addressError: Throwable?,
         val canBeSend: Boolean,
         val showAddressInput: Boolean,
-        val lockTimeInterval: LockTimeInterval? = null
+        val lockTimeInterval: LockTimeInterval? = null,
+        val lockAmountError: Boolean = false
 )

@@ -467,23 +467,23 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                             )
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 4.5.dp, end = 6.5.dp)
-                                .size(24.dp)
-                                .clip(frontShape)
-                                .background(ComposeAppTheme.colors.tyler)
-                        )
                         if (icon.front.url.isSafeIcon()) {
                             Image(painter = painterResource(id = R.drawable.logo_safe_24),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(bottom = 6.dp, end = 6.dp)
-                                    .size(20.dp)
+                                    .size(24.dp)
                                     .clip(frontShape))
                         } else {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 4.5.dp, end = 6.5.dp)
+                                    .size(24.dp)
+                                    .clip(frontShape)
+                                    .background(ComposeAppTheme.colors.tyler)
+                            )
                             CoinImage(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)

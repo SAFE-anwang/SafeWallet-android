@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
+import io.horizontalsystems.bankwallet.core.isCustom
 import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -26,6 +27,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModul
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -160,7 +162,7 @@ object SendEvmModule {
                     )
                     val addressService = SendEvmAddressService(predefinedAddress)
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
-                    val pluginService = SendBitcoinPluginService(wallet.token.blockchainType)
+                    val pluginService = SendBitcoinPluginService(wallet.token.blockchainType, wallet.token.type is TokenType.Native)
 
                     SendEvmViewModel(
                         wallet,

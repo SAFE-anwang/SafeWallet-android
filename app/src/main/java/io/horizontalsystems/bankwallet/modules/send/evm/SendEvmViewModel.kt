@@ -71,6 +71,7 @@ class SendEvmViewModel(
         canBeSend = amountState.canBeSend && addressState.canBeSend,
         showAddressInput = showAddressInput,
         lockTimeInterval = pluginState.lockTimeInterval,
+        lockAmountError = getLockAmountError()
     )
 
     fun onEnterAmount(amount: BigDecimal?) {
@@ -117,5 +118,14 @@ class SendEvmViewModel(
         this.pluginState = pluginState
 
         emitState()
+    }
+
+    private fun getLockAmountError(): Boolean {
+        return if (pluginState.lockTimeInterval != null) {
+            val amount = amountState.amount?.toInt() ?: 0
+            return amount < 1
+        } else {
+            false
+        }
     }
 }

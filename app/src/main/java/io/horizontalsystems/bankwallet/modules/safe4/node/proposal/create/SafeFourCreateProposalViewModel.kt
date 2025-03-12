@@ -38,7 +38,8 @@ class SafeFourCreateProposalViewModel(
 
     override fun createState() = SafeFourProposalModule.SafeFourProposalCreateUiState(
             balance = App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(balance), "SAFE", 2),
-            canSend = validCanSend()
+            canSend = validCanSend(),
+            amountError = (amount?.toInt() ?: 0) / payTimes < 1
     )
 
     private fun validCanSend(): Boolean {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -100,6 +101,16 @@ fun SendEvmScreen(
                 rate = viewModel.coinRate,
                 amountUnique = amountUnique
             )
+            if (uiState.lockAmountError) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    modifier = Modifier.padding(start = 16.dp),
+                    text = stringResource(id = R.string.Safe_Four_Vote_Amount_Error),
+                    color = ComposeAppTheme.colors.redD,
+                    style = ComposeAppTheme.typography.caption,
+                    maxLines = 1,
+                )
+            }
 
             if (uiState.showAddressInput) {
                 Spacer(modifier = Modifier.height(12.dp))
