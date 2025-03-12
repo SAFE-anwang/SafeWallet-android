@@ -46,6 +46,8 @@ class SafeFourCreateProposalViewModel(
         if (description.isNullOrBlank()) return false
         if (amount == null || BigDecimal.ZERO.compareTo(amount) >= 0) return false
         if (startTime == 0L || endTime == 0L || startTime > endTime) return false
+        // payAmount/payTimes >= 1SAFE才能通过
+        if (amount!!.toInt() / payTimes < 1) return false
         return true
     }
 
