@@ -1903,7 +1903,7 @@
     <string name="fallback_block_title">区块回退</string>
     <string name="fallback_block_alert_title">%s区块回退</string>
     <string name="fallback_block_time_1">高度: 5639934 (2024-3)</string>
-    <string name="fallback_block_time_2">高度: 5178101 (2023-9)</string>
+    <string name="fallback_block_time_2">高度: 6309931 (2024-12)</string>
     <string name="fallback_block_time_3">高度: 5400104 (2023-12)</string>
     <string name="fallback_block_time_4">高度: 5400104 (2023-12)</string>
     <string name="fallback_block_time_5">高度: 4246017 (2022-10)</string>
