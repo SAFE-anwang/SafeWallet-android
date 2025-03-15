@@ -173,7 +173,7 @@ fun SafeFourCreateProposalScreen(
 				Spacer(modifier = Modifier.height(12.dp))
 				Text(
 					modifier = Modifier.padding(start = 16.dp),
-					text = stringResource(id = R.string.Safe_Four_Vote_Amount_Error),
+					text = stringResource(id = R.string.Safe_Four_Proposal_Amount_Error),
 					color = ComposeAppTheme.colors.redD,
 					style = ComposeAppTheme.typography.caption,
 					maxLines = 1,

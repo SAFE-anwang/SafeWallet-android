@@ -2352,6 +2352,7 @@
     <string name="Safe_Four_Node_Partner">Partner</string>
     <string name="Safe_Four_Node_Creator">Creator</string>
     <string name="Safe_Four_Vote_Amount_Error">Enter at least one coin</string>
+    <string name="Safe_Four_Proposal_Amount_Error">Ensure that at least 1 coin is issued each time by inputting the number of coins</string>
 
     <string name="Safe_Four_Proposal_All">All Proposal</string>
     <string name="Safe_Four_Proposal_Mine">Mine Proposal</string>
