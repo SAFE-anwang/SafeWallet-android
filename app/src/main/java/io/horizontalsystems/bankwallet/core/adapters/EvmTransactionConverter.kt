@@ -166,6 +166,19 @@ class EvmTransactionConverter(
 
             is UnknownTransactionDecoration -> {
                 val address = evmKit.receiveAddress
+                val methodId = transaction.input?.take(4)?.toByteArray()?.toHexString()
+                // Safe4 cross
+                if (transaction.from == address && (methodId == "0x6273633a" || methodId == "0x6574683a" || methodId == "0x6d617469")) {
+
+                    // sender
+                    return EvmOutgoingTransactionRecord(transaction, baseToken, source, decoration.toAddress!!.eip55, baseCoinValue(decoration.value!!, true), decoration.toAddress == address)
+                }
+                if (transaction.to == address && (methodId == "0x6269643a" || methodId == "0x6569643a" || methodId == "0x6d69643a")) {
+
+                    // sender
+                    return EvmIncomingTransactionRecord(transaction, baseToken, source, spamManager, decoration.fromAddress!!.eip55, baseCoinValue(decoration.value!!, false))
+//                    return EvmOutgoingTransactionRecord(transaction, baseToken, source, decoration.toAddress!!.eip55, baseCoinValue(decoration.value!!, true), decoration.toAddress == address)
+                }
 
                 val internalTransactions = decoration.internalTransactions.filter { it.to == address }
 

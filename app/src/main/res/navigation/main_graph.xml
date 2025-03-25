@@ -603,4 +603,15 @@
         android:id="@+id/addLockDayFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.node.addlockday.AddLockDayFragment" />
 
+    <fragment
+        android:id="@+id/sendWsafe4ConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.confirmation.SendWsafe4ConfirmationFragment"/>
+
+    <fragment
+        android:id="@+id/sendWSafe4Fragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.Safe4ConvertSendFragment" >
+        <action
+            android:id="@+id/sendEvmFragment_to_sendSafe4ConfirmationFragment"
+            app:destination="@id/sendWsafe4ConfirmationFragment" />
+    </fragment>
 </navigation>

@@ -53,6 +53,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
 
+    val safe4EthContract = "https://etherscan.io/token/0x96f59C9D155d598d4f895F07dd6991cCB5FA7DC7"
+    val safe4BSCContract = "https://bscscan.com/token/0x7756B490d4Ce394bB6FBA5559C10a8eDc7b102Fc"
+    val safe4MaticContract = "https://polygonscan.com/address/0x8b151740b4a5B2bF7dA631AAD83Be627f97F5790"
+
     private val testSafe4Api = "https://safe4testnet.anwang.com/api/"
     private val mainSafe4Api = "https://safe4.anwang.com/api/"
 
