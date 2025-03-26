@@ -180,8 +180,7 @@ object SendEvmModule {
                         service,
                         fiatService,
                         switchService,
-                        clearables = listOf(service, fiatService, switchService),
-                        isAddFee = chain == Chain.Ethereum
+                        clearables = listOf(service, fiatService, switchService)
                     ) as T
                 }
                 SendAvailableBalanceViewModel::class.java -> {
