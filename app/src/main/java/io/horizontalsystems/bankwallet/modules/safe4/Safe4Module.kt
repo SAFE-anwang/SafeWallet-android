@@ -27,6 +27,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendA
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 object Safe4Module {
@@ -185,13 +186,16 @@ object Safe4Module {
 //            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
             if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
                 safeWallet = it
-            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum && it.coin.uid.startsWith("custom-ethereum")) {
+            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum
+                && it.coin.uid == SafeExtend.SAFE4_ERC_COIN_UID) {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
-            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain && it.coin.uid.startsWith("custom-binance-smart-chain")) {
+            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain
+                && it.coin.uid == SafeExtend.SAFE4_BEP20_COIN_UID) {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
-            } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon && (it.coin.uid.startsWith("custom-polygon"))) {
+            } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon
+                && it.coin.uid == SafeExtend.SAFE4_MATIC_COIN_UID) {
                 wsafeWallet = it
             }
         }

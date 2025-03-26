@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.customCoinPrefix
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.MarketKit
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.SyncInfo
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.CoinPrice
@@ -131,7 +132,7 @@ class MarketKitWrapper(
         if (coinUid.isCustomCoin) null else marketKit.coinPrice(coinUid, currencyCode)
 
     fun coinPriceMap(coinUids: List<String>, currencyCode: String): Map<String, CoinPrice> {
-        val coinUidsNoCustom = coinUids.removeCustomCoins()
+        val coinUidsNoCustom = coinUids.removeCustomCoins() + listOf(SafeExtend.SAFE4_ERC_COIN_UID, SafeExtend.SAFE4_MATIC_COIN_UID, SafeExtend.SAFE4_BEP20_COIN_UID)
         return when {
             coinUidsNoCustom.isEmpty() -> mapOf()
             else -> marketKit.coinPriceMap(coinUidsNoCustom, currencyCode)
