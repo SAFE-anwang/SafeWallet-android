@@ -46,7 +46,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
@@ -630,12 +629,10 @@ fun <T> LazyListScope.wallets(
     key: ((item: T) -> Any)? = null,
     itemContent: @Composable (LazyItemScope.(item: T) -> Unit),
 ) {
-    Log.e("longwen", "wallets")
     item {
         VSpacer(height = 8.dp)
     }
     items(items = items, key = key, itemContent = {
-        Log.e("longwen", "$key")
         Row(modifier = Modifier.padding(bottom = 8.dp)) {
             itemContent(it)
         }
