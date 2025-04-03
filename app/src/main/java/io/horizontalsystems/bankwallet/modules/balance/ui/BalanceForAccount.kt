@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -193,6 +194,7 @@ fun BalanceForAccount(navController: NavController, accountViewItem: AccountView
                     .fillMaxSize(),
                 label = ""
             ) { viewState ->
+                Log.d("longwen", "$viewState, ${uiState.balanceViewItems.size}")
                 when (viewState) {
                     ViewState.Success -> {
                         val balanceViewItems = uiState.balanceViewItems

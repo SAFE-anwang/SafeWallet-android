@@ -147,7 +147,7 @@ class LiquidityMainViewModel(
     private var refocusKey = UUID.randomUUID().leastSignificantBits
 
     var sendStateObservable = SingleLiveEvent<SendEvmTransactionService.SendState>()
-
+    var refreshState = false
 
     var swapState by mutableStateOf(
         LiquidityMainModule.SwapState(
@@ -270,12 +270,14 @@ class LiquidityMainViewModel(
 
     private fun getTradeService(provider: SwapMainModule.ISwapProvider): LiquidityMainModule.ISwapTradeService = when (provider) {
         LiquidityMainModule.PancakeLiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        LiquidityMainModule.Safe4LiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
         else -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
     }
 
     private fun getSpenderAddress(provider: SwapMainModule.ISwapProvider) = when (provider) {
 //        SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
         LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
+        LiquidityMainModule.Safe4LiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
         else -> uniswapKit.routerAddress(evmKit.chain)
     }
 
@@ -306,6 +308,12 @@ class LiquidityMainViewModel(
             syncSwapDataState()
         }
         tradeServiceB.stateFlow.collectWith(viewModelScope) { state ->
+            if (state is SwapResultState.NotReady && refreshState) {
+                resyncSwapData()
+            }
+            if (state is SwapResultState.Ready) {
+                refreshState = false
+            }
             syncSwapDataState()
         }
 
@@ -348,6 +356,7 @@ class LiquidityMainViewModel(
                     is SwapData.UniswapData -> {
                         tradeView = uniswapTradeViewItem(swapData, fromTokenService.token, toTokenService.token)
                         if (exactType == ExactType.ExactFrom) {
+                            refreshState = true
                             amountTo = swapData.data.amountOut
                             toTokenService.onChangeAmount(swapData.data.amountOut.toString(), true)
                         } else {
@@ -487,10 +496,10 @@ class LiquidityMainViewModel(
     private fun syncButtonsState() {
         val revokeAction1 = getRevokeActionState()
         val approveAction1 = getApproveActionState(revokeAction1)
-        val proceedAction = getProceedActionState(revokeAction1)
 
         val revokeAction2 = getRevokeActionState2()
         val approveAction2 = getApproveActionState2(revokeAction2)
+        val proceedAction = getProceedActionState(revokeAction2)
 
         buttons = SwapMainModule.SwapButtons2(revokeAction1, revokeAction2, approveAction1, approveAction2, proceedAction)
         syncUiState()

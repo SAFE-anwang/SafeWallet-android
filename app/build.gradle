@@ -75,10 +75,8 @@ android {
             applicationIdSuffix ".dev"
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "0c91eab4cc774d3887f218376a725da2"
-            resValue "string", "infuraSecretKey", "8adb3155a2df42dd9db26ce311ec74b3"
-            resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
-            resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
+            resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
+            resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
             resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "GKNHXT22ED7PRVCKZATFZQD1YI7FK9AAYE"
@@ -109,13 +107,16 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "d98d5186f513a943fbbff4a755957fbf"
             resValue "string", "walletConnectV2Key1", "45b825481aab1907c73ff9499f199070"
-            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQyMTQ4NDAsImVtYWlsIjoiaHJ6c3lzdGVtczEwMUBnbWFpbC5jb20iLCJhY3Rpb24iOiJ0b2tlbi1hcGkiLCJpYXQiOjE2Nzk0NjQyMTR9.BRM7J9RbDpHgd2oMAus00XfWOxTJgV2Tn2_chXZOdtk"
+            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE3Mzc0NDMwMjMzMTIsImVtYWlsIjoiMTgxMzgyNDgxNjlAMTYzLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImFwaVZlcnNpb24iOiJ2MiIsImlhdCI6MTczNzQ0MzAyM30.FyLCMRfZJ0AiYzXFFPTmbUtYdu29u7PPCPV-txXbToM"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
-            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "blocksDecodedEthereumRpc", "https://ethereum-mainnet.core.chainstack.com/a1911ee247f4f8de22c1f4e55865f616"
+            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
+            resValue "string", "safeswapv2safe4factory", "0xB3c827077312163c53E3822defE32cAffE574B42"
+            resValue "string", "safeswapv2safe4codehash", "ad0e51aa7a058efb9eb40fd6385473f0175ee7419e8d4f91a4e0294ec12b2d13"
+            resValue "string", "safeswapv2safe4router", "0x6476008C612dF9F8Db166844fFE39D24aEa12271"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -133,10 +134,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC"
             resValue "string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2"
-            resValue "string", "infuraProjectId", "0c91eab4cc774d3887f218376a725da2"
-            resValue "string", "infuraSecretKey", "8adb3155a2df42dd9db26ce311ec74b3"
-            resValue "string", "infuraProjectId2", "4b031bf12fd747a48d894d3ed9f7876a"
-            resValue "string", "infuraSecretKey2", "4434ee76266e48ccab22e86d18020a61"
+            resValue "string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea"
+            resValue "string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg"
             resValue "string", "infuraProjectId3", "99e0b89d9f3d45c98cc95c0a47aeb837"
             resValue "string", "infuraSecretKey3", "f66154c66d024b5e80a7165d09d5fb6d"
             resValue "string", "etherscanKey", "FJBFQ5BF7BUQZNQBH4ZZFQ9D98UJI6Y7K1"
@@ -167,13 +166,16 @@ android {
             resValue "string", "openSeaApiKey", "bfbd6061a33e455c8581b594774fecb3"
             resValue "string", "walletConnectV2Key", "d98d5186f513a943fbbff4a755957fbf"
             resValue "string", "walletConnectV2Key1", "45b825481aab1907c73ff9499f199070"
-            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE2Nzk0NjQxMTQ0ODUsImVtYWlsIjoiaHNkYW84ODg4QGdtYWlsLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImlhdCI6MTY3OTQ2NDExNH0.91DUjjjYu86f1ZMMJ5cyJxIKTTw_srhI-vNgYaTCPUU"
+            resValue "string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE3Mzc0NDMwMjMzMTIsImVtYWlsIjoiMTgxMzgyNDgxNjlAMTYzLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImFwaVZlcnNpb24iOiJ2MiIsImlhdCI6MTczNzQ0MzAyM30.FyLCMRfZJ0AiYzXFFPTmbUtYdu29u7PPCPV-txXbToM"
             resValue "string", "trongridApiKeys", "28707d45-386e-4968-81a7-e8f0d036005e"
             resValue "string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz"
-            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "blocksDecodedEthereumRpc", "https://ethereum-mainnet.core.chainstack.com/a1911ee247f4f8de22c1f4e55865f616"
+            resValue "string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl"
             resValue "string", "oneInchApiKey2", "eJ6FPSDW5z2vKD6oEcjQwnzFzvQ6nXgZ"
             resValue "string", "oneInchApiKey3", "6oMuaUZbbjSSzIvHJB4YodfvQItpBrlY"
+            resValue "string", "safeswapv2safe4factory", "0xB3c827077312163c53E3822defE32cAffE574B42"
+            resValue "string", "safeswapv2safe4codehash", "ad0e51aa7a058efb9eb40fd6385473f0175ee7419e8d4f91a4e0294ec12b2d13"
+            resValue "string", "safeswapv2safe4router", "0x6476008C612dF9F8Db166844fFE39D24aEa12271"
             ndk.abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
 
@@ -349,7 +351,7 @@ dependencies {
     implementation 'com.github.horizontalsystems:ton-kit-android:763a5c3'
     implementation 'com.github.horizontalsystems:blockchain-fee-rate-kit-android:1d3bd49'
     implementation 'com.github.horizontalsystems:binance-chain-kit-android:c1509a2'
-    implementation 'com.github.horizontalsystems:solana-kit-android:ce738d8'
+//    implementation 'com.github.horizontalsystems:solana-kit-android:ce738d8'
     implementation 'com.github.horizontalsystems:tron-kit-android:dc3dca7'
 
 //    implementation 'com.github.horizontalsystems:ethereum-kit-android:c4d24ef'
@@ -359,6 +361,7 @@ dependencies {
     implementation project(':ethereum-kit-android:oneinchkit')
     implementation project(':ethereum-kit-android:nftkit')
     implementation project(':ethereum-kit-android:wsafekit')
+    implementation project(':solana-kit-android:solanakit')
 
 //    implementation 'com.github.horizontalsystems:market-kit-android:6d48ad0'
     implementation project(':market-kit-android:marketkit')

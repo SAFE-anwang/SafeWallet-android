@@ -103,8 +103,9 @@ class SafeFourProposalModule {
     )
 
     data class SafeFourProposalCreateUiState(
-            val balance: String,
-            val canSend: Boolean
+        val balance: String,
+        val canSend: Boolean,
+        val amountError: Boolean = false
     )
 
     @Parcelize

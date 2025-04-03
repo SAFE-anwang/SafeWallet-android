@@ -210,6 +210,7 @@ object LiquidityListModule {
     }
 
     enum class Tab(@StringRes val titleResId: Int) {
+        SAFE4(R.string.Liquidity_Tab_SAFE4),
         BSC(R.string.Liquidity_Tab_BSC),
         ETH(R.string.Liquidity_Tab_ETH);
 

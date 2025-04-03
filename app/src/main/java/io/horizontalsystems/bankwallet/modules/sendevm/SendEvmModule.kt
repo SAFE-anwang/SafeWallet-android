@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.sendevm
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
@@ -11,9 +12,13 @@ import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.Safe4ConvertSendViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.Safe4ConvertService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
@@ -125,15 +130,46 @@ object SendEvmModule {
     }
 
 
-    class WsafeFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
+    class WsafeFactory(private val wallet: Wallet, private val isSafe4: Boolean) : ViewModelProvider.Factory {
         private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
-        private val service by lazy { SendWsafeService(wallet.token, adapter) }
+        private val service by lazy { SendWsafeService(wallet.token, adapter, isSafe4) }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
                 SendWsafeViewModel::class.java -> {
-                    SendWsafeViewModel(service, listOf(service)) as T
+                    SendWsafeViewModel(service, listOf(service), isSafe4) as T
+                }
+                AmountInputViewModel::class.java -> {
+                    val switchService = AmountTypeSwitchServiceSendEvm()
+                    val fiatService = FiatServiceSendEvm(switchService, App.currencyManager, App.marketKit)
+                    switchService.add(fiatService.toggleAvailableObservable)
+                    AmountInputViewModel(
+                        service,
+                        fiatService,
+                        switchService,
+                        clearables = listOf(service, fiatService, switchService)
+                    ) as T
+                }
+                SendAvailableBalanceViewModel::class.java -> {
+                    val coinService = EvmCoinService(wallet.token, App.currencyManager, App.marketKit)
+                    SendAvailableBalanceViewModel(service, coinService, listOf(service, coinService)) as T
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+    }
+
+
+    class Safe4Factory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
+        private val adapter by lazy {App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val service by lazy { Safe4ConvertService(wallet.token, adapter, chain) }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return when (modelClass) {
+                Safe4ConvertSendViewModel::class.java -> {
+                    Safe4ConvertSendViewModel(service, listOf(service)) as T
                 }
                 AmountInputViewModel::class.java -> {
                     val switchService = AmountTypeSwitchServiceSendEvm()
@@ -160,6 +196,15 @@ object SendEvmModule {
     data class Input(
             val safeWallet: Wallet,
             val wSafeWallet: Wallet,
+            val isEth: Boolean,
+            val isMatic: Boolean,
+            val isSafe4: Boolean = false
+    ) : Parcelable
+
+    @Parcelize
+    data class InputSafe4(
+            val safeWallet: Wallet,
+            val chain: Chain,
             val isEth: Boolean,
             val isMatic: Boolean
     ) : Parcelable

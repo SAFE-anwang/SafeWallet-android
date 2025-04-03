@@ -154,11 +154,12 @@ class SendEvmTransactionService(
         logger.info("sending tx")
         GlobalScope.launch {
             try {
-                val web3j: Web3j = Connect.connect(evmKitWrapper.evmKit.chain == Chain.Ethereum)
-                val routerAddress = if (evmKitWrapper.evmKit.chain == Chain.Ethereum) {
-                    Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
-                } else {
-                    Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                val web3j: Web3j = Connect.connect(evmKitWrapper.evmKit.chain)
+                val routerAddress = when (evmKitWrapper.evmKit.chain) {
+                    Chain.Ethereum -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+                    Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                    Chain.SafeFour -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
+                    else -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
                 }
                 val gasPrice: BigInteger = web3j.ethGasPrice()
                         .send()
@@ -167,7 +168,12 @@ class SendEvmTransactionService(
                     web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
                         routerAddress,
                     sendEvmData.transactionData.input.toHexString(),
-                    BigInteger.ZERO, nonce.toBigInteger(),
+                    if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                        sendEvmData.transactionData.value
+                    } else {
+                        BigInteger.ZERO
+                    },
+                    nonce.toBigInteger(),
                         gasPrice,
                     BigInteger("500000") // GAS LIMIT
                 )

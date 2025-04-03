@@ -279,7 +279,7 @@ object SwapMainModule {
         override val supportsExactOut get() = true
 
         override fun supports(blockchain: BlockchainType): Boolean {
-            return  blockchain == BlockchainType.Ethereum || blockchain == BlockchainType.BinanceSmartChain
+            return  blockchain == BlockchainType.Ethereum || blockchain == BlockchainType.BinanceSmartChain || blockchain == BlockchainType.SafeFour
         }
     }
 

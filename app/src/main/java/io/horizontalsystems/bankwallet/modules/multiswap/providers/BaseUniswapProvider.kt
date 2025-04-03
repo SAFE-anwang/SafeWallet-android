@@ -18,6 +18,7 @@ import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.models.TradeData
 import io.horizontalsystems.uniswapkit.models.TradeOptions
@@ -127,6 +128,7 @@ abstract class BaseUniswapProvider : EvmSwapProvider() {
         val blockchainType = tokenIn.blockchainType
         val evmBlockchainHelper = EvmBlockchainHelper(blockchainType)
         val chain = evmBlockchainHelper.chain
+        Extensions.isSafeSwap = chain == Chain.SafeFour
         val rpcSourceHttp = evmBlockchainHelper.getRpcSourceHttp()
 
         val settingRecipient = SwapSettingRecipient(settings, blockchainType)

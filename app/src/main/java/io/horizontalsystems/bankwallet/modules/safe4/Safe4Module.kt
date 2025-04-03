@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Modul
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
+import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 object Safe4Module {
@@ -134,6 +137,89 @@ object Safe4Module {
             navController.slideFromBottom(
                 R.id.sendWsafeFragment,
                 SendEvmModule.Input(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.MATIC)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    fun handlerSafe42eth(chainType: ChainType, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        var chain: Chain = Chain.Ethereum
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe4"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (chainType == ChainType.ETH) {
+            chain = Chain.Ethereum
+        } else if (chainType == ChainType.BSC) {
+            chain = Chain.BinanceSmartChain
+        } else if (chainType == ChainType.MATIC) {
+            chain = Chain.Polygon
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromBottom(
+                R.id.sendWSafe4Fragment,
+                SendEvmModule.InputSafe4(safeWallet, chain,chainType == ChainType.ETH, chainType == ChainType.MATIC)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun handlerEth2safe4(chainType: ChainType, navController: NavController) {
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        var wsafeWallet: Wallet? = null
+        for (it in walletList) {
+//            Log.i("safe4", "---coinType = ${it.coinType} ---uid = ${it.coin.uid} ---chainType = $chainType")
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+                safeWallet = it
+            } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum
+                && it.coin.uid == SafeExtend.SAFE4_ERC_COIN_UID) {
+                wsafeWallet = it
+//                Log.i("safe4", "---erc20---")
+            } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain
+                && it.coin.uid == SafeExtend.SAFE4_BEP20_COIN_UID) {
+                wsafeWallet = it
+//                Log.i("safe4", "---bep20---")
+            } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon
+                && it.coin.uid == SafeExtend.SAFE4_MATIC_COIN_UID) {
+                wsafeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (wsafeWallet == null) {
+            if (chainType == ChainType.ETH) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
+            } else if (chainType == ChainType.BSC) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
+            } else if (chainType == ChainType.MATIC) {
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe Matic"), Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(wsafeWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromBottom(
+                R.id.sendWsafeFragment,
+                SendEvmModule.Input(safeWallet, wsafeWallet, chainType == ChainType.ETH, chainType == ChainType.MATIC, true)
             )
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()

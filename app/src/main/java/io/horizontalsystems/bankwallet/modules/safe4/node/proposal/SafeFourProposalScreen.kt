@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,7 +108,7 @@ fun LazyListScope.proposalList(
 		itemsIndexed(
 				items = nodeList,
 				key = { _, item ->
-					item.id
+					item.index
 				}
 		) { index, item ->
 			val position: SectionItemPosition = when {

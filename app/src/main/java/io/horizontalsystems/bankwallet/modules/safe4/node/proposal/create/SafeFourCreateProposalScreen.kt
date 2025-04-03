@@ -169,6 +169,17 @@ fun SafeFourCreateProposalScreen(
 				}
 			}
 
+			if (uiState.amountError) {
+				Spacer(modifier = Modifier.height(12.dp))
+				Text(
+					modifier = Modifier.padding(start = 16.dp),
+					text = stringResource(id = R.string.Safe_Four_Proposal_Amount_Error),
+					color = ComposeAppTheme.colors.redD,
+					style = ComposeAppTheme.typography.caption,
+					maxLines = 1,
+				)
+			}
+
 			Spacer(modifier = Modifier.height(12.dp))
 			body_bran( text = stringResource(id = R.string.Safe_Four_Proposal_Info_Issuance_Method_2))
 			Column(

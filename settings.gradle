@@ -32,6 +32,9 @@ include ':ethereum-kit-android:oneinchkit'
 include ':ethereum-kit-android:nftkit'
 include ':ethereum-kit-android:wsafekit'
 
+includeFlat 'solana-kit-android'
+include ':solana-kit-android:solanakit'
+
 include ':vpn'
 
 include 'telegram:TMessagesProj'

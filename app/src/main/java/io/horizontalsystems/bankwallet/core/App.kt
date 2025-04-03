@@ -116,6 +116,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCWalletRequestHandler
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionStorage
+import io.horizontalsystems.bankwallet.net.ApiKeyUtil
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetManager
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetRepository
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetWorker
@@ -127,6 +128,7 @@ import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.marketkit.MarketKit
+import io.horizontalsystems.uniswapkit.TradeManager
 import io.reactivex.plugins.RxJavaPlugins
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -258,6 +260,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         val appConfig = AppConfigProvider(Random().nextInt(3), localStorage)
         appConfigProvider = appConfig
+        TradeManager.safeSwapv2Safe4Router = appConfigProvider.safeSwapv2Safe4Router
+        TradeManager.safeSwapv2Safe4Factory = appConfigProvider.safeSwapv2Safe4Factory
+        TradeManager.safeSwapv2Safe4CodeHash = appConfigProvider.safeSwapv2Safe4CodeHash
 
         torKitManager = TorManager(instance, localStorage)
         subscriptionManager = SubscriptionManager()
@@ -611,6 +616,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
     private fun startTasks() {
         coroutineScope.launch {
+            ApiKeyUtil.initApiKey()
             EthereumKit.init()
             adapterManager.startAdapterManager()
             marketKit.sync()

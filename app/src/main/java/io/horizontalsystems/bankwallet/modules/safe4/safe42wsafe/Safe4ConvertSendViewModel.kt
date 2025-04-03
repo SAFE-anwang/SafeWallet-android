@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
+package io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe
 
 import android.widget.Toast
 import androidx.compose.runtime.getValue
@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
+import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
@@ -22,10 +23,9 @@ import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 
-class SendWsafeViewModel(
-    val service: SendWsafeService,
-    private val clearables: List<Clearable>,
-    private val isSafe4: Boolean = false
+class Safe4ConvertSendViewModel(
+    val service: Safe4ConvertService,
+    private val clearables: List<Clearable>
 ) : ViewModel() {
 
     var error by mutableStateOf<Throwable?>(null)
@@ -51,7 +51,10 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        (service.state as? Safe4ConvertService.State.Ready)?.let { readyState ->
+            proceedLiveEvent.postValue(readyState.sendData)
+        }
+        /*val safeInfoPO = SafeInfoManager.getSafeInfo()
         if ((isMatic && !safeInfoPO.matic.matic2safe) || !safeInfoPO.eth.eth2safe) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
@@ -63,14 +66,14 @@ class SendWsafeViewModel(
             (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
                 proceedLiveEvent.postValue(readyState.sendData)
             }
-        }
+        }*/
     }
 
-    private fun sync(state: SendWsafeService.State) {
-        proceedEnabledLiveData.postValue(state is SendWsafeService.State.Ready)
+    private fun sync(state: Safe4ConvertService.State) {
+        proceedEnabledLiveData.postValue(state is Safe4ConvertService.State.Ready)
     }
 
-    private fun sync(amountCaution: SendWsafeService.AmountCaution) {
+    private fun sync(amountCaution: Safe4ConvertService.AmountCaution) {
         var caution: Caution? = null
         if (amountCaution.error?.convertedError != null) {
             var text =
@@ -79,7 +82,7 @@ class SendWsafeViewModel(
                 text = "获取手续费异常，请稍等"
             }
             caution = Caution(text, Caution.Type.Error)
-        } else if (amountCaution.amountWarning == SendWsafeService.AmountWarning.CoinNeededForFee) {
+        } else if (amountCaution.amountWarning == Safe4ConvertService.AmountWarning.CoinNeededForFee) {
             caution = Caution(
                 Translator.getString(
                     R.string.EthereumTransaction_Warning_CoinNeededForFee, service.sendCoin.coin.code
@@ -97,52 +100,12 @@ class SendWsafeViewModel(
         SafeInfoManager.clear()
     }
 
-    fun onEnterAddress(wsafeWallet: Wallet, safeWallet: Wallet, address: Address?) {
-        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(wsafeWallet) ?: throw ReceiveModule.NoReceiverAdapter()
+    fun onEnterAddress(safeWallet: Wallet, address: Address?) {
+        val receiveAdapter = App.adapterManager.getReceiveAdapterForWallet(safeWallet) ?: throw ReceiveModule.NoReceiverAdapter()
         Log.i("safe4", "---receiveAdapter = ${receiveAdapter.receiveAddress}")
         val ethAddr = Address(receiveAdapter.receiveAddress, null)
         // 设置钱包的ETH地址为交易的接收地址
         service.setRecipientAddress(ethAddr, address)
-        if (isSafe4) {
-            validateSafe4(address)
-        } else {
-            // 验证地址是否Safe
-            validateSafe(safeWallet, address)
-        }
-    }
-
-    fun validateSafe(wallet: Wallet, address: Address?) {
-        val adapter = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
-            is ISendSafeAdapter -> {
-                adapter
-            } else -> {
-                throw Exception("No adapter found!")
-            }
-        }
-        error = null
-        address?.hex?.let {
-            try {
-                adapter.validateSafe(it)
-                service.addressEnable = true
-            } catch (e: Exception) {
-                service.addressEnable = false
-                error = AddressValidationException.Invalid(e)
-            }
-        }
-    }
-
-
-    fun validateSafe4(address: Address?) {
-        error = null
-        address?.hex?.let {
-            try {
-                AddressValidator.validate(it)
-                service.addressEnable = true
-            } catch (e: Exception) {
-                service.addressEnable = false
-                error = AddressValidationException.Invalid(e)
-            }
-        }
     }
 
 

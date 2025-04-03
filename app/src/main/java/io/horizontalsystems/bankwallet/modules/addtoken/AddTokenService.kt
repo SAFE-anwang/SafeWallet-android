@@ -34,7 +34,8 @@ class AddTokenService(
         BlockchainType.ArbitrumOne,
         BlockchainType.Optimism,
         BlockchainType.Base,
-        BlockchainType.Solana
+        BlockchainType.Solana,
+        BlockchainType.SafeFour,
     )
 
     val blockchains = marketKit

@@ -19,11 +19,6 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.concurrent.Executors
 
-enum class LiquidityPendingAllowanceState {
-    NA, Revoking, Revoked, Approving, Approved;
-
-    fun loading() = this == Revoking || this == Approving
-}
 
 class LiquidityPendingAllowanceService(
     private val adapterManager: IAdapterManager,

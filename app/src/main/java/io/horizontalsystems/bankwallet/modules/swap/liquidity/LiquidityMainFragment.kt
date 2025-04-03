@@ -307,17 +307,15 @@ fun SwapCards(
             ActionButtons2(
                 buttons = buttons,
                 onTapRevoke1 = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApprove()
-                        }
-                    }
-
                     viewModel.revokeEvmData?.let { revokeEvmData ->
-                        navController.slideFromBottom(
+                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                             R.id.swapApproveConfirmationFragment,
                             SwapApproveConfirmationModule.Input(revokeEvmData, swapState.dex.blockchainType, false)
-                        )
+                        ) {
+                            if (it.approved) {
+                                viewModel.didApprove()
+                            }
+                        }
                     }
                 },
                 onTapApprove1 = {
@@ -339,25 +337,19 @@ fun SwapCards(
                                 SwapApproveConfirmationModule.Input(revokeEvmData, swapState.dex.blockchainType, false)
                         ) {
                             if (it.approved) {
-                                viewModel.didApprove()
+                                viewModel.didApproveB()
                             }
                         }
                     }
                 },
                 onTapApprove2 = {
-                    navController.getNavigationResult(SwapApproveModule.requestKey) {
-                        if (it.getBoolean(SwapApproveModule.resultKey)) {
-                            viewModel.didApproveB()
-                        }
-                    }
-
                     viewModel.approveDataB?.let { data ->
                         navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                                 R.id.swapApproveFragment,
                                 data
                         ) {
                             if (it.approved) {
-                                viewModel.didApprove()
+                                viewModel.didApproveB()
                             }
                         }
                     }

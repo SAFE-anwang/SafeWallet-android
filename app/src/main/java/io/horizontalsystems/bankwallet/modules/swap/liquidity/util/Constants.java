@@ -2,6 +2,9 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity.util;
 
 import java.math.BigInteger;
 
+import io.horizontalsystems.bankwallet.core.App;
+import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider;
+
 public class Constants {
 
     public static final String NULL_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -46,6 +49,11 @@ public class Constants {
 
         public static final String UNISWAP_V2_FACTORY_ADDRESS = "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f";
 
+
+        public static final String SAFESWAP_SAFE4_V2_ROUTER_ADDRESS = App.appConfigProvider.getSafeSwapv2Safe4Router();
+
+        public static final String SAFESWAP_SAFE4_V2_FACTORY_ADDRESS = App.appConfigProvider.getSafeSwapv2Safe4Factory();
+
     }
 
     public static class INIT_CODE_HASH {
@@ -55,6 +63,8 @@ public class Constants {
         public static final String SAFE_SWAP_FACTORY_INIT_CODE_HASH = "0xad0e51aa7a058efb9eb40fd6385473f0175ee7419e8d4f91a4e0294ec12b2d13";
 
         public static final String UNI_SWAP_FACTORY_INIT_CODE_HASH = "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f";
+
+        public static final String SAFE_SWAP_SAFE4_FACTORY_INIT_CODE_HASH = App.appConfigProvider.getSafeSwapv2Safe4CodeHash();
 
     }
 

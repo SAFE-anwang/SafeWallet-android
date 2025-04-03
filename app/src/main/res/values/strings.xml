@@ -2199,6 +2199,12 @@
     <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe2safe_matic">SAFE MATIC=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_erc20">SAFE4=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe42safe_erc20">SAFE ERC20=>SAFE4</string>
+    <string name="Safe4_Title_safe42wsafe_bep20">SAFE4=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE4</string>
+    <string name="Safe4_Title_safe42wsafe_matic">SAFE4=>SAFE MATIC</string>
+    <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE4</string>
     <string name="Safe4_Locked">Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
@@ -2259,6 +2265,12 @@
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
     <string name="Safe4_Safe_Matic_Pancakeswap">SAFE@quickswap</string>
 
+    <string name="Safe4_Safe4_ETH_Contract">SAFE contract</string>
+    <string name="Safe4_Safe4_ETH_Uniswap">SAFE@uniswapv2</string>
+    <string name="Safe4_Safe4_BSC_Contract">SAFE contract</string>
+    <string name="Safe4_Safe4_BSC_Pancakeswap">SAFE@pancakeswap</string>
+    <string name="Safe4_Safe4_Matic_Pancakeswap">SAFE@quickswap</string>
+
 
     <string name="Restore_Select_Wallet">Select wallet</string>
     <string name="Restore_Enter_Key_Title_HD">Enter mnemonic</string>
@@ -2304,7 +2316,7 @@
     <string name="fallback_block_title">block fallback</string>
     <string name="fallback_block_alert_title">%s block fallback</string>
     <string name="fallback_block_time_1">Height: 5639934 (2024-3)</string>
-    <string name="fallback_block_time_2">Height: 5178101 (2023-9)</string>
+    <string name="fallback_block_time_2">Height: 6309931 (2024-12)</string>
     <string name="fallback_block_time_3">Height: 5400104 (2023-12)</string>
     <string name="fallback_block_time_4">Height: 5400104 (2023-12)</string>
     <string name="fallback_block_time_5">Height: 4246017 (2022-10)</string>
@@ -2341,9 +2353,10 @@
     <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
     <string name="Liquidity_Add">Add</string>
     <string name="Liquidity_Add_Success">Add success</string>
+    <string name="Liquidity_Tab_SAFE4">SAFE4</string>
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>
-    <string name="qutoe_expire_hint">报价即将过期</string>
+    <string name="qutoe_expire_hint">The quotation is about to expire</string>
     <string name="Send_Safe_Four_Hodler_Description">TimeLock works only for sending to Safe 4 (starting with 1)</string>
 
     <!-- safe 4  start-->
@@ -2431,6 +2444,8 @@
     <string name="Safe_Four_Node_Join">Join Partner</string>
     <string name="Safe_Four_Node_Partner">Partner</string>
     <string name="Safe_Four_Node_Creator">Creator</string>
+    <string name="Safe_Four_Vote_Amount_Error">Enter at least one coin</string>
+    <string name="Safe_Four_Proposal_Amount_Error">Ensure that at least 1 coin is issued each time by inputting the number of coins</string>
 
     <string name="Safe_Four_Proposal_All">All Proposal</string>
     <string name="Safe_Four_Proposal_Mine">Mine Proposal</string>
@@ -2556,6 +2571,7 @@
     <string name="Method_Node_Status_Upload">Node status upload</string>
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
+    <string name="Method_Add_Liquidity">Add Liquidity</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE4 Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>

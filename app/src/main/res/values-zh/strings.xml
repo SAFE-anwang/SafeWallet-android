@@ -1767,6 +1767,12 @@
     <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe2safe_matic">SAFE MATIC=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_erc20">SAFE4=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe42safe_erc20">SAFE ERC20=>SAFE4</string>
+    <string name="Safe4_Title_safe42wsafe_bep20">SAFE4=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE4</string>
+    <string name="Safe4_Title_safe42wsafe_matic">SAFE4=>SAFE MATIC</string>
+    <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE4</string>
     <string name="Safe4_Locked">锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>
@@ -1825,6 +1831,12 @@
     <string name="Safe4_Safe_BSC_Contract">SAFE合约</string>
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
     <string name="Safe4_Safe_Matic_Pancakeswap">SAFE@quickswap</string>
+
+    <string name="Safe4_Safe4_ETH_Contract">SAFE合约</string>
+    <string name="Safe4_Safe4_ETH_Uniswap">SAFE@uniswapv2</string>
+    <string name="Safe4_Safe4_BSC_Contract">SAFE合约</string>
+    <string name="Safe4_Safe4_BSC_Pancakeswap">SAFE@pancakeswap</string>
+    <string name="Safe4_Safe4_Matic_Pancakeswap">SAFE@quickswap</string>
 
 
     <string name="Restore_Select_Wallet">请选择钱包</string>
@@ -1988,7 +2000,7 @@
     <string name="fallback_block_title">区块回退</string>
     <string name="fallback_block_alert_title">%s区块回退</string>
     <string name="fallback_block_time_1">高度: 5639934 (2024-3)</string>
-    <string name="fallback_block_time_2">高度: 5178101 (2023-9)</string>
+    <string name="fallback_block_time_2">高度: 6309931 (2024-12)</string>
     <string name="fallback_block_time_3">高度: 5400104 (2023-12)</string>
     <string name="fallback_block_time_4">高度: 5400104 (2023-12)</string>
     <string name="fallback_block_time_5">高度: 4246017 (2022-10)</string>
@@ -2112,6 +2124,8 @@
     <string name="Safe_Four_Node_Join">成为合伙人</string>
     <string name="Safe_Four_Node_Partner">合伙人</string>
     <string name="Safe_Four_Node_Creator">创建者</string>
+    <string name="Safe_Four_Vote_Amount_Error">至少输入一个币</string>
+    <string name="Safe_Four_Proposal_Amount_Error">输入的币数确保每次发放最少1个币</string>
 
     <string name="Safe_Four_Proposal_Title">提案</string>
     <string name="Safe_Four_Proposal_All">所有提案</string>
@@ -2234,6 +2248,7 @@
     <string name="Method_Node_Status_Upload">节点状态上传</string>
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
+    <string name="Method_Add_Liquidity">添加流动性</string>
     <string name="Get_Safe3_Test_Coin">SAFE4领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>

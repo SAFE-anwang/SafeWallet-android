@@ -56,6 +56,7 @@ class SwapMainService(
     }
 
     private fun getBlockchainForToken(token: Token?) = when (token?.blockchainType) {
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,

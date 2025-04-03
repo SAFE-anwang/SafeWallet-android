@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
+package io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,11 +21,10 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.databinding.FragmentSendEvmBinding
 import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
-import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
+import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
@@ -37,19 +36,17 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.core.findNavController
-import io.horizontalsystems.marketkit.models.FullCoin
 
-class SendWsafeFragment : BaseFragment() {
+class Safe4ConvertSendFragment : BaseFragment() {
 
-    private val input by lazy { findNavController().getInput<SendEvmModule.Input>() }
-    private val wsafeWallet by lazy { input!!.wSafeWallet }
+    private val input by lazy { findNavController().getInput<SendEvmModule.InputSafe4>() }
+    private val chain by lazy { input!!.chain }
     private val safeWallet by lazy { input!!.safeWallet }
     private val isETH by lazy { input!!.isEth }
     private val isMatic by lazy { input!!.isMatic }
-    private val isSafe4 by lazy { input!!.isSafe4 }
 
-    private val vmFactory by lazy { SendEvmModule.WsafeFactory(wsafeWallet, isSafe4) }
-    private val viewModel by navGraphViewModels<SendWsafeViewModel>(R.id.sendWsafeFragment) { vmFactory }
+    private val vmFactory by lazy { SendEvmModule.Safe4Factory(safeWallet, chain) }
+    private val viewModel by navGraphViewModels<Safe4ConvertSendViewModel>(R.id.sendWSafe4Fragment) { vmFactory }
     private val availableBalanceViewModel by viewModels<SendAvailableBalanceViewModel> { vmFactory }
     private val amountViewModel by viewModels<AmountInputViewModel> { vmFactory }
 
@@ -121,7 +118,7 @@ class SendWsafeFragment : BaseFragment() {
 
         viewModel.proceedLiveEvent.observe(viewLifecycleOwner, { sendData ->
             findNavController().navigate(
-                R.id.sendEvmFragment_to_sendWsafeConfirmationFragment,
+                R.id.sendEvmFragment_to_sendSafe4ConfirmationFragment,
                 SendEvmConfirmationModule.prepareParams(sendData)
             )
         })
@@ -140,13 +137,13 @@ class SendWsafeFragment : BaseFragment() {
             ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this)
         )
         binding.toolbarCompose.setContent {
-            var titleRes = R.string.Safe4_Title_wsafe2safe_erc20
+            var titleRes = R.string.Safe4_Title_safe42wsafe_erc20
             if (!isETH) {
-                titleRes = R.string.Safe4_Title_wsafe2safe_bep20
+                titleRes = R.string.Safe4_Title_safe42wsafe_bep20
             }
             if (isMatic) {
                 viewModel.isMatic = isMatic
-                titleRes = R.string.Safe4_Title_wsafe2safe_matic
+                titleRes = R.string.Safe4_Title_safe42wsafe_matic
             }
             ComposeAppTheme {
                 AppBar(
@@ -191,7 +188,7 @@ class SendWsafeFragment : BaseFragment() {
         }
     }
 
-    private fun setProceedButton(viewModel: SendWsafeViewModel) {
+    private fun setProceedButton(viewModel: Safe4ConvertSendViewModel) {
        binding.buttonProceedCompose.setContent {
             ComposeAppTheme {
                 val proceedEnabled by viewModel.proceedEnabledLiveData.observeAsState(false)
@@ -212,7 +209,7 @@ class SendWsafeFragment : BaseFragment() {
                         coinCode = safeWallet.coin.code,
                         error = viewModel.error,
                         onValueChange = {
-                            viewModel.onEnterAddress(wsafeWallet, safeWallet, it)
+                            viewModel.onEnterAddress(safeWallet, it)
                         }
                     )
                     ButtonPrimaryYellow(

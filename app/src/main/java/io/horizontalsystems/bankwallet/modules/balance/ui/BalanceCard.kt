@@ -296,7 +296,7 @@ private fun WalletIcon(
             )
         } else {
             // TODO:
-            /*if (viewItem.wallet.coin.isSafeCoin()) {
+            if (viewItem.wallet.coin.isSafeCoin()) {
                 Image(painter = painterResource(id = R.drawable.logo_safe_24),
                     contentDescription = null,
                     modifier = Modifier
@@ -305,15 +305,10 @@ private fun WalletIcon(
             } else {
                 CoinImage(
                         token = viewItem.wallet.token,
-                    placeholder = viewItem.coinIconPlaceholder,
                     modifier = Modifier
                         .size(32.dp)
                 )
-            }*/
-            CoinImage(
-                token = viewItem.wallet.token,
-                modifier = Modifier.size(32.dp)
-            )
+            }
         }
     }
 }
