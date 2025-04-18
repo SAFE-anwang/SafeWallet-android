@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 import io.horizontalsystems.bitcoincore.utils.NetworkUtils
 import io.horizontalsystems.ethereumkit.api.models.EtherscanResponse
 import io.horizontalsystems.ethereumkit.core.retryWhenError
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.network.EtherscanService
 import io.reactivex.Single
 import okhttp3.logging.HttpLoggingInterceptor
@@ -26,7 +27,7 @@ class Safe3TestCoinService() {
     private val service: GetTestCoinServiceApi
     private val gson: Gson
 
-    private val url: String = "https://safe4testnet.anwang.com/"
+    private val url: String = if (Chain.SafeFour.isSafe4TestNetId) "https://safe4testnet.anwang.com/" else "https://safe4.anwang.com/"
 
     init {
         gson = GsonBuilder()
