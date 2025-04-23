@@ -2454,7 +2454,7 @@
     <string name="Redeem_Safe3_Private_Key_Error">Enter private key error</string>
     <string name="Redeem_Safe3_Send_Sending">Redemption</string>
     <string name="Redeem_Safe3_Send_Success">Redemption successful</string>
-    <string name="Redeem_Safe3_Redeem_Hint">The assets of the SAFE3 network will be migrated to the wallet address of the SAFE4 network corresponding to the private key</string>
+    <string name="Redeem_Safe3_Redeem_Hint">The assets of the SAFE3 network will be migrated to the wallet address of the SAFE4 network chosen by the user</string>
     <string name="Redeem_Safe3_Redeem_Desc">Migrate the assets of the SAFE3 network to the SAFE4 network</string>
     <string name="Redeem_Safe4_Address">SAFE4 Address</string>
     <string name="Redeem_Safe4_Redeem_Button">Redeem</string>

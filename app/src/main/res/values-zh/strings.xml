@@ -2128,7 +2128,7 @@
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>
     <string name="Redeem_Safe3_Send_Success">迁移成功</string>
-    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到该私钥对应的 SAFE4 网络的钱包地址上</string>
+    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到用户选择的 SAFE4 网络的钱包地址</string>
     <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE4 网络</string>
     <string name="Redeem_Safe4_Address">SAFE4 钱包地址</string>
     <string name="Redeem_Safe4_Redeem_Button">迁移</string>
