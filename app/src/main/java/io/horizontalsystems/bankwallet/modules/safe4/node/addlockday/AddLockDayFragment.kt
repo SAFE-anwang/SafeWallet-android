@@ -149,6 +149,12 @@ fun AddLockDayScreen(
 					}
 
 					Row {
+						body_grey(text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Amount))
+						Spacer(modifier = Modifier.weight(1f))
+						body_bran(text = it.lockedAmount)
+					}
+
+					Row {
 						body_grey(text = stringResource(id = R.string.Safe_Four_Node_Aready_Lock_Day))
 						Spacer(modifier = Modifier.weight(1f))
 						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, it.lockedDay))

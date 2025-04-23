@@ -2135,6 +2135,8 @@
     <string name="Redeem_Safe4_Redeem_Onec">一键迁移SAFE3</string>
     <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE4地址</string>
     <string name="Redeem_Safe4_Redeem_Success">已完成迁移</string>
+    <string name="Redeem_Safe4_Redeem_Local_Address">本地钱包地址</string>
+    <string name="Redeem_Safe4_Redeem_PrivatKey_Address">私钥对应地址</string>
     <string name="Safe_Four">SAFE4</string>
     <string name="Safe_Four_Node_Info_Ranking">排名: %d</string>
     <string name="Master_Node_Search">主节点Id | 主节点地址</string>
@@ -2184,13 +2186,14 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">追加锁定: %d 天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Max">最多可追加锁定%d天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Id">锁仓Id: </string>
+    <string name="Safe_Four_Node_Add_Lock_Amount">锁仓数量: </string>
     <string name="Safe_Four_Node_Aready_Lock_Day">已锁定: </string>
     <string name="Safe_Four_Node_Max_Lock_Day">最大可锁定: </string>
     <string name="Balance_Receive_MoreAddresses">更多地址</string>
     <string name="AnBao_Addresses">地址:</string>
     <string name="AnBao_Private_Key">私钥:</string>
     <string name="AnBao_Balance">余额:</string>
-
+    <string name="Proposal_NOT_CREATE">区块高度超过86400才能创建查看提案</string>
 
     <!-- safe 4  end-->
 </resources>

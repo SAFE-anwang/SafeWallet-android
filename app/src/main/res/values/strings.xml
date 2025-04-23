@@ -2461,6 +2461,8 @@
     <string name="Redeem_Safe4_Redeem_Onec">One-click migration SAFE3</string>
     <string name="Redeem_Safe4_Redeem_Onec_Confrimation">One-click migration SAFE3 to SAFE4 address</string>
     <string name="Redeem_Safe4_Redeem_Success">Migration completed</string>
+    <string name="Redeem_Safe4_Redeem_Local_Address">Local wallet address</string>
+    <string name="Redeem_Safe4_Redeem_PrivatKey_Address">Private key corresponding address</string>
     <string name="Safe_Four">SAFE4</string>
     <string name="Safe_Four_Node_Info_Ranking">Rank: %d</string>
     <string name="Safe_Four_Vote_Amount">[%s]</string>
@@ -2511,11 +2513,13 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">Add lock day: %d</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Max">Up to% d days of lock can be added</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Id">Locked Id: </string>
+    <string name="Safe_Four_Node_Add_Lock_Amount">Locked Amount: </string>
     <string name="Safe_Four_Node_Aready_Lock_Day">Locked: </string>
     <string name="Safe_Four_Node_Max_Lock_Day">Max Locked: </string>
     <string name="Balance_Receive_MoreAddresses">All Address</string>
     <string name="AnBao_Addresses">Address:</string>
     <string name="AnBao_Private_Key">Private Key:</string>
     <string name="AnBao_Balance">Balance:</string>
+    <string name="Proposal_NOT_CREATE">Block height exceeding 86400 is required to create and view proposals</string>
     <!-- safe 4  end-->
 </resources>

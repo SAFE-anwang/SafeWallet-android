@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenType
 
 object Safe4Module {
 
@@ -289,7 +290,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safe4Wallet: Wallet? = null
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.token.type == TokenType.Native) {
                 safe4Wallet = it
             }
         }
@@ -314,10 +315,15 @@ object Safe4Module {
                     )
                 }
                 SafeFourType.Proposal -> {
-                    navController.slideFromBottom(
+                    val adapter = (App.adapterManager.getAdapterForWallet(safe4Wallet) as? ISendEthereumAdapter)
+                    if (adapter!!.evmKitWrapper.evmKit.lastBlockHeight!! <= 86400) {
+                        Toast.makeText(context, getString(R.string.Proposal_NOT_CREATE), Toast.LENGTH_SHORT).show()
+                    } else {
+                        navController.slideFromBottom(
                             R.id.proposalFragment,
                             SafeFourProposalModule.Input(safe4Wallet)
-                    )
+                        )
+                    }
                 }
                 SafeFourType.Redeem -> {
                     var safeWallet: Wallet? = null
@@ -349,7 +355,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.token.type == TokenType.Native) {
                 safeWallet = it
             }
         }

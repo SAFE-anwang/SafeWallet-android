@@ -458,6 +458,34 @@ fun <T> CellUniversalLawrenceSection(
 }
 
 @Composable
+fun <T> CellUniversalLawrenceSection2(
+    items: Iterable<T>,
+    showFrame: Boolean = false,
+    itemContent: @Composable (T) -> Unit
+) {
+    val frameModifier = if (showFrame) {
+        Modifier.border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(12.dp))
+    } else {
+        Modifier
+    }
+
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(ComposeAppTheme.colors.lawrence)
+            .then(frameModifier)
+    ) {
+        items.forEachIndexed { index, itemData ->
+            SectionUniversalItem(
+                borderTop = index != 0,
+            ) {
+                itemContent(itemData)
+            }
+        }
+    }
+}
+
+@Composable
 fun CellUniversalLawrenceSection(
     showFrame: Boolean = false,
     content: @Composable () -> Unit

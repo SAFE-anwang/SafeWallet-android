@@ -6,9 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.DAILY_BLOCK_PRODUCTION_SPEED
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.valueConvert
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -63,7 +65,8 @@ class AddLockDayViewModel(
 					// 剩余解锁时间
 					val remainDay = unlockHeight / DAILY_BLOCK_PRODUCTION_SPEED
 					val lockDay = ((3600 - remainDay.toInt()) / 360) * 360
-					info.add(SafeFourModule.AddLockRecordInfo(recordInfo.id.toLong(), remainDay.toInt(), lockDay, lockDay > 0))
+					val lockedAmount = App.numberFormatter.formatCoinFull(valueConvert(recordInfo.amount), "SAFE", 2)
+					info.add(SafeFourModule.AddLockRecordInfo(recordInfo.id.toLong(), remainDay.toInt(), lockDay, lockedAmount, lockDay > 0))
 				} catch (e: Exception) {
 
 				}

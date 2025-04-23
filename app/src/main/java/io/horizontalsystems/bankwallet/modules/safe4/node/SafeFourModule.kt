@@ -104,6 +104,7 @@ class SafeFourModule {
             val recordId: Long,
             val lockedDay: Int,
             val maxLockDay: Int,
+            val lockedAmount: String,
             val enable: Boolean = false,
     )
 
