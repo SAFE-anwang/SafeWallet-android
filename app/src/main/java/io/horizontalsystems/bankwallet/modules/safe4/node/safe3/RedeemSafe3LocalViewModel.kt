@@ -148,6 +148,7 @@ class RedeemSafe3LocalViewModel(
 
 			try {
 				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress()).blockingGet()
+				Log.d("longwen", "${redeemResult.map { it }}")
 				if (masterNodeKey.isNotEmpty()) {
 					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
@@ -270,6 +271,7 @@ class RedeemSafe3LocalViewModel(
 											privateKey
 											)
 							)
+							Log.d("longwen", "privateKey=${privateKey.toHexString()}")
 						}
 						emitState()
 					}
@@ -291,33 +293,6 @@ class RedeemSafe3LocalViewModel(
 		val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()
 		val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()
 		return spendableUtxo + spendableTimeLockUtxo
-		val unspentOutputs = bitcoinCore.storage.getUnspentOutputs()
-
-		val lastBlockHeight = bitcoinCore.storage.lastBlock()?.height ?: 0
-		return unspentOutputs.filter {
-			// If a transaction is an outgoing transaction, then it can be used
-			// even if it's not included in a block yet
-			if (it.transaction.isOutgoing) {
-				return@filter true
-			}
-
-			// If a transaction is an incoming transaction, then it can be used
-			// only if it's included in a block and has enough number of confirmations
-			val block = it.block ?: return@filter false
-
-			// - Update for Safe-Asset reserve
-			val reserve = it.output.reserve;
-			if ( reserve != null ){
-				if ( reserve.toHexString() != "73616665"  // 普通交易
-						// coinbase 收益
-						&& reserve.toHexString() != "7361666573706f730100c2f824c4364195b71a1fcfa0a28ebae20f3501b21b08ae6d6ae8a3bca98ad9d64136e299eba2400183cd0a479e6350ffaec71bcaf0714a024d14183c1407805d75879ea2bf6b691214c372ae21939b96a695c746a6"
-						// safe备注，也是属于safe交易
-						&& !reserve.toHexString().startsWith("736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a02010012")){
-					return@filter false
-				}
-			}
-			false
-		}
 	}
 
 	override fun onCleared() {

@@ -9,8 +9,10 @@ import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
 import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
 import io.horizontalsystems.bankwallet.core.toRawHexString
 import io.horizontalsystems.bankwallet.entities.Address
@@ -54,6 +56,7 @@ class RedeemSafe3ViewModel(
 
 	private var showConfirmationDialg = false
 	private var privateKey: String = ""
+	private var selectAddress = 0
 
 	private var isRedeeming = AtomicBoolean(false)
 
@@ -118,6 +121,11 @@ class RedeemSafe3ViewModel(
 		emitState()
 	}
 
+	fun onSelectAddress(id: Int) {
+		selectAddress = id
+		emitState()
+	}
+
 	override fun createState() : RedeemSafe3Module.RedeemSafe3UiState{
 		val lockValue = lockBalance()
 		return RedeemSafe3Module.RedeemSafe3UiState(
@@ -128,10 +136,39 @@ class RedeemSafe3ViewModel(
 				existAvailable,
 				existLocked,
 				existAvailable || existLocked,
-				getSafe4Address(privateKey),
+				getAddress(privateKey),
 				if (maxLockedCount == -1) 0 else maxLockedCount,
 				masterLockBalance()
 		)
+	}
+
+	private fun getAddress(privateKey: String): List<RedeemSafe3Module.ReceiveAddress> {
+
+		return if (privateKey.isNotEmpty()) {
+			listOf(
+				RedeemSafe3Module.ReceiveAddress(
+					0,
+					Translator.getString(R.string.Redeem_Safe4_Redeem_Local_Address),
+					receiveAddress(),
+					selectAddress == 0
+				),
+				RedeemSafe3Module.ReceiveAddress(
+					1,
+					Translator.getString(R.string.Redeem_Safe4_Redeem_PrivatKey_Address),
+					getSafe4Address(privateKey),
+					selectAddress == 1
+				)
+			)
+		}	else {
+			listOf(
+				RedeemSafe3Module.ReceiveAddress(
+					0,
+					Translator.getString(R.string.Redeem_Safe4_Redeem_Local_Address),
+					receiveAddress(),
+					selectAddress == 0
+				)
+			)
+		}
 	}
 
 	private fun  availableBalance(): String {
@@ -206,7 +243,12 @@ class RedeemSafe3ViewModel(
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			try {
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), getSafe4Address(privateKey)!!).blockingGet()
+				val targetAddress = if (selectAddress == 0) {
+					receiveAddress()
+				} else {
+					getSafe4Address(privateKey)
+				}
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), targetAddress).blockingGet()
 				if (existMasterNode) {
 					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), getSafe4Address(privateKey)!!)
 				}
@@ -278,8 +320,7 @@ class RedeemSafe3ViewModel(
 		return Pair(lockAmount, materLockAmount)
 	}
 
-	private fun getSafe4Address(privateKey: String): String? {
-		if (privateKey.isNullOrBlank())	return null
+	private fun getSafe4Address(privateKey: String): String {
 		return EthereumKit.ethereumAddress(Numeric.toBigInt(privateKey)).eip55
 	}
 

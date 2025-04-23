@@ -86,9 +86,16 @@ object RedeemSafe3Module {
 			val existAvailable: Boolean,
 			val existLocked: Boolean,
 			val canRedeem: Boolean,
-			val safe4address: String? = null,
+			val safe4address: List<ReceiveAddress>,
 			val safe3LockNum: Int = 0,
 			val masterNodeLock: String? = null
+	)
+
+	data class ReceiveAddress(
+		val id: Int,
+		val title: String,
+		val address: String,
+		val selected: Boolean
 	)
 
 	data class RedeemSafe3LocalUiState(
