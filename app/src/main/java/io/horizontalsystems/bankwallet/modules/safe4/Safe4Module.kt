@@ -188,29 +188,29 @@ object Safe4Module {
             if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
                 safeWallet = it
             } else if (chainType == ChainType.ETH && it.token.blockchain.type is BlockchainType.Ethereum
-                && it.coin.uid == SafeExtend.SAFE4_ERC_COIN_UID) {
+                && it.coin.uid == "safe4-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---erc20---")
             } else if (chainType == ChainType.BSC && it.token.blockchain.type is BlockchainType.BinanceSmartChain
-                && it.coin.uid == SafeExtend.SAFE4_BEP20_COIN_UID) {
+                && it.coin.uid ==  "safe4-coin") {
                 wsafeWallet = it
 //                Log.i("safe4", "---bep20---")
             } else if (chainType == ChainType.MATIC &&  it.token.blockchain.type is BlockchainType.Polygon
-                && it.coin.uid == SafeExtend.SAFE4_MATIC_COIN_UID) {
+                && it.coin.uid  == "safe4-coin") {
                 wsafeWallet = it
             }
         }
         if (safeWallet == null) {
-            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
             return
         }
         if (wsafeWallet == null) {
             if (chainType == ChainType.ETH) {
-                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe ERC20"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4 ERC20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.BSC) {
-                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe BEP20"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4 BEP20"), Toast.LENGTH_SHORT).show()
             } else if (chainType == ChainType.MATIC) {
-                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe Matic"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4 Matic"), Toast.LENGTH_SHORT).show()
             }
             return
         }

@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.adapters
 
 import cash.z.ecc.android.sdk.ext.toHex
 import com.anwang.utils.Safe4Contract
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager

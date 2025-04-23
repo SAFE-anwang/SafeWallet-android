@@ -104,6 +104,7 @@ val TokenQuery.protocolType: String?
     get() = when (tokenType) {
         is TokenType.Native -> {
             when (blockchainType) {
+                BlockchainType.SafeFour,
                 BlockchainType.Ethereum,
                 BlockchainType.BinanceSmartChain,
                 BlockchainType.Tron,
