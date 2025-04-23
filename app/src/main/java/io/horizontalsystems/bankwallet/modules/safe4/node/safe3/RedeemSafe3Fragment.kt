@@ -324,7 +324,6 @@ fun RedeemSafe3Screen(
 				body_grey(text = stringResource(id = R.string.Redeem_Safe4_Address))
 
 				Spacer(modifier = Modifier.height(6.dp))
-//				body_bran(text = uiState.safe4address!!)
 
 				CellUniversalLawrenceSection2(uiState.safe4address) { item ->
 					AddressCell(item.title, item.address, item.selected) {

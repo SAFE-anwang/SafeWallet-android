@@ -148,7 +148,6 @@ class RedeemSafe3LocalViewModel(
 
 			try {
 				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress()).blockingGet()
-				Log.d("longwen", "${redeemResult.map { it }}")
 				if (masterNodeKey.isNotEmpty()) {
 					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
@@ -271,7 +270,6 @@ class RedeemSafe3LocalViewModel(
 											privateKey
 											)
 							)
-							Log.d("longwen", "privateKey=${privateKey.toHexString()}")
 						}
 						emitState()
 					}

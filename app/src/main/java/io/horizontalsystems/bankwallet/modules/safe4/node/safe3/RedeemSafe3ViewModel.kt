@@ -82,6 +82,7 @@ class RedeemSafe3ViewModel(
 			val compressedSafe3Addr = Safe3Util.getSafe3Addr(compressedPublicKey)
 			this.privateKey = privateKey
 			privateKeyError = false
+			selectAddress = 0
 			check(compressedSafe3Addr)
 		} catch (e: Exception) {
 			privateKeyError = true
@@ -250,7 +251,7 @@ class RedeemSafe3ViewModel(
 				}
 				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), targetAddress).blockingGet()
 				if (existMasterNode) {
-					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), getSafe4Address(privateKey)!!)
+					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), targetAddress)
 				}
 				sendResult = SendResult.Sent
 				reset()
