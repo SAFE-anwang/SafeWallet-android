@@ -51,11 +51,8 @@ class Safe4ConvertSendViewModel(
     }
 
     fun onClickProceed() {
-        (service.state as? Safe4ConvertService.State.Ready)?.let { readyState ->
-            proceedLiveEvent.postValue(readyState.sendData)
-        }
-        /*val safeInfoPO = SafeInfoManager.getSafeInfo()
-        if ((isMatic && !safeInfoPO.matic.matic2safe) || !safeInfoPO.eth.eth2safe) {
+        val safeInfoPO = SafeInfoManager.getSafeInfo(true)
+        if ((isMatic && !safeInfoPO.matic.safe2matic) || !safeInfoPO.eth.safe2eth) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
         }
@@ -63,10 +60,10 @@ class Safe4ConvertSendViewModel(
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, safeInfoPO.minamount), Toast.LENGTH_SHORT).show()
             return
         } else {
-            (service.state as? SendWsafeService.State.Ready)?.let { readyState ->
+            (service.state as? Safe4ConvertService.State.Ready)?.let { readyState ->
                 proceedLiveEvent.postValue(readyState.sendData)
             }
-        }*/
+        }
     }
 
     private fun sync(state: Safe4ConvertService.State) {
