@@ -151,7 +151,7 @@ object Safe4Module {
         var safeWallet: Wallet? = null
         var chain: Chain = Chain.Ethereum
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type == TokenType.Native) {
                 safeWallet = it
             }
         }
