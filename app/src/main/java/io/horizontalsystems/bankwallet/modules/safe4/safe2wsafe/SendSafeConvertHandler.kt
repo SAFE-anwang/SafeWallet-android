@@ -151,7 +151,7 @@ class SendSafeConvertHandler(
     }
 
     override fun didFetchFee(fee: BigDecimal) {
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val safeInfoPO = SafeInfoManager.getSafeInfo(false)
         var newFee = fee + BigDecimal(safeInfoPO.eth.safe_fee)
         if (ethAdapter.evmKitWrapper.evmKit.chain == Chain.BinanceSmartChain) {
              newFee = fee + BigDecimal(safeInfoPO.bsc.safe_fee)

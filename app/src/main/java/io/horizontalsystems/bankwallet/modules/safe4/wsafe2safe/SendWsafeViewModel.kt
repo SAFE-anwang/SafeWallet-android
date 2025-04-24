@@ -51,7 +51,7 @@ class SendWsafeViewModel(
     }
 
     fun onClickProceed() {
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val safeInfoPO = SafeInfoManager.getSafeInfo(isSafe4)
         if ((isMatic && !safeInfoPO.matic.matic2safe) || !safeInfoPO.eth.eth2safe) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return

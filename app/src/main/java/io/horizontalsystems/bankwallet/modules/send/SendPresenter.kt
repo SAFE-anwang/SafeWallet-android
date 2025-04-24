@@ -108,7 +108,7 @@ class SendPresenter(
     }
 
     fun validMinAmount() {
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val safeInfoPO = SafeInfoManager.getSafeInfo(false)
         if (!safeInfoPO.eth.safe2eth) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return

@@ -18,6 +18,7 @@ object SafeInfoManager {
 
     private const val ID_SAFE = "ID_SAFE"
     private const val KEY_SAFE_INFO = "KEY_SAFE_INFO"
+    private const val KEY_SAFE4_INFO = "KEY_SAFE4_INFO"
 
     private val safeStorage by lazy { MMKV.mmkvWithID(ID_SAFE, MMKV.SINGLE_PROCESS_MODE) }
 
@@ -40,7 +41,19 @@ object SafeInfoManager {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                saveMmkv(it)
+                saveMmkv(it, false)
+            }, {
+                Log.e("safe4", "getSafeInfo error", it)
+            })
+            .let {
+                disposables.add(it)
+            }
+        val safe4NetType = WSafeManager(chain, true).getSafeNetType()
+        App.safeProvider.getSafeInfo(safe4NetType)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                saveMmkv(it, true)
             }, {
                 Log.e("safe4", "getSafeInfo error", it)
             })
@@ -49,15 +62,23 @@ object SafeInfoManager {
             }
     }
 
-    fun saveMmkv(safeInfo: SafeInfo) {
+    fun saveMmkv(safeInfo: SafeInfo, isSafe4: Boolean) {
         val gson = Gson()
         val safeInfoJson = gson.toJson(safeInfo)
         val safeInfoPO = gson.fromJson(safeInfoJson, SafeInfoPO::class.java)
-        safeStorage?.encode(KEY_SAFE_INFO, safeInfoPO)
+        safeStorage?.encode(getKey(isSafe4), safeInfoPO)
     }
 
-    fun getSafeInfo(): SafeInfoPO {
-        var safeInfoPO = safeStorage?.decodeParcelable(KEY_SAFE_INFO, SafeInfoPO::class.java)
+    private fun getKey(isSafe4: Boolean): String {
+        return if (isSafe4) {
+            KEY_SAFE4_INFO
+        } else {
+            KEY_SAFE_INFO
+        }
+    }
+
+    fun getSafeInfo(isSafe4: Boolean): SafeInfoPO {
+        var safeInfoPO = safeStorage?.decodeParcelable(getKey(isSafe4), SafeInfoPO::class.java)
         if(safeInfoPO == null){
             val chain: Chain
             if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper != null) {

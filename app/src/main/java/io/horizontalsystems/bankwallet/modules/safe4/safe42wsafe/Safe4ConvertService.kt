@@ -85,7 +85,7 @@ class Safe4ConvertService(
     @Throws
     private fun validEvmAmount(amount: BigDecimal): BigInteger {
         // eth add fee
-        val safeInfoPO = SafeInfoManager.getSafeInfo()
+        val safeInfoPO = SafeInfoManager.getSafeInfo(true)
         val newAmount = amount + if (chain == Chain.Ethereum) BigDecimal(safeInfoPO.eth.safe_fee) else BigDecimal.ZERO
 
         val evmAmount = try {
