@@ -482,7 +482,7 @@ private fun Safe4Sections(
             {
                 HsSettingCellForEth(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "BEP20",
                     "4",
                     onClick = {
@@ -493,7 +493,7 @@ private fun Safe4Sections(
             {
                 HsSettingCellForSafe(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "BEP20",
                     "4",
                     onClick = {
@@ -541,7 +541,7 @@ private fun Safe4Sections(
             {
                 HsSettingCellForEth(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "MATIC",
                     "4",
                     onClick = {
@@ -552,7 +552,7 @@ private fun Safe4Sections(
             {
                 HsSettingCellForSafe(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "MATIC",
                     "4",
                     onClick = {
