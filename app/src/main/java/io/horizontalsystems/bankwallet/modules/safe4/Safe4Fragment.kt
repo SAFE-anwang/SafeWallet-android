@@ -421,8 +421,9 @@ private fun Safe4Sections(
             {
                 HsSettingCellForEth(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "ERC20",
+                    "4",
                     onClick = {
                         if (!RepeatClickUtils.isRepeat) {
                             Safe4Module.handlerSafe42eth(Safe4Module.ChainType.ETH, navController)
@@ -433,8 +434,9 @@ private fun Safe4Sections(
             {
                 HsSettingCellForSafe(
                     R.mipmap.ic_app_color,
-                    "SAFE4",
+                    "SAFE",
                     "ERC20",
+                    "4",
                     onClick = {
                         Safe4Module.handlerEth2safe4(Safe4Module.ChainType.ETH, navController)
                     }
@@ -446,7 +448,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
-                        onClick(App.appConfigProvider.safe4EthContract)
+                        onClick(App.appConfigProvider.safeEthContract)
                     }
                 )
             }/*,
@@ -482,6 +484,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     "SAFE4",
                     "BEP20",
+                    "4",
                     onClick = {
                         Safe4Module.handlerSafe42eth(Safe4Module.ChainType.BSC, navController)
                     }
@@ -492,6 +495,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     "SAFE4",
                     "BEP20",
+                    "4",
                     onClick = {
                         Safe4Module.handlerEth2safe4(Safe4Module.ChainType.BSC, navController)
                     }
@@ -503,7 +507,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
-                        onClick(App.appConfigProvider.safe4BSCContract)
+                        onClick(App.appConfigProvider.safeBSCContract)
                     }
                 )
             }/*,
@@ -539,6 +543,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     "SAFE4",
                     "MATIC",
+                    "4",
                     onClick = {
                         Safe4Module.handlerSafe42eth(Safe4Module.ChainType.MATIC, navController)
                     }
@@ -549,6 +554,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     "SAFE4",
                     "MATIC",
+                    "4",
                     onClick = {
                         Safe4Module.handlerEth2safe4(Safe4Module.ChainType.MATIC, navController)
                     }
@@ -560,7 +566,7 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
-                        onClick(App.appConfigProvider.safe4MaticContract)
+                        onClick(App.appConfigProvider.safeMaticContract)
                     }
                 )
             }
@@ -701,6 +707,7 @@ fun HsSettingCellForEth(
     @DrawableRes icon: Int,
     coinName: String,
     chainName: String,
+    safe4: String = "",
     onClick: () -> Unit
 ) {
     Row(
@@ -716,7 +723,7 @@ fun HsSettingCellForEth(
             contentDescription = null,
         )
         Text(
-            text = coinName,
+            text = coinName + safe4,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
@@ -770,6 +777,7 @@ fun HsSettingCellForSafe(
     @DrawableRes icon: Int,
     coinName: String,
     chainName: String,
+    safe4: String = "",
     onClick: () -> Unit
 ) {
     Row(
@@ -817,7 +825,7 @@ fun HsSettingCellForSafe(
             modifier = Modifier.padding(horizontal = 6.dp)
         )
         Text(
-            text = coinName,
+            text = coinName + safe4,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
