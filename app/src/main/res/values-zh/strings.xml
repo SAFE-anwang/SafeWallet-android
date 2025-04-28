@@ -2194,6 +2194,9 @@
     <string name="AnBao_Private_Key">私钥:</string>
     <string name="AnBao_Balance">余额:</string>
     <string name="Proposal_NOT_CREATE">区块高度超过86400才能创建查看提案</string>
+    <string name="Redeem_AvailableBalance">可用余额: %s</string>
+    <string name="Redeem_Lock_Balance">锁仓余额: %s</string>
+    <string name="Redeem_Enable">可迁移余额: %s</string>
 
     <!-- safe 4  end-->
 </resources>

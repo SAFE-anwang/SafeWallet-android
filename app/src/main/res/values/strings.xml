@@ -2521,5 +2521,8 @@
     <string name="AnBao_Private_Key">Private Key:</string>
     <string name="AnBao_Balance">Balance:</string>
     <string name="Proposal_NOT_CREATE">Block height exceeding 86400 is required to create and view proposals</string>
+    <string name="Redeem_AvailableBalance">Available Balance: %s</string>
+    <string name="Redeem_Lock_Balance">Lock Balance: %s</string>
+    <string name="Redeem_Enable">Redeemable Balance: %s</string>
     <!-- safe 4  end-->
 </resources>

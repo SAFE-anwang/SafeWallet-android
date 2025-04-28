@@ -137,169 +137,6 @@ private fun Safe4Sections(
 ) {
 
     Text(
-        text = stringResource(R.string.Safe4_Cross_Chain_erc20),
-        style = ComposeAppTheme.typography.subhead1,
-        color = ComposeAppTheme.colors.leah,
-        maxLines = 1,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
-    Spacer(Modifier.height(10.dp))
-
-    CellSingleLineLawrenceSection(
-        listOf (
-            {
-                HsSettingCellForEth(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "ERC20",
-                    onClick = {
-                        if (!RepeatClickUtils.isRepeat) {
-                            Safe4Module.handlerSafe2eth(Safe4Module.ChainType.ETH, navController)
-                        }
-                    }
-                )
-            },
-            {
-                HsSettingCellForSafe(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "ERC20",
-                    onClick = {
-                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.ETH, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_ETH_Contract,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeEthContract)
-                    }
-                )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_ETH_Uniswap,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeEthUniswap)
-                    }
-                )
-            }
-        )
-    )
-
-    Spacer(Modifier.height(25.dp))
-
-    Text(
-        text = stringResource(R.string.Safe4_Cross_Chain_bep20),
-        style = ComposeAppTheme.typography.subhead1,
-        color = ComposeAppTheme.colors.leah,
-        maxLines = 1,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
-    Spacer(Modifier.height(10.dp))
-
-    CellSingleLineLawrenceSection(
-        listOf (
-            {
-                HsSettingCellForEth(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "BEP20",
-                    onClick = {
-                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.BSC, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCellForSafe(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "BEP20",
-                    onClick = {
-                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.BSC, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_BSC_Contract,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeBSCContract)
-                    }
-                )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_BSC_Pancakeswap,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeBSCPancakeswap)
-                    }
-                )
-            }
-        )
-    )
-
-    Spacer(Modifier.height(25.dp))
-
-    Text(
-        text = stringResource(R.string.Safe4_Cross_Chain_matic),
-        style = ComposeAppTheme.typography.subhead1,
-        color = ComposeAppTheme.colors.leah,
-        maxLines = 1,
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
-
-    Spacer(Modifier.height(10.dp))
-
-    CellSingleLineLawrenceSection(
-        listOf (
-            {
-                HsSettingCellForEth(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "MATIC",
-                    onClick = {
-                        Safe4Module.handlerSafe2eth(Safe4Module.ChainType.MATIC, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCellForSafe(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "MATIC",
-                    onClick = {
-                        Safe4Module.handlerEth2safe(Safe4Module.ChainType.MATIC, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCell(
-                    R.string.Safe4_Safe_BSC_Contract,
-                    R.mipmap.ic_app_color,
-                    showAlert = false,
-                    onClick = {
-                        onClick(App.appConfigProvider.safeMaticContract)
-                    }
-                )
-            }
-        )
-    )
-
-    Spacer(Modifier.height(25.dp))
-
-    Text(
         text = stringResource(R.string.Safe4_Locked),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
@@ -444,24 +281,24 @@ private fun Safe4Sections(
             },
             {
                 HsSettingCell(
-                    R.string.Safe4_Safe4_ETH_Contract,
+                    R.string.Safe4_Safe_ETH_Contract,
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
                         onClick(App.appConfigProvider.safeEthContract)
                     }
                 )
-            }/*,
+            },
             {
                 HsSettingCell(
-                    R.string.Safe4_Safe4_ETH_Uniswap,
+                    R.string.Safe4_Safe_ETH_Uniswap,
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
                         onClick(App.appConfigProvider.safeEthUniswap)
                     }
                 )
-            }*/
+            }
         )
     )
 
@@ -503,24 +340,24 @@ private fun Safe4Sections(
             },
             {
                 HsSettingCell(
-                    R.string.Safe4_Safe4_BSC_Contract,
+                    R.string.Safe4_Safe_BSC_Contract,
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
                         onClick(App.appConfigProvider.safeBSCContract)
                     }
                 )
-            }/*,
+            },
             {
                 HsSettingCell(
-                    R.string.Safe4_Safe4_BSC_Pancakeswap,
+                    R.string.Safe4_Safe_BSC_Pancakeswap,
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
                         onClick(App.appConfigProvider.safeBSCPancakeswap)
                     }
                 )
-            }*/
+            }
         )
     )
 
