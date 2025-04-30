@@ -220,14 +220,23 @@ private fun Safe4Sections(
                         }
                 )
             },{
-                HsSettingCell(
+                HsSettingCellForSafe(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "SAFE3",
+                    "4",
+                    onClick = {
+                        Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
+                    }
+                )
+                /*HsSettingCell(
                         R.string.Redeem_Safe3_Title,
                         R.mipmap.ic_app_color,
                         showAlert = false,
                         onClick = {
                             Safe4Module.handlerNode(Safe4Module.SafeFourType.Redeem, navController)
                         }
-                )
+                )*/
             },{
                 HsSettingCell(
                         R.string.Get_Safe3_Test_Coin,

@@ -1734,8 +1734,8 @@
     <string name="Safe4_Safe_Homepage">SAFE官网</string>
     <string name="Safe4_Safe_Block_Explorer">SAFE3区块浏览器</string>
     <string name="Safe4_Safe_Across_Chain_Explorer">SAFE3跨链浏览器</string>
-    <string name="Safe4_Safe4_Block_Explorer">SAFE4区块浏览器</string>
-    <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE4跨链浏览器</string>
+    <string name="Safe4_Safe4_Block_Explorer">SAFE区块浏览器</string>
+    <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE跨链浏览器</string>
     <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
     <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
     <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@CMC</string>
@@ -1955,7 +1955,7 @@
     <string name="Liquidity_Add_Success">添加成功</string>
     <string name="Dapp">添加成功</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
-    <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE4（从1开始)</string>
+    <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE（从1开始)</string>
 
     <!-- safe 4  start-->
     <string name="Safe_Four_Super_Node">超级节点</string>
@@ -2113,7 +2113,7 @@
     <string name="Safe_Four_Node_Edit_Super_Hint">通过调用超级节点合约更新超级节点对应的属性信息.\n更新的超级节点数据在交易写入区块链后才会生效.</string>
     <string name="Safe_Four_Node_Edit_Master_Hint">通过调用主节点合约更新主节点对应的属性信息.\n更新的主节点数据在交易写入区块链后才会生效.</string>
 
-    <string name="Redeem_Safe3_Title">SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Title">SAFE3=>SAFE</string>
     <string name="Redeem_Safe3_Other_Wallet">其他钱包</string>
     <string name="Redeem_Safe3_Local_Wallet">本地钱包</string>
     <string name="Redeem_Safe3_Query">资产查询</string>
@@ -2130,12 +2130,12 @@
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>
     <string name="Redeem_Safe3_Send_Success">迁移成功</string>
-    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到用户选择的 SAFE4 网络的钱包地址</string>
-    <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE4 网络</string>
-    <string name="Redeem_Safe4_Address">SAFE4 钱包地址</string>
+    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到用户选择的 SAFE 网络的钱包地址</string>
+    <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE 网络</string>
+    <string name="Redeem_Safe4_Address">SAFE 钱包地址</string>
     <string name="Redeem_Safe4_Redeem_Button">迁移</string>
     <string name="Redeem_Safe4_Redeem_Onec">一键迁移SAFE3</string>
-    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE4地址</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE地址</string>
     <string name="Redeem_Safe4_Redeem_Success">已完成迁移</string>
     <string name="Redeem_Safe4_Redeem_Local_Address">本地钱包地址</string>
     <string name="Redeem_Safe4_Redeem_PrivatKey_Address">私钥对应地址</string>
@@ -2168,12 +2168,12 @@
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
-    <string name="Get_Safe3_Test_Coin">SAFE4领取</string>
+    <string name="Get_Safe3_Test_Coin">SAFE领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Success">领取成功</string>
-    <string name="Safe3_Test_Coin_Address">SAFE4 钱包地址</string>
-    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE4地址</string>
+    <string name="Safe3_Test_Coin_Address">SAFE 钱包地址</string>
+    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE地址</string>
     <string name="Get_Safe3_Test_Coin_Amount">领取数量</string>
     <string name="Get_Safe3_Test_Coin_Transaction_Hash">交易Hash</string>
     <string name="Get_Safe3_Test_Coin_DateTimestamp">领取时间</string>
