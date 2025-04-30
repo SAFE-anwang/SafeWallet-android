@@ -181,7 +181,7 @@ private fun SwapMainScreen(
                     Safe4SwapCoinCardView(
                         uiState.inputAmount,
                         uiState.toToken,
-                        true,
+                        false,
                         8,
                         navController,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
