@@ -44,7 +44,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBlockExplorer = "https://chain.anwang.com"
     val safeAcrossChainExplorer = "https://anwang.com/assetgate.html"
     val safe4BlockExplorer = "https://safe4.anwang.com"
-    val safe4AcrossChainExplorer = "https://anwang.com/assetgate.html"
+    val safe4AcrossChainExplorer = "https://safe4.anwang.com/crosschains"
     val safeCoinGecko = "https://www.coingecko.com/en/coins/safe-anwang"
     val safeSafeBEP20 = "https://coinmarketcap.com/currencies/safe-anwang"
     val safeCoinMarketCap = "https://coinmarketcap.com/currencies/safe"
