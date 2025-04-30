@@ -25,6 +25,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.reward.SafeFourRewardM
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Module
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
+import io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment
+import io.horizontalsystems.bankwallet.modules.safe4.swap.Safe4SwapViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.SafeExtend
@@ -226,6 +228,43 @@ object Safe4Module {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
     }
+
+
+    fun handlerSafe42SRC(navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        var safeSRC20Wallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour) {
+                if (it.token.type == TokenType.Native) {
+                    safeWallet = it
+                } else if (it.token.type == TokenType.Eip20(Safe4SwapViewModel.safe4SwapContractAddress)) {
+                    safeSRC20Wallet = it
+                }
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (safeSRC20Wallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE SRC20"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        val state2 =  balanceAdapterRepository.state(safeSRC20Wallet)
+        if (state is AdapterState.Synced && state2 is AdapterState.Synced){
+            navController.slideFromBottom(
+                R.id.safe4SwapFragment,
+                SAFE4SwapFragment.Input(safeWallet, safeSRC20Wallet)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 
     fun handlerLineLock(navController: NavController) {

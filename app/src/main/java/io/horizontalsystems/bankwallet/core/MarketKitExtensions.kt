@@ -117,6 +117,7 @@ val TokenQuery.protocolType: String?
 
         is TokenType.Eip20 -> {
             when (blockchainType) {
+                BlockchainType.SafeFour -> "SRC20"
                 BlockchainType.Ethereum -> "ERC20"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Tron -> "TRC20"
@@ -302,8 +303,8 @@ val BlockchainType.title: String
     BlockchainType.Litecoin -> "Litecoin"
     BlockchainType.Dogecoin -> "Dogecoin"
     BlockchainType.Dash -> "Dash"
-    BlockchainType.SafeFour -> "Safe4"
-    BlockchainType.Safe -> "Safe"
+    BlockchainType.SafeFour -> "Safe"
+    BlockchainType.Safe -> "Safe3"
     BlockchainType.Zcash -> "Zcash"
     BlockchainType.Ethereum -> "Ethereum"
     BlockchainType.BinanceSmartChain -> "BNB Smart Chain"

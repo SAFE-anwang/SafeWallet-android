@@ -155,34 +155,14 @@ class RedeemSafe3LocalViewModel(
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			val redeemableList = list.filter { it.redeemable }
-			val listPrivateKey = redeemableList.map { it.privateKey.toHexString() }
+			val listPrivateKey = redeemableList.filter { it.existAvailable || it.existLocked
+			}.map { it.privateKey.toHexString() }
 			val masterNodeKey = redeemableList.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 			try {
 				// 余额迁移
-				redeemableList.filter { it.existAvailable && !it.existLocked }
-					.map { it.privateKey.toHexString() }
-					.windowed(20, step = 20, true).forEach { privateKeys ->
-					safe4.redeemSafe3(receivePrivateKey(), privateKeys, receiveAddress()).blockingGet()
-				}
-				// 锁仓迁移
-				val lockList = redeemableList.filter { it.existLocked }
-				val sum = lockList.sumOf { it.safe3LockNum }
-				if (sum < 500) {
-					safe4.redeemSafe3(receivePrivateKey(), lockList.map { it.privateKey.toHexString() }, receiveAddress())
-				} else {
-					val flattenedList = lockList.flatMap { item ->
-						List(item.safe3LockNum) { item }
-					}
-					flattenedList.chunked(500).map {
-						val privateKeys = it.map { it.privateKey.toHexString() }.distinctBy { it }
-						safe4.redeemSafe3(receivePrivateKey(), privateKeys, receiveAddress())
-					}
-				}
-
+				safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
 				if (masterNodeKey.isNotEmpty()) {
-					masterNodeKey.windowed(20, step = 20, true).forEach { privateKeys ->
-						safe4.redeemMasterNode(receivePrivateKey(), privateKeys, receiveAddress())
-					}
+					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
 				redeemableList.forEach {
 					redeemStorage.save(Redeem(

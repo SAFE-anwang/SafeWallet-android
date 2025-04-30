@@ -129,14 +129,16 @@ object SendEvmModule {
         val value: BigInteger,
         val input: ByteArray,
         val lockTime: Int?,
-        val isBothErc: Boolean
+        val isBothErc: Boolean,
+        val safe4Swap: Int = 0
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
             transactionData.input,
             transactionData.lockTime,
-            transactionData.isBothErc
+            transactionData.isBothErc,
+            transactionData.safe4Swap
         )
     }
 

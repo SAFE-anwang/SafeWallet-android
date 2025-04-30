@@ -88,12 +88,14 @@ object SendEvmModule {
         val toAddress: String,
         val value: BigInteger,
         val input: ByteArray,
-        val nonce: Long? = null
+        val nonce: Long? = null,
+        val safe4Swap: Int = 0
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
-            transactionData.input
+            transactionData.input,
+            safe4Swap = transactionData.safe4Swap
         )
     }
 

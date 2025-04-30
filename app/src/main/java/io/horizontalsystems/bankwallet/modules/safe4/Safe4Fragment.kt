@@ -147,7 +147,7 @@ private fun Safe4Sections(
     Spacer(Modifier.height(10.dp))
 
     CellSingleLineLawrenceSection(
-        listOf ({
+        listOf (/*{
             HsSettingCell(
                 R.string.Safe4_Line_Locked,
                 R.mipmap.ic_app_color,
@@ -158,7 +158,7 @@ private fun Safe4Sections(
                     }
                 }
             )
-        },{
+        },*/{
             HsSettingCell(
                 R.string.Safe4_Lock_Info,
                 R.mipmap.ic_app_color,
@@ -409,6 +409,30 @@ private fun Safe4Sections(
             }
         )
     )
+    Spacer(Modifier.height(25.dp))
+
+    Text(
+        text = stringResource(R.string.SAFE4_Swap),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForSRC(
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerSafe42SRC( navController)
+                    }
+                )
+            }
+        )
+    )
 
     Spacer(Modifier.height(25.dp))
 
@@ -448,6 +472,24 @@ private fun Safe4Sections(
                 showAlert = false,
                 onClick = {
                     onClick(App.appConfigProvider.safeAcrossChainExplorer)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe4_Block_Explorer,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safe4BlockExplorer)
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Safe4_Across_Chain_Explorer,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    onClick(App.appConfigProvider.safe4AcrossChainExplorer)
                 }
             )
         },{
@@ -668,6 +710,92 @@ fun HsSettingCellForSafe(
             maxLines = 1,
             modifier = Modifier.padding(end = 6.dp)
         )
+        Spacer(Modifier.weight(1f))
+
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = null,
+        )
+    }
+}
+
+
+
+@Composable
+fun HsSettingCellForSRC(
+    @DrawableRes icon: Int,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = { onClick.invoke() }),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = icon),
+            contentDescription = null,
+        )
+        Text(
+            text = "SAFE",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        /*Box(
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(ComposeAppTheme.colors.jeremy)
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    bottom = 1.dp
+                ),
+                text = "SAFE4",
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.microSB,
+                maxLines = 1,
+            )
+        }*/
+        Text(
+            text = "<=>",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 6.dp)
+        )
+        Text(
+            text = "SAFE",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 2.dp)
+        )
+        Box(
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(ComposeAppTheme.colors.jeremy)
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    bottom = 1.dp
+                ),
+                text = "SRC20",
+                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.microSB,
+                maxLines = 1,
+            )
+        }
         Spacer(Modifier.weight(1f))
 
         Image(

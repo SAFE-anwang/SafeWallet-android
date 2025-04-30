@@ -614,4 +614,16 @@
             android:id="@+id/sendEvmFragment_to_sendSafe4ConfirmationFragment"
             app:destination="@id/sendWsafe4ConfirmationFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/safe4SwapFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment" >
+        <action
+            android:id="@+id/sendEvmFragment_to_sendSafe4SwapConfirmationFragment"
+            app:destination="@id/safe4SwapConfirmationFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/safe4SwapConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.swap.confirmation.SendSafeSwapConfirmationFragment" >
+    </fragment>
 </navigation>

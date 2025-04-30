@@ -2124,7 +2124,7 @@
     <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE4</string>
     <string name="Safe4_Title_safe42wsafe_matic">SAFE4=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE4</string>
-    <string name="Safe4_Locked">Locked</string>
+    <string name="Safe4_Locked">SAFE3 Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
     <string name="Safe4_Wsafe_Receive_Address">Receiver</string>
@@ -2169,8 +2169,10 @@
 
     <string name="Safe4_Safe_Basic_Info">Basic Information</string>
     <string name="Safe4_Safe_Homepage">SAFE Homepage</string>
-    <string name="Safe4_Safe_Block_Explorer">BlockExplorer</string>
-    <string name="Safe4_Safe_Across_Chain_Explorer">Across Chain Explorer</string>
+    <string name="Safe4_Safe_Block_Explorer">SAFE3 BlockExplorer</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">SAFE3 Across Chain Explorer</string>
+    <string name="Safe4_Safe4_Block_Explorer">SAFE4 BlockExplorer</string>
+    <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE4 Across Chain Explorer</string>
     <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
     <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
     <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@CMC</string>
@@ -2524,5 +2526,12 @@
     <string name="Redeem_AvailableBalance">Available Balance: %s</string>
     <string name="Redeem_Lock_Balance">Lock Balance: %s</string>
     <string name="Redeem_Enable">Redeemable Balance: %s</string>
+    <string name="SAFE4_Swap">SAFE Exchange SAFE SRC20</string>
+    <string name="SAFE4_Swap_From">From</string>
+    <string name="SAFE4_Swap_To">To</string>
+    <string name="SAFE4_Swap_Balance">Available Balance: %s</string>
+    <string name="SAFE4_Swap_Continue">Continue</string>
+    <string name="SAFE4_Swap_Button">Exchange</string>
+    <string name="SAFE4_Swap_Tx_Title">SAFE Exchange</string>
     <!-- safe 4  end-->
 </resources>

@@ -57,6 +57,10 @@ class SafeAdapter(
     // DashKit Listener
     //
 
+    override fun sendAllowed(): Boolean {
+        return false
+    }
+
     override fun onBalanceUpdate(balance: BalanceInfo) {
         balanceUpdatedSubject.onNext(Unit)
     }
