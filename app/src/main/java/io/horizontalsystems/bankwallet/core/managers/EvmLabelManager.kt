@@ -117,6 +117,8 @@ class EvmLabelManager(
             "0x38e06620" -> Translator.getString(R.string.Method_Add_Lock_Day)
             "0xe8e33700",
             "0xf305d719" -> Translator.getString(R.string.Method_Add_Liquidity)
+            "0x2e1a7d4d",
+            "0xd0e30db0" -> Translator.getString(R.string.SAFE4_Swap_Tx_Title)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

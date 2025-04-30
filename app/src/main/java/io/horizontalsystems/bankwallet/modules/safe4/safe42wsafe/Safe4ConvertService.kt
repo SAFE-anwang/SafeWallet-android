@@ -1,5 +1,6 @@
-package io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe
+package io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -9,6 +10,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevm.IAmountInputService
 import io.horizontalsystems.bankwallet.modules.sendevm.IAvailableBalanceService
+import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
@@ -21,10 +23,10 @@ import java.math.BigInteger
 import java.util.*
 import io.horizontalsystems.ethereumkit.models.Address as EvmAddress
 
-class SendWsafeService(
+class Safe4ConvertService(
     val sendCoin: Token,
     val adapter: ISendEthereumAdapter,
-    val isSafe4: Boolean = false
+    val chain: Chain,
 ) : IAvailableBalanceService, IAmountInputService, Clearable {
 
     private val stateSubject = PublishSubject.create<State>()
@@ -57,9 +59,9 @@ class SendWsafeService(
         val addressData = this.addressData
         state = if (addressEnable && amountError == null && evmAmount != null && addressData != null) {
             if(toSafeAddr != null){
-                val wsafeKit = WsafeKit.getInstance(adapter.evmKitWrapper.evmKit.chain, isSafe4)
-                val safeAddr = toSafeAddr!!.hex
-                val transactionData = wsafeKit.transactionData(evmAmount, safeAddr)
+                val wsafeKit = WsafeKit.getInstance(chain, true)
+//                val safeAddr = toSafeAddr!!.hex
+                val transactionData = wsafeKit.transactionDataSafe4(evmAmount, getReceiveAddress())
                 val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo())
                 State.Ready(SendEvmData(transactionData, additionalInfo))
             } else {
@@ -70,14 +72,28 @@ class SendWsafeService(
         }
     }
 
+    private fun getReceiveAddress(): String {
+        val prefix = when (chain) {
+            Chain.Ethereum -> "eth:"
+            Chain.BinanceSmartChain -> "bsc:"
+            Chain.Polygon -> "matic:"
+            else -> throw IllegalArgumentException("cross chain unsupported ${chain}")
+        }
+        return "$prefix${toSafeAddr!!.hex}"
+    }
+
     @Throws
     private fun validEvmAmount(amount: BigDecimal): BigInteger {
+        // eth add fee
+        val safeInfoPO = SafeInfoManager.getSafeInfo(true)
+        val newAmount = amount + if (chain == Chain.Ethereum) BigDecimal(safeInfoPO.eth.safe_fee) else BigDecimal.ZERO
+
         val evmAmount = try {
-            amount.movePointRight(sendCoin.decimals).toBigInteger()
+            newAmount.movePointRight(sendCoin.decimals).toBigInteger()
         } catch (error: Throwable) {
             throw AmountError.InvalidDecimal
         }
-        if (amount > adapter.balanceData.available) {
+        if (newAmount > adapter.balanceData.available) {
             throw AmountError.InsufficientBalance
         }
         return evmAmount
@@ -130,6 +146,12 @@ class SendWsafeService(
 
     fun setRecipientAddress(address: Address?, to: Address?) {
         addressData = address?.let {
+            try {
+                AddressValidator.validate(it.hex)
+                addressEnable = true
+            } catch (e: Exception) {
+                addressEnable = false
+            }
             AddressData(evmAddress = EvmAddress(it.hex), domain = it.domain)
         }
         toSafeAddr = to

@@ -2,10 +2,12 @@ package io.horizontalsystems.bankwallet.modules.configuredtoken
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
 import io.horizontalsystems.bankwallet.modules.address.*
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
+import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
@@ -45,7 +47,7 @@ class ConfiguredTokenInfoViewModel(
         }
 
         uiState = ConfiguredTokenInfoUiState(
-            iconSource = ImageSource.Remote(token.coin.imageUrl, token.iconPlaceholder),
+            iconSource = if (token.coin.isSafeCoin()) ImageSource.Local(R.drawable.logo_safe_24) else ImageSource.Remote(token.coin.imageUrl, token.iconPlaceholder),
             title = token.coin.code,
             subtitle = token.coin.name,
             tokenInfoType = type

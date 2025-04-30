@@ -1682,7 +1682,13 @@
     <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe2safe_matic">SAFE MATIC=>SAFE</string>
-    <string name="Safe4_Locked">锁仓</string>
+    <string name="Safe4_Title_safe42wsafe_erc20">SAFE=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe42safe_erc20">SAFE ERC20=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_bep20">SAFE=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_matic">SAFE=>SAFE MATIC</string>
+    <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE</string>
+    <string name="Safe4_Locked">SAFE3锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>
     <string name="Safe4_Wsafe_Receive_Address">跨链接收人</string>
@@ -1726,8 +1732,10 @@
 
     <string name="Safe4_Safe_Basic_Info">基本信息</string>
     <string name="Safe4_Safe_Homepage">SAFE官网</string>
-    <string name="Safe4_Safe_Block_Explorer">区块浏览器</string>
-    <string name="Safe4_Safe_Across_Chain_Explorer">跨链浏览器</string>
+    <string name="Safe4_Safe_Block_Explorer">SAFE3区块浏览器</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">SAFE3跨链浏览器</string>
+    <string name="Safe4_Safe4_Block_Explorer">SAFE区块浏览器</string>
+    <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE跨链浏览器</string>
     <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
     <string name="Safe4_Safe_coinmarketcap">SAFE@coinmarketcap</string>
     <string name="Safe4_Safe_BEP20_Coingecko">SAFE BEP20@CMC</string>
@@ -1740,6 +1748,12 @@
     <string name="Safe4_Safe_BSC_Contract">SAFE合约</string>
     <string name="Safe4_Safe_BSC_Pancakeswap">SAFE@pancakeswap</string>
     <string name="Safe4_Safe_Matic_Pancakeswap">SAFE@quickswap</string>
+
+    <string name="Safe4_Safe4_ETH_Contract">SAFE合约</string>
+    <string name="Safe4_Safe4_ETH_Uniswap">SAFE@uniswapv2</string>
+    <string name="Safe4_Safe4_BSC_Contract">SAFE合约</string>
+    <string name="Safe4_Safe4_BSC_Pancakeswap">SAFE@pancakeswap</string>
+    <string name="Safe4_Safe4_Matic_Pancakeswap">SAFE@quickswap</string>
 
 
     <string name="Restore_Select_Wallet">请选择钱包</string>
@@ -1941,7 +1955,7 @@
     <string name="Liquidity_Add_Success">添加成功</string>
     <string name="Dapp">添加成功</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
-    <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE4（从1开始)</string>
+    <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE（从1开始)</string>
 
     <!-- safe 4  start-->
     <string name="Safe_Four_Super_Node">超级节点</string>
@@ -2099,7 +2113,7 @@
     <string name="Safe_Four_Node_Edit_Super_Hint">通过调用超级节点合约更新超级节点对应的属性信息.\n更新的超级节点数据在交易写入区块链后才会生效.</string>
     <string name="Safe_Four_Node_Edit_Master_Hint">通过调用主节点合约更新主节点对应的属性信息.\n更新的主节点数据在交易写入区块链后才会生效.</string>
 
-    <string name="Redeem_Safe3_Title">SAFE3=>SAFE4</string>
+    <string name="Redeem_Safe3_Title">SAFE3=>SAFE</string>
     <string name="Redeem_Safe3_Other_Wallet">其他钱包</string>
     <string name="Redeem_Safe3_Local_Wallet">本地钱包</string>
     <string name="Redeem_Safe3_Query">资产查询</string>
@@ -2116,14 +2130,16 @@
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>
     <string name="Redeem_Safe3_Send_Success">迁移成功</string>
-    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到该私钥对应的 SAFE4 网络的钱包地址上</string>
-    <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE4 网络</string>
-    <string name="Redeem_Safe4_Address">SAFE4 钱包地址</string>
+    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到用户选择的 SAFE 网络的钱包地址</string>
+    <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE 网络</string>
+    <string name="Redeem_Safe4_Address">SAFE 钱包地址</string>
     <string name="Redeem_Safe4_Redeem_Button">迁移</string>
     <string name="Redeem_Safe4_Redeem_Onec">一键迁移SAFE3</string>
-    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE4地址</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE地址</string>
     <string name="Redeem_Safe4_Redeem_Success">已完成迁移</string>
-    <string name="Safe_Four">SAFE4</string>
+    <string name="Redeem_Safe4_Redeem_Local_Address">本地钱包地址</string>
+    <string name="Redeem_Safe4_Redeem_PrivatKey_Address">私钥对应地址</string>
+    <string name="Safe_Four">SAFE</string>
     <string name="Safe_Four_Node_Info_Ranking">排名: %d</string>
     <string name="Master_Node_Search">主节点Id | 主节点地址</string>
     <string name="Super_Node_Search">超级节点Id | 超级节点地址</string>
@@ -2152,12 +2168,12 @@
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
-    <string name="Get_Safe3_Test_Coin">SAFE4领取</string>
+    <string name="Get_Safe3_Test_Coin">SAFE领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Success">领取成功</string>
-    <string name="Safe3_Test_Coin_Address">SAFE4 钱包地址</string>
-    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE4地址</string>
+    <string name="Safe3_Test_Coin_Address">SAFE 钱包地址</string>
+    <string name="Safe3_Test_Coin_Address_Hint">请输入SAFE地址</string>
     <string name="Get_Safe3_Test_Coin_Amount">领取数量</string>
     <string name="Get_Safe3_Test_Coin_Transaction_Hash">交易Hash</string>
     <string name="Get_Safe3_Test_Coin_DateTimestamp">领取时间</string>
@@ -2172,13 +2188,25 @@
     <string name="Safe_Four_Node_Add_Lock_Day_Alert">追加锁定: %d 天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Max">最多可追加锁定%d天</string>
     <string name="Safe_Four_Node_Add_Lock_Day_Id">锁仓Id: </string>
+    <string name="Safe_Four_Node_Add_Lock_Amount">锁仓数量: </string>
     <string name="Safe_Four_Node_Aready_Lock_Day">已锁定: </string>
     <string name="Safe_Four_Node_Max_Lock_Day">最大可锁定: </string>
     <string name="Balance_Receive_MoreAddresses">更多地址</string>
     <string name="AnBao_Addresses">地址:</string>
     <string name="AnBao_Private_Key">私钥:</string>
     <string name="AnBao_Balance">余额:</string>
-
+    <string name="Proposal_NOT_CREATE">区块高度超过86400才能创建查看提案</string>
+    <string name="Redeem_AvailableBalance">可用余额: %s</string>
+    <string name="Redeem_Lock_Balance">锁仓余额: %s</string>
+    <string name="Redeem_Enable">可迁移余额: %s</string>
+    <string name="SAFE4_Swap">SAFE兑换SAFE SRC20</string>
+    <string name="SAFE4_Swap_Title">SAFE兑换</string>
+    <string name="SAFE4_Swap_From">从</string>
+    <string name="SAFE4_Swap_To">至</string>
+    <string name="SAFE4_Swap_Balance">可用余额: %s</string>
+    <string name="SAFE4_Swap_Continue">继续</string>
+    <string name="SAFE4_Swap_Button">兑换</string>
+    <string name="SAFE4_Swap_Tx_Title">SAFE兑换</string>
 
     <!-- safe 4  end-->
 </resources>

@@ -21,6 +21,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceIt
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,7 +116,11 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                 }
 
                 else -> {
-                    BlockchainType.supported.map { it.defaultTokenQuery }
+                    if (otherSelectedToken != null) {
+                        listOf(TokenQuery(otherSelectedToken.blockchainType, TokenType.Native))
+                    } else {
+                        BlockchainType.supported.map { it.defaultTokenQuery }
+                    }
                 }
             }
 

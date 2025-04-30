@@ -118,7 +118,8 @@ object SendEvmConfirmationModule {
                 Address(transactionDataParcelable.toAddress),
                 transactionDataParcelable.value,
                 transactionDataParcelable.input,
-                transactionDataParcelable.lockTime
+                transactionDataParcelable.lockTime,
+                safe4Swap = transactionDataParcelable.safe4Swap
             )
 
         constructor(sendData: SendEvmData, sendNavId: Int, sendEntryPointDestId: Int = 0) : this(

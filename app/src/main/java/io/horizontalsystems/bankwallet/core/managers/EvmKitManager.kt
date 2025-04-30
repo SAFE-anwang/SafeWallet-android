@@ -259,6 +259,20 @@ class EvmKitWrapper(
         }
     }
 
+    fun sendSafe4Swap(
+        transactionData: TransactionData
+    ) : Single<String> {
+        return if (signer != null) {
+            if (transactionData.safe4Swap == 1) {
+                evmKit.safe4ToSrc20(signer.privateKey, transactionData)
+            } else {
+                evmKit.src20ToSafe4(signer.privateKey, transactionData)
+            }
+        } else {
+            Single.error(Exception())
+        }
+    }
+
     fun createSuperNode(
             value: BigInteger,
             isUnion: Boolean,

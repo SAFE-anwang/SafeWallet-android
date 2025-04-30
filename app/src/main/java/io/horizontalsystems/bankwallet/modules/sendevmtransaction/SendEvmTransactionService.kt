@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettings
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
+import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
@@ -123,8 +124,19 @@ class SendEvmTransactionService(
         val txConfig = settingsService.state.dataOrNull ?: return
 
         sendState = SendState.Sending
-        logger.info("sending tx")
-
+        logger.info("sending tx ${txConfig.nonce}")
+        if (txConfig.transactionData.safe4Swap != 0) {
+            evmKitWrapper.sendSafe4Swap(txConfig.transactionData)
+                .subscribeIO({
+                    sendState = SendState.Sent(it.hexStringToByteArray())
+                    logger.info("success $it")
+                }, { error ->
+                    sendState = SendState.Failed(error)
+                    logger.warning("failed", error)
+                })
+                .let { disposable.add(it) }
+            return
+        }
         evmKitWrapper.sendSingle(
             txConfig.transactionData,
             txConfig.gasData.gasPrice,

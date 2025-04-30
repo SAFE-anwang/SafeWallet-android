@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.createCaution
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.valueConvert
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.pow
 
 class RedeemSafe3LocalViewModel(
 		val wallet: Wallet,
@@ -61,6 +63,10 @@ class RedeemSafe3LocalViewModel(
 	var sendResult by mutableStateOf<SendResult?>(null)
 	private var syncing = true
 	private var isRedeemSuccess = false
+	private var availableAmount: Long? = null
+	private var redeemableAmount: BigInteger = BigInteger.ZERO
+	private var lockedAmount: Long? = null
+	private var redeemableLocked: BigInteger = BigInteger.ZERO
 
 	private val disposables = CompositeDisposable()
 
@@ -87,14 +93,19 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	override fun createState() : RedeemSafe3Module.RedeemSafe3LocalUiState{
+		val canRedeem = list.filter { it.existAvailable || it.existLocked || it.existMasterNode }.isNotEmpty()
 		return RedeemSafe3Module.RedeemSafe3LocalUiState(
 				step,
 				syncing,
-				!syncing && list.size > 0,
+				!syncing && canRedeem,
 				receiveAddress(),
 				convert(),
 				isRedeemSuccess,
-				showConfirmationDialg
+				showConfirmationDialg,
+			availableAmount?.let { App.numberFormatter.formatCoinFull(valueConvert(it.toBigInteger(), 8), "", 8) },
+			App.numberFormatter.formatCoinFull(valueConvert(redeemableAmount), "", 8),
+			lockedAmount?.let { App.numberFormatter.formatCoinFull(valueConvert(it.toBigInteger(), 8), "", 8) },
+			App.numberFormatter.formatCoinFull(valueConvert(redeemableLocked), "", 8)
 		)
 	}
 
@@ -143,15 +154,17 @@ class RedeemSafe3LocalViewModel(
 		closeDialog()
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
-			val listPrivateKey = list.map { it.privateKey.toHexString() }
-			val masterNodeKey = list.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
-
+			val redeemableList = list.filter { it.redeemable }
+			val listPrivateKey = redeemableList.filter { it.existAvailable || it.existLocked
+			}.map { it.privateKey.toHexString() }
+			val masterNodeKey = redeemableList.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 			try {
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress()).blockingGet()
+				// 余额迁移
+				safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
 				if (masterNodeKey.isNotEmpty()) {
 					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
-				list.forEach {
+				redeemableList.forEach {
 					redeemStorage.save(Redeem(
 							it.address,
 							it.existAvailable,
@@ -180,10 +193,10 @@ class RedeemSafe3LocalViewModel(
 		}
 	}
 
-	private fun loadItems(address: String): List<LockedSafe3Info>? {
-		maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
+	private fun loadItems(address: String): Pair<Int, List<LockedSafe3Info>?> {
+		val maxLockedCount = safe4.safe3GetLockedNum(address).blockingGet().toInt()
 		if (maxLockedCount <= 0) {
-			return null
+			return Pair(maxLockedCount, null)
 		}
 		val lockList = mutableListOf<LockedSafe3Info>()
 		val countPage = (maxLockedCount + itemsPerPage - 1) / itemsPerPage
@@ -203,7 +216,7 @@ class RedeemSafe3LocalViewModel(
 			}
 			page ++
 		}
-		return lockList
+		return Pair(maxLockedCount, lockList)
 	}
 
 	private fun getLockedAmount(address: String): Pair<BigInteger, BigInteger> {
@@ -240,44 +253,15 @@ class RedeemSafe3LocalViewModel(
 	private fun getNeedToRedeemAddress() {
 		viewModelScope.launch(Dispatchers.IO) {
 			val alreadyRedeem = redeemStorage.allRedeem()
-			val unspentOutputs = allUtxo()
-					.distinctBy { it.transaction.hash.toHexString() }
-			unspentOutputs.forEach {
-				val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-				val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
-				if (isSuccess)	return@forEach
-				try {
-					val existAvailable = safe4.existAvailableNeedToRedeem(address)
-					val existLocked = safe4.existLockedNeedToRedeem(address)
-					val existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
-					if (existAvailable || existLocked || existMasterNode) {
-						val safe3Info = getAvailableSafe3Info(address)
-						val safe3LockedInfo = loadItems(address)
-						val lockedAmount = lockBalance(safe3LockedInfo)
-						val masterNodeAmount = masterLockBalance(safe3LockedInfo)
-						if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
-						bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
-							list.add(
-									RedeemSafe3Module.Safe3LocalInfo(
-											address,
-											safe3Info?.amount ?: BigInteger.ZERO,
-											lockedAmount,
-											existAvailable,
-											existLocked,
-											existMasterNode,
-											maxLockedCount,
-											masterNodeAmount,
-											privateKey
-											)
-							)
-						}
-						emitState()
-					}
-				} catch (e: Exception) {
-					Log.e("Redeem", "redeemCurrentWalletSafe3 error=$e")
-				}
-			}
-			if (list.isEmpty() || unspentOutputs.isEmpty()) {
+			/*val unspentOutputs = allUtxo()
+					.distinctBy { it.transaction.hash.toHexString() }*/
+			val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()/*.distinctBy { it.transaction.hash.toHexString() }*/
+			availableAmount = spendableUtxo.sumOf { it.output.value }
+			val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()/*.distinctBy { it.transaction.hash.toHexString() }*/
+			lockedAmount = spendableTimeLockUtxo.sumOf { it.output.value }
+			getRedeemAddressInfo(spendableUtxo, alreadyRedeem, false)
+			getRedeemAddressInfo(spendableTimeLockUtxo, alreadyRedeem, true)
+			if (list.isEmpty() || (spendableUtxo.isEmpty() && spendableTimeLockUtxo.isEmpty())) {
 				isRedeemSuccess = true
 			}
 			syncing = false
@@ -287,37 +271,80 @@ class RedeemSafe3LocalViewModel(
 		}
 	}
 
+	private fun getRedeemAddressInfo(unspentOutputs: List<UnspentOutput>, alreadyRedeem: List<Redeem>, isLock: Boolean) {
+		val tempUnspentOutputs = if (isLock) unspentOutputs.distinctBy { it.transaction.hash.toHexString() } else unspentOutputs
+		tempUnspentOutputs.forEach {
+			val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
+			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
+			if (isSuccess)	return@forEach
+			try {
+				val existAvailable = safe4.existAvailableNeedToRedeem(address)
+				val existLocked = safe4.existLockedNeedToRedeem(address)
+				val existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
+				if (existAvailable || existLocked || existMasterNode) {
+					val safe3Info = getAvailableSafe3Info(address)
+					val (lockNum, safe3LockedInfo) = loadItems(address)
+					val lockedAmount = lockBalance(safe3LockedInfo)
+					val masterNodeAmount = masterLockBalance(safe3LockedInfo)
+					if (safe3Info != null) {
+						redeemableAmount += safe3Info.amount
+					}
+					redeemableLocked += lockedAmount
+					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
+					bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
+						list.add(
+							RedeemSafe3Module.Safe3LocalInfo(
+								address,
+								safe3Info?.amount ?: BigInteger.ZERO,
+								lockedAmount,
+								existAvailable,
+								existLocked,
+								existMasterNode,
+								lockNum,
+								masterNodeAmount,
+								privateKey,
+								true
+							)
+						)
+					}
+				} else {
+					val value = unspentOutputs.filter { it.output.address == address }.sumOf { it.output.value }.toBigInteger()* BigInteger.TEN.pow(10)
+					val availableAmount = if (isLock) BigInteger.ZERO else  value
+					val lockedAmount = if (isLock) value else BigInteger.ZERO
+					bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
+						list.add(
+							RedeemSafe3Module.Safe3LocalInfo(
+								address,
+								availableAmount,
+								lockedAmount,
+								existAvailable,
+								existLocked,
+								existMasterNode,
+								0,
+								null,
+								privateKey
+							)
+						)
+					}
+					redeemStorage.save(Redeem(
+						address,
+						existAvailable,
+						existLocked,
+						existMasterNode,
+						true
+					))
+				}
+				emitState()
+			} catch (e: Exception) {
+				Log.e("Redeem", "redeemCurrentWalletSafe3 error=$e")
+			}
+		}
+	}
+
 	private fun allUtxo(): List<UnspentOutput> {
 		val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()
 		val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()
 		return spendableUtxo + spendableTimeLockUtxo
-		val unspentOutputs = bitcoinCore.storage.getUnspentOutputs()
-
-		val lastBlockHeight = bitcoinCore.storage.lastBlock()?.height ?: 0
-		return unspentOutputs.filter {
-			// If a transaction is an outgoing transaction, then it can be used
-			// even if it's not included in a block yet
-			if (it.transaction.isOutgoing) {
-				return@filter true
-			}
-
-			// If a transaction is an incoming transaction, then it can be used
-			// only if it's included in a block and has enough number of confirmations
-			val block = it.block ?: return@filter false
-
-			// - Update for Safe-Asset reserve
-			val reserve = it.output.reserve;
-			if ( reserve != null ){
-				if ( reserve.toHexString() != "73616665"  // 普通交易
-						// coinbase 收益
-						&& reserve.toHexString() != "7361666573706f730100c2f824c4364195b71a1fcfa0a28ebae20f3501b21b08ae6d6ae8a3bca98ad9d64136e299eba2400183cd0a479e6350ffaec71bcaf0714a024d14183c1407805d75879ea2bf6b691214c372ae21939b96a695c746a6"
-						// safe备注，也是属于safe交易
-						&& !reserve.toHexString().startsWith("736166650100c9dcee22bb18bd289bca86e2c8bbb6487089adc9a13d875e538dd35c70a6bea42c0100000a02010012")){
-					return@filter false
-				}
-			}
-			false
-		}
 	}
 
 	override fun onCleared() {

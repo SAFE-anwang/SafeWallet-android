@@ -43,6 +43,8 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
 
     val safeBlockExplorer = "https://chain.anwang.com"
     val safeAcrossChainExplorer = "https://anwang.com/assetgate.html"
+    val safe4BlockExplorer = "https://safe4.anwang.com"
+    val safe4AcrossChainExplorer = "https://safe4.anwang.com/crosschains"
     val safeCoinGecko = "https://www.coingecko.com/en/coins/safe-anwang"
     val safeSafeBEP20 = "https://coinmarketcap.com/currencies/safe-anwang"
     val safeCoinMarketCap = "https://coinmarketcap.com/currencies/safe"
@@ -52,6 +54,10 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safeBSCContract = "https://bscscan.com/token/0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1"
     val safeBSCPancakeswap = "https://pancakeswap.finance/info/pairs/0x400db103af7a0403c9ab014b2b73702b89f6b4b7"
     val safeMaticContract = "https://polygonscan.com/address/0xb7dd19490951339fe65e341df6ec5f7f93ff2779"
+
+    val safe4EthContract = "https://etherscan.io/token/0x96f59C9D155d598d4f895F07dd6991cCB5FA7DC7"
+    val safe4BSCContract = "https://bscscan.com/token/0x3a5557AD6FA16699dD56fd0E418C70c83e42240a"
+    val safe4MaticContract = "https://polygonscan.com/address/0xe0D3ff9b473976855B2242a1A022aC66f980Ce50"
 
     private val testSafe4Api = "https://safe4testnet.anwang.com/api/"
     private val mainSafe4Api = "https://safe4.anwang.com/api/"

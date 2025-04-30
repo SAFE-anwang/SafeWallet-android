@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
@@ -119,6 +118,10 @@ class SafeFourProposalService(
 
 	fun loadAllItems(page: Int) {
 		try {
+			if (allProposalNum == 0) {
+				allSubject.onNext(allItems)
+				return
+			}
 			if (loading.get()) return
 			loading.set(true)
 			var itemsCount = allProposalNum - (page + 1) * itemsPerPage

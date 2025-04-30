@@ -86,9 +86,16 @@ object RedeemSafe3Module {
 			val existAvailable: Boolean,
 			val existLocked: Boolean,
 			val canRedeem: Boolean,
-			val safe4address: String? = null,
+			val safe4address: List<ReceiveAddress>,
 			val safe3LockNum: Int = 0,
 			val masterNodeLock: String? = null
+	)
+
+	data class ReceiveAddress(
+		val id: Int,
+		val title: String,
+		val address: String,
+		val selected: Boolean
 	)
 
 	data class RedeemSafe3LocalUiState(
@@ -98,7 +105,11 @@ object RedeemSafe3Module {
 			val safe4address: String,
 			val list: List<Safe3LocalItemView>,
 			val isRedeemSuccess: Boolean,
-			val showConfirmationDialog: Boolean = false
+			val showConfirmationDialog: Boolean = false,
+			val balance: String? = null,
+			val redeemableBalance: String,
+			val locked: String? = null,
+			val redeemableLocked: String
 	)
 
 	data class RedeemSafe3SelectUiState(
@@ -127,7 +138,8 @@ object RedeemSafe3Module {
 			val existMasterNode: Boolean,
 			val safe3LockNum: Int = 0,
 			val masterNodeLock: BigInteger?,
-			val privateKey: BigInteger
+			val privateKey: BigInteger,
+			val redeemable: Boolean = false
 	)
 
 	data class Safe3LockItemView(

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
@@ -50,15 +52,20 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection2
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput2
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.headline1_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.headline1_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -317,7 +324,12 @@ fun RedeemSafe3Screen(
 				body_grey(text = stringResource(id = R.string.Redeem_Safe4_Address))
 
 				Spacer(modifier = Modifier.height(6.dp))
-				body_bran(text = uiState.safe4address!!)
+
+				CellUniversalLawrenceSection2(uiState.safe4address) { item ->
+					AddressCell(item.title, item.address, item.selected) {
+						viewModel.onSelectAddress(item.id)
+					}
+				}
 
 				Spacer(modifier = Modifier.height(8.dp))
 				ButtonPrimaryYellow(
@@ -333,6 +345,48 @@ fun RedeemSafe3Screen(
 				)
 			}
 			
+		}
+	}
+}
+
+
+@Composable
+fun AddressCell(
+	title: String,
+	subtitle: String,
+	checked: Boolean,
+	onClick: () -> Unit
+) {
+	RowUniversal(
+		onClick = onClick
+	) {
+		Column(modifier = Modifier
+			.padding(start = 16.dp)
+			.weight(1f)) {
+			body_leah(
+				text = title,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis,
+			)
+			Spacer(Modifier.height(1.dp))
+			subhead2_grey(
+				text = subtitle,
+				overflow = TextOverflow.Ellipsis,
+			)
+		}
+		Box(
+			modifier = Modifier
+				.width(52.dp)
+				.fillMaxHeight(),
+			contentAlignment = Alignment.Center
+		) {
+			if (checked) {
+				Icon(
+					painter = painterResource(R.drawable.ic_checkmark_20),
+					tint = ComposeAppTheme.colors.jacob,
+					contentDescription = null,
+				)
+			}
 		}
 	}
 }

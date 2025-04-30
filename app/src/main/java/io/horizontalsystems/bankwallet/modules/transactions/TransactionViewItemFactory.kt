@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import com.anwang.utils.Safe4Contract
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
@@ -242,6 +243,7 @@ class TransactionViewItemFactory(
             )
 
             is ContractCallTransactionRecord -> {
+                val isRedeemEvent = record.incomingEvents.filter { it.address == Safe4Contract.Safe3ContractAddr }.isNotEmpty() || record.outgoingEvents.filter { it.address == Safe4Contract.Safe3ContractAddr }.isNotEmpty()
                 val (incomingValues, outgoingValues) = EvmTransactionRecord.combined(record.incomingEvents, record.outgoingEvents)
                 val locked = if ("0x092c8749" == record.transaction.input?.take(4)?.toByteArray().toHexString()) true else null
                 createViewItemFromContractCallTransactionRecord(
@@ -257,11 +259,13 @@ class TransactionViewItemFactory(
                     icon = icon,
                     spam = record.spam,
                     nftMetadata = transactionItem.nftMetadata,
-                    locked = locked
+                    locked = locked,
+                    isRedeemEvent = isRedeemEvent
                 )
             }
 
             is ExternalContractCallTransactionRecord -> {
+                val isRedeemEvent = record.incomingEvents.filter { it.address == Safe4Contract.Safe3ContractAddr }.isNotEmpty() || record.outgoingEvents.filter { it.address == Safe4Contract.Safe3ContractAddr }.isNotEmpty()
                 val (incomingValues, outgoingValues) = EvmTransactionRecord.combined(record.incomingEvents, record.outgoingEvents)
                 createViewItemFromExternalContractCallTransactionRecord(
                     uid = record.uid,
@@ -274,7 +278,8 @@ class TransactionViewItemFactory(
                     progress = progress,
                     spam = record.spam,
                     icon = icon,
-                    nftMetadata = transactionItem.nftMetadata
+                    nftMetadata = transactionItem.nftMetadata,
+                    isRedeemEvent = isRedeemEvent
                 )
             }
 
@@ -893,7 +898,8 @@ class TransactionViewItemFactory(
         spam: Boolean,
         icon: TransactionViewItem.Icon?,
         nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
-        locked: Boolean? = null
+        locked: Boolean? = null,
+        isRedeemEvent: Boolean = false
     ): TransactionViewItem {
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, nftMetadata)
         val title = method ?: Translator.getString(R.string.Transactions_ContractCall)
@@ -903,8 +909,8 @@ class TransactionViewItemFactory(
             progress = progress,
             title = title,
             subtitle = mapped(contractAddress, blockchainType),
-            primaryValue = primaryValue,
-            secondaryValue = secondaryValue,
+            primaryValue = if (isRedeemEvent) null else primaryValue,
+            secondaryValue = if (isRedeemEvent) null else secondaryValue,
             showAmount = showAmount,
             date = Date(timestamp * 1000),
             spam = spam,
@@ -924,7 +930,8 @@ class TransactionViewItemFactory(
         progress: Float?,
         spam: Boolean,
         icon: TransactionViewItem.Icon?,
-        nftMetadata: Map<NftUid, NftAssetBriefMetadata>
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
+        isRedeemEvent: Boolean = false
     ): TransactionViewItem {
 
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(
@@ -937,7 +944,7 @@ class TransactionViewItemFactory(
         val title: String
         val subTitle: String
         if (outgoingValues.isEmpty()) {
-            title = Translator.getString(R.string.Transactions_Receive)
+            title = if (isRedeemEvent) Translator.getString(R.string.Method_Redeem_Available) else Translator.getString(R.string.Transactions_Receive)
             val addresses = incomingEvents.mapNotNull { it.address }.toSet().toList()
 
             subTitle = if (addresses.size == 1) {
@@ -957,8 +964,8 @@ class TransactionViewItemFactory(
             progress = progress,
             title = title,
             subtitle = subTitle,
-            primaryValue = primaryValue,
-            secondaryValue = secondaryValue,
+            primaryValue = if (isRedeemEvent) null else primaryValue,
+            secondaryValue = if (isRedeemEvent) null else secondaryValue,
             showAmount = showAmount,
             date = Date(timestamp * 1000),
             spam = spam,

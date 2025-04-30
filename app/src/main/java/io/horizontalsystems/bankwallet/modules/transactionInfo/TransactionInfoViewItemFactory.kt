@@ -270,6 +270,7 @@ class TransactionInfoViewItemFactory(
                 itemSections.add(getContractMethodSectionItems(transaction.method, transaction.contractAddress, transaction.blockchainType))
 
                 for (event in transaction.outgoingEvents) {
+                    if (event.address == Safe4Contract.Safe3ContractAddr) continue
                     itemSections.add(
                         getSendSectionItems(
                             value = event.value,
@@ -282,6 +283,7 @@ class TransactionInfoViewItemFactory(
                 }
 
                 for (event in transaction.incomingEvents) {
+                    if (event.address == Safe4Contract.Safe3ContractAddr) continue
                     itemSections.add(
                         getReceiveSectionItems(
                             value = event.value,
@@ -324,6 +326,7 @@ class TransactionInfoViewItemFactory(
 
             is ExternalContractCallTransactionRecord -> {
                 for (event in transaction.outgoingEvents) {
+                    if (event.address == Safe4Contract.Safe3ContractAddr) continue
                     itemSections.add(
                         getSendSectionItems(
                             value = event.value,
@@ -336,6 +339,7 @@ class TransactionInfoViewItemFactory(
                 }
 
                 for (event in transaction.incomingEvents) {
+                    if (event.address == Safe4Contract.Safe3ContractAddr) continue
                     itemSections.add(
                         getReceiveSectionItems(
                             value = event.value,

@@ -40,6 +40,7 @@ import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeaderMultiline
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 import io.horizontalsystems.marketkit.models.Token
 
 class ConfiguredTokenInfoDialog : BaseComposableBottomSheetFragment() {
@@ -128,14 +129,23 @@ private fun ContractInfo(tokenInfoType: ConfiguredTokenInfoType.Contract) {
         RowUniversal(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            Image(
-                modifier = Modifier.size(32.dp),
-                painter = rememberAsyncImagePainter(
-                    model = tokenInfoType.platformImageUrl,
-                    error = painterResource(R.drawable.ic_platform_placeholder_32)
-                ),
-                contentDescription = "platform"
-            )
+            if (tokenInfoType.platformImageUrl.isSafeIcon()) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_safe_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(32.dp),
+                    painter = rememberAsyncImagePainter(
+                        model = tokenInfoType.platformImageUrl,
+                        error = painterResource(R.drawable.ic_platform_placeholder_32)
+                    ),
+                    contentDescription = "platform"
+                )
+            }
             HSpacer(16.dp)
             subhead2_leah(
                 modifier = Modifier.weight(1f),

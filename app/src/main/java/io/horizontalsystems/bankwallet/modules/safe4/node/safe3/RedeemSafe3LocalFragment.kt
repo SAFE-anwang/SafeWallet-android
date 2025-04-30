@@ -177,7 +177,42 @@ fun RedeemSafe3LocalScreen(
 				StepView("3", stringResource(id = R.string.Redeem_Safe3_Migration), currentStep == 3, currentStep > 3)
 			}
 
-
+			Spacer(modifier = Modifier.height(8.dp))
+			uiState.balance?.let {
+				Row(
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Text(
+						modifier = Modifier,
+						text = stringResource(id = R.string.Redeem_AvailableBalance, it),
+						fontSize = 16.sp
+					)
+					Spacer(modifier = Modifier.width(16.dp))
+					Text(
+						modifier = Modifier,
+						text = stringResource(id = R.string.Redeem_Enable, uiState.redeemableBalance),
+						fontSize = 16.sp
+					)
+				}
+			}
+			Spacer(modifier = Modifier.height(8.dp))
+			uiState.locked?.let {
+				Row(
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Text(
+						modifier = Modifier,
+						text = stringResource(id = R.string.Redeem_Lock_Balance, it),
+						fontSize = 16.sp
+					)
+					Spacer(modifier = Modifier.width(16.dp))
+					Text(
+						modifier = Modifier,
+						text = stringResource(id = R.string.Redeem_Enable, uiState.redeemableLocked),
+						fontSize = 16.sp
+					)
+				}
+			}
 
 			Spacer(modifier = Modifier.height(16.dp))
 

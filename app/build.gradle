@@ -17,8 +17,8 @@ android {
         compileSdk compile_sdk_version
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
-        versionCode 114
-        versionName "v0.38.0.1.0315"
+        versionCode 120
+        versionName "v0.40.0.1.0430"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {

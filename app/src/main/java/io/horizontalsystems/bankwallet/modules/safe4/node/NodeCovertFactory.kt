@@ -182,16 +182,16 @@ object NodeCovertFactory {
 		)
 	}
 
-	fun valueConvert(value: BigInteger): BigDecimal {
-		return value.toBigDecimal().movePointLeft(18).stripTrailingZeros()
+	fun valueConvert(value: BigInteger, n: Int = 18): BigDecimal {
+		return value.toBigDecimal().movePointLeft(n).stripTrailingZeros()
 	}
 
 	fun scaleConvert(value: Int): BigInteger {
 		return value.toBigDecimal().movePointRight(18).stripTrailingZeros().toBigInteger()
 	}
 
-	fun formatSafe(value: BigInteger): String {
-		val decimal = valueConvert(value)
+	fun formatSafe(value: BigInteger, n:Int = 18): String {
+		val decimal = valueConvert(value, n)
 		return App.numberFormatter.formatCoinFull(decimal, "SAFE", 8)
 	}
 
