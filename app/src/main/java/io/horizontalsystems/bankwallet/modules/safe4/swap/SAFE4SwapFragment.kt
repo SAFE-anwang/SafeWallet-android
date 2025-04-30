@@ -111,7 +111,7 @@ private fun SwapMainScreen(
     ComposeAppTheme {
         Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
             AppBar(
-                title = stringResource(R.string.SAFE4_Swap),
+                title = stringResource(R.string.SAFE4_Swap_Title),
                 navigationIcon = {
                     HsBackButton(onClick = { navController.popBackStack() })
                 },

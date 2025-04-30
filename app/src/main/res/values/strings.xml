@@ -2465,7 +2465,7 @@
     <string name="Redeem_Safe4_Redeem_Success">Migration completed</string>
     <string name="Redeem_Safe4_Redeem_Local_Address">Local wallet address</string>
     <string name="Redeem_Safe4_Redeem_PrivatKey_Address">Private key corresponding address</string>
-    <string name="Safe_Four">SAFE4</string>
+    <string name="Safe_Four">SAFE</string>
     <string name="Safe_Four_Node_Info_Ranking">Rank: %d</string>
     <string name="Safe_Four_Vote_Amount">[%s]</string>
     <string name="Master_Node_Search">Master Node Id | Master Node Address</string>
@@ -2527,6 +2527,7 @@
     <string name="Redeem_Lock_Balance">Lock Balance: %s</string>
     <string name="Redeem_Enable">Redeemable Balance: %s</string>
     <string name="SAFE4_Swap">SAFE Exchange SAFE SRC20</string>
+    <string name="SAFE4_Swap_Title">SAFE Exchange</string>
     <string name="SAFE4_Swap_From">From</string>
     <string name="SAFE4_Swap_To">To</string>
     <string name="SAFE4_Swap_Balance">Available Balance: %s</string>

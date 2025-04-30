@@ -1682,12 +1682,12 @@
     <string name="Safe4_Title_wsafe2safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe2safe_matic">SAFE MATIC=>SAFE</string>
-    <string name="Safe4_Title_safe42wsafe_erc20">SAFE4=>SAFE ERC20</string>
-    <string name="Safe4_Title_wsafe42safe_erc20">SAFE ERC20=>SAFE4</string>
-    <string name="Safe4_Title_safe42wsafe_bep20">SAFE4=>SAFE BEP20</string>
-    <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE4</string>
-    <string name="Safe4_Title_safe42wsafe_matic">SAFE4=>SAFE MATIC</string>
-    <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE4</string>
+    <string name="Safe4_Title_safe42wsafe_erc20">SAFE=>SAFE ERC20</string>
+    <string name="Safe4_Title_wsafe42safe_erc20">SAFE ERC20=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_bep20">SAFE=>SAFE BEP20</string>
+    <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE</string>
+    <string name="Safe4_Title_safe42wsafe_matic">SAFE=>SAFE MATIC</string>
+    <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE</string>
     <string name="Safe4_Locked">SAFE3锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>
@@ -2139,7 +2139,7 @@
     <string name="Redeem_Safe4_Redeem_Success">已完成迁移</string>
     <string name="Redeem_Safe4_Redeem_Local_Address">本地钱包地址</string>
     <string name="Redeem_Safe4_Redeem_PrivatKey_Address">私钥对应地址</string>
-    <string name="Safe_Four">SAFE4</string>
+    <string name="Safe_Four">SAFE</string>
     <string name="Safe_Four_Node_Info_Ranking">排名: %d</string>
     <string name="Master_Node_Search">主节点Id | 主节点地址</string>
     <string name="Super_Node_Search">超级节点Id | 超级节点地址</string>
@@ -2200,6 +2200,7 @@
     <string name="Redeem_Lock_Balance">锁仓余额: %s</string>
     <string name="Redeem_Enable">可迁移余额: %s</string>
     <string name="SAFE4_Swap">SAFE兑换SAFE SRC20</string>
+    <string name="SAFE4_Swap_Title">SAFE兑换</string>
     <string name="SAFE4_Swap_From">从</string>
     <string name="SAFE4_Swap_To">至</string>
     <string name="SAFE4_Swap_Balance">可用余额: %s</string>

@@ -602,7 +602,7 @@ fun HsSettingCellForEth(
             contentDescription = null,
         )
         Text(
-            text = coinName + safe4,
+            text = coinName,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
@@ -704,7 +704,7 @@ fun HsSettingCellForSafe(
             modifier = Modifier.padding(horizontal = 6.dp)
         )
         Text(
-            text = coinName + safe4,
+            text = coinName,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
