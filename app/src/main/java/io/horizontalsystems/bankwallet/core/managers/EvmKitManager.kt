@@ -259,6 +259,13 @@ class EvmKitWrapper(
         }
     }
 
+    fun withdrawByIds(ids: List<BigInteger>): String? {
+        if (blockchainType == BlockchainType.SafeFour && signer != null) {
+            return evmKit.withdrawByIds(signer.privateKey, ids)
+        }
+        return null
+    }
+
     fun sendSafe4Swap(
         transactionData: TransactionData
     ) : Single<String> {

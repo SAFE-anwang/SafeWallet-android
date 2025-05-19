@@ -47,7 +47,7 @@ object SafeFourVoteModule {
 			val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
 			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 			val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)
-			val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,  adapter.evmKitWrapper.evmKit, nodeAddress, address)
+			val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,  adapter.evmKitWrapper.evmKit, address)
 			val isSuperNode = nodeType == NodeType.SuperNode.ordinal
 			return SafeFourVoteViewModel(
 					wallet,

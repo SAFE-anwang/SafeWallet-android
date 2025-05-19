@@ -100,6 +100,7 @@ class EvmLabelManager(
             "0x978a11d1" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)
                 Translator.getString(R.string.Method_Join_Super_Node)
             else Translator.getString(R.string.Method_Join_Master_Node)
+            "0xc28423ec",
             "0x3ccfd60b" -> Translator.getString(R.string.Method_Withdraw)
             "0x092c8749" -> Translator.getString(R.string.Method_Vote_Super_Node)
             "0xcd9d6fca" -> Translator.getString(R.string.Method_Income)

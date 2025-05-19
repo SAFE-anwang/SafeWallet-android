@@ -272,7 +272,7 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	private fun getRedeemAddressInfo(unspentOutputs: List<UnspentOutput>, alreadyRedeem: List<Redeem>, isLock: Boolean) {
-		val tempUnspentOutputs = if (isLock) unspentOutputs.distinctBy { it.transaction.hash.toHexString() } else unspentOutputs
+		val tempUnspentOutputs = unspentOutputs.distinctBy { it.transaction.hash.toHexString() }
 		tempUnspentOutputs.forEach {
 			val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
 			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1

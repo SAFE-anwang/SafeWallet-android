@@ -23,6 +23,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.reward.SafeFourRewardModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Module
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawFragment
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment
@@ -267,6 +269,56 @@ object Safe4Module {
 
 
 
+    fun handlerWithdraw(withdrawType: WithdrawType, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type == TokenType.Native) {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            when(withdrawType) {
+                WithdrawType.SuperNode,
+                WithdrawType.MasterNode -> {
+                    navController.slideFromBottom(
+                        R.id.safe4WithdrawNodeFragment,
+                        WithdrawModule.Input(withdrawType == WithdrawType.SuperNode, safeWallet)
+                    )
+                }
+                WithdrawType.Proposal -> {
+                    navController.slideFromBottom(
+                        R.id.safe4WithdrawProposalFragment,
+                        WithdrawModule.Input(false, safeWallet)
+                    )
+                }
+                WithdrawType.Profit -> {
+                    navController.slideFromBottom(
+                        R.id.rewardFragment,
+                        SafeFourRewardModule.Input(safeWallet)
+                    )
+                }
+                WithdrawType.Vote -> {
+                    navController.slideFromBottom(
+                        R.id.safe4WithdrawVoteFragment,
+                        WithdrawModule.Input(false, safeWallet)
+                    )
+                }
+            }
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     fun handlerLineLock(navController: NavController) {
         val context = navController.context
         val walletList: List<Wallet> = App.walletManager.activeWallets
@@ -376,10 +428,10 @@ object Safe4Module {
                             RedeemSafe3Module.Input(safe4Wallet, safeWallet)
                     )
                 }
-                SafeFourType.Profit -> {
+                SafeFourType.Locked -> {
                     navController.slideFromBottom(
-                            R.id.rewardFragment,
-                            SafeFourRewardModule.Input(safe4Wallet)
+                            R.id.safe4LockedInfoFragment,
+                            WithdrawModule.Input(false, safe4Wallet)
                     )
                 }
             }
@@ -406,11 +458,14 @@ object Safe4Module {
     }
 
     enum class SafeFourType {
-        SuperNode, MasterNode, Proposal, Redeem, Profit
+        SuperNode, MasterNode, Proposal, Redeem, Locked
     }
 
     enum class ChainType {
         ETH, BSC, MATIC
     }
 
+    enum class WithdrawType {
+        SuperNode, MasterNode, Proposal, Profit, Vote
+    }
 }

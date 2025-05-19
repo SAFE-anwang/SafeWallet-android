@@ -10,13 +10,13 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import java.math.BigInteger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SafeFourLockedVoteService(
 		val safe4RpcBlockChain: RpcBlockchainSafe4,
 		val ethereumKit: EthereumKit,
-		val nodeAddress: String,
 		val address: Address
 ): Clearable {
 
@@ -62,8 +62,12 @@ class SafeFourLockedVoteService(
 						// 当前高度小于releaseheight时也不能投票
 						val currentHeight = ethereumKit.lastBlockHeight ?: 0L
 						val enabled = !isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
-
-						LockIdsInfo(id.toInt(), info.amount, NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled)
+						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
+						LockIdsInfo(id.toInt(), info.amount,
+							NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled,
+							unlockHeight = unlockHeight,
+							address = lockInfo.votedAddr.value,
+							address2 = lockInfo.frozenAddr.value)
 					}
 				}
 				.doFinally {
@@ -102,7 +106,12 @@ class SafeFourLockedVoteService(
 				.map {
 					it.map { id ->
 						val info = safe4RpcBlockChain.getRecordByID(id.toInt())
-						LockIdsInfo(id.toInt(), info.amount, false)
+						// 查询记录锁定信息
+						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
+						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
+						LockIdsInfo(id.toInt(), info.amount, false,
+							unlockHeight = unlockHeight,
+							address = lockInfo.votedAddr.value)
 					}
 				}
 				.doFinally {

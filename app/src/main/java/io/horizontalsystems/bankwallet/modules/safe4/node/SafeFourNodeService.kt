@@ -387,7 +387,7 @@ class SafeFourNodeService(
 	private fun getSuperNodeInfo(address: String): NodeInfo? {
 		try {
 			val info = safe4RpcBlockChain.superNodeInfo(address)
-			return covertSuperNode(info)
+			return NodeCovertFactory.covertSuperNode(info, walletAddress)
 		} catch (e: Exception) {
 			Log.e(TAG, "super node info error=$e")
 			return null
@@ -397,56 +397,13 @@ class SafeFourNodeService(
 	private fun getMasterNodeInfo(address: String): NodeInfo? {
 		try {
 			val info = safe4RpcBlockChain.masterNodeInfo(address)
-			return covertMasterNode(info)
+			return NodeCovertFactory.covertMasterNode(info, walletAddress)
 		} catch (e: Exception) {
 			Log.e(TAG, "master node info error=$e")
 			return null
 		}
 	}
 
-	private fun covertSuperNode(info: SuperNodeInfo): NodeInfo {
-		return NodeInfo(
-				info.id.toInt(),
-				io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
-				io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
-				info.enode,
-				info.description,
-				info.isOfficial,
-				if (info.isOfficial) NodeStatus.Online else NodeStatus.Exception,
-				info.founders.map {
-					NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
-				},
-				NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
-				info.lastRewardHeight.toLong(),
-				info.createHeight.toLong(),
-				info.updateHeight.toLong(),
-				info.name,
-				availableLimit = NodeCovertFactory.scaleConvert(Super_Node_Create_Amount) - info.founders.sumOf { it.amount },
-				isEdit = walletAddress.hex.equals(info.creator.value, true)
-
-		)
-	}
-
-	private fun covertMasterNode(info: MasterNodeInfo): NodeInfo {
-		return NodeInfo(
-				info.id.toInt(),
-				io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
-				io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
-				info.enode,
-				info.description,
-				info.isOfficial,
-				if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online ,
-				info.founders.map {
-					NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
-				},
-				NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
-				info.lastRewardHeight.toLong(),
-				info.createHeight.toLong(),
-				info.updateHeight.toLong(),
-				availableLimit = NodeCovertFactory.scaleConvert(Master_Node_Create_Amount) - info.founders.sumOf { it.amount },
-				isEdit = walletAddress.hex.equals(info.creator.value, true)
-		)
-	}
 
 	fun getMineCreatorNode() {
 		try {
@@ -538,11 +495,11 @@ class SafeFourNodeService(
 					.map {
 						val nodeInfo = when (it) {
 							is SuperNodeInfo -> {
-								covertSuperNode(it)
+								NodeCovertFactory.covertSuperNode(it, walletAddress)
 							}
 
 							is MasterNodeInfo -> {
-								covertMasterNode(it)
+								NodeCovertFactory.covertMasterNode(it, walletAddress)
 							}
 
 							else -> {

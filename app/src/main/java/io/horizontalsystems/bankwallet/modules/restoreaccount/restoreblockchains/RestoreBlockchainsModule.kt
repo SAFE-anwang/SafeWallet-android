@@ -116,4 +116,5 @@ data class CoinViewItem<T>(
     val hasSettings: Boolean = false,
     val hasInfo: Boolean = false,
     val label: String? = null,
+    val bridge: String? = null
 )

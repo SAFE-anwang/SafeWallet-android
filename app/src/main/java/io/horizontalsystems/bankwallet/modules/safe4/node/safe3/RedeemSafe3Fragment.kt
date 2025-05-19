@@ -47,6 +47,7 @@ import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.modules.address.AddressParserModule
 import io.horizontalsystems.bankwallet.modules.address.AddressParserViewModel
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
+import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Text
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -145,12 +146,14 @@ fun RedeemSafe3Screen(
 									.padding(start = 16.dp)
 									.width(24.dp)
 									.height(24.dp))
-					Text(
-							modifier = Modifier
-									.padding(16.dp),
-							text = stringResource(id = R.string.Redeem_Safe3_Redeem_Desc),
-							fontSize = 14.sp
-					)
+					Row(
+						modifier = Modifier
+							.padding(16.dp)) {
+						Safe3Text(
+							stringResource(id = R.string.Redeem_Safe3_Redeem_Desc1),
+							stringResource(id = R.string.Redeem_Safe3_Redeem_Desc2),
+						)
+					}
 				}
 			}
 
@@ -178,8 +181,11 @@ fun RedeemSafe3Screen(
 
 			Spacer(modifier = Modifier.height(16.dp))
 
-
-			body_bran(text = stringResource(id = R.string.Redeem_Safe3_Private_Key))
+			Safe3Text(
+				stringResource(id = R.string.Redeem_Safe3_Private_Key1),
+				stringResource(id = R.string.Redeem_Safe3_Private_Key2),
+				color = ComposeAppTheme.colors.bran
+			)
 			FormsInput2(
 					textState = textState,
 					enabled = true,
@@ -311,12 +317,12 @@ fun RedeemSafe3Screen(
 										.padding(start = 16.dp)
 										.width(24.dp)
 										.height(24.dp))
-						Text(
-								modifier = Modifier
-										.padding(16.dp),
-								text = stringResource(id = R.string.Redeem_Safe3_Redeem_Hint),
-								fontSize = 14.sp
-						)
+						Row {
+							Safe3Text(
+								stringResource(id = R.string.Redeem_Safe3_Redeem_Hint1),
+								stringResource(id = R.string.Redeem_Safe3_Redeem_Hint2),
+							)
+						}
 					}
 				}
 

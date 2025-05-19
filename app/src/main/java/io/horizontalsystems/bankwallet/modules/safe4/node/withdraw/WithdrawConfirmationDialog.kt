@@ -1,4 +1,4 @@
-package io.horizontalsystems.bankwallet.modules.safe4.node.safe3
+package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +27,8 @@ import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
 
 
 @Composable
-fun RedeemConfirmationDialog(
-		address: String,
+fun WithdrawConfirmationDialog(
+		content: String,
 		onOKClick: () -> Unit,
 		onCancelClick: () -> Unit,
 ) {
@@ -42,21 +42,11 @@ fun RedeemConfirmationDialog(
 						.background(color = ComposeAppTheme.colors.lawrence)
 						.padding(horizontal = 24.dp, vertical = 20.dp)
 		) {
-			Safe3Text(
-				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec),
-				color = ComposeAppTheme.colors.bran,
-			)
-			Spacer(Modifier.height(16.dp))
-			Safe3Text(
-				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation1),
-				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation2),
-				color = ComposeAppTheme.colors.bran,
-			)
 			Spacer(Modifier.height(10.dp))
 			Text(
-					text = address,
+					text = content,
 					style = ComposeAppTheme.typography.body,
-					color = ComposeAppTheme.colors.greenD,
+					color = ComposeAppTheme.colors.bran,
 			)
 
 
@@ -77,7 +67,7 @@ fun RedeemConfirmationDialog(
 						onClick = {
 							onOKClick.invoke()
 						},
-						title = stringResource(R.string.Redeem_Safe4_Redeem_Button)
+						title = stringResource(R.string.SAFE4_Withdraw)
 				)
 			}
 		}

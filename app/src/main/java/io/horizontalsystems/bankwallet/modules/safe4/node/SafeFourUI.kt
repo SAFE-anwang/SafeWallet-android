@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -57,14 +58,18 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.horizontalsystems.bankwallet.R
@@ -465,5 +470,84 @@ fun FormsInputPassword2(
 		LaunchedEffect(Unit) {
 //            focusRequester.requestFocus()
 		}
+	}
+}
+
+
+@Composable
+fun Safe3Text(
+	text1: String,
+	text2: String = "",
+	color: Color = Color.Unspecified
+) {
+	/*Box(
+		contentAlignment = Alignment.TopStart
+	) {*/
+		Text(
+			buildAnnotatedString {
+				append(text1)
+
+				// 设置背景色、字体大小和颜色
+				withStyle(
+					SpanStyle(
+						background = ComposeAppTheme.colors.jeremy,
+						fontSize = 10.sp,
+						baselineShift = BaselineShift(0.2f) // 上移20%
+					)
+				) {
+					append("SAFE3")
+				}
+
+				append(text2)
+			},
+			color = color
+//			modifier = Modifier.align(Alignment.TopStart)
+		)
+//	}
+	/*Row(
+		modifier = Modifier,
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Text(
+			text = "SAFE",
+			color = color,
+			maxLines = 1,
+			fontSize = 14.sp
+		)
+		Box(
+			modifier = Modifier
+				.wrapContentHeight()
+				.clip(RoundedCornerShape(4.dp))
+				.background(ComposeAppTheme.colors.jeremy)
+		) {
+			Text(
+				text = "SAFE3",
+				color = color,
+				maxLines = 1,
+				fontSize = 8.sp
+			)
+		}
+	}*/
+}
+
+@Composable
+fun Safe3Badge() {
+	Box(
+		modifier = Modifier
+			.padding(start = 6.dp)
+			.clip(RoundedCornerShape(4.dp))
+			.background(ComposeAppTheme.colors.jeremy)
+	) {
+		Text(
+			modifier = Modifier.padding(
+				start = 4.dp,
+				end = 4.dp,
+				bottom = 1.dp
+			),
+			text = "SAFE3",
+			color = ComposeAppTheme.colors.bran,
+			style = ComposeAppTheme.typography.microSB,
+			maxLines = 1,
+		)
 	}
 }

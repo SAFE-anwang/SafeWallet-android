@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -40,11 +41,16 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawConfirmationDialog
+import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.core.SnackbarDuration
+import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
@@ -75,6 +81,34 @@ fun RewardInfoScreen(
 ) {
     val uiState = viewModel.uiState
     val rewardList = uiState.rewardList
+    val proceedEnabled = uiState.canWithdraw
+    val sendResult = viewModel.sendResult
+    val view = LocalView.current
+    when (sendResult) {
+        SendResult.Sending -> {
+            HudHelper.showInProcessMessage(
+                view,
+                R.string.SAFE4_Withdraw_Send_Sending,
+                SnackbarDuration.INDEFINITE
+            )
+        }
+
+        SendResult.Sent -> {
+            HudHelper.showSuccessMessage(
+                view,
+                R.string.SAFE4_Withdraw_Send_Success,
+                SnackbarDuration.LONG
+            )
+            viewModel.sendResult = null
+        }
+
+        is SendResult.Failed -> {
+            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            viewModel.sendResult = null
+        }
+
+        null -> Unit
+    }
         Column() {
             AppBar(
                     title = stringResource(id = R.string.Safe_Four_Profit_Title),
@@ -115,7 +149,23 @@ fun RewardInfoScreen(
                                     color = ComposeAppTheme.colors.steel10,
                             )
                         }
-                    }
+                    },
+                bottomBar = {
+                    ButtonPrimaryYellow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        title = stringResource(R.string.SAFE4_Withdraw),
+                        onClick = {
+                            if (viewModel.hasConnection()) {
+                                viewModel.showConfirmation()
+                            } else {
+                                HudHelper.showErrorMessage(view, R.string.Hud_Text_NoInternet)
+                            }
+                        },
+                        enabled = proceedEnabled
+                    )
+                }
             ) { paddingValues ->
                 if (rewardList.isNullOrEmpty()) {
                     Column(Modifier.padding(paddingValues)) {
@@ -171,6 +221,16 @@ fun RewardInfoScreen(
                 }
 
             }
+        }
+        if (uiState.showConfirmDialog) {
+            WithdrawConfirmationDialog(
+                content = stringResource(R.string.SAFE4_Withdraw_Vote_Hint),
+                {
+                    viewModel.withdraw()
+                }, {
+                    viewModel.closeDialog()
+                }
+            )
         }
     }
 }

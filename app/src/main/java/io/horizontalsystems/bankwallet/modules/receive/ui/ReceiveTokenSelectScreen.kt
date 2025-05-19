@@ -30,6 +30,7 @@ import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.viewmodels.CoinForReceiveType
 import io.horizontalsystems.bankwallet.modules.receive.viewmodels.ReceiveTokenSelectViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Badge
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -90,6 +91,7 @@ fun ReceiveTokenSelectScreen(
                         uid = coin.uid,
                         coinIconUrl = coin.imageUrl,
                         coinIconPlaceholder = coin.imagePlaceholder,
+                        badge = viewModel.getBadge(coin),
                         onClick = {
                             coroutineScope.launch {
                                 when (val coinActiveWalletsType = viewModel.getCoinForReceiveType(fullCoin)) {
@@ -130,6 +132,7 @@ fun ReceiveCoin(
     uid: String,
     coinIconUrl: String,
     coinIconPlaceholder: Int,
+    badge: String? = null,
     onClick: (() -> Unit)? = null
 ) {
     RowUniversal(
@@ -159,13 +162,14 @@ fun ReceiveCoin(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 body_leah(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 16.dp),
+                    modifier = Modifier,
                     text = coinCode,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                badge?.let {
+                    Safe3Badge()
+                }
             }
             VSpacer(3.dp)
             Row(
