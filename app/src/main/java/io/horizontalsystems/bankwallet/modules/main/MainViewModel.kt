@@ -137,18 +137,10 @@ class MainViewModel(
             }
         }
 
-        /*accountManager.activeAccountStateFlow.collectWith(viewModelScope) {
+        accountManager.activeAccountStateFlow.collectWith(viewModelScope) {
             (it as? ActiveAccountState.ActiveAccount)?.let { state ->
                 activeWallet = state.account
                 emitState()
-            }
-        }*/
-        viewModelScope.launch {
-            accountManager.activeAccountStateFlow.collect {
-                (it as? ActiveAccountState.ActiveAccount)?.let { state ->
-                    activeWallet = state.account
-                    emitState()
-                }
             }
         }
 
