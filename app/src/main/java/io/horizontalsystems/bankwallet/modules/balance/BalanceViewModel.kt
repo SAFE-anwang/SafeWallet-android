@@ -60,7 +60,7 @@ class BalanceViewModel(
     private var refreshViewItemsJob: Job? = null
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch {
             service.balanceItemsFlow
                 .collect { items ->
                     totalBalance.setTotalServiceItems(items?.map {
