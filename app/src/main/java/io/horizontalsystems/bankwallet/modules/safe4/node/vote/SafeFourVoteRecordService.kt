@@ -60,7 +60,6 @@ class SafeFourVoteRecordService(
 						disposables.add(it)
 					}
 		} catch (e: Exception) {
-			Log.e("longwen", "error=$e")
 			if (reloadCount < 3) {
 				reloadCount ++
 				loading.set(false)

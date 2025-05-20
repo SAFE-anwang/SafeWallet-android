@@ -224,7 +224,7 @@ fun RewardInfoScreen(
         }
         if (uiState.showConfirmDialog) {
             WithdrawConfirmationDialog(
-                content = stringResource(R.string.SAFE4_Withdraw_Vote_Hint),
+                content = stringResource(R.string.SAFE4_Withdraw_Profit_Hint),
                 {
                     viewModel.withdraw()
                 }, {
