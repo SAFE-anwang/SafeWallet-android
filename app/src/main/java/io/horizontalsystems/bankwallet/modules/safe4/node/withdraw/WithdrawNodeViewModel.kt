@@ -5,11 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
@@ -23,13 +25,14 @@ class WithdrawNodeViewModel(
     val evmKit: EthereumKit,
     val isSuperNode: Boolean,
     val service: WithdrawService,
+    val nodeService: SafeFourNodeService,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawNodeUiState>() {
 
 
     private val disposables = CompositeDisposable()
     private var nodeInfo: NodeInfo? = null
-    private val withdrawList = mutableListOf<WithdrawModule.WithDrawInfo>()
+    private var withdrawList:MutableList<WithdrawModule.WithDrawInfo>? = null
 
     private var showConfirmationDialog = false
 
@@ -41,33 +44,53 @@ class WithdrawNodeViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
-        if (nodeInfo == null) {
-            return WithdrawModule.WithDrawNodeUiState(null,  false, showConfirmationDialog)
-        } else {
-            val withDrawInfo = nodeInfo!!.founders.filter { it.addr.hex == evmKit.receiveAddress.hex }
-                .map {
-                    WithdrawModule.WithDrawInfo(
-                        it.lockID,
-                        it.height,
-                        NodeCovertFactory.formatSafe(it.amount),
-                        it.addr.hex,
-                        it.height > (evmKit.lastBlockHeight ?: 0L)
-                    )
-                }
-            withdrawList.clear()
-            withdrawList.addAll(withDrawInfo)
-            return WithdrawModule.WithDrawNodeUiState(
-                withdrawList,
-                withdrawList.filter { it.checked }.isNotEmpty(),
-                showConfirmationDialog
-            )
-        }
+
+        return WithdrawModule.WithDrawNodeUiState(
+            withdrawList,
+            withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
+            showConfirmationDialog
+        )
+
     }
 
     init {
-        service.itemsObservable
+        /*service.itemsObservable
             .subscribeIO {
-                nodeInfo = it
+                val withDrawInfo = nodeInfo!!.founders.filter { it.addr.hex == evmKit.receiveAddress.hex }
+                    .map {
+                        WithdrawModule.WithDrawInfo(
+                            it.lockID,
+                            it.height,
+                            NodeCovertFactory.formatSafe(it.amount),
+                            it.addr.hex,
+                            it.height > (evmKit.lastBlockHeight ?: 0L)
+                        )
+                    }
+                if (withdrawList == null) {
+                    withdrawList = mutableListOf()
+                }
+                withdrawList?.addAll(withDrawInfo)
+                emitState()
+            }.let {
+                disposables.add(it)
+            }*/
+        nodeService.mineNodeItemsObservable
+            .subscribeIO {
+                if (withdrawList == null) {
+                    withdrawList = mutableListOf()
+                }
+                it.forEach { nodeInfo ->
+                    val list = nodeInfo.founders.filter { it.addr.hex == evmKit.receiveAddress.hex } .map {
+                        WithdrawModule.WithDrawInfo(
+                            it.lockID,
+                            it.height,
+                            NodeCovertFactory.formatSafe(it.amount),
+                            nodeInfo.addr.hex,
+                            it.height > (evmKit.lastBlockHeight ?: 0L)
+                        )
+                    }
+                    withdrawList?.addAll(list)
+                }
                 emitState()
             }.let {
                 disposables.add(it)
@@ -77,12 +100,13 @@ class WithdrawNodeViewModel(
 
     fun start() {
         viewModelScope.launch(Dispatchers.Default) {
-               service.getNodeInfo(isSuperNode)
+//            service.getNodeInfo(isSuperNode)
+            nodeService.loadItemsMine(0)
         }
     }
 
     fun check(lockId: Int) {
-        withdrawList.forEach {
+        withdrawList?.forEach {
             if (it.id == lockId) {
                 it.checked = !it.checked
             }
@@ -114,7 +138,7 @@ class WithdrawNodeViewModel(
                 try {
                     service.withdraw(checkedList)
                     sendResult = SendResult.Sent
-                    withdrawList.clear()
+                    withdrawList = withdrawList?.filter { !it.checked } as MutableList<WithdrawModule.WithDrawInfo>?
                     emitState()
                 } catch (e: Exception) {
                     sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
