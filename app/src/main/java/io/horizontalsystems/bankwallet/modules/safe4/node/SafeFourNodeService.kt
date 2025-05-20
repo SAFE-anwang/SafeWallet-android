@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 class SafeFourNodeService(
 		val nodeType: NodeType,
 		val safe4RpcBlockChain: RpcBlockchainSafe4,
-		val provider: SafeFourProvider,
 		val walletAddress: Address
 ): Clearable {
 

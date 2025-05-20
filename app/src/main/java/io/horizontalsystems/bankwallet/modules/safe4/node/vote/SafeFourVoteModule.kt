@@ -44,9 +44,8 @@ object SafeFourVoteModule {
 			)
 			val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
 
-			val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
 			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-			val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)
+			val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, address)
 			val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,  adapter.evmKitWrapper.evmKit, address)
 			val isSuperNode = nodeType == NodeType.SuperNode.ordinal
 			return SafeFourVoteViewModel(
@@ -77,9 +76,8 @@ object SafeFourVoteModule {
 		@Suppress("UNCHECKED_CAST")
 		override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-			val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
 			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-			val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)
+			val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, address)
 			val isSuperNode = nodeType == NodeType.SuperNode.ordinal
 			return SafeFourNodeInfoViewModel(
 					wallet,

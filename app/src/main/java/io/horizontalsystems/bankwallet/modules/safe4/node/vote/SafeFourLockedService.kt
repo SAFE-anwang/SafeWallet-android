@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -80,6 +79,7 @@ class SafeFourLockedVoteService(
 
 					loadedPageNumber = page
 				},{
+					loadItems(page)
 				}).let {
 					disposables.add(it)
 				}
@@ -124,6 +124,7 @@ class SafeFourLockedVoteService(
 
 					loadedPageNumberLocked = page
 				},{
+					loadItemsLocked(page)
 				}).let {
 					disposables.add(it)
 				}
@@ -143,6 +144,6 @@ class SafeFourLockedVoteService(
 	}
 
 	companion object {
-		const val itemsPerPage = 15
+		const val itemsPerPage = 10
 	}
 }
