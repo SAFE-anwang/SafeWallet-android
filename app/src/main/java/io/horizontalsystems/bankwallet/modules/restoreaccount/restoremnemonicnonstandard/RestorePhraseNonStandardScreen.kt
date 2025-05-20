@@ -21,11 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -49,6 +52,7 @@ import io.horizontalsystems.bankwallet.modules.createaccount.MnemonicLanguageCel
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreViewModel
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.SuggestionsBar
+import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.*
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.core.helpers.HudHelper
@@ -90,6 +94,8 @@ fun RestorePhraseNonStandard(
     } else {
         ComposeAppTheme.colors.steel20
     }
+
+    val focusRequester1 = remember { FocusRequester() }
 
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
@@ -141,6 +147,7 @@ fun RestorePhraseNonStandard(
                     BasicTextField(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .focusRequester(focusRequester1)
                             .onFocusChanged {
                                 isMnemonicPhraseInputFocused = it.isFocused
                             }
@@ -253,7 +260,7 @@ fun RestorePhraseNonStandard(
 
                 Spacer(Modifier.height(24.dp))
 
-                BottomSection(viewModel, uiState, coroutineScope)
+                BottomSection(viewModel, uiState, focusRequester1, coroutineScope)
 
                 Spacer(Modifier.height(44.dp))
             }
@@ -314,11 +321,15 @@ fun RestorePhraseNonStandard(
 private fun BottomSection(
     viewModel: RestoreMnemonicNonStandardViewModel,
     uiState: RestoreMnemonicNonStandardModule.UiState,
+    requester: FocusRequester,
     coroutineScope: CoroutineScope,
 ) {
+    val view = LocalView.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var showLanguageSelectorDialog by remember { mutableStateOf(false) }
     var hidePassphrase by remember { mutableStateOf(true) }
+
+    val focusRequester2 = remember { FocusRequester() }
 
     if (showLanguageSelectorDialog) {
         SelectorDialogCompose(
@@ -384,7 +395,7 @@ private fun BottomSection(
 
     if (uiState.passphraseEnabled) {
         Spacer(modifier = Modifier.height(24.dp))
-        FormsInputPassword(
+        FormsInputPassword2(
             modifier = Modifier.padding(horizontal = 16.dp),
             hint = stringResource(R.string.Passphrase),
             state = uiState.passphraseError?.let { DataState.Error(Exception(it)) },
@@ -393,13 +404,23 @@ private fun BottomSection(
             hide = hidePassphrase,
             onToggleHide = {
                 hidePassphrase = !hidePassphrase
-            }
+            },
+            focusRequester = focusRequester2
         )
         Spacer(modifier = Modifier.height(16.dp))
         TextImportantWarning(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = stringResource(R.string.Restore_PassphraseDescription)
         )
+    }
+    LaunchedEffect(Unit) {
+        view.post {
+            requester.requestFocus()
+            view.postDelayed({
+                focusRequester2.requestFocus()
+            }, 300)
+        }
+
     }
 
 }
