@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -158,7 +160,8 @@ fun RewardInfoScreen(
                         title = stringResource(R.string.SAFE4_Withdraw),
                         onClick = {
                             if (viewModel.hasConnection()) {
-                                viewModel.showConfirmation()
+//                                viewModel.showConfirmation()
+                                viewModel.withdraw()
                             } else {
                                 HudHelper.showErrorMessage(view, R.string.Hud_Text_NoInternet)
                             }
@@ -194,20 +197,29 @@ fun RewardInfoScreen(
                                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
                             ) {
                                 Row {
-                                    body_leah(
-                                            modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f),
-                                            text = item.date,
-                                            maxLines = 1,
+                                    val color = if (item.rewarded) {
+                                        ComposeAppTheme.colors.leah
+                                    } else {
+                                        ComposeAppTheme.colors.issykBlue
+                                    }
+                                    Text(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = item.date,
+                                        maxLines = 1,
+                                        style = ComposeAppTheme.typography.body,
+                                        color = color
                                     )
-                                    body_leah(
-                                            modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f),
-                                            text = item.amount,
-                                            maxLines = 1,
-                                            textAlign = TextAlign.End
+                                    Text(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = item.amount,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.End,
+                                        style = ComposeAppTheme.typography.body,
+                                        color = color
                                     )
                                 }
                             }
