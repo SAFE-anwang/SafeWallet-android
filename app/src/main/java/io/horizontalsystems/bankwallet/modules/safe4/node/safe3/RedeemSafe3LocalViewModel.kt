@@ -56,7 +56,7 @@ class RedeemSafe3LocalViewModel(
 	private var existMasterNode = false
 
 	private var showConfirmationDialg = false
-	val list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
+	var list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
 
 	private var isRedeeming = AtomicBoolean(false)
 
@@ -264,6 +264,7 @@ class RedeemSafe3LocalViewModel(
 			if (list.isEmpty() || (spendableUtxo.isEmpty() && spendableTimeLockUtxo.isEmpty())) {
 				isRedeemSuccess = true
 			}
+			list = list.distinctBy { it.address }.toMutableList()
 			syncing = false
 			step = 3
 			isRedeeming.set(false)
