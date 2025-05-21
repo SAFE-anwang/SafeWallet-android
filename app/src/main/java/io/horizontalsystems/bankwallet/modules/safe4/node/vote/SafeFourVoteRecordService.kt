@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService.Companion
@@ -36,7 +35,6 @@ class SafeFourVoteRecordService(
 
 	fun loadItems(start: Int, count: Int) {
 		try {
-			Log.d("longwen", "start=$start, count=$count")
 			val single = safe4RpcBlockChain.getVoters(nodeAddress, start, count)
 			single.subscribeOn(Schedulers.io())
 					.map {

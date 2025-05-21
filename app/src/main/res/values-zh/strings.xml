@@ -2234,7 +2234,8 @@
     <string name="SAFE4_Withdraw_Profit_Hint">确定提取所有收益吗？</string>
     <string name="SAFE4_Withdraw_Proposal_Hint">确定提取提案和普通锁仓的SAFE吗？</string>
     <string name="SAFE4_Withdraw_Send_Sending">正在提现</string>
-    <string name="SAFE4_Withdraw_Send_Success">提现成功</string>f
+    <string name="SAFE4_Withdraw_Send_Success">提现成功</string>
+    <string name="SAFE4_Withdraw_Send_Fail">提现失败</string>
 
     <!-- safe 4  end-->
 </resources>

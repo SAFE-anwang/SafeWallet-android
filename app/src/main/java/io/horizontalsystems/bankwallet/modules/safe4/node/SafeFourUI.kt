@@ -487,16 +487,16 @@ fun Safe3Text(
 			buildAnnotatedString {
 				append(text1)
 
-				// 设置背景色、字体大小和颜色
+				/*// 设置背景色、字体大小和颜色
 				withStyle(
 					SpanStyle(
 						background = ComposeAppTheme.colors.jeremy,
 						fontSize = 10.sp,
 						baselineShift = BaselineShift(0.2f) // 上移20%
 					)
-				) {
-					append("SAFE3")
-				}
+				) {*/
+					append("3")
+//				}
 
 				append(text2)
 			},

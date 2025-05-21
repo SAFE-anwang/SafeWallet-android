@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -57,7 +58,7 @@ class WithdrawVoteViewModel(
                 withdrawList =
                     it.map {
                         WithdrawModule.WithDrawInfo(it.lockId, it.unlockHeight.toLong(),
-                            NodeCovertFactory.formatSafe(it.lockValue),  it.address, false)
+                            NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.enable)
                     }
                 emitState()
             }.let {

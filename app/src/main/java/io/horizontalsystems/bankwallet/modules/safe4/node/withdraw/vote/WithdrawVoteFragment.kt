@@ -178,8 +178,8 @@ fun LazyListScope.WithdrawList(
         WithdrawItem(
             it.id,
             it.amount,
-            it.checked,
             it.enable,
+            it.checked,
             it.height,
             it.address
         ) { lockId, checked ->

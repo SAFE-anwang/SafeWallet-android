@@ -275,8 +275,8 @@ class RedeemSafe3LocalViewModel(
 		val tempUnspentOutputs = unspentOutputs.distinctBy { it.transaction.hash.toHexString() }
 		tempUnspentOutputs.forEach {
 			val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
-			if (isSuccess)	return@forEach
+//			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
+//			if (isSuccess)	return@forEach
 			try {
 				val existAvailable = safe4.existAvailableNeedToRedeem(address)
 				val existLocked = safe4.existLockedNeedToRedeem(address)

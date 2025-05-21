@@ -46,10 +46,10 @@ class SafeFourLockedVoteService(
 	fun loadItems(page: Int) {
 		if (loading.get()) return
 		loading.set(true)
-
-		val itemsCount = page * itemsPerPage
-		val enableSingle = safe4RpcBlockChain.getLockIds(address.hex, itemsCount, itemsPerPage)
-		enableSingle
+		try {
+			val itemsCount = page * itemsPerPage
+			val enableSingle = safe4RpcBlockChain.getLockIds(address.hex, itemsCount, itemsPerPage)
+			enableSingle
 				.subscribeOn(Schedulers.io())
 				.map {
 					it.map { id ->
@@ -57,32 +57,42 @@ class SafeFourLockedVoteService(
 
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
-						val isSuperNode = safe4RpcBlockChain.superAddressExist(lockInfo.frozenAddr.value)
+						val isSuperNode =
+							safe4RpcBlockChain.superAddressExist(lockInfo.frozenAddr.value)
 						// 当前高度小于releaseheight时也不能投票
 						val currentHeight = ethereumKit.lastBlockHeight ?: 0L
-						val enabled = !isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
-						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
-						LockIdsInfo(id.toInt(), info.amount,
+						val enabled =
+							!isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
+						val unlockHeight =
+							if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
+						LockIdsInfo(
+							id.toInt(), info.amount,
 							NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled,
 							unlockHeight = unlockHeight,
 							address = lockInfo.votedAddr.value,
-							address2 = lockInfo.frozenAddr.value)
+							address2 = lockInfo.frozenAddr.value
+						)
 					}
 				}
 				.doFinally {
 					loading.set(false)
 				}
-				.subscribe( { enableRecord ->
+				.subscribe({ enableRecord ->
 					allLoaded.set(enableRecord.isEmpty() || enableRecord.size < itemsPerPage)
 					lockedIdsItems.addAll(enableRecord)
 					itemsSubject.onNext(lockedIdsItems)
 
 					loadedPageNumber = page
-				},{
+				}, {
 					loadItems(page)
 				}).let {
 					disposables.add(it)
 				}
+		} catch (e: Exception) {
+			loading.set(false)
+			loadItems(page)
+		} finally {
+		}
 	}
 
 
@@ -90,6 +100,7 @@ class SafeFourLockedVoteService(
 		if (loadingLocked.get()) return
 		loadingLocked.set(true)
 
+		try {
 		if (disableLockedMaxCount == -1) {
 			disableLockedMaxCount = safe4RpcBlockChain.getVotedIDNum4Voter(address.hex).blockingGet().toInt()
 		}
@@ -109,7 +120,7 @@ class SafeFourLockedVoteService(
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
 						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
-						LockIdsInfo(id.toInt(), info.amount, false,
+						LockIdsInfo(id.toInt(), info.amount, unlockHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = unlockHeight,
 							address = lockInfo.votedAddr.value)
 					}
@@ -128,6 +139,11 @@ class SafeFourLockedVoteService(
 				}).let {
 					disposables.add(it)
 				}
+		} catch (e: Exception) {
+			loadingLocked.set(false)
+			loadItemsLocked(page)
+		} finally {
+		}
 	}
 
 	fun loadNext() {

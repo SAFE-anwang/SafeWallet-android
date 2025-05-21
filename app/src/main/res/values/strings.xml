@@ -2562,6 +2562,7 @@
     <string name="SAFE4_Withdraw_Proposal_Hint">Confirm to withdraw SAFE from both proposal-locked and regular locked staking?</string>
     <string name="SAFE4_Withdraw_Send_Sending">Withdraw</string>
     <string name="SAFE4_Withdraw_Send_Success">Withdraw successful</string>
+    <string name="SAFE4_Withdraw_Send_Fail">Withdraw fail</string>
 
     <!-- safe 4  end-->
 </resources>
