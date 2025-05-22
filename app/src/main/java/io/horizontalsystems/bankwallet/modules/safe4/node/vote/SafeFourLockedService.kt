@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -63,7 +64,8 @@ class SafeFourLockedVoteService(
 						val currentHeight = ethereumKit.lastBlockHeight ?: 0L
 						val enabled =
 							!isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
-						val unlockHeight = lockInfo.releaseHeight
+						val unlockHeight =
+							if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
 						LockIdsInfo(
 							id.toInt(), info.amount,
 							NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled,
@@ -119,9 +121,9 @@ class SafeFourLockedVoteService(
 						val info = safe4RpcBlockChain.getRecordByID(id.toInt())
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
-						val unlockHeight = /*if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else */lockInfo.releaseHeight
+						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
 						LockIdsInfo(id.toInt(), info.amount,
-							unlockHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
+							lockInfo.releaseHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = unlockHeight,
 							address = lockInfo.votedAddr.value)
 					}

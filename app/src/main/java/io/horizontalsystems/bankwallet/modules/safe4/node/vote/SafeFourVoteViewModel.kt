@@ -214,9 +214,9 @@ class SafeFourVoteViewModel(
     }
 
     fun checkLockVote(lockId: Int, checked: Boolean) {
-        lockIdsInfo?.forEach { lockIdsInfo ->
-            if (lockId == lockIdsInfo.lockId) {
-                lockIdsInfo.checked = checked
+        lockIdsInfo?.forEach { lockIdInfo ->
+            if (lockId == lockIdInfo.lockId) {
+                lockIdInfo.checked = !lockIdInfo.checked
             }
         }
         emitState()
