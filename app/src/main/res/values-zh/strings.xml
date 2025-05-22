@@ -2033,7 +2033,7 @@
     <string name="Safe_Four_Node_Info_Title">超级节点信息</string>
     <string name="Safe_Four_Node_Info_Title_Master">主节点信息</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">投票人</string>
-    <string name="Safe_Four_Node_Vote_Lock_Id">锁仓记录Id:%s</string>
+    <string name="Safe_Four_Node_Vote_Lock_Id">锁仓Id:%s</string>
     <string name="Safe_Four_Node_Vote_Lock_All">选择全部可用锁仓记录</string>
     <string name="Safe_Four_Node_Vote_Lock_hint">必须同时满足如下条件的锁仓记录才可以进行投票\n1. 未关联超级节点的锁仓记录\n2. 未投票的锁仓记录\n3. 锁仓数量大于 1 SAFE</string>
     <string name="Safe_Four_Node_Vote_Record_Address">地址</string>

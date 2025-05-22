@@ -63,8 +63,7 @@ class SafeFourLockedVoteService(
 						val currentHeight = ethereumKit.lastBlockHeight ?: 0L
 						val enabled =
 							!isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
-						val unlockHeight =
-							if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
+						val unlockHeight = lockInfo.releaseHeight
 						LockIdsInfo(
 							id.toInt(), info.amount,
 							NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled,
@@ -120,8 +119,9 @@ class SafeFourLockedVoteService(
 						val info = safe4RpcBlockChain.getRecordByID(id.toInt())
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
-						val unlockHeight = if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else lockInfo.releaseHeight
-						LockIdsInfo(id.toInt(), info.amount, unlockHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
+						val unlockHeight = /*if (info.unlockHeight != BigInteger.ZERO) info.unlockHeight else */lockInfo.releaseHeight
+						LockIdsInfo(id.toInt(), info.amount,
+							unlockHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = unlockHeight,
 							address = lockInfo.votedAddr.value)
 					}
