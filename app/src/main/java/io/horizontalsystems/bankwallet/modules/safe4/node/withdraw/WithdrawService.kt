@@ -64,7 +64,7 @@ class WithdrawService(
         if (maxNum == -1) {
             maxNum = safe4.getAvailableAmount(safe4.address.hex).num.toInt()
         }
-        if (maxNum == -1) {
+        if (maxNum <= 0) {
             loading.set(false)
             itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
             return
