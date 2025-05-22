@@ -120,7 +120,6 @@ class SafeFourLockedVoteService(
 						val info = safe4RpcBlockChain.getRecordByID(id.toInt())
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
-						Log.d("longwen", "id=$id, releaseHeight=${lockInfo.releaseHeight}, unHeight=${info.unlockHeight}, currentHeight=${ethereumKit.lastBlockHeight}")
 						LockIdsInfo(id.toInt(), info.amount,
 							lockInfo.releaseHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = info.unlockHeight,
