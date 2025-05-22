@@ -107,6 +107,7 @@ class SafeFourLockedVoteService(
 		val itemsCount = page * itemsPerPage
 		if (itemsCount >= disableLockedMaxCount) {
 			loadingLocked.set(false)
+			itemsSubjectLocked.onNext(lockedIdsItemsLocked)
 			return
 		}
 		// already vote

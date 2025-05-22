@@ -55,7 +55,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.itemsObservable
                 .subscribeIO {
-                    nodes = it
+                    nodes = it.distinctBy { it.id }
                     emitState()
                 }
                 .let {
