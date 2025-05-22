@@ -2215,6 +2215,7 @@
     <string name="SAFE4_Swap_Tx_Title">SAFE兑换</string>
 
     <string name="SAFE4_Withdraw">提现</string>
+    <string name="SAFE4_Withdraw_Release">投票释放/提现</string>
     <string name="SAFE4_Withdraw_Master_Node">主节点提现</string>
     <string name="SAFE4_Withdraw_Super_Node">超级节点提现</string>
     <string name="SAFE4_Withdraw_Proposal">提案提现</string>
@@ -2225,6 +2226,7 @@
     <string name="SAFE4_Withdraw_Lock_Id">锁仓ID:%d</string>
     <string name="SAFE4_Withdraw_Lock_Amount">锁仓金额:%s</string>
     <string name="SAFE4_Withdraw_Unlock_Height">解锁高度:%s</string>
+    <string name="SAFE4_Withdraw_Release_Height">投票释放高度:%s</string>
     <string name="SAFE4_Withdraw_Address">地址:%s</string>
     <string name="SAFE4_Withdraw_Node_Hint">提现%s后将不再产生收益，确定提取吗？</string>
     <string name="SAFE4_Withdraw_Node_Hint_Master">主节点锁仓金额</string>

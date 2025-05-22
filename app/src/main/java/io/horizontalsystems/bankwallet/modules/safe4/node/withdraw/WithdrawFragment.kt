@@ -136,6 +136,7 @@ fun WithDrawScreen(
                                 info.checked,
                                 info.enable,
                                 info.height,
+                                info.releaseHeight,
                                 info.address
                             ) { lockId, checked ->
                                 viewModel.check(lockId)

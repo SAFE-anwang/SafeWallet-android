@@ -84,6 +84,7 @@ class WithdrawNodeViewModel(
                         WithdrawModule.WithDrawInfo(
                             it.lockID,
                             it.height,
+                            null,
                             NodeCovertFactory.formatSafe(it.amount),
                             nodeInfo.addr.hex,
                             it.height > (evmKit.lastBlockHeight ?: 0L)

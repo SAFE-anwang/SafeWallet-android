@@ -39,6 +39,7 @@ object WithdrawUi {
         enable: Boolean,
         checked: Boolean,
         unHeight: Long?,
+        releaseHeight: Long?,
         address: String?,
         onChecked: (Int, Boolean) -> Unit
     ) {
@@ -72,6 +73,12 @@ object WithdrawUi {
                             text = stringResource(R.string.SAFE4_Withdraw_Unlock_Height, it)
                         )
                     }
+                    releaseHeight?.let {
+                        VSpacer(4.dp)
+                        body_bran(
+                            text = stringResource(R.string.SAFE4_Withdraw_Release_Height, it)
+                        )
+                    }
                     address?.let {
                         VSpacer(4.dp)
                         body_bran(
@@ -100,7 +107,8 @@ object WithdrawUi {
         amount: String,
         withdrawEnable: Boolean,
         addLockDayEnable: Boolean?,
-        unHeight: Long?,
+        unlockHeight: Long?,
+        releaseHeight: Long?,
         address: String?,
         address2: String?,
         onWithdraw: () -> Unit,
@@ -130,10 +138,16 @@ object WithdrawUi {
                     body_bran(
                         text = stringResource(R.string.SAFE4_Withdraw_Lock_Amount, amount)
                     )
-                    unHeight?.let {
+                    unlockHeight?.let {
                         VSpacer(4.dp)
                         body_bran(
                             text = stringResource(R.string.SAFE4_Withdraw_Unlock_Height, it)
+                        )
+                    }
+                    releaseHeight?.let {
+                        VSpacer(4.dp)
+                        body_bran(
+                            text = stringResource(R.string.SAFE4_Withdraw_Release_Height, it)
                         )
                     }
                     address?.let {
@@ -151,7 +165,7 @@ object WithdrawUi {
                     Row {
                         ButtonPrimaryYellow2(
                             modifier = Modifier.weight(1f).height(25.dp),
-                            title = stringResource(R.string.SAFE4_Withdraw),
+                            title = stringResource(R.string.SAFE4_Withdraw_Release),
                             onClick = {
                                 onWithdraw.invoke()
                             },

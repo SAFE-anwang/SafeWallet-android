@@ -58,6 +58,7 @@ class WithdrawVoteViewModel(
                 withdrawList =
                     it.map {
                         WithdrawModule.WithDrawInfo(it.lockId, it.unlockHeight.toLong(),
+                            it.releaseHeight.toLong(),
                             NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.enable)
                     }
                 emitState()

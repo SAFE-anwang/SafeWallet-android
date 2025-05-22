@@ -98,6 +98,7 @@ class WithdrawService(
                 }.map {
                     WithdrawModule.WithDrawInfo(it.lockedId.toInt(),
                         it.recordInfo.releaseHeight.toLong(),
+                        null,
                         NodeCovertFactory.formatSafe(it.amount),
                         null,
                         it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0L)

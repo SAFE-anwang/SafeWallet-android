@@ -2542,6 +2542,7 @@
     <string name="SAFE4_Swap_Tx_Title">SAFE Exchange</string>
 
     <string name="SAFE4_Withdraw">Withdraw</string>
+    <string name="SAFE4_Withdraw_Release">Vote release/Withdraw</string>
     <string name="SAFE4_Withdraw_Master_Node">Master Node Withdraw</string>
     <string name="SAFE4_Withdraw_Super_Node">Super Node Withdraw</string>
     <string name="SAFE4_Withdraw_Proposal">Proposal Withdraw</string>
@@ -2552,6 +2553,7 @@
     <string name="SAFE4_Withdraw_Lock_Id">Lock ID:%d</string>
     <string name="SAFE4_Withdraw_Lock_Amount">Lock Amount:%s</string>
     <string name="SAFE4_Withdraw_Unlock_Height">Unlock Height:%s</string>
+    <string name="SAFE4_Withdraw_Release_Height">Vote Release Height:%s</string>
     <string name="SAFE4_Withdraw_Address">Address:%s</string>
     <string name="SAFE4_Withdraw_Node_Hint">After withdrawing %s, it will no longer generate earnings. Are you sure you want to proceed?</string>
     <string name="SAFE4_Withdraw_Node_Hint_Master">master node locked amount</string>

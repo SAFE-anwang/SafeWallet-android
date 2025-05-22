@@ -3,24 +3,16 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.anwang.types.safe3.AvailableSafe3Info
-import com.anwang.types.safe3.LockedSafe3Info
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
-import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.adapters.BaseEvmAdapter
-import io.horizontalsystems.bankwallet.core.adapters.BitcoinBaseAdapter
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
-import io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourConfirmationModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.proposal.WithdrawAvailableViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.vote.WithdrawVoteViewModel
-import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinAddressService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import kotlinx.parcelize.Parcelize
-import java.math.BigInteger
 
 object WithdrawModule {
 
@@ -100,6 +92,7 @@ object WithdrawModule {
 	data class WithDrawInfo(
 		val id: Int,
 		val height: Long?,
+		val releaseHeight: Long?,
 		val amount: String,
 		val address: String?,
 		val enable: Boolean,
@@ -108,7 +101,8 @@ object WithdrawModule {
 
 	data class WithDrawLockedInfo(
 		val id: Int,
-		val height: Long?,
+		val unlockHeight: Long?,
+		val releaseHeight: Long?,
 		val amount: String,
 		val address: String?,
 		val address2: String?,

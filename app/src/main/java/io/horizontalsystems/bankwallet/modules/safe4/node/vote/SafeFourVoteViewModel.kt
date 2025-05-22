@@ -76,7 +76,7 @@ class SafeFourVoteViewModel(
         lockVoteService.itemsObservable
                 .subscribeIO {
                     lockIdsInfo = it.map {
-                        LockIdsInfo(it.lockId, it.lockValue, it.enable, getChecked(it.lockId), it.unlockHeight, it.address)
+                        LockIdsInfo(it.lockId, it.lockValue, it.enable, getChecked(it.lockId), it.unlockHeight, it.releaseHeight, it.address)
                     }
                     emitState()
                 }
@@ -87,7 +87,7 @@ class SafeFourVoteViewModel(
         lockVoteService.itemsObservableLocked
                 .subscribeIO {
                     lockIdsInfoLocked = it.map {
-                        LockIdsInfo(it.lockId, it.lockValue, it.enable, false, it.unlockHeight, it.address)
+                        LockIdsInfo(it.lockId, it.lockValue, it.enable, false, it.unlockHeight, it.releaseHeight, it.address)
                     }
                     emitState()
                 }
@@ -326,6 +326,7 @@ data class LockIdsInfo(
         val enable: Boolean,
         var checked: Boolean = false,
         val unlockHeight: BigInteger,
+        val releaseHeight: BigInteger,
         val address: String?,
         val address2: String? = null,
 ): Parcelable {

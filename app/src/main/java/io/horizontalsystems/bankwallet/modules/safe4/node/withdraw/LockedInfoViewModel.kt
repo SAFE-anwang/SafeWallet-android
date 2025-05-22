@@ -3,24 +3,16 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
-import io.horizontalsystems.bankwallet.core.managers.EvmKitManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
-import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
-import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,7 +63,9 @@ class LockedInfoViewModel(
             .subscribeIO {
                 withdrawList =
                     it.map {
-                        WithdrawModule.WithDrawLockedInfo(it.lockId, it.unlockHeight.toLong(),
+                        WithdrawModule.WithDrawLockedInfo(it.lockId,
+                            it.unlockHeight.toLong(),
+                            it.releaseHeight.toLong(),
                             NodeCovertFactory.formatSafe(it.lockValue),
                             if (it.address == service.zeroAddress) null else it.address,
                             it.address2,
@@ -88,10 +82,12 @@ class LockedInfoViewModel(
             .subscribeIO {
                 withdrawListVote =
                     it.map {
-                        WithdrawModule.WithDrawLockedInfo(it.lockId, it.unlockHeight.toLong(),
+                        WithdrawModule.WithDrawLockedInfo(it.lockId,
+                            it.unlockHeight.toLong(),
+                            it.releaseHeight.toLong(),
                             NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.address2,
-                            it.unlockHeight == BigInteger.ZERO || it.unlockHeight.toLong() < (evmKit.lastBlockHeight
-                                ?: 0),
+                            (it.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
+                                    || (it.unlockHeight == BigInteger.ZERO && it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
                             if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
                         )
                     }
@@ -120,7 +116,7 @@ class LockedInfoViewModel(
     }
 
     fun getHintText(): Int {
-        return if (clickWithdrawInfo?.height == 0L) {
+        return if (clickWithdrawInfo?.unlockHeight == 0L) {
             R.string.SAFE4_Withdraw_Local_Hint
         } else {
             R.string.SAFE4_Withdraw_Vote_Hint
@@ -154,7 +150,7 @@ class LockedInfoViewModel(
             try {
                 service.withdraw(listOf(clickWithdrawInfo!!.id))
                 sendResult = SendResult.Sent
-                val isOnlyWithdraw = clickWithdrawInfo!!.height == 0L
+                val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
                 if (isOnlyWithdraw) {
                     withdrawList = withdrawList?.filter { it.id != clickWithdrawInfo?.id }
                 }

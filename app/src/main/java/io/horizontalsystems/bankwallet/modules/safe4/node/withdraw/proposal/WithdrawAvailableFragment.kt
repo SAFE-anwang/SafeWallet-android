@@ -179,6 +179,7 @@ fun LazyListScope.WithdrawList(
             it.checked,
             it.enable,
             it.height,
+            it.releaseHeight,
             it.address
         ) { lockId, checked ->
             onCheckedChange.invoke(lockId, checked)
