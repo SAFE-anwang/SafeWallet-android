@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
+import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -26,6 +27,7 @@ import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.wsafekit.Web3jUtils
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -67,6 +69,9 @@ class Safe4SwapViewModel(
 
     init {
         balance()
+        if (token2.type == TokenType.Eip20(safe4SwapContractAddress)) {
+            (App.adapterManager.getAdapterForToken(token2) as Eip20Adapter).refresh()
+        }
     }
 
     private fun balance() {
