@@ -350,7 +350,7 @@ dependencies {
     implementation project(':market-kit-android:marketkit')
 
     // Zcash SDK
-    implementation "cash.z.ecc.android:zcash-android-sdk:2.0.1"
+    implementation "cash.z.ecc.android:zcash-android-sdk:2.2.6"
     implementation("io.github.binance:binance-connector-java:3.0.0rc2") {
         exclude group: "org.bouncycastle", module: "bcprov-jdk18on"
     }
