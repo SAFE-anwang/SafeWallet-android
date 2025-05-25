@@ -119,7 +119,7 @@ class BalanceViewModel(
 
     private fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>?) {
         refreshViewItemsJob?.cancel()
-        refreshViewItemsJob = viewModelScope.launch(Dispatchers.Default) {
+        refreshViewItemsJob = viewModelScope.launch {
             if (balanceItems != null) {
                 viewState = ViewState.Success
                 // 解决列表key相同闪退bug，过滤相同的记录
