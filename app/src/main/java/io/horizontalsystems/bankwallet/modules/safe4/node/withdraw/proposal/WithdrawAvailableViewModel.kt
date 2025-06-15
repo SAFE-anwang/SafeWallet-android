@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -21,13 +22,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WithdrawAvailableViewModel(
     val address: Address,
     val service: WithdrawService,
+    val proposalService: SafeFourProposalService,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawNodeUiState>() {
 
 
     private val disposables = CompositeDisposable()
-    private var nodeInfo: NodeInfo? = null
     private var withdrawList : List<WithdrawModule.WithDrawInfo>? = null
+    private var rewardsId : MutableList<Int> = mutableListOf()
 
     private var showConfirmationDialog = false
 
@@ -40,7 +42,7 @@ class WithdrawAvailableViewModel(
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList,
+            withdrawList?.filter { rewardsId.contains(it.id) },
             withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog
         )
@@ -50,6 +52,15 @@ class WithdrawAvailableViewModel(
         service.itemsObservableAvailable
             .subscribeIO {
                 withdrawList = it
+                emitState()
+            }.let {
+                disposables.add(it)
+            }
+        proposalService.mineItemsObservable
+            .subscribeIO {
+                it.forEach {
+                    rewardsId.addAll(it.rewordsIds)
+                }
                 emitState()
             }.let {
                 disposables.add(it)

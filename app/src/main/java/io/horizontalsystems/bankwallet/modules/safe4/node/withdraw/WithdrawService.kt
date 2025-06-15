@@ -97,8 +97,8 @@ class WithdrawService(
                     it.recordInfo.frozenAddr.value != zeroAddress && it.recordInfo.votedAddr.value != zeroAddress
                 }.map {
                     WithdrawModule.WithDrawInfo(it.lockedId.toInt(),
+                        it.unlockHeight.toLong(),
                         it.recordInfo.releaseHeight.toLong(),
-                        null,
                         NodeCovertFactory.formatSafe(it.amount),
                         null,
                         it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0L)

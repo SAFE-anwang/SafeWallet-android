@@ -544,7 +544,7 @@ class SafeFourNodeService(
 	}
 
 	companion object {
-		const val itemsPerPage = 20
+		const val itemsPerPage = 10
 	}
 }
 

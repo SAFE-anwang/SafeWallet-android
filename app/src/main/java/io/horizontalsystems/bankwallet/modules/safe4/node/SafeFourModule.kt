@@ -144,4 +144,11 @@ class SafeFourModule {
 
     }
 
+    @Parcelize
+    data class LineLockInput(
+            val wallet: Wallet
+    ): Parcelable {
+
+    }
+
 }

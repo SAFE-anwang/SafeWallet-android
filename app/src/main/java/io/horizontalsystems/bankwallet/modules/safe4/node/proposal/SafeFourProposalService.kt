@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class SafeFourProposalService(
 		val safe4RpcBlockChain: RpcBlockchainSafe4,
-		val evmKitWrapper: EvmKitWrapper
+		val evmKitWrapper: EvmKitWrapper,
+	val isWithdraw: Boolean = false
 ): Clearable {
 
 	var type: ProposalType = ProposalType.All
@@ -53,7 +54,9 @@ class SafeFourProposalService(
 
 	init {
 		lastBlockHeight()
-		getAllNum()
+		if (!isWithdraw) {
+			getAllNum()
+		}
 		getMinNum()
 	}
 
@@ -180,8 +183,9 @@ class SafeFourProposalService(
 					.map {
 						it.map { id ->
 							val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
+							val rewards = safe4RpcBlockChain.getRewardIDs(id.toInt())
 
-							covert(info)
+							covert(info, rewards.map { it.toInt() })
 						}
 					}
 					.doFinally {
@@ -206,7 +210,7 @@ class SafeFourProposalService(
 		}
 	}
 
-	private fun covert(info: com.anwang.types.proposal.ProposalInfo): ProposalInfo {
+	private fun covert(info: com.anwang.types.proposal.ProposalInfo, list: List<Int> = listOf()): ProposalInfo {
 		val state = if (info.state.toInt() == 0 && info.endPayTime.toLong() < System.currentTimeMillis() / 1000) {
 			2
 		} else {
@@ -223,12 +227,13 @@ class SafeFourProposalService(
 				info.description,
 				state,
 				info.createHeight.toLong(),
-				info.updateHeight.toLong()
+				info.updateHeight.toLong(),
+			list
 		)
 	}
 
 	fun loadNext() {
-		if (!allLoaded.get()) {
+		if (!allLoaded.get() && !isWithdraw) {
 			/*if (allProposalNum == -1) {
 				getAllNum()
 			} else {*/

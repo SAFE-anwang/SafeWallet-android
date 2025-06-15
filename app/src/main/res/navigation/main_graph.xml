@@ -645,4 +645,17 @@
         android:id="@+id/safe4LockedInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.LockedInfoFragment">
     </fragment>
+
+    <fragment
+        android:id="@+id/sendSafe4LockFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.LineLockSendSafeFragment" />
+
+    <fragment
+        android:id="@+id/sendLineLockConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.confirmation.SendLineLockConfirmationFragment"/>
+
+    <fragment
+        android:id="@+id/safe4LineLockFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.lockinfo.LineLockInfoFragment" />
+
 </navigation>

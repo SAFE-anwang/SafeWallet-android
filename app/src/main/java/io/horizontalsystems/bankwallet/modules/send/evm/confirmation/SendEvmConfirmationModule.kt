@@ -119,7 +119,10 @@ object SendEvmConfirmationModule {
                 transactionDataParcelable.value,
                 transactionDataParcelable.input,
                 transactionDataParcelable.lockTime,
-                safe4Swap = transactionDataParcelable.safe4Swap
+                safe4Swap = transactionDataParcelable.safe4Swap,
+                times = transactionDataParcelable.times,
+                spaceDay = transactionDataParcelable.spaceDay,
+                startDay = transactionDataParcelable.startDay
             )
 
         constructor(sendData: SendEvmData, sendNavId: Int, sendEntryPointDestId: Int = 0) : this(

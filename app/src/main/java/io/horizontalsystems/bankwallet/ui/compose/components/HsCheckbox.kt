@@ -44,3 +44,37 @@ fun HsCheckbox(
         }
     }
 }
+
+
+
+@Composable
+fun HsCheckbox2(
+    checked: Boolean,
+    enabled: Boolean = true,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.clickable(
+            enabled = enabled,
+            onClick = { onCheckedChange?.invoke(!checked) }
+        )
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_checkbox_frame),
+            contentDescription = null,
+            tint = if (App.localStorage.currentTheme == ThemeType.Blue) {
+                if (enabled) ComposeAppTheme.colors.issykBlue  else LightGrey50
+            } else {
+                if (enabled) ComposeAppTheme.colors.issykBlue  else ComposeAppTheme.colors.grey
+            }
+        )
+        if (checked) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_checkbox_check),
+                contentDescription = null,
+                tint = ComposeAppTheme.colors.jacob
+            )
+        }
+    }
+}

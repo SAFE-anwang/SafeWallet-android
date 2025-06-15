@@ -280,6 +280,16 @@ class EvmKitWrapper(
         }
     }
 
+    fun sendSafe4LineLock(
+        transactionData: TransactionData
+    ) : Single<String> {
+        return if (signer != null) {
+            evmKit.safe4LineLock(signer.privateKey, transactionData)
+        } else {
+            Single.error(Exception())
+        }
+    }
+
     fun createSuperNode(
             value: BigInteger,
             isUnion: Boolean,

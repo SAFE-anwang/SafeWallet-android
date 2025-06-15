@@ -49,6 +49,7 @@ import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.tronkit.models.Contract
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.Date
 
 class TransactionViewItemFactory(
@@ -260,6 +261,8 @@ class TransactionViewItemFactory(
                     spam = record.spam,
                     nftMetadata = transactionItem.nftMetadata,
                     locked = locked,
+                    input = record.transaction.input,
+                    value = record.transaction.value ?: BigInteger.ZERO,
                     isRedeemEvent = isRedeemEvent
                 )
             }
@@ -899,6 +902,8 @@ class TransactionViewItemFactory(
         icon: TransactionViewItem.Icon?,
         nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
         locked: Boolean? = null,
+        input: ByteArray? = null,
+        value: BigInteger = BigInteger.ZERO,
         isRedeemEvent: Boolean = false
     ): TransactionViewItem {
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, nftMetadata)
@@ -915,7 +920,9 @@ class TransactionViewItemFactory(
             date = Date(timestamp * 1000),
             spam = spam,
             icon = icon ?: iconType(blockchainType, incomingValues, outgoingValues, nftMetadata),
-            locked = locked
+            locked = locked,
+            input = input,
+            vaule = value
         )
     }
 

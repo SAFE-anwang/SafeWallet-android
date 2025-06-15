@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.core.adapters.BaseEvmAdapter
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.proposal.WithdrawAvailableViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.vote.WithdrawVoteViewModel
@@ -65,9 +66,11 @@ object WithdrawModule {
 				WithdrawAvailableViewModel::class.java -> {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper)
+					val serviceProposal = SafeFourProposalService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, true)
 					WithdrawAvailableViewModel(
 						adapterEvm.evmKitWrapper.evmKit.receiveAddress,
 						service,
+						serviceProposal,
 						App.connectivityManager
 					) as T
 				}

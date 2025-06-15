@@ -137,6 +137,18 @@ class SendEvmTransactionService(
                 .let { disposable.add(it) }
             return
         }
+        if (txConfig.transactionData.times != -1) {
+            evmKitWrapper.sendSafe4LineLock(txConfig.transactionData)
+                .subscribeIO({
+                    sendState = SendState.Sent(it.hexStringToByteArray())
+                    logger.info("line lock success $it")
+                }, { error ->
+                    sendState = SendState.Failed(error)
+                    logger.warning("failed", error)
+                })
+                .let { disposable.add(it) }
+            return
+        }
         evmKitWrapper.sendSingle(
             txConfig.transactionData,
             txConfig.gasData.gasPrice,

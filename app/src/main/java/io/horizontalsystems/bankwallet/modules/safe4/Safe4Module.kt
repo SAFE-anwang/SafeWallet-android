@@ -350,6 +350,32 @@ object Safe4Module {
         }
     }
 
+
+    fun handlerSafe4LineLock(navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromRight(
+                R.id.sendSafe4LockFragment,
+                SafeFourModule.LineLockInput(safeWallet)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun handlerLineInfo() {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
@@ -370,6 +396,31 @@ object Safe4Module {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(LockInfoActivity.WALLET, safeWallet)
             })
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun handlerSafe4LineInfo(navController: NavController) {
+        val context = App.instance
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Safe"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromRight(
+                R.id.safe4LineLockFragment,
+                SafeFourModule.LineLockInput(safeWallet)
+            )
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }

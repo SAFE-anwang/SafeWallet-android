@@ -83,6 +83,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondary
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
+import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox2
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults
 import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults.buttonColors
@@ -455,7 +456,7 @@ fun LazyListScope.lockedList(
                             horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        HsCheckbox(
+                        HsCheckbox2(
                                 checked = item.checked,
                                 enabled = item.enable,
                                 onCheckedChange = {

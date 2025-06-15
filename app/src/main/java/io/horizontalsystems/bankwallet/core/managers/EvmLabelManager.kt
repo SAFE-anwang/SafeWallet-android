@@ -120,6 +120,7 @@ class EvmLabelManager(
             "0xf305d719" -> Translator.getString(R.string.Method_Add_Liquidity)
             "0x2e1a7d4d",
             "0xd0e30db0" -> Translator.getString(R.string.SAFE4_Swap_Tx_Title)
+            "0x9c4ee6bf" -> Translator.getString(R.string.Safe4_Line_Locked)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

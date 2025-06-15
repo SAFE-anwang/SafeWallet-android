@@ -136,6 +136,44 @@ private fun Safe4Sections(
     navController: NavController,
     onClick: (String) -> Unit
 ) {
+
+    Text(
+        text = stringResource(R.string.SAFE4_Line_Lock),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf ({
+            HsSettingCell(
+                R.string.Safe4_Line_Locked,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerSafe4LineLock(navController)
+                    }
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Lock_Info,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerSafe4LineInfo(navController)
+                    }
+                }
+            )
+        })
+    )
+
+    Spacer(Modifier.height(25.dp))
     Safe3Cell(R.string.Safe4_Locked)
 
     Spacer(Modifier.height(10.dp))

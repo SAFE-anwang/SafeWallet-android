@@ -219,6 +219,11 @@ class SafeFourVoteViewModel(
                 lockIdInfo.checked = !lockIdInfo.checked
             }
         }
+        lockIdsInfoLocked?.forEach { lockIdInfo ->
+            if (lockId == lockIdInfo.lockId) {
+                lockIdInfo.checked = !lockIdInfo.checked
+            }
+        }
         emitState()
     }
 
