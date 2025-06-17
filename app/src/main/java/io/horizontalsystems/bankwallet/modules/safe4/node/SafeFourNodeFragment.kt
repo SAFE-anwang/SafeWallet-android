@@ -16,7 +16,6 @@ class SafeFourNodeFragment: BaseComposeFragment() {
 
         val address = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit?.receiveAddress
         if (address == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }

@@ -4,12 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
+import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -22,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WithdrawAvailableViewModel(
     val address: Address,
     val service: WithdrawService,
+    val lockedService: SafeFourLockedVoteService,
     val proposalService: SafeFourProposalService,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawNodeUiState>() {
@@ -49,6 +52,25 @@ class WithdrawAvailableViewModel(
     }
 
     init {
+        lockedService.itemsObservable
+            .subscribeIO {
+                withdrawList = it.map {
+                    WithdrawModule.WithDrawInfo(
+                        it.lockId,
+                        it.unlockHeight.toLong(),
+                        it.releaseHeight.toLong(),
+                        NodeCovertFactory.formatSafe(it.lockValue),
+                        it.address,
+                        true
+                    )
+                }
+                if (it.size == 10) {
+                    lockedService.loadNext()
+                }
+                emitState()
+            }.let {
+                disposables.add(it)
+            }
         service.itemsObservableAvailable
             .subscribeIO {
                 withdrawList = it
@@ -70,13 +92,15 @@ class WithdrawAvailableViewModel(
 
     fun start() {
         viewModelScope.launch(Dispatchers.Default) {
-               service.loadItemsAvailable(0)
+//            service.loadItemsAvailable(0)
+            lockedService.loadItems(0)
+            lockedService.loadItemsLocked(0)
         }
     }
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
-            service.loadNext()
+            lockedService.loadNext()
         }
     }
 

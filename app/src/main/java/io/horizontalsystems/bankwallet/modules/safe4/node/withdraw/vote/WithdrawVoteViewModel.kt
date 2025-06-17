@@ -111,7 +111,7 @@ class WithdrawVoteViewModel(
             withdrawList?.let { list ->
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
-                    service.withdraw(checkedList)
+                    val result = service.withdraw(checkedList)
                     sendResult = SendResult.Sent
                     withdrawList = list.filter { !it.checked }
                     emitState()

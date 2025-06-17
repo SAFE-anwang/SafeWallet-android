@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -49,8 +50,8 @@ class WithdrawService(
         itemsSubject.onNext(nodeInfo)
     }
 
-    fun withdraw(lockedId: List<Int>): String? {
-        var result: String? = null
+    fun withdraw(lockedId: List<Int>): Single<String> {
+        var result = Single.just("withdraw fail")
         lockedId.chunked(50).forEach {
             result = evmKitManager.withdrawByIds(it.map { it.toBigInteger() })
         }

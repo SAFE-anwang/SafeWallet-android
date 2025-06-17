@@ -110,6 +110,7 @@ class LineLockSendSafeViewModel(
 
 
     fun setAmount(amount: BigDecimal) {
+        if (amount == BigDecimal.ZERO)  return
         var lockedValue: String
         val startMonth: String
         val intervalMonth: String
@@ -135,8 +136,12 @@ class LineLockSendSafeViewModel(
             startMonth = "12"
             intervalMonth = "1"
         }
-        lockedValue = checkAmount(amount, BigDecimal(lockedValue)).toString()
-        totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+        try {
+            lockedValue = checkAmount(amount, BigDecimal(lockedValue)).toString()
+            totalAmount = BigDecimal(lockedValue) * BigDecimal(outputSize)
+        } catch (e: Exception) {
+
+        }
         Log.i("safe4", "totalAmount: $totalAmount")
         this.lockedValue = lockedValue
         this.startMonth = startMonth
@@ -241,7 +246,7 @@ class LineLockSendSafeViewModel(
         return SendEvmData(
             TransactionData(
                 io.horizontalsystems.ethereumkit.models.Address(addressState.address!!.hex),
-                NodeCovertFactory.scaleConvert(totalAmount!!.toInt()),
+                NodeCovertFactory.scaleConvert(totalAmount!!),
                 byteArrayOf(),
                 times = outputSize,
                 spaceDay = intervalMonth!!.toInt() * 30,

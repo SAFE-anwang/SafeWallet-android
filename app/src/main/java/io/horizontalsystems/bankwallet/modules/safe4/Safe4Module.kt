@@ -356,7 +356,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.token.type == TokenType.Native) {
                 safeWallet = it
             }
         }
@@ -406,7 +406,7 @@ object Safe4Module {
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.token.type == TokenType.Native) {
                 safeWallet = it
             }
         }

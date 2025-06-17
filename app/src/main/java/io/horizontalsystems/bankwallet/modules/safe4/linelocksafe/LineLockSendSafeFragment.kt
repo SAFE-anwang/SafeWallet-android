@@ -68,7 +68,6 @@ class LineLockSendSafeFragment : BaseComposeFragment() {
         val input = navController.getInput<SafeFourModule.LineLockInput>()
         val wallet = input?.wallet
         if (wallet == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.sendSafe4LockFragment, true)
             return
         }

@@ -39,8 +39,8 @@ object WithdrawUi {
         enable: Boolean,
         checked: Boolean,
         unHeight: Long?,
-        releaseHeight: Long?,
-        address: String?,
+        releaseHeight: Long? = null,
+        address: String? = null,
         onChecked: (Int, Boolean) -> Unit
     ) {
         Row(
