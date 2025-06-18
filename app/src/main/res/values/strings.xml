@@ -2567,7 +2567,7 @@
     <string name="SAFE4_Withdraw_Send_Fail">Withdraw fail</string>
     <string name="SAFE4_Line_Lock">SAFE Lock</string>
     <string name="SAFE4_Line_Lock_No_Data">You don\'t have any linear lock up records yet</string>
-    <string name="SAFE4_Line_Lock_Day">%d days</string>
+    <string name="SAFE4_Line_Lock_Day">%d month</string>
 
     <!-- safe 4  end-->
 </resources>

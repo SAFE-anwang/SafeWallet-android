@@ -2240,7 +2240,7 @@
     <string name="SAFE4_Withdraw_Send_Fail">提现失败</string>
     <string name="SAFE4_Line_Lock">SAFE 锁仓</string>
     <string name="SAFE4_Line_Lock_No_Data">您还没有线性锁仓记录</string>
-    <string name="SAFE4_Line_Lock_Day">%d 天</string>
+    <string name="SAFE4_Line_Lock_Day">%d 月</string>
 
     <!-- safe 4  end-->
 </resources>
