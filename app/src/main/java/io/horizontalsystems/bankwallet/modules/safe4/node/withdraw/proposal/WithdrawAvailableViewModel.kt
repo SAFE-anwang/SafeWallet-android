@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WithdrawAvailableViewModel(
     val address: Address,
     val service: WithdrawService,
-    val lockedService: SafeFourLockedVoteService,
     val proposalService: SafeFourProposalService,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawNodeUiState>() {
@@ -52,37 +51,25 @@ class WithdrawAvailableViewModel(
     }
 
     init {
-        lockedService.itemsObservable
-            .subscribeIO {
-                withdrawList = it.map {
-                    WithdrawModule.WithDrawInfo(
-                        it.lockId,
-                        it.unlockHeight.toLong(),
-                        it.releaseHeight.toLong(),
-                        NodeCovertFactory.formatSafe(it.lockValue),
-                        it.address,
-                        true
-                    )
-                }
-                if (it.size == 10) {
-                    lockedService.loadNext()
-                }
-                emitState()
-            }.let {
-                disposables.add(it)
-            }
-        service.itemsObservableAvailable
-            .subscribeIO {
-                withdrawList = it
-                emitState()
-            }.let {
-                disposables.add(it)
-            }
         proposalService.mineItemsObservable
             .subscribeIO {
+                val list = mutableListOf<WithdrawModule.WithDrawInfo>()
                 it.forEach {
                     rewardsId.addAll(it.rewordsIds)
+                    for (i in 0 until it.rewordsIds.size) {
+                        list.add(
+                            WithdrawModule.WithDrawInfo(
+                                it.rewordsIds[i],
+                                it.updateHeight,
+                                null,
+                                NodeCovertFactory.formatSafe(it.payAmount.divide(it.payTimes.toBigInteger())),
+                                it.creator,
+                                true
+                            )
+                        )
+                    }
                 }
+                withdrawList = list
                 emitState()
             }.let {
                 disposables.add(it)
@@ -91,17 +78,9 @@ class WithdrawAvailableViewModel(
     }
 
     fun start() {
-        viewModelScope.launch(Dispatchers.Default) {
-//            service.loadItemsAvailable(0)
-            lockedService.loadItems(0)
-            lockedService.loadItemsLocked(0)
-        }
     }
 
     fun onBottomReached() {
-        viewModelScope.launch(Dispatchers.IO) {
-            lockedService.loadNext()
-        }
     }
 
     fun check(lockId: Int) {

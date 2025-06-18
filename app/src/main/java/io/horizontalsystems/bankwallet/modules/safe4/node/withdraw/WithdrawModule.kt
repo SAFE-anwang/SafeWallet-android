@@ -67,13 +67,9 @@ object WithdrawModule {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper)
 					val serviceProposal = SafeFourProposalService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, true)
-					val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,
-						adapterEvm.evmKitWrapper.evmKit,
-						adapterEvm.evmKitWrapper.evmKit.receiveAddress)
 					WithdrawAvailableViewModel(
 						adapterEvm.evmKitWrapper.evmKit.receiveAddress,
 						service,
-						lockVoteService,
 						serviceProposal,
 						App.connectivityManager
 					) as T
