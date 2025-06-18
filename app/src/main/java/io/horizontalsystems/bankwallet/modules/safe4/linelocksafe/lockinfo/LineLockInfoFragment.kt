@@ -109,6 +109,14 @@ fun LineLockInfoScreen(
         } else {
             val listState = rememberLazyListState()
             LazyColumn(Modifier.padding(paddingValues), state = listState) {
+                item {
+                    Spacer(Modifier.height(10.dp))
+                    body_bran(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = stringResource(R.string.Safe4_Lock_Total_Amount, uiState.lockedAmount)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
                 val itemsCount = transactionItems.size
                 itemsIndexed(
                     items = transactionItems,

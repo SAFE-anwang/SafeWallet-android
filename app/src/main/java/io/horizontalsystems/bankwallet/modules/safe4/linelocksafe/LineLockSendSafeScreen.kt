@@ -75,12 +75,6 @@ fun LineLockSendSafeScreen(
             }
         )
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            body_leah(
-                modifier = Modifier.padding(start = 16.dp),
-                text = stringResource(R.string.Safe_Four_Register_Node_Create_Mode),
-                maxLines = 1,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
 
             Spacer(modifier = Modifier.height(12.dp))
             AvailableBalance(

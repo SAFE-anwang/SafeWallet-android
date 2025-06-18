@@ -17,6 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.web3j.abi.FunctionReturnDecoder
+import java.math.BigInteger
 
 class LineLockInfoViewModel(
     val wallet: Wallet,
@@ -25,6 +26,7 @@ class LineLockInfoViewModel(
 ): ViewModelUiState<LineLockSafeModule.LineLockInfoUiState>() {
 
     private var lockInfos: List<LineLockSafeModule.LineLockInfo>? = null
+    private var lockedAmount = BigInteger.ZERO
     private val disposables = CompositeDisposable()
 
     init {
@@ -46,6 +48,7 @@ class LineLockInfoViewModel(
 
     override fun createState(): LineLockSafeModule.LineLockInfoUiState {
         return LineLockSafeModule.LineLockInfoUiState(
+            NodeCovertFactory.formatSafe(lockedAmount),
             lockInfos
         )
     }
@@ -67,10 +70,11 @@ class LineLockInfoViewModel(
                     val startDay = inputString.substring(203, inputString.length).toInt(16)
                     val value = transaction.vaule.divide(times.toBigInteger())
                     val formatValue = NodeCovertFactory.formatSafe(value)
+                    lockedAmount += value
                     for(i in 1..times) {
                         temp.add(LineLockSafeModule.LineLockInfo(
                             formatValue,
-                            startDay + i * spaceDay,
+                            (startDay + i * spaceDay) / 30,
                             "0x$address"
                         ))
                     }

@@ -102,6 +102,7 @@ object LineLockSafeModule {
     )
 
     data class LineLockInfoUiState(
+        val lockedAmount: String,
         val transactions: List<LineLockInfo>?
     )
 
