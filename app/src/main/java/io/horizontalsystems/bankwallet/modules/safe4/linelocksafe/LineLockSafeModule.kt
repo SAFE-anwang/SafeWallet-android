@@ -94,7 +94,7 @@ object LineLockSafeModule {
         val availableBalance: BigDecimal,
         val amountCaution: HSCaution?,
         val fiatMaxAllowedDecimals: Int,
-        val lockAmount: String?,
+        val times: String?,
         val startMonth: String?,
         val intervalMonth: String?,
         val tips: String? = null,

@@ -84,6 +84,110 @@ import java.util.stream.IntStream.range
 import kotlin.math.max
 import kotlin.streams.toList
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ButtonDatePickerView(
+	modifier: Modifier = Modifier,
+	value: String = "选择时间",
+	onValueChange: (Long) -> Unit,
+	borderColor: Color = ComposeAppTheme.colors.jacob,
+) {
+	var isOpenDialog by remember { mutableStateOf(false) }
+	var isDefaultValue by remember { mutableStateOf(true) }
+	var selectDate by remember { mutableStateOf(value) }
+	val datePickerState = rememberDatePickerState(
+		selectableDates = object : SelectableDates {
+			override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+				val calendar = Calendar.getInstance()
+				return calendar.timeInMillis + (24 - calendar.get(Calendar.HOUR_OF_DAY))*60*60*1000 < utcTimeMillis
+			}
+
+			override fun isSelectableYear(year: Int): Boolean {
+				return year >= Calendar.getInstance().get(Calendar.YEAR)
+			}
+		}
+	)
+	val sdf = remember { SimpleDateFormat("yyyy-MM-dd") }
+	val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+	Row(
+		modifier = modifier
+			.height(50.dp)
+			.border(
+				width = 1.dp,
+				color = borderColor,
+				shape = RoundedCornerShape(4.dp)
+			)
+			.clickable { isOpenDialog = true },
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.SpaceBetween
+	) {
+		Text(
+			modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+			text = selectDate,
+			maxLines = 1,
+			color = if(isDefaultValue) ComposeAppTheme.colors.grey else ComposeAppTheme.colors.jacob,
+			fontSize = 14.sp,
+		)
+		Icon(
+			modifier = Modifier.padding(start = 5.dp),
+			imageVector = Icons.Default.DateRange,
+			contentDescription = null,
+		)
+	}
+	if (isOpenDialog) {
+		CustomDatePickerDialog(
+			onDismissRequest = { isOpenDialog = false},
+			colors = DatePickerDefaults.colors(containerColor = ComposeAppTheme.colors.white),   //背景色（这个在下面的DatePicker中设置无效）
+			confirmButton = {
+				Text(
+					modifier = Modifier
+						.clickable {
+							val date = datePickerState.selectedDateMillis
+							if (date != null) {
+								val formatDate = sdf.format(date)
+								selectDate = formatDate
+								onValueChange(date)
+								isDefaultValue = false
+							} else {
+								isDefaultValue = true
+							}
+							isOpenDialog = false
+						}
+						.padding(end = 20.dp),
+					text = "确定",
+					color = ComposeAppTheme.colors.jacob,
+					fontSize = 16.sp
+				)
+			},
+			dismissButton = {
+				Text(
+					modifier = Modifier
+						.clickable {
+							isOpenDialog = false
+						}
+						.padding(end = 20.dp),
+					text = "取消",
+					color = ComposeAppTheme.colors.grey,
+					fontSize = 16.sp
+				)
+			}
+		) {
+			Column {
+
+				DatePicker(
+					state = datePickerState,
+					colors = DatePickerDefaults.colors(
+						todayDateBorderColor = ComposeAppTheme.colors.grey,   //默认选中的当天日期的边框色
+						selectedDayContentColor = ComposeAppTheme.colors.white,  //选中的文字颜色
+						selectedDayContainerColor = ComposeAppTheme.colors.grey,  //选中的填充颜色
+					)
+				)
+			}
+		}
+	}
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleButtonDatePickerView(

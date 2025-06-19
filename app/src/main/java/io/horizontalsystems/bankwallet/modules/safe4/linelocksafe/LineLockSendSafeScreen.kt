@@ -5,11 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
@@ -24,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -35,6 +38,8 @@ import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputType
 import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.ButtonDatePickerView
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.SingleButtonDatePickerView
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -65,7 +70,6 @@ fun LineLockSendSafeScreen(
     val tips = uiState.tips
 
     val focusRequester = remember { FocusRequester() }
-    var inputAmountErrorState by remember{ mutableStateOf(false) }
 
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
@@ -86,7 +90,7 @@ fun LineLockSendSafeScreen(
                 rate = viewModel.coinRate
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            /*Spacer(modifier = Modifier.height(12.dp))
             HSAmountInput(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 focusRequester = focusRequester,
@@ -99,24 +103,12 @@ fun LineLockSendSafeScreen(
                     amountInputModeViewModel.onToggleInputType()
                 },
                 onValueChange = {
-                    it?.let {
-                        inputAmountErrorState = it.toInt() < 1
-                    }
                     viewModel.onEnterAmount(it)
                 },
                 inputType = amountInputType,
                 rate = viewModel.coinRate
-            )
+            )*/
 
-            if (inputAmountErrorState) {
-                Text(
-                    modifier = Modifier.padding(start = 16.dp),
-                    text = stringResource(id = R.string.Safe_Four_Vote_Amount_Error),
-                    color = ComposeAppTheme.colors.redD,
-                    style = ComposeAppTheme.typography.caption,
-                    maxLines = 1,
-                )
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
             HSAddressInput(
@@ -135,7 +127,7 @@ fun LineLockSendSafeScreen(
             body_bran(modifier = Modifier.padding(start = 16.dp),
                 text = stringResource(id = R.string.Safe4_Every_Time_Lock_Amount))
 
-            FormsInput(
+            /*FormsInput(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 initial = uiState.lockAmount,
                 enabled = true,
@@ -144,22 +136,73 @@ fun LineLockSendSafeScreen(
                 maxLength = 20
             ) {
                 viewModel.onEnterLockAmount(it)
+            }*/
+
+            HSAmountInput(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                focusRequester = focusRequester,
+                availableBalance = availableBalance,
+                caution = amountCaution,
+                coinCode = wallet.coin.code,
+                coinDecimal = viewModel.coinMaxAllowedDecimals,
+                fiatDecimal = viewModel.fiatMaxAllowedDecimals,
+                onClickHint = {
+                    amountInputModeViewModel.onToggleInputType()
+                },
+                onValueChange = {
+                    viewModel.onEnterAmount(it)
+                },
+                inputType = amountInputType,
+                rate = viewModel.coinRate
+            )
+
+            Text(
+                modifier = Modifier.padding(start = 16.dp),
+                text = stringResource(id = R.string.SAFE4_Line_Lock_Amount_Hint),
+                color = ComposeAppTheme.colors.redD,
+                style = ComposeAppTheme.typography.caption,
+                maxLines = 1,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+            body_bran(modifier = Modifier.padding(start = 16.dp),
+                text = stringResource(id = R.string.Safe4_Lock_Times))
+            FormsInput(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                initial = uiState.times,
+                enabled = true,
+                pasteEnabled = false,
+                hint = "",
+                maxLength = 20,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
+            ) {
+                viewModel.onEnterLockTimes(it)
             }
             Spacer(modifier = Modifier.height(8.dp))
 
             body_bran(modifier = Modifier.padding(start = 16.dp),
                 text = stringResource(id = R.string.Safe4_Starting_Month))
-
-            FormsInput(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                initial = uiState.startMonth,
-                enabled = true,
-                pasteEnabled = false,
-                hint = "",
-                maxLength = 20
-            ) {
-                viewModel.onEnterLockMonth(it)
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 44.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(1.dp, ComposeAppTheme.colors.steel20, RoundedCornerShape(8.dp))
+                        .background(ComposeAppTheme.colors.lawrence),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ButtonDatePickerView(
+                        value = stringResource(id = R.string.Safe_Four_Proposal_Create_Time_Hint),
+                        onValueChange = {
+                            viewModel.onEnterStartTime(it)
+                        }
+                    )
+                }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             body_bran(modifier = Modifier.padding(start = 16.dp),
@@ -171,7 +214,10 @@ fun LineLockSendSafeScreen(
                 enabled = true,
                 pasteEnabled = false,
                 hint = "",
-                maxLength = 20
+                maxLength = 20,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
             ) {
                 viewModel.onEnterLockInterval(it)
             }

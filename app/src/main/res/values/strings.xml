@@ -2140,8 +2140,9 @@
     <string name="Safe4_Every_Time_Lock_Amount">Every time lock amount</string>
     <string name="Safe4_Starting_Month">Starting month</string>
     <string name="Safe4_Interval_Month">Interval Month</string>
+    <string name="Safe4_Lock_Times">Lock Times</string>
 
-    <string name="Safe4_Line_Lock_Tips">From starting month %s, unlock %s safe every %s months, and use %s safe in total</string>
+    <string name="Safe4_Line_Lock_Tips">From starting month %s, lock %s safe every %s months, total lock %s times, and lock %s safe in total</string>
     <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
@@ -2568,6 +2569,7 @@
     <string name="SAFE4_Line_Lock">SAFE Lock</string>
     <string name="SAFE4_Line_Lock_No_Data">You don\'t have any linear lock up records yet</string>
     <string name="SAFE4_Line_Lock_Day">%d month</string>
+    <string name="SAFE4_Line_Lock_Amount_Hint">At least one coin per lock up amount</string>
 
     <!-- safe 4  end-->
 </resources>
