@@ -114,16 +114,9 @@ object NodeCovertFactory {
 		}
 	}
 
-	fun convertLockIdItemView(list: List<LockIdsInfo>?, lockList: List<LockIdsInfo>?): List<LockIdsView>? {
-		val mergeList = mutableListOf<LockIdsInfo>()
-		lockList?.let {
-			mergeList.addAll(it)
-		}
-		list?.let {
-			mergeList.addAll(it)
-		}
-		return mergeList.distinctBy { it.lockId }.sortedByDescending { it.lockId }
-			.mapIndexed { index, record ->
+	fun convertLockIdItemView(list: List<LockIdsInfo>?): List<LockIdsView>? {
+		return list?.distinctBy { it.lockId }?.sortedByDescending { it.lockId }
+			?.mapIndexed { index, record ->
 			val value = valueConvert(record.lockValue)
 			LockIdsView(
 					index,

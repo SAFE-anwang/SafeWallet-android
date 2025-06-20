@@ -57,6 +57,7 @@ class LineLockInfoViewModel(
         val transactions = items
             .map {
                 transactionViewItem2Factory.convertToViewItemCached(it) }
+        lockedAmount = BigInteger.ZERO
         val temp = mutableListOf<LineLockSafeModule.LineLockInfo>()
         transactions.forEach { transaction ->
             transaction.input?.let {
@@ -70,7 +71,7 @@ class LineLockInfoViewModel(
                     val startDay = inputString.substring(203, inputString.length).toInt(16)
                     val value = transaction.vaule.divide(times.toBigInteger())
                     val formatValue = NodeCovertFactory.formatSafe(value)
-                    lockedAmount += value
+                    lockedAmount += transaction.vaule
                     for(i in 1..times) {
                         temp.add(LineLockSafeModule.LineLockInfo(
                             formatValue,

@@ -31,6 +31,7 @@ class LockedInfoViewModel(
     private val disposables = CompositeDisposable()
     private var withdrawList : List<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawListVote : List<WithdrawModule.WithDrawLockedInfo>? = null
+    private var withdrawListProposal : List<WithdrawModule.WithDrawLockedInfo>? = null
 
     private var showConfirmationDialog = false
 
@@ -45,13 +46,14 @@ class LockedInfoViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
-        val list = if (withdrawList != null && withdrawListVote != null) {
-            withdrawList!! + withdrawListVote!!
+        /*val list = if (withdrawList != null && withdrawListVote != null) {
+            withdrawList!! + withdrawListVote!! + withdrawListProposal!!
         } else if (withdrawList != null) {
             withdrawList
         } else {
             withdrawListVote
-        }
+        }*/
+        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf())
         return WithdrawModule.WithDrawLockInfoUiState(
             list?.sortedBy { it.id }?.distinctBy { it.id },
             showConfirmationDialog
@@ -95,6 +97,25 @@ class LockedInfoViewModel(
             }.let {
                 disposables.add(it)
             }
+
+        lockedVoteService.mineItemsObservable
+            .subscribeIO {
+                withdrawListProposal =
+                    it.map {
+                        WithdrawModule.WithDrawLockedInfo(it.lockId,
+                            it.unlockHeight.toLong(),
+                            it.releaseHeight.toLong(),
+                            NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.address2,
+                            (it.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
+                                    || (it.unlockHeight == BigInteger.ZERO && it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
+                            if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
+                        )
+                    }
+                emitState()
+            }.let {
+                disposables.add(it)
+            }
+
         start()
     }
 
@@ -102,6 +123,7 @@ class LockedInfoViewModel(
         viewModelScope.launch(Dispatchers.Default) {
                lockedVoteService.loadItems(0)
                lockedVoteService.loadItemsLocked(0)
+            lockedVoteService.getMinProposalNum()
         }
     }
 

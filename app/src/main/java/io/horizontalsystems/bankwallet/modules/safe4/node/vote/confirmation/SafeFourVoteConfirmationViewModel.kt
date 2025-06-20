@@ -71,7 +71,7 @@ class SafeFourVoteConfirmationViewModel(
         voteNum = NodeCovertFactory.formatSafe(voteData.vaule),
         lockIdInfo = NodeCovertFactory.convertLockIdItemView(voteData.recordsIds.map {
                                                                                      it.copy(enable = false)
-        }, null),
+        }),
     )
 
     override fun onCleared() {

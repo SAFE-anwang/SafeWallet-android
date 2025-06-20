@@ -2241,7 +2241,7 @@
     <string name="SAFE4_Withdraw_Send_Fail">提现失败</string>
     <string name="SAFE4_Line_Lock">SAFE 锁仓</string>
     <string name="SAFE4_Line_Lock_No_Data">您还没有线性锁仓记录</string>
-    <string name="SAFE4_Line_Lock_Day">%d 月</string>
+    <string name="SAFE4_Line_Lock_Day">%d 个月</string>
     <string name="SAFE4_Line_Lock_Amount_Hint">每次锁仓金额至少一个币</string>
 
     <!-- safe 4  end-->
