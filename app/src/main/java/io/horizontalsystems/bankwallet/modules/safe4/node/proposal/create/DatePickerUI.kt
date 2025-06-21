@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -112,6 +113,8 @@ fun ButtonDatePickerView(
 	val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 	Row(
 		modifier = modifier
+			.fillMaxWidth()
+			.padding(1.dp)
 			.height(50.dp)
 			.border(
 				width = 1.dp,

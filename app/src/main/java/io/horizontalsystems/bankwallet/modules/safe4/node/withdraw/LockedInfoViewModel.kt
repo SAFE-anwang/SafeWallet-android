@@ -88,8 +88,8 @@ class LockedInfoViewModel(
                             it.unlockHeight.toLong(),
                             it.releaseHeight.toLong(),
                             NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.address2,
-                            (it.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
-                                    || (it.unlockHeight == BigInteger.ZERO && it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
+                            (it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
+                                    || (it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
                             if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
                         )
                     }
