@@ -114,7 +114,7 @@ fun ButtonDatePickerView(
 	Row(
 		modifier = modifier
 			.fillMaxWidth()
-			.padding(1.dp)
+			.padding(1.5.dp)
 			.height(50.dp)
 			.border(
 				width = 1.dp,
