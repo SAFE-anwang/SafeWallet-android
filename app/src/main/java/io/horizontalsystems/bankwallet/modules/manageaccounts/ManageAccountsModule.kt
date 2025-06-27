@@ -13,7 +13,10 @@ object ManageAccountsModule {
     const val popOffInclusiveKey = "popOffInclusiveKey"
 
     @Parcelize
-    data class Input(val popOffOnSuccess: Int, val popOffInclusive: Boolean, val isAnBaoWallet: Boolean = false) : Parcelable
+    data class Input(val popOffOnSuccess: Int,
+                     val popOffInclusive: Boolean,
+                     val isAnBaoWallet: Boolean = false,
+                     val isSafe3Wallet: Boolean = false) : Parcelable
 
     class Factory(private val mode: Mode) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

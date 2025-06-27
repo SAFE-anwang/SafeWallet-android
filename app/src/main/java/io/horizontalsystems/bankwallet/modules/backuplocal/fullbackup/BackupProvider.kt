@@ -133,7 +133,8 @@ class BackupProvider(
 
     fun restoreCexAccount(accountType: AccountType, accountName: String) {
         val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
-        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, true, isAnBaoWallet)
+        val isSafe3Wallet = if (accountType is AccountType.Mnemonic) accountType.isSafe3Wallet else false
+        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, true, isAnBaoWallet, isSafe3Wallet)
         accountManager.save(account)
     }
 
@@ -143,7 +144,8 @@ class BackupProvider(
         backup: BackupLocalModule.WalletBackup
     ) {
         val isAnBaoWallet = if (type is AccountType.Mnemonic) type.isAnBaoWallet else false
-        val account = accountFactory.account(accountName, type, AccountOrigin.Restored, backup.manualBackup, true, isAnBaoWallet)
+        val isSafe3Wallet = if (type is AccountType.Mnemonic) type.isSafe3Wallet else false
+        val account = accountFactory.account(accountName, type, AccountOrigin.Restored, backup.manualBackup, true, isAnBaoWallet, isSafe3Wallet)
         accountManager.save(account)
 
         val enabledWalletBackups = backup.enabledWallets ?: listOf()
@@ -351,10 +353,11 @@ class BackupProvider(
             val account = if (type.isWatchAccountType) {
                 accountFactory.watchAccount(name, type)
             } else if (type is AccountType.Cex) {
-                accountFactory.account(name, type, AccountOrigin.Restored, true, true, false)
+                accountFactory.account(name, type, AccountOrigin.Restored, true, true, false, false)
             } else {
                 val isAnBaoWallet = if (type is AccountType.Mnemonic) type.isAnBaoWallet else false
-                accountFactory.account(name, type, AccountOrigin.Restored, backup.manualBackup, backup.fileBackup, isAnBaoWallet)
+                val isSafe3Wallet = if (type is AccountType.Mnemonic) type.isSafe3Wallet else false
+                accountFactory.account(name, type, AccountOrigin.Restored, backup.manualBackup, backup.fileBackup, isAnBaoWallet, isSafe3Wallet)
             }
 
             walletBackupItems.add(

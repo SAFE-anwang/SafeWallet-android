@@ -51,7 +51,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 .mapNotNull { record: AccountRecord ->
                     try {
                         val accountType = when (record.type) {
-                            MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "", record.isAnBaoWallet)
+                            MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "", record.isAnBaoWallet, record.isSafe3Wallet)
                             PRIVATE_KEY -> AccountType.PrivateKey(record.key!!.value.hexToByteArray())
                             EVM_PRIVATE_KEY -> AccountType.EvmPrivateKey(record.key!!.value.toBigInteger())
                             ADDRESS -> AccountType.EvmAddress(record.key!!.value)
@@ -75,7 +75,8 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                             record.level,
                             record.isBackedUp,
                             record.isFileBackedUp,
-                            record.isAnBaoWallet
+                            record.isAnBaoWallet,
+                            record.isSafe3Wallet
                         )
                     } catch (ex: Exception) {
                         null
@@ -125,6 +126,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         var key: SecretString? = null
         val accountType: String
         var isAnBaoWallet = false
+        var isSafe3Wallet = false
 
         when (account.type) {
             is AccountType.Mnemonic -> {
@@ -132,6 +134,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                 passphrase = SecretString(account.type.passphrase)
                 accountType = MNEMONIC
                 isAnBaoWallet = account.isAnBaoWallet
+                isSafe3Wallet = account.isSafe3Wallet
             }
             is AccountType.EvmPrivateKey -> {
                 key = SecretString(account.type.key.toString())
@@ -182,7 +185,8 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             passphrase = passphrase,
             key = key,
             level = account.level,
-            isAnBaoWallet = isAnBaoWallet
+            isAnBaoWallet = isAnBaoWallet,
+            isSafe3Wallet = isSafe3Wallet
         )
     }
 

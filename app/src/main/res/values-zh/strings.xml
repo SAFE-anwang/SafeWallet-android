@@ -1765,6 +1765,7 @@
     <string name="Restore_ImToken_Wallet">ImToken</string>
     <string name="Restore_BitPie_Wallet">比特派</string>
     <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
+    <string name="Restore_SAFE3_Wallet">SAFE3 钱包</string>
     <string name="Restore_Select_Import_Way">导入方式</string>
     <string name="Restore_Import_Private_Key">私钥导入</string>
     <string name="Restore_Import_Private_Key_Desc">通过输入明文私钥或扫描二维码进行导入</string>

@@ -28,12 +28,14 @@ class RestoreAccountFragment : BaseComposeFragment(screenshotEnabled = false) {
         val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.restoreAccountFragment
         val inclusive = input?.popOffInclusive ?: false
         val isAnBaoWallet = input?.isAnBaoWallet ?: false
+        val isSafe3Wallet = input?.isSafe3Wallet ?: false
 
         RestoreAccountNavHost(
             navController,
             popUpToInclusiveId,
             inclusive,
-            isAnBaoWallet
+            isAnBaoWallet,
+            isSafe3Wallet
         )
     }
 
@@ -44,7 +46,8 @@ private fun RestoreAccountNavHost(
     fragmentNavController: NavController,
     popUpToInclusiveId: Int,
     inclusive: Boolean,
-    isAnBaoWallet: Boolean
+    isAnBaoWallet: Boolean,
+    isSafe3Wallet: Boolean
 ) {
     val navController = rememberNavController()
     val restoreMenuViewModel: RestoreMenuViewModel = viewModel(factory = RestoreMenuModule.Factory())
@@ -59,6 +62,7 @@ private fun RestoreAccountNavHost(
                 restoreMenuViewModel = restoreMenuViewModel,
                 mainViewModel = mainViewModel,
                 isAnBaoWallet = isAnBaoWallet,
+                isSafe3Wallet = isSafe3Wallet,
                 openRestoreAdvanced = { navController.navigate("restore_phrase_advanced") },
                 openSelectCoins = { navController.navigate("restore_select_coins") },
                 openNonStandardRestore = { navController.navigate("restore_phrase_nonstandard") },
@@ -69,7 +73,8 @@ private fun RestoreAccountNavHost(
             AdvancedRestoreScreen(
                 restoreMenuViewModel = restoreMenuViewModel,
                 mainViewModel = mainViewModel,
-                    isAnBaoWallet = isAnBaoWallet,
+                isAnBaoWallet = isAnBaoWallet,
+                isSafe3Wallet = isSafe3Wallet,
                 openSelectCoinsScreen = { navController.navigate("restore_select_coins") },
                 openNonStandardRestore = { navController.navigate("restore_phrase_nonstandard") },
                 onBackClick = { navController.popBackStack() }

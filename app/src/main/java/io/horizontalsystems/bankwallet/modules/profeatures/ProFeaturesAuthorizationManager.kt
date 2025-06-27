@@ -64,7 +64,7 @@ class ProFeaturesAuthorizationManager(
                     }
 
                     is AccountType.Mnemonic -> {
-                        val address = Signer.address(account.type.seed, Chain.Ethereum, account.type.isAnBaoWallet)
+                        val address = Signer.address(account.type.seed, Chain.Ethereum, account.type.isAnBaoWallet, account.type.isSafe3Wallet)
                         AccountData(account.id, address)
                     }
 

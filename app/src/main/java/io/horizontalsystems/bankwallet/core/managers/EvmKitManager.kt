@@ -112,17 +112,19 @@ class EvmKitManager(
         var signer: Signer? = null
         var seed: ByteArray? = null
         var isAnBaoWallet = false
+        var isSafe3Wallet = false
 
         when (accountType) {
             is AccountType.Mnemonic -> {
                 isAnBaoWallet = accountType.isAnBaoWallet
+                isSafe3Wallet = accountType.isSafe3Wallet
                 seed = accountType.seed
-                address = Signer.address(seed, chain, isAnBaoWallet)
-                signer = Signer.getInstance(seed, chain, isAnBaoWallet)
+                address = Signer.address(seed, chain, isAnBaoWallet, isSafe3Wallet)
+                signer = Signer.getInstance(seed, chain, isAnBaoWallet, isSafe3Wallet)
             }
             is AccountType.PrivateKey -> {
                 address = Signer.address(accountType.key.toBigInteger())
-                signer = Signer.getInstance(accountType.key, chain, isAnBaoWallet)
+                signer = Signer.getInstance(accountType.key, chain, isAnBaoWallet, isSafe3Wallet)
             }
             is AccountType.EvmPrivateKey -> {
                 address = Signer.address(accountType.key)

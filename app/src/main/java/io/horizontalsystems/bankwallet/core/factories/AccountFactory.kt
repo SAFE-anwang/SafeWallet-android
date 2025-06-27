@@ -20,7 +20,8 @@ class AccountFactory(
         origin: AccountOrigin,
         backedUp: Boolean,
         fileBackedUp: Boolean,
-        isAnBaoWallet: Boolean
+        isAnBaoWallet: Boolean,
+        isSafe3Wallet: Boolean
     ): Account {
         val id = UUID.randomUUID().toString()
 
@@ -32,7 +33,8 @@ class AccountFactory(
             level = userManager.getUserLevel(),
             isBackedUp = backedUp,
             isFileBackedUp = fileBackedUp,
-                isAnBaoWallet = isAnBaoWallet
+            isAnBaoWallet = isAnBaoWallet,
+            isSafe3Wallet = isSafe3Wallet
         )
     }
 

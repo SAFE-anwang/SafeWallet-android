@@ -75,8 +75,9 @@ fun ManageWalletsScreen(
     val manualBackup = mainViewModel.manualBackup
     val fileBackup = mainViewModel.fileBackup
     val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
+    val isSafe3Wallet = if (accountType is AccountType.Mnemonic) accountType.isSafe3Wallet else false
 
-    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet)
+    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet, isSafe3Wallet)
     val viewModel: RestoreBlockchainsViewModel = viewModel(factory = factory)
     val restoreSettingsViewModel: RestoreSettingsViewModel = viewModel(factory = factory)
     val blockchainTokensViewModel: BlockchainTokensViewModel = viewModel(factory = factory)
