@@ -160,7 +160,7 @@ class RedeemSafe3LocalViewModel(
 			val masterNodeKey = redeemableList.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 			try {
 				// 余额迁移
-				safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
+				val redeem = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
 				if (masterNodeKey.isNotEmpty()) {
 					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
@@ -287,12 +287,14 @@ class RedeemSafe3LocalViewModel(
 					val (lockNum, safe3LockedInfo) = loadItems(address)
 					val lockedAmount = lockBalance(safe3LockedInfo)
 					val masterNodeAmount = masterLockBalance(safe3LockedInfo)
+					Log.d("redeem", "$address: available=${safe3Info?.amount}, locked=$lockedAmount")
 					if (safe3Info != null) {
 						redeemableAmount += safe3Info.amount
 					}
 					redeemableLocked += lockedAmount
 					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
 					bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
+						Log.d("redeem", "privateKey=${privateKey.toHexString()}")
 						list.add(
 							RedeemSafe3Module.Safe3LocalInfo(
 								address,

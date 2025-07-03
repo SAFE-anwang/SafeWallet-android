@@ -249,7 +249,7 @@ class RedeemSafe3ViewModel(
 				} else {
 					getSafe4Address(privateKey)
 				}
-				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), targetAddress).blockingGet()
+				val redeemResult = safe4.redeemSafe3(receivePrivateKey(), listOf( privateKey), targetAddress)
 				if (existMasterNode) {
 					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), targetAddress)
 				}
