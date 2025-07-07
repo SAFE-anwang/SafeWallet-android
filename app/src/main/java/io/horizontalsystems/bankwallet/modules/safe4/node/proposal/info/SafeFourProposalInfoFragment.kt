@@ -3,17 +3,20 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -52,6 +55,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -62,7 +66,6 @@ class SafeFourProposalInfoFragment: BaseComposeFragment() {
 
         val address = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit?.receiveAddress
         if (address == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }
@@ -123,6 +126,7 @@ fun ProposalInfoScreen(
                         HsBackButton(onClick = { navController.popBackStack() })
                     }
             )
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Column(
                     modifier = Modifier
                             .padding(16.dp)
@@ -400,10 +404,39 @@ fun ProposalInfoScreen(
                     )
                 }
                     if (uiState.voteList.isNullOrEmpty()) {
-                            ListEmptyView(
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .background(
+                                        color = ComposeAppTheme.colors.raina,
+                                        shape = CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(48.dp),
+                                    painter = painterResource(R.drawable.ic_clock),
+                                    contentDescription = stringResource(R.string.Safe_Four_No_Data),
+                                    tint = ComposeAppTheme.colors.grey
+                                )
+                            }
+                            Spacer(Modifier.height(32.dp))
+                            subhead2_grey(
+                                modifier = Modifier.padding(horizontal = 48.dp),
+                                text = stringResource(R.string.Safe_Four_No_Data),
+                                textAlign = TextAlign.Center,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Spacer(Modifier.height(50.dp))
+                        }
+                            /*ListEmptyView(
                                     text = stringResource(R.string.Safe_Four_No_Data),
                                     icon = R.drawable.ic_clock
-                            )
+                            )*/
                     } else {
 
                             Divider(
@@ -411,42 +444,44 @@ fun ProposalInfoScreen(
                                     thickness = 1.dp,
                                     color = ComposeAppTheme.colors.steel10,
                             )
-                        uiState.voteList.forEach { item ->
-                            Column(
-                            ) {
-                                Row {
-                                    body_leah(
+//                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            uiState.voteList.forEach { item ->
+                                Column(
+                                ) {
+                                    Row {
+                                        body_leah(
                                             modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(4f),
+                                                .fillMaxWidth()
+                                                .weight(4f),
                                             text = item.address,
                                             maxLines = 1,
-                                    )
+                                        )
 
-                                    val color = when (item.state) {
-                                        is ProposalVoteStatus.Agree -> ComposeAppTheme.colors.greenD
-                                        is ProposalVoteStatus.Refuse -> ComposeAppTheme.colors.redD
-                                        is ProposalVoteStatus.Abstain -> ComposeAppTheme.colors.grey50
-                                    }
-                                    Text(
+                                        val color = when (item.state) {
+                                            is ProposalVoteStatus.Agree -> ComposeAppTheme.colors.greenD
+                                            is ProposalVoteStatus.Refuse -> ComposeAppTheme.colors.redD
+                                            is ProposalVoteStatus.Abstain -> ComposeAppTheme.colors.grey50
+                                        }
+                                        Text(
                                             modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f),
+                                                .fillMaxWidth()
+                                                .weight(1f),
                                             text = item.state.title().toString(),
                                             style = ComposeAppTheme.typography.body,
                                             color = color,
                                             overflow = TextOverflow.Ellipsis,
                                             maxLines = 1,
                                             textAlign = TextAlign.End
-                                    )
+                                        )
+                                    }
                                 }
-                            }
 
-                            Divider(
+                                Divider(
                                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                                     thickness = 1.dp,
                                     color = ComposeAppTheme.colors.steel10,
-                            )
+                                )
+                            }
                         }
                     }
                 }

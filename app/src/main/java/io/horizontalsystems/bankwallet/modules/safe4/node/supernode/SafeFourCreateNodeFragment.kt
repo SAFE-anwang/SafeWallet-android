@@ -18,7 +18,6 @@ class SafeFourCreateNodeFragment: BaseComposeFragment() {
         val input = navController.getInput<SafeFourModule.CreateInput>()
         val wallet = input?.wallet
         if (wallet == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }

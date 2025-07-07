@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Text
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
@@ -41,18 +42,15 @@ fun RedeemConfirmationDialog(
 						.background(color = ComposeAppTheme.colors.lawrence)
 						.padding(horizontal = 24.dp, vertical = 20.dp)
 		) {
-
-			Text(
-					text = stringResource(id = R.string.Redeem_Safe4_Redeem_Onec),
-					style = ComposeAppTheme.typography.title3,
-					color = ComposeAppTheme.colors.bran,
+			Safe3Text(
+				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec),
+				color = ComposeAppTheme.colors.bran,
 			)
 			Spacer(Modifier.height(16.dp))
-
-			Text(
-					text = stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation),
-					style = ComposeAppTheme.typography.body,
-					color = ComposeAppTheme.colors.bran,
+			Safe3Text(
+				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation1),
+				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation2),
+				color = ComposeAppTheme.colors.bran,
 			)
 			Spacer(Modifier.height(10.dp))
 			Text(

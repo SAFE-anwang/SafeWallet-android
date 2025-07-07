@@ -13,6 +13,7 @@ import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.disposables.CompositeDisposable
 
@@ -66,7 +67,8 @@ class RestoreBlockchainsViewModel(
             subtitle = if (item.blockchain.uid == "dogecoin") "" else item.blockchain.description,
             enabled = item.enabled,
             hasSettings = item.hasSettings,
-            hasInfo = false
+            hasInfo = false,
+            bridge = if (item.blockchain.type == BlockchainType.Safe) "SAFE3" else null
         )
     }
 

@@ -11,6 +11,7 @@ fun AdvancedRestoreScreen(
     restoreMenuViewModel: RestoreMenuViewModel,
     mainViewModel: RestoreViewModel,
     isAnBaoWallet: Boolean = false,
+    isSafe3Wallet: Boolean = false,
     openSelectCoinsScreen: () -> Unit,
     openNonStandardRestore: () -> Unit,
     onBackClick: () -> Unit,

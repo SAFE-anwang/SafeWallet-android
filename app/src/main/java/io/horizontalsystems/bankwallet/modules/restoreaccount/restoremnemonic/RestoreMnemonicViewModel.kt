@@ -19,7 +19,8 @@ class RestoreMnemonicViewModel(
     accountFactory: IAccountFactory,
     private val wordsManager: WordsManager,
     private val thirdKeyboardStorage: IThirdKeyboard,
-    private val isAnBaoWallet: Boolean = false
+    private val isAnBaoWallet: Boolean = false,
+    private val isSafe3Wallet: Boolean = false
 ) : ViewModelUiState<UiState>() {
 
     val mnemonicLanguages = Language.values().toList()
@@ -134,7 +135,7 @@ class RestoreMnemonicViewModel(
                     val words = wordItems.map { it.word.normalizeNFKD() }
                     wordsManager.validateChecksumStrict(words)
 
-                    accountType = AccountType.Mnemonic(words, passphrase.normalizeNFKD(), isAnBaoWallet)
+                    accountType = AccountType.Mnemonic(words, passphrase.normalizeNFKD(), isAnBaoWallet, isSafe3Wallet)
                     error = null
                 } catch (checksumException: Exception) {
                     error = Translator.getString(R.string.Restore_InvalidChecksum)

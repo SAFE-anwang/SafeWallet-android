@@ -21,6 +21,7 @@ object RestoreBlockchainsModule {
         private val manualBackup: Boolean,
         private val fileBackup: Boolean,
         private val isAnBaoWallet: Boolean = false,
+        private val isSafe3Wallet: Boolean = false,
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
@@ -37,6 +38,7 @@ object RestoreBlockchainsModule {
                 manualBackup,
                 fileBackup,
                 isAnBaoWallet,
+                isSafe3Wallet,
                 App.accountFactory,
                 App.accountManager,
                 App.walletManager,
@@ -116,4 +118,5 @@ data class CoinViewItem<T>(
     val hasSettings: Boolean = false,
     val hasInfo: Boolean = false,
     val label: String? = null,
+    val bridge: String? = null
 )

@@ -186,7 +186,7 @@ val Blockchain.description: String
         BlockchainType.Litecoin -> "LTC (BIP44, BIP49, BIP84, BIP86)"
         BlockchainType.Dogecoin -> "DOGE"
         BlockchainType.Dash -> "DASH"
-        BlockchainType.SafeFour -> "SAFE4"
+        BlockchainType.SafeFour -> "SAFE"
         BlockchainType.Safe -> "SAFE"
         BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
         BlockchainType.Ethereum -> "ETH, ERC20 tokens"

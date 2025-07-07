@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
@@ -16,9 +18,11 @@ import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItemFactory
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewType
 import io.horizontalsystems.bankwallet.modules.balance.token.TokenBalanceModule.TokenBalanceUiState
+import io.horizontalsystems.bankwallet.modules.safe4.swap.Safe4SwapViewModel
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItemFactory
+import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -72,6 +76,9 @@ class TokenBalanceViewModel(
             balanceService.start()
             delay(300)
             transactionsService.start()
+            if (wallet.token.type == TokenType.Eip20(Safe4SwapViewModel.safe4SwapContractAddress)) {
+                (App.adapterManager.getBalanceAdapterForWallet(wallet) as Eip20Adapter).refresh()
+            }
         }
     }
 

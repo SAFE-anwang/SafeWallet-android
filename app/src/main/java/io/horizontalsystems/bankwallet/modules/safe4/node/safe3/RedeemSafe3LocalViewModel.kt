@@ -56,7 +56,7 @@ class RedeemSafe3LocalViewModel(
 	private var existMasterNode = false
 
 	private var showConfirmationDialg = false
-	val list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
+	var list = mutableListOf<RedeemSafe3Module.Safe3LocalInfo>()
 
 	private var isRedeeming = AtomicBoolean(false)
 
@@ -160,7 +160,7 @@ class RedeemSafe3LocalViewModel(
 			val masterNodeKey = redeemableList.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 			try {
 				// 余额迁移
-				safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
+				val redeem = safe4.redeemSafe3(receivePrivateKey(), listPrivateKey, receiveAddress())
 				if (masterNodeKey.isNotEmpty()) {
 					safe4.redeemMasterNode(receivePrivateKey(), masterNodeKey, receiveAddress())
 				}
@@ -264,6 +264,7 @@ class RedeemSafe3LocalViewModel(
 			if (list.isEmpty() || (spendableUtxo.isEmpty() && spendableTimeLockUtxo.isEmpty())) {
 				isRedeemSuccess = true
 			}
+			list = list.distinctBy { it.address }.toMutableList()
 			syncing = false
 			step = 3
 			isRedeeming.set(false)
@@ -272,11 +273,11 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	private fun getRedeemAddressInfo(unspentOutputs: List<UnspentOutput>, alreadyRedeem: List<Redeem>, isLock: Boolean) {
-		val tempUnspentOutputs = if (isLock) unspentOutputs.distinctBy { it.transaction.hash.toHexString() } else unspentOutputs
+		val tempUnspentOutputs = unspentOutputs.distinctBy { it.transaction.hash.toHexString() }
 		tempUnspentOutputs.forEach {
 			val address = bitcoinCore.addressConverter.convert(it.publicKey, ScriptType.P2PKH).stringValue
-			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
-			if (isSuccess)	return@forEach
+//			val isSuccess = (alreadyRedeem.find { it.address == address }?.success ?: 0) == 1
+//			if (isSuccess)	return@forEach
 			try {
 				val existAvailable = safe4.existAvailableNeedToRedeem(address)
 				val existLocked = safe4.existLockedNeedToRedeem(address)
@@ -286,12 +287,14 @@ class RedeemSafe3LocalViewModel(
 					val (lockNum, safe3LockedInfo) = loadItems(address)
 					val lockedAmount = lockBalance(safe3LockedInfo)
 					val masterNodeAmount = masterLockBalance(safe3LockedInfo)
+					Log.d("redeem", "$address: available=${safe3Info?.amount}, locked=$lockedAmount")
 					if (safe3Info != null) {
 						redeemableAmount += safe3Info.amount
 					}
 					redeemableLocked += lockedAmount
 					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
 					bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
+						Log.d("redeem", "privateKey=${privateKey.toHexString()}")
 						list.add(
 							RedeemSafe3Module.Safe3LocalInfo(
 								address,

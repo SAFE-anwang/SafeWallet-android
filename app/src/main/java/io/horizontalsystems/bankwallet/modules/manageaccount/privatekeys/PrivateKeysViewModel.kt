@@ -29,7 +29,7 @@ class PrivateKeysViewModel(
         val ethereumPrivateKey = when (val accountType = account.type) {
             is AccountType.Mnemonic -> {
                 val chain = evmBlockchainManager.getChain(BlockchainType.Ethereum)
-                toHexString(Signer.privateKey(accountType.words, accountType.passphrase, chain, accountType.isAnBaoWallet))
+                toHexString(Signer.privateKey(accountType.words, accountType.passphrase, chain, accountType.isAnBaoWallet, accountType.isSafe3Wallet))
             }
             is AccountType.EvmPrivateKey -> toHexString(accountType.key)
             else -> null

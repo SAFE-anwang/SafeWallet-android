@@ -2124,7 +2124,7 @@
     <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe42wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE</string>
-    <string name="Safe4_Locked">SAFE3 Locked</string>
+    <string name="Safe4_Locked"> Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
     <string name="Safe4_Wsafe_Receive_Address">Receiver</string>
@@ -2140,8 +2140,9 @@
     <string name="Safe4_Every_Time_Lock_Amount">Every time lock amount</string>
     <string name="Safe4_Starting_Month">Starting month</string>
     <string name="Safe4_Interval_Month">Interval Month</string>
+    <string name="Safe4_Lock_Times">Lock Times</string>
 
-    <string name="Safe4_Line_Lock_Tips">From starting month %s, unlock %s safe every %s months, and use %s safe in total</string>
+    <string name="Safe4_Line_Lock_Tips">From starting month %s, lock %s safe every %s months, total lock %s times, and lock %s safe in total</string>
     <string name="Safe4_Locked_Value_Error">Every time lock amount is invalid, cannot be greater than the total amount to be locked</string>
     <string name="Safe4_Starting_Month_Error">The starting month is invalid</string>
     <string name="Safe4_Interval_Month_Error">The interval month is invalid</string>
@@ -2169,8 +2170,8 @@
 
     <string name="Safe4_Safe_Basic_Info">Basic Information</string>
     <string name="Safe4_Safe_Homepage">SAFE Homepage</string>
-    <string name="Safe4_Safe_Block_Explorer">SAFE3 BlockExplorer</string>
-    <string name="Safe4_Safe_Across_Chain_Explorer">SAFE3 Across Chain Explorer</string>
+    <string name="Safe4_Safe_Block_Explorer"> BlockExplorer</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer"> Across Chain Explorer</string>
     <string name="Safe4_Safe4_Block_Explorer">SAFE BlockExplorer</string>
     <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE Across Chain Explorer</string>
     <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
@@ -2201,6 +2202,7 @@
     <string name="Restore_ImToken_Wallet">ImToken</string>
     <string name="Restore_BitPie_Wallet">Bitpie</string>
     <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
+    <string name="Restore_SAFE3_Wallet">SAFE3 Wallet</string>
     <string name="Restore_Select_Import_Way">Restore Wallet</string>
     <string name="Restore_Import_Private_Key">from Private key</string>
     <string name="Restore_Import_Private_Key_Desc">Restore wallet from private key</string>
@@ -2231,7 +2233,7 @@
     <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">Private key cannot be empty</string>
     <string name="ManageAccount_Private_Key_Not_Support">Bitcoin recovery is not supported temporarily</string>
     <string name="Restore_Import_Wallet_Path_Des">The BIP32 path is an important factor in wallet recovery. Please contact your wallet supplier to find out the BIP32 path of the wallet. An incorrect BIP32 path will result in incorrect addresses.</string>
-    <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of ETH could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
+    <string name="Restore_Private_Key_Des">  Note: \n(1) Only the private key of EVM could be imported now.\n(2) You cann\'t generate new address in the wallet</string>
 
     <string name="fallback_block">%s block fallback height</string>
     <string name="fallback_block_title">block fallback</string>
@@ -2288,6 +2290,7 @@
     <string name="Safe_Four_Super_Node_Mine">My Super Node</string>
     <string name="Safe_Four_Master_Node_Mine">My Master Node</string>
     <string name="Safe_Four_Proposal">Proposal</string>
+    <string name="Safe_Four_Lock">Locked</string>
     <string name="Safe_Four_Vote">Vote</string>
     <string name="Safe_Four_Profit">Profit</string>
     <string name="Safe_Four_Register_Node_Create">Create</string>
@@ -2446,8 +2449,10 @@
     <string name="Redeem_Safe3_Verify_Private_Key">Verify Private Key</string>
     <string name="Redeem_Safe3_Migration">Asset Redeem</string>
     <string name="Redeem_Safe3_Address_Hint">SAFE3 Address</string>
-    <string name="Redeem_Safe3_Address_Hint_2">SAFE3 Address\n%s</string>
-    <string name="Redeem_Safe3_Private_Key">SAFE3 Private Key</string>
+    <string name="Redeem_Safe3_Address_Hint_1">SAFE</string>
+    <string name="Redeem_Safe3_Address_Hint_2"> Address\n%s</string>
+    <string name="Redeem_Safe3_Private_Key1">SAFE</string>
+    <string name="Redeem_Safe3_Private_Key2"> Private Key</string>
     <string name="Redeem_Safe3_Private_Key_Hint">Enter hexadecimal or WIF private key</string>
     <string name="Redeem_Safe3_Account_Balance">Balance</string>
     <string name="Redeem_Safe3_Master_Balance">Master Node</string>
@@ -2456,12 +2461,15 @@
     <string name="Redeem_Safe3_Private_Key_Error">Enter private key error</string>
     <string name="Redeem_Safe3_Send_Sending">Redemption</string>
     <string name="Redeem_Safe3_Send_Success">Redemption successful</string>
-    <string name="Redeem_Safe3_Redeem_Hint">The assets of the SAFE3 network will be migrated to the wallet address of the SAFE network chosen by the user</string>
-    <string name="Redeem_Safe3_Redeem_Desc">Migrate the assets of the SAFE3 network to the SAFE network</string>
+    <string name="Redeem_Safe3_Redeem_Hint1">The assets of the SAFE</string>
+    <string name="Redeem_Safe3_Redeem_Hint2"> network will be migrated to the wallet address of the SAFE network chosen by the user</string>
+    <string name="Redeem_Safe3_Redeem_Desc1">Migrate the assets of the SAFE</string>
+    <string name="Redeem_Safe3_Redeem_Desc2"> network to the SAFE network</string>
     <string name="Redeem_Safe4_Address">SAFE Address</string>
     <string name="Redeem_Safe4_Redeem_Button">Redeem</string>
     <string name="Redeem_Safe4_Redeem_Onec">One-click migration SAFE3</string>
-    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">One-click migration SAFE3 to SAFE address</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation1">One-click migration SAFE</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation2"> to SAFE address</string>
     <string name="Redeem_Safe4_Redeem_Success">Migration completed</string>
     <string name="Redeem_Safe4_Redeem_Local_Address">Local wallet address</string>
     <string name="Redeem_Safe4_Redeem_PrivatKey_Address">Private key corresponding address</string>
@@ -2534,5 +2542,35 @@
     <string name="SAFE4_Swap_Continue">Continue</string>
     <string name="SAFE4_Swap_Button">Exchange</string>
     <string name="SAFE4_Swap_Tx_Title">SAFE Exchange</string>
+
+    <string name="SAFE4_Withdraw">Withdraw</string>
+    <string name="SAFE4_Withdraw_Release">Vote release/Withdraw</string>
+    <string name="SAFE4_Withdraw_Master_Node">Master Node Withdraw</string>
+    <string name="SAFE4_Withdraw_Super_Node">Super Node Withdraw</string>
+    <string name="SAFE4_Withdraw_Proposal">Proposal Withdraw</string>
+    <string name="SAFE4_Withdraw_Profit">Profit Withdraw</string>
+    <string name="SAFE4_Withdraw_Locked">Locked Withdraw</string>
+    <string name="SAFE4_Withdraw_Loading">Loading…</string>
+    <string name="SAFE4_Withdraw_No_Data">Not withdraw record.</string>
+    <string name="SAFE4_Withdraw_Lock_Id">Lock ID:%d</string>
+    <string name="SAFE4_Withdraw_Lock_Amount">Lock Amount:%s</string>
+    <string name="SAFE4_Withdraw_Unlock_Height">Unlock Height:%s</string>
+    <string name="SAFE4_Withdraw_Release_Height">Vote Release Height:%s</string>
+    <string name="SAFE4_Withdraw_Address">Address:%s</string>
+    <string name="SAFE4_Withdraw_Node_Hint">After withdrawing %s, it will no longer generate earnings. Are you sure you want to proceed?</string>
+    <string name="SAFE4_Withdraw_Node_Hint_Master">master node locked amount</string>
+    <string name="SAFE4_Withdraw_Node_Hint_Super">super node locked amount</string>
+    <string name="SAFE4_Withdraw_Vote_Hint">Withdrawing funds from locked voting will terminate all future earnings. Are you sure you want to proceed?</string>
+    <string name="SAFE4_Withdraw_Local_Hint">Confirm to withdraw SAFE from regular locked staking?</string>
+    <string name="SAFE4_Withdraw_Profit_Hint">Do you confirm the withdrawal of all accumulated earnings?</string>
+    <string name="SAFE4_Withdraw_Proposal_Hint">Confirm to withdraw SAFE from both proposal-locked and regular locked staking?</string>
+    <string name="SAFE4_Withdraw_Send_Sending">Withdraw</string>
+    <string name="SAFE4_Withdraw_Send_Success">Withdraw successful</string>
+    <string name="SAFE4_Withdraw_Send_Fail">Withdraw fail</string>
+    <string name="SAFE4_Line_Lock">SAFE Lock</string>
+    <string name="SAFE4_Line_Lock_No_Data">You don\'t have any linear lock up records yet</string>
+    <string name="SAFE4_Line_Lock_Day">%d month</string>
+    <string name="SAFE4_Line_Lock_Amount_Hint">At least one coin per lock up amount</string>
+
     <!-- safe 4  end-->
 </resources>

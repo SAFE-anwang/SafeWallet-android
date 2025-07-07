@@ -100,6 +100,7 @@ class EvmLabelManager(
             "0x978a11d1" -> if (to == Safe4Contract.SuperNodeLogicContractAddr)
                 Translator.getString(R.string.Method_Join_Super_Node)
             else Translator.getString(R.string.Method_Join_Master_Node)
+            "0xc28423ec",
             "0x3ccfd60b" -> Translator.getString(R.string.Method_Withdraw)
             "0x092c8749" -> Translator.getString(R.string.Method_Vote_Super_Node)
             "0xcd9d6fca" -> Translator.getString(R.string.Method_Income)
@@ -119,6 +120,7 @@ class EvmLabelManager(
             "0xf305d719" -> Translator.getString(R.string.Method_Add_Liquidity)
             "0x2e1a7d4d",
             "0xd0e30db0" -> Translator.getString(R.string.SAFE4_Swap_Tx_Title)
+            "0x9c4ee6bf" -> Translator.getString(R.string.Safe4_Line_Locked)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

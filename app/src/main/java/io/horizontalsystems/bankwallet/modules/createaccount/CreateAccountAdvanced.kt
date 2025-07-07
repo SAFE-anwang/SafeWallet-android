@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.displayNameStringRes
+import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -58,6 +60,8 @@ fun CreateAccountAdvancedScreen(
 ) {
     val viewModel = viewModel<CreateAccountViewModel>(factory = CreateAccountModule.Factory())
     val view = LocalView.current
+    val focusRequester1 = remember { FocusRequester() }
+    val focusRequester2 = remember { FocusRequester() }
 
     LaunchedEffect(viewModel.successMessage) {
         viewModel.successMessage?.let {
@@ -76,6 +80,7 @@ fun CreateAccountAdvancedScreen(
     var showMnemonicSizeSelectorDialog by remember { mutableStateOf(false) }
     var hidePassphrase by remember { mutableStateOf(true) }
     var showLanguageSelectorDialog by remember { mutableStateOf(false) }
+
 
     ComposeAppTheme {
         Surface(color = ComposeAppTheme.colors.tyler) {
@@ -178,7 +183,7 @@ fun CreateAccountAdvancedScreen(
 
                     if (viewModel.passphraseEnabled) {
                         Spacer(Modifier.height(24.dp))
-                        FormsInputPassword(
+                        FormsInputPassword2(
                                 modifier = Modifier.padding(horizontal = 16.dp),
                                 hint = stringResource(R.string.Passphrase),
                                 state = viewModel.passphraseState,
@@ -187,10 +192,11 @@ fun CreateAccountAdvancedScreen(
                                 hide = hidePassphrase,
                                 onToggleHide = {
                                     hidePassphrase = !hidePassphrase
-                                }
+                                },
+                            focusRequester = focusRequester1
                         )
                         Spacer(Modifier.height(16.dp))
-                        FormsInputPassword(
+                        FormsInputPassword2(
                                 modifier = Modifier.padding(horizontal = 16.dp),
                                 hint = stringResource(R.string.ConfirmPassphrase),
                                 state = viewModel.passphraseConfirmState,
@@ -199,13 +205,24 @@ fun CreateAccountAdvancedScreen(
                                 hide = hidePassphrase,
                                 onToggleHide = {
                                     hidePassphrase = !hidePassphrase
-                                }
+                                },
+                            focusRequester = focusRequester2
                         )
                         Spacer(Modifier.height(12.dp))
                         D1(
                                 modifier = Modifier.padding(horizontal = 24.dp),
                                 text = stringResource(R.string.CreateWallet_PassphraseDescription)
                         )
+
+                        LaunchedEffect(Unit) {
+                            view.post {
+                                focusRequester2.requestFocus()
+                                view.postDelayed({
+                                    focusRequester1.requestFocus()
+                                }, 300)
+                            }
+
+                        }
                     }
                     Spacer(Modifier.height(32.dp))
                 }

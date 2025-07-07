@@ -21,10 +21,9 @@ class SafeFourModule {
     class Factory(val address: Address, val nodeType: Int, val title: String, val wallet: Wallet) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
             val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
             val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-            val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, safeFourProvider, address)
+            val service = SafeFourNodeService(NodeType.getType(nodeType), rpcBlockchainSafe4, address)
             val isSuperNode = nodeType == NodeType.SuperNode.ordinal
             return SafeFourNodeViewModel(wallet, title, service, isSuperNode, adapter.evmKitWrapper.evmKit) as T
         }
@@ -141,6 +140,13 @@ class SafeFourModule {
     data class CreateInput(
             val wallet: Wallet,
             val isSuper: Boolean
+    ): Parcelable {
+
+    }
+
+    @Parcelize
+    data class LineLockInput(
+            val wallet: Wallet
     ): Parcelable {
 
     }

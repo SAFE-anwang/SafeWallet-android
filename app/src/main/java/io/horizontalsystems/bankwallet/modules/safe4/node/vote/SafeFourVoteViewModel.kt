@@ -58,6 +58,7 @@ class SafeFourVoteViewModel(
 
     private var lockIdsInfo: List<LockIdsInfo>? = null
     private var lockIdsInfoLocked: List<LockIdsInfo>? = null
+    private var proposalLockIdsInfoLocked: List<LockIdsInfo>? = null
     private var joinAmount =
         if (isSuper)
             NodeCovertFactory.Super_Node_Partner_Join_Amount
@@ -76,7 +77,7 @@ class SafeFourVoteViewModel(
         lockVoteService.itemsObservable
                 .subscribeIO {
                     lockIdsInfo = it.map {
-                        LockIdsInfo(it.lockId, it.lockValue, it.enable, getChecked(it.lockId))
+                        LockIdsInfo(it.lockId, it.lockValue, it.enable, getChecked(it.lockId), it.unlockHeight, it.releaseHeight, it.address)
                     }
                     emitState()
                 }
@@ -87,7 +88,18 @@ class SafeFourVoteViewModel(
         lockVoteService.itemsObservableLocked
                 .subscribeIO {
                     lockIdsInfoLocked = it.map {
-                        LockIdsInfo(it.lockId, it.lockValue, it.enable, false)
+                        LockIdsInfo(it.lockId, it.lockValue, it.enable, false, it.unlockHeight, it.releaseHeight, it.address)
+                    }
+                    emitState()
+                }
+                .let {
+                    disposables.add(it)
+                }
+
+        lockVoteService.mineItemsObservable
+                .subscribeIO {
+                    proposalLockIdsInfoLocked = it.map {
+                        LockIdsInfo(it.lockId, it.lockValue, it.enable, getCheckedProposal(it.lockId), it.unlockHeight, it.releaseHeight, it.address)
                     }
                     emitState()
                 }
@@ -106,6 +118,7 @@ class SafeFourVoteViewModel(
             lockVoteService.loadItems(0)
             lockVoteService.loadItemsLocked(0)
             nodeService.getNodeInfo(nodeId)
+            lockVoteService.getMinProposalNum()
         }
         if(isJoin) {
             onEnterAmount(BigDecimal(joinAmount))
@@ -119,7 +132,7 @@ class SafeFourVoteViewModel(
                 amountCaution = amountState.amountCaution,
                 canBeSend = amountState.canBeSend && (amountState.amount?.toInt() ?: 0) >= 1,
                 recordVoteCanSend = getRecordVoteCanSend(),
-                lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
+                lockIdInfo = NodeCovertFactory.convertLockIdItemView(getLockInfos()),
                 creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
                 joinSlider = getJoinAmountSlider()
         )
@@ -136,11 +149,18 @@ class SafeFourVoteViewModel(
                 voterText = "${nodeInfo!!.incentivePlan.voter}%",
                 canBeSend = amountState.canBeSend && (amountState.amount?.toInt() ?: 0) >= 1,
                 recordVoteCanSend = getRecordVoteCanSend(),
-                lockIdInfo = NodeCovertFactory.convertLockIdItemView(lockIdsInfo, lockIdsInfoLocked),
+                lockIdInfo = NodeCovertFactory.convertLockIdItemView(getLockInfos()),
                 creatorList = NodeCovertFactory.convertCreatorList(nodeInfo, adapter.evmKitWrapper.evmKit.receiveAddress.hex),
                 remainingShares = App.numberFormatter.formatCoinFull(NodeCovertFactory.valueConvert(nodeInfo!!.availableLimit), "SAFE", 2),
                 joinSlider = getJoinAmountSlider()
         )
+    }
+
+    private fun getLockInfos(): List<LockIdsInfo>? {
+        if (lockIdsInfo == null && lockIdsInfoLocked == null && proposalLockIdsInfoLocked == null) {
+            return null
+        }
+        return (lockIdsInfo ?: listOf()) + (lockIdsInfoLocked ?: listOf()) +  (proposalLockIdsInfoLocked ?: listOf())
     }
 
     private fun getRecordVoteCanSend(): Boolean {
@@ -181,7 +201,7 @@ class SafeFourVoteViewModel(
     }
 
     fun getLockVoteData(): VoteData? {
-        val selectLock = lockIdsInfo?.filter { it.checked }
+        val selectLock = (lockIdsInfo?.filter { it.checked } ?: listOf()) + (proposalLockIdsInfoLocked?.filter { it.checked } ?: listOf())
         if (selectLock.isNullOrEmpty())   return null
         return VoteData(
                 BigInteger.ZERO,
@@ -213,10 +233,25 @@ class SafeFourVoteViewModel(
         return info?.checked ?: false
     }
 
+    private fun getCheckedProposal(lockId: Int): Boolean {
+        val info = proposalLockIdsInfoLocked?.find { it.lockId == lockId }
+        return info?.checked ?: false
+    }
+
     fun checkLockVote(lockId: Int, checked: Boolean) {
-        lockIdsInfo?.forEach { lockIdsInfo ->
-            if (lockId == lockIdsInfo.lockId) {
-                lockIdsInfo.checked = checked
+        lockIdsInfo?.forEach { lockIdInfo ->
+            if (lockId == lockIdInfo.lockId) {
+                lockIdInfo.checked = !lockIdInfo.checked
+            }
+        }
+        lockIdsInfoLocked?.forEach { lockIdInfo ->
+            if (lockId == lockIdInfo.lockId) {
+                lockIdInfo.checked = !lockIdInfo.checked
+            }
+        }
+        proposalLockIdsInfoLocked?.forEach { lockIdInfo ->
+            if (lockId == lockIdInfo.lockId) {
+                lockIdInfo.checked = !lockIdInfo.checked
             }
         }
         emitState()
@@ -224,6 +259,16 @@ class SafeFourVoteViewModel(
 
     fun selectAllLock(checked: Boolean) {
         lockIdsInfo?.forEach { lockIdsInfo ->
+            if (lockIdsInfo.enable) {
+                lockIdsInfo.checked = checked
+            }
+        }
+        lockIdsInfoLocked?.forEach { lockIdsInfo ->
+            if (lockIdsInfo.enable) {
+                lockIdsInfo.checked = checked
+            }
+        }
+        proposalLockIdsInfoLocked?.forEach { lockIdsInfo ->
             if (lockIdsInfo.enable) {
                 lockIdsInfo.checked = checked
             }
@@ -324,7 +369,11 @@ data class LockIdsInfo(
         val lockId: Int,
         val lockValue: BigInteger,
         val enable: Boolean,
-        var checked: Boolean = false
+        var checked: Boolean = false,
+        val unlockHeight: BigInteger,
+        val releaseHeight: BigInteger,
+        val address: String?,
+        val address2: String? = null,
 ): Parcelable {
 
 }

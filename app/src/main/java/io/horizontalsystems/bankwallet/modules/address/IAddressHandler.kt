@@ -136,7 +136,7 @@ class AddressHandlerUdn(
             }
 
             is TokenType.Eip20 -> when (tokenQuery.blockchainType) {
-                BlockchainType.SafeFour -> "SAFE4"
+                BlockchainType.SafeFour -> "SAFE"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Polygon -> "MATIC"
                 BlockchainType.Avalanche -> "AVAX"

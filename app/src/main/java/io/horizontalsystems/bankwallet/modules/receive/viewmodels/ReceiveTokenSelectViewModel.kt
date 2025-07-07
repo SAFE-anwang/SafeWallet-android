@@ -14,6 +14,8 @@ import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
@@ -58,6 +60,14 @@ class ReceiveTokenSelectViewModel(
             uiState = ReceiveTokenSelectUiState(
                 fullCoins = fullCoins,
             )
+        }
+    }
+
+    fun getBadge(coin: Coin): String? {
+        return if (coin.uid == "safe-coin") {
+            "SAFE3"
+        } else {
+            null
         }
     }
 

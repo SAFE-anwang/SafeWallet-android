@@ -48,7 +48,7 @@ class SafeFourVoteRecordViewModel(
             disposables.add(it)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            service.loadItems(0)
+            service.load()
         }
     }
 

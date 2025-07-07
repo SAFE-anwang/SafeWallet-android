@@ -18,7 +18,8 @@ data class AccountRecord(
     val passphrase: SecretString?,
     val key: SecretString?,
     val level: Int,
-    val isAnBaoWallet: Boolean = false
+    val isAnBaoWallet: Boolean = false,
+    val isSafe3Wallet: Boolean = false
 ) {
 
     var deleted = false

@@ -17,7 +17,6 @@ class SafeFourCreateProposalFragment: BaseComposeFragment() {
     override fun GetContent(navController: NavController) {
         val wallet = navController.getInput<Wallet>()
         if (wallet == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }

@@ -13,6 +13,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.Proposal
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.ProposalVoteViewItem
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.SafeFourProposalInfoService
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.info.SafeFourProposalInfoViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.parcelize.Parcelize
@@ -27,14 +28,23 @@ class SafeFourRewardModule {
                     BlockchainType.SafeFour
             )
             val safeFourProvider = SafeFourProvider(App.appConfigProvider.safe4Api)
-            return SafeFourRewardViewModel(evmKitWrapper.evmKit.receiveAddress.hex, safeFourProvider) as T
+            val rpcBlockchainSafe4 = evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+            val service = WithdrawService(rpcBlockchainSafe4, evmKitWrapper)
+            return SafeFourRewardViewModel(
+                evmKitWrapper.evmKit.receiveAddress.hex,
+                safeFourProvider,
+                service,
+                App.connectivityManager
+            ) as T
         }
     }
 
 
 
     data class SafeFourRewardUiState(
-            val rewardList: List<RewardViewItem>?
+            val rewardList: List<RewardViewItem>?,
+            val canWithdraw: Boolean = false,
+        val showConfirmDialog: Boolean = false
     )
 
 

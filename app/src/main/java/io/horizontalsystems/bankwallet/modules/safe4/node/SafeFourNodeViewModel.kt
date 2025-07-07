@@ -55,7 +55,7 @@ class SafeFourNodeViewModel(
                 }
         nodeService.itemsObservable
                 .subscribeIO {
-                    nodes = it
+                    nodes = it.distinctBy { it.id }
                     emitState()
                 }
                 .let {
@@ -121,24 +121,43 @@ class SafeFourNodeViewModel(
         title = title,
         nodeList = if (this.query.isNullOrBlank()) {
             nodes?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) }
-        } else nodes?.filter {
-            if (isFilterId) {
-                it.id.toString() == query
-            } else {
-                it.id.toString() == query || it.addr.hex.contains(query!!, true)
-            }
-        }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) },
+        } else {
+
+            nodes?.filter {
+                if (isFilterId) {
+                    it.id.toString() == query
+                } else {
+                    it.id.toString() == query || it.addr.hex.contains(query!!, true)
+                }
+            }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) }
+            getFilterNodes(nodes)
+        },
         mineList = if (this.query.isNullOrBlank()) {
             mineNodes?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isCreator(), receiveAddress =  receiveAddress()) }
-        } else mineNodes?.filter {
-            if (isFilterId) {
-                it.id.toString() == query
-            } else {
-                it.id.toString() == query || it.addr.hex.contains(query!!, true)
-            }
-        }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode,  isCreator(), receiveAddress =  receiveAddress()) },
+        } else getFilterNodes(mineNodes),
         isRegisterNode = isRegisterNode
     )
+
+    private fun getFilterNodes(nodes: List<NodeInfo>?): List<NodeViewItem>? {
+        if (nodes.isNullOrEmpty())  return null
+        val temp = mutableListOf<NodeViewItem>()
+        nodes.forEachIndexed { index, item ->
+            if (isFilterId) {
+                if (item.id.toString() == query) {
+                    temp.add(
+                        NodeCovertFactory.createNoteItemView(index, item, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress())
+                    )
+                }
+            } else {
+                if (item.id.toString() == query || item.addr.hex.contains(query!!, true)) {
+                    temp.add(
+                        NodeCovertFactory.createNoteItemView(index, item, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress())
+                    )
+                }
+            }
+        }
+        return temp
+    }
 
     private fun isCreator(): Boolean {
         return isRegisterNode.first || creatorList.contains(receiveAddress())

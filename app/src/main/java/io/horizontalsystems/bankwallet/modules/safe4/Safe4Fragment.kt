@@ -30,6 +30,7 @@ import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.main.WebViewActivity
+import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Badge
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
@@ -137,12 +138,43 @@ private fun Safe4Sections(
 ) {
 
     Text(
-        text = stringResource(R.string.Safe4_Locked),
+        text = stringResource(R.string.SAFE4_Line_Lock),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf ({
+            HsSettingCell(
+                R.string.Safe4_Line_Locked,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerSafe4LineLock(navController)
+                    }
+                }
+            )
+        },{
+            HsSettingCell(
+                R.string.Safe4_Lock_Info,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    if (!RepeatClickUtils.isRepeat) {
+                        Safe4Module.handlerSafe4LineInfo(navController)
+                    }
+                }
+            )
+        })
+    )
+
+    Spacer(Modifier.height(25.dp))
+    Safe3Cell(R.string.Safe4_Locked)
 
     Spacer(Modifier.height(10.dp))
 
@@ -212,14 +244,14 @@ private fun Safe4Sections(
                 )
             },{
                 HsSettingCell(
-                        R.string.Safe_Four_Profit,
-                        R.mipmap.ic_app_color,
-                        showAlert = false,
-                        onClick = {
-                            Safe4Module.handlerNode(Safe4Module.SafeFourType.Profit, navController)
-                        }
+                    R.string.Safe_Four_Lock,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        Safe4Module.handlerNode(Safe4Module.SafeFourType.Locked, navController)
+                    }
                 )
-            },{
+            }, {
                 HsSettingCellForSafe(
                     R.mipmap.ic_app_color,
                     "SAFE",
@@ -446,6 +478,68 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
 
     Text(
+        text = stringResource(R.string.SAFE4_Withdraw),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCell(
+                    R.string.SAFE4_Withdraw_Master_Node,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerWithdraw(Safe4Module.WithdrawType.MasterNode, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.SAFE4_Withdraw_Super_Node,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerWithdraw(Safe4Module.WithdrawType.SuperNode, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.SAFE4_Withdraw_Proposal,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerWithdraw(Safe4Module.WithdrawType.Proposal, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.SAFE4_Withdraw_Profit,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerWithdraw(Safe4Module.WithdrawType.Profit, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.SAFE4_Withdraw_Locked,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.handlerWithdraw(Safe4Module.WithdrawType.Vote, navController)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
         text = stringResource(R.string.Safe4_Safe_Basic_Info),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
@@ -466,7 +560,7 @@ private fun Safe4Sections(
                 }
             )
         },{
-            HsSettingCell(
+            Safe3HsSettingCell(
                 R.string.Safe4_Safe_Block_Explorer,
                 R.mipmap.ic_app_color,
                 showAlert = false,
@@ -475,7 +569,7 @@ private fun Safe4Sections(
                 }
             )
         },{
-            HsSettingCell(
+            Safe3HsSettingCell(
                 R.string.Safe4_Safe_Across_Chain_Explorer,
                 R.mipmap.ic_app_color,
                 showAlert = false,
@@ -535,6 +629,30 @@ private fun Safe4Sections(
 
 }
 
+
+
+@Composable
+fun Safe3Cell(
+    @StringRes title: Int,
+) {
+    Row {
+        Text(
+            text = "SAFE",
+            style = ComposeAppTheme.typography.body,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Safe3Badge()
+        Text(
+            text = stringResource(title),
+            style = ComposeAppTheme.typography.subhead1,
+            color = ComposeAppTheme.colors.leah,
+            maxLines = 1
+        )
+    }
+}
+
 @Composable
 fun HsSettingCell(
     @StringRes title: Int,
@@ -562,6 +680,54 @@ fun HsSettingCell(
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
+        Spacer(Modifier.weight(1f))
+        value?.let {
+            Text(
+                text = it,
+                style = ComposeAppTheme.typography.subhead1,
+                color = ComposeAppTheme.colors.leah,
+                maxLines = 1,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+        }
+        if (showAlert) {
+            Image(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(id = R.drawable.ic_attention_red_20),
+                contentDescription = null,
+            )
+            Spacer(Modifier.width(12.dp))
+        }
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = R.drawable.ic_arrow_right),
+            contentDescription = null,
+        )
+    }
+
+}
+
+@Composable
+fun Safe3HsSettingCell(
+    @StringRes title: Int,
+    @DrawableRes icon: Int,
+    value: String? = null,
+    showAlert: Boolean = false,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .clickable(onClick = { onClick.invoke() }),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            modifier = Modifier.size(20.dp),
+            painter = painterResource(id = icon),
+            contentDescription = null,
+        )
+        Safe3Cell(title)
         Spacer(Modifier.weight(1f))
         value?.let {
             Text(

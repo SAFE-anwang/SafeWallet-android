@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
+import com.anwang.types.masternode.MasterNodeInfo
+import com.anwang.types.supernode.SuperNodeInfo
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -16,6 +18,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.vote.LockIdsView
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteRecordInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteRecordView
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.ethereumkit.models.Address
 import org.apache.commons.lang3.time.DateFormatUtils
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -111,16 +114,9 @@ object NodeCovertFactory {
 		}
 	}
 
-	fun convertLockIdItemView(list: List<LockIdsInfo>?, lockList: List<LockIdsInfo>?): List<LockIdsView>? {
-		val mergeList = mutableListOf<LockIdsInfo>()
-		lockList?.let {
-			mergeList.addAll(it)
-		}
-		list?.let {
-			mergeList.addAll(it)
-		}
-		return mergeList.distinctBy { it.lockId }.sortedByDescending { it.lockId }
-			.mapIndexed { index, record ->
+	fun convertLockIdItemView(list: List<LockIdsInfo>?): List<LockIdsView>? {
+		return list?.distinctBy { it.lockId }?.sortedByDescending { it.lockId }
+			?.mapIndexed { index, record ->
 			val value = valueConvert(record.lockValue)
 			LockIdsView(
 					index,
@@ -182,12 +178,61 @@ object NodeCovertFactory {
 		)
 	}
 
+
+	fun covertSuperNode(info: SuperNodeInfo, walletAddress: Address): NodeInfo {
+		return NodeInfo(
+			info.id.toInt(),
+			io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
+			io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
+			info.enode,
+			info.description,
+			info.isOfficial,
+			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online,
+			info.founders.map {
+				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
+			},
+			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
+			info.lastRewardHeight.toLong(),
+			info.createHeight.toLong(),
+			info.updateHeight.toLong(),
+			info.name,
+			availableLimit = NodeCovertFactory.scaleConvert(Super_Node_Create_Amount) - info.founders.sumOf { it.amount },
+			isEdit = walletAddress.hex.equals(info.creator.value, true)
+
+		)
+	}
+
+	fun covertMasterNode(info: MasterNodeInfo, walletAddress: Address): NodeInfo {
+		return NodeInfo(
+			info.id.toInt(),
+			io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
+			io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
+			info.enode,
+			info.description,
+			info.isOfficial,
+			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online ,
+			info.founders.map {
+				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
+			},
+			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
+			info.lastRewardHeight.toLong(),
+			info.createHeight.toLong(),
+			info.updateHeight.toLong(),
+			availableLimit = NodeCovertFactory.scaleConvert(Master_Node_Create_Amount) - info.founders.sumOf { it.amount },
+			isEdit = walletAddress.hex.equals(info.creator.value, true)
+		)
+	}
+
 	fun valueConvert(value: BigInteger, n: Int = 18): BigDecimal {
 		return value.toBigDecimal().movePointLeft(n).stripTrailingZeros()
 	}
 
 	fun scaleConvert(value: Int): BigInteger {
 		return value.toBigDecimal().movePointRight(18).stripTrailingZeros().toBigInteger()
+	}
+
+	fun scaleConvert(value: BigDecimal): BigInteger {
+		return value.movePointRight(18).stripTrailingZeros().toBigInteger()
 	}
 
 	fun formatSafe(value: BigInteger, n:Int = 18): String {

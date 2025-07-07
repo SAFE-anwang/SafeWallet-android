@@ -1,7 +1,8 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
+import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService.Companion
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -9,6 +10,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 class SafeFourVoteRecordService(
 		val isSuperNode: Boolean,
@@ -31,21 +33,9 @@ class SafeFourVoteRecordService(
 
 	private var reloadCount = 0
 
-	fun loadItems(page: Int) {
+	fun loadItems(start: Int, count: Int) {
 		try {
-			if (!isSuperNode) return
-			if (loading.get()) return
-			loading.set(true)
-			if (maxVoteCount == -1) {
-				maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
-			}
-			val itemsCount = page * itemsPerPage
-			if (maxVoteCount <= 0) {
-				itemsSubject.onNext(voteRecordItems)
-				loading.set(false)
-				return
-			}
-			val single = safe4RpcBlockChain.getVoters(nodeAddress, 0, maxVoteCount)
+			val single = safe4RpcBlockChain.getVoters(nodeAddress, start, count)
 			single.subscribeOn(Schedulers.io())
 					.map {
 						val recordList = it.addrs.mapIndexed { index, address ->
@@ -60,11 +50,9 @@ class SafeFourVoteRecordService(
 						loading.set(false)
 					}
 					.subscribe({
-						allLoaded.set(it.isEmpty() || it.size < itemsPerPage)
 						voteRecordItems.addAll(it)
 						itemsSubject.onNext(voteRecordItems)
 
-						loadedPageNumber = page
 					}, {
 					}).let {
 						disposables.add(it)
@@ -73,15 +61,53 @@ class SafeFourVoteRecordService(
 			if (reloadCount < 3) {
 				reloadCount ++
 				loading.set(false)
-				loadItems(page)
+				loadItems(start, count)
 			}
 		}
 	}
 
+	fun load() {
+		var page = 0
+		try {
+			if (!isSuperNode) return
+			if (loading.get()) return
+			loading.set(true)
+			if (maxVoteCount == -1) {
+				maxVoteCount = safe4RpcBlockChain.getVoterNum(nodeAddress).blockingGet().toInt()
+			}
+			if (maxVoteCount <= 0) {
+				itemsSubject.onNext(voteRecordItems)
+				loading.set(false)
+				return
+			}
+			var itemsCount = 0
+			var pageCount = itemsPerPage
+			if (pageCount >= maxVoteCount) {
+				pageCount = maxVoteCount
+			}
+
+			while(pageCount < maxVoteCount) {
+				loadItems(itemsCount, pageCount)
+				page ++
+				itemsCount = itemsPerPage * page
+				if (itemsCount > maxVoteCount) {
+					itemsCount = maxVoteCount
+				}
+				pageCount = itemsCount + itemsPerPage
+				if (pageCount > maxVoteCount) {
+					pageCount = maxVoteCount
+				}
+			}
+
+		} catch (e: Exception) {
+
+		}
+
+	}
 
 	fun loadNext() {
 		if (!allLoaded.get()) {
-			loadItems(loadedPageNumber + 1)
+//			loadItems(loadedPageNumber + 1)
 		}
 	}
 

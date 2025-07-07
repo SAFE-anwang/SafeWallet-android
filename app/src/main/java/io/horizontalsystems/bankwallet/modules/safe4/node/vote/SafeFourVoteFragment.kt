@@ -83,6 +83,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondary
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
+import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox2
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults
 import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults.buttonColors
@@ -105,7 +106,6 @@ class SafeFourVoteFragment: BaseComposeFragment() {
     override fun GetContent(navController: NavController) {
         val address = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit?.receiveAddress
         if (address == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }
@@ -455,7 +455,7 @@ fun LazyListScope.lockedList(
                             horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        HsCheckbox(
+                        HsCheckbox2(
                                 checked = item.checked,
                                 enabled = item.enable,
                                 onCheckedChange = {

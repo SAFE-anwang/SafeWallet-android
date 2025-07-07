@@ -48,6 +48,10 @@ class SelectWalletTypeFragment: BaseFragment() {
                     val inputParams = ManageAccountsModule.Input(popUpToInclusiveId, inclusive, true)
                     findNavController().slideFromRight(R.id.restoreMnemonicFragment, inputParams)
                 }
+                WalletType.SAFE3Wallet -> {
+                    val inputParams = ManageAccountsModule.Input(popUpToInclusiveId, inclusive, isSafe3Wallet = true)
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragment, inputParams)
+                }
                 WalletType.TokenPocket,
                 WalletType.Bither,
                 WalletType.ImToken,
@@ -73,6 +77,7 @@ class SelectWalletTypeFragment: BaseFragment() {
         list.add(WalletType.Bither)
         list.add(WalletType.SafeGem)
         list.add(WalletType.TokenPocket)
+        list.add(WalletType.SAFE3Wallet)
         return list
     }
 

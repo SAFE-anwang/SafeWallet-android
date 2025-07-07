@@ -120,7 +120,8 @@ data class ProposalInfo(
         val description: String,
         val state: Int,
         val createHeight: Long,
-        val updateHeight: Long
+        val updateHeight: Long,
+        val rewordsIds: List<Int> = listOf()
 ) : Parcelable {
 
 }

@@ -32,6 +32,7 @@ data class Account(
     val isBackedUp: Boolean = false,
     val isFileBackedUp: Boolean = false,
     val isAnBaoWallet: Boolean = false,
+    val isSafe3Wallet: Boolean = false,
 ) : Parcelable {
 
     @IgnoredOnParcel
@@ -167,7 +168,12 @@ sealed class AccountType : Parcelable {
     }
 
     @Parcelize
-    data class Mnemonic(val words: List<String>, val passphrase: String, val isAnBaoWallet: Boolean = false) : AccountType() {
+    data class Mnemonic(
+        val words: List<String>,
+        val passphrase: String,
+        val isAnBaoWallet: Boolean = false,
+        val isSafe3Wallet: Boolean = false
+    ) : AccountType() {
         @IgnoredOnParcel
         val seed by lazy { Mnemonic().toSeed(words, passphrase) }
 
@@ -376,7 +382,7 @@ sealed class AccountType : Parcelable {
         }
 
     fun evmAddress(chain: Chain) = when (this) {
-        is Mnemonic -> Signer.address(seed, chain, isAnBaoWallet)
+        is Mnemonic -> Signer.address(seed, chain, isAnBaoWallet, isSafe3Wallet)
         is EvmPrivateKey -> Signer.address(key)
         else -> null
     }
@@ -384,7 +390,7 @@ sealed class AccountType : Parcelable {
     fun sign(message: ByteArray, isLegacy: Boolean = false): ByteArray? {
         val signer = when (this) {
             is Mnemonic -> {
-                Signer.getInstance(seed, App.evmBlockchainManager.getChain(BlockchainType.Ethereum), isAnBaoWallet)
+                Signer.getInstance(seed, App.evmBlockchainManager.getChain(BlockchainType.Ethereum), isAnBaoWallet, isSafe3Wallet)
             }
             is EvmPrivateKey -> {
                 Signer.getInstance(key, App.evmBlockchainManager.getChain(BlockchainType.Ethereum))

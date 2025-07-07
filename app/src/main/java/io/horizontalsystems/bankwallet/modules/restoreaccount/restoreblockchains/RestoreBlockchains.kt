@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchain
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,8 +75,9 @@ fun ManageWalletsScreen(
     val manualBackup = mainViewModel.manualBackup
     val fileBackup = mainViewModel.fileBackup
     val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
+    val isSafe3Wallet = if (accountType is AccountType.Mnemonic) accountType.isSafe3Wallet else false
 
-    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet)
+    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet, isSafe3Wallet)
     val viewModel: RestoreBlockchainsViewModel = viewModel(factory = factory)
     val restoreSettingsViewModel: RestoreSettingsViewModel = viewModel(factory = factory)
     val blockchainTokensViewModel: BlockchainTokensViewModel = viewModel(factory = factory)
@@ -188,10 +193,32 @@ fun ManageWalletsScreen(
                                         .size(32.dp)
                                 )
                                 Column(modifier = Modifier.weight(1f)) {
-                                    body_leah(
-                                        text = viewItem.title,
-                                        maxLines = 1,
-                                    )
+                                    Row {
+                                        body_leah(
+                                            text = viewItem.title,
+                                            maxLines = 1,
+                                        )
+                                        viewItem.bridge?.let {
+                                            Box(
+                                                modifier = Modifier
+                                                    .padding(start = 6.dp)
+                                                    .clip(RoundedCornerShape(4.dp))
+                                                    .background(ComposeAppTheme.colors.jeremy)
+                                            ) {
+                                                Text(
+                                                    modifier = Modifier.padding(
+                                                        start = 4.dp,
+                                                        end = 4.dp,
+                                                        bottom = 1.dp
+                                                    ),
+                                                    text = it,
+                                                    color = ComposeAppTheme.colors.bran,
+                                                    style = ComposeAppTheme.typography.microSB,
+                                                    maxLines = 1,
+                                                )
+                                            }
+                                        }
+                                    }
                                     subhead2_grey(
                                         text = viewItem.subtitle,
                                         maxLines = 1,

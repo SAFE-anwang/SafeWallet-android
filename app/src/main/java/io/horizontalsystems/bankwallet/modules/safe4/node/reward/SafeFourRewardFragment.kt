@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -40,11 +43,16 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawConfirmationDialog
+import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.core.SnackbarDuration
+import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
 
@@ -54,7 +62,6 @@ class SafeFourRewardFragment: BaseComposeFragment() {
 
         val address = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit?.receiveAddress
         if (address == null) {
-            Toast.makeText(App.instance, "Wallet is Null", Toast.LENGTH_SHORT).show()
             navController.popBackStack(R.id.nodeListFragment, true)
             return
         }
@@ -75,6 +82,34 @@ fun RewardInfoScreen(
 ) {
     val uiState = viewModel.uiState
     val rewardList = uiState.rewardList
+    val proceedEnabled = uiState.canWithdraw
+    val sendResult = viewModel.sendResult
+    val view = LocalView.current
+    when (sendResult) {
+        SendResult.Sending -> {
+            HudHelper.showInProcessMessage(
+                view,
+                R.string.SAFE4_Withdraw_Send_Sending,
+                SnackbarDuration.INDEFINITE
+            )
+        }
+
+        SendResult.Sent -> {
+            HudHelper.showSuccessMessage(
+                view,
+                R.string.SAFE4_Withdraw_Send_Success,
+                SnackbarDuration.LONG
+            )
+            viewModel.sendResult = null
+        }
+
+        is SendResult.Failed -> {
+            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            viewModel.sendResult = null
+        }
+
+        null -> Unit
+    }
         Column() {
             AppBar(
                     title = stringResource(id = R.string.Safe_Four_Profit_Title),
@@ -115,7 +150,24 @@ fun RewardInfoScreen(
                                     color = ComposeAppTheme.colors.steel10,
                             )
                         }
-                    }
+                    },
+                bottomBar = {
+                    ButtonPrimaryYellow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        title = stringResource(R.string.SAFE4_Withdraw),
+                        onClick = {
+                            if (viewModel.hasConnection()) {
+//                                viewModel.showConfirmation()
+                                viewModel.withdraw()
+                            } else {
+                                HudHelper.showErrorMessage(view, R.string.Hud_Text_NoInternet)
+                            }
+                        },
+                        enabled = proceedEnabled
+                    )
+                }
             ) { paddingValues ->
                 if (rewardList.isNullOrEmpty()) {
                     Column(Modifier.padding(paddingValues)) {
@@ -144,20 +196,29 @@ fun RewardInfoScreen(
                                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
                             ) {
                                 Row {
-                                    body_leah(
-                                            modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f),
-                                            text = item.date,
-                                            maxLines = 1,
+                                    val color = if (item.rewarded) {
+                                        ComposeAppTheme.colors.leah
+                                    } else {
+                                        ComposeAppTheme.colors.issykBlue
+                                    }
+                                    Text(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = item.date,
+                                        maxLines = 1,
+                                        style = ComposeAppTheme.typography.body,
+                                        color = color
                                     )
-                                    body_leah(
-                                            modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f),
-                                            text = item.amount,
-                                            maxLines = 1,
-                                            textAlign = TextAlign.End
+                                    Text(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                        text = item.amount,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.End,
+                                        style = ComposeAppTheme.typography.body,
+                                        color = color
                                     )
                                 }
                             }
@@ -171,6 +232,16 @@ fun RewardInfoScreen(
                 }
 
             }
+        }
+        if (uiState.showConfirmDialog) {
+            WithdrawConfirmationDialog(
+                content = stringResource(R.string.SAFE4_Withdraw_Profit_Hint),
+                {
+                    viewModel.withdraw()
+                }, {
+                    viewModel.closeDialog()
+                }
+            )
         }
     }
 }

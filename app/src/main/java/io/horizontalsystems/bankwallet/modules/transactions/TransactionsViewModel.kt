@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
 
@@ -291,6 +292,8 @@ data class TransactionViewItem(
     val doubleSpend: Boolean = false,
     val spam: Boolean = false,
     val locked: Boolean? = null,
+    val input: ByteArray? = null,
+    val vaule: BigInteger = BigInteger.ZERO,
     val icon: Icon
 ) {
 

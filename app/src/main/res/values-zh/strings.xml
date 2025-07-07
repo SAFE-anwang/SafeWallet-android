@@ -1688,7 +1688,7 @@
     <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe42wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE</string>
-    <string name="Safe4_Locked">SAFE3锁仓</string>
+    <string name="Safe4_Locked">锁仓</string>
     <string name="Safe4_Line_Locked">线性锁仓</string>
     <string name="Safe4_node_Locked">节点锁仓</string>
     <string name="Safe4_Wsafe_Receive_Address">跨链接收人</string>
@@ -1704,8 +1704,9 @@
     <string name="Safe4_Every_Time_Lock_Amount">每次锁仓金额</string>
     <string name="Safe4_Starting_Month">起始月份</string>
     <string name="Safe4_Interval_Month">间隔月份</string>
+    <string name="Safe4_Lock_Times">锁定次数</string>
 
-    <string name="Safe4_Line_Lock_Tips">从第%s个月开始，每隔%s个月解锁%s个SAFE，总共使用%s个SAFE</string>
+    <string name="Safe4_Line_Lock_Tips">从%s开始每间隔%s月锁定%sSAFE，共锁定%s次，合计锁定%sSAFE</string>
     <string name="Safe4_Locked_Value_Error">请检查每次锁仓金额，不能大于待锁仓总金额</string>
     <string name="Safe4_Starting_Month_Error">请检查起始月份</string>
     <string name="Safe4_Interval_Month_Error">请检查间隔月份</string>
@@ -1732,8 +1733,8 @@
 
     <string name="Safe4_Safe_Basic_Info">基本信息</string>
     <string name="Safe4_Safe_Homepage">SAFE官网</string>
-    <string name="Safe4_Safe_Block_Explorer">SAFE3区块浏览器</string>
-    <string name="Safe4_Safe_Across_Chain_Explorer">SAFE3跨链浏览器</string>
+    <string name="Safe4_Safe_Block_Explorer">区块浏览器</string>
+    <string name="Safe4_Safe_Across_Chain_Explorer">跨链浏览器</string>
     <string name="Safe4_Safe4_Block_Explorer">SAFE区块浏览器</string>
     <string name="Safe4_Safe4_Across_Chain_Explorer">SAFE跨链浏览器</string>
     <string name="Safe4_Safe_Coingecko">SAFE@coingecko</string>
@@ -1764,6 +1765,7 @@
     <string name="Restore_ImToken_Wallet">ImToken</string>
     <string name="Restore_BitPie_Wallet">比特派</string>
     <string name="Restore_Token_Pocket_Wallet">Token Pocket</string>
+    <string name="Restore_SAFE3_Wallet">SAFE3 钱包</string>
     <string name="Restore_Select_Import_Way">导入方式</string>
     <string name="Restore_Import_Private_Key">私钥导入</string>
     <string name="Restore_Import_Private_Key_Desc">通过输入明文私钥或扫描二维码进行导入</string>
@@ -1794,7 +1796,7 @@
     <string name="Restore_Import_Wallet_Error_EmptyPrivateKey">私钥不能为空</string>
     <string name="ManageAccount_Private_Key_Not_Support">暂不支持比特币恢复</string>
     <string name="Restore_Import_Wallet_Path_Des">BIP32路径是恢复钱包的重要因素，请联系钱包供应商，搞清楚钱包BIP32路径，错误的BIP32路径将导致生成错误地址。</string>
-    <string name="Restore_Private_Key_Des">  注意：\n（1）目前仅支持ETH的私钥导入\n（2）以私钥导入的钱包不能生成新地址</string>
+    <string name="Restore_Private_Key_Des">  注意：\n（1）目前仅支持EVM的私钥导入\n（2）以私钥导入的钱包不能生成新地址</string>
     <string name="CoinPage_Chart_Locked">锁住</string>
     <string name="ProUsersInfo_Title">专业用户</string>
     <string name="ProUsersInfo_UnstoppablePass">SafeWallet Pass</string>
@@ -1965,6 +1967,7 @@
     <string name="Safe_Four_Super_Node_Mine">我的超级节点</string>
     <string name="Safe_Four_Master_Node_Mine">我的主节点</string>
     <string name="Safe_Four_Proposal">提案</string>
+    <string name="Safe_Four_Lock">锁仓</string>
     <string name="Safe_Four_Vote">投票</string>
     <string name="Safe_Four_Profit">收益</string>
     <string name="Safe_Four_Register_Node_Create">创建</string>
@@ -2032,7 +2035,7 @@
     <string name="Safe_Four_Node_Info_Title">超级节点信息</string>
     <string name="Safe_Four_Node_Info_Title_Master">主节点信息</string>
     <string name="Safe_Four_Node_Vote_Tab_Voter">投票人</string>
-    <string name="Safe_Four_Node_Vote_Lock_Id">锁仓记录Id:%s</string>
+    <string name="Safe_Four_Node_Vote_Lock_Id">锁仓Id:%s</string>
     <string name="Safe_Four_Node_Vote_Lock_All">选择全部可用锁仓记录</string>
     <string name="Safe_Four_Node_Vote_Lock_hint">必须同时满足如下条件的锁仓记录才可以进行投票\n1. 未关联超级节点的锁仓记录\n2. 未投票的锁仓记录\n3. 锁仓数量大于 1 SAFE</string>
     <string name="Safe_Four_Node_Vote_Record_Address">地址</string>
@@ -2120,8 +2123,10 @@
     <string name="Redeem_Safe3_Verify_Private_Key">验证私钥</string>
     <string name="Redeem_Safe3_Migration">资产迁移</string>
     <string name="Redeem_Safe3_Address_Hint">SAFE3 钱包地址</string>
-    <string name="Redeem_Safe3_Address_Hint_2">SAFE3 钱包地址\n%s</string>
-    <string name="Redeem_Safe3_Private_Key">SAFE3 钱包私钥</string>
+    <string name="Redeem_Safe3_Address_Hint_1">SAFE</string>
+    <string name="Redeem_Safe3_Address_Hint_2"> 钱包地址\n%s</string>
+    <string name="Redeem_Safe3_Private_Key1">SAFE</string>
+    <string name="Redeem_Safe3_Private_Key2"> 钱包私钥</string>
     <string name="Redeem_Safe3_Private_Key_Hint">请输入钱包16进制私钥或WIF私钥</string>
     <string name="Redeem_Safe3_Account_Balance">账户余额</string>
     <string name="Redeem_Safe3_Master_Balance">主节点</string>
@@ -2130,12 +2135,15 @@
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>
     <string name="Redeem_Safe3_Send_Success">迁移成功</string>
-    <string name="Redeem_Safe3_Redeem_Hint">SAFE3 网络的资产将会迁移到用户选择的 SAFE 网络的钱包地址</string>
-    <string name="Redeem_Safe3_Redeem_Desc">将 SAFE3 网络的资产迁移到 SAFE 网络</string>
+    <string name="Redeem_Safe3_Redeem_Hint1">SAFE </string>
+    <string name="Redeem_Safe3_Redeem_Hint2"> 网络的资产将会迁移到用户选择的 SAFE 网络的钱包地址</string>
+    <string name="Redeem_Safe3_Redeem_Desc1">将SAFE</string>
+    <string name="Redeem_Safe3_Redeem_Desc2"> 网络的资产迁移到 SAFE 网络</string>
     <string name="Redeem_Safe4_Address">SAFE 钱包地址</string>
     <string name="Redeem_Safe4_Redeem_Button">迁移</string>
-    <string name="Redeem_Safe4_Redeem_Onec">一键迁移SAFE3</string>
-    <string name="Redeem_Safe4_Redeem_Onec_Confrimation">一键迁移钱包中的SAFE3到SAFE地址</string>
+    <string name="Redeem_Safe4_Redeem_Onec">一键迁移SAFE</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation1">一键迁移钱包中的SAFE</string>
+    <string name="Redeem_Safe4_Redeem_Onec_Confrimation2"> 到SAFE地址</string>
     <string name="Redeem_Safe4_Redeem_Success">已完成迁移</string>
     <string name="Redeem_Safe4_Redeem_Local_Address">本地钱包地址</string>
     <string name="Redeem_Safe4_Redeem_PrivatKey_Address">私钥对应地址</string>
@@ -2207,6 +2215,35 @@
     <string name="SAFE4_Swap_Continue">继续</string>
     <string name="SAFE4_Swap_Button">兑换</string>
     <string name="SAFE4_Swap_Tx_Title">SAFE兑换</string>
+
+    <string name="SAFE4_Withdraw">提现</string>
+    <string name="SAFE4_Withdraw_Release">投票释放/提现</string>
+    <string name="SAFE4_Withdraw_Master_Node">主节点提现</string>
+    <string name="SAFE4_Withdraw_Super_Node">超级节点提现</string>
+    <string name="SAFE4_Withdraw_Proposal">提案提现</string>
+    <string name="SAFE4_Withdraw_Profit">收益提现</string>
+    <string name="SAFE4_Withdraw_Locked">投票锁仓提现</string>
+    <string name="SAFE4_Withdraw_Loading">正在获取数据</string>
+    <string name="SAFE4_Withdraw_No_Data">没有可提现记录</string>
+    <string name="SAFE4_Withdraw_Lock_Id">锁仓ID:%d</string>
+    <string name="SAFE4_Withdraw_Lock_Amount">锁仓金额:%s</string>
+    <string name="SAFE4_Withdraw_Unlock_Height">解锁高度:%s</string>
+    <string name="SAFE4_Withdraw_Release_Height">投票释放高度:%s</string>
+    <string name="SAFE4_Withdraw_Address">地址:%s</string>
+    <string name="SAFE4_Withdraw_Node_Hint">提现%s后将不再产生收益，确定提取吗？</string>
+    <string name="SAFE4_Withdraw_Node_Hint_Master">主节点锁仓金额</string>
+    <string name="SAFE4_Withdraw_Node_Hint_Super">超级节点锁仓金额</string>
+    <string name="SAFE4_Withdraw_Vote_Hint">锁仓投票提现后将不再产生收益，确定提取吗？</string>
+    <string name="SAFE4_Withdraw_Local_Hint">确定提取锁仓的SAFE吗？</string>
+    <string name="SAFE4_Withdraw_Profit_Hint">确定提取所有收益吗？</string>
+    <string name="SAFE4_Withdraw_Proposal_Hint">确定提取提案和普通锁仓的SAFE吗？</string>
+    <string name="SAFE4_Withdraw_Send_Sending">正在提现</string>
+    <string name="SAFE4_Withdraw_Send_Success">提现成功</string>
+    <string name="SAFE4_Withdraw_Send_Fail">提现失败</string>
+    <string name="SAFE4_Line_Lock">SAFE 锁仓</string>
+    <string name="SAFE4_Line_Lock_No_Data">您还没有线性锁仓记录</string>
+    <string name="SAFE4_Line_Lock_Day">%d 个月</string>
+    <string name="SAFE4_Line_Lock_Amount_Hint">每次锁仓金额至少一个币</string>
 
     <!-- safe 4  end-->
 </resources>
