@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.modules.market.ImageSource
 object DepositCexModule {
 
     data class CexCoinViewItem(
+        val coinUid: String,
         val title: String,
         val subtitle: String,
         val coinIconUrl: String?,

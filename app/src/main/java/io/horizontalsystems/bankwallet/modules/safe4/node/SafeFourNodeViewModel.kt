@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
+import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.util.Log
@@ -11,6 +12,7 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.lang3.StringUtils
@@ -281,11 +283,12 @@ data class NodeMemberInfo(
     }
 }
 
+@Parcelize
 data class NodeIncentivePlan(
         val creator: Int,
         val partner: Int,
         val voter: Int
-) {
+): Parcelable {
     override fun toString(): String {
         return "NodeIncentivePlan(creator=$creator, partner=$partner, voter=$voter)"
     }
@@ -314,6 +317,7 @@ data class NodeViewItem(
         val isPartner: Boolean = false,
         val isCreator: Boolean = false,
         val isAddLockDay: Boolean = false,
+        val incentivePlan: NodeIncentivePlan,
 )
 
 data class CreateViewItem(

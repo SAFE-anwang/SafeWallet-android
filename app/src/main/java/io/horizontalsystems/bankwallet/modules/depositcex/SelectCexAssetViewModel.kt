@@ -35,6 +35,7 @@ class SelectCexAssetViewModel(
 
                 assets.map { cexAsset ->
                     DepositCexModule.CexCoinViewItem(
+                        coinUid = cexAsset.coin?.uid ?: "",
                         title = cexAsset.id,
                         subtitle = cexAsset.name,
                         coinIconUrl = cexAsset.coin?.imageUrl,

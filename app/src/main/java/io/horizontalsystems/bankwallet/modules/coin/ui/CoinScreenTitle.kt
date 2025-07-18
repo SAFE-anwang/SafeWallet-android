@@ -11,8 +11,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
@@ -20,6 +23,7 @@ import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
 
 @Composable
 fun CoinScreenTitle(
+    coinUid: String,
     coinName: String,
     marketCapRank: Int?,
     coinIconUrl: String,
@@ -28,18 +32,11 @@ fun CoinScreenTitle(
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (coinIconUrl.isSafeIcon()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(32.dp))
-        } else {
-            CoinImage(
-                iconUrl = coinIconUrl,
-                placeholder = iconPlaceholder,
-                modifier = Modifier.size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = coinUid,
+            iconUrl = coinIconUrl,
+            placeholder = iconPlaceholder,
+        )
 
         body_grey(
             text = coinName,
@@ -64,6 +61,7 @@ fun CoinScreenTitle(
 fun CoinScreenTitlePreviewNoRank() {
     ComposeAppTheme {
         CoinScreenTitle(
+            coinUid = "",
             coinName = "Synthetix Network TokenSynthetix Network Token",
             marketCapRank = null,
             coinIconUrl = "https://cdn.blocksdecoded.com/coin-icons/32px/bitcoin@3x.png",
@@ -77,6 +75,7 @@ fun CoinScreenTitlePreviewNoRank() {
 fun CoinScreenTitlePreviewLongTitle() {
     ComposeAppTheme {
         CoinScreenTitle(
+            coinUid = "",
             coinName = "Synthetix Network Token Synthetix Network Token Synthetix Network Token Synthetix Network Token",
             marketCapRank = 123,
             coinIconUrl = "https://cdn.blocksdecoded.com/coin-icons/32px/bitcoin@3x.png",
@@ -90,6 +89,7 @@ fun CoinScreenTitlePreviewLongTitle() {
 fun CoinScreenTitlePreviewShortTitle() {
     ComposeAppTheme {
         CoinScreenTitle(
+            coinUid = "",
             coinName = "Bitcoin",
             marketCapRank = 1,
             coinIconUrl = "https://cdn.blocksdecoded.com/coin-icons/32px/bitcoin@3x.png",

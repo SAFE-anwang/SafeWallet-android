@@ -21,11 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.providers.CexAsset
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -108,20 +110,11 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            if (viewItem.coinIconUrl?.contains("safe-coin") == true || viewItem.coinIconUrl?.contains("safe4-coin") == true) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp)
-                )
-            } else {
-                CoinImage(
-                        iconUrl = viewItem.coinIconUrl,
-                        placeholder = viewItem.coinIconPlaceholder,
-                        modifier = Modifier
-                                .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
-                                .size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = viewItem.coinUid,
+                iconUrl = viewItem.coinIconUrl,
+                placeholder = viewItem.coinIconPlaceholder
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)

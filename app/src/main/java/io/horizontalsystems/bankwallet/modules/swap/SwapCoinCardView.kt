@@ -61,6 +61,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
@@ -112,18 +113,11 @@ fun SwapCoinCardView(
                     }),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (cardState.token?.coin?.uid.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
-                )
-            } else {
-                CoinImage(
-                    modifier = Modifier.size(32.dp),
-                    iconUrl = cardState.token?.coin?.imageUrl,
-                    placeholder = cardState.token?.iconPlaceholder ?: R.drawable.coin_placeholder
-                )
-            }
+            CoinImageSafe(
+                uid = cardState.token?.coin?.uid ?: "",
+                iconUrl = cardState.token?.coin?.imageUrl,
+                placeholder = cardState.token?.iconPlaceholder ?: R.drawable.coin_placeholder,
+            )
             Spacer(Modifier.width(8.dp))
             val title = cardState.token?.coin?.code
             if (title != null) {

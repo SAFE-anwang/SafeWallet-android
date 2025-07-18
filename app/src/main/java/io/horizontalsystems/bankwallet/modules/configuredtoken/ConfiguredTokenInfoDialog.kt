@@ -29,6 +29,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -129,23 +130,11 @@ private fun ContractInfo(tokenInfoType: ConfiguredTokenInfoType.Contract) {
         RowUniversal(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            if (tokenInfoType.platformImageUrl.isSafeIcon()) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                )
-            } else {
-                Image(
-                    modifier = Modifier.size(32.dp),
-                    painter = rememberAsyncImagePainter(
-                        model = tokenInfoType.platformImageUrl,
-                        error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    ),
-                    contentDescription = "platform"
-                )
-            }
+            CoinImageSafe(
+                uid = tokenInfoType.coinUid,
+                iconUrl = tokenInfoType.platformImageUrl,
+                placeholder = R.drawable.ic_platform_placeholder_32
+            )
             HSpacer(16.dp)
             subhead2_leah(
                 modifier = Modifier.weight(1f),

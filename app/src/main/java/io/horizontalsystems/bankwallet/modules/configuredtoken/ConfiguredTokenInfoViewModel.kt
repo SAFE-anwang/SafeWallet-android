@@ -23,13 +23,13 @@ class ConfiguredTokenInfoViewModel(
     init {
         val type = when (val type = token.type) {
             is TokenType.Eip20 -> {
-                ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
             is TokenType.Bep2 -> {
-                ConfiguredTokenInfoType.Contract(type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
             }
             is TokenType.Spl -> {
-                ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
             is TokenType.Derived -> {
                 ConfiguredTokenInfoType.Bips(token.blockchain.name)
@@ -83,6 +83,7 @@ data class ConfiguredTokenInfoUiState(
 
 sealed class ConfiguredTokenInfoType {
     data class Contract(
+        val coinUid: String,
         val reference: String,
         val platformImageUrl: String,
         val explorerUrl: String?

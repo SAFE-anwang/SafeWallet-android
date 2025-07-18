@@ -26,12 +26,14 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.RestoreBlockchainsFragment
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -199,22 +201,14 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
-            if (viewItem.item.coin.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                         .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
-                        .size(32.dp)
-                )
-            } else {
-                Image(
-                    painter = viewItem.imageSource.painter(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
-                        .size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = viewItem.item.coin.uid,
+                painter = viewItem.imageSource.painter(),
+                placeholder = R.drawable.ic_platform_placeholder_32,
+                modifier = Modifier
+                    .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                    .size(32.dp)
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)

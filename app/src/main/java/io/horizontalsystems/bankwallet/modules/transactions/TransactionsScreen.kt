@@ -67,6 +67,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
 import io.horizontalsystems.bankwallet.ui.compose.components.CellHeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HSCircularProgressIndicator
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderSorting
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderStick
@@ -427,55 +428,26 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                     }
                     is TransactionViewItem.Icon.Regular -> {
                         val shape = if (icon.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.url.isSafeIcon()) {
-                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(32.dp)
-                                    .clip(shape))
-                        } else {
-                            CoinImage(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(shape),
-                                iconUrl = icon.url,
-                                placeholder = icon.placeholder
-                            )
-                        }
+                        CoinImageSafe(
+                            uid = icon.coinUid,
+                            iconUrl = icon.url,
+                            placeholder = icon.placeholder
+                        )
                     }
                     is TransactionViewItem.Icon.Double -> {
                         val backShape = if (icon.back.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
                         val frontShape = if (icon.front.rectangle) RoundedCornerShape(CornerSize(4.dp)) else CircleShape
-                        if (icon.back.url.isSafeIcon()) {
-                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(top = 6.dp, start = 6.dp)
-                                    .size(24.dp)
-                                    .clip(backShape))
-                        } else {
-                            CoinImage(
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(top = 4.dp, start = 6.dp)
-                                    .size(24.dp)
-                                    .clip(backShape),
-                                iconUrl = icon.back.url,
-                                placeholder = icon.back.placeholder,
-                            )
-                        }
-
-                        if (icon.front.url.isSafeIcon()) {
-                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(bottom = 6.dp, end = 6.dp)
-                                    .size(24.dp)
-                                    .clip(frontShape))
-                        } else {
+                        CoinImageSafe(
+                            uid = icon.back.coinUid,
+                            iconUrl = icon.back.url,
+                            placeholder = icon.back.placeholder,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(top = 4.dp, start = 6.dp)
+                                .size(24.dp)
+                                .clip(backShape),
+                        )
+                        if (!icon.front.url.isSafeIcon()) {
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
@@ -484,16 +456,17 @@ fun TransactionCell(item: TransactionViewItem, position: SectionItemPosition, on
                                     .clip(frontShape)
                                     .background(ComposeAppTheme.colors.tyler)
                             )
-                            CoinImage(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(bottom = 4.dp, end = 6.dp)
-                                    .size(24.dp)
-                                    .clip(frontShape),
-                                iconUrl = icon.front.url,
-                                placeholder = icon.front.placeholder,
-                            )
                         }
+                        CoinImageSafe(
+                            uid = icon.front.coinUid,
+                            iconUrl = icon.front.url,
+                            placeholder = icon.front.placeholder,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(top = 4.dp, start = 6.dp)
+                                .size(24.dp)
+                                .clip(backShape),
+                        )
                     }
                     is TransactionViewItem.Icon.ImageResource -> {}
                 }

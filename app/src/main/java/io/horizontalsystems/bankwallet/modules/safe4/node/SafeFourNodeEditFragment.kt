@@ -56,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Address
@@ -68,6 +69,7 @@ import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.SingleButtonDatePickerView
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.create.TwoButtonDatePickerView
+import io.horizontalsystems.bankwallet.modules.safe4.node.supernode.RangeSliderScreen
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
@@ -106,10 +108,9 @@ class SafeFourNodeEditFragment: BaseComposeFragment() {
         val desc = input.desc
         val nodeType = input.nodeType
         val viewModel by viewModels<SafeFourNodeEditViewModel> {
-            SafeFourModule.FactoryEdit(wallet, nodeType, name, enode, address, desc)
+            SafeFourModule.FactoryEdit(wallet, nodeType, name, enode, address, desc, input.nodeId, input.incentivePlan)
         }
-
-        EditScreen(navController, viewModel, nodeType)
+        EditScreen(navController, viewModel, nodeType, input.incentivePlan)
     }
 
     @Parcelize
@@ -119,7 +120,9 @@ class SafeFourNodeEditFragment: BaseComposeFragment() {
             val desc: String,
             val enode: String,
             val nodeType: Int,
-            val nodeAddress: String
+            val nodeAddress: String,
+            val nodeId: Int,
+            val incentivePlan: NodeIncentivePlan,
     ) : Parcelable
 }
 
@@ -129,6 +132,7 @@ fun EditScreen(
         navController: NavController,
         viewModel: SafeFourNodeEditViewModel,
         nodeType: Int,
+        incentivePlan: NodeIncentivePlan,
 ) {
     val uiState = viewModel.uiState
     val wallet = uiState.wallet
@@ -357,6 +361,27 @@ fun EditScreen(
                         },
                 )
             }
+            if (isSuperNode) {
+                Spacer(modifier = Modifier.height(10.dp))
+                RangeSliderScreen(
+                    initValue = incentivePlan.partner.toFloat() .. (incentivePlan.partner + incentivePlan.creator).toFloat()
+                ) { t1, t2, t3 ->
+                    viewModel.onEnterIncentive(t1, t2, t3)
+                }
+                Row {
+                    ButtonPrimaryYellow(
+                        modifier = Modifier
+                            .wrapContentSize(),
+                        title = stringResource(R.string.Safe_Four_Node_Update_Button),
+                        enabled = uiState.incentiveCanUpdate,
+                        onClick = {
+                            viewModel.updateDescIncentive()
+                        },
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }

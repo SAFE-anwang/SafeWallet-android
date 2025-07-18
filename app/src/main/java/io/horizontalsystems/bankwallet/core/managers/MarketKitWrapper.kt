@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
 import io.horizontalsystems.bankwallet.core.customCoinPrefix
@@ -17,6 +18,7 @@ import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.horizontalsystems.marketkit.models.MarketInfo
 import io.horizontalsystems.marketkit.models.NftTopCollection
+import io.horizontalsystems.marketkit.models.TokenEntity
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -120,12 +122,14 @@ class MarketKitWrapper(
 
     fun sync() = marketKit.sync()
 
+    fun insertTokenEntity(tokenEntity: TokenEntity) = marketKit.insertTokenEntity(tokenEntity)
+
     // Coin Prices
 
     private val String.isCustomCoin: Boolean
         get() = startsWith(TokenQuery.customCoinPrefix)
 
-    private fun List<String>.removeCustomCoins(): List<String> = filterNot { it.isCustomCoin }
+    private fun List<String>.removeCustomCoins(): List<String> = filterNot { it.isCustomCoin && !it.isSafeCoin() }
 
     fun refreshCoinPrices(currencyCode: String) = marketKit.refreshCoinPrices(currencyCode)
 

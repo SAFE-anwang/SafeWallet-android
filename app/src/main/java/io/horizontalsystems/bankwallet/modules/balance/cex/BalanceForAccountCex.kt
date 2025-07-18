@@ -30,6 +30,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
@@ -319,19 +321,11 @@ fun WalletIconCex(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.coinUid.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp)
-                )
-            } else {
-                CoinImage(
-                        iconUrl = viewItem.coinIconUrl,
-                        placeholder = viewItem.coinIconPlaceholder,
-                        modifier = Modifier
-                                .size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = viewItem.coinUid ?: "",
+                iconUrl = viewItem.coinIconUrl,
+                placeholder = viewItem.coinIconPlaceholder
+            )
         }
     }
 }

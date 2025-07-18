@@ -13,6 +13,7 @@ import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -28,21 +29,11 @@ fun CellBlockchainChecked(
         borderTop = borderTop,
         onClick = onToggle
     ) {
-        if (blockchain.uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
-            )
-        } else {
-            Image(
-                    painter = rememberAsyncImagePainter(
-                            model = blockchain.type.imageUrl,
-                            error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = blockchain.uid,
+            iconUrl = blockchain.type.imageUrl,
+            placeholder = R.drawable.ic_platform_placeholder_32
+        )
         body_leah(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

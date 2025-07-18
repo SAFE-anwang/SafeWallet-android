@@ -658,4 +658,28 @@
         android:id="@+id/safe4LineLockFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.lockinfo.LineLockInfoFragment" />
 
+    <fragment
+        android:id="@+id/src20DeployFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20DeployFragment" />
+
+    <fragment
+        android:id="@+id/src20ManagerFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20ManagerFragment" />
+
+    <fragment
+        android:id="@+id/src20EditFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20EditFragment" />
+
+    <fragment
+        android:id="@+id/src20PromotionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20PromotionFragment" />
+
+    <fragment
+        android:id="@+id/src20AdditionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20AdditionalFragment" />
+
+    <fragment
+        android:id="@+id/src20DestroyFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20DestroyFragment" />
+
 </navigation>

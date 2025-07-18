@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -158,6 +159,7 @@ fun TransactionNftAmountCell(
 
 @Composable
 fun TransactionAmountCell(
+    coinUid: String?,
     amountType: AmountType,
     fiatAmount: ColoredValue?,
     coinAmount: ColoredValue,
@@ -177,19 +179,12 @@ fun TransactionAmountCell(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (coinIconUrl.isSafeIcon()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                            .size(24.dp)
-            )
-        } else {
-            CoinImage(
-                    iconUrl = coinIconUrl,
-                    placeholder = coinIconPlaceholder,
-                    modifier = Modifier.size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = coinUid ?: "",
+            iconUrl = coinIconUrl,
+            placeholder = coinIconPlaceholder
+        )
+
         HSpacer(16.dp)
         Column {
             subhead2_leah(text = title)

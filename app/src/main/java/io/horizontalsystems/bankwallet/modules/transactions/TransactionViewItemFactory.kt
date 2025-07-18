@@ -91,13 +91,13 @@ class TransactionViewItemFactory(
     ): TransactionViewItem.Icon =
         when (value) {
             is TransactionValue.NftValue -> {
-                TransactionViewItem.Icon.Regular(nftMetadata[value.nftUid]?.previewImageUrl, R.drawable.icon_24_nft_placeholder, rectangle = true)
+                TransactionViewItem.Icon.Regular(nftMetadata[value.nftUid]?.previewImageUrl, R.drawable.icon_24_nft_placeholder, rectangle = true, value.coinUid)
             }
 
             is TransactionValue.CoinValue,
             is TransactionValue.RawValue,
             is TransactionValue.TokenValue -> {
-                TransactionViewItem.Icon.Regular(value.coinIconUrl, value.coinIconPlaceholder)
+                TransactionViewItem.Icon.Regular(value.coinIconUrl, value.coinIconPlaceholder, coinUid = value.coinUid)
             }
         }
 
@@ -106,9 +106,11 @@ class TransactionViewItemFactory(
         secondaryValue: TransactionValue?,
         nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf()
     ): TransactionViewItem.Icon {
+        var backUid: String = ""
         var backUrl: String? = null
         var backPlaceHolder: Int? = null
         var backRectangle = false
+        var frontUid: String = ""
         var frontUrl: String? = null
         var frontPlaceHolder: Int? = null
         var frontRectangle = false
@@ -127,6 +129,7 @@ class TransactionViewItemFactory(
                     frontRectangle = false
                     frontUrl = primaryValue.coinIconUrl
                     frontPlaceHolder = primaryValue.coinIconPlaceholder
+                    frontUid = primaryValue.coinUid
                 }
             }
         } else {
@@ -149,6 +152,7 @@ class TransactionViewItemFactory(
                     backRectangle = false
                     backUrl = secondaryValue.coinIconUrl
                     backPlaceHolder = secondaryValue.coinIconPlaceholder
+                    backUid = secondaryValue.coinUid
                 }
             }
         } else {
@@ -158,8 +162,8 @@ class TransactionViewItemFactory(
         }
 
         return TransactionViewItem.Icon.Double(
-            back = TransactionViewItem.Icon.Regular(backUrl, backPlaceHolder, backRectangle),
-            front = TransactionViewItem.Icon.Regular(frontUrl, frontPlaceHolder, frontRectangle)
+            back = TransactionViewItem.Icon.Regular(backUrl, backPlaceHolder, backRectangle, backUid),
+            front = TransactionViewItem.Icon.Regular(frontUrl, frontPlaceHolder, frontRectangle, frontUid)
         )
     }
 

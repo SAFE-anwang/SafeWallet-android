@@ -37,6 +37,8 @@ class SafeFourModule {
             private val enode: String,
             private val address: String,
             private val desc: String,
+            private val nodeId: Int,
+            private val incentivePlan: NodeIncentivePlan,
     ) : ViewModelProvider.Factory {
         val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
 
@@ -52,16 +54,18 @@ class SafeFourModule {
             val addressService = SendEvmAddressService(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
 
             return SafeFourNodeEditViewModel(
-                    wallet,
-                    isSuperNode,
-                    name,
-                    address,
-                    enode,
-                    desc,
-                    rpcBlockchainSafe4,
-                    addressService,
-                    evmKitWrapper.signer!!.privateKey.toHexString(),
-                    evmKitWrapper.evmKit.receiveAddress.hex
+                wallet,
+                isSuperNode,
+                name,
+                address,
+                enode,
+                desc,
+                nodeId,
+                incentivePlan,
+                rpcBlockchainSafe4,
+                addressService,
+                evmKitWrapper.signer!!.privateKey.toHexString(),
+                evmKitWrapper.evmKit.receiveAddress.hex
             ) as T
         }
     }

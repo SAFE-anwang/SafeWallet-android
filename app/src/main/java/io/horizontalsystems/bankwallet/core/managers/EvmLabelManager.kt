@@ -121,6 +121,9 @@ class EvmLabelManager(
             "0x2e1a7d4d",
             "0xd0e30db0" -> Translator.getString(R.string.SAFE4_Swap_Tx_Title)
             "0x9c4ee6bf" -> Translator.getString(R.string.Safe4_Line_Locked)
+            "0x198581a5" -> Translator.getString(R.string.SRC20_Info_Promotion)
+            "0x61016060" -> Translator.getString(R.string.SRC20_Deploy_Title)
+            "0x8d6dbe42" -> Translator.getString(R.string.Super_Node_Modify_IncentivePlan)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

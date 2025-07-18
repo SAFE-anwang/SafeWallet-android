@@ -46,6 +46,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HFillSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
@@ -313,18 +314,11 @@ private fun TokenRow(
     borderTop: Boolean = true,
 ) {
     CellUniversal(borderTop = borderTop) {
-        if (token?.coin?.uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp)
-            )
-        } else {
-            CoinImage(
-                    iconUrl = token.coin.imageUrl,
-                    placeholder = token.iconPlaceholder,
-                    modifier = Modifier.size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = token.coin.uid,
+            iconUrl = token.coin.imageUrl,
+            placeholder = token.iconPlaceholder,
+        )
         HSpacer(width = 16.dp)
         Column {
             val title = when (type) {

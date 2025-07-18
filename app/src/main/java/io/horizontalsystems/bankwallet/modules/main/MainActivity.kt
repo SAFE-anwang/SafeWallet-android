@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -36,6 +37,8 @@ import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4TokensService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
@@ -115,6 +118,19 @@ class MainActivity : BaseActivity() {
 
         startVpn()
         startUpgradeVersion()
+        Thread(
+            Runnable {
+                Thread.sleep(4000)
+                SyncSafe4Tokens.getTokens()
+            }
+        ).start()
+        /*Handler(mainLooper).postDelayed(
+            Runnable {
+                SyncSafe4Tokens.getTokens()
+            },
+            40000
+        )*/
+
     }
 
 

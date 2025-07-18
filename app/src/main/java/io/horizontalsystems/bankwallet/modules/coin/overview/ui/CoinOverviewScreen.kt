@@ -130,6 +130,7 @@ fun CoinOverviewScreen(
                         overview?.let { overview ->
                             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                 CoinScreenTitle(
+                                    fullCoin.coin.uid,
                                     fullCoin.coin.name,
                                     overview.marketCapRank,
                                     fullCoin.coin.imageUrl,

@@ -46,6 +46,8 @@ class SafeFourNodeEditViewModel(
         val nodeAddress: String,
         val nodeEnode: String,
         val nodeDesc: String,
+        val nodeId: Int,
+        val incentivePlan: NodeIncentivePlan,
         private val safe4: RpcBlockchainSafe4,
         private val addressService: SendEvmAddressService,
         private val privateKey: String,
@@ -57,10 +59,16 @@ class SafeFourNodeEditViewModel(
     private var inputNodeEnode: String = nodeEnode
     private var inputNodeDesc: String = nodeDesc
 
+    private var inputPartnerIncentive = incentivePlan.partner
+    private var inputCreatorIncentive = incentivePlan.creator
+    private var inputVoterIncentive = incentivePlan.voter
+
     private var nameUpdateSuccess = false
     private var addressUpdateSuccess = false
     private var enodeUpdateSuccess = false
     private var descUpdateSuccess = false
+    private var incentiveUpdateSuccess = false
+    private var incentiveCanUpdate = false
 
     private var addressState = addressService.stateFlow.value
 
@@ -94,21 +102,22 @@ class SafeFourNodeEditViewModel(
 
     override fun createState() =
         NodeEditUiState(
-                wallet,
-                nodeName,
-                nodeAddress,
-                nodeEnode,
-                nodeDesc,
-                addressState.addressError,
-                !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length >= 8,
-                !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true)
-                        && addressState.canBeSend && !existNode && !existNodeFounder
-                        && !isInputCurrentWalletAddress,
-                !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank() && !existENode,
-                !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length >= 12,
-                existENode,
-                existNode,
-                existNodeFounder
+            wallet,
+            nodeName,
+            nodeAddress,
+            nodeEnode,
+            nodeDesc,
+            addressState.addressError,
+            !nameUpdateSuccess && !inputNodeName.equals(nodeName) && inputNodeName.isNotBlank() && inputNodeName.length >= 8,
+            !addressUpdateSuccess && !nodeAddress.equals(addressState.address?.hex, true)
+                    && addressState.canBeSend && !existNode && !existNodeFounder
+                    && !isInputCurrentWalletAddress,
+            !enodeUpdateSuccess && !inputNodeEnode.equals(nodeEnode) && inputNodeEnode.isNotBlank() && !existENode,
+            !descUpdateSuccess && !inputNodeDesc.equals(nodeDesc) && inputNodeDesc.isNotBlank() && inputNodeDesc.length >= 12,
+            !incentiveUpdateSuccess && incentiveCanUpdate,
+            existENode,
+            existNode,
+            existNodeFounder
 
         )
 
@@ -240,6 +249,34 @@ class SafeFourNodeEditViewModel(
             }
         }
     }
+
+    fun updateDescIncentive() {
+        sendResult = SendResult.Sending
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                safe4.changeIncentive(privateKey, nodeId.toBigInteger(),
+                    inputCreatorIncentive.toBigInteger(), inputPartnerIncentive.toBigInteger(), inputVoterIncentive.toBigInteger())
+                sendResult = SendResult.Sent
+                incentiveUpdateSuccess = true
+                emitState()
+            } catch (e: Exception) {
+                sendResult = SendResult.Failed(createCaution(e))
+            }
+        }
+    }
+
+    fun onEnterIncentive(partnerIncentive: Int, creatorIncentive: Int, voterIncentive: Int = 45) {
+        if (partnerIncentive != incentivePlan.partner
+            || creatorIncentive != incentivePlan.creator
+            || voterIncentive != incentivePlan.voter) {
+            incentiveCanUpdate = true
+
+            this.inputPartnerIncentive = partnerIncentive
+            this.inputCreatorIncentive = creatorIncentive
+            this.inputVoterIncentive = voterIncentive
+            emitState()
+        }
+    }
 }
 
 data class NodeEditUiState (
@@ -253,6 +290,7 @@ data class NodeEditUiState (
         val addressCanUpdate: Boolean = false,
         val enodeCanUpdate: Boolean = false,
         val descCanUpdate: Boolean = false,
+        val incentiveCanUpdate: Boolean = false,
         val existsEnode: Boolean = false,
         val existsNode: Boolean = false,
         val isFounder: Boolean = false,

@@ -75,6 +75,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.CardsSwapInfo
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HFillSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HSRow
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
@@ -682,18 +683,11 @@ private fun CoinSelector(
 ) {
     Selector(
         icon = {
-            if (token?.coin?.uid.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp)
-                )
-            } else {
-                CoinImage(
-                        iconUrl = token?.coin?.imageUrl,
-                        placeholder = token?.iconPlaceholder,
-                        modifier = Modifier.size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = token?.coin?.uid ?: "",
+                iconUrl = token?.coin?.imageUrl,
+                placeholder = token?.iconPlaceholder,
+            )
         },
         text = {
             if (token != null) {

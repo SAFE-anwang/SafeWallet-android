@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.B2
 import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
 import io.horizontalsystems.bankwallet.ui.compose.components.MultitextM1
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -111,18 +112,11 @@ fun SelectSwapCoinDialogScreen(
                             onClickItem.invoke(coinItem)
                         }
                     ) {
-                        if (coinItem.token.coin.isSafeCoin()) {
-                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(32.dp)
-                            )
-                        } else {
-                            CoinImage(
-                                    iconUrl = coinItem.token.coin.imageUrl,
-                                    placeholder = coinItem.token.iconPlaceholder,
-                                    modifier = Modifier.size(32.dp)
-                            )
-                        }
+                        CoinImageSafe(
+                            uid = coinItem.token.coin.uid,
+                            iconUrl = coinItem.token.coin.imageUrl,
+                            placeholder = coinItem.token.iconPlaceholder,
+                        )
                         Spacer(modifier = Modifier.size(16.dp))
                         MultitextM1(
                             title = {
