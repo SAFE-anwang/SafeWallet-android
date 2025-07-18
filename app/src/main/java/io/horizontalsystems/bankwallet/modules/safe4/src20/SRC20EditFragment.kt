@@ -215,6 +215,7 @@ fun SRC20EditScreen(
                 enabled = true,
                 pasteEnabled = false,
                 hint = "",
+                maxLength = 2000
             ) {
                 viewModel.setDescription(it)
             }
