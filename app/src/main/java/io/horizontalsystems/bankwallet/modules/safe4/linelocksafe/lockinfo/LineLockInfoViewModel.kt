@@ -66,7 +66,7 @@ class LineLockInfoViewModel(
                 // lock
                 if (method == "0x9c4ee6bf") {
                     val address = inputString.substring(34, 74)
-                    val times = inputString.substring(75, 138).toInt()
+                    val times = inputString.substring(75, 138).toInt(16)
                     val spaceDay = inputString.substring(139, 202).toInt(16)
                     val startDay = inputString.substring(203, inputString.length).toInt(16)
                     val value = transaction.vaule.divide(times.toBigInteger())

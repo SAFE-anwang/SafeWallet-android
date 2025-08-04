@@ -203,7 +203,7 @@ fun SRC20DestroyScreen(
                 )
                 body_bran(
                     modifier = Modifier.padding(start = 16.dp).weight(5f),
-                    text = uiState.totalSupply,
+                    text = uiState.balance,
                     maxLines = 1,
                 )
             }

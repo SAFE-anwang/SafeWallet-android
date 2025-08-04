@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
@@ -65,6 +67,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -92,6 +95,7 @@ fun SRC20MangerScreen(
 ) {
     val uiState = viewModel.uiState
     val managerItems = uiState.list
+    val view = LocalView.current
 
     Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
@@ -149,14 +153,27 @@ fun SRC20MangerScreen(
                                     )
                                 )
                             },
-                            onDestroy = {
-                                navController.slideFromRight(
-                                    R.id.src20DestroyFragment,
-                                    SRC20Module.InputEdit(
-                                        wallet, it
+                            onDestroy = { token ->
+                                val walletList: List<Wallet> = App.walletManager.activeWallets
+                                var safeWallet: Wallet? = null
+                                for (it in walletList) {
+                                    if (it.coin.uid.contains(token.address, true)) {
+                                        safeWallet = it
+                                    }
+                                }
+                                safeWallet?.let {
+                                    navController.slideFromRight(
+                                        R.id.src20DestroyFragment,
+                                        SRC20Module.InputEdit(
+                                            it, token
+                                        )
                                     )
-                                )
+                                }
                             },
+                            onCopy = { address ->
+                                TextHelper.copyText(address)
+                                HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                            }
                         )
                     }
                 }
@@ -174,6 +191,7 @@ fun LazyListScope.managerList(
     onPromotion: (CustomToken) -> Unit,
     onAdditionalIssuance: (CustomToken) -> Unit,
     onDestroy: (CustomToken) -> Unit,
+    onCopy: (String) -> Unit
 ) {
     val itemsCount = managerList.size
     val singleElement = itemsCount == 1
@@ -234,7 +252,10 @@ fun LazyListScope.managerList(
                                 modifier = Modifier.weight(2f),
                                 text = stringResource(R.string.SRC20_Info_Contract))
                             body_issykBlue(
-                                modifier = Modifier.weight(5f),
+                                modifier = Modifier.weight(5f)
+                                    .clickable {
+                                        onCopy.invoke(item.token.address)
+                                    },
                                 text = item.token.address.shorten(8))
                         }
                         Spacer(modifier = Modifier.height(5.dp))

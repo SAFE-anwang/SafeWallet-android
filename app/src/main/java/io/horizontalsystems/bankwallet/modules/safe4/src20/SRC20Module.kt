@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.src20
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedException
@@ -75,8 +76,7 @@ object SRC20Module {
                     val rpcBlockchainSafe4 =
                         adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
                     val service = SRC20Service(token.getDeployType(), rpcBlockchainSafe4.web3j, token.address)
-
-                    SRC20DestroyViewModel(token.getTypeForVersion(), token.symbol, token.address, service, adapter.evmKitWrapper) as T
+                    SRC20DestroyViewModel(token.getTypeForVersion(), token.symbol, token.address, service, adapter.evmKitWrapper, adapter.balanceData.total) as T
                 }
                 else -> {
                     throw  UnsupportedException(modelClass.name)
@@ -131,6 +131,7 @@ data class DeployPromotionUIState(
 
 data class DeployAdditionalUIState(
     val totalSupply: String,
+    val balance: String,
     val canUpdate: Boolean,
     val showConfirmationDialog: Boolean
 )

@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.channels.BufferOverflow
@@ -61,7 +62,7 @@ class TransactionAdapterManager(
                     BlockchainType.Gnosis,
                     BlockchainType.Fantom,
                     BlockchainType.ArbitrumOne -> {
-                        adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType)
+                        adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType, wallet.coin.uid.isSafeFourCustomCoin(), wallet.address)
                     }
                     BlockchainType.Solana -> {
                         adapterFactory.solanaTransactionsAdapter(wallet.transactionSource)

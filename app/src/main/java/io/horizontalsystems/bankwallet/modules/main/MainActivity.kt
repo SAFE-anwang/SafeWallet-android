@@ -118,9 +118,10 @@ class MainActivity : BaseActivity() {
 
         startVpn()
         startUpgradeVersion()
+        App.accountManager.activeAccount
         Thread(
             Runnable {
-                Thread.sleep(4000)
+                Thread.sleep(2000)
                 SyncSafe4Tokens.getTokens()
             }
         ).start()

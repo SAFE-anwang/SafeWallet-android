@@ -22,6 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -30,13 +31,14 @@ class SRC20DestroyViewModel(
     val symbol: String,
     val address: String,
     val service: SRC20Service,
-    val evmKitWrapper: EvmKitWrapper
+    val evmKitWrapper: EvmKitWrapper,
+    val balance: BigDecimal
 ) : ViewModelUiState<DeployDestroyUIState>() {
 
     private val disposables = CompositeDisposable()
     private var additionalNumber: Int = 0
     private var totalSupply: BigInteger = BigInteger.ZERO
-    private var balance: BigInteger = BigInteger.ZERO
+//    private var balance: BigInteger = BigInteger.ZERO
 
     var showConfirmationDialog = false
     var sendResult by mutableStateOf<SendResult?>(null)
@@ -44,8 +46,11 @@ class SRC20DestroyViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            totalSupply = service.totalSupply(type.type)
-            balance = service.balance(address)
+            try {
+                totalSupply = service.totalSupply(type.type)
+            } catch (e: Exception) {
+
+            }
             emitState()
         }
     }
@@ -53,7 +58,7 @@ class SRC20DestroyViewModel(
     override fun createState(): DeployDestroyUIState {
         return DeployDestroyUIState(
             NodeCovertFactory.formatSafe(totalSupply, code = symbol),
-            NodeCovertFactory.formatSafe(balance, code = symbol),
+            App.numberFormatter.formatCoinFull(balance, code = symbol, 8),
             additionalNumber > 0,
             showConfirmationDialog
         )

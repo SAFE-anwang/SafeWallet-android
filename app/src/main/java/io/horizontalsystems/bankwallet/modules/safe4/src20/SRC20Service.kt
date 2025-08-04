@@ -282,8 +282,14 @@ class SRC20Service(
         }
     }
 
-    fun balance(address: String): BigInteger {
-        return src20Burnable.balanceOf(Address(address))
+    fun balance(address: String, type: Int): BigInteger {
+        return if (type == 0) {
+            src20.balanceOf(Address(address))
+        } else if (type == 1) {
+            src20Mintble.balanceOf(Address(address))
+        } else {
+            src20Burnable.balanceOf(Address(address))
+        }
     }
 
 }

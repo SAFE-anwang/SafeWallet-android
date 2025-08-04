@@ -21,10 +21,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.customCoinUid
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -201,8 +203,13 @@ private fun CoinCell(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalPadding = 0.dp
         ) {
+            val uid = if (viewItem.isSafe4Deploy) {
+                viewItem.item.tokenQuery.customCoinUid
+            } else {
+                viewItem.item.coin.uid
+            }
             CoinImageSafe(
-                uid = viewItem.item.coin.uid,
+                uid = uid,
                 painter = viewItem.imageSource.painter(),
                 placeholder = R.drawable.ic_platform_placeholder_32,
                 modifier = Modifier

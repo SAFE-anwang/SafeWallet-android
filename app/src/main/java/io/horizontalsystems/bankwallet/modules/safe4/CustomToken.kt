@@ -16,7 +16,7 @@ data class CustomToken(
     val name: String,
     val type: Int,
     val logoURI: String = "",
-    val version: String = ""
+    val version: String? = ""
 ) : Parcelable {
 
     fun getDeployType(): DeployType {
@@ -24,9 +24,9 @@ data class CustomToken(
     }
 
     fun getTypeForVersion(): DeployType {
-        return if (version.contains("SRC20-mintable")) {
+        return if (version?.contains("SRC20-mintable") == true) {
             DeployType.SRC20Mintable
-        } else if (version.contains("SRC20-burnable")) {
+        } else if (version?.contains("SRC20-burnable") == true) {
             DeployType.SRC20Burnable
         } else {
             DeployType.SRC20

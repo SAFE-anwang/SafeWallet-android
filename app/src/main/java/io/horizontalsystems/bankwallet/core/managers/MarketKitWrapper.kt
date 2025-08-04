@@ -12,6 +12,7 @@ import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.SyncInfo
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.HsPeriodType
 import io.horizontalsystems.marketkit.models.HsPointTimePeriod
@@ -123,6 +124,9 @@ class MarketKitWrapper(
     fun sync() = marketKit.sync()
 
     fun insertTokenEntity(tokenEntity: TokenEntity) = marketKit.insertTokenEntity(tokenEntity)
+    fun removeTokenEntity(coinUid: String, reference: String) = marketKit.removeTokenEntity(coinUid, reference)
+
+    fun insertCoin(coin: Coin) = marketKit.insertCoin(coin)
 
     // Coin Prices
 

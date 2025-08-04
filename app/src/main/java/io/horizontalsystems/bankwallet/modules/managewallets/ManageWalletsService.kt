@@ -20,6 +20,7 @@ import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.*
 import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.Token
@@ -107,7 +108,7 @@ class ManageWalletsService(
 
     private fun sortItems() {
         var comparator = compareByDescending<Item> {
-            it.enabled || it.token.coin.uid == "safe-coin" || it.token.coin.uid == "bitcoin"
+            it.enabled || it.token.coin.uid.isSafeFourCustomCoin() || it.token.coin.uid == "safe-coin" || it.token.coin.uid == "bitcoin"
         }
 
         if (filter.isBlank()) {

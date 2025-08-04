@@ -8,7 +8,7 @@ import io.horizontalsystems.marketkit.models.Token
 
 class EvmIncomingTransactionRecord(
     transaction: Transaction,
-    baseToken: Token,
+    val baseToken: Token,
     source: TransactionSource,
     spamManager: SpamManager,
     val from: String,

@@ -98,8 +98,16 @@ fun CoinImageSafe(
             CoinImage(
                 iconUrl = logo,
                 placeholder = placeholder,
-                modifier = Modifier
+                modifier = modifier
                     .size(size),
+                colorFilter = colorFilter
+            )
+        } else if (iconUrl?.isNotEmpty() == true && !iconUrl.endsWith("/safe4-coin@3x.png")) {
+            CoinImage(
+                iconUrl = iconUrl,
+                placeholder = placeholder,
+                modifier = modifier
+                    .size(size).clip(CircleShape),
                 colorFilter = colorFilter
             )
         } else {
@@ -137,7 +145,7 @@ fun CoinImageSafe(
             CoinImage(
                 iconUrl = logo,
                 placeholder = placeholder,
-                modifier = Modifier
+                modifier = modifier
                     .size(size),
                 colorFilter = colorFilter
             )

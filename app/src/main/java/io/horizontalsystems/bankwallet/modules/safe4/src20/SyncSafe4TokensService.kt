@@ -6,6 +6,7 @@ import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.customCoinUid
+import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.CustomToken
@@ -13,6 +14,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.Safe3TestCoinService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.decorations.Constants
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
@@ -48,7 +51,16 @@ class SyncSafe4TokensService(
                 tokens.forEach {
                     saveLogo(it)
                 }
+                (App.adapterManager as AdapterManager).preloadAdapters()
+                // 保存已推广资产
+                tokens.filter { it.creator.lowercase() != evmKit.receiveAddress.hex }
+                    .forEach { tokenInfo ->
+                        if (tokenInfo.logoURI != null && tokenInfo.logoURI.isNotBlank()) {
+                            App.appDatabase.customTokenDao().insert(tokenInfo)
+                        }
+                    }
                 val filter = tokens.filter { it.creator.lowercase() == evmKit.receiveAddress.hex }
+                Constants.deployContracts = filter.map { it.address.lowercase() }
                 val address = filter.map { it.address }
                 // 删除已经不存在的资产
                 cache?.let {
@@ -66,7 +78,7 @@ class SyncSafe4TokensService(
                 }
                 val result = filter.map { token ->
                     val cacheToken = getCacheToken(token.address)
-                    if (cacheToken == null || cacheToken.version.isEmpty()) {
+                    if (cacheToken == null || cacheToken.version.isNullOrEmpty()) {
                         val version = srC20Service.getVersion(token.address, token.chainId)
                         if (version != null) {
                             token.copy(version = version)
@@ -79,12 +91,14 @@ class SyncSafe4TokensService(
                 }
                 result
             }
-            .subscribeIO {
+            .subscribeIO({
                 App.appDatabase.customTokenDao().insert(it)
                 customTokenSubject.onNext(it)
                 it.forEach {
                     addToken(it)
                 }
+            }) {
+                Log.d("DeployList", "error=$it")
             }?.let {
 
             }
@@ -92,24 +106,29 @@ class SyncSafe4TokensService(
 
     fun addToken(tokenInfo: CustomToken) {
         val tokenQuery = TokenQuery(BlockchainType.SafeFour, TokenType.Eip20(tokenInfo.address.lowercase()))
+        val coin = Coin(tokenQuery.customCoinUid, tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals.toInt(), tokenInfo.symbol)
         val token = Token(
-            coin = Coin(tokenQuery.customCoinUid, tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals.toInt()),
+            coin = coin,
             blockchain = Blockchain(BlockchainType.SafeFour, tokenInfo.name, tokenInfo.address),
             type = tokenQuery.tokenType,
             decimals = tokenInfo.decimals.toInt()
         )
         val account = App.accountManager.activeAccount ?: return
         val wallet = Wallet(token, account)
+        App.marketKit.removeTokenEntity("safe4-coin", tokenInfo.address)
         App.marketKit.insertTokenEntity(
-            TokenEntity("safe4-coin", "safe4-coin", "eip20", tokenInfo.decimals.toInt(), tokenInfo.address)
+            TokenEntity(tokenQuery.customCoinUid, "safe4-coin", "eip20", tokenInfo.decimals.toInt(), tokenInfo.address)
         )
+        App.marketKit.insertCoin(coin)
+
 //        App.walletManager.save(listOf(wallet))
     }
 
     private fun saveLogo(tokenInfo: CustomToken) {
+        val tokenQuery = TokenQuery(BlockchainType.SafeFour, TokenType.Eip20(tokenInfo.address.lowercase()))
+        SafeExtend.deployCoinHash[tokenQuery.customCoinUid] = tokenInfo.name
         if (tokenInfo.logoURI != null && tokenInfo.logoURI.isNotBlank()) {
-            val tokenQuery = TokenQuery(BlockchainType.SafeFour, TokenType.Eip20(tokenInfo.address.lowercase()))
-            MMKV.defaultMMKV()?.putString(tokenQuery.customCoinUid, tokenInfo.logoURI)
+            MMKV.defaultMMKV()?.putString(tokenQuery.customCoinUid.lowercase(), tokenInfo.logoURI)
         }
     }
 

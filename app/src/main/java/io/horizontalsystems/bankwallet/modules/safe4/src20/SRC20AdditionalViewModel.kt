@@ -36,6 +36,7 @@ class SRC20AdditionalViewModel(
     private val disposables = CompositeDisposable()
     private var additionalNumber: Int = 0
     private var totalSupply: BigInteger = BigInteger.ZERO
+    private var balance: BigInteger = BigInteger.ZERO
 
     var showConfirmationDialog = false
     var sendResult by mutableStateOf<SendResult?>(null)
@@ -43,7 +44,12 @@ class SRC20AdditionalViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            totalSupply = service.totalSupply(type.type)
+            try {
+                totalSupply = service.totalSupply(type.type)
+                balance = service.balance(evmKitWrapper.evmKit.receiveAddress.hex, type.type)
+            } catch (e: Exception) {
+
+            }
             emitState()
         }
     }
@@ -51,6 +57,7 @@ class SRC20AdditionalViewModel(
     override fun createState(): DeployAdditionalUIState {
         return DeployAdditionalUIState(
             NodeCovertFactory.formatSafe(totalSupply, code = symbol),
+            NodeCovertFactory.formatSafe(balance, code = symbol),
             additionalNumber > 0,
             showConfirmationDialog
         )

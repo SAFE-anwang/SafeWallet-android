@@ -25,7 +25,7 @@ val Token.protocolType: String?
     get() = tokenQuery.protocolType
 
 val Token.isCustom: Boolean
-    get() = !coin.uid.contains("safe4-coin") && coin.uid == tokenQuery.customCoinUid
+    get() = coin.uid == tokenQuery.customCoinUid
 
 val Coin.isCustom: Boolean
     get() = uid.startsWith(TokenQuery.customCoinPrefix)

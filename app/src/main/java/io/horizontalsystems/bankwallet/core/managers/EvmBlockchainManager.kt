@@ -71,6 +71,9 @@ class EvmBlockchainManager(
     fun getBaseToken(blockchainType: BlockchainType): Token? =
         marketKit.token(TokenQuery(blockchainType, TokenType.Native))
 
+    fun getBaseToken(blockchainType: BlockchainType, address: String): Token? =
+        marketKit.token(TokenQuery(blockchainType, TokenType.Eip20(address)))
+
     companion object{
         val blockchainTypes = listOf(
             BlockchainType.SafeFour,

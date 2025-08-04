@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.src20
 
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.text.toLowerCase
 import com.google.android.exoplayer2.util.Log
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
@@ -12,6 +13,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.CustomToken
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.Safe3TestCoinService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.decorations.Constants
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
@@ -33,12 +35,17 @@ object SyncSafe4Tokens{
         }
         if (safeWallet == null) return
         val adapter = (App.adapterManager.getAdapterForWallet(safeWallet) as? ISendEthereumAdapter)  ?: return
+        getContract(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
         val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
         val service = SRC20Service(DeployType.SRC20, rpcBlockchainSafe4.web3j)
         SyncSafe4TokensService(service, adapter.evmKitWrapper.evmKit).getTokens()
     }
 
     fun getLogo(coinUid: String): String? {
-        return MMKV.defaultMMKV()?.getString(coinUid, null)
+        return MMKV.defaultMMKV()?.getString(coinUid.lowercase(), null)
+    }
+
+    fun getContract(address: String) {
+        Constants.deployContracts = App.appDatabase.customTokenDao().getAll().filter { it.creator.lowercase() == address }.map { it.address.lowercase() }
     }
 }
