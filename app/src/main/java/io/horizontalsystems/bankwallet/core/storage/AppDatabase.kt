@@ -25,7 +25,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WalletConne
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionDao
 import io.horizontalsystems.marketkit.storage.CoinDao
 
-@Database(version = 66, exportSchema = false, entities = [
+@Database(version = 67, exportSchema = false, entities = [
     EnabledWallet::class,
     EnabledWalletCache::class,
     AccountRecord::class,
