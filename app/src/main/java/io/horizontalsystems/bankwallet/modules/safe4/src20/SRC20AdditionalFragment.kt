@@ -200,7 +200,7 @@ fun SRC20AdditionalScreen(
             )
 
             FormsInput(
-                initial = tokenInfo.address,
+                initial = tokenInfo.creator,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 enabled = false,
                 pasteEnabled = false,

@@ -118,7 +118,7 @@ fun SRC20MangerScreen(
                         } else {
                             ListEmptyView(
                                 text = stringResource(
-                                        R.string.Safe_Four_No_Master_Node),
+                                        R.string.SRC20_No_Deploy),
                                 icon = R.drawable.ic_no_data
                             )
                         }

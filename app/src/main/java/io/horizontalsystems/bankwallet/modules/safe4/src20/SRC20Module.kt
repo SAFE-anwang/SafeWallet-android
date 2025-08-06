@@ -70,7 +70,7 @@ object SRC20Module {
                         adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
                     val service = SRC20Service(token.getDeployType(), rpcBlockchainSafe4.web3j, token.address)
 
-                    SRC20AdditionalViewModel(token.getTypeForVersion(),token.symbol, token.address,  service, adapter.evmKitWrapper) as T
+                    SRC20AdditionalViewModel(token.getTypeForVersion(),token.symbol, token.creator,  service, adapter.evmKitWrapper) as T
                 }
                 SRC20DestroyViewModel::class.java -> {
                     val rpcBlockchainSafe4 =
