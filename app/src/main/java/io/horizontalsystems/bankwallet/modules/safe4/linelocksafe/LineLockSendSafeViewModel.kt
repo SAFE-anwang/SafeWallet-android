@@ -157,9 +157,9 @@ class LineLockSendSafeViewModel(
                     R.string.Safe4_Line_Lock_Tips,
                     format.format(startLockTime),
                     intervalMonth!!,
-                    lockedValue!!,
+                    lockedValue!!.toPlainString(),
                     lockTimes.toString(),
-                    totalAmount
+                    totalAmount.toPlainString()
                 )
                 lockTips = lineLockStr
             }
