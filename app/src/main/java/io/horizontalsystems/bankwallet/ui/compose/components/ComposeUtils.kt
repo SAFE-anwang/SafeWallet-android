@@ -102,7 +102,7 @@ fun CoinImageSafe(
                     .size(size),
                 colorFilter = colorFilter
             )
-        } else if (iconUrl?.isNotEmpty() == true && !iconUrl.endsWith("/safe4-coin@3x.png")) {
+        } else if (iconUrl?.isNotEmpty() == true && !iconUrl.endsWith("/safe4-coin@3x.png") && !iconUrl.endsWith("/safe-coin@3x.png")) {
             CoinImage(
                 iconUrl = iconUrl,
                 placeholder = placeholder,
