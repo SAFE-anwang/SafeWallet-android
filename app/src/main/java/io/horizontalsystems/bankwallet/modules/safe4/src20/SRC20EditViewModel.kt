@@ -109,13 +109,13 @@ class SRC20EditViewModel(
                     service.setWhitePaperUrl(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), whitePaperUrl!!)
                 }
                 if (orgUpdate && orgName != null) {
-                    service.setWhitePaperUrl(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), orgName!!)
+                    service.setOrgName(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), orgName!!)
                 }
                 if (officialUrlUpdate && officialUrl != null) {
-                    service.setWhitePaperUrl(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), officialUrl!!)
+                    service.setOfficialUrl(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), officialUrl!!)
                 }
                 if (descriptionUpdate && description != null) {
-                    service.setWhitePaperUrl(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), description!!)
+                    service.setDescription(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), description!!)
                 }
                 sendResult = SendResult.Sent
             } catch (e: Exception) {
