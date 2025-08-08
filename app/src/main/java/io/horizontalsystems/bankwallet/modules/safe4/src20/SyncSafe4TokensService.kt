@@ -51,6 +51,7 @@ class SyncSafe4TokensService(
                 tokens.forEach {
                     saveLogo(it)
                 }
+                MMKV.defaultMMKV()?.putBoolean("DeleteDeployCoinPrice", true)
                 (App.adapterManager as AdapterManager).preloadAdapters()
                 // 保存已推广资产
                 tokens.filter { it.creator.lowercase() != evmKit.receiveAddress.hex }
@@ -116,11 +117,10 @@ class SyncSafe4TokensService(
         val account = App.accountManager.activeAccount ?: return
         val wallet = Wallet(token, account)
         App.marketKit.removeTokenEntity("safe4-coin", tokenInfo.address)
+        App.marketKit.insertCoin(coin)
         App.marketKit.insertTokenEntity(
             TokenEntity(tokenQuery.customCoinUid, "safe4-coin", "eip20", tokenInfo.decimals.toInt(), tokenInfo.address)
         )
-        App.marketKit.insertCoin(coin)
-
 //        App.walletManager.save(listOf(wallet))
     }
 
@@ -129,6 +129,9 @@ class SyncSafe4TokensService(
         SafeExtend.deployCoinHash[tokenQuery.customCoinUid] = tokenInfo.name
         if (tokenInfo.logoURI != null && tokenInfo.logoURI.isNotBlank()) {
             MMKV.defaultMMKV()?.putString(tokenQuery.customCoinUid.lowercase(), tokenInfo.logoURI)
+        }
+        if (MMKV.defaultMMKV()?.getBoolean("DeleteDeployCoinPrice", false) == false) {
+            App.marketKit.deletePrice(tokenQuery.customCoinUid.lowercase())
         }
     }
 

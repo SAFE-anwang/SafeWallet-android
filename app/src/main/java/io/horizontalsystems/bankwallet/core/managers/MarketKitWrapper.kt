@@ -289,4 +289,8 @@ class MarketKitWrapper(
         requestWithAuthToken { marketKit.requestPersonalSupport(it, username) }
 
     fun getTokenEntity(coinUids: List<String>, type: String) = marketKit.getTokenEntity(coinUids, type)
+
+    fun deletePrice(coinUid: String) {
+        marketKit.deleteCoinPrice(coinUid)
+    }
 }
