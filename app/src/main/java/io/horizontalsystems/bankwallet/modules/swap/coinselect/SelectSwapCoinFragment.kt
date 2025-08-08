@@ -127,7 +127,9 @@ fun SelectSwapCoinDialogScreen(
                                     }
                                 }
                             },
-                            subtitle = { D1(text = coinItem.token.coin.name) }
+                            subtitle = { D1(
+                                modifier = Modifier.fillMaxWidth(0.5f),
+                                text = coinItem.token.coin.name) }
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         MultitextM1(
