@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import com.anwang.utils.Safe4Contract
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
@@ -60,7 +61,9 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.ethereumkit.core.Safe4Web3jUtils
 import io.horizontalsystems.ethereumkit.core.toHexString
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Token
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Date
@@ -135,6 +138,7 @@ class TransactionInfoViewItemFactory(
                         fromAddress = transaction.from,
                         coinPrice = rates[transaction.value.coinUid],
                         hideAmount = transactionItem.hideAmount,
+                        token = transaction.baseToken
                     )
                 )
 
@@ -168,7 +172,8 @@ class TransactionInfoViewItemFactory(
                         coinPrice = rates[transaction.value.coinUid],
                         hideAmount = transactionItem.hideAmount,
                         sentToSelf = transaction.sentToSelf,
-                        nftMetadata = nftMetadata
+                        nftMetadata = nftMetadata,
+                        token = transaction.baseToken
                     )
                 )
             }
@@ -540,7 +545,8 @@ class TransactionInfoViewItemFactory(
         fromAddress: String?,
         coinPrice: CurrencyValue?,
         hideAmount: Boolean,
-        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf()
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf(),
+        token: Token? = null
     ): List<TransactionInfoViewItem> {
         val mint = fromAddress == zeroAddress
         val title: String = if (mint) getString(R.string.Transactions_Mint) else getString(R.string.Transactions_Receive)
@@ -682,7 +688,8 @@ class TransactionInfoViewItemFactory(
         coinPrice: CurrencyValue?,
         hideAmount: Boolean,
         sentToSelf: Boolean = false,
-        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf()
+        nftMetadata: Map<NftUid, NftAssetBriefMetadata> = mapOf(),
+        token: Token? = null
     ): List<TransactionInfoViewItem> {
         val burn = toAddress == zeroAddress
 
@@ -1080,7 +1087,7 @@ class TransactionInfoViewItemFactory(
         }
 
         val coinValueColored = ColoredValue(coinValueFormatted, color)
-        val coinUid = if (value is TransactionValue.CoinValue && !value.token.isCustom) {
+        val coinUid = if (value is TransactionValue.CoinValue && (value.token.coin.uid.isSafeFourCustomCoin() || !value.token.isCustom)) {
             value.token.coin.uid
         } else {
             null

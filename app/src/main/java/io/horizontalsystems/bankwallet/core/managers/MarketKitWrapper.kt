@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
 import io.horizontalsystems.bankwallet.core.customCoinPrefix
@@ -11,12 +12,14 @@ import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.SyncInfo
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.HsPeriodType
 import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.horizontalsystems.marketkit.models.MarketInfo
 import io.horizontalsystems.marketkit.models.NftTopCollection
+import io.horizontalsystems.marketkit.models.TokenEntity
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -120,12 +123,17 @@ class MarketKitWrapper(
 
     fun sync() = marketKit.sync()
 
+    fun insertTokenEntity(tokenEntity: TokenEntity) = marketKit.insertTokenEntity(tokenEntity)
+    fun removeTokenEntity(coinUid: String, reference: String) = marketKit.removeTokenEntity(coinUid, reference)
+
+    fun insertCoin(coin: Coin) = marketKit.insertCoin(coin)
+
     // Coin Prices
 
     private val String.isCustomCoin: Boolean
         get() = startsWith(TokenQuery.customCoinPrefix)
 
-    private fun List<String>.removeCustomCoins(): List<String> = filterNot { it.isCustomCoin }
+    private fun List<String>.removeCustomCoins(): List<String> = filterNot { it.isCustomCoin && !it.isSafeCoin() }
 
     fun refreshCoinPrices(currencyCode: String) = marketKit.refreshCoinPrices(currencyCode)
 
@@ -281,4 +289,8 @@ class MarketKitWrapper(
         requestWithAuthToken { marketKit.requestPersonalSupport(it, username) }
 
     fun getTokenEntity(coinUids: List<String>, type: String) = marketKit.getTokenEntity(coinUids, type)
+
+    fun deletePrice(coinUid: String) {
+        marketKit.deleteCoinPrice(coinUid)
+    }
 }

@@ -99,6 +99,7 @@ object NodeCovertFactory {
 				isPartner = isPartner && receiveAddress != nodeItem.creator.hex,
 				isCreator = receiveAddress == nodeItem.creator.hex,
 				isAddLockDay = receiveAddress == nodeItem.creator.hex || isPartner,
+				incentivePlan = nodeItem.incentivePlan
 		)
 	}
 
@@ -189,7 +190,7 @@ object NodeCovertFactory {
 			info.isOfficial,
 			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online,
 			info.founders.map {
-				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
+				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
 			},
 			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
 			info.lastRewardHeight.toLong(),
@@ -212,7 +213,7 @@ object NodeCovertFactory {
 			info.isOfficial,
 			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online ,
 			info.founders.map {
-				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.height.toLong())
+				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
 			},
 			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
 			info.lastRewardHeight.toLong(),
@@ -235,9 +236,9 @@ object NodeCovertFactory {
 		return value.movePointRight(18).stripTrailingZeros().toBigInteger()
 	}
 
-	fun formatSafe(value: BigInteger, n:Int = 18): String {
+	fun formatSafe(value: BigInteger, n:Int = 18, code: String = "SAFE"): String {
 		val decimal = valueConvert(value, n)
-		return App.numberFormatter.formatCoinFull(decimal, "SAFE", 8)
+		return App.numberFormatter.formatCoinFull(decimal, code, 8)
 	}
 
 	fun formatDate(time: Long): String {

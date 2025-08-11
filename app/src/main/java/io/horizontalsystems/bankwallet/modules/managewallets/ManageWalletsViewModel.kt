@@ -3,8 +3,10 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.badge
+import io.horizontalsystems.bankwallet.core.customCoinUid
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
@@ -13,6 +15,7 @@ import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.launch
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.bankwallet.modules.transactions.Filter
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.disposables.CompositeDisposable
@@ -52,7 +55,8 @@ class ManageWalletsViewModel(
         subtitle = item.token.coin.name,
         enabled = item.enabled,
         hasInfo = item.hasInfo,
-        label = item.token.badge
+        label = item.token.badge,
+        isSafe4Deploy = item.token.tokenQuery.customCoinUid.isSafeFourCustomCoin()
     )
 
     fun enable(token: Token) {

@@ -539,6 +539,43 @@ private fun Safe4Sections(
 
     Spacer(Modifier.height(25.dp))
 
+
+    Text(
+        text = stringResource(R.string.SRC20_Deploy_Title),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCell(
+                    R.string.SRC20_Deploy_One_Click_Issu,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.src20Deploy(true, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.SRC20_Deploy_Promotion,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+
+                        Safe4Module.src20Deploy(false, navController)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
     Text(
         text = stringResource(R.string.Safe4_Safe_Basic_Info),
         style = ComposeAppTheme.typography.subhead1,

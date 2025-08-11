@@ -2573,4 +2573,55 @@
     <string name="SAFE4_Line_Lock_Amount_Hint">At least one coin per lock up amount</string>
 
     <!-- safe 4  end-->
+
+
+
+    <!-- SRC20 -->
+    <string name="SRC20_Deploy_One_Click_Issu">One-click coin issuance</string>
+    <string name="SRC20_Deploy_Promotion">Asset promotion</string>
+    <string name="SRC20_Deploy_Title">SRC20 Deploy</string>
+    <string name="SRC20_Deploy_Mode">Mode</string>
+    <string name="SRC20_Deploy_Type_Normal">Ordinary assets</string>
+    <string name="SRC20_Deploy_Type_Normal_Desc">Have general transfer function</string>
+    <string name="SRC20_Deploy_Type_Burnable">Burnable</string>
+    <string name="SRC20_Deploy_Type_Burnable_Desc">Contract managers can issue or destroy the asset</string>
+    <string name="SRC20_Deploy_Type_Mintable_Desc">Contract managers can issue the asset to the specified account</string>
+    <string name="SRC20_Deploy_Type_Mintable">Mintable</string>
+    <string name="SRC20_Deploy_Name">Name</string>
+    <string name="SRC20_Deploy_Symbol">Symbol</string>
+    <string name="SRC20_Deploy_Supply">Supply</string>
+    <string name="SRC20_Deploy_Process">Deploy</string>
+    <string name="SRC20_Manger">Asset management</string>
+    <string name="SRC20_Edit">Asset Edit</string>
+    <string name="SRC20_Select_Image">Select PNG image</string>
+    <string name="SRC20_Promotion_Fee">Pay %s, set a logo for your assets</string>
+    <string name="SRC20_Promotion">Promotion assets</string>
+    <string name="SRC20_Issuance">Issuance of additional assets</string>
+    <string name="SRC20_Destroy">Destroy assets</string>
+    <string name="SRC20_Asset_Logo">Assets LOGO</string>
+    <string name="SRC20_Additional_Address">Additional Address Issuance</string>
+    <string name="SRC20_Additional_Number">Number of additional issuances</string>
+    <string name="SRC20_Destroy_Number">Number of destroy</string>
+    <string name="SRC20_Deploy_Confirm">Are you sure to issue %s ?</string>
+    <string name="SRC20_Info_Contract">Contract Address:</string>
+    <string name="SRC20_Info_Creator">Manager:</string>
+    <string name="SRC20_Info_Edit">Edit</string>
+    <string name="SRC20_Info_Promotion">Promotion</string>
+    <string name="SRC20_Info_Add">Add</string>
+    <string name="SRC20_Info_Destroy">Destroy</string>
+    <string name="SRC20_Edit_Name">Name:</string>
+    <string name="SRC20_Edit_Symbol">Symbol:</string>
+    <string name="SRC20_Edit_White_Paper">White Paper URL</string>
+    <string name="SRC20_Edit_Org">Organization</string>
+    <string name="SRC20_Edit_Official">Official URL</string>
+    <string name="SRC20_Edit_Desc">Description</string>
+    <string name="SRC20_Edit_Hint">Confirm update asset information?</string>
+    <string name="SRC20_Promotion_Hint">Confirm promotion asset?</string>
+    <string name="SRC20_Additional_Hint">Confirm additional asset?</string>
+    <string name="SRC20_Destroy_Hint">Confirm destroy asset?</string>
+    <string name="SRC20_Balance">Balance:</string>
+    <string name="SRC20_No_Deploy">You don\'t have deploy asset.</string>
+    <string name="Super_Node_Modify_IncentivePlan">Update incentive plan</string>
+    <!-- SRC20 end-->
+
 </resources>

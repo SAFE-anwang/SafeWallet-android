@@ -238,7 +238,9 @@ fun SafeFourNodeScreen(
 												it.desc,
 												it.enode,
 												viewModel.getNodeType(),
-												it.address.hex
+												it.address.hex,
+											it.id,
+											it.incentivePlan
 										)
 								)
 							},

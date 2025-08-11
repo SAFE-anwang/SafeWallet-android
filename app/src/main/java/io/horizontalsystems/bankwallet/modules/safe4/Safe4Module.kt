@@ -27,6 +27,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawFragm
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20Module
 import io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment
 import io.horizontalsystems.bankwallet.modules.safe4.swap.Safe4SwapViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
@@ -317,6 +318,43 @@ object Safe4Module {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }
     }
+
+
+    fun src20Deploy(isDeploy: Boolean, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type == TokenType.Native) {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (isDeploy) {
+            navController.slideFromBottom(
+                R.id.src20DeployFragment,
+                SRC20Module.Input(safeWallet)
+            )
+        } else {
+            navController.slideFromBottom(
+                R.id.src20ManagerFragment,
+                SRC20Module.Input(safeWallet)
+            )
+        }
+
+
+        /*val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }*/
+    }
+
 
 
     fun handlerLineLock(navController: NavController) {

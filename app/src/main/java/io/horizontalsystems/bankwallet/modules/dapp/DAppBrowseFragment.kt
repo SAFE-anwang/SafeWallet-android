@@ -268,6 +268,7 @@ class DAppBrowseFragment: BaseFragment(){
     private fun setting() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url?.contains("requestId") == true) return true
                 Log.e("connectWallet", "shouldOverrideUrlLoading: $url")
                 if (url?.contains("/wc?uri=") == true) {
                     val connectLink = url.substring(url.indexOf("wc?uri=") + 7)

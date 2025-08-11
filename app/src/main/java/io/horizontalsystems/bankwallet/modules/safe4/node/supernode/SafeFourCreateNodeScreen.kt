@@ -428,9 +428,9 @@ fun RangeSliderScreen(
 	var sliderPosition by remember { mutableStateOf(initValue) }
 	var historyStart by remember { mutableStateOf(initValue.start.toInt()) }
 	var historyEnd by remember { mutableStateOf(initValue.endInclusive.toInt()) }
-	var progressPartner by remember { mutableStateOf(45) }
-	var progressCreator by remember { mutableStateOf(10) }
-	var progressVoter by remember { mutableStateOf(45) }
+	var progressPartner by remember { mutableStateOf(initValue.start) }
+	var progressCreator by remember { mutableStateOf(initValue.endInclusive - initValue.start) }
+	var progressVoter by remember { mutableStateOf(100 - initValue.endInclusive) }
 	Column(modifier = modifier) {
 			RangeSlider(
 					modifier = Modifier
@@ -470,14 +470,14 @@ fun RangeSliderScreen(
 						}
 						historyStart = start
 						historyEnd = end
-						progressPartner = start
-						progressVoter = 100 - end
+						progressPartner = start.toFloat()
+						progressVoter = 100 - end.toFloat()
 						progressCreator = 100 - (progressPartner + progressVoter)
 						sliderPosition = start.toFloat()..end.toFloat()
 						onValueChange.invoke(
-								progressPartner,
-								progressCreator,
-								progressVoter
+								progressPartner.toInt(),
+								progressCreator.toInt(),
+								progressVoter.toInt()
 						)
 					},
 			)
@@ -491,7 +491,7 @@ fun RangeSliderScreen(
 					body_bran(
 							text = stringResource(id = R.string.Safe_Four_Register_Partner))
 					Text(
-							text = "${progressPartner.toString()}%"
+							text = "${progressPartner.toInt()}%"
 					)
 				}
 
@@ -504,7 +504,7 @@ fun RangeSliderScreen(
 				) {
 					body_bran(text = stringResource(id = R.string.Safe_Four_Register_Creator))
 
-					Text(text = "${progressCreator.toString()}%")
+					Text(text = "${progressCreator.toInt()}%")
 				}
 
 				Column(
@@ -515,7 +515,7 @@ fun RangeSliderScreen(
 						horizontalAlignment = Alignment.End
 				) {
 						body_bran(text = stringResource(id = R.string.Safe_Four_Register_Voters))
-						Text(text = "${progressVoter.toString()}%")
+						Text(text = "${progressVoter.toInt()}%")
 				}
 			}
 	}

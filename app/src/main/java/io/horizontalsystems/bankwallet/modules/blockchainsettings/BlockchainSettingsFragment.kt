@@ -25,6 +25,7 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
@@ -121,23 +122,11 @@ private fun BlockchainSettingCell(
     RowUniversal(
         onClick = onClick
     ) {
-        if (item.blockchainItem.blockchain.uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
-            )
-        } else {
-            Image(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .size(32.dp),
-                painter = rememberAsyncImagePainter(
-                    model = item.imageUrl,
-                    error = painterResource(R.drawable.ic_platform_placeholder_32)
-                ),
-                contentDescription = null,
-            )
-        }
+        CoinImageSafe(
+            uid = item.blockchainItem.blockchain.uid,
+            iconUrl = item.imageUrl,
+            placeholder = R.drawable.ic_platform_placeholder_32
+        )
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = item.title)
             subhead2_grey(text = item.subtitle)

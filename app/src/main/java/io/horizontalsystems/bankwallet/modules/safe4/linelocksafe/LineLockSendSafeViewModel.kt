@@ -24,6 +24,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import org.apache.commons.lang3.StringUtils
 import java.math.BigDecimal
+import java.math.MathContext
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 
@@ -99,7 +100,7 @@ class LineLockSendSafeViewModel(
 
     private fun checkBalance() {
         val temp = if (lockTimes != null && lockedValue != null) {
-            lockedValue!!.multiply(lockTimes!!.toBigDecimal())
+            lockedValue!!.multiply(BigDecimal("$lockTimes"))
         } else {
             lockedValue
         }
@@ -156,9 +157,9 @@ class LineLockSendSafeViewModel(
                     R.string.Safe4_Line_Lock_Tips,
                     format.format(startLockTime),
                     intervalMonth!!,
-                    lockedValue!!,
+                    lockedValue!!.toPlainString(),
                     lockTimes.toString(),
-                    totalAmount
+                    totalAmount.toPlainString()
                 )
                 lockTips = lineLockStr
             }

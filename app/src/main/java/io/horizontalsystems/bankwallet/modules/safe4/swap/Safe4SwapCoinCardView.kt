@@ -65,6 +65,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
@@ -110,9 +111,10 @@ fun Safe4SwapCoinCardView(
                 .height(40.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier.padding(horizontal = 16.dp).size(24.dp)
+            CoinImageSafe(
+                uid = token.coin.uid,
+                iconUrl = token.coin.imageUrl,
+                placeholder = token.iconPlaceholder
             )
             Spacer(Modifier.width(8.dp))
             val title = token.coin.code

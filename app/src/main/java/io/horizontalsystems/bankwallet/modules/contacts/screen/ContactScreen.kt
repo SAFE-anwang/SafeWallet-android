@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.contacts.model.ContactAddress
@@ -329,24 +330,11 @@ private fun ContactAddress(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClickEdit
     ) {
-        if (addressViewItem.blockchain.uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                            .size(32.dp)
-            )
-        } else {
-            Image(
-                    modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(32.dp),
-                    painter = rememberAsyncImagePainter(
-                            model = addressViewItem.blockchain.type.imageUrl,
-                            error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    ),
-                    contentDescription = null,
-            )
-        }
+        CoinImageSafe(
+            uid = addressViewItem.blockchain.uid,
+            iconUrl = addressViewItem.blockchain.type.imageUrl,
+            placeholder = R.drawable.ic_platform_placeholder_32
+        )
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = addressViewItem.blockchain.name)
             subhead2_grey(text = addressViewItem.contactAddress.address)

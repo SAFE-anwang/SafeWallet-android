@@ -156,6 +156,7 @@ fun TransactionInfoSection(
                     is TransactionInfoViewItem.Amount -> {
                         add {
                             TransactionAmountCell(
+                                coinUid = viewItem.coinUid,
                                 amountType = viewItem.amountType,
                                 fiatAmount = viewItem.fiatValue,
                                 coinAmount = viewItem.coinValue,

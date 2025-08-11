@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.meta
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.parcelize.Parcelize
 import java.util.Objects
 
@@ -22,6 +23,9 @@ data class Wallet(
 
     val badge
         get() = token.badge
+
+    val address
+        get() = if (token.type is TokenType.Eip20) (token.type as TokenType.Eip20).address else ""
 
     val transactionSource get() = TransactionSource(token.blockchain, account, token.type.meta)
 

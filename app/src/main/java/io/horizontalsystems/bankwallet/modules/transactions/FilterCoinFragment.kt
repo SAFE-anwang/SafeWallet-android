@@ -41,6 +41,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.B2
 import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
@@ -89,24 +90,11 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                 ) {
                                     val token = it.item?.token
                                     if (token != null) {
-                                        if (token.coin.isSafeCoin()) {
-                                            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .padding(end = 16.dp)
-                                                    .size(24.dp))
-                                        } else {
-                                            Image(
-                                                painter = rememberAsyncImagePainter(
-                                                    model = token.coin.imageUrl,
-                                                    error = painterResource(token.iconPlaceholder)
-                                                ),
-                                                modifier = Modifier
-                                                    .padding(end = 16.dp)
-                                                    .size(24.dp),
-                                                contentDescription = null
-                                            )
-                                        }
+                                        CoinImageSafe(
+                                            uid = token.coin.uid,
+                                            iconUrl = token.coin.imageUrl,
+                                            placeholder = token.iconPlaceholder
+                                        )
                                         Column {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 B2(text = token.coin.code)

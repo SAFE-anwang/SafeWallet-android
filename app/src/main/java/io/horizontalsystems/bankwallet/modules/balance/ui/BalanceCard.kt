@@ -41,6 +41,7 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.DraggableCa
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.RateColor
 import io.horizontalsystems.bankwallet.ui.compose.components.RateText
@@ -295,20 +296,11 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.wallet.coin.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(32.dp))
-            } else {
-                CoinImage(
-                    iconUrl = viewItem.coinIconUrl,
-                    placeholder = viewItem.coinIconPlaceholder,
-                    modifier = Modifier
-                        .size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = viewItem.wallet.coin.uid,
+                iconUrl = viewItem.coinIconUrl,
+                placeholder = viewItem.coinIconPlaceholder
+            )
         }
     }
 }

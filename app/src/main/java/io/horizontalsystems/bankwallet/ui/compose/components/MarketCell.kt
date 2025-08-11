@@ -26,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.market.MarketDataValue
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -67,6 +69,7 @@ fun MarketCoinClear(
 
 @Composable
 fun MarketCoin(
+    coinUid: String,
     coinName: String,
     coinCode: String,
     coinIconUrl: String,
@@ -82,22 +85,12 @@ fun MarketCoin(
             .padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (coinIconUrl.isSafeIcon()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(24.dp)
-            )
-        } else {
-            CoinImage(
-                iconUrl = coinIconUrl,
-                placeholder = coinIconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = coinUid,
+            iconUrl = coinIconUrl,
+            placeholder = coinIconPlaceholder,
+            modifier = Modifier.padding(horizontal = 16.dp).size(32.dp)
+        )
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -223,6 +216,7 @@ fun MarketDataValueComponent(marketDataValue: MarketDataValue) {
 fun PreviewMarketCoin(){
     ComposeAppTheme {
         MarketCoin(
+            coinUid = "safe-coin",
             coinName = "Ethereum With very long name for token",
             coinCode = "ETH",
             coinIconUrl = "eth.png",

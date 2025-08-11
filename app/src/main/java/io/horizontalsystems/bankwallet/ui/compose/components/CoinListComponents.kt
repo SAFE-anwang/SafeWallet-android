@@ -135,6 +135,7 @@ fun CoinList(
                     },
                     content = {
                         MarketCoin(
+                            item.fullCoin.coin.uid,
                             item.fullCoin.coin.name,
                             item.fullCoin.coin.code,
                             item.fullCoin.coin.imageUrl,

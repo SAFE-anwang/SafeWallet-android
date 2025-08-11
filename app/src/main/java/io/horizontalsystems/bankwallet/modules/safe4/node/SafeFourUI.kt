@@ -118,6 +118,38 @@ fun HintView(
 }
 
 @Composable
+fun HintView(
+	text: String
+) {
+	Column(
+			modifier = Modifier
+					.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+					.clip(RoundedCornerShape(8.dp))
+					.border(1.dp, ComposeAppTheme.colors.lawrence, RoundedCornerShape(8.dp))
+					.background(ComposeAppTheme.colors.lawrence)
+					.fillMaxWidth()
+	) {
+		Row(
+				verticalAlignment = Alignment.CenterVertically
+		) {
+			Icon(
+					painter = painterResource(id = R.drawable.ic_info_20), contentDescription = null,
+					modifier = Modifier
+							.padding(start = 16.dp)
+							.width(24.dp)
+							.height(24.dp))
+			Text(
+					modifier = Modifier
+							.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+					fontSize = 14.sp,
+					text = text,
+					color = ComposeAppTheme.colors.bran,
+					style = ComposeAppTheme.typography.caption)
+		}
+	}
+}
+
+@Composable
 fun SearchBar(
 	searchHintText: String = "",
 	focusRequester: FocusRequester = remember { FocusRequester() },

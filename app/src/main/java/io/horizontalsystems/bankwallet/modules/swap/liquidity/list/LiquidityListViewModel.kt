@@ -233,7 +233,7 @@ class LiquidityListViewModel(
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.BSC)?.let {
                             liquidityItemsBSC.add(it)
                             list.add(liquidityViewItemFactory.viewItem(it))
                         }
@@ -254,7 +254,7 @@ class LiquidityListViewModel(
                 val tokenEntityB = ethTokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.ETH)?.let {
                             liquidityItemsEth.add(it)
                             listEth.add(liquidityViewItemFactory.viewItem(it))
                         }
@@ -281,7 +281,7 @@ class LiquidityListViewModel(
                 }
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB)?.let {
+                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.SAFE4)?.let {
                             liquidityItemsSafe4.add(it)
                             listSafe4.add(liquidityViewItemFactory.viewItem(it))
                         }
@@ -319,7 +319,7 @@ class LiquidityListViewModel(
         return pairs
     }
 
-    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String): LiquidityListModule.LiquidityItem? {
+    private fun getLiquidity(walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String, selectTab: LiquidityListModule.Tab): LiquidityListModule.LiquidityItem? {
         val adapterA = adapterManager.getReceiveAdapterForWallet(walletA) ?: return null
         val tokenA = Token(
             tokenAAddress,
@@ -333,8 +333,8 @@ class LiquidityListViewModel(
             walletB.coin.code,
             walletB.decimal
         )
-        val web3j = getWeb3j()
-        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain()) ?: return null
+        val web3j = getWeb3j(selectTab)
+        val pair = LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain(selectTab)) ?: return null
 
         val pairAddress = pair.get(0) as String
         val token0 = pair.get(1) as Token
@@ -397,24 +397,24 @@ class LiquidityListViewModel(
         }
     }
 
-    private fun getWeb3j(): Web3j {
-        return when(selectedTab) {
+    private fun getWeb3j(selectTab: LiquidityListModule.Tab): Web3j {
+        return when(selectTab) {
             LiquidityListModule.Tab.BSC -> web3jBsc
             LiquidityListModule.Tab.ETH -> web3jEth
             LiquidityListModule.Tab.SAFE4 -> web3jSafe4
         }
     }
 
-    private fun getRouter(): String {
-        return when(selectedTab) {
+    private fun getRouter(selectTab: LiquidityListModule.Tab): String {
+        return when(selectTab) {
             LiquidityListModule.Tab.BSC -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
             LiquidityListModule.Tab.ETH -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
             LiquidityListModule.Tab.SAFE4 -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
         }
     }
 
-    private fun getChain(): Chain {
-        return when(selectedTab) {
+    private fun getChain(selectTab: LiquidityListModule.Tab): Chain {
+        return when(selectTab) {
             LiquidityListModule.Tab.BSC -> Chain.BinanceSmartChain
             LiquidityListModule.Tab.ETH -> Chain.Ethereum
             LiquidityListModule.Tab.SAFE4 -> Chain.SafeFour
@@ -480,9 +480,9 @@ class LiquidityListViewModel(
                     walletB.coin.code,
                     walletB.decimal
                 )
-                val web3j = getWeb3j()
+                val web3j = getWeb3j(selectedTab)
                 val pair =
-                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain()) ?: return@launch
+                    LiquidityPair.getPairReservesForPancakeSwap(web3j, tokenA, tokenB, getChain(selectedTab)) ?: return@launch
                 val pairAddress = pair.get(0) as String
                 val token00 = pair.get(1) as Token
                 val token11 = pair.get(2) as Token
@@ -558,8 +558,8 @@ class LiquidityListViewModel(
                     evmKitWrapper!!.evmKit.receiveAddress.hex
                 )
                 val deadline = Constants.getDeadLine()
-                val routerAddress = getRouter()
-                val chainId = getChain().id
+                val routerAddress = getRouter(selectedTab)
+                val chainId = getChain(selectedTab).id
                 val json = buildSignJson(
                     name,
                     chainId,

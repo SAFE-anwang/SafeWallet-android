@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.description
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -26,6 +27,7 @@ import io.horizontalsystems.bankwallet.modules.receive.viewmodels.NetworkSelectV
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -102,25 +104,11 @@ fun NetworkCell(
     RowUniversal(
         onClick = onClick
     ) {
-        if (uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .size(32.dp)
-            )
-        } else {
-            Image(
-                    modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .size(32.dp),
-                    painter = rememberAsyncImagePainter(
-                            model = imageUrl,
-                            error = painterResource(R.drawable.ic_platform_placeholder_32)
-                    ),
-                    contentDescription = null,
-            )
-        }
+        CoinImageSafe(
+            uid = uid,
+            iconUrl = imageUrl,
+            placeholder = R.drawable.ic_platform_placeholder_32,
+        )
         Column(modifier = Modifier.weight(1f)) {
             body_leah(text = title)
             subhead2_grey(text = subtitle)

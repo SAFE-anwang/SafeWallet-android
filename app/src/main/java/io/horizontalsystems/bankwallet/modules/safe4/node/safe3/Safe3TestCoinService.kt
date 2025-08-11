@@ -5,18 +5,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import io.horizontalsystems.bitcoincore.utils.NetworkUtils
-import io.horizontalsystems.ethereumkit.api.models.EtherscanResponse
+import io.horizontalsystems.bankwallet.modules.safe4.CustomToken
 import io.horizontalsystems.ethereumkit.core.retryWhenError
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.network.EtherscanService
 import io.reactivex.Single
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.POST
 import java.util.logging.Logger
@@ -66,6 +60,26 @@ class Safe3TestCoinService() {
         }
     }
 
+    fun getToken(): Single<List<CustomToken>> {
+        return service.getToken().map {
+            parseToken(it)
+        }.retryWhenError(RequestError.RateLimitExceed::class)
+    }
+
+
+    private fun parseToken(response: JsonElement): List<CustomToken> {
+        try {
+            val responseObj = response.asJsonObject
+
+            val data = gson.fromJson<List<CustomToken>>(responseObj["tokens"], object : TypeToken<List<CustomToken>>() {}.type)
+            return data
+        } catch (rateLimitExceeded: EtherscanService.RequestError.RateLimitExceed) {
+            throw rateLimitExceeded
+        } catch (err: Throwable) {
+            throw EtherscanService.RequestError.ResponseError("Unexpected response: $response")
+        }
+    }
+
     open class RequestError(message: String? = null) : Exception(message ?: "") {
         class ResponseError(message: String) : RequestError(message)
         class RateLimitExceed : RequestError()
@@ -74,5 +88,8 @@ class Safe3TestCoinService() {
     private interface GetTestCoinServiceApi {
         @POST("/5005/get_test_coin")
         fun getTestCoin(@Body body: Map<String, String>): Single<JsonElement>
+
+        @GET("/list/token")
+        fun getToken(): Single<JsonElement>
     }
 }

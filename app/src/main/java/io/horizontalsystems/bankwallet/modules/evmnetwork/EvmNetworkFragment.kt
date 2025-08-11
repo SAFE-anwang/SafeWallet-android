@@ -56,6 +56,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
@@ -126,24 +127,11 @@ private fun EvmNetworkScreen(
             AppBar(
                 title = viewModel.title,
                 navigationIcon = {
-                    if (viewModel.blockchain.type.imageUrl.isSafeIcon()) {
-                        Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                                contentDescription = null,
-                                modifier = Modifier.padding(start = 14.dp)
-                                        .size(24.dp)
-                        )
-                    } else {
-                        Image(
-                                painter = rememberAsyncImagePainter(
-                                        model = viewModel.blockchain.type.imageUrl,
-                                        error = painterResource(R.drawable.ic_platform_placeholder_32)
-                                ),
-                                contentDescription = null,
-                                modifier = Modifier
-                                        .padding(start = 14.dp)
-                                        .size(24.dp)
-                        )
-                    }
+                    CoinImageSafe(
+                        uid = viewModel.blockchain.uid,
+                        iconUrl = viewModel.blockchain.type.imageUrl,
+                        placeholder = R.drawable.ic_platform_placeholder_32
+                    )
                 },
                 menuItems = listOf(
                     MenuItem(

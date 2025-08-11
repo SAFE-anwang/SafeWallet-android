@@ -69,6 +69,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonThirdCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
@@ -81,6 +82,8 @@ import io.horizontalsystems.bankwallet.ui.extensions.RotatingCircleProgressView
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 
@@ -317,20 +320,11 @@ private fun WalletIcon(
                 colorFilter = ColorFilter.tint(ComposeAppTheme.colors.lucian)
             )
         } else {
-            if (viewItem.wallet.coin.uid.isSafeCoin()) {
-                Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                        contentDescription = null,
-                        modifier = Modifier
-                                .size(32.dp)
-                )
-            } else {
-                CoinImage(
-                        iconUrl = viewItem.coinIconUrl,
-                        placeholder = viewItem.coinIconPlaceholder,
-                        modifier = Modifier
-                                .size(32.dp)
-                )
-            }
+            CoinImageSafe(
+                uid = viewItem.wallet.coin.uid,
+                iconUrl = viewItem.coinIconUrl,
+                placeholder = viewItem.coinIconPlaceholder
+            )
         }
     }
 }
@@ -468,7 +462,10 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
             contentDescription = stringResource(R.string.Coin_Info),
             enabled = !viewItem.wallet.token.isCustom,
             onClick = {
-                val coinUid = viewItem.wallet.coin.uid
+                var coinUid = viewItem.wallet.coin.uid
+                if (coinUid.isSafeFourCustomCoin()) {
+                    coinUid = "safe4-coin"
+                }
                 val arguments = CoinFragment.Input(coinUid, "wallet_token_balance")
 
                 navController.slideFromRight(R.id.coinFragment, arguments)

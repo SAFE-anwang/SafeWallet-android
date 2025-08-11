@@ -33,6 +33,7 @@ import io.horizontalsystems.bankwallet.modules.receive.viewmodels.ReceiveTokenSe
 import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Badge
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SearchBar
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
@@ -139,22 +140,14 @@ fun ReceiveCoin(
         modifier = Modifier.padding(horizontal = 16.dp),
         onClick = onClick
     ) {
-        if (uid.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(32.dp)
-            )
-        } else {
-            CoinImage(
-                    iconUrl = coinIconUrl,
-                    placeholder = coinIconPlaceholder,
-                    modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = uid,
+            iconUrl = coinIconUrl,
+            placeholder = coinIconPlaceholder,
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .size(32.dp)
+        )
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {

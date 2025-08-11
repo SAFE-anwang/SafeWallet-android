@@ -2246,4 +2246,53 @@
     <string name="SAFE4_Line_Lock_Amount_Hint">每次锁仓金额至少一个币</string>
 
     <!-- safe 4  end-->
+
+    <!-- SRC20 -->
+    <string name="SRC20_Deploy_Promotion">资产管理</string>
+    <string name="SRC20_Deploy_One_Click_Issu">一键发币</string>
+    <string name="SRC20_Deploy_Mode">选择模式</string>
+    <string name="SRC20_Deploy_Title">发行资产</string>
+    <string name="SRC20_Deploy_Type_Normal">普通资产</string>
+    <string name="SRC20_Deploy_Type_Normal_Desc">具备通用的转账功能</string>
+    <string name="SRC20_Deploy_Type_Burnable">可增发/可销毁资产</string>
+    <string name="SRC20_Deploy_Type_Burnable_Desc">合约管理者可以增发或者销毁该资产</string>
+    <string name="SRC20_Deploy_Type_Mintable">可增发资产</string>
+    <string name="SRC20_Deploy_Type_Mintable_Desc">合约管理者可以对指定账户增发该资产</string>
+    <string name="SRC20_Deploy_Name">资产名称</string>
+    <string name="SRC20_Deploy_Symbol">资产符号</string>
+    <string name="SRC20_Deploy_Supply">供应量</string>
+    <string name="SRC20_Deploy_Process">发行</string>
+    <string name="SRC20_Manger">资产管理</string>
+    <string name="SRC20_Edit">资产编辑</string>
+    <string name="SRC20_Promotion">推广资产</string>
+    <string name="SRC20_Issuance">增发资产</string>
+    <string name="SRC20_Destroy">销毁资产</string>
+    <string name="SRC20_Asset_Logo">资产LOGO</string>
+    <string name="SRC20_Select_Image">选择PNG图片</string>
+    <string name="SRC20_Promotion_Fee">支付%s, 为您的资产设置LOGO</string>
+    <string name="SRC20_Additional_Address">增发地址</string>
+    <string name="SRC20_Additional_Number">增发数量</string>
+    <string name="SRC20_Destroy_Number">销毁数量</string>
+    <string name="SRC20_Deploy_Confirm">确认发行 %s 吗？</string>
+    <string name="SRC20_Info_Contract">合约地址：</string>
+    <string name="SRC20_Info_Creator">管理者：</string>
+    <string name="SRC20_Info_Edit">编辑</string>
+    <string name="SRC20_Info_Promotion">推广</string>
+    <string name="SRC20_Info_Add">增发</string>
+    <string name="SRC20_Info_Destroy">销毁</string>
+    <string name="SRC20_Edit_Name">资产名称:</string>
+    <string name="SRC20_Edit_Symbol">资产符号:</string>
+    <string name="SRC20_Edit_White_Paper">白皮书链接</string>
+    <string name="SRC20_Edit_Org">组织机构</string>
+    <string name="SRC20_Edit_Official">官方网站</string>
+    <string name="SRC20_Edit_Desc">资产简介</string>
+    <string name="SRC20_Edit_Hint">确认修改资产信息吗？</string>
+    <string name="SRC20_Promotion_Hint">确认推广资产吗？</string>
+    <string name="SRC20_Additional_Hint">确认增发资产吗？</string>
+    <string name="SRC20_Destroy_Hint">确认销毁资产吗？</string>
+    <string name="SRC20_Balance">账户余额：</string>
+    <string name="SRC20_No_Deploy">您还没有发行资产</string>
+    <string name="Super_Node_Modify_IncentivePlan">修改分红比例</string>
+    <!-- SRC20 end-->
+
 </resources>

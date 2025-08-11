@@ -24,12 +24,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imagePlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.AmountValues
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.ValueType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
@@ -84,22 +86,11 @@ fun AmountCell(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
-        if (token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        } else {
-            CoinImage(
-                iconUrl = token.coin.imageUrl,
-                placeholder = token.iconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = token.coin.uid,
+            iconUrl = token.coin.imageUrl,
+            placeholder = token.coin.imagePlaceholder
+        )
         Text(
             modifier = Modifier.width(120.dp).weight(1f),
             text = coinAmount,
@@ -125,22 +116,11 @@ fun TokenCell(token: Token) {
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
     ) {
-        if (token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        } else {
-            CoinImage(
-                iconUrl = token.coin.imageUrl,
-                placeholder = token.iconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = token.coin.uid,
+            iconUrl = token.coin.imageUrl,
+            placeholder = token.iconPlaceholder
+        )
         subhead1_leah(token.coin.code)
     }
 }
@@ -160,22 +140,11 @@ fun AmountMultiCell(amounts: List<AmountValues>, type: ValueType, token: Token) 
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
     ) {
-        if (token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        } else {
-            CoinImage(
-                iconUrl = token.coin.imageUrl,
-                placeholder = token.iconPlaceholder,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = token.coin.uid,
+            iconUrl = token.coin.imageUrl,
+            placeholder = token.iconPlaceholder
+        )
         Column(
             verticalArrangement = Arrangement.Center
         ) {

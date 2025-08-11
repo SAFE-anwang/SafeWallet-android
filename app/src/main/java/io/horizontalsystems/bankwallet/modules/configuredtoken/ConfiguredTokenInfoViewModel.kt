@@ -2,12 +2,15 @@ package io.horizontalsystems.bankwallet.modules.configuredtoken
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
 import io.horizontalsystems.bankwallet.modules.address.*
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
@@ -21,15 +24,20 @@ class ConfiguredTokenInfoViewModel(
     val uiState: ConfiguredTokenInfoUiState
 
     init {
+        val imageUrl = if (token.tokenQuery.customCoinUid.isSafeFourCustomCoin()) {
+            SyncSafe4Tokens.getLogo(token.tokenQuery.customCoinUid) ?: ""
+        } else {
+            token.blockchain.type.imageUrl
+        }
         val type = when (val type = token.type) {
             is TokenType.Eip20 -> {
-                ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
             is TokenType.Bep2 -> {
-                ConfiguredTokenInfoType.Contract(type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
             }
             is TokenType.Spl -> {
-                ConfiguredTokenInfoType.Contract(type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
             is TokenType.Derived -> {
                 ConfiguredTokenInfoType.Bips(token.blockchain.name)
@@ -47,7 +55,7 @@ class ConfiguredTokenInfoViewModel(
         }
 
         uiState = ConfiguredTokenInfoUiState(
-            iconSource = if (token.coin.isSafeCoin()) ImageSource.Local(R.drawable.logo_safe_24) else ImageSource.Remote(token.coin.imageUrl, token.iconPlaceholder),
+            iconSource = if (token.coin.isSafeCoin() && imageUrl.isEmpty()) ImageSource.Local(R.drawable.logo_safe_24) else ImageSource.Remote(imageUrl, token.iconPlaceholder),
             title = token.coin.code,
             subtitle = token.coin.name,
             tokenInfoType = type
@@ -83,6 +91,7 @@ data class ConfiguredTokenInfoUiState(
 
 sealed class ConfiguredTokenInfoType {
     data class Contract(
+        val coinUid: String,
         val reference: String,
         val platformImageUrl: String,
         val explorerUrl: String?

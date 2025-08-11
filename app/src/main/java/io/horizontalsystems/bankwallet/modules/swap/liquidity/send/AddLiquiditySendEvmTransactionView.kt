@@ -36,6 +36,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.NftIcon
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoAddressCell
@@ -192,18 +193,11 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier.size(32.dp)
-            )
-        } else {
-            CoinImage(
-                modifier = Modifier.size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
-            )
-        }
+        CoinImageSafe(
+            uid = item.token.coin.uid,
+            iconUrl = item.token.coin.imageUrl,
+            placeholder = item.token.iconPlaceholder
+        )
         Column(
             modifier = Modifier
                 .padding(start = 16.dp)
@@ -246,20 +240,11 @@ private fun Amount(item: ViewItem.Amount) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier.padding(end = 16.dp).size(32.dp)
-            )
-        } else {
-            CoinImage(
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
-            )
-        }
+        CoinImageSafe(
+            uid = item.token.coin.uid,
+            iconUrl = item.token.coin.imageUrl,
+            placeholder = item.token.iconPlaceholder
+        )
         Text(
             text = item.coinAmount,
             maxLines = 1,
@@ -296,20 +281,11 @@ private fun Token(item: ViewItem.TokenItem) {
     RowUniversal(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        if (item.token.coin.isSafeCoin()) {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier.padding(end = 16.dp).size(32.dp)
-            )
-        } else {
-            CoinImage(
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(32.dp),
-                iconUrl = item.token.coin.imageUrl,
-                placeholder = item.token.iconPlaceholder
-            )
-        }
+        CoinImageSafe(
+            uid = item.token.coin.uid,
+            iconUrl = item.token.coin.imageUrl,
+            placeholder = item.token.iconPlaceholder
+        )
         subhead1_leah(item.token.coin.code)
     }
 }
