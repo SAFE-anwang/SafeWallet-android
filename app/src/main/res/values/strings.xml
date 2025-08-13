@@ -2622,6 +2622,7 @@
     <string name="SRC20_Balance">Balance:</string>
     <string name="SRC20_No_Deploy">You don\'t have deploy asset.</string>
     <string name="Super_Node_Modify_IncentivePlan">Update incentive plan</string>
+    <string name="Revoke_Manager">Revoke Manager</string>
     <!-- SRC20 end-->
 
 </resources>

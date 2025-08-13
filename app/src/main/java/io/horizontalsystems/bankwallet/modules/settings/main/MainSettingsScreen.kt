@@ -143,6 +143,14 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.blockchainSettingsFragment)
                 }
             )
+        }, {
+            HsSettingCell(
+                R.string.Revoke_Manager,
+                R.drawable.ic_blocks_20,
+                onClick = {
+                    navController.slideFromRight(R.id.dappRevokeFragment)
+                }
+            )
         }/*,{
             HsSettingCell(
                 R.string.BackupManager_Title,

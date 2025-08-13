@@ -682,4 +682,9 @@
         android:id="@+id/src20DestroyFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20DestroyFragment" />
 
+    <fragment
+        android:id="@+id/dappRevokeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.RevokeCashFragment" >
+    </fragment>
+
 </navigation>
