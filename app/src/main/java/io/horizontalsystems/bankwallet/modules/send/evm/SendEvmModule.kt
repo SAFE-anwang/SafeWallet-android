@@ -55,6 +55,9 @@ data class SendEvmData(
         @Parcelize
         class WalletConnectRequest(val info: WalletConnectInfo) : AdditionalInfo()
 
+        @Parcelize
+        class DAppInfo(val info: DappInfo) : AdditionalInfo()
+
         val sendInfo: SendInfo?
             get() = (this as? Send)?.info
 
@@ -66,6 +69,9 @@ data class SendEvmData(
 
         val walletConnectInfo: WalletConnectInfo?
             get() = (this as? WalletConnectRequest)?.info
+
+        val dAppInfo: DappInfo?
+            get() = (this as? DAppInfo)?.info
     }
 
     @Parcelize
@@ -83,6 +89,11 @@ data class SendEvmData(
     data class WalletConnectInfo(
         val dAppName: String?,
         val chain: WCChainData?
+    ) : Parcelable
+
+    @Parcelize
+    data class DappInfo(
+        val dAppName: String?
     ) : Parcelable
 
     @Parcelize

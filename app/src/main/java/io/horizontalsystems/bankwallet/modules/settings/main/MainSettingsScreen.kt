@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.settings.main
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -35,6 +36,7 @@ import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.providers.Translator.getString
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsFragment
@@ -60,6 +62,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.core.getNavigationResult
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun SettingsScreen(
@@ -141,6 +144,25 @@ private fun SettingSections(
                 R.drawable.ic_blocks_20,
                 onClick = {
                     navController.slideFromRight(R.id.blockchainSettingsFragment)
+                }
+            )
+        }, {
+            HsSettingCell(
+                R.string.Revoke_Manager,
+                R.drawable.ic_blocks_20,
+                onClick = {
+                    App.accountManager.activeAccount?.let {
+                        val chain = App.evmBlockchainManager.getChain(BlockchainType.BinanceSmartChain)
+                        var evmKitWrapper = App.evmBlockchainManager.getEvmKitManager(BlockchainType.BinanceSmartChain).evmKitWrapper
+                        if (evmKitWrapper == null) {
+                            evmKitWrapper = App.evmBlockchainManager.getEvmKitManager(BlockchainType.Ethereum).evmKitWrapper
+                        }
+                        if (evmKitWrapper != null) {
+                            navController.slideFromRight(R.id.dappRevokeFragment)
+                        } else {
+                            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "BNB"), Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             )
         }/*,{

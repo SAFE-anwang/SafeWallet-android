@@ -1,0 +1,190 @@
+package io.horizontalsystems.bankwallet.modules.safe4.revokemanager
+
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.navGraphViewModels
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.AppLogger
+import io.horizontalsystems.bankwallet.core.BaseComposeFragment
+import io.horizontalsystems.bankwallet.core.getInputX
+import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
+import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationModule
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmSettingsFragment
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
+import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionViewModel
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.core.CustomSnackbar
+import io.horizontalsystems.core.SnackbarDuration
+import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.ethereumkit.models.TransactionData
+
+class SendEvmRevokeConfirmationFragment : BaseComposeFragment() {
+
+    private val logger = AppLogger("send-evm")
+
+    private val input by lazy {
+        arguments?.getInputX<SendEvmConfirmationModule.Input>()!!
+    }
+
+    private val vmFactory by lazy {
+        val evmKitWrapperViewModel by navGraphViewModels<EvmKitWrapperHoldingViewModel>(sendNavGraphId)
+        SendEvmConfirmationModule.Factory(
+            evmKitWrapperViewModel.evmKitWrapper,
+            SendEvmData(transactionData, additionalInfo)
+        )
+    }
+    private val sendEvmTransactionViewModel by navGraphViewModels<SendEvmTransactionViewModel>(R.id.sendEvmRevokeConfirmationFragment) { vmFactory }
+    private val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(R.id.sendEvmRevokeConfirmationFragment) { vmFactory }
+    private val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(R.id.sendEvmRevokeConfirmationFragment) { vmFactory }
+
+    private var snackbarInProcess: CustomSnackbar? = null
+
+    private val sendNavGraphId: Int by lazy { input.sendNavId }
+    private val sendEntryPointDestId: Int by lazy { input.sendEntryPointDestId }
+    private val closeUntilDestId: Int by lazy {
+        if (sendEntryPointDestId == 0) {
+            sendNavGraphId
+        } else {
+            sendEntryPointDestId
+        }
+    }
+
+
+    private val transactionData: TransactionData
+        get() = input.transactionData
+    private val additionalInfo: SendEvmData.AdditionalInfo?
+        get() = input.additionalInfo
+
+    @Composable
+    override fun GetContent(navController: NavController) {
+        SendEvmConfirmationScreen(
+            sendEvmTransactionViewModel = sendEvmTransactionViewModel,
+            feeViewModel = feeViewModel,
+            nonceViewModel = nonceViewModel,
+            parentNavGraphId = R.id.sendEvmRevokeConfirmationFragment,
+            navController = navController,
+            onSendClick = {
+                logger.info("click send button")
+                sendEvmTransactionViewModel.send(logger)
+            })
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        sendEvmTransactionViewModel.sendingLiveData.observe(viewLifecycleOwner) {
+            snackbarInProcess = HudHelper.showInProcessMessage(
+                requireView(),
+                R.string.Send_Sending,
+                SnackbarDuration.INDEFINITE
+            )
+        }
+
+        sendEvmTransactionViewModel.sendSuccessLiveData.observe(viewLifecycleOwner) {
+            HudHelper.showSuccessMessage(
+                requireActivity().findViewById(android.R.id.content),
+                R.string.Hud_Text_Done
+            )
+            Handler(Looper.getMainLooper()).postDelayed({
+                findNavController().popBackStack(closeUntilDestId, true)
+            }, 1200)
+        }
+
+        sendEvmTransactionViewModel.sendFailedLiveData.observe(viewLifecycleOwner) {
+            HudHelper.showErrorMessage(requireActivity().findViewById(android.R.id.content), it)
+
+            findNavController().popBackStack()
+        }
+    }
+
+}
+
+
+
+@Composable
+private fun SendEvmConfirmationScreen(
+    sendEvmTransactionViewModel: SendEvmTransactionViewModel,
+    feeViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
+    parentNavGraphId: Int,
+    navController: NavController,
+    onSendClick: () -> Unit
+) {
+    val enabled by sendEvmTransactionViewModel.sendEnabledLiveData.observeAsState(false)
+
+    Scaffold(
+        backgroundColor = ComposeAppTheme.colors.tyler,
+        topBar = {
+            AppBar(
+                title = stringResource(R.string.Send_Confirmation_Title),
+                navigationIcon = {
+                    HsBackButton(onClick = { navController.popBackStack() })
+                },
+                menuItems = listOf(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
+                        icon = R.drawable.ic_manage_2,
+                        tint = ComposeAppTheme.colors.jacob,
+                        onClick = {
+                            navController.slideFromBottom(
+                                R.id.sendEvmSettingsFragment,
+                                SendEvmSettingsFragment.Input(parentNavGraphId)
+                            )
+                        }
+                    )
+                )
+            )
+        }
+    ) {
+        Column(modifier = Modifier.padding(it)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SendEvmTransactionView(
+                    sendEvmTransactionViewModel,
+                    feeViewModel,
+                    nonceViewModel,
+                    navController
+                )
+            }
+            ButtonsGroupWithShade {
+                ButtonPrimaryYellow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    title = stringResource(R.string.Send_Confirmation_Send_Button),
+                    onClick = onSendClick,
+                    enabled = enabled
+                )
+            }
+        }
+    }
+}
