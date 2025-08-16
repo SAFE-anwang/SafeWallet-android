@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -14,22 +15,36 @@ import android.webkit.WebViewClient
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.viewModels
+import androidx.navigation.navGraphViewModels
 import com.google.android.exoplayer2.util.Log
 import com.tencent.mmkv.MMKV
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentRevokeBinding
-import io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment.Input
+import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationModule
 import io.horizontalsystems.core.findNavController
+import io.horizontalsystems.marketkit.models.BlockchainType
 import java.net.URLDecoder
 
 class RevokeCashFragment: BaseFragment() {
 
-    private val TAG = "RevokeCashFragment"
+    private val TAG = "RevokeCash"
     private var _binding: FragmentRevokeBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var webView: WebView
+
+    private val viewModel by navGraphViewModels<RevokeCashViewModel>(R.id.dappRevokeFragment) {
+        RevokeCashModule.Factory(BlockchainType.BinanceSmartChain)
+    }
+    val evmKitWrapperViewModel by navGraphViewModels<EvmKitWrapperHoldingViewModel>(
+        R.id.dappRevokeFragment
+    ) { RevokeCashModule.Factory(BlockchainType.BinanceSmartChain) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +64,7 @@ class RevokeCashFragment: BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
-        load(null)
+        load()
     }
 
     private fun initUI() {
@@ -98,12 +113,17 @@ class RevokeCashFragment: BaseFragment() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                WebViewConfiguration.make(0, "", webView)
+                WebViewConfiguration.make(viewModel.chain.id, viewModel.address, webView)
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
 
+            }
+
+            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                Log.d("CustomProvider", "message:${consoleMessage?.message()}")
+                return super.onConsoleMessage(consoleMessage)
             }
         }
         val webViewSettings = webView.settings
@@ -113,20 +133,27 @@ class RevokeCashFragment: BaseFragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webViewSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
-        val messageHandler = RevokeCashMessageHandler()
-        webView.addJavascriptInterface(messageHandler, Web3Method.transactionHandler.methodName)
-        webView.addJavascriptInterface(messageHandler, Web3Method.walletSwitchChain.methodName)
-        webView.addJavascriptInterface(messageHandler, Web3Method.ethSendTransaction.methodName)
-        webView.addJavascriptInterface(messageHandler, Web3Method.ethChainId.methodName)
+        val messageHandler = RevokeCashMessageHandler(
+            onTransactionData = { transactionData ->
+                view?.post {
+                    val info = SendEvmData.AdditionalInfo.DAppInfo(SendEvmData.DappInfo("RevokeCash"))
+                    val sendData = SendEvmData(transactionData, info)
+                    val initiateLazyViewModel = evmKitWrapperViewModel
+                    findNavController().slideFromRight(
+                        R.id.sendEvmRevokeConfirmationFragment,
+                        SendEvmConfirmationModule.Input(sendData, R.id.dappRevokeFragment, 0)
+                    )
+                }
+            },
+            onSwitchChain = { chainId ->
+                viewModel.switchChain(chainId)
+            }
+        )
+        webView.addJavascriptInterface(messageHandler, "HandlerMessage")
     }
 
-    private fun load(connectInfo: RevokeConnectInfo?) {
-        val url =  if (connectInfo != null) {
-            "https://revoke.cash/zh/address/${connectInfo.walletAddress}?chainId=${connectInfo.chainId}"
-        }else {
-            "https://revoke.cash"
-        }
-        webView.loadUrl(url)
+    private fun load() {
+        webView.loadUrl(viewModel.getUrl())
     }
 
 }

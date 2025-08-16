@@ -687,4 +687,9 @@
         android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.RevokeCashFragment" >
     </fragment>
 
+    <fragment
+        android:id="@+id/sendEvmRevokeConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.SendEvmRevokeConfirmationFragment" >
+    </fragment>
+
 </navigation>

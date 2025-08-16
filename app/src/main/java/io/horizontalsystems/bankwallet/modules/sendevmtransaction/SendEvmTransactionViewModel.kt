@@ -136,6 +136,9 @@ class SendEvmTransactionViewModel(
         additionalInfo?.walletConnectInfo?.let {
             sections = sections + getWalletConnectSectionView(it)
         }
+        additionalInfo?.dAppInfo?.let {
+            sections = sections + getDappInfoSectionView(it)
+        }
 
         return sections
     }
@@ -735,6 +738,22 @@ class SendEvmTransactionViewModel(
                     ViewItem.Value(
                         it.chain.name,
                         it.address ?: "",
+                        ValueType.Regular
+                    )
+                )
+            }
+        }
+    )
+
+    private fun getDappInfoSectionView(
+        info: SendEvmData.DappInfo
+    ) = SectionViewItem(
+        buildList {
+            info.dAppName?.let {
+                add(
+                    ViewItem.Value(
+                        Translator.getString(R.string.WalletConnect_SignMessageRequest_dApp),
+                        it,
                         ValueType.Regular
                     )
                 )

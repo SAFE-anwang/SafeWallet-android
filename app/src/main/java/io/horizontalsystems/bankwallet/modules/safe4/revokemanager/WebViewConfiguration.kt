@@ -25,14 +25,14 @@ object WebViewConfiguration {
                     const id = this._nextId++;
                     this._pendingRequests[id] = { resolve, reject };
                     
-                    if (request.method === '${Web3Method.ethSendTransaction.name}') {
-                        
-                        window.webkit.messageHandlers.transactionHandler.postMessage({
+                    if (request.method === '${Web3Method.ethSendTransaction.methodName}') {
+                        console.log('[RevokeCash] request param:', request.params);
+                        window.HandlerMessage.handleResponse(JSON.stringify({
                             type: 'transaction',
                             id: id,
                             method: request.method,
                             params: request.params
-                        });
+                        }));
                         return;
                     }
                     
@@ -55,17 +55,17 @@ object WebViewConfiguration {
                             resolve();
                             break;
                         default:
-                            console.log('[CustomProvider] Unhandled request:', request);
+                            console.log('[CustomProvider] Unhandled request:', request.method);
                             reject(new Error('Method not implemented'));
                     }
         
-                    if (request.method === '${Web3Method.walletSwitchChain.name}') {
-                        window.webkit.messageHandlers.transactionHandler.postMessage({
+                    if (request.method === '${Web3Method.walletSwitchChain.methodName}') {
+                        window.HandlerMessage.handleResponse(JSON.stringify({
                             type: 'transaction',
                             id: id,
                             method: request.method,
                             params: request.params
-                        });
+                        }));
                         return;
                     }
                 });
@@ -120,7 +120,7 @@ object WebViewConfiguration {
         };
         """
         webView.evaluateJavascript(js, {
-            Log.d("longwen", "js result=$it")
+            Log.d("RevokeCash", "js result=$it")
         })
 //        let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
 //        webViewConfig.userContentController.addUserScript(userScript)
@@ -136,7 +136,6 @@ object WebViewConfiguration {
 
 
 enum class Web3Method(val methodName: String) {
-    transactionHandler("transactionHandler"),
     ethRequestAccounts("eth_requestAccounts"),
     ethAccounts("eth_accounts"),
     ethChainId("eth_chainId"),
@@ -148,7 +147,6 @@ enum class Web3Method(val methodName: String) {
 
     fun getMethod(method: String): Web3Method {
         return when (method) {
-            "transactionHandler" -> transactionHandler
             "eth_requestAccounts" -> ethRequestAccounts
             "eth_accounts" -> ethAccounts
             "eth_chainId" -> ethChainId
@@ -162,7 +160,6 @@ enum class Web3Method(val methodName: String) {
 
     fun getMethodName(method: Web3Method): String {
         return when(method) {
-            transactionHandler -> "transactionHandler"
             ethRequestAccounts -> "eth_requestAccounts"
             ethAccounts -> "eth_accounts"
             ethChainId -> "eth_chainId"
