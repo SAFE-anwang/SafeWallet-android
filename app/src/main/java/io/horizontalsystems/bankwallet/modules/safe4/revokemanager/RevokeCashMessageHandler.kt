@@ -39,10 +39,6 @@ class RevokeCashMessageHandler(
     }
 
     private fun processTransaction(params: JSONObject) {
-        //"params":[{
-        // "data":"0x095ea7b300000000000000000000000010ed43c718714eb63d5aa57b78b54704e256024e0000000000000000000000000000000000000000000000000000000000000000",
-        // "from":"0x6d0897776FAc2A97D739DEa013a15bF19498A33e","gas":"0x74ea",
-        // "to":"0x4d7Fa587Ec8e50bd0E9cD837cb4DA796f47218a1","value":"0x0"}]}
         val data = params.getString("data")
         val from = params.getString("from")
         val to = params.getString("to")

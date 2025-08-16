@@ -26,7 +26,6 @@ object WebViewConfiguration {
                     this._pendingRequests[id] = { resolve, reject };
                     
                     if (request.method === '${Web3Method.ethSendTransaction.methodName}') {
-                        console.log('[RevokeCash] request param:', request.params);
                         window.HandlerMessage.handleResponse(JSON.stringify({
                             type: 'transaction',
                             id: id,
@@ -122,14 +121,6 @@ object WebViewConfiguration {
         webView.evaluateJavascript(js, {
             Log.d("RevokeCash", "js result=$it")
         })
-//        let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-//        webViewConfig.userContentController.addUserScript(userScript)
-//        webViewConfig.userContentController.add(messageHandler, name: Web3Method.transactionHandler.name)
-//        webViewConfig.userContentController.add(messageHandler, name: Web3Method.walletSwitchChain.name)
-//        webViewConfig.userContentController.add(messageHandler, name: Web3Method.ethSendTransaction.name)
-//        webViewConfig.userContentController.add(messageHandler, name: Web3Method.ethChainId.name)
-
-//        return webViewConfig
     }
 }
 
