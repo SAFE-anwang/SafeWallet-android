@@ -12,6 +12,7 @@
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="@drawable/ic_back"
         app:titleTextAppearance="@style/Title3"
+        app:menu="@menu/revoke_menu"
         app:title="@string/Revoke_Manager"/>
 
 

@@ -2294,6 +2294,7 @@
     <string name="SRC20_No_Deploy">您还没有发行资产</string>
     <string name="Super_Node_Modify_IncentivePlan">修改分红比例</string>
     <string name="Revoke_Manager">合约授权管理</string>
+    <string name="Revoke_Connect">连接说明</string>
     <!-- SRC20 end-->
 
 </resources>

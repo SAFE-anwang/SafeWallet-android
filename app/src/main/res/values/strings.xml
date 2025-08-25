@@ -2623,6 +2623,7 @@
     <string name="SRC20_No_Deploy">You don\'t have deploy asset.</string>
     <string name="Super_Node_Modify_IncentivePlan">Update incentive plan</string>
     <string name="Revoke_Manager">Revoke Manager</string>
+    <string name="Revoke_Connect">Connection instructions </string>
     <!-- SRC20 end-->
 
 </resources>
