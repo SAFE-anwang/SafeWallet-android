@@ -33,10 +33,10 @@ class WithdrawService(
     private val loading = AtomicBoolean(false)
     private var allLoaded = AtomicBoolean(false)
 
-    private val lockedIdsItemsLocked = CopyOnWriteArrayList<WithdrawModule.WithDrawInfo>()
+    private val lockedIdsItemsLocked = CopyOnWriteArrayList<WithdrawModule.WithDrawLockedInfo>()
 
-    private val itemsSubjectAvailable = PublishSubject.create<List<WithdrawModule.WithDrawInfo>>()
-    val itemsObservableAvailable: Observable<List<WithdrawModule.WithDrawInfo>> get() = itemsSubjectAvailable
+    private val itemsSubjectAvailable = PublishSubject.create<List<WithdrawModule.WithDrawLockedInfo>>()
+    val itemsObservableAvailable: Observable<List<WithdrawModule.WithDrawLockedInfo>> get() = itemsSubjectAvailable
     var maxNum = -1
 
     fun getNodeInfo(isSuperNode: Boolean) {
@@ -97,12 +97,13 @@ class WithdrawService(
                 val infos = records.filter {
                     it.recordInfo.frozenAddr.value != zeroAddress && it.recordInfo.votedAddr.value != zeroAddress
                 }.map {
-                    WithdrawModule.WithDrawInfo(it.lockedId.toInt(),
+                    WithdrawModule.WithDrawLockedInfo(it.lockedId.toInt(),
                         it.unlockHeight.toLong(),
                         it.recordInfo.releaseHeight.toLong(),
-                        NodeCovertFactory.formatSafe(it.amount),
-                        null,
-                        it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0L)
+                        NodeCovertFactory.formatSafe(it.amount),  it.recordInfo.votedAddr.value, null,
+                        (it.recordInfo.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0))
+                                || (it.unlockHeight == BigInteger.ZERO && it.recordInfo.releaseHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0)),
+                        if (it.recordInfo.votedAddr.value == zeroAddress) null else it.unlockHeight > BigInteger.ZERO
                     )
                 }
                 lockedIdsItemsLocked.addAll(infos)

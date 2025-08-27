@@ -32,6 +32,7 @@ class LockedInfoViewModel(
     private var withdrawList : List<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawListVote : List<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawListProposal : List<WithdrawModule.WithDrawLockedInfo>? = null
+    private var withdrawAvailable : List<WithdrawModule.WithDrawLockedInfo>? = null
 
     private var showConfirmationDialog = false
 
@@ -53,7 +54,7 @@ class LockedInfoViewModel(
         } else {
             withdrawListVote
         }*/
-        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf())
+        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf()) + (withdrawAvailable ?: listOf())
         return WithdrawModule.WithDrawLockInfoUiState(
             list?.sortedBy { it.id }?.distinctBy { it.id },
             showConfirmationDialog
@@ -115,7 +116,11 @@ class LockedInfoViewModel(
             }.let {
                 disposables.add(it)
             }
-
+        service.itemsObservableAvailable
+            .subscribeIO {
+                withdrawAvailable = it
+                emitState()
+            }
         start()
     }
 
@@ -124,12 +129,14 @@ class LockedInfoViewModel(
                lockedVoteService.loadItems(0)
                lockedVoteService.loadItemsLocked(0)
             lockedVoteService.getMinProposalNum()
+            service.loadItemsAvailable(0)
         }
     }
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
             lockedVoteService.loadNext()
+            service.loadNext()
         }
     }
 

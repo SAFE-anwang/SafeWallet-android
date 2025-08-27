@@ -2295,6 +2295,8 @@
     <string name="Super_Node_Modify_IncentivePlan">修改分红比例</string>
     <string name="Revoke_Manager">合约授权管理</string>
     <string name="Revoke_Connect">连接说明</string>
+    <string name="Menu_Item_Select_All">全选</string>
+    <string name="Menu_Item_Select_All_Cancel">取消</string>
     <!-- SRC20 end-->
 
 </resources>

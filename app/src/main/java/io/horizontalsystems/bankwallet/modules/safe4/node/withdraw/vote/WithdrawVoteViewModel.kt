@@ -89,6 +89,13 @@ class WithdrawVoteViewModel(
         emitState()
     }
 
+    fun selectAll(select: Boolean) {
+        withdrawList?.forEach {
+            it.checked = select
+        }
+        emitState()
+    }
+
     fun hasConnection(): Boolean {
         return connectivityManager.isConnected
     }

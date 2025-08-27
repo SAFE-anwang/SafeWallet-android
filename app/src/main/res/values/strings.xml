@@ -2624,6 +2624,8 @@
     <string name="Super_Node_Modify_IncentivePlan">Update incentive plan</string>
     <string name="Revoke_Manager">Revoke Manager</string>
     <string name="Revoke_Connect">Connection instructions </string>
+    <string name="Menu_Item_Select_All">Select All</string>
+    <string name="Menu_Item_Select_All_Cancel">Cancel</string>
     <!-- SRC20 end-->
 
 </resources>

@@ -115,6 +115,13 @@ class WithdrawNodeViewModel(
         emitState()
     }
 
+    fun selectAll(select: Boolean) {
+        withdrawList?.forEach {
+            it.checked = select
+        }
+        emitState()
+    }
+
     fun closeDialog() {
         showConfirmationDialog = false
         emitState()
