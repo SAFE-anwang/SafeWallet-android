@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +17,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -23,6 +25,8 @@ class LockedInfoViewModel(
     val wallet: Wallet,
     val evmKit: EthereumKit,
     val service: WithdrawService,
+    val service1: WithdrawService,
+    val service2: WithdrawService,
     val lockedVoteService: SafeFourLockedVoteService,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawLockInfoUiState>() {
@@ -33,6 +37,8 @@ class LockedInfoViewModel(
     private var withdrawListVote : List<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawListProposal : List<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawAvailable : List<WithdrawModule.WithDrawLockedInfo>? = null
+    private var withdrawAvailable1 : List<WithdrawModule.WithDrawLockedInfo>? = null
+    private var withdrawAvailable2 : List<WithdrawModule.WithDrawLockedInfo>? = null
 
     private var showConfirmationDialog = false
 
@@ -54,7 +60,8 @@ class LockedInfoViewModel(
         } else {
             withdrawListVote
         }*/
-        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf()) + (withdrawAvailable ?: listOf())
+//        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf())
+        val list = (withdrawAvailable ?: listOf()) + (withdrawAvailable1 ?: listOf()) + (withdrawAvailable2 ?: listOf())
         return WithdrawModule.WithDrawLockInfoUiState(
             list?.sortedBy { it.id }?.distinctBy { it.id },
             showConfirmationDialog
@@ -62,7 +69,7 @@ class LockedInfoViewModel(
     }
 
     init {
-        lockedVoteService.itemsObservable
+        /*lockedVoteService.itemsObservable
             .subscribeIO {
                 withdrawList =
                     it.map {
@@ -115,10 +122,20 @@ class LockedInfoViewModel(
                 emitState()
             }.let {
                 disposables.add(it)
-            }
+            }*/
         service.itemsObservableAvailable
             .subscribeIO {
                 withdrawAvailable = it
+                emitState()
+            }
+        service1.itemsObservableAvailable
+            .subscribeIO {
+                withdrawAvailable1 = it
+                emitState()
+            }
+        service2.itemsObservableAvailable
+            .subscribeIO {
+                withdrawAvailable2 = it
                 emitState()
             }
         start()
@@ -126,16 +143,20 @@ class LockedInfoViewModel(
 
     fun start() {
         viewModelScope.launch(Dispatchers.Default) {
-               lockedVoteService.loadItems(0)
+               /*lockedVoteService.loadItems(0)
                lockedVoteService.loadItemsLocked(0)
-            lockedVoteService.getMinProposalNum()
-            service.loadItemsAvailable(0)
+            lockedVoteService.getMinProposalNum()*/
+            service.loadLocked(0)
+            service1.loadLocked(0)
+            service2.loadLocked(0)
         }
     }
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
             lockedVoteService.loadNext()
+            service.loadNext()
+            service.loadNext()
             service.loadNext()
         }
     }
@@ -177,7 +198,7 @@ class LockedInfoViewModel(
         sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                service.withdraw(listOf(clickWithdrawInfo!!.id))
+                service.withdraw(listOf(clickWithdrawInfo!!.id), getType(clickWithdrawInfo!!.value))
                 sendResult = SendResult.Sent
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
                 if (isOnlyWithdraw) {
@@ -187,6 +208,17 @@ class LockedInfoViewModel(
             } catch (e: Exception) {
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
             }
+        }
+    }
+
+    fun getType(value: BigInteger): Int {
+        val tempValue = NodeCovertFactory.valueConvert(value)
+        return if (tempValue >= BigDecimal.valueOf(0.1) && tempValue < BigDecimal.valueOf(1)) {
+            2
+        } else if (tempValue >= BigDecimal.valueOf(0.01) && tempValue < BigDecimal.valueOf(0.1)) {
+            1
+        } else {
+            0
         }
     }
 

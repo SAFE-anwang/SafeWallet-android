@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.proposal.With
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.vote.WithdrawVoteViewModel
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import kotlinx.parcelize.Parcelize
+import java.math.BigInteger
 
 object WithdrawModule {
 
@@ -51,7 +52,9 @@ object WithdrawModule {
 				}
 				LockedInfoViewModel::class.java -> {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper)
+					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 0)
+					val service1 = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 1)
+					val service2 = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 2)
 					val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,
 						adapterEvm.evmKitWrapper.evmKit,
 						adapterEvm.evmKitWrapper.evmKit.receiveAddress)
@@ -59,6 +62,8 @@ object WithdrawModule {
 						wallet,
 						adapterEvm.evmKitWrapper.evmKit,
 						service,
+						service1,
+						service2,
 						lockVoteService,
 						App.connectivityManager
 					) as T
@@ -107,6 +112,7 @@ object WithdrawModule {
 		val unlockHeight: Long?,
 		val releaseHeight: Long?,
 		val amount: String,
+		val value: BigInteger,
 		val address: String?,
 		val address2: String?,
 		var withdrawEnable: Boolean = false,

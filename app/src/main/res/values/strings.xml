@@ -2570,7 +2570,7 @@
     <string name="SAFE4_Line_Lock">SAFE Lock</string>
     <string name="SAFE4_Line_Lock_No_Data">You don\'t have any linear lock up records yet</string>
     <string name="SAFE4_Line_Lock_Day">%d month</string>
-    <string name="SAFE4_Line_Lock_Amount_Hint">At least one coin per lock up amount</string>
+    <string name="SAFE4_Line_Lock_Amount_Hint">At least 0.01 coin per lock up amount</string>
 
     <!-- safe 4  end-->
 

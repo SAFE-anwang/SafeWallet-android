@@ -19,7 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class WithdrawService(
     val safe4: RpcBlockchainSafe4,
-    val evmKitManager: EvmKitWrapper
+    val evmKitManager: EvmKitWrapper,
+    val type: Int = 0
 ): Clearable {
 
     val zeroAddress = "0x0000000000000000000000000000000000000000"
@@ -50,21 +51,22 @@ class WithdrawService(
         itemsSubject.onNext(nodeInfo)
     }
 
-    fun withdraw(lockedId: List<Int>): Single<String> {
+    fun withdraw(lockedId: List<Int>, type: Int = 0): Single<String> {
         var result = Single.just("withdraw fail")
         lockedId.chunked(50).forEach {
-            result = evmKitManager.withdrawByIds(it.map { it.toBigInteger() })
+            result = evmKitManager.withdrawByIds(it.map { it.toBigInteger() }, type)
         }
         return result
     }
 
 
-    fun loadItemsAvailable(page: Int) {
+    fun loadLocked(page: Int) {
         if (loading.get()) return
         loading.set(true)
         if (maxNum == -1) {
-            maxNum = safe4.getAvailableAmount(safe4.address.hex).num.toInt()
+            maxNum = safe4.getAccountTotalAmount(safe4.address.hex, type).num.toInt()
         }
+        Log.d("locked total", "maxNum=$maxNum")
         if (maxNum <= 0) {
             loading.set(false)
             itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
@@ -78,14 +80,14 @@ class WithdrawService(
         }
         // already vote
         val disableSingle =
-            safe4.getAvailableIDs(safe4.address.hex, itemsCount, itemsPerPage)
+            safe4.getTotalIDs(type, safe4.address.hex, itemsCount, itemsPerPage)
 
         disableSingle
             .subscribeOn(Schedulers.io())
             .map {
                 it.map { id ->
-                    val info = safe4.getRecordByID(id.toInt())
-                    val recordUseInfo = safe4.getRecordUseInfo(id.toInt())
+                    val info = safe4.getRecordByID(id.toInt(), type)
+                    val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
                     LockedRecord(id, info.amount,  info.unlockHeight, recordUseInfo)
                 }
             }
@@ -94,16 +96,18 @@ class WithdrawService(
             }
             .subscribe({ records ->
                 allLoaded.set(records.isEmpty() || records.size < itemsPerPage)
-                val infos = records.filter {
+                val infos = records/*.filter {
                     it.recordInfo.frozenAddr.value != zeroAddress && it.recordInfo.votedAddr.value != zeroAddress
-                }.map {
+                }*/.map {
                     WithdrawModule.WithDrawLockedInfo(it.lockedId.toInt(),
                         it.unlockHeight.toLong(),
-                        it.recordInfo.releaseHeight.toLong(),
-                        NodeCovertFactory.formatSafe(it.amount),  it.recordInfo.votedAddr.value, null,
-                        (it.recordInfo.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0))
-                                || (it.unlockHeight == BigInteger.ZERO && it.recordInfo.releaseHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0)),
-                        if (it.recordInfo.votedAddr.value == zeroAddress) null else it.unlockHeight > BigInteger.ZERO
+                        it.recordInfo?.releaseHeight?.toLong(),
+                        NodeCovertFactory.formatSafe(it.amount),
+                        it.amount,
+                        it.recordInfo?.votedAddr?.value, null,
+                        (it.recordInfo?.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0))
+                                || (it.unlockHeight == BigInteger.ZERO && (it.recordInfo?.releaseHeight?.toLong() ?: 0) < (evmKitManager.evmKit.lastBlockHeight ?: 0)),
+                        if (it.recordInfo?.votedAddr?.value == zeroAddress || type > 0) null else it.unlockHeight > BigInteger.ZERO
                     )
                 }
                 lockedIdsItemsLocked.addAll(infos)
@@ -118,7 +122,7 @@ class WithdrawService(
 
     fun loadNext() {
         if (!allLoaded.get()) {
-            loadItemsAvailable(loadedPageNumberLocked + 1)
+            loadLocked(loadedPageNumberLocked + 1)
         }
     }
 
@@ -135,5 +139,5 @@ data class LockedRecord(
     val lockedId: BigInteger,
     val amount: BigInteger,
     val unlockHeight: BigInteger,
-    val recordInfo: RecordUseInfo
+    val recordInfo: RecordUseInfo?
 )
