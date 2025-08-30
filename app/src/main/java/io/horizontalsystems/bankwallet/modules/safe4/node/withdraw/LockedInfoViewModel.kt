@@ -63,7 +63,7 @@ class LockedInfoViewModel(
 //        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf())
         val list = (withdrawAvailable ?: listOf()) + (withdrawAvailable1 ?: listOf()) + (withdrawAvailable2 ?: listOf())
         return WithdrawModule.WithDrawLockInfoUiState(
-            list?.sortedBy { it.id }?.distinctBy { it.id },
+            list?.distinctBy { it.id },
             showConfirmationDialog
         )
     }
@@ -156,8 +156,8 @@ class LockedInfoViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             lockedVoteService.loadNext()
             service.loadNext()
-            service.loadNext()
-            service.loadNext()
+            service1.loadNext()
+            service2.loadNext()
         }
     }
 
