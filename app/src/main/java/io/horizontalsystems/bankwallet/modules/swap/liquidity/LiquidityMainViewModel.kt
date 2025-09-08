@@ -39,6 +39,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModul
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.SwapError
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.SwapResultState
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService.State
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
@@ -47,12 +48,14 @@ import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.api.jsonrpc.JsonRpc
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.GasPrice
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.liquidity.PancakeSwapKit
+import io.horizontalsystems.uniswapkit.liquidity.TradeError
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -148,6 +151,7 @@ class LiquidityMainViewModel(
 
     var sendStateObservable = SingleLiveEvent<SendEvmTransactionService.SendState>()
     var refreshState = false
+    var isCloseDialog = false
 
     var swapState by mutableStateOf(
         LiquidityMainModule.SwapState(
@@ -167,7 +171,7 @@ class LiquidityMainViewModel(
             recipient = tradeService.recipient,
             slippage = tradeService.slippage,
             ttl = tradeService.ttl,
-            refocusKey = refocusKey
+            refocusKey = refocusKey,
         )
     )
         private set
@@ -186,6 +190,9 @@ class LiquidityMainViewModel(
         get() = swapData
 
     val getFromToken = fromTokenService.token
+    fun getToToken(): Token? {
+        return toTokenService.token
+    }
 
     init {
         fromTokenService.stateFlow.collectWith(viewModelScope) {
@@ -332,7 +339,7 @@ class LiquidityMainViewModel(
         val errors = mutableListOf<Throwable>()
         val errorsB = mutableListOf<Throwable>()
         swapData = null
-        setLoading(tradeService.state)
+        /*setLoading(tradeService.state)
 
         when (val state = tradeService.state) {
             SwapResultState.Loading -> {
@@ -366,7 +373,7 @@ class LiquidityMainViewModel(
                     }
                 }
             }
-        }
+        }*/
 
         when (val state = tradeServiceB.state) {
             SwapResultState.Loading -> {
@@ -403,7 +410,8 @@ class LiquidityMainViewModel(
                 }
             }*/
         }
-
+        Log.d("longwen", "allowanceServiceA=${allowanceServiceA.state}")
+        Log.d("longwen", "allowanceServiceB=${allowanceServiceB.state}")
         when (val state = allowanceServiceA.state) {
             LiquidityAllowanceService.State.Loading -> {}
 
@@ -488,9 +496,9 @@ class LiquidityMainViewModel(
     }
 
     private fun resyncSwapData() {
-        tradeService.fetchSwapData(fromTokenService.token, toTokenService.token, amountFrom, amountTo, exactType)
+//        tradeService.fetchSwapData(fromTokenService.token, toTokenService.token, amountFrom, amountTo, exactType)
 
-        tradeServiceB.fetchSwapData(toTokenService.token, fromTokenService.token, amountTo, amountFrom, exactType)
+//        tradeServiceB.fetchSwapData(toTokenService.token, fromTokenService.token, amountTo, amountFrom, exactType)
     }
 
     private fun syncButtonsState() {
@@ -514,7 +522,7 @@ class LiquidityMainViewModel(
             SwapMainModule.SwapActionState.Hidden
         }
 
-        tradeService.state is SwapResultState.Ready && tradeServiceB.state is SwapResultState.Ready -> {
+        /*allowanceServiceA.state is State.Ready && allowanceServiceB.state is State.Ready -> {
             when {
                 allErrors.any { it == SwapError.InsufficientBalanceFrom } -> {
                     SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
@@ -536,10 +544,42 @@ class LiquidityMainViewModel(
                     }
                 }
             }
-        }
+        }*/
 
         else -> {
-            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+            when {
+                allErrors.any { it == SwapError.InsufficientBalanceFrom } -> {
+                    SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
+                }
+                allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
+                    SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
+                }
+
+                pendingAllowanceServiceA.state == SwapPendingAllowanceState.Approving
+                        || pendingAllowanceServiceB.state == SwapPendingAllowanceState.Approving -> {
+                    SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+                }
+
+                else -> {
+                    if (allErrors.isEmpty() && allErrorsB.isEmpty()) {
+                        if (allowanceServiceA.state !is State.Loading && allowanceServiceB.state !is State.Loading) {
+                            if (amountFrom != null && amountTo != null) {
+                                if (amountFrom!! > balanceFrom && amountTo!! > balanceFromB) {
+                                    SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_ErrorInsufficientBalance))
+                                } else {
+                                    SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Liquidity_Add))
+                                }
+                            } else {
+                                SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+                            }
+                        } else {
+                            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+                        }
+                    } else {
+                        SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+                    }
+                }
+            }
         }
     }
 
@@ -580,7 +620,7 @@ class LiquidityMainViewModel(
             SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Approving), loading = true)
         }
 
-        tradeService.state is SwapResultState.NotReady || allErrors.any { it == SwapError.InsufficientBalanceFrom } -> {
+        /*tradeService.state is SwapResultState.NotReady || */allErrors.any { it == SwapError.InsufficientBalanceFrom } -> {
             SwapMainModule.SwapActionState.Hidden
         }
 
@@ -605,7 +645,7 @@ class LiquidityMainViewModel(
         pendingAllowanceServiceB.state == SwapPendingAllowanceState.Approving -> {
             SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Approving), loading = true)
         }
-        tradeServiceB.state is SwapResultState.NotReady || allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
+        /*tradeServiceB.state is SwapResultState.NotReady ||*/ allErrorsB.any { it == SwapError.InsufficientBalanceFrom } -> {
             SwapMainModule.SwapActionState.Hidden
         }
 
@@ -786,28 +826,29 @@ class LiquidityMainViewModel(
     fun onSelectFromCoin(token: Token) {
         fromTokenService.onSelectCoin(token)
         syncBalance(balance(token))
-        if (exactType == ExactType.ExactTo) {
+//        if (exactType == ExactType.ExactTo) {
             fromTokenService.onChangeAmount(null, true)
-        }
-        if (token == toTokenService.token) {
-            toTokenService.setToken(null)
-            toTokenService.onChangeAmount(null, true)
-        }
+//        }
+//        if (token == toTokenService.token) {
+//            toTokenService.setToken(null)
+//            toTokenService.onChangeAmount(null, true)
+//        }
         resyncSwapData()
         allowanceServiceA.set(token)
         pendingAllowanceServiceA.set(token)
     }
 
     fun onSelectToCoin(token: Token) {
+        android.util.Log.d("longwen", "selectToCoin=$token")
         toTokenService.onSelectCoin(token)
         syncBalanceB(balance(token))
-        if (exactType == ExactType.ExactFrom) {
+//        if (exactType == ExactType.ExactFrom) {
             toTokenService.onChangeAmount(null, true)
-        }
-        if (token == fromTokenService.token) {
-            fromTokenService.setToken(null)
-            fromTokenService.onChangeAmount(null, true)
-        }
+//        }
+//        if (token == fromTokenService.token) {
+//            fromTokenService.setToken(null)
+//            fromTokenService.onChangeAmount(null, true)
+//        }
         resyncSwapData()
         allowanceServiceB.set(token)
         pendingAllowanceServiceB.set(token)
@@ -818,10 +859,11 @@ class LiquidityMainViewModel(
         val coinAmount = fromTokenService.getCoinAmount(amount)
         if (amountsEqual(amountFrom, coinAmount)) return
         amountFrom = coinAmount
-        amountTo = null
+//        amountTo = null
         fromTokenService.onChangeAmount(amount)
-        toTokenService.onChangeAmount(null, true)
+//        toTokenService.onChangeAmount(null, true)
         resyncSwapData()
+        syncButtonsState()
     }
 
     fun onToAmountChange(amount: String?) {
@@ -829,10 +871,11 @@ class LiquidityMainViewModel(
         val coinAmount = toTokenService.getCoinAmount(amount)
         if (amountsEqual(amountTo, coinAmount)) return
         amountTo = coinAmount
-        amountFrom = null
+//        amountFrom = null
         toTokenService.onChangeAmount(amount)
-        fromTokenService.onChangeAmount(null, true)
+//        fromTokenService.onChangeAmount(null, true)
         resyncSwapData()
+        syncButtonsState()
     }
 
     fun onTapSwitch() {
@@ -881,29 +924,34 @@ class LiquidityMainViewModel(
         pendingAllowanceServiceB.syncAllowance()
     }
 
-    fun getSendEvmData(swapData: SwapData.UniswapData): SendEvmData? {
+    fun getSendEvmData(): SendEvmData? {
+        val tokenA = fromTokenService.token ?: return null
+        val tokenB = toTokenService.token ?: return null
+        val tokenAAmount = amountFrom?.movePointRight(18)?.toBigInteger() ?: return null
+        val tokenBAmount = amountTo?.movePointRight(18)?.toBigInteger() ?: return null
+        Log.d("longwen", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount")
         val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return null
-        val tradeOptions = uniswapTradeService.tradeOptions
+//        val tradeOptions = uniswapTradeService.tradeOptions
         val transactionData = try {
-            uniswapTradeService.transactionData(swapData.data)
+            uniswapTradeService.transactionData(tokenA, tokenB, evmKit.receiveAddress, tokenAAmount, tokenBAmount)
         } catch (e: Exception) {
             return null
         }
 
-        val (primaryPrice, _) = swapData.data.executionPrice?.let {
+        /*val (primaryPrice, _) = swapData.data.executionPrice?.let {
             val sellPrice = it
             val buyPrice = BigDecimal.ONE.divide(sellPrice, sellPrice.scale(), RoundingMode.HALF_EVEN)
             formatter.prices(sellPrice, buyPrice, fromTokenService.token, toTokenService.token)
-        } ?: Pair(null, null)
+        } ?: Pair(null, null)*/
 
         val swapInfo = SendEvmData.UniswapLiquidityInfo(
             estimatedIn = amountFrom ?: BigDecimal.ZERO,
             estimatedOut = amountTo ?: BigDecimal.ZERO,
-            slippage = formatter.slippage(tradeOptions.allowedSlippage),
-            deadline = formatter.deadline(tradeOptions.ttl),
-            recipientDomain = tradeOptions.recipient?.title,
-            price = primaryPrice,
-            priceImpact = formatter.priceImpactViewItem(swapData)
+            slippage = null,
+            deadline = null,
+            recipientDomain = null,
+            price = null,
+            priceImpact = null
         )
 
         return SendEvmData(

@@ -2626,6 +2626,7 @@
     <string name="Revoke_Connect">Connection instructions </string>
     <string name="Menu_Item_Select_All">Select All</string>
     <string name="Menu_Item_Select_All_Cancel">Cancel</string>
+    <string name="Create_Pool">Create Poll</string>
     <!-- SRC20 end-->
 
 </resources>

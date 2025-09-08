@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModul
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.SwapData.UniswapData
 import io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.SwapTradeOptions
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.RpcSource
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.math.BigDecimal
+import java.math.BigInteger
 
 class LiquidityV2TradeService(
     private val pancakeKit: PancakeSwapKit,
@@ -96,8 +98,15 @@ class LiquidityV2TradeService(
     }
 
     @Throws
-    override fun transactionData(tradeData: UniversalSwapTradeData): TransactionData {
-        return pancakeKit.transactionLiquidityData(evmKit.receiveAddress, evmKit.chain, tradeData.getTradeDataV2())
+    override fun transactionData(
+        tokenIn: Token,
+        tokenOut: Token,
+        recipient: io.horizontalsystems.ethereumkit.models.Address?,
+        tokenInAmount: BigInteger,
+        tokenOutAmount: BigInteger
+    ): TransactionData {
+        return pancakeKit.transactionLiquidityData(evmKit.receiveAddress, evmKit.chain,
+            uniswapToken(tokenIn), uniswapToken(tokenOut), recipient, tokenInAmount, tokenOutAmount)
     }
 
     private fun clearDisposables() {
@@ -105,10 +114,10 @@ class LiquidityV2TradeService(
         swapDataDisposable = null
     }
 
-    private fun syncTradeData(/*exactType: ExactType,*/ amountFrom: BigDecimal?, amountTo: BigDecimal?, tokenFrom: Token, tokenTo: Token) {
+    private fun syncTradeData(amountFrom: BigDecimal?, amountTo: BigDecimal?, tokenFrom: Token, tokenTo: Token) {
         val swapData = swapData ?: return
 
-        val amount = /*if (exactType == ExactType.ExactFrom)*/ amountFrom /*else amountTo*/
+        val amount = amountFrom
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) == 0) {
             state = SwapResultState.NotReady()
@@ -116,11 +125,7 @@ class LiquidityV2TradeService(
         }
 
         try {
-            /*val tradeType = when (exactType) {
-                ExactType.ExactFrom -> TradeType.ExactIn
-                ExactType.ExactTo -> TradeType.ExactOut
-            }*/
-            val tradeData = tradeData(swapData, amount, /*TradeType.ExactIn,*/ tradeOptions.tradeOptions)
+            val tradeData = tradeData(swapData, amount, tradeOptions.tradeOptions)
             state = SwapResultState.Ready(UniswapData(tradeData))
         } catch (e: Throwable) {
             val error = when {

@@ -72,6 +72,9 @@ data class SendEvmData(
 
         val dAppInfo: DappInfo?
             get() = (this as? DAppInfo)?.info
+
+        val liquidityInfo: UniswapLiquidityInfo?
+            get() = (this as? Liquidity)?.info
     }
 
     @Parcelize
@@ -118,6 +121,7 @@ data class SendEvmData(
         val price: String? = null,
         val priceImpact: LiquidityMainModule.PriceImpactViewItem? = null,
         val gasPrice: String? = null,
+        val isCreatePoll: Boolean = false
     ) : Parcelable
 
     @Parcelize

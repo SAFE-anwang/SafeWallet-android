@@ -2297,6 +2297,7 @@
     <string name="Revoke_Connect">连接说明</string>
     <string name="Menu_Item_Select_All">全选</string>
     <string name="Menu_Item_Select_All_Cancel">取消</string>
+    <string name="Create_Pool">创建交易对</string>
     <!-- SRC20 end-->
 
 </resources>

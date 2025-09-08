@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
@@ -13,6 +14,7 @@ import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.ethereumkit.models.DefaultBlockParameter
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -188,18 +190,38 @@ class SendEvmTransactionService(
                 val gasPrice: BigInteger = web3j.ethGasPrice()
                         .send()
                         .getGasPrice()
+                val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                    sendEvmData.transactionData.value
+                } else {
+                    BigInteger.ZERO
+                }
+                Log.d("longwen", "value=${sendEvmData.transactionData.input.toRawHexString()}")
+                val estimateGas = web3j.ethEstimateGas(
+                    org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
+                        evmKitWrapper.evmKit.receiveAddress.hex,
+                        null,
+                        gasPrice,
+                        java.math.BigInteger.ZERO,
+                        routerAddress,
+                        value,
+                        sendEvmData.transactionData.input.toHexString()
+                    )
+                ).send()
+                if (estimateGas.hasError()) {
+                    Log.e("longwen", "error=${estimateGas.error.data}, ${estimateGas.error.message}")
+//                    return@launch
+                }
+                val gasLimit =
+                    estimateGas.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))
+                Log.d("longwne", "gasLimit=$gasLimit")
                 val hash = TransactionContractSend.send(
                     web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
                         routerAddress,
                     sendEvmData.transactionData.input.toHexString(),
-                    if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
-                        sendEvmData.transactionData.value
-                    } else {
-                        BigInteger.ZERO
-                    },
+                    value,
                     nonce.toBigInteger(),
                         gasPrice,
-                    BigInteger("500000") // GAS LIMIT
+                    gasLimit
                 )
                 withContext(Dispatchers.Main) {
                     if (hash != null) {
