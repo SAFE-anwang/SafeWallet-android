@@ -33,7 +33,8 @@ class SafeFourProposalModule {
                             wallet.account,
                             BlockchainType.SafeFour
                     )
-                    val service = SafeFourProposalService(rpcBlockchainSafe4, evmKitWrapper)
+                    val service = SafeFourProposalService(rpcBlockchainSafe4, evmKitWrapper,
+                        ProposalRecordRepository(App.appDatabase.proposalRecordDao()))
                     SafeFourProposalViewModel(wallet, service) as T
                 }
                 SafeFourCreateProposalViewModel::class.java -> {

@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 
 class AddLockDayViewModel(
-	val lockIds: List<Int>,
+	val lockIds: List<Long>,
 	private val safe4: RpcBlockchainSafe4,
 	private val privateKey: String,
 ) : ViewModelUiState<SafeFourModule.AddLockDayUiState>() {

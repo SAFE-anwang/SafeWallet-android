@@ -195,7 +195,6 @@ class SendEvmTransactionService(
                 } else {
                     BigInteger.ZERO
                 }
-                Log.d("longwen", "value=${sendEvmData.transactionData.input.toRawHexString()}")
                 val estimateGas = web3j.ethEstimateGas(
                     org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
                         evmKitWrapper.evmKit.receiveAddress.hex,
@@ -208,12 +207,12 @@ class SendEvmTransactionService(
                     )
                 ).send()
                 if (estimateGas.hasError()) {
-                    Log.e("longwen", "error=${estimateGas.error.data}, ${estimateGas.error.message}")
+                    Log.e("addLiquidity", "error=${estimateGas.error.data}, ${estimateGas.error.message}")
 //                    return@launch
                 }
                 val gasLimit =
                     estimateGas.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))
-                Log.d("longwne", "gasLimit=$gasLimit")
+                Log.d("addLiquidity", "gasLimit=$gasLimit")
                 val hash = TransactionContractSend.send(
                     web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
                         routerAddress,

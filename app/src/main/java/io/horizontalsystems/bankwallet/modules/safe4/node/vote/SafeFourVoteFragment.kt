@@ -435,7 +435,7 @@ fun LockVoteScreen(
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.lockedList(
         lockIdsList: List<LockIdsView>,
-        onCheckedChange: (Int, Boolean) -> Unit,
+        onCheckedChange: (Long, Boolean) -> Unit,
         onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
@@ -459,7 +459,7 @@ fun LazyListScope.lockedList(
                                 checked = item.checked,
                                 enabled = item.enable,
                                 onCheckedChange = {
-                                    onCheckedChange.invoke(item.lockIds.toInt(), it)
+                                    onCheckedChange.invoke(item.lockIds.toLong(), it)
                                 }
                         )
                         val color = if (item.enable) {

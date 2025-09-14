@@ -10,12 +10,16 @@ import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -25,20 +29,14 @@ class LockedInfoViewModel(
     val wallet: Wallet,
     val evmKit: EthereumKit,
     val service: WithdrawService,
-    val service1: WithdrawService,
-    val service2: WithdrawService,
-    val lockedVoteService: SafeFourLockedVoteService,
+    private val repository: LockRecordInfoRepository,
     private val connectivityManager: ConnectivityManager
 ): ViewModelUiState<WithdrawModule.WithDrawLockInfoUiState>() {
 
 
     private val disposables = CompositeDisposable()
-    private var withdrawList : List<WithdrawModule.WithDrawLockedInfo>? = null
-    private var withdrawListVote : List<WithdrawModule.WithDrawLockedInfo>? = null
-    private var withdrawListProposal : List<WithdrawModule.WithDrawLockedInfo>? = null
+    private var withdrawList : MutableList<WithdrawModule.WithDrawLockedInfo>? = null
     private var withdrawAvailable : List<WithdrawModule.WithDrawLockedInfo>? = null
-    private var withdrawAvailable1 : List<WithdrawModule.WithDrawLockedInfo>? = null
-    private var withdrawAvailable2 : List<WithdrawModule.WithDrawLockedInfo>? = null
 
     private var showConfirmationDialog = false
 
@@ -47,117 +45,127 @@ class LockedInfoViewModel(
 
     var clickWithdrawInfo: WithdrawModule.WithDrawLockedInfo? = null
     var clickAddLockDayId: Int = 0
+    var lockRecordTotal = 0
+    var offset = 0
+    var page = 0
+    val limit = 20
 
     override fun createState(): WithdrawModule.WithDrawLockInfoUiState {
         return getUiState()
     }
 
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
-        /*val list = if (withdrawList != null && withdrawListVote != null) {
-            withdrawList!! + withdrawListVote!! + withdrawListProposal!!
-        } else if (withdrawList != null) {
-            withdrawList
-        } else {
-            withdrawListVote
-        }*/
-//        val list = (withdrawList ?: listOf()) + (withdrawListVote ?: listOf()) + (withdrawListProposal ?: listOf())
-        val list = (withdrawAvailable ?: listOf()) + (withdrawAvailable1 ?: listOf()) + (withdrawAvailable2 ?: listOf())
+        Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, $withdrawAvailable")
+        val list = mutableListOf<WithdrawModule.WithDrawLockedInfo>()
+        withdrawList?.let { list.addAll(it) }
         return WithdrawModule.WithDrawLockInfoUiState(
-            list?.distinctBy { it.id },
+            (withdrawAvailable)?.plus(list.sortedBy { it.unlockHeight ?: 0 < evmKit.lastBlockHeight?: 0 }),
             showConfirmationDialog
         )
     }
 
     init {
-        /*lockedVoteService.itemsObservable
-            .subscribeIO {
-                withdrawList =
-                    it.map {
-                        WithdrawModule.WithDrawLockedInfo(it.lockId,
-                            it.unlockHeight.toLong(),
-                            it.releaseHeight.toLong(),
-                            NodeCovertFactory.formatSafe(it.lockValue),
-                            if (it.address == service.zeroAddress) null else it.address,
-                            it.address2,
-                            it.unlockHeight == BigInteger.ZERO || it.unlockHeight.toLong() < (evmKit.lastBlockHeight
-                                ?: 0),
-                                    if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
-                        )
-                    }
-                emitState()
-            }.let {
-                disposables.add(it)
+        viewModelScope.launch(Dispatchers.IO) {
+            LockRecordManager.recordState.collect {
+                getTotal()
             }
-        lockedVoteService.itemsObservableLocked
-            .subscribeIO {
-                withdrawListVote =
-                    it.map {
-                        WithdrawModule.WithDrawLockedInfo(it.lockId,
-                            it.unlockHeight.toLong(),
-                            it.releaseHeight.toLong(),
-                            NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.address2,
-                            (it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
-                                    || (it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
-                            if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
-                        )
-                    }
-                emitState()
-            }.let {
-                disposables.add(it)
-            }
+        }
 
-        lockedVoteService.mineItemsObservable
-            .subscribeIO {
-                withdrawListProposal =
-                    it.map {
-                        WithdrawModule.WithDrawLockedInfo(it.lockId,
-                            it.unlockHeight.toLong(),
-                            it.releaseHeight.toLong(),
-                            NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.address2,
-                            (it.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKit.lastBlockHeight ?: 0))
-                                    || (it.unlockHeight == BigInteger.ZERO && it.releaseHeight.toLong() < (evmKit.lastBlockHeight ?: 0)),
-                            if (it.address == service.zeroAddress) null else it.unlockHeight > BigInteger.ZERO
-                        )
-                    }
-                emitState()
-            }.let {
-                disposables.add(it)
-            }*/
-        service.itemsObservableAvailable
-            .subscribeIO {
-                withdrawAvailable = it
-                emitState()
-            }
-        service1.itemsObservableAvailable
-            .subscribeIO {
-                withdrawAvailable1 = it
-                emitState()
-            }
-        service2.itemsObservableAvailable
-            .subscribeIO {
-                withdrawAvailable2 = it
-                emitState()
-            }
         start()
     }
 
+    private fun getTotal() {
+        val old = lockRecordTotal
+        lockRecordTotal = repository.getTotal()
+        Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
+        if (old != lockRecordTotal) {
+            getData()
+        }
+        getWithdrawEnableRecord()
+    }
+
     fun start() {
-        viewModelScope.launch(Dispatchers.Default) {
-               /*lockedVoteService.loadItems(0)
-               lockedVoteService.loadItemsLocked(0)
-            lockedVoteService.getMinProposalNum()*/
-            service.loadLocked(0)
-            service1.loadLocked(0)
-            service2.loadLocked(0)
+        viewModelScope.launch(Dispatchers.IO) {
+            getTotal()
+            getData()
+            getWithdrawEnableRecord()
+        }
+    }
+
+    private fun initIfNeed() {
+        if (withdrawList == null) {
+            withdrawList = mutableListOf()
+        }
+    }
+
+    private fun getWithdrawEnableRecord() {
+        if (lockRecordTotal == 0)   return
+        try {
+            val result = repository.getRecordsForEnableWithdraw(evmKit.lastBlockHeight ?: 0)
+//            if (records.isEmpty())  return
+            result?.let { records ->
+                val lockInfo = records.filter { it.id != 0L } .map {
+                    WithdrawModule.WithDrawLockedInfo(it.id,
+                        it.unlockHeight,
+                        it.releaseHeight,
+                        NodeCovertFactory.formatSafe(it.value),
+                        it.value,
+                        it.address,
+                        it.address2,
+                        (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
+                                || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                        if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
+                        it.contact
+                    )
+                }
+                withdrawAvailable = lockInfo
+                emitState()
+            }
+        } catch (e: Exception) {
+
+        }
+    }
+
+    private fun getData() {
+        if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0))   return
+        try {
+            offset = page * limit
+            val records = repository.getRecordsPaged(evmKit.lastBlockHeight?: 0L, limit, offset)
+            Log.d("LockedInfoViewModel", "get cache data: page=$page, offset=$offset, result=${records.map { it.id }}")
+            if (records.isNotEmpty()) {
+                val lockInfo = records.map {
+                    WithdrawModule.WithDrawLockedInfo(it.id,
+                        it.unlockHeight,
+                        it.releaseHeight,
+                        NodeCovertFactory.formatSafe(it.value),
+                        it.value,
+                        it.address,
+                        it.address2,
+                        (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
+                                || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                        if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
+                        it.contact
+                    )
+                }
+                initIfNeed()
+                withdrawList?.addAll(lockInfo)
+            }
+            if (records.isNotEmpty() && records.size == limit && lockRecordTotal > (withdrawList?.size ?: 0)) {
+                page ++
+            }
+            emitState()
+        } catch (e: Exception) {
+            Log.e("LockedInfoViewModel", "get record error=$e")
         }
     }
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
-            lockedVoteService.loadNext()
+            getData()
+            /*lockedVoteService.loadNext()
             service.loadNext()
             service1.loadNext()
-            service2.loadNext()
+            service2.loadNext()*/
         }
     }
 
@@ -202,7 +210,12 @@ class LockedInfoViewModel(
                 sendResult = SendResult.Sent
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
                 if (isOnlyWithdraw) {
-                    withdrawList = withdrawList?.filter { it.id != clickWithdrawInfo?.id }
+                    withdrawList = withdrawList?.filter { it.id != clickWithdrawInfo?.id } as MutableList<WithdrawModule.WithDrawLockedInfo>?
+
+                    clickWithdrawInfo?.let {
+                        repository.delete(it.id, it.contract)
+                    }
+
                 }
                 emitState()
             } catch (e: Exception) {
@@ -220,6 +233,18 @@ class LockedInfoViewModel(
         } else {
             0
         }
+    }
+
+    fun withdrawEnable(recordInfo: LockRecordInfo): Boolean {
+        return (recordInfo.releaseHeight == 0L && (recordInfo.unlockHeight
+            ?: 0) < (evmKit.lastBlockHeight
+            ?: 0L)) || (recordInfo.unlockHeight == 0L && (recordInfo.releaseHeight
+            ?: 0) < (evmKit.lastBlockHeight ?: 0))
+    }
+
+    fun addLockEnable(recordInfo: LockRecordInfo): Boolean? {
+        return if (recordInfo.address == service.zeroAddress || recordInfo.type > 0) null else (recordInfo.unlockHeight
+            ?: 0L) > 0L
     }
 
     override fun onCleared() {

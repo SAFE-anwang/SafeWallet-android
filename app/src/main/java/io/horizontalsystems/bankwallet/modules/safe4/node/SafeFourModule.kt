@@ -74,7 +74,7 @@ class SafeFourModule {
 
     class FactoryAddLockDay(
             private val wallet: Wallet,
-            private val lockId: List<Int>
+            private val lockId: List<Long>
     ) : ViewModelProvider.Factory {
         val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
 
@@ -134,7 +134,7 @@ class SafeFourModule {
 
     @Parcelize
     data class AddLockDayInput(
-            val lockId: List<Int>,
+            val lockId: List<Long>,
             val wallet: Wallet
     ): Parcelable {
 

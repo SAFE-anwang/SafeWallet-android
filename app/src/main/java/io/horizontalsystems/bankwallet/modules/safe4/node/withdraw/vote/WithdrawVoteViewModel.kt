@@ -46,7 +46,7 @@ class WithdrawVoteViewModel(
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList,
+            withdrawList?.sortedByDescending { it.id }?.sortedBy { it.enable },
             withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog
         )
@@ -80,18 +80,25 @@ class WithdrawVoteViewModel(
         }
     }
 
-    fun check(lockId: Int) {
-        withdrawList?.forEach {
+    fun check(lockId: Long) {
+        /*withdrawList?.forEach {
             if (it.id == lockId) {
                 it.checked = !it.checked
             }
+        }*/
+        withdrawList = withdrawList?.map {
+            it.copy(
+                checked = if (it.id == lockId) !it.checked else it.checked
+            )
         }
         emitState()
     }
 
     fun selectAll(select: Boolean) {
         withdrawList?.forEach {
-            it.checked = select
+            if (it.enable) {
+                it.checked = select
+            }
         }
         emitState()
     }

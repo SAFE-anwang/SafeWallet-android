@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeInfoViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
@@ -60,6 +61,7 @@ object SafeFourVoteModule {
 					xRateService,
 					amountService,
 					coinMaxAllowedDecimals,
+				LockRecordInfoRepository(App.appDatabase.lockRecordDao()),
 					App.connectivityManager
 			) as T
 		}

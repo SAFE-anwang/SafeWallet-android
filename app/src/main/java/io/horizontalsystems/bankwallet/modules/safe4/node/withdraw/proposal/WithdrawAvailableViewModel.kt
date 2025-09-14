@@ -31,7 +31,7 @@ class WithdrawAvailableViewModel(
 
     private val disposables = CompositeDisposable()
     private var withdrawList : List<WithdrawModule.WithDrawInfo>? = null
-    private var rewardsId : MutableList<Int> = mutableListOf()
+    private var rewardsId : MutableList<Long> = mutableListOf()
 
     private var showConfirmationDialog = false
 
@@ -83,7 +83,7 @@ class WithdrawAvailableViewModel(
     fun onBottomReached() {
     }
 
-    fun check(lockId: Int) {
+    fun check(lockId: Long) {
         withdrawList?.forEach {
             if (it.id == lockId) {
                 it.checked = !it.checked

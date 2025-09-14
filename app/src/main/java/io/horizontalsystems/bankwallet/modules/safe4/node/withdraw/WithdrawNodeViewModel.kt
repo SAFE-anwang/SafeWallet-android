@@ -106,7 +106,7 @@ class WithdrawNodeViewModel(
         }
     }
 
-    fun check(lockId: Int) {
+    fun check(lockId: Long) {
         withdrawList?.forEach {
             if (it.id == lockId) {
                 it.checked = !it.checked

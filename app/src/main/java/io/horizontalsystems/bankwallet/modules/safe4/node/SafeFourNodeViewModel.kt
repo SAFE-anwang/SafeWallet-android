@@ -273,7 +273,7 @@ data class NodeInfo(
 }
 
 data class NodeMemberInfo(
-        val lockID: Int,
+        val lockID: Long,
         val addr: Address,
         val amount: BigInteger,
         val height: Long

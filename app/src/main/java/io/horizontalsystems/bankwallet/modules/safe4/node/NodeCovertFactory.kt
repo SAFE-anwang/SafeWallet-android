@@ -126,7 +126,7 @@ object NodeCovertFactory {
 					record.enable,
 					record.checked
 			)
-		}
+		}?.sortedBy { it.enable }
 	}
 
 	fun convertCreatorList(nodeItem: NodeInfo?, walletAddress: String): List<CreateViewItem> {
@@ -190,7 +190,7 @@ object NodeCovertFactory {
 			info.isOfficial,
 			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online,
 			info.founders.map {
-				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
+				NodeMemberInfo(it.lockID.toLong(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
 			},
 			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
 			info.lastRewardHeight.toLong(),
@@ -213,7 +213,7 @@ object NodeCovertFactory {
 			info.isOfficial,
 			if (info.state.toInt() == 2) NodeStatus.Exception else NodeStatus.Online ,
 			info.founders.map {
-				NodeMemberInfo(it.lockID.toInt(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
+				NodeMemberInfo(it.lockID.toLong(), io.horizontalsystems.bankwallet.entities.Address(it.addr.value), it.amount, it.unlockHeight.toLong())
 			},
 			NodeIncentivePlan(info.incentivePlan.creator.toInt(), info.incentivePlan.partner.toInt(), info.incentivePlan.voter.toInt()),
 			info.lastRewardHeight.toLong(),

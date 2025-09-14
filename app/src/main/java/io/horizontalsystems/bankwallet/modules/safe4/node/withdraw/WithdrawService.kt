@@ -4,6 +4,8 @@ import com.anwang.types.accountmanager.RecordUseInfo
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -40,6 +42,8 @@ class WithdrawService(
     val itemsObservableAvailable: Observable<List<WithdrawModule.WithDrawLockedInfo>> get() = itemsSubjectAvailable
     var maxNum = -1
 
+    private var repository: LockRecordInfoRepository? = null
+
     fun getNodeInfo(isSuperNode: Boolean) {
         val nodeInfo = if (isSuperNode) {
             val superNodeInfo = safe4.superNodeInfo(safe4.address.hex)
@@ -51,7 +55,11 @@ class WithdrawService(
         itemsSubject.onNext(nodeInfo)
     }
 
-    fun withdraw(lockedId: List<Int>, type: Int = 0): Single<String> {
+    fun setLockRecordRepository(repository: LockRecordInfoRepository) {
+        this.repository = repository
+    }
+
+    fun withdraw(lockedId: List<Long>, type: Int = 0): Single<String> {
         var result = Single.just("withdraw fail")
         lockedId.chunked(50).forEach {
             result = evmKitManager.withdrawByIds(it.map { it.toBigInteger() }, type)
@@ -63,10 +71,15 @@ class WithdrawService(
     fun loadLocked(page: Int) {
         if (loading.get()) return
         loading.set(true)
+        var page = page
+        if (page == 0) {
+            page = (repository?.getRecordNum(getContract(), evmKitManager.evmKit.receiveAddress.hex) ?: 0) / itemsPerPage
+
+        }
         if (maxNum == -1) {
             maxNum = safe4.getAccountTotalAmount(safe4.address.hex, type).num.toInt()
         }
-        Log.d("locked total", "maxNum=$maxNum")
+        Log.d("WithdrawService", "maxNum=$maxNum")
         if (maxNum <= 0) {
             loading.set(false)
             itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
@@ -86,7 +99,7 @@ class WithdrawService(
             .subscribeOn(Schedulers.io())
             .map {
                 it.map { id ->
-                    val info = safe4.getRecordByID(id.toInt(), type)
+                    val info = safe4.getRecordByID(id.toLong(), type)
                     val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
                     LockedRecord(id, info.amount,  info.unlockHeight, recordUseInfo)
                 }
@@ -99,17 +112,38 @@ class WithdrawService(
                 val infos = records/*.filter {
                     it.recordInfo.frozenAddr.value != zeroAddress && it.recordInfo.votedAddr.value != zeroAddress
                 }*/.map {
-                    WithdrawModule.WithDrawLockedInfo(it.lockedId.toInt(),
+                    WithdrawModule.WithDrawLockedInfo(it.lockedId.toLong(),
                         it.unlockHeight.toLong(),
                         it.recordInfo?.releaseHeight?.toLong(),
                         NodeCovertFactory.formatSafe(it.amount),
                         it.amount,
-                        it.recordInfo?.votedAddr?.value, null,
+                        it.recordInfo?.votedAddr?.value, it.recordInfo?.frozenAddr?.value,
                         (it.recordInfo?.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0))
                                 || (it.unlockHeight == BigInteger.ZERO && (it.recordInfo?.releaseHeight?.toLong() ?: 0) < (evmKitManager.evmKit.lastBlockHeight ?: 0)),
                         if (it.recordInfo?.votedAddr?.value == zeroAddress || type > 0) null else it.unlockHeight > BigInteger.ZERO
                     )
                 }
+                if (infos.isNotEmpty()) {
+                    Log.d("WithdrawService", "save=${infos.size}")
+                    repository?.save(
+                        infos.map {
+                            LockRecordInfo(
+                                it.id,
+                                it.unlockHeight,
+                                it.releaseHeight,
+                                it.value,
+                                it.address,
+                                it.address2,
+                                getContract(),
+                                evmKitManager.evmKit.receiveAddress.hex,
+                                type,
+                                it.withdrawEnable
+                            )
+                        }
+                    )
+                    loadNext()
+                }
+
                 lockedIdsItemsLocked.addAll(infos)
                 itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
 
@@ -124,6 +158,18 @@ class WithdrawService(
         if (!allLoaded.get()) {
             loadLocked(loadedPageNumberLocked + 1)
         }
+    }
+
+    private fun getContract(): String {
+        return when(type) {
+            1 -> safe4.AccountManagerContractAddr4ac6
+            2 -> safe4.AccountManagerContractAddr91b2
+            else -> safe4.safe4SwapContractAddress
+        }
+    }
+
+    fun start() {
+        loadLocked(0)
     }
 
     override fun clear() {

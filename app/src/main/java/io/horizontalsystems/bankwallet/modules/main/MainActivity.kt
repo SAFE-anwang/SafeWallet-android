@@ -1,8 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.app.Dialog
 import android.graphics.Color
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -11,15 +13,21 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.material.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
@@ -37,6 +45,8 @@ import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4TokensService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -47,8 +57,12 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
 import io.horizontalsystems.core.hideKeyboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity() {
 
@@ -131,6 +145,31 @@ class MainActivity : BaseActivity() {
             },
             40000
         )*/
+        LockRecordManager.getAllLockRecord()
+        LockRecordManager.getAllProposalRecord()
+        viewModel.viewModelScope.launch {
+            LockRecordManager.newProposalRecordState.collectLatest {
+                if (it) {
+                    withContext(Dispatchers.Main) {
+                        MaterialAlertDialogBuilder(this@MainActivity)
+                            .setTitle("提案")
+                            .setMessage("有新的提案，是否查看?")
+                            .setPositiveButton("查看"
+                            ) { p0, p1 ->
+                                LockRecordManager.updateProposalStatus()
+                                p0.dismiss()
+                                Safe4Module.handlerNode(Safe4Module.SafeFourType.Proposal, navController)
+                            }
+                            .setNegativeButton("不在提醒") { p0, p1 ->
+                                LockRecordManager.updateProposalStatus()
+                                p0.dismiss()
+                            }
+                            .show()
+                    }
+                }
+
+            }
+        }
 
     }
 
@@ -255,6 +294,7 @@ class MainActivity : BaseActivity() {
         unregisterReceiver(mMsgReceiver)
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
+        LockRecordManager.exit = true
     }
 
     private fun startUpgradeVersion() {

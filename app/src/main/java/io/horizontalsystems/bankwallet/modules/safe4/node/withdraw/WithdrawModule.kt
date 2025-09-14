@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.BaseEvmAdapter
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalRecordRepository
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.proposal.WithdrawAvailableViewModel
@@ -52,26 +54,20 @@ object WithdrawModule {
 				}
 				LockedInfoViewModel::class.java -> {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 0)
-					val service1 = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 1)
-					val service2 = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, 2)
-					val lockVoteService = SafeFourLockedVoteService(rpcBlockchainSafe4,
-						adapterEvm.evmKitWrapper.evmKit,
-						adapterEvm.evmKitWrapper.evmKit.receiveAddress)
+					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper)
 					LockedInfoViewModel(
 						wallet,
 						adapterEvm.evmKitWrapper.evmKit,
 						service,
-						service1,
-						service2,
-						lockVoteService,
+						LockRecordInfoRepository(App.appDatabase.lockRecordDao()),
 						App.connectivityManager
 					) as T
 				}
 				WithdrawAvailableViewModel::class.java -> {
 					val rpcBlockchainSafe4 = adapterEvm.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 					val service = WithdrawService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper)
-					val serviceProposal = SafeFourProposalService(rpcBlockchainSafe4, adapterEvm.evmKitWrapper, true)
+					val serviceProposal = SafeFourProposalService(rpcBlockchainSafe4,
+						adapterEvm.evmKitWrapper, ProposalRecordRepository(App.appDatabase.proposalRecordDao()) ,true)
 					WithdrawAvailableViewModel(
 						adapterEvm.evmKitWrapper.evmKit.receiveAddress,
 						service,
@@ -98,7 +94,7 @@ object WithdrawModule {
 	)
 
 	data class WithDrawInfo(
-		val id: Int,
+		val id: Long,
 		val height: Long?,
 		val releaseHeight: Long?,
 		val amount: String,
@@ -108,7 +104,7 @@ object WithdrawModule {
 	)
 
 	data class WithDrawLockedInfo(
-		val id: Int,
+		val id: Long,
 		val unlockHeight: Long?,
 		val releaseHeight: Long?,
 		val amount: String,
@@ -116,7 +112,8 @@ object WithdrawModule {
 		val address: String?,
 		val address2: String?,
 		var withdrawEnable: Boolean = false,
-		var addLockDayEnable: Boolean? = false
+		var addLockDayEnable: Boolean? = false,
+		var contract: String = ""
 	)
 
 	@Parcelize

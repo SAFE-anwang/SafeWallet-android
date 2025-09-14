@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
@@ -22,6 +23,8 @@ class SafeFourLockedVoteService(
 		val ethereumKit: EthereumKit,
 		val address: Address
 ): Clearable {
+
+	val zeroAddress = "0x0000000000000000000000000000000000000000"
 
 	private var loadedPageNumber = 0
 	private val loading = AtomicBoolean(false)
@@ -68,7 +71,7 @@ class SafeFourLockedVoteService(
 				.subscribeOn(Schedulers.io())
 				.map {
 					it.map { id ->
-						getLockInfo(id.toInt())
+						getLockInfo(id.toLong())
 					}
 				}
 				.doFinally {
@@ -92,8 +95,8 @@ class SafeFourLockedVoteService(
 		}
 	}
 
-	private fun getLockInfo(id: Int):LockIdsInfo {
-		val info = safe4RpcBlockChain.getRecordByID(id.toInt())
+	private fun getLockInfo(id: Long):LockIdsInfo {
+		val info = safe4RpcBlockChain.getRecordByID(id)
 
 		// 查询记录锁定信息
 		val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
@@ -101,16 +104,25 @@ class SafeFourLockedVoteService(
 			safe4RpcBlockChain.superAddressExist(lockInfo.frozenAddr.value)
 		// 当前高度小于releaseheight时也不能投票
 		val currentHeight = ethereumKit.lastBlockHeight ?: 0L
-		val enabled =
-			!isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
+		val enabled = lockInfo.votedAddr.value == zeroAddress
+				&& !isSuperNode && currentHeight > lockInfo.releaseHeight.toLong()
 		return LockIdsInfo(
-			id.toInt(), info.amount,
+			id.toLong(), info.amount,
 			NodeCovertFactory.valueConvert(info.amount).toInt() >= 1 && enabled,
 			unlockHeight = info.unlockHeight,
 			releaseHeight = lockInfo.releaseHeight,
 			address = lockInfo.votedAddr.value,
 			address2 = lockInfo.frozenAddr.value
 		)
+	}
+
+	fun lockEnableVote(lockRecordInfo: LockRecordInfo): Boolean {
+		val isSuperNode =
+			lockRecordInfo.address2?.let { safe4RpcBlockChain.superAddressExist(it) } ?: false
+		// 当前高度小于releaseheight时也不能投票
+		val currentHeight = ethereumKit.lastBlockHeight ?: 0L
+		return (lockRecordInfo.address == zeroAddress
+				&& !isSuperNode && currentHeight > (lockRecordInfo.releaseHeight ?: 0))
 	}
 
 
@@ -135,10 +147,10 @@ class SafeFourLockedVoteService(
 				.subscribeOn(Schedulers.io())
 				.map {
 					it.map { id ->
-						val info = safe4RpcBlockChain.getRecordByID(id.toInt())
+						val info = safe4RpcBlockChain.getRecordByID(id.toLong())
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
-						LockIdsInfo(id.toInt(), info.amount,
+						LockIdsInfo(id.toLong(), info.amount,
 							lockInfo.releaseHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = info.unlockHeight,
 							releaseHeight = lockInfo.releaseHeight,
@@ -218,7 +230,7 @@ class SafeFourLockedVoteService(
 					it.map { id ->
 						val rewards = safe4RpcBlockChain.getRewardIDs(id.toInt())
 						rewards.map {
-							getLockInfo(it.toInt())
+							getLockInfo(it.toLong())
 						}
 					}.flatMap { it }
 				}

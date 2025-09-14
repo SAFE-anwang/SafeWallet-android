@@ -410,8 +410,6 @@ class LiquidityMainViewModel(
                 }
             }*/
         }
-        Log.d("longwen", "allowanceServiceA=${allowanceServiceA.state}")
-        Log.d("longwen", "allowanceServiceB=${allowanceServiceB.state}")
         when (val state = allowanceServiceA.state) {
             LiquidityAllowanceService.State.Loading -> {}
 
@@ -839,7 +837,6 @@ class LiquidityMainViewModel(
     }
 
     fun onSelectToCoin(token: Token) {
-        android.util.Log.d("longwen", "selectToCoin=$token")
         toTokenService.onSelectCoin(token)
         syncBalanceB(balance(token))
 //        if (exactType == ExactType.ExactFrom) {
@@ -929,7 +926,6 @@ class LiquidityMainViewModel(
         val tokenB = toTokenService.token ?: return null
         val tokenAAmount = amountFrom?.movePointRight(18)?.toBigInteger() ?: return null
         val tokenBAmount = amountTo?.movePointRight(18)?.toBigInteger() ?: return null
-        Log.d("longwen", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount")
         val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return null
 //        val tradeOptions = uniswapTradeService.tradeOptions
         val transactionData = try {

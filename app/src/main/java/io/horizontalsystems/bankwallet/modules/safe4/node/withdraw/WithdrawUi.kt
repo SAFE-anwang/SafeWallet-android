@@ -34,14 +34,14 @@ object WithdrawUi {
 
     @Composable
     fun WithdrawItem(
-        lockId: Int,
+        lockId: Long,
         amount: String,
         enable: Boolean,
         checked: Boolean,
         unHeight: Long?,
         releaseHeight: Long? = null,
         address: String? = null,
-        onChecked: (Int, Boolean) -> Unit
+        onChecked: (Long, Boolean) -> Unit
     ) {
         Row(
             modifier = Modifier
@@ -103,7 +103,7 @@ object WithdrawUi {
 
     @Composable
     fun WithdrawLockItem(
-        lockId: Int,
+        lockId: Long,
         amount: String,
         withdrawEnable: Boolean,
         addLockDayEnable: Boolean?,
@@ -112,7 +112,7 @@ object WithdrawUi {
         address: String?,
         address2: String?,
         onWithdraw: () -> Unit,
-        onAddLockDay: (Int) -> Unit
+        onAddLockDay: (Long) -> Unit
     ) {
         Row(
             modifier = Modifier

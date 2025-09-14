@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.vote
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService.Companion
@@ -100,7 +101,7 @@ class SafeFourVoteRecordService(
 			}
 
 		} catch (e: Exception) {
-
+			Log.e("Voter Info", "error=$e")
 		}
 
 	}

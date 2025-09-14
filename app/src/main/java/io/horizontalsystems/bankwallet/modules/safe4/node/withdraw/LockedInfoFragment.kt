@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,10 +17,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+//import androidx.paging.LoadState
+//import androidx.paging.compose.LazyPagingItems
+//import androidx.paging.compose.collectAsLazyPagingItems
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawUi.WithdrawLockItem
 import io.horizontalsystems.bankwallet.modules.send.SendResult
@@ -154,7 +160,7 @@ fun WithdrawVoteScreen(
 fun LazyListScope.WithdrawList(
     lockIdsList: List<WithdrawModule.WithDrawLockedInfo>,
     onWithdraw: (WithdrawModule.WithDrawLockedInfo) -> Unit,
-    onAddLockDay: (Int) -> Unit,
+    onAddLockDay: (Long) -> Unit,
     onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
@@ -181,7 +187,7 @@ fun LazyListScope.WithdrawList(
 }
 
 
-private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawLockedInfo>): Int? {
+private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawLockedInfo>): Long? {
     //get index not exact bottom but near to the bottom, to make scroll smoother
     val index = if (nodeList.size > 4) nodeList.size - 4 else 0
 

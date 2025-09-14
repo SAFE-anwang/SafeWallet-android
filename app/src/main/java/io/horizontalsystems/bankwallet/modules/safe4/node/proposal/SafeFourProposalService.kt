@@ -4,6 +4,8 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService.Companion
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.ethereumkit.models.Address
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class SafeFourProposalService(
 		val safe4RpcBlockChain: RpcBlockchainSafe4,
 		val evmKitWrapper: EvmKitWrapper,
+		val repository: ProposalRecordRepository,
 	val isWithdraw: Boolean = false
 ): Clearable {
 
@@ -53,12 +56,16 @@ class SafeFourProposalService(
 	private var getAllListCount = 0
 	private var getMineListCount = 0
 
+
+	var lockRecordTotal = 0
+	var offset = 0
+	var page = 0
+	val limit = 20
+
 	init {
 		lastBlockHeight()
-		if (!isWithdraw) {
-			getAllNum()
-		}
-		getMinNum()
+
+//		getMinNum()
 	}
 
 	private fun lastBlockHeight() {
@@ -72,6 +79,24 @@ class SafeFourProposalService(
 
 	fun getLastBlockHeight(): Long {
 		return safe4RpcBlockChain.lastBlockHeight ?: 0
+	}
+
+	fun getCacheData() {
+		lockRecordTotal = repository.getTotal()
+		Log.d("Proposal", "proposal total num = $lockRecordTotal")
+		if (lockRecordTotal == 0)   return
+		try {
+			offset = page * limit
+			val records = repository.getRecordsPaged(limit, offset)
+			val info = records.map {
+				covert(it)
+			}
+			allItems.addAll(info)
+			allSubject.onNext(allItems)
+			page ++
+		} catch (e: Exception) {
+			Log.d("Proposal", "get proposal error = $e")
+		}
 	}
 
 	fun getAllNum() {
@@ -97,7 +122,7 @@ class SafeFourProposalService(
 		}
 	}
 
-	fun getMinNum() {
+	/*fun getMinNum() {
 		try {
 			if (mineProposalNum == -1) {
 				safe4RpcBlockChain.getMineNum(evmKitWrapper.evmKit.receiveAddress.hex)
@@ -118,53 +143,46 @@ class SafeFourProposalService(
 				getMinNum()
 			}
 		}
-	}
+	}*/
 
 	fun loadAllItems(page: Int) {
 		try {
-			if (allProposalNum == 0) {
-				allSubject.onNext(allItems)
+			val allProposalNum = safe4RpcBlockChain.getProposalNum().blockingGet().toInt()
+			Log.d("Proposal", "allProposalNum=$allProposalNum")
+			if (allProposalNum == 0 || allProposalNum == repository.getTotal()) {
 				return
 			}
 			if (loading.get()) return
 			loading.set(true)
+
+			var page = page
+			if (page == 0) {
+				page = repository.getTotal() / WithdrawService.itemsPerPage
+			}
+
 			var itemsCount = allProposalNum - (page + 1) * itemsPerPage
 			var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
 			if (itemsCount < 0) itemsCount = 0
 			val enableSingle = safe4RpcBlockChain.getAllProposal(itemsCount, pageCount)
-			enableSingle
-					.subscribeOn(Schedulers.io())
-					.map {
-						it.map { id ->
-							val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
-							covert(info)
-						}
-					}
-					.doFinally {
-						loading.set(false)
-					}
-					.subscribe( { enableRecord ->
-						allLoaded.set(enableRecord.isEmpty() || enableRecord.size < itemsPerPage)
-						allItems.addAll(enableRecord.reversed())
-						allSubject.onNext(allItems)
-
-						loadedPageNumber = page
-					},{
-					}).let {
-						disposables.add(it)
-					}
-		} catch (e: Exception) {
-			if (getAllListCount < 3) {
-				getAllListCount ++
-				loading.set(false)
-				loadAllItems(page)
+			val record = enableSingle.blockingGet()
+			Log.d("Proposal", "allProposal =$record")
+			val recordInfo = record.map { id ->
+				val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
+				covertData(info)
 			}
+			repository.save(recordInfo)
+			loadedPageNumber = page
+			loadAllItems(page + 1)
+
+		} catch (e: Exception) {
+			loading.set(false)
+			loadAllItems(page)
 		}
 
 	}
 
 
-	fun loadMineItems(page: Int) {
+	fun loadMineItems() {
 		try {
 			if (mineProposalNum == 0) {
 				mineItemsSubject.onNext(mineItems)
@@ -172,8 +190,16 @@ class SafeFourProposalService(
 			}
 			if (loadingMine.get()) return
 			loadingMine.set(true)
+			val creater = evmKitWrapper.evmKit.receiveAddress.hex
+			val mineRecord = repository.getMineRecordsPaged(creater)
+			val infos = mineRecord.map {
+				val rewards = safe4RpcBlockChain.getRewardIDs(it.id)
+				covert(it, rewards.map { it.toLong() })
+			}
+			mineItems.addAll(infos)
+			mineItemsSubject.onNext(mineItems)
 
-			var itemsCount = mineProposalNum - (page + 1) * itemsPerPage
+			/*var itemsCount = mineProposalNum - (page + 1) * itemsPerPage
 			var pageCount = if (itemsCount > 0) itemsPerPage else itemsPerPage + itemsCount
 			if (itemsCount < 0) itemsCount = 0
 			// already vote
@@ -186,7 +212,7 @@ class SafeFourProposalService(
 							val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
 							val rewards = safe4RpcBlockChain.getRewardIDs(id.toInt())
 
-							covert(info, rewards.map { it.toInt() })
+							covert(info, rewards.map { it.toLong() })
 						}
 					}
 					.doFinally {
@@ -201,23 +227,42 @@ class SafeFourProposalService(
 					},{
 					}).let {
 						disposables.add(it)
-					}
+					}*/
 		} catch (e: Exception) {
-			if (getMineListCount < 3) {
-				getMineListCount++
-				loadingMine.set(false)
-				loadMineItems(page)
-			}
+			loadingMine.set(false)
+			loadMineItems()
 		}
 	}
 
-	private fun covert(info: com.anwang.types.proposal.ProposalInfo, list: List<Int> = listOf()): ProposalInfo {
+	private fun covert(info: ProposalRecordInfo, list: List<Long> = listOf()): ProposalInfo {
 		val state = if (info.state.toInt() == 0 && info.endPayTime.toLong() < System.currentTimeMillis() / 1000) {
 			2
 		} else {
 			info.state.toInt()
 		}
 		return ProposalInfo(
+				info.id,
+				info.creator,
+				info.title,
+				info.payAmount,
+				info.payTimes,
+				info.startPayTime,
+				info.endPayTime,
+				info.description,
+				state,
+				info.createHeight,
+				info.updateHeight,
+			list
+		)
+	}
+
+	private fun covertData(info: com.anwang.types.proposal.ProposalInfo): ProposalRecordInfo {
+		val state = if (info.state.toInt() == 0 && info.endPayTime.toLong() < System.currentTimeMillis() / 1000) {
+			2
+		} else {
+			info.state.toInt()
+		}
+		return ProposalRecordInfo(
 				info.id.toInt(),
 				info.creator.value,
 				info.title,
@@ -229,26 +274,17 @@ class SafeFourProposalService(
 				state,
 				info.createHeight.toLong(),
 				info.updateHeight.toLong(),
-			list
+			if (info.startPayTime.toLong() * 1000 > 1725926400) 1 else 0
 		)
 	}
 
 	fun loadNext() {
 		if (!allLoaded.get() && !isWithdraw) {
-			/*if (allProposalNum == -1) {
-				getAllNum()
-			} else {*/
-				loadAllItems(loadedPageNumber + 1)
-//			}
+			getCacheData()
 		}
-		if (!allLoadedMine.get()) {
-			/*if (mineProposalNum == -1) {
-				getMinNum()
-			} else {*/
-				loadMineItems(loadedPageNumberMine + 1)
-//			}
-		}
+
 	}
+
 
 	fun getProposalInfo(id: Int, type: Int):ProposalInfo?{
 		return if (type == 0) {
@@ -256,6 +292,10 @@ class SafeFourProposalService(
 		} else {
 			mineItems.find { it.id == id }
 		}
+	}
+
+	fun start() {
+		loadAllItems(0)
 	}
 
 	override fun clear() {

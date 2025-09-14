@@ -185,7 +185,7 @@ fun WithdrawVoteScreen(
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.WithdrawList(
     lockIdsList: List<WithdrawModule.WithDrawInfo>,
-    onCheckedChange: (Int, Boolean) -> Unit,
+    onCheckedChange: (Long, Boolean) -> Unit,
     onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
@@ -208,7 +208,7 @@ fun LazyListScope.WithdrawList(
 }
 
 
-private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawInfo>): Int? {
+private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawInfo>): Long? {
     //get index not exact bottom but near to the bottom, to make scroll smoother
     val index = if (nodeList.size > 4) nodeList.size - 4 else 0
 
