@@ -2544,7 +2544,7 @@
     <string name="SAFE4_Swap_Tx_Title">SAFE Exchange</string>
 
     <string name="SAFE4_Withdraw">Withdraw</string>
-    <string name="SAFE4_Withdraw_Release">Vote release/Withdraw</string>
+    <string name="SAFE4_Withdraw_Release">Withdraw</string>
     <string name="SAFE4_Withdraw_Master_Node">Master Node Withdraw</string>
     <string name="SAFE4_Withdraw_Super_Node">Super Node Withdraw</string>
     <string name="SAFE4_Withdraw_Proposal">Proposal Withdraw</string>
@@ -2627,6 +2627,7 @@
     <string name="Menu_Item_Select_All">Select All</string>
     <string name="Menu_Item_Select_All_Cancel">Cancel</string>
     <string name="Create_Pool">Create Poll</string>
+    <string name="RemoveVote">Remove Vote</string>
     <!-- SRC20 end-->
 
 </resources>

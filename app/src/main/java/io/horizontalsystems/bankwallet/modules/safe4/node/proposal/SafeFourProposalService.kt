@@ -250,8 +250,8 @@ class SafeFourProposalService(
 				info.endPayTime,
 				info.description,
 				state,
-				info.createHeight,
-				info.updateHeight,
+				info.createHeight ?: 0,
+				info.updateHeight ?: 0,
 			list
 		)
 	}

@@ -18,7 +18,7 @@ data class ProposalRecordInfo(
     val endPayTime: Long,
     val description: String,
     val state: Int,
-    val createHeight: Long,
-    val updateHeight: Long,
+    val createHeight: Long?,
+    val updateHeight: Long?,
     val newProposal: Int = 0
 )

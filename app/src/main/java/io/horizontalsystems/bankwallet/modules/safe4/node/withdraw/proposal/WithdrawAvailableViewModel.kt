@@ -38,6 +38,10 @@ class WithdrawAvailableViewModel(
     private var isWithdrawing = AtomicBoolean(false)
     var sendResult by mutableStateOf<SendResult?>(null)
 
+    init {
+        start()
+    }
+
     override fun createState(): WithdrawModule.WithDrawNodeUiState {
         return getUiState()
     }
@@ -60,7 +64,7 @@ class WithdrawAvailableViewModel(
                         list.add(
                             WithdrawModule.WithDrawInfo(
                                 it.rewordsIds[i],
-                                it.updateHeight,
+                                it.createHeight,
                                 null,
                                 NodeCovertFactory.formatSafe(it.payAmount.divide(it.payTimes.toBigInteger())),
                                 it.creator,
@@ -78,6 +82,9 @@ class WithdrawAvailableViewModel(
     }
 
     fun start() {
+        viewModelScope.launch(Dispatchers.IO) {
+            proposalService.loadMineItems()
+        }
     }
 
     fun onBottomReached() {

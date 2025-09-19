@@ -51,21 +51,26 @@ object LockRecordManager {
                     delay(1000)
                 }
                 adapterEvm?.let { adapter ->
-                    val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-                    val service = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper)
-                    val service1 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 1)
-                    val service2 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 2)
-                    val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
-                    service.setLockRecordRepository(repository)
-                    service1.setLockRecordRepository(repository)
-                    service2.setLockRecordRepository(repository)
-//                    while(!exit) {
+                    try {
+                        val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+                        val service = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper)
+                        val service1 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 1)
+                        val service2 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 2)
+                        val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
+                        service.setLockRecordRepository(repository)
+                        service1.setLockRecordRepository(repository)
+                        service2.setLockRecordRepository(repository)
                         service.start()
                         service1.start()
                         service2.start()
+                        service.deleteLockedInfo()
+                        service1.deleteLockedInfo()
+                        service2.deleteLockedInfo()
                         _recordState.update { _recordState.value ++ }
                         delay(3000)
-//                    }
+                    } catch (e: Exception) {
+
+                    }
                 }
 
             }

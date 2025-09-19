@@ -125,7 +125,7 @@ class SafeFourVoteViewModel(
 
         viewModelScope.launch {
             LockRecordManager.recordState.collect {
-                getTotal()
+//                getTotal()
             }
         }
 
@@ -142,7 +142,7 @@ class SafeFourVoteViewModel(
 
     private fun getTotal() {
         val old = lockRecordTotal
-        lockRecordTotal = repository.getTotal()
+        lockRecordTotal = repository.getVoteTotal(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
         if (old != lockRecordTotal) {
             getData()
@@ -155,7 +155,7 @@ class SafeFourVoteViewModel(
         try {
             offset = page * limit
             val lastBlockHeight = adapter.evmKitWrapper.evmKit.lastBlockHeight?: 0L
-            val records = repository.getVoteRecordsPaged(limit, offset)
+            val records = repository.getVoteRecordsPaged(adapter.evmKitWrapper.evmKit.receiveAddress.hex, limit, offset)
             android.util.Log.d("LockedInfoViewModel", "get cache data: page=$page, offset=$offset, result=${records.map { it.id }}")
             if (records.isNotEmpty()) {
                 val lockInfo = records.map {

@@ -2217,7 +2217,7 @@
     <string name="SAFE4_Swap_Tx_Title">SAFE兑换</string>
 
     <string name="SAFE4_Withdraw">提现</string>
-    <string name="SAFE4_Withdraw_Release">投票释放/提现</string>
+    <string name="SAFE4_Withdraw_Release">提现</string>
     <string name="SAFE4_Withdraw_Master_Node">主节点提现</string>
     <string name="SAFE4_Withdraw_Super_Node">超级节点提现</string>
     <string name="SAFE4_Withdraw_Proposal">提案提现</string>
@@ -2298,6 +2298,7 @@
     <string name="Menu_Item_Select_All">全选</string>
     <string name="Menu_Item_Select_All_Cancel">取消</string>
     <string name="Create_Pool">创建交易对</string>
+    <string name="RemoveVote">投票释放</string>
     <!-- SRC20 end-->
 
 </resources>

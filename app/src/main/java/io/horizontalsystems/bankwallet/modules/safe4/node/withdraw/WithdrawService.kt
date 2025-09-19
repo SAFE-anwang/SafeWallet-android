@@ -67,6 +67,14 @@ class WithdrawService(
         return result
     }
 
+    fun removeVoteOrApproval(lockedId: List<Long>): Single<String> {
+        var result = Single.just("withdraw fail")
+        lockedId.chunked(50).forEach {
+            result = evmKitManager.removeVoteOrApproval(it.map { it.toBigInteger() })
+        }
+        return result
+    }
+
 
     fun loadLocked(page: Int) {
         if (loading.get()) return
@@ -168,8 +176,30 @@ class WithdrawService(
         }
     }
 
+    fun getRecordInfo(id: Long): LockedRecord {
+        val info = safe4.getRecordByID(id.toLong(), type)
+        val recordUseInfo = safe4.getRecordUseInfo(id.toInt())
+        return LockedRecord(info.id, info.amount,  info.unlockHeight, recordUseInfo)
+    }
+
     fun start() {
         loadLocked(0)
+    }
+
+    fun deleteLockedInfo() {
+        val idList = repository?.getRecordIds(getContract(), evmKitManager.evmKit.receiveAddress.hex)
+        idList?.let {ids ->
+            ids.forEach {
+                try {
+                    val record = getRecordInfo(it)
+                    if (record.lockedId == BigInteger.ZERO) {
+                        repository?.delete(it, getContract())
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("deleteLockedInfo", "error=$e")
+                }
+            }
+        }
     }
 
     override fun clear() {

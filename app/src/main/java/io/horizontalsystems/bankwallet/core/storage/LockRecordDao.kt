@@ -24,24 +24,43 @@ interface LockRecordDao {
     fun delete(id: Long, contact: String)
 
 
-    @Query("SELECT * FROM LockRecordInfo WHERE unlockHeight>:currentHeight ORDER BY " +
-            "id ASC " +
+    @Query("SELECT * FROM LockRecordInfo WHERE unlockHeight>:currentHeight AND creator=:creator " +
+            "AND (releaseHeight IS NULL OR releaseHeight = 0) " +
+            "ORDER BY id ASC " +
             "LIMIT :limit OFFSET :offset")
-    fun getRecordsPaged(currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo>
+    fun getRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo>
 
 
-    @Query("SELECT * FROM LockRecordInfo WHERE type = 0 ORDER BY " +
-            "id ASC " +
+    @Query("SELECT * FROM LockRecordInfo WHERE type = 0 AND creator=:creator " +
+            "ORDER BY id ASC " +
             "LIMIT :limit OFFSET :offset")
-    fun getVoteRecordsPaged(limit: Int, offset: Int): List<LockRecordInfo>
+    fun getVoteRecordsPaged(creator: String, limit: Int, offset: Int): List<LockRecordInfo>
+
+
+    @Query("SELECT * FROM LockRecordInfo WHERE type = 0 AND creator=:creator " +
+            "AND releaseHeight IS NOT NULL AND releaseHeight > 0")
+    fun queryNeedUpdateRecords(creator: String): List<LockRecordInfo>
 
     //
-    @Query("SELECT * FROM LockRecordInfo WHERE unlockHeight<:currentHeight ORDER BY id ASC")
-    fun getRecordsForEnableWithdraw(currentHeight: Long): List<LockRecordInfo>?
+    @Query("SELECT * FROM LockRecordInfo WHERE " +
+            "(releaseHeight IS NULL OR releaseHeight = 0) AND " +
+            "unlockHeight<:currentHeight AND creator=:creator ORDER BY id ASC")
+    fun getRecordsForEnableWithdraw(creator: String, currentHeight: Long): List<LockRecordInfo>?
 
-    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo")
-    fun getLockRecordTotal(): Int
+    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator " +
+            "AND (releaseHeight IS NULL OR releaseHeight = 0)")
+    fun getLockRecordTotal(creator: String): Int
+
+    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator AND type = 0")
+    fun getVoteLockRecordTotal(creator: String): Int
 
     @Query("SELECT COUNT(*) FROM LockRecordInfo  WHERE contact = :contact AND creator = :creator")
     fun getLockRecordNum(contact: String, creator: String): Int
+
+
+    @Query("SELECT * FROM LockRecordInfo WHERE creator=:creator AND releaseHeight>0 AND type = 0")
+    fun getRecordsVoteLockRecord(creator: String): List<LockRecordInfo>
+
+    @Query("SELECT id FROM LockRecordInfo WHERE creator=:creator AND contact=:contact")
+    fun getLockedIds(contact: String, creator: String): List<Long>
 }

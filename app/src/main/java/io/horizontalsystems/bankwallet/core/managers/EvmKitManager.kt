@@ -268,6 +268,13 @@ class EvmKitWrapper(
         return Single.just("withdraw fail")
     }
 
+    fun removeVoteOrApproval(ids: List<BigInteger>): Single<String> {
+        if (blockchainType == BlockchainType.SafeFour && signer != null) {
+            return evmKit.removeVoteOrApproval(signer.privateKey, ids)
+        }
+        return Single.just("withdraw fail")
+    }
+
     fun sendSafe4Swap(
         transactionData: TransactionData
     ) : Single<String> {

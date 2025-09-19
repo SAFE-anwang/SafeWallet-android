@@ -57,9 +57,14 @@ class LockedInfoViewModel(
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
         Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, $withdrawAvailable")
         val list = mutableListOf<WithdrawModule.WithDrawLockedInfo>()
-        withdrawList?.let { list.addAll(it) }
+        withdrawAvailable?.let {
+            list.addAll(it)
+        }
+        withdrawList?.let {
+            list.addAll(it.sortedBy { it.unlockHeight ?: 0 < evmKit.lastBlockHeight?: 0 })
+        }
         return WithdrawModule.WithDrawLockInfoUiState(
-            (withdrawAvailable)?.plus(list.sortedBy { it.unlockHeight ?: 0 < evmKit.lastBlockHeight?: 0 }),
+            list,
             showConfirmationDialog
         )
     }
@@ -67,7 +72,7 @@ class LockedInfoViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             LockRecordManager.recordState.collect {
-                getTotal()
+//                getTotal()
             }
         }
 
@@ -76,8 +81,8 @@ class LockedInfoViewModel(
 
     private fun getTotal() {
         val old = lockRecordTotal
-        lockRecordTotal = repository.getTotal()
-        Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
+        lockRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
+        Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
         if (old != lockRecordTotal) {
             getData()
         }
@@ -89,6 +94,8 @@ class LockedInfoViewModel(
             getTotal()
             getData()
             getWithdrawEnableRecord()
+            queryNeedUpdateRecords()
+            service.deleteLockedInfo()
         }
     }
 
@@ -101,7 +108,7 @@ class LockedInfoViewModel(
     private fun getWithdrawEnableRecord() {
         if (lockRecordTotal == 0)   return
         try {
-            val result = repository.getRecordsForEnableWithdraw(evmKit.lastBlockHeight ?: 0)
+            val result = repository.getRecordsForEnableWithdraw(evmKit.receiveAddress.hex,evmKit.lastBlockHeight ?: 0)
 //            if (records.isEmpty())  return
             result?.let { records ->
                 val lockInfo = records.filter { it.id != 0L } .map {
@@ -127,10 +134,12 @@ class LockedInfoViewModel(
     }
 
     private fun getData() {
-        if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0))   return
+        Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}, ${ (withdrawAvailable?.size ?: 0)}")
+        if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0) + (withdrawAvailable?.size ?: 0))   return
         try {
             offset = page * limit
-            val records = repository.getRecordsPaged(evmKit.lastBlockHeight?: 0L, limit, offset)
+            val records = repository.getRecordsPaged(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L, limit, offset)
+                .filter { it.id != 0L }
             Log.d("LockedInfoViewModel", "get cache data: page=$page, offset=$offset, result=${records.map { it.id }}")
             if (records.isNotEmpty()) {
                 val lockInfo = records.map {
@@ -161,11 +170,26 @@ class LockedInfoViewModel(
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
+            lockRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
+            if (lockRecordTotal == (withdrawList?.size ?: 0) +( withdrawAvailable?.size ?: 0)) {
+                return@launch
+            }
             getData()
-            /*lockedVoteService.loadNext()
-            service.loadNext()
-            service1.loadNext()
-            service2.loadNext()*/
+        }
+    }
+
+    private fun queryNeedUpdateRecords() {
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                val records = repository.queryNeedUpdateRecords(evmKit.receiveAddress.hex)
+                val temp = records.map {
+                    val info = service.getRecordInfo(it.id)
+                    it.copy(releaseHeight = info.recordInfo?.releaseHeight?.toLong())
+                }
+                repository.save(temp)
+            }
+        } catch (e: Exception) {
+
         }
     }
 

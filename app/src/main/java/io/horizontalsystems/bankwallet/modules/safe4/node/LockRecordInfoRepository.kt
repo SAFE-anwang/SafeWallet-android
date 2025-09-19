@@ -7,22 +7,30 @@ class LockRecordInfoRepository(
     private val lockRecordDao: LockRecordDao
 ) {
 
-    fun getRecordsPaged(currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
+    fun getRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getRecordsPaged(currentHeight, limit, offset)
+        return lockRecordDao.getRecordsPaged(creator, currentHeight, limit, offset)
     }
 
-    fun getVoteRecordsPaged(limit: Int, offset: Int): List<LockRecordInfo> {
-        return lockRecordDao.getVoteRecordsPaged(limit, offset)
+    fun getVoteRecordsPaged(creator: String, limit: Int, offset: Int): List<LockRecordInfo> {
+        return lockRecordDao.getVoteRecordsPaged(creator, limit, offset)
     }
 
-    fun getRecordsForEnableWithdraw(currentHeight: Long): List<LockRecordInfo>? {
+    fun queryNeedUpdateRecords(creator: String): List<LockRecordInfo> {
+        return lockRecordDao.queryNeedUpdateRecords(creator)
+    }
+
+    fun getRecordsForEnableWithdraw(creator: String, currentHeight: Long): List<LockRecordInfo>? {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getRecordsForEnableWithdraw(currentHeight)
+        return lockRecordDao.getRecordsForEnableWithdraw(creator, currentHeight)
     }
 
-    fun getTotal(): Int {
-        return lockRecordDao.getLockRecordTotal()
+    fun getTotal(creator: String): Int {
+        return lockRecordDao.getLockRecordTotal(creator)
+    }
+
+    fun getVoteTotal(creator: String): Int {
+        return lockRecordDao.getVoteLockRecordTotal(creator)
     }
 
     fun getRecordNum(contract: String, creator: String): Int {
@@ -30,11 +38,14 @@ class LockRecordInfoRepository(
     }
 
     fun save(datas: List<LockRecordInfo>) {
-        lockRecordDao.insert(datas)
+        lockRecordDao.insert(datas.filter { it.id != 0L })
     }
 
     fun delete(lockId: Long, contract: String) {
         lockRecordDao.delete(lockId, contract)
     }
 
+    fun getRecordIds(contract: String, creator: String): List<Long> {
+        return lockRecordDao.getLockedIds(contract, creator)
+    }
 }
