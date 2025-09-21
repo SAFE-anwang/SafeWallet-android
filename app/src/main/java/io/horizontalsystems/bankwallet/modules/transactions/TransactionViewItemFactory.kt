@@ -1162,7 +1162,7 @@ class TransactionViewItemFactory(
         return TransactionViewItem(
             uid = uid,
             progress = progress,
-            title = Translator.getString(R.string.Transactions_Approve),
+            title = if (value.decimalValue == BigDecimal.ZERO) Translator.getString(R.string.Transactions_Approve_Remove) else Translator.getString(R.string.Transactions_Approve),
             subtitle = mapped(spender, blockchainType),
             primaryValue = primaryValue,
             secondaryValue = secondaryValue,

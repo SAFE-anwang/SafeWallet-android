@@ -41,4 +41,8 @@ interface ProposalRecordDao {
 
     @Query("UPDATE ProposalRecordInfo SET newProposal = 0")
     fun updateStatus()
+
+    @Query("SELECT startPayTime FROM ProposalRecordInfo ORDER BY startPayTime DESC LIMIT 1")
+    fun getLocalLastCreateTime(): Long
+
 }

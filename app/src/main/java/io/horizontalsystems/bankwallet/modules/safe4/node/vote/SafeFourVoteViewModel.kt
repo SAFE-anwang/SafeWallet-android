@@ -30,7 +30,9 @@ import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -94,7 +96,7 @@ class SafeFourVoteViewModel(
                     disposables.add(it)
                 }*/
 
-        lockVoteService.itemsObservableLocked
+        /*lockVoteService.itemsObservableLocked
                 .subscribeIO {
                     lockIdsInfoLocked = it.map {
                         LockIdsInfo(it.lockId, it.lockValue, it.enable, false, it.unlockHeight, it.releaseHeight, it.address)
@@ -103,7 +105,7 @@ class SafeFourVoteViewModel(
                 }
                 .let {
                     disposables.add(it)
-                }
+                }*/
 
         /*lockVoteService.mineItemsObservable
                 .subscribeIO {
@@ -124,8 +126,10 @@ class SafeFourVoteViewModel(
         }
 
         viewModelScope.launch {
-            LockRecordManager.recordState.collect {
-//                getTotal()
+            LockRecordManager.recordState.collectLatest {
+                withContext(Dispatchers.IO) {
+                    getTotal()
+                }
             }
         }
 
@@ -141,10 +145,9 @@ class SafeFourVoteViewModel(
     }
 
     private fun getTotal() {
-        val old = lockRecordTotal
         lockRecordTotal = repository.getVoteTotal(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
-        if (old != lockRecordTotal) {
+        if (page == 1) {
             getData()
         }
     }
@@ -229,7 +232,8 @@ class SafeFourVoteViewModel(
         if (lockIdsInfo == null && lockIdsInfoLocked == null && proposalLockIdsInfoLocked == null) {
             return null
         }
-        return (lockIdsInfo ?: listOf()) + (lockIdsInfoLocked ?: listOf()) +  (proposalLockIdsInfoLocked ?: listOf())
+        return ((lockIdsInfo ?: listOf()) + (lockIdsInfoLocked ?: listOf()) +  (proposalLockIdsInfoLocked ?: listOf()))
+            .filter { it.enable }
     }
 
     private fun getRecordVoteCanSend(): Boolean {

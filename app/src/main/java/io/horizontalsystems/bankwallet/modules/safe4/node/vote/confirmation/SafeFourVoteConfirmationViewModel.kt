@@ -21,6 +21,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class SafeFourVoteConfirmationViewModel(
@@ -55,7 +56,11 @@ class SafeFourVoteConfirmationViewModel(
 
                 sendResult = SendResult.Sent
             } catch (e: Exception) {
-                sendResult = SendResult.Failed(createCaution(e))
+                if (e is SocketTimeoutException) {
+                    send()
+                } else {
+                    sendResult = SendResult.Failed(createCaution(e))
+                }
             }
         }
     }

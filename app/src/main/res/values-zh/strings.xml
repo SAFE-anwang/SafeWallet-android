@@ -2299,6 +2299,7 @@
     <string name="Menu_Item_Select_All_Cancel">取消</string>
     <string name="Create_Pool">创建交易对</string>
     <string name="RemoveVote">投票释放</string>
+    <string name="Transactions_Approve_Remove">撤销合约授权</string>
     <!-- SRC20 end-->
 
 </resources>

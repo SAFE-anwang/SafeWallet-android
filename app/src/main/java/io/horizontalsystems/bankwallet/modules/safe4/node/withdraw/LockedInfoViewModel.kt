@@ -72,7 +72,7 @@ class LockedInfoViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             LockRecordManager.recordState.collect {
-//                getTotal()
+                getTotal()
             }
         }
 
@@ -83,7 +83,7 @@ class LockedInfoViewModel(
         val old = lockRecordTotal
         lockRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
         Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
-        if (old != lockRecordTotal) {
+        if (page == 1) {
             getData()
         }
         getWithdrawEnableRecord()

@@ -35,9 +35,9 @@ class SelectWalletTypeFragment: BaseFragment() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-        val input = findNavController().getInput<RestoreBlockchainsFragment.Input>()
-        val popUpToInclusiveId = input?.popUpToInclusiveId ?: R.id.manageAccountsFragment
-        val inclusive = input?.popOffInclusiveKey ?: true
+        val input = findNavController().getInput<ManageAccountsModule.Input>()
+        val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.manageAccountsFragment
+        val inclusive = input?.popOffInclusive ?: true
         val adapter = SelectWalletTypeAdapter(getWalletTypeList()) {
             val inputParams = ManageAccountsModule.Input(popUpToInclusiveId, inclusive)
             when(it) {

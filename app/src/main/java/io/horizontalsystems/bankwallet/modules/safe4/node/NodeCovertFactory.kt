@@ -116,7 +116,7 @@ object NodeCovertFactory {
 	}
 
 	fun convertLockIdItemView(list: List<LockIdsInfo>?): List<LockIdsView>? {
-		return list?.distinctBy { it.lockId }?.sortedByDescending { it.lockId }
+		return list?.distinctBy { it.lockId }
 			?.mapIndexed { index, record ->
 			val value = valueConvert(record.lockValue)
 			LockIdsView(
@@ -126,7 +126,7 @@ object NodeCovertFactory {
 					record.enable,
 					record.checked
 			)
-		}?.sortedBy { it.enable }
+		}
 	}
 
 	fun convertCreatorList(nodeItem: NodeInfo?, walletAddress: String): List<CreateViewItem> {

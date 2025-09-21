@@ -51,14 +51,14 @@ interface LockRecordDao {
             "AND (releaseHeight IS NULL OR releaseHeight = 0)")
     fun getLockRecordTotal(creator: String): Int
 
-    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator AND type = 0")
+    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator= :creator AND type = 0")
     fun getVoteLockRecordTotal(creator: String): Int
 
     @Query("SELECT COUNT(*) FROM LockRecordInfo  WHERE contact = :contact AND creator = :creator")
     fun getLockRecordNum(contact: String, creator: String): Int
 
 
-    @Query("SELECT * FROM LockRecordInfo WHERE creator=:creator AND releaseHeight>0 AND type = 0")
+    @Query("SELECT * FROM LockRecordInfo WHERE creator= :creator AND releaseHeight>0 AND type = 0")
     fun getRecordsVoteLockRecord(creator: String): List<LockRecordInfo>
 
     @Query("SELECT id FROM LockRecordInfo WHERE creator=:creator AND contact=:contact")

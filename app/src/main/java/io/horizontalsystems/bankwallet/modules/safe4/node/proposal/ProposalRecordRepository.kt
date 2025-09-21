@@ -36,4 +36,7 @@ class ProposalRecordRepository(
         proposalRecordDao.updateStatus()
     }
 
+    fun getLocalLastCreateTime(): Long {
+        return proposalRecordDao.getLocalLastCreateTime()
+    }
 }

@@ -162,7 +162,7 @@ class SafeFourLockedVoteService(
 				}
 				.subscribe( { disableRecord ->
 					allLoadedLocked.set(disableRecord.isEmpty() || disableRecord.size < itemsPerPage)
-					lockedIdsItemsLocked.addAll(disableRecord)
+					lockedIdsItemsLocked.addAll(disableRecord.filter { it.enable })
 					itemsSubjectLocked.onNext(lockedIdsItemsLocked)
 
 					loadedPageNumberLocked = page

@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.balance.ui
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAccountsViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
@@ -16,7 +17,10 @@ fun BalanceScreen(navController: NavController) {
     val viewModel = viewModel<BalanceAccountsViewModel>(factory = BalanceModule.AccountsFactory())
 
     when (val tmpAccount = viewModel.balanceScreenState) {
-        BalanceScreenState.NoAccount -> BalanceNoAccount(navController)
+        BalanceScreenState.NoAccount ->  {
+            App.accountManager.setLevel(0)
+            BalanceNoAccount(navController)
+        }
         is BalanceScreenState.HasAccount -> when (tmpAccount.accountViewItem.type) {
             is AccountType.Cex -> {
                 BalanceForAccountCex(navController, tmpAccount.accountViewItem)

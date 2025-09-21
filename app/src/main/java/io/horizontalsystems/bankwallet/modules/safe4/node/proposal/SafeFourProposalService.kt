@@ -145,7 +145,7 @@ class SafeFourProposalService(
 		}
 	}*/
 
-	fun loadAllItems(page: Int) {
+	fun loadAllItems(page: Int, lastCreateTime: Long = 1725926400) {
 		try {
 			val allProposalNum = safe4RpcBlockChain.getProposalNum().blockingGet().toInt()
 			Log.d("Proposal", "allProposalNum=$allProposalNum")
@@ -168,7 +168,7 @@ class SafeFourProposalService(
 			Log.d("Proposal", "allProposal =$record")
 			val recordInfo = record.map { id ->
 				val info = safe4RpcBlockChain.getProposalInfo(id.toInt())
-				covertData(info)
+				covertData(info, lastCreateTime)
 			}
 			repository.save(recordInfo)
 			loadedPageNumber = page
@@ -176,7 +176,7 @@ class SafeFourProposalService(
 
 		} catch (e: Exception) {
 			loading.set(false)
-			loadAllItems(page)
+//			loadAllItems(page)
 		}
 
 	}
@@ -256,7 +256,7 @@ class SafeFourProposalService(
 		)
 	}
 
-	private fun covertData(info: com.anwang.types.proposal.ProposalInfo): ProposalRecordInfo {
+	private fun covertData(info: com.anwang.types.proposal.ProposalInfo, lastCreateTime: Long): ProposalRecordInfo {
 		val state = if (info.state.toInt() == 0 && info.endPayTime.toLong() < System.currentTimeMillis() / 1000) {
 			2
 		} else {
@@ -274,7 +274,7 @@ class SafeFourProposalService(
 				state,
 				info.createHeight.toLong(),
 				info.updateHeight.toLong(),
-			if (info.startPayTime.toLong() * 1000 > 1725926400) 1 else 0
+			if (info.startPayTime.toLong() * 1000 > lastCreateTime) 1 else 0
 		)
 	}
 
@@ -295,7 +295,7 @@ class SafeFourProposalService(
 	}
 
 	fun start() {
-		loadAllItems(0)
+		loadAllItems(0, repository.getLocalLastCreateTime())
 	}
 
 	override fun clear() {

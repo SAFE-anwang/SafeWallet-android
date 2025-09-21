@@ -2628,6 +2628,7 @@
     <string name="Menu_Item_Select_All_Cancel">Cancel</string>
     <string name="Create_Pool">Create Poll</string>
     <string name="RemoveVote">Remove Vote</string>
+    <string name="Transactions_Approve_Remove">Revoke contract authorization</string>
     <!-- SRC20 end-->
 
 </resources>

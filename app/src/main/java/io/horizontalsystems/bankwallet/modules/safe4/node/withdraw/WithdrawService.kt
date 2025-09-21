@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
@@ -149,9 +150,9 @@ class WithdrawService(
                             )
                         }
                     )
+                    LockRecordManager.emit()
                     loadNext()
                 }
-
                 lockedIdsItemsLocked.addAll(infos)
                 itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
 

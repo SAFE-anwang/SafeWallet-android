@@ -64,7 +64,7 @@ class WithdrawAvailableViewModel(
                         list.add(
                             WithdrawModule.WithDrawInfo(
                                 it.rewordsIds[i],
-                                it.createHeight,
+                                it.updateHeight,
                                 null,
                                 NodeCovertFactory.formatSafe(it.payAmount.divide(it.payTimes.toBigInteger())),
                                 it.creator,

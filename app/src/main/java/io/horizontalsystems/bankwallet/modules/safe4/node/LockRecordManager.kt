@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 object LockRecordManager {
 
-    private val _recordState: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val _recordState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val recordState = _recordState.asStateFlow()
 
     private val _newProposalRecordState: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -66,7 +66,7 @@ object LockRecordManager {
                         service.deleteLockedInfo()
                         service1.deleteLockedInfo()
                         service2.deleteLockedInfo()
-                        _recordState.update { _recordState.value ++ }
+
                         delay(3000)
                     } catch (e: Exception) {
 
@@ -75,6 +75,10 @@ object LockRecordManager {
 
             }
         }
+    }
+
+    fun emit() {
+        _recordState.update { true }
     }
 
 
@@ -119,7 +123,10 @@ object LockRecordManager {
     }
 
     fun updateProposalStatus() {
-        proposalRecordRepository?.updateStatus()
+        GlobalScope.launch(Dispatchers.IO) {
+
+            proposalRecordRepository?.updateStatus()
+        }
     }
 
 }
