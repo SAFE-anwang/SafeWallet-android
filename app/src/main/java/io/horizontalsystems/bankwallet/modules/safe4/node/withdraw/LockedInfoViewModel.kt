@@ -119,9 +119,10 @@ class LockedInfoViewModel(
                         it.value,
                         it.address,
                         it.address2,
+                        it.frozenAddr,
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
                                 || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
-                        if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
+                        if (it.address2 == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact
                     )
                 }
@@ -150,6 +151,7 @@ class LockedInfoViewModel(
                         it.value,
                         it.address,
                         it.address2,
+                        it.frozenAddr,
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
                                 || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,

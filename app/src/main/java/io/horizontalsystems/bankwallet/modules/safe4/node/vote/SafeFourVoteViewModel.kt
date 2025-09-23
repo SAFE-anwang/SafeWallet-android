@@ -174,6 +174,7 @@ class SafeFourVoteViewModel(
                 }
                 initIfNeed()
                 lockIdsInfo?.addAll(lockInfo)
+                android.util.Log.e("LockedInfoViewModel", "lockIdsInfo=${lockIdsInfo?.size}")
             }
             if (records.isNotEmpty() && records.size == limit && lockRecordTotal > (lockIdsInfo?.size ?: 0)) {
                 page ++
@@ -198,6 +199,7 @@ class SafeFourVoteViewModel(
     }
 
     override fun createState() = if (nodeInfo == null) {
+        Log.d("LockedInfoViewModel", "1")
         VoteUiState(
                 nodeInfo = null,
                 availableBalance = amountState.availableBalance,
@@ -209,6 +211,7 @@ class SafeFourVoteViewModel(
                 joinSlider = getJoinAmountSlider()
         )
     } else {
+        Log.d("LockedInfoViewModel", "2")
         VoteUiState(
                 nodeInfo = NodeCovertFactory.createNoteItemView(0, nodeInfo!!, isSuper),
                 availableBalance = amountState.availableBalance,
@@ -229,11 +232,12 @@ class SafeFourVoteViewModel(
     }
 
     private fun getLockInfos(): List<LockIdsInfo>? {
-        if (lockIdsInfo == null && lockIdsInfoLocked == null && proposalLockIdsInfoLocked == null) {
+        if (lockIdsInfo == null) {
             return null
         }
-        return ((lockIdsInfo ?: listOf()) + (lockIdsInfoLocked ?: listOf()) +  (proposalLockIdsInfoLocked ?: listOf()))
-            .filter { it.enable }
+        val list = mutableListOf<LockIdsInfo>()
+        list.addAll(lockIdsInfo!!)
+        return list.sortedByDescending { it.enable }
     }
 
     private fun getRecordVoteCanSend(): Boolean {

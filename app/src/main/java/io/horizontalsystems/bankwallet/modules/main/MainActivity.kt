@@ -294,7 +294,7 @@ class MainActivity : BaseActivity() {
         unregisterReceiver(mMsgReceiver)
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
-        LockRecordManager.exit = true
+        LockRecordManager.exit()
     }
 
     private fun startUpgradeVersion() {

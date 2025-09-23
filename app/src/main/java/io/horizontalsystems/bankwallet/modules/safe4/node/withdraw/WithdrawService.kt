@@ -44,6 +44,7 @@ class WithdrawService(
     var maxNum = -1
 
     private var repository: LockRecordInfoRepository? = null
+    private var cancel = false
 
     fun getNodeInfo(isSuperNode: Boolean) {
         val nodeInfo = if (isSuperNode) {
@@ -78,7 +79,7 @@ class WithdrawService(
 
 
     fun loadLocked(page: Int) {
-        if (loading.get()) return
+        if (loading.get() || cancel) return
         loading.set(true)
         var page = page
         if (page == 0) {
@@ -110,7 +111,7 @@ class WithdrawService(
                 it.map { id ->
                     val info = safe4.getRecordByID(id.toLong(), type)
                     val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
-                    LockedRecord(id, info.amount,  info.unlockHeight, recordUseInfo)
+                    LockedRecord(id, info.amount, info.addr.value,  info.unlockHeight, recordUseInfo)
                 }
             }
             .doFinally {
@@ -126,7 +127,7 @@ class WithdrawService(
                         it.recordInfo?.releaseHeight?.toLong(),
                         NodeCovertFactory.formatSafe(it.amount),
                         it.amount,
-                        it.recordInfo?.votedAddr?.value, it.recordInfo?.frozenAddr?.value,
+                        it.address, it.recordInfo?.votedAddr?.value, it.recordInfo?.frozenAddr?.value,
                         (it.recordInfo?.releaseHeight == BigInteger.ZERO && it.unlockHeight.toLong() < (evmKitManager.evmKit.lastBlockHeight ?: 0))
                                 || (it.unlockHeight == BigInteger.ZERO && (it.recordInfo?.releaseHeight?.toLong() ?: 0) < (evmKitManager.evmKit.lastBlockHeight ?: 0)),
                         if (it.recordInfo?.votedAddr?.value == zeroAddress || type > 0) null else it.unlockHeight > BigInteger.ZERO
@@ -143,6 +144,7 @@ class WithdrawService(
                                 it.value,
                                 it.address,
                                 it.address2,
+                                it.frozenAddr,
                                 getContract(),
                                 evmKitManager.evmKit.receiveAddress.hex,
                                 type,
@@ -164,6 +166,7 @@ class WithdrawService(
     }
 
     fun loadNext() {
+        loading.set(false)
         if (!allLoaded.get()) {
             loadLocked(loadedPageNumberLocked + 1)
         }
@@ -180,7 +183,7 @@ class WithdrawService(
     fun getRecordInfo(id: Long): LockedRecord {
         val info = safe4.getRecordByID(id.toLong(), type)
         val recordUseInfo = safe4.getRecordUseInfo(id.toInt())
-        return LockedRecord(info.id, info.amount,  info.unlockHeight, recordUseInfo)
+        return LockedRecord(info.id, info.amount, info.addr.value, info.unlockHeight, recordUseInfo)
     }
 
     fun start() {
@@ -207,6 +210,10 @@ class WithdrawService(
         disposables.clear()
     }
 
+    fun cancel() {
+        this.cancel = true
+    }
+
     companion object {
         const val itemsPerPage = 20
     }
@@ -215,6 +222,7 @@ class WithdrawService(
 data class LockedRecord(
     val lockedId: BigInteger,
     val amount: BigInteger,
+    val address: String,
     val unlockHeight: BigInteger,
     val recordInfo: RecordUseInfo?
 )

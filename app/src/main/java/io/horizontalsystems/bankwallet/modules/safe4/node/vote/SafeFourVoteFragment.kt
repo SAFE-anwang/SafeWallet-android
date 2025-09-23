@@ -197,6 +197,7 @@ fun TabScreen(
                     }
 
                     SafeFourVoteModule.Tab.LockVote -> {
+                        Log.d("LockedInfoViewModel", "LockVote")
                         viewModel.setIsLockVote(true)
                         LockVoteScreen(navController, title, viewModel)
                     }
@@ -347,6 +348,7 @@ fun LockVoteScreen(
     val proceedEnabled = uiState.recordVoteCanSend
     val nodeList = uiState.lockIdInfo
     val view = LocalView.current
+    Log.d("LockedInfoViewModel", "nodeList=${nodeList?.size}")
     if (nodeList.isNullOrEmpty()) {
         Column() {
             if (nodeList == null) {
@@ -442,7 +444,7 @@ fun LazyListScope.lockedList(
     val nColumns = 3
     val itemsCount = lockIdsList.size
     val rows = (itemsCount + nColumns - 1) / nColumns
-
+    Log.d("LockedInfoViewModel", "size=${lockIdsList.size}")
     items(rows) { rowIndex ->
         Row(modifier = Modifier.fillMaxWidth()) {
             for(columnIndex in 0 until nColumns) {

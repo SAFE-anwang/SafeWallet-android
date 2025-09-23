@@ -26,7 +26,9 @@ object LockRecordManager {
     val newProposalRecordState = _newProposalRecordState.asStateFlow()
     private var proposalRecordRepository: ProposalRecordRepository? = null
 
-    var exit = false
+    var service: WithdrawService? = null
+    var service1: WithdrawService? = null
+    var service2: WithdrawService? = null
 
     fun getAllLockRecord() {
         GlobalScope.launch(Dispatchers.IO) {
@@ -52,20 +54,21 @@ object LockRecordManager {
                 }
                 adapterEvm?.let { adapter ->
                     try {
+                        Log.d("WithdrawService", "address=${adapter.evmKit.receiveAddress.hex}")
                         val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-                        val service = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper)
-                        val service1 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 1)
-                        val service2 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 2)
+                        service = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper)
+                        service1 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 1)
+                        service2 = WithdrawService(rpcBlockchainSafe4, adapter.evmKitWrapper, 2)
                         val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
-                        service.setLockRecordRepository(repository)
-                        service1.setLockRecordRepository(repository)
-                        service2.setLockRecordRepository(repository)
-                        service.start()
-                        service1.start()
-                        service2.start()
-                        service.deleteLockedInfo()
-                        service1.deleteLockedInfo()
-                        service2.deleteLockedInfo()
+                        service?.setLockRecordRepository(repository)
+                        service1?.setLockRecordRepository(repository)
+                        service2?.setLockRecordRepository(repository)
+                        service?.start()
+                        service1?.start()
+                        service2?.start()
+                        service?.deleteLockedInfo()
+                        service1?.deleteLockedInfo()
+                        service2?.deleteLockedInfo()
 
                         delay(3000)
                     } catch (e: Exception) {
@@ -75,6 +78,15 @@ object LockRecordManager {
 
             }
         }
+    }
+
+    suspend fun switchWallet() {
+        service?.cancel()
+        service1?.cancel()
+        service2?.cancel()
+        delay(2000)
+        getAllLockRecord()
+        getAllProposalRecord()
     }
 
     fun emit() {
@@ -129,4 +141,7 @@ object LockRecordManager {
         }
     }
 
+    fun exit() {
+
+    }
 }

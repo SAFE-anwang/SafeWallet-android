@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.managers.UserManager
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCDelegate
 import io.horizontalsystems.core.IKeyStoreManager
 import io.horizontalsystems.core.IPinComponent
@@ -37,6 +38,11 @@ class MainActivityViewModel(
         viewModelScope.launch {
             WCDelegate.walletEvents.collect {
                 wcEvent.postValue(it)
+            }
+        }
+        viewModelScope.launch {
+            accountManager.activeAccountStateFlow.collect {
+                LockRecordManager.switchWallet()
             }
         }
     }

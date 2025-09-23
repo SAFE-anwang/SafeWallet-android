@@ -15,6 +15,7 @@ data class LockRecordInfo(
     val value: BigInteger,
     val address: String?,
     val address2: String?,
+    val frozenAddr: String?,
     val contact: String,
     val creator: String,
     val type : Int,

@@ -111,6 +111,7 @@ object WithdrawModule {
 		val value: BigInteger,
 		val address: String?,
 		val address2: String?,
+		val frozenAddr: String?,
 		var withdrawEnable: Boolean = false,
 		var addLockDayEnable: Boolean? = false,
 		var contract: String = ""
