@@ -9,7 +9,7 @@ class LockRecordInfoRepository(
 
     fun getRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getRecordsPaged(creator, currentHeight, limit, offset)
+        return lockRecordDao.getRecordsPaged(creator, limit, offset)
     }
 
     fun getVoteRecordsPaged(creator: String, limit: Int, offset: Int): List<LockRecordInfo> {

@@ -141,6 +141,7 @@ class SafeFourLockedVoteService(
 			itemsSubjectLocked.onNext(lockedIdsItemsLocked)
 			return
 		}
+			Log.d("WithdrawService", "disableLockedMaxCount=$disableLockedMaxCount, ${itemsCount}, $itemsPerPage")
 		// already vote
 		val disableSingle = safe4RpcBlockChain.getVotedIDs4Voter(address.hex, itemsCount, itemsPerPage)
 
@@ -151,6 +152,7 @@ class SafeFourLockedVoteService(
 						val info = safe4RpcBlockChain.getRecordByID(id.toLong())
 						// 查询记录锁定信息
 						val lockInfo = safe4RpcBlockChain.getRecordUseInfo(id.toInt())
+						Log.d("WithdrawService", "lockInfo=$lockInfo")
 						LockIdsInfo(id.toLong(), info.amount,
 							lockInfo.releaseHeight.toLong() < (ethereumKit.lastBlockHeight ?: 0L),
 							unlockHeight = info.unlockHeight,
@@ -163,7 +165,7 @@ class SafeFourLockedVoteService(
 				}
 				.subscribe( { disableRecord ->
 					allLoadedLocked.set(disableRecord.isEmpty() || disableRecord.size < itemsPerPage)
-					lockedIdsItemsLocked.addAll(disableRecord.filter { it.enable })
+					lockedIdsItemsLocked.addAll(disableRecord)
 					itemsSubjectLocked.onNext(lockedIdsItemsLocked)
 
 					loadedPageNumberLocked = page

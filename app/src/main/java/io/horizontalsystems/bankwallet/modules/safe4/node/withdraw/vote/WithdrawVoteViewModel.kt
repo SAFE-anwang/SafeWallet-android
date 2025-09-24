@@ -60,7 +60,7 @@ class WithdrawVoteViewModel(
                         WithdrawModule.WithDrawInfo(it.lockId, it.unlockHeight.toLong(),
                             it.releaseHeight.toLong(),
                             NodeCovertFactory.formatSafe(it.lockValue),  it.address, it.enable)
-                    }
+                    }.filter { it.enable }
                 emitState()
             }.let {
                 disposables.add(it)

@@ -237,6 +237,8 @@ class SafeFourVoteViewModel(
         }
         val list = mutableListOf<LockIdsInfo>()
         list.addAll(lockIdsInfo!!)
+
+        android.util.Log.d("WithdrawService", "vote lock record size=${list.size}")
         return list.sortedByDescending { it.enable }
     }
 

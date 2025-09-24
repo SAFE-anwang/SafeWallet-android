@@ -145,10 +145,12 @@ object WithdrawUi {
                         )
                     }
                     releaseHeight?.let {
-                        VSpacer(4.dp)
-                        body_bran(
-                            text = stringResource(R.string.SAFE4_Withdraw_Release_Height, it)
-                        )
+                        if (it != 0L) {
+                            VSpacer(4.dp)
+                            body_bran(
+                                text = stringResource(R.string.SAFE4_Withdraw_Release_Height, it)
+                            )
+                        }
                     }
                     address?.let {
                         VSpacer(4.dp)

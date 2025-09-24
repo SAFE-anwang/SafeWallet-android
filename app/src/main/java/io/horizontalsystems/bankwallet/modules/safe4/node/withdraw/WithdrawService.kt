@@ -118,6 +118,7 @@ class WithdrawService(
                 loading.set(false)
             }
             .subscribe({ records ->
+                Log.d("WithdrawService", "type=$type, ${records.map { it.lockedId }}")
                 allLoaded.set(records.isEmpty() || records.size < itemsPerPage)
                 val infos = records/*.filter {
                     it.recordInfo.frozenAddr.value != zeroAddress && it.recordInfo.votedAddr.value != zeroAddress

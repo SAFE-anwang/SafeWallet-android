@@ -55,7 +55,7 @@ class LockedInfoViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
-        Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, $withdrawAvailable")
+        Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, ${withdrawAvailable?.size}")
         val list = mutableListOf<WithdrawModule.WithDrawLockedInfo>()
         withdrawAvailable?.let {
             list.addAll(it)
@@ -153,7 +153,7 @@ class LockedInfoViewModel(
                         it.address2,
                         it.frozenAddr,
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
-                                || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact
                     )
@@ -232,7 +232,16 @@ class LockedInfoViewModel(
         sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                service.withdraw(listOf(clickWithdrawInfo!!.id), getType(clickWithdrawInfo!!.value))
+                if ((clickWithdrawInfo?.releaseHeight ?: 0) > 0) {
+                    service.withdraw(
+                        listOf(clickWithdrawInfo!!.id),
+                        getType(clickWithdrawInfo!!.value)
+                    )
+                } else {
+                    service.removeVoteOrApproval(
+                        listOf(clickWithdrawInfo!!.id)
+                    )
+                }
                 sendResult = SendResult.Sent
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
                 if (isOnlyWithdraw) {

@@ -145,8 +145,6 @@ class MainActivity : BaseActivity() {
             },
             40000
         )*/
-        LockRecordManager.getAllLockRecord()
-        LockRecordManager.getAllProposalRecord()
         viewModel.viewModelScope.launch {
             LockRecordManager.newProposalRecordState.collectLatest {
                 if (it) {

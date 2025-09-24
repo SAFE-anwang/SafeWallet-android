@@ -24,11 +24,10 @@ interface LockRecordDao {
     fun delete(id: Long, contact: String)
 
 
-    @Query("SELECT * FROM LockRecordInfo WHERE unlockHeight>:currentHeight AND creator=:creator " +
-            "AND (releaseHeight IS NULL OR releaseHeight = 0) " +
+    @Query("SELECT * FROM LockRecordInfo WHERE creator=:creator " +
             "ORDER BY id ASC " +
             "LIMIT :limit OFFSET :offset")
-    fun getRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo>
+    fun getRecordsPaged(creator: String, limit: Int, offset: Int): List<LockRecordInfo>
 
 
     @Query("SELECT * FROM LockRecordInfo WHERE type = 0 AND creator=:creator " +
@@ -47,8 +46,7 @@ interface LockRecordDao {
             "unlockHeight<:currentHeight AND creator=:creator ORDER BY id ASC")
     fun getRecordsForEnableWithdraw(creator: String, currentHeight: Long): List<LockRecordInfo>?
 
-    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator " +
-            "AND (releaseHeight IS NULL OR releaseHeight = 0)")
+    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator ")
     fun getLockRecordTotal(creator: String): Int
 
     @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator= :creator AND type = 0")
