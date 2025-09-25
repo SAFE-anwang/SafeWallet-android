@@ -49,6 +49,7 @@ class LockedInfoViewModel(
     var offset = 0
     var page = 0
     val limit = 20
+    private val loading = AtomicBoolean(false)
 
     override fun createState(): WithdrawModule.WithDrawLockInfoUiState {
         return getUiState()
@@ -83,7 +84,7 @@ class LockedInfoViewModel(
         val old = lockRecordTotal
         lockRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
         Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
-        if (page == 1) {
+        if (page == 0) {
             getData()
         }
         getWithdrawEnableRecord()
@@ -121,7 +122,7 @@ class LockedInfoViewModel(
                         it.address2,
                         it.frozenAddr,
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
-                                || (it.unlockHeight == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address2 == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact
                     )
@@ -135,6 +136,8 @@ class LockedInfoViewModel(
     }
 
     private fun getData() {
+        if (loading.get())  return
+        loading.set(true)
         Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}, ${ (withdrawAvailable?.size ?: 0)}")
         if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0) + (withdrawAvailable?.size ?: 0))   return
         try {
@@ -167,6 +170,8 @@ class LockedInfoViewModel(
             emitState()
         } catch (e: Exception) {
             Log.e("LockedInfoViewModel", "get record error=$e")
+        } finally {
+            loading.set(false)
         }
     }
 

@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SafeFourVoteViewModel(
     val wallet: Wallet,
@@ -57,8 +58,9 @@ class SafeFourVoteViewModel(
 
     var lockRecordTotal = 0
     var offset = 0
-    var page = 1
+    var page = 0
     val limit = 20
+    private val loading = AtomicBoolean(false)
 
     val tabs = if (isSuper && !isJoin) SafeFourVoteModule.Tab.values() else arrayOf(SafeFourVoteModule.Tab.SafeVote)
     val tabs2 = if (isSuper && !isJoin) SafeFourVoteModule.Tab2.values() else arrayOf(SafeFourVoteModule.Tab2.Creator)
@@ -138,6 +140,7 @@ class SafeFourVoteViewModel(
 //            lockVoteService.loadItemsLocked(0)
             nodeService.getNodeInfo(nodeId)
 //            lockVoteService.getMinProposalNum()
+            getTotal()
         }
         if(isJoin) {
             onEnterAmount(BigDecimal(joinAmount))
@@ -147,13 +150,15 @@ class SafeFourVoteViewModel(
     private fun getTotal() {
         lockRecordTotal = repository.getVoteTotal(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
-        if (page == 1) {
+        if (page == 0) {
             getData()
         }
     }
 
 
     private fun getData() {
+        if (loading.get())  return
+        loading.set(true)
         if (lockRecordTotal == 0 || lockRecordTotal == (lockIdsInfo?.size ?: 0))   return
         try {
             offset = page * limit
@@ -182,6 +187,8 @@ class SafeFourVoteViewModel(
             emitState()
         } catch (e: Exception) {
             android.util.Log.e("LockedInfoViewModel", "get record error=$e")
+        } finally {
+            loading.set(false)
         }
     }
 
@@ -199,7 +206,6 @@ class SafeFourVoteViewModel(
     }
 
     override fun createState() = if (nodeInfo == null) {
-        Log.d("LockedInfoViewModel", "1")
         VoteUiState(
                 nodeInfo = null,
                 availableBalance = amountState.availableBalance,
@@ -211,7 +217,6 @@ class SafeFourVoteViewModel(
                 joinSlider = getJoinAmountSlider()
         )
     } else {
-        Log.d("LockedInfoViewModel", "2")
         VoteUiState(
                 nodeInfo = NodeCovertFactory.createNoteItemView(0, nodeInfo!!, isSuper),
                 availableBalance = amountState.availableBalance,
@@ -238,7 +243,7 @@ class SafeFourVoteViewModel(
         val list = mutableListOf<LockIdsInfo>()
         list.addAll(lockIdsInfo!!)
 
-        android.util.Log.d("WithdrawService", "vote lock record size=${list.size}")
+        android.util.Log.d("LockedInfoViewModel", "vote lock record size=${list.size}")
         return list.sortedByDescending { it.enable }
     }
 
