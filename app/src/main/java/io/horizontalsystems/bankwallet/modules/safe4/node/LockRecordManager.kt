@@ -11,6 +11,7 @@ import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,29 +31,11 @@ object LockRecordManager {
     var service1: WithdrawService? = null
     var service2: WithdrawService? = null
 
+    var job: Job? = null
+
     fun getAllLockRecord() {
         GlobalScope.launch(Dispatchers.IO) {
-            var safeWallet: Wallet? = null
-            while(safeWallet == null) {
-                try {
-                    val walletList: List<Wallet> = App.walletManager.activeWallets
-                    walletList.forEach {
-                        if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
-                            safeWallet = it
-                            return@forEach
-                        }
-                    }
-                } catch (e: Exception) {
-
-                }
-            }
-            safeWallet?.let {
-                var adapterEvm = (App.adapterManager.getAdapterForWallet(it) as? BaseEvmAdapter)
-                while(adapterEvm == null) {
-                    adapterEvm = (App.adapterManager.getAdapterForWallet(it) as? BaseEvmAdapter)
-                    delay(1000)
-                }
-                adapterEvm?.let { adapter ->
+            getAdapter()?.let { adapter ->
                     try {
                         Log.d("WithdrawService", "address=${adapter.evmKit.receiveAddress.hex}")
                         val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
@@ -66,9 +49,15 @@ object LockRecordManager {
                         service?.start()
                         service1?.start()
                         service2?.start()
-                        service?.deleteLockedInfo()
-                        service1?.deleteLockedInfo()
-                        service2?.deleteLockedInfo()
+                        GlobalScope.launch {
+                            service?.updateLockedInfo()
+                        }
+                        GlobalScope.launch {
+                            service1?.updateLockedInfo()
+                        }
+                        GlobalScope.launch {
+                            service2?.updateLockedInfo()
+                        }
 
                         delay(3000)
                     } catch (e: Exception) {
@@ -76,8 +65,34 @@ object LockRecordManager {
                     }
                 }
 
+//            }
+        }
+    }
+
+    private suspend fun getAdapter(): BaseEvmAdapter? {
+        var safeWallet: Wallet? = null
+        while(safeWallet == null) {
+            try {
+                val walletList: List<Wallet> = App.walletManager.activeWallets
+                walletList.forEach {
+                    if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin") {
+                        safeWallet = it
+                        return@forEach
+                    }
+                }
+            } catch (e: Exception) {
+
             }
         }
+        safeWallet?.let {
+            var adapterEvm = (App.adapterManager.getAdapterForWallet(it) as? BaseEvmAdapter)
+            while (adapterEvm == null) {
+                adapterEvm = (App.adapterManager.getAdapterForWallet(it) as? BaseEvmAdapter)
+                delay(1000)
+            }
+            return adapterEvm
+        }
+        return null
     }
 
     suspend fun switchWallet() {
@@ -87,6 +102,35 @@ object LockRecordManager {
         delay(2000)
         getAllLockRecord()
         getAllProposalRecord()
+        job?.cancel()
+        updateVoteStatus()
+    }
+
+    fun updateVoteStatus() {
+        job = GlobalScope.launch (Dispatchers.IO){
+            delay(10000)
+            getAdapter()?.let { adapter ->
+                val safe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+                val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
+                val voteLocked = repository.getRecordsVoteLockRecord(adapter.evmKit.receiveAddress.hex)
+                val updateLocked = mutableListOf<LockRecordInfo>()
+                voteLocked.forEach {
+                    if (job?.isActive == true) {
+                        val info = safe4.getRecordByID(it.id, 0)
+                        val recordUseInfo = safe4.getRecordUseInfo(it.id.toInt())
+                        updateLocked.add(
+                            it.copy(
+                                unlockHeight = info.unlockHeight.toLong(),
+                                releaseHeight = recordUseInfo.releaseHeight.toLong(),
+                                address2 = recordUseInfo.votedAddr.value,
+                                frozenAddr = recordUseInfo.frozenAddr.value
+                            )
+                        )
+                    }
+                }
+                repository.save(updateLocked)
+            }
+        }
     }
 
     fun emit() {
@@ -142,6 +186,6 @@ object LockRecordManager {
     }
 
     fun exit() {
-
+        job?.cancel()
     }
 }

@@ -9,6 +9,7 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
@@ -129,6 +130,7 @@ class WithdrawVoteViewModel(
                     sendResult = SendResult.Sent
                     withdrawList = list.filter { !it.checked }
                     emitState()
+                    LockRecordManager.updateVoteStatus()
                 } catch (e: Exception) {
                     sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
                 }

@@ -121,9 +121,10 @@ class SafeFourLockedVoteService(
 			lockRecordInfo.frozenAddr?.let { safe4RpcBlockChain.superAddressExist(it) } ?: false
 		// 当前高度小于releaseheight时也不能投票
 		val currentHeight = ethereumKit.lastBlockHeight ?: 0L
-		Log.d("LockedInfoViewModel", "currentHeight=$currentHeight, releaseHeight=${lockRecordInfo.releaseHeight}, isSuperNode=$isSuperNode, ${lockRecordInfo.address2}")
-		return (lockRecordInfo.address2 == zeroAddress
-				&& !isSuperNode && currentHeight > (lockRecordInfo.releaseHeight ?: 0))
+//		Log.d("LockedInfoViewModel", "id=${lockRecordInfo.id}, currentHeight=$currentHeight, releaseHeight=${lockRecordInfo.releaseHeight}, isSuperNode=$isSuperNode, ${lockRecordInfo.address2}")
+		val enable1 = lockRecordInfo.address2 == zeroAddress
+		val enable2 = lockRecordInfo.address2 != zeroAddress && currentHeight > (lockRecordInfo.releaseHeight ?: 0)
+		return NodeCovertFactory.valueConvert(lockRecordInfo.value).toInt() >= 1 && !isSuperNode && (enable1 || enable2)
 	}
 
 

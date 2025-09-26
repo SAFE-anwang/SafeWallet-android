@@ -48,4 +48,8 @@ class LockRecordInfoRepository(
     fun getRecordIds(contract: String, creator: String): List<Long> {
         return lockRecordDao.getLockedIds(contract, creator)
     }
+
+    fun getRecordsVoteLockRecord(creator: String): List<LockRecordInfo> {
+        return lockRecordDao.getRecordsVoteLockRecord(creator)
+    }
 }

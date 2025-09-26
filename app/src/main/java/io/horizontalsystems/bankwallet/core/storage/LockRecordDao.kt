@@ -59,6 +59,6 @@ interface LockRecordDao {
     @Query("SELECT * FROM LockRecordInfo WHERE creator= :creator AND releaseHeight>0 AND type = 0")
     fun getRecordsVoteLockRecord(creator: String): List<LockRecordInfo>
 
-    @Query("SELECT id FROM LockRecordInfo WHERE creator=:creator AND contact=:contact")
+    @Query("SELECT id FROM LockRecordInfo WHERE creator=:creator AND contact=:contact ORDER BY id ASC ")
     fun getLockedIds(contact: String, creator: String): List<Long>
 }

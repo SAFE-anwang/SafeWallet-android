@@ -191,7 +191,7 @@ class WithdrawService(
         loadLocked(0)
     }
 
-    fun deleteLockedInfo() {
+    fun updateLockedInfo() {
         val idList = repository?.getRecordIds(getContract(), evmKitManager.evmKit.receiveAddress.hex)
         idList?.let {ids ->
             ids.forEach {
@@ -199,6 +199,24 @@ class WithdrawService(
                     val record = getRecordInfo(it)
                     if (record.lockedId == BigInteger.ZERO) {
                         repository?.delete(it, getContract())
+                    } else {
+                        // 更新锁仓信息
+                        repository?.save(
+                            listOf(
+                                LockRecordInfo(
+                                    record.lockedId.toLong(),
+                                    record.unlockHeight.toLong(),
+                                    record.recordInfo?.releaseHeight?.toLong(),
+                                    record.amount,
+                                    record.address,
+                                    record.recordInfo?.votedAddr?.value,
+                                    record.recordInfo?.frozenAddr?.value,
+                                    getContract(),
+                                    evmKitManager.evmKit.receiveAddress.hex,
+                                    type
+                                )
+                            )
+                        )
                     }
                 } catch (e: Exception) {
                     android.util.Log.e("deleteLockedInfo", "error=$e")

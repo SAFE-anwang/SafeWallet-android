@@ -179,7 +179,7 @@ class SafeFourVoteViewModel(
                 }
                 initIfNeed()
                 lockIdsInfo?.addAll(lockInfo)
-                android.util.Log.e("LockedInfoViewModel", "lockIdsInfo=${lockIdsInfo?.size}")
+                android.util.Log.e("LockedInfoViewModel", "lockIdsInfo=${lockIdsInfo?.map { "${it.lockId}=${it.enable}" }}")
             }
             if (records.isNotEmpty() && records.size == limit && lockRecordTotal > (lockIdsInfo?.size ?: 0)) {
                 page ++

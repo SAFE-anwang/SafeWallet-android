@@ -8,18 +8,15 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -95,8 +92,7 @@ class LockedInfoViewModel(
             getTotal()
             getData()
             getWithdrawEnableRecord()
-            queryNeedUpdateRecords()
-            service.deleteLockedInfo()
+            service.updateLockedInfo()
         }
     }
 
@@ -246,6 +242,7 @@ class LockedInfoViewModel(
                     service.removeVoteOrApproval(
                         listOf(clickWithdrawInfo!!.id)
                     )
+                    LockRecordManager.updateVoteStatus()
                 }
                 sendResult = SendResult.Sent
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
