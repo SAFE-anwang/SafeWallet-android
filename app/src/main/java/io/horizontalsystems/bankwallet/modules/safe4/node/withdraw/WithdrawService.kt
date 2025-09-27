@@ -109,9 +109,10 @@ class WithdrawService(
             .subscribeOn(Schedulers.io())
             .map {
                 it.map { id ->
-                    val info = safe4.getRecordByID(id.toLong(), type)
+                    /*val info = safe4.getRecordByID(id.toLong(), type)
                     val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
-                    LockedRecord(id, info.amount, info.addr.value,  info.unlockHeight, recordUseInfo)
+                    LockedRecord(id, info.amount, info.addr.value,  info.unlockHeight, recordUseInfo)*/
+                    getRecordInfo(id.toLong())
                 }
             }
             .doFinally {
@@ -182,8 +183,8 @@ class WithdrawService(
     }
 
     fun getRecordInfo(id: Long): LockedRecord {
-        val info = safe4.getRecordByID(id.toLong(), type)
-        val recordUseInfo = safe4.getRecordUseInfo(id.toInt())
+        val info = safe4.getRecordByID(id, type)
+        val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
         return LockedRecord(info.id, info.amount, info.addr.value, info.unlockHeight, recordUseInfo)
     }
 
@@ -200,23 +201,20 @@ class WithdrawService(
                     if (record.lockedId == BigInteger.ZERO) {
                         repository?.delete(it, getContract())
                     } else {
-                        // 更新锁仓信息
-                        repository?.save(
-                            listOf(
-                                LockRecordInfo(
-                                    record.lockedId.toLong(),
-                                    record.unlockHeight.toLong(),
-                                    record.recordInfo?.releaseHeight?.toLong(),
-                                    record.amount,
-                                    record.address,
-                                    record.recordInfo?.votedAddr?.value,
-                                    record.recordInfo?.frozenAddr?.value,
-                                    getContract(),
-                                    evmKitManager.evmKit.receiveAddress.hex,
-                                    type
-                                )
-                            )
+                        val recordInfo = LockRecordInfo(
+                            record.lockedId.toLong(),
+                            record.unlockHeight.toLong(),
+                            record.recordInfo?.releaseHeight?.toLong(),
+                            record.amount,
+                            record.address,
+                            record.recordInfo?.votedAddr?.value,
+                            record.recordInfo?.frozenAddr?.value,
+                            getContract(),
+                            evmKitManager.evmKit.receiveAddress.hex,
+                            type
                         )
+                        // 更新锁仓信息
+                        repository?.update(recordInfo)
                     }
                 } catch (e: Exception) {
                     android.util.Log.e("deleteLockedInfo", "error=$e")

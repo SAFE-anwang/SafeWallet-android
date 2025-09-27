@@ -58,8 +58,6 @@ object LockRecordManager {
                         GlobalScope.launch {
                             service2?.updateLockedInfo()
                         }
-
-                        delay(3000)
                     } catch (e: Exception) {
 
                     }
@@ -109,26 +107,31 @@ object LockRecordManager {
     fun updateVoteStatus() {
         job = GlobalScope.launch (Dispatchers.IO){
             delay(10000)
-            getAdapter()?.let { adapter ->
-                val safe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-                val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
-                val voteLocked = repository.getRecordsVoteLockRecord(adapter.evmKit.receiveAddress.hex)
-                val updateLocked = mutableListOf<LockRecordInfo>()
-                voteLocked.forEach {
-                    if (job?.isActive == true) {
-                        val info = safe4.getRecordByID(it.id, 0)
-                        val recordUseInfo = safe4.getRecordUseInfo(it.id.toInt())
-                        updateLocked.add(
-                            it.copy(
-                                unlockHeight = info.unlockHeight.toLong(),
-                                releaseHeight = recordUseInfo.releaseHeight.toLong(),
-                                address2 = recordUseInfo.votedAddr.value,
-                                frozenAddr = recordUseInfo.frozenAddr.value
+            try {
+                getAdapter()?.let { adapter ->
+                    val safe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+                    val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
+                    val voteLocked =
+                        repository.getRecordsVoteLockRecord(adapter.evmKit.receiveAddress.hex)
+                    val updateLocked = mutableListOf<LockRecordInfo>()
+                    voteLocked.forEach {
+                        if (job?.isActive == true) {
+                            val info = safe4.getRecordByID(it.id, 0)
+                            val recordUseInfo = safe4.getRecordUseInfo(it.id.toInt())
+                            updateLocked.add(
+                                it.copy(
+                                    unlockHeight = info.unlockHeight.toLong(),
+                                    releaseHeight = recordUseInfo.releaseHeight.toLong(),
+                                    address2 = recordUseInfo.votedAddr.value,
+                                    frozenAddr = recordUseInfo.frozenAddr.value
+                                )
                             )
-                        )
+                        }
                     }
+                    repository.save(updateLocked)
                 }
-                repository.save(updateLocked)
+            } catch (e: Exception) {
+                android.util.Log.d("updateVoteStatus", "error=$e")
             }
         }
     }

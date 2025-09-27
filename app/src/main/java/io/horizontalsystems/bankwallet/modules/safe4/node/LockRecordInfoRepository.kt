@@ -41,6 +41,10 @@ class LockRecordInfoRepository(
         lockRecordDao.insert(datas.filter { it.id != 0L })
     }
 
+    fun update(data: LockRecordInfo) {
+        lockRecordDao.update(data)
+    }
+
     fun delete(lockId: Long, contract: String) {
         lockRecordDao.delete(lockId, contract)
     }
