@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -468,7 +469,7 @@ fun LazyListScope.lockedList(
                             ComposeAppTheme.colors.bran
                         } else {
                             if (App.localStorage.currentTheme == ThemeType.Blue) {
-                                if (item.enable) ComposeAppTheme.colors.grey  else LightGrey50
+                                LightGrey50
                             } else {
                                 ComposeAppTheme.colors.grey
                             }

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.content.BroadcastReceiver
@@ -18,7 +19,6 @@ import android.view.View.OnClickListener
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.material.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -149,7 +149,7 @@ class MainActivity : BaseActivity() {
             LockRecordManager.newProposalRecordState.collectLatest {
                 if (it) {
                     withContext(Dispatchers.Main) {
-                        MaterialAlertDialogBuilder(this@MainActivity)
+                        val dialog = AlertDialog.Builder(this@MainActivity)
                             .setTitle("提案")
                             .setMessage("有新的提案，是否查看?")
                             .setPositiveButton("查看"
@@ -161,8 +161,18 @@ class MainActivity : BaseActivity() {
                             .setNegativeButton("不在提醒") { p0, p1 ->
                                 LockRecordManager.updateProposalStatus()
                                 p0.dismiss()
+                            }.create()
+                        if (App.localStorage.currentTheme == ThemeType.Blue) {
+                            dialog.setOnShowListener {
+                                // 获取按钮并修改颜色
+                                val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                                val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+                                positiveButton.setTextColor(Color.BLACK)
+                                negativeButton.setTextColor(Color.GRAY)
                             }
-                            .show()
+                        }
+                        dialog.show()
                     }
                 }
 

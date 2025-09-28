@@ -116,6 +116,8 @@
         <!--  Gradient colors-->
         <item name="ColorGradientWhite">@color/white</item>
         <item name="ColorWindowBackground">@color/safe_blue</item>
+        <item name="buttonBarPositiveButtonStyle">@color/black</item>
+        <item name="buttonBarNegativeButtonStyle">@color/dark</item>
     </style>
 
 </resources>
