@@ -114,7 +114,8 @@ object WithdrawModule {
 		val frozenAddr: String?,
 		var withdrawEnable: Boolean = false,
 		var addLockDayEnable: Boolean? = false,
-		var contract: String = ""
+		var contract: String = "",
+		val type: Int = 0
 	)
 
 	@Parcelize

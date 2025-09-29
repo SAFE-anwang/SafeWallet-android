@@ -2300,6 +2300,7 @@
     <string name="Create_Pool">创建交易对</string>
     <string name="RemoveVote">投票释放</string>
     <string name="Transactions_Approve_Remove">撤销合约授权</string>
+    <string name="list_footer">已经到底了～</string>
     <!-- SRC20 end-->
 
 </resources>

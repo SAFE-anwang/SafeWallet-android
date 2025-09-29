@@ -43,7 +43,7 @@ interface LockRecordDao {
     //
     @Query("SELECT * FROM LockRecordInfo WHERE " +
             "(releaseHeight IS NULL OR releaseHeight = 0) AND " +
-            "unlockHeight<:currentHeight AND creator=:creator ORDER BY id ASC")
+            "unlockHeight<=:currentHeight AND creator=:creator ORDER BY id ASC")
     fun getRecordsForEnableWithdraw(creator: String, currentHeight: Long): List<LockRecordInfo>?
 
     @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE creator=:creator ")

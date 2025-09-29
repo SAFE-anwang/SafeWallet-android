@@ -2629,6 +2629,7 @@
     <string name="Create_Pool">Create Poll</string>
     <string name="RemoveVote">Remove Vote</string>
     <string name="Transactions_Approve_Remove">Revoke contract authorization</string>
+    <string name="list_footer">No more items～</string>
     <!-- SRC20 end-->
 
 </resources>

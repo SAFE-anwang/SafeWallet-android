@@ -59,12 +59,22 @@ class LockedInfoViewModel(
             list.addAll(it)
         }
         withdrawList?.let {
-            list.addAll(it.sortedBy { it.unlockHeight ?: 0 < evmKit.lastBlockHeight?: 0 })
+            val filterList = it.filter { isContain(it.id, it.type) == false }
+            list.addAll(filterList)
         }
         return WithdrawModule.WithDrawLockInfoUiState(
             list,
             showConfirmationDialog
         )
+    }
+
+    private fun isContain(id: Long, type: Int): Boolean {
+        withdrawAvailable?.forEach {
+            if (it.id == id && it.type == type) {
+                return true
+            }
+        }
+        return false
     }
 
     init {
@@ -120,7 +130,8 @@ class LockedInfoViewModel(
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
                                 || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address2 == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
-                        it.contact
+                        it.contact,
+                        it.type
                     )
                 }
                 withdrawAvailable = lockInfo
@@ -154,7 +165,8 @@ class LockedInfoViewModel(
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
                                 || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
-                        it.contact
+                        it.contact,
+                        it.type
                     )
                 }
                 initIfNeed()
@@ -174,10 +186,10 @@ class LockedInfoViewModel(
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
             lockRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
-            if (lockRecordTotal == (withdrawList?.size ?: 0) +( withdrawAvailable?.size ?: 0)) {
-                return@launch
+            if (lockRecordTotal != (withdrawList?.size ?: 0)) {
+                getData()
             }
-            getData()
+
         }
     }
 
@@ -234,15 +246,16 @@ class LockedInfoViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 if ((clickWithdrawInfo?.releaseHeight ?: 0) > 0) {
-                    service.withdraw(
-                        listOf(clickWithdrawInfo!!.id),
-                        getType(clickWithdrawInfo!!.value)
-                    )
-                } else {
                     service.removeVoteOrApproval(
                         listOf(clickWithdrawInfo!!.id)
                     )
                     LockRecordManager.updateVoteStatus()
+
+                } else {
+                    service.withdraw(
+                        listOf(clickWithdrawInfo!!.id),
+                        clickWithdrawInfo!!.type
+                    )
                 }
                 sendResult = SendResult.Sent
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L

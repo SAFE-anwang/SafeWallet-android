@@ -92,6 +92,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_green50
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
@@ -430,6 +431,20 @@ fun LockVoteScreen(
                             viewModel.onBottomReached()
                         }
                 )
+
+                // 添加列表结束提示
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        body_grey(
+                            text = stringResource(R.string.list_footer),
+                        )
+                    }
+                }
             }
         }
     }
