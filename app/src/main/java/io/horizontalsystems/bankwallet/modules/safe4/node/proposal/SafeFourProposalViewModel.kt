@@ -120,8 +120,16 @@ data class ProposalInfo(
         val state: Int,
         val createHeight: Long,
         val updateHeight: Long,
-        val rewordsIds: List<Long> = listOf()
+        val rewordsIds: List<RewardInfo> = listOf()
 ) : Parcelable {
+
+}
+
+@Parcelize
+data class RewardInfo(
+    val id: Long,
+    val unlockHeight: Long
+): Parcelable {
 
 }
 

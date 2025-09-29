@@ -194,7 +194,11 @@ class SafeFourProposalService(
 			val mineRecord = repository.getMineRecordsPaged(creater)
 			val infos = mineRecord.map {
 				val rewards = safe4RpcBlockChain.getRewardIDs(it.id)
-				covert(it, rewards.map { it.toLong() })
+				val rewardInfo = rewards.map {
+					val info = safe4RpcBlockChain.getRecordByID(it.toLong())
+					RewardInfo(it.toLong(), info.unlockHeight.toLong())
+				}.filter { it.unlockHeight != 0L }
+				covert(it, rewardInfo)
 			}
 			mineItems.addAll(infos)
 			mineItemsSubject.onNext(mineItems)
@@ -234,7 +238,7 @@ class SafeFourProposalService(
 		}
 	}
 
-	private fun covert(info: ProposalRecordInfo, list: List<Long> = listOf()): ProposalInfo {
+	private fun covert(info: ProposalRecordInfo, list: List<RewardInfo> = listOf()): ProposalInfo {
 		val state = if (info.state.toInt() == 0 && info.endPayTime.toLong() < System.currentTimeMillis() / 1000) {
 			2
 		} else {
