@@ -102,12 +102,14 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
+    var withdrawAll = false
+
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
             title = stringResource(id = R.string.SAFE4_Withdraw_Locked),
             menuItems = listOf(
-                MenuItem(
+                /*MenuItem(
                     title = TranslatableString.ResString(
                         if (selectAllState) R.string.Menu_Item_Select_All_Cancel else R.string.Menu_Item_Select_All),
                     onClick = {
@@ -116,7 +118,16 @@ fun WithdrawVoteScreen(
                             viewModel.selectAll(selectAllState)
                         }
                     }
-                )),
+                )*/
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Withdraw_All),
+                    onClick = {
+                        withdrawAll = true
+                        viewModel.showConfirmation()
+                    },
+                    enabled = uiState.enableReleaseAll
+                )
+            ),
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
             }
@@ -189,9 +200,15 @@ fun WithdrawVoteScreen(
         WithdrawConfirmationDialog(
             content = stringResource(R.string.SAFE4_Withdraw_Vote_Hint),
             {
-                viewModel.withdraw()
+                if (withdrawAll) {
+                    viewModel.withdrawAllEnable()
+                } else {
+                    viewModel.withdraw()
+                }
+                withdrawAll = false
             }, {
                 viewModel.closeDialog()
+                withdrawAll = false
             }
         )
     }

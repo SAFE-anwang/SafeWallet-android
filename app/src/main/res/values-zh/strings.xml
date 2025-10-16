@@ -2301,6 +2301,7 @@
     <string name="RemoveVote">投票释放</string>
     <string name="Transactions_Approve_Remove">撤销合约授权</string>
     <string name="list_footer">已经到底了～</string>
+    <string name="Withdraw_All">一键提现</string>
     <!-- SRC20 end-->
 
 </resources>

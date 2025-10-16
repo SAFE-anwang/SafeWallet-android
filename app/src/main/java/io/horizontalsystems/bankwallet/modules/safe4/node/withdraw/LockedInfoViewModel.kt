@@ -48,6 +48,8 @@ class LockedInfoViewModel(
     val limit = 20
     private val loading = AtomicBoolean(false)
 
+    var canWithdrawAll = false
+
     override fun createState(): WithdrawModule.WithDrawLockInfoUiState {
         return getUiState()
     }
@@ -64,7 +66,8 @@ class LockedInfoViewModel(
         }
         return WithdrawModule.WithDrawLockInfoUiState(
             list,
-            showConfirmationDialog
+            showConfirmationDialog,
+            canWithdrawAll
         )
     }
 
@@ -104,6 +107,7 @@ class LockedInfoViewModel(
             getWithdrawEnableRecord()
             service.updateLockedInfo()
         }
+        checkWithdrawAllState()
     }
 
     private fun initIfNeed() {
@@ -163,7 +167,7 @@ class LockedInfoViewModel(
                         it.address2,
                         it.frozenAddr,
                         (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
-                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                                /*|| ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))*/,
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact,
                         it.type
@@ -180,6 +184,55 @@ class LockedInfoViewModel(
             Log.e("LockedInfoViewModel", "get record error=$e")
         } finally {
             loading.set(false)
+        }
+    }
+
+    fun checkWithdrawAllState() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val allRecordTotal = service.getRecordTotal()
+                val localRecordTotal = repository.getTotal(evmKit.receiveAddress.hex)
+                canWithdrawAll = localRecordTotal >= allRecordTotal && repository.getWithdrawEnableCount(evmKit.receiveAddress.hex, evmKit.lastBlockHeight ?: 0) > 0
+                emitState()
+            } catch (e: Exception) {
+                Log.e("LockedInfoViewModel", "checkWithdraw all state error=$e")
+            }
+        }
+    }
+
+    fun withdrawAllEnable() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                var ids = repository.getEnableWithdrawIds(
+                    evmKit.receiveAddress.hex,
+                    evmKit.lastBlockHeight ?: 0,
+                    0
+                )
+                ids?.let {
+                    service.withdraw(it, 0)
+                    repository.delete(it, service.getContract(0))
+                }
+                ids = repository.getEnableWithdrawIds(
+                    evmKit.receiveAddress.hex,
+                    evmKit.lastBlockHeight ?: 0,
+                    1
+                )
+                ids?.let {
+                    service.withdraw(it, 1)
+                    repository.delete(it, service.getContract(1))
+                }
+                ids = repository.getEnableWithdrawIds(
+                    evmKit.receiveAddress.hex,
+                    evmKit.lastBlockHeight ?: 0,
+                    2
+                )
+                ids?.let {
+                    service.withdraw(it, 2)
+                    repository.delete(it, service.getContract(2))
+                }
+            } catch (e: Exception) {
+                Log.e("LockedInfoViewModel", "withdraw all record error=$e")
+            }
         }
     }
 

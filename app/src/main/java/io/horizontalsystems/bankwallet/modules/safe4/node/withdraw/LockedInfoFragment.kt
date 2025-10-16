@@ -14,6 +14,8 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,9 +37,11 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawUi.WithdrawLockItem
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
@@ -90,13 +94,25 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
+    var withdrawAll = false
+
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
             title = stringResource(id = R.string.Safe_Four_Lock),
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
-            }
+            },
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Withdraw_All),
+                    onClick = {
+                        withdrawAll = true
+                        viewModel.showConfirmation()
+                    },
+                    enabled = uiState.canWithdrawAll
+                )
+            )
         )
         if (nodeList.isNullOrEmpty()) {
             Column() {
@@ -167,8 +183,14 @@ fun WithdrawVoteScreen(
         WithdrawConfirmationDialog(
             content = stringResource(viewModel.getHintText()),
             {
-                viewModel.withdraw()
+                if (withdrawAll) {
+                    viewModel.withdrawAllEnable()
+                } else {
+                    viewModel.withdraw()
+                }
+                withdrawAll = false
             }, {
+                withdrawAll = false
                 viewModel.closeDialog()
             }
         )

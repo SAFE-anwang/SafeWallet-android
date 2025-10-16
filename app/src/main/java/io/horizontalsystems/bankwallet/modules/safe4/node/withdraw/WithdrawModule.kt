@@ -48,6 +48,7 @@ object WithdrawModule {
 					WithdrawVoteViewModel(
 						adapterEvm.evmKitWrapper.evmKit,
 						service,
+						LockRecordInfoRepository(App.appDatabase.lockRecordDao()),
 						lockVoteService,
 						App.connectivityManager
 					) as T
@@ -85,12 +86,14 @@ object WithdrawModule {
 	data class WithDrawNodeUiState(
 		val list: List<WithDrawInfo>?,
 		val enableWithdraw: Boolean = false,
-		val showConfirmDialog: Boolean = false
+		val showConfirmDialog: Boolean = false,
+		val enableReleaseAll: Boolean = false
 	)
 
 	data class WithDrawLockInfoUiState(
 		val list: List<WithDrawLockedInfo>?,
-		val showConfirmDialog: Boolean = false
+		val showConfirmDialog: Boolean = false,
+		val canWithdrawAll: Boolean = false
 	)
 
 	data class WithDrawInfo(

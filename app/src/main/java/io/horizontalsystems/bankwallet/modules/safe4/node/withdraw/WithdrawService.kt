@@ -182,6 +182,10 @@ class WithdrawService(
         }
     }
 
+    fun getContract(type: Int): String {
+        return getContract(type)
+    }
+
     fun getRecordInfo(id: Long): LockedRecord {
         val info = safe4.getRecordByID(id, type)
         val recordUseInfo = if (type == 0) safe4.getRecordUseInfo(id.toInt()) else null
@@ -222,6 +226,13 @@ class WithdrawService(
             }
         }
     }
+
+    fun getRecordTotal(): Long {
+        return safe4.getAccountTotalAmount(safe4.address.hex, 0).num.toLong()
+             + safe4.getAccountTotalAmount(safe4.address.hex, 1).num.toLong()
+             + safe4.getAccountTotalAmount(safe4.address.hex, 2).num.toLong()
+    }
+
 
     override fun clear() {
         disposables.clear()
