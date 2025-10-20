@@ -1,14 +1,19 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.EvmTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -62,6 +67,7 @@ class TransactionAdapterManager(
                     BlockchainType.Gnosis,
                     BlockchainType.Fantom,
                     BlockchainType.ArbitrumOne -> {
+                        Log.d("longwen", "uid=${wallet.coin.uid}")
                         adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType, wallet.coin.uid.isSafeFourCustomCoin(), wallet.address)
                     }
                     BlockchainType.Solana -> {
