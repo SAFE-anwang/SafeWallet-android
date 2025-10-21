@@ -265,14 +265,6 @@ class LockedInfoViewModel(
         clickWithdrawInfo = info
     }
 
-    fun getHintText(): Int {
-        return if (clickWithdrawInfo?.unlockHeight == 0L) {
-            R.string.SAFE4_Withdraw_Local_Hint
-        } else {
-            R.string.SAFE4_Withdraw_Vote_Hint
-        }
-    }
-
     fun addLockDay(lockedId: Int) {
         clickAddLockDayId = lockedId
     }

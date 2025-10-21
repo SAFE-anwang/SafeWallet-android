@@ -15,6 +15,7 @@ import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.toHexString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SRC20DeployViewModel(
@@ -25,7 +26,7 @@ class SRC20DeployViewModel(
     var type: DeployType = DeployType.SRC20
     var name: String = ""
     var symbol: String = ""
-    var totalSupply: Int = 0
+    var totalSupply: BigInteger = BigInteger.ZERO
 
     private var isDeploying = AtomicBoolean(false)
     var showConfirmationDialog = false
@@ -36,7 +37,7 @@ class SRC20DeployViewModel(
         return DeployUiState(
             type,
             getDeployDesc(),
-            name.isNotEmpty() && symbol.isNotEmpty() && totalSupply > 0,
+            name.isNotEmpty() && symbol.isNotEmpty() && totalSupply > BigInteger.ZERO,
             showConfirmationDialog
         )
     }
@@ -66,7 +67,7 @@ class SRC20DeployViewModel(
 
     fun onEnterSupply(supply: String) {
         try {
-            this.totalSupply = supply.toInt()
+            this.totalSupply = supply.toBigInteger()
         } catch (e: Exception) {
 
         }
@@ -89,7 +90,7 @@ class SRC20DeployViewModel(
         cancel()
         isDeploying.set(true)
         sendResult = SendResult.Sending
-        val amount = NodeCovertFactory.scaleConvert(totalSupply)
+        val amount = NodeCovertFactory.scaleConvert(totalSupply.toBigDecimal())
         val deploy = when(type) {
             DeployType.SRC20 -> service.src20Deploy(
                 evmKitWrapper.signer!!.privateKey.toHexString(),

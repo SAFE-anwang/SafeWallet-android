@@ -102,7 +102,7 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
-    var withdrawAll = false
+    var withdrawAll by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {

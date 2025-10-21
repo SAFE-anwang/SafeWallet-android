@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,8 +15,11 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,7 +98,7 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
-    var withdrawAll = false
+    var withdrawAll by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
@@ -181,7 +185,7 @@ fun WithdrawVoteScreen(
     }
     if (uiState.showConfirmDialog) {
         WithdrawConfirmationDialog(
-            content = stringResource(viewModel.getHintText()),
+            content = stringResource(if (withdrawAll) R.string.SAFE4_Withdraw_ALL_Local_Hint else R.string.SAFE4_Withdraw_Local_Hint),
             {
                 if (withdrawAll) {
                     viewModel.withdrawAllEnable()

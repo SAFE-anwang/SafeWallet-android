@@ -2234,7 +2234,8 @@
     <string name="SAFE4_Withdraw_Node_Hint_Master">主节点锁仓金额</string>
     <string name="SAFE4_Withdraw_Node_Hint_Super">超级节点锁仓金额</string>
     <string name="SAFE4_Withdraw_Vote_Hint">锁仓投票提现后将不再产生收益，确定提取吗？</string>
-    <string name="SAFE4_Withdraw_Local_Hint">确定提取锁仓的SAFE吗？</string>
+    <string name="SAFE4_Withdraw_Local_Hint">将解锁提现所选定的锁仓记录，确定提现吗？</string>
+    <string name="SAFE4_Withdraw_ALL_Local_Hint">将解锁提现所有的锁仓记录，确定提现吗？</string>
     <string name="SAFE4_Withdraw_Profit_Hint">确定提取所有收益吗？</string>
     <string name="SAFE4_Withdraw_Proposal_Hint">确定提取提案和普通锁仓的SAFE吗？</string>
     <string name="SAFE4_Withdraw_Send_Sending">正在提现</string>

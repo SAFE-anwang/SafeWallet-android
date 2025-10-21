@@ -2561,7 +2561,8 @@
     <string name="SAFE4_Withdraw_Node_Hint_Master">master node locked amount</string>
     <string name="SAFE4_Withdraw_Node_Hint_Super">super node locked amount</string>
     <string name="SAFE4_Withdraw_Vote_Hint">Withdrawing funds from locked voting will terminate all future earnings. Are you sure you want to proceed?</string>
-    <string name="SAFE4_Withdraw_Local_Hint">Confirm to withdraw SAFE from regular locked staking?</string>
+    <string name="SAFE4_Withdraw_Local_Hint">Unlock and withdraw the selected locked records, confirm withdrawal?</string>
+    <string name="SAFE4_Withdraw_ALL_Local_Hint">Unlock and withdraw all locked records, confirm withdrawal?</string>
     <string name="SAFE4_Withdraw_Profit_Hint">Do you confirm the withdrawal of all accumulated earnings?</string>
     <string name="SAFE4_Withdraw_Proposal_Hint">Confirm to withdraw SAFE from both proposal-locked and regular locked staking?</string>
     <string name="SAFE4_Withdraw_Send_Sending">Withdraw</string>
