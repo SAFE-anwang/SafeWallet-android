@@ -299,6 +299,16 @@ class EvmKitWrapper(
         }
     }
 
+    fun src20Lock(
+        transactionData: TransactionData
+    ) : Single<String> {
+        return if (signer != null) {
+            evmKit.src20Lock(signer.privateKey, transactionData)
+        } else {
+            Single.error(Exception())
+        }
+    }
+
     fun createSuperNode(
             value: BigInteger,
             isUnion: Boolean,

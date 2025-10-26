@@ -151,6 +151,18 @@ class SendEvmTransactionService(
                 .let { disposable.add(it) }
             return
         }
+        if (sendEvmData.transactionData.isSRC20Lock) {
+            evmKitWrapper.src20Lock(txConfig.transactionData)
+                .subscribeIO({
+                    sendState = SendState.Sent(it.hexStringToByteArray())
+                    logger.info("src20 lock success $it")
+                }, { error ->
+                    sendState = SendState.Failed(error)
+                    logger.warning("src20 lock failed", error)
+                })
+                .let { disposable.add(it) }
+            return
+        }
         evmKitWrapper.sendSingle(
             txConfig.transactionData,
             txConfig.gasData.gasPrice,

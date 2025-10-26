@@ -119,6 +119,7 @@ object SendEvmConfirmationModule {
                 transactionDataParcelable.value,
                 transactionDataParcelable.input,
                 transactionDataParcelable.lockTime,
+                isSRC20Lock = transactionDataParcelable.isSRC20Lock,
                 safe4Swap = transactionDataParcelable.safe4Swap,
                 times = transactionDataParcelable.times,
                 spaceDay = transactionDataParcelable.spaceDay,

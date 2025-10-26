@@ -53,7 +53,7 @@ fun SendEvmScreen(
     val amountInputType = amountInputModeViewModel.inputType
 
     val lockTimeIntervals = viewModel.lockTimeIntervals
-    val lockTimeEnabled = viewModel.isLockTimeEnabled
+    val lockTimeEnabled = viewModel.isLockTimeEnabled || viewModel.isSetLogoCoin()
     val lockTimeInterval = uiState.lockTimeInterval
 
     val paymentAddressViewModel = viewModel<AddressParserViewModel>(
@@ -143,6 +143,21 @@ fun SendEvmScreen(
                 InfoText(
                         text = stringResource(R.string.Send_Safe_Four_Hodler_Description),
                 )
+            }
+
+            uiState.approveState?.let {
+                if (uiState.approveState.needApprove && !uiState.approveState.approveSuccess) {
+                    ButtonPrimaryYellow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                        title = stringResource(uiState.approveState.hint),
+                        onClick = {
+
+                        },
+                        enabled = false
+                    )
+                }
             }
 
             ButtonPrimaryYellow(

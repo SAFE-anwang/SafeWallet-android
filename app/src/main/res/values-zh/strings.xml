@@ -2176,6 +2176,7 @@
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
+    <string name="Method_SRC20_Lock">SRC20 锁仓</string>
     <string name="Get_Safe3_Test_Coin">SAFE领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
@@ -2303,6 +2304,7 @@
     <string name="Transactions_Approve_Remove">撤销合约授权</string>
     <string name="list_footer">已经到底了～</string>
     <string name="Withdraw_All">一键提现</string>
+    <string name="Approving">批准中...</string>
     <!-- SRC20 end-->
 
 </resources>

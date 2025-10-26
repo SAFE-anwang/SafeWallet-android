@@ -2503,6 +2503,7 @@
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
     <string name="Method_Add_Liquidity">Add Liquidity</string>
+    <string name="Method_SRC20_Lock">SRC20 Locked</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>
@@ -2632,6 +2633,7 @@
     <string name="Transactions_Approve_Remove">Revoke contract authorization</string>
     <string name="list_footer">No more items～</string>
     <string name="Withdraw_All">Withdraw All</string>
+    <string name="Approving">Approving...</string>
     <!-- SRC20 end-->
 
 </resources>
