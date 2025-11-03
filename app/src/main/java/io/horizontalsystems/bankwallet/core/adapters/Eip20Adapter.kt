@@ -61,7 +61,7 @@ class Eip20Adapter(
         get() = eip20Kit.syncStateFlowable.map { }
 
     override val balanceData: BalanceData
-        get() = BalanceData(balanceInBigDecimal(eip20Kit.balance, decimal))
+        get() = BalanceData(balanceInBigDecimal(eip20Kit.balance?.first, decimal), balanceInBigDecimal(eip20Kit.balance?.second, decimal))
 
     override val balanceUpdatedFlowable: Flowable<Unit>
         get() = eip20Kit.balanceFlowable.map { Unit }
