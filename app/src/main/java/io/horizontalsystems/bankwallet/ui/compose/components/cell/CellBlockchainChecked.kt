@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.marketkit.SafeExtend.isSafe3Coin
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
 
@@ -38,7 +39,7 @@ fun CellBlockchainChecked(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .weight(1f),
-            text = blockchain.name,
+            text = blockchain.name + if (blockchain.uid.isSafe3Coin()) "3" else "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
