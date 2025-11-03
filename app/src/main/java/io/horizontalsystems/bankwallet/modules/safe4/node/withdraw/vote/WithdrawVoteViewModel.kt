@@ -216,6 +216,8 @@ class WithdrawVoteViewModel(
 
 
     fun withdrawAllEnable() {
+        closeDialog()
+        sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 var ids = repository.getEnableReleaseVoteRecordIds(
@@ -226,9 +228,11 @@ class WithdrawVoteViewModel(
                     service.removeVoteOrApproval(it)
 
                     LockRecordManager.updateVoteStatus()
+                    sendResult = SendResult.Sent
                 }
             } catch (e: Exception) {
                 android.util.Log.e("LockedInfoViewModel", "withdraw all record error=$e")
+                sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
             }
         }
     }

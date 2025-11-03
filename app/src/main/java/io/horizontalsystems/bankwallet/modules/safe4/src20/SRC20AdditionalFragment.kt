@@ -62,6 +62,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.TextPreprocessor
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
@@ -98,6 +99,7 @@ fun SRC20AdditionalScreen(
 
     val view = LocalView.current
     val sendResult = viewModel.sendResult
+    var lastValidValue by remember { mutableStateOf("") }
 
     when (sendResult) {
         SendResult.Sending -> {
@@ -220,7 +222,20 @@ fun SRC20AdditionalScreen(
                 enabled = true,
                 pasteEnabled = false,
                 hint = "",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textPreprocessor = object : TextPreprocessor {
+                    override fun process(text: String): String {
+                        val value = if (SRC20Module.isValidDecimalInput(text, lastValidValue)) {
+                            lastValidValue = text
+                            text
+                        } else {
+                            // 如果输入无效，恢复到最后一次有效的值
+                            lastValidValue
+                        }
+                        return value
+                    }
+
+                }
             ) {
                 viewModel.setAdditionalNumber(it)
             }

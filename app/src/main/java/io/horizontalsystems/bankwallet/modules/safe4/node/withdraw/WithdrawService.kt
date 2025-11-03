@@ -83,7 +83,7 @@ class WithdrawService(
         loading.set(true)
         var page = page
         if (page == 0) {
-            page = (repository?.getRecordNum(getContract(), evmKitManager.evmKit.receiveAddress.hex) ?: 0) / itemsPerPage
+            page = (repository?.getRecordNum(getContract(type), evmKitManager.evmKit.receiveAddress.hex) ?: 0) / itemsPerPage
 
         }
         if (maxNum == -1) {
@@ -147,7 +147,7 @@ class WithdrawService(
                                 it.address,
                                 it.address2,
                                 it.frozenAddr,
-                                getContract(),
+                                getContract(type),
                                 evmKitManager.evmKit.receiveAddress.hex,
                                 type,
                                 it.withdrawEnable
@@ -174,16 +174,12 @@ class WithdrawService(
         }
     }
 
-    private fun getContract(): String {
+    fun getContract(type: Int): String {
         return when(type) {
             1 -> safe4.AccountManagerContractAddr4ac6
             2 -> safe4.AccountManagerContractAddr91b2
             else -> safe4.safe4SwapContractAddress
         }
-    }
-
-    fun getContract(type: Int): String {
-        return getContract(type)
     }
 
     fun getRecordInfo(id: Long): LockedRecord {
@@ -197,13 +193,13 @@ class WithdrawService(
     }
 
     fun updateLockedInfo() {
-        val idList = repository?.getRecordIds(getContract(), evmKitManager.evmKit.receiveAddress.hex)
+        val idList = repository?.getRecordIds(getContract(type), evmKitManager.evmKit.receiveAddress.hex)
         idList?.let {ids ->
             ids.forEach {
                 try {
                     val record = getRecordInfo(it)
                     if (record.lockedId == BigInteger.ZERO) {
-                        repository?.delete(it, getContract())
+                        repository?.delete(it, getContract(type))
                     } else {
                         val recordInfo = LockRecordInfo(
                             record.lockedId.toLong(),
@@ -213,7 +209,7 @@ class WithdrawService(
                             record.address,
                             record.recordInfo?.votedAddr?.value,
                             record.recordInfo?.frozenAddr?.value,
-                            getContract(),
+                            getContract(type),
                             evmKitManager.evmKit.receiveAddress.hex,
                             type
                         )

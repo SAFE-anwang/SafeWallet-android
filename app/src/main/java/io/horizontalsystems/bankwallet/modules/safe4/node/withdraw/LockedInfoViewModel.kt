@@ -201,6 +201,8 @@ class LockedInfoViewModel(
     }
 
     fun withdrawAllEnable() {
+        closeDialog()
+        sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 var ids = repository.getEnableWithdrawIds(
@@ -230,8 +232,10 @@ class LockedInfoViewModel(
                     service.withdraw(it, 2)
                     repository.delete(it, service.getContract(2))
                 }
+                sendResult = SendResult.Sent
             } catch (e: Exception) {
                 Log.e("LockedInfoViewModel", "withdraw all record error=$e")
+                sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
             }
         }
     }

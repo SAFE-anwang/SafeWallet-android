@@ -245,7 +245,7 @@ fun SRC20DeployScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 textPreprocessor = object : TextPreprocessor {
                     override fun process(text: String): String {
-                        val value = if (viewModel.isValidDecimalInput(text, lastValidValue)) {
+                        val value = if (SRC20Module.isValidDecimalInput(text, lastValidValue)) {
                             lastValidValue = text
                             text
                         } else {
