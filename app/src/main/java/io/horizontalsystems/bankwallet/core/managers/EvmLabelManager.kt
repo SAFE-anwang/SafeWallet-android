@@ -128,6 +128,7 @@ class EvmLabelManager(
             "0x8d6dbe42" -> Translator.getString(R.string.Super_Node_Modify_IncentivePlan)
             "0x9fbe5cc5" -> Translator.getString(R.string.RemoveVote)
             "0x4b86c225" -> Translator.getString(R.string.Method_SRC20_Lock)
+            "0x49530e18" -> Translator.getString(R.string.Method_USDT_Cross)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }

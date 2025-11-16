@@ -2112,6 +2112,7 @@
     <string name="Safe4_Cross_Chain_erc20">Cross Chain(ETH)</string>
     <string name="Safe4_Cross_Chain_bep20">Cross Chain(BSC)</string>
     <string name="Safe4_Cross_Chain_matic">Cross Chain(MATIC)</string>
+    <string name="Safe4_Cross_Chain_Usdt">Cross Chain(USDT)</string>
     <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
@@ -2124,6 +2125,14 @@
     <string name="Safe4_Title_wsafe42safe_bep20">SAFE BEP20=>SAFE</string>
     <string name="Safe4_Title_safe42wsafe_matic">SAFE=>SAFE MATIC</string>
     <string name="Safe4_Title_wsafe42safe_matic">SAFE MATIC=>SAFE</string>
+    <string name="Safe4_Title_safe2_eth_usdt">SAFE USDT =>ETH USDT</string>
+    <string name="Safe4_Title_safe2_bsc_usdt">SAFE USDT =>BSC USDT</string>
+    <string name="Safe4_Title_safe2_tron_usdt">SAFE USDT =>TRON USDT</string>
+    <string name="Safe4_Title_safe2_sol_usdt">SAFE USDT =>SOL USDT</string>
+    <string name="Safe4_Title_ethusdt2safe">ETH USDT =>SAFE USDT</string>
+    <string name="Safe4_Title_bscusdt2safe">BSC USDT =>SAFE USDT</string>
+    <string name="Safe4_Title_tronusdt2safe">TRON USDT =>SAFE USDT</string>
+    <string name="Safe4_Title_solusdt2safe">SOL USDT =>SAFE USDT</string>
     <string name="Safe4_Locked"> Locked</string>
     <string name="Safe4_Line_Locked">Linear Locked</string>
     <string name="Safe4_node_Locked">Node Locked</string>
@@ -2504,6 +2513,7 @@
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
     <string name="Method_Add_Liquidity">Add Liquidity</string>
     <string name="Method_SRC20_Lock">SRC20 Locked</string>
+    <string name="Method_USDT_Cross">USDT Cross</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE Coin</string>
     <string name="Get_Safe3_Test_Coin_Button">GET</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">Receiving</string>

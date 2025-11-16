@@ -1676,6 +1676,7 @@
     <string name="Safe4_Cross_Chain_erc20">跨链(ETH)</string>
     <string name="Safe4_Cross_Chain_bep20">跨链(BSC)</string>
     <string name="Safe4_Cross_Chain_matic">跨链(MATIC)</string>
+    <string name="Safe4_Cross_Chain_Usdt">跨链(USDT)</string>
     <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
@@ -2177,6 +2178,7 @@
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
     <string name="Method_SRC20_Lock">SRC20 锁仓</string>
+    <string name="Method_USDT_Cross">USDT 跨链</string>
     <string name="Get_Safe3_Test_Coin">SAFE领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>

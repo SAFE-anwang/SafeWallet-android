@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
 import android.util.Log
+import com.anwang.utils.ContractUtil
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
@@ -14,8 +15,8 @@ import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
-import io.horizontalsystems.ethereumkit.models.DefaultBlockParameter
 import io.horizontalsystems.ethereumkit.models.TransactionData
+import io.horizontalsystems.wsafekit.Web3jUtils
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
@@ -26,8 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.utils.Convert
+import org.web3j.protocol.core.methods.request.Transaction
 import java.math.BigInteger
 
 interface ISendEvmTransactionService {
@@ -124,9 +124,12 @@ class SendEvmTransactionService(
             return
         }
         val txConfig = settingsService.state.dataOrNull ?: return
-
         sendState = SendState.Sending
         logger.info("sending tx ${txConfig.nonce}")
+        if (txConfig.transactionData.isSafeUsdt) {
+            sendSafeToUsdtTransaction(logger)
+            return
+        }
         if (txConfig.transactionData.safe4Swap != 0) {
             evmKitWrapper.sendSafe4Swap(txConfig.transactionData)
                 .subscribeIO({
@@ -178,6 +181,64 @@ class SendEvmTransactionService(
                 logger.warning("failed", error)
             })
             .let { disposable.add(it) }
+    }
+
+    private fun sendSafeToUsdtTransaction(logger: AppLogger) {
+        val nonce = settingsService.nonce ?: return
+        sendState = SendState.Sending
+        val txConfig = settingsService.state.dataOrNull ?: return
+
+        logger.info("sending tx")
+        GlobalScope.launch {
+            try {
+                val web3j: Web3j = Connect.connect(evmKitWrapper.evmKit.chain)
+                val contract = txConfig.transactionData.to.hex
+                val gasPrice: BigInteger = web3j.ethGasPrice()
+                    .send()
+                    .gasPrice
+                val credentials = Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16))
+                val ethEstimateGas = web3j.ethEstimateGas(
+                    Transaction.createFunctionCallTransaction(
+                        evmKitWrapper.evmKit.receiveAddress.hex,
+                        null,
+                        gasPrice,
+                        BigInteger.ZERO,
+                        contract,
+                        BigInteger.ZERO,
+                        sendEvmData.transactionData.input.toString(Charsets.UTF_8),
+                    )
+                ).send()
+                Log.d("sendSafeToUsdtTransaction", "${sendEvmData.transactionData.input.toString(Charsets.UTF_8)}")
+                Log.d("sendSafeToUsdtTransaction", "${credentials.address}")
+                Log.d("sendSafeToUsdtTransaction", "${evmKitWrapper.evmKit.receiveAddress.hex}")
+                if (ethEstimateGas.error != null) {
+                    Log.e("sendSafeToUsdtTransaction", "error=${ethEstimateGas.error.data}, ${ethEstimateGas.error.message}")
+//                    throw java.lang.Exception(ethEstimateGas.error.message)
+                }
+                val gasLimit = ethEstimateGas.amountUsed.multiply(BigInteger.valueOf(6))
+                    .divide(BigInteger.valueOf(5))
+
+//                Log.d("safeToUsdt", "gasLimit=$gasLimit")
+                val hash = TransactionContractSend.send(
+                    web3j, credentials,
+                    contract,
+                    sendEvmData.transactionData.input.toString(Charsets.UTF_8),
+                    BigInteger.ZERO,
+                    nonce.toBigInteger(),
+                    gasPrice,
+                    gasLimit
+                )
+                withContext(Dispatchers.Main) {
+                    sendState = SendState.Sent(hash.toByteArray())
+                    logger.info("success")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    sendState = SendState.Failed(e)
+                    logger.warning("failed", e)
+                }
+            }
+        }
     }
 
     override fun addLiqudity(logger: AppLogger) {
