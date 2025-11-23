@@ -454,7 +454,7 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
 
     Text(
-        text = stringResource(R.string.Safe4_Cross_Chain_Usdt),
+        text = stringResource(R.string.Safe4_Cross_Chain_Usdt_ETH),
         style = ComposeAppTheme.typography.subhead1,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
@@ -462,7 +462,6 @@ private fun Safe4Sections(
     )
 
     Spacer(Modifier.height(10.dp))
-
     CellSingleLineLawrenceSection(
         listOf (
             {
@@ -478,40 +477,47 @@ private fun Safe4Sections(
             {
                 HsSettingCellForUsdt(
                     R.mipmap.ic_app_color,
-                    "SAFE",
-                    "BSC",
-                    onClick = {
-                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.BSC, navController)
-                    }
-                )
-            },
-            /*{
-                HsSettingCellForUsdt(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "TRON",
-                    onClick = {
-                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.TRON, navController)
-                    }
-                )
-            },
-            {
-                HsSettingCellForUsdt(
-                    R.mipmap.ic_app_color,
-                    "SAFE",
-                    "SOL",
-                    onClick = {
-                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.SOL, navController)
-                    }
-                )
-            },*/
-            {
-                HsSettingCellForUsdt(
-                    R.mipmap.ic_app_color,
                     "ETH",
                     "SAFE",
                     onClick = {
                         Safe4Module.handlerUsdtToSafe4(Safe4Module.ChainType.ETH, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe4_BSC_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safe4UsdtContract)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
+        text = stringResource(R.string.Safe4_Cross_Chain_Usdt_BSC),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForUsdt(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "BSC",
+                    onClick = {
+                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.BSC, navController)
                     }
                 )
             },
@@ -525,13 +531,87 @@ private fun Safe4Sections(
                     }
                 )
             },
-            /*{
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe4_BSC_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safe4UsdtContract)
+                    }
+                )
+            }
+        )
+    )
+
+    /*Spacer(Modifier.height(25.dp))
+
+    Text(
+        text = stringResource(R.string.Safe4_Cross_Chain_Usdt_TRON),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForUsdt(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "TRON",
+                    onClick = {
+                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.TRON, navController)
+                    }
+                )
+            },
+            {
                 HsSettingCellForUsdt(
                     R.mipmap.ic_app_color,
                     "TRON",
                     "SAFE",
                     onClick = {
                         Safe4Module.handlerUsdtToSafe4(Safe4Module.ChainType.TRON, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Safe4_Safe4_BSC_Contract,
+                    R.mipmap.ic_app_color,
+                    showAlert = false,
+                    onClick = {
+                        onClick(App.appConfigProvider.safe4UsdtContract)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
+        text = stringResource(R.string.Safe4_Cross_Chain_Usdt_SOL),
+        style = ComposeAppTheme.typography.subhead1,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf (
+            {
+                HsSettingCellForUsdt(
+                    R.mipmap.ic_app_color,
+                    "SAFE",
+                    "SOL",
+                    onClick = {
+                        Safe4Module.handlerSafe42Usdt(Safe4Module.ChainType.SOL, navController)
                     }
                 )
             },
@@ -551,12 +631,13 @@ private fun Safe4Sections(
                     R.mipmap.ic_app_color,
                     showAlert = false,
                     onClick = {
-                        onClick(App.appConfigProvider.safeMaticContract)
+                        onClick(App.appConfigProvider.safe4UsdtContract)
                     }
                 )
-            }*/
+            }
         )
-    )
+    )*/
+
 
     Spacer(Modifier.height(25.dp))
 
@@ -992,7 +1073,7 @@ fun HsSettingCellForUsdt(
             contentDescription = null,
         )
         Text(
-            text = coinName,
+            text = symbol,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
@@ -1010,7 +1091,7 @@ fun HsSettingCellForUsdt(
                     end = 4.dp,
                     bottom = 1.dp
                 ),
-                text = symbol,
+                text = coinName,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
@@ -1024,7 +1105,7 @@ fun HsSettingCellForUsdt(
             modifier = Modifier.padding(horizontal = 6.dp)
         )
         Text(
-            text = chainName,
+            text = symbol,
             style = ComposeAppTheme.typography.body,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
@@ -1042,7 +1123,7 @@ fun HsSettingCellForUsdt(
                     end = 4.dp,
                     bottom = 1.dp
                 ),
-                text = symbol,
+                text = chainName,
                 color = ComposeAppTheme.colors.bran,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,

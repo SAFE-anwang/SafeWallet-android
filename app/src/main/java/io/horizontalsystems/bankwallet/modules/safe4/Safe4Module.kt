@@ -220,8 +220,8 @@ object Safe4Module {
                     usdtWallet = it
                 }
             }
-            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type is TokenType.Eip20) {
-                if ((it.token.type as TokenType.Eip20).address == "0x9C1246a4BB3c57303587e594a82632c3171662C9") {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "Safe4USDT" && it.token.type is TokenType.Eip20) {
+                if ((it.token.type as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
                     safeWallet = it
                 }
             }
@@ -252,14 +252,14 @@ object Safe4Module {
         var safeWallet: Wallet? = null
         var chain: Chain = Chain.Ethereum
         for (it in walletList) {
-            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type is TokenType.Eip20) {
-                if ((it.token.type as TokenType.Eip20).address == "0x9C1246a4BB3c57303587e594a82632c3171662C9") {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "Safe4USDT" && it.token.type is TokenType.Eip20) {
+                if ((it.token.type as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
                     safeWallet = it
                 }
             }
         }
         if (safeWallet == null) {
-            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE USDT"), Toast.LENGTH_SHORT).show()
             return
         }
         var title = 0

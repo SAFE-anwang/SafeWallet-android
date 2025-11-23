@@ -118,8 +118,8 @@ val TokenQuery.protocolType: String?
         is TokenType.Eip20 -> {
             when (blockchainType) {
                 BlockchainType.SafeFour -> {
-                    if ((tokenType as TokenType.Eip20).address == "0x9C1246a4BB3c57303587e594a82632c3171662C9")
-                        "USDT"
+                    if ((tokenType as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9")
+                        "SAFE"
                     else
                         "SRC20"
                 }

@@ -83,6 +83,9 @@ class KeyStoreManager(
         } catch (ex: BadPaddingException) {
             logger.warning("invalid key", ex)
             KeyStoreValidationResult.KeyIsInvalid
+        } catch (e: Exception) {
+            logger.warning("invalid key", e)
+            KeyStoreValidationResult.KeyIsInvalid
         }
     }
 
