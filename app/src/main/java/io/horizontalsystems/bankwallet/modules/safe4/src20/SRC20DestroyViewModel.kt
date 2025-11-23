@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
@@ -36,7 +35,7 @@ class SRC20DestroyViewModel(
 ) : ViewModelUiState<DeployDestroyUIState>() {
 
     private val disposables = CompositeDisposable()
-    private var additionalNumber: Int = 0
+    private var additionalNumber: BigInteger = BigInteger.ZERO
     private var totalSupply: BigInteger = BigInteger.ZERO
 //    private var balance: BigInteger = BigInteger.ZERO
 
@@ -59,14 +58,14 @@ class SRC20DestroyViewModel(
         return DeployDestroyUIState(
             NodeCovertFactory.formatSafe(totalSupply, code = symbol),
             App.numberFormatter.formatCoinFull(balance, code = symbol, 8),
-            additionalNumber > 0,
+            additionalNumber > BigInteger.ZERO,
             showConfirmationDialog
         )
     }
 
     fun setAdditionalNumber(number: String) {
         try {
-            this.additionalNumber = number.toInt()
+            this.additionalNumber = number.toBigInteger()
             emitState()
         } catch (e: Exception) {
 
@@ -91,7 +90,7 @@ class SRC20DestroyViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 service.src20BurnableBurn(evmKitWrapper.signer!!.privateKey.toHexString(),
-                    NodeCovertFactory.scaleConvert(additionalNumber)).blockingGet()
+                    NodeCovertFactory.scaleConvert(additionalNumber.toBigDecimal())).blockingGet()
                 sendResult = SendResult.Sent
             } catch (e: Exception) {
                 e.printStackTrace()

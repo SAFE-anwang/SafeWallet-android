@@ -34,7 +34,7 @@ class SRC20AdditionalViewModel(
 ) : ViewModelUiState<DeployAdditionalUIState>() {
 
     private val disposables = CompositeDisposable()
-    private var additionalNumber: Int = 0
+    private var additionalNumber: BigInteger = BigInteger.ZERO
     private var totalSupply: BigInteger = BigInteger.ZERO
     private var balance: BigInteger = BigInteger.ZERO
 
@@ -58,14 +58,14 @@ class SRC20AdditionalViewModel(
         return DeployAdditionalUIState(
             NodeCovertFactory.formatSafe(totalSupply, code = symbol),
             NodeCovertFactory.formatSafe(balance, code = symbol),
-            additionalNumber > 0,
+            additionalNumber > BigInteger.ZERO,
             showConfirmationDialog
         )
     }
 
     fun setAdditionalNumber(number: String) {
         try {
-            this.additionalNumber = number.toInt()
+            this.additionalNumber = number.toBigInteger()
             emitState()
         } catch (e: Exception) {
 
@@ -89,7 +89,7 @@ class SRC20AdditionalViewModel(
         sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val amount = NodeCovertFactory.scaleConvert(additionalNumber)
+                val amount = NodeCovertFactory.scaleConvert(additionalNumber.toBigDecimal())
                 if (type == DeployType.SRC20Mintable) {
                     service.src20MintableMint(
                         evmKitWrapper.signer!!.privateKey.toHexString(),
