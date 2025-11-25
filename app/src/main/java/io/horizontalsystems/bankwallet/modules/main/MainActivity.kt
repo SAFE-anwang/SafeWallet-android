@@ -47,6 +47,7 @@ import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4TokensService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -139,6 +140,12 @@ class MainActivity : BaseActivity() {
                 SyncSafe4Tokens.getTokens()
             }
         ).start()
+        Handler(mainLooper).postDelayed(
+            Runnable {
+                SRCLockManager.syncLockInfo()
+            },
+            10000
+        )
         /*Handler(mainLooper).postDelayed(
             Runnable {
                 SyncSafe4Tokens.getTokens()

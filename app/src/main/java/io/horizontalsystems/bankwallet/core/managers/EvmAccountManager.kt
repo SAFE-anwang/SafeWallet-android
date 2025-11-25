@@ -264,7 +264,7 @@ class EvmAccountManager(
             async {
                 if (contractAddress != null) {
                     val balance = try {
-                        dataProvider.getBalance(contractAddress, userAddress).await().first
+                        dataProvider.getBalance(contractAddress, userAddress).await()
                     } catch (error: Throwable) {
                         null
                     }
