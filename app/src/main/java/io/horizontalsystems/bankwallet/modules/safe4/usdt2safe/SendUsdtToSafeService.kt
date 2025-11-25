@@ -162,7 +162,7 @@ class SendUsdtToSafeService(
     data class AddressData(val evmAddress: EvmAddress, val domain: String?)
 
     fun isSendMinAmount(safeInfoPO: SafeInfoManager.SafeInfoPO, decimal: Int): Boolean {
-        val minSafe = BigDecimal(safeInfoPO.minamount).movePointRight(decimal)
+        val minSafe = BigDecimal("0.1").movePointRight(decimal)
         val safeAmount = (evmAmount ?: 0) as BigInteger
         return BigDecimal(safeAmount) >= minSafe
     }

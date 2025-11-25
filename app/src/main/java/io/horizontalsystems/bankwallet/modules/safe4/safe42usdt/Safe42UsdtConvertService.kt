@@ -196,7 +196,7 @@ class Safe42UsdtConvertService(
     data class AddressData(val evmAddress: EvmAddress, val domain: String?)
 
     fun isSendMinAmount(safeInfoPO: SafeInfoManager.SafeInfoPO): Boolean {
-        val minSafe = BigDecimal(safeInfoPO.minamount).movePointRight(6)
+        val minSafe = BigDecimal("0.1").movePointRight(sendCoin.decimals)
         val safeAmount = (evmAmount ?: 0) as BigInteger
         return BigDecimal(safeAmount) >= minSafe
     }
