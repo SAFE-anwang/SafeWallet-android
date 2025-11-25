@@ -219,12 +219,7 @@ class BalanceViewItemFactory {
         val lockedValues = buildList {
             lockedCoinValue(
                 state,
-                if (wallet.token.coin.uid.isSafeFourCustomCoin())
-                        NodeCovertFactory.valueConvert(
-                            (SRCLockManager.getLockAmount(wallet.address, App.adapterManager.getReceiveAdapterForWallet(wallet)!!.receiveAddress))
-                        )
-                else
-                    item.balanceData.timeLocked,
+                item.balanceData.timeLocked,
                 hideBalance,
                 wallet.decimal,
                 wallet.token
