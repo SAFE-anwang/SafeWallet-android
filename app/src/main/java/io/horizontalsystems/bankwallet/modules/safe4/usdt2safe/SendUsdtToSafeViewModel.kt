@@ -56,7 +56,7 @@ class SendUsdtToSafeViewModel(
             return
         }
         if (!service.isSendMinAmount(safeInfoPO, coin.decimals)) {
-            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Min_Fee, "0.1"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(App.instance, Translator.getString(R.string.Safe4_USDT_Min_Fee, "0.1"), Toast.LENGTH_SHORT).show()
             return
         } else {
             (service.state as? SendUsdtToSafeService.State.Ready)?.let { readyState ->

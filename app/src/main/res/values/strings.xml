@@ -2144,6 +2144,7 @@
     <string name="Safe4_Coming_Soon">Coming soon</string>
     <string name="Safe4_Disabled">Cross chain transfer business is suspended. Please try again later</string>
     <string name="Safe4_Min_Fee">The minimum amount of cross chain transfer is %s SAFE</string>
+    <string name="Safe4_USDT_Min_Fee">The minimum amount of cross chain transfer is %s USDT</string>
 
     <string name="Send_Confirmation_Wsafe">Receiver</string>
     <string name="Send_Wsafe_Fee_Warn">This fee is for reference only. Please deduct it according to the actual amount</string>
