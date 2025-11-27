@@ -119,6 +119,16 @@ class SendEvmViewModel(
         }
     }
 
+    fun approve() {
+        if (isSetLogoCoin()) {
+            val amount = amountState.amount?.scaleUp(sendToken.decimals) ?: BigInteger.ZERO
+            if (amount == BigInteger.ZERO)  return
+            viewModelScope.launch(Dispatchers.IO) {
+                src20TradeManager.approve(amount)
+            }
+        }
+    }
+
     fun onEnterAmount(amount: BigDecimal?) {
         amountService.setAmount(amount)
     }

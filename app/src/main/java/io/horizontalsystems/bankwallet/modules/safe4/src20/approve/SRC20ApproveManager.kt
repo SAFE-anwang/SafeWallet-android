@@ -23,9 +23,10 @@ class SRC20ApproveManager(
     val contract: String
 ) {
 
+    private val TAG = "SRC20ApproveManager"
     var dispose: Disposable? = null
 
-    val state = ApproveState(true, false, R.string.Button_Approve)
+    val state = ApproveState(false, false, hint = R.string.Button_Approve)
     private val _stateFlow = MutableStateFlow(state)
     val stateFlow: StateFlow<ApproveState>
         get() = _stateFlow
@@ -45,22 +46,31 @@ class SRC20ApproveManager(
     fun checkNeedApprove(requiredAmount: BigInteger) {
         try {
             val currentAllowance = approveService.allowance(address, spenderAddress)
-            Log.d("src20approve", "currentAllowance=$currentAllowance")
+            Log.d(TAG, "currentAllowance=$currentAllowance")
             if (currentAllowance.compareTo(requiredAmount) >= 0) {
                 _stateFlow.update { it.copy(false) }
             } else {
-//                val additionalAmount = requiredAmount.subtract(currentAllowance)
-                Log.d("src20approve", "requiredAmount=$requiredAmount")
-                val approveResult = approveService.approve(privateKey, spenderAddress, requiredAmount, address)
-                if (approveResult.isNotBlank()) {
-                    _stateFlow.update { it.copy(true, false, R.string.Approving) }
-                    checkTransactionStatus()
-                } else {
-                    _stateFlow.update { it.copy(true, false, R.string.Approving) }
-                }
+                _stateFlow.update { it.copy(true, false, true, R.string.Approv_Button) }
             }
         } catch (e: Exception) {
-            Log.d("checkNeedApprove", "error=$e")
+            Log.d(TAG, "checkNeedApprove error=$e")
+            _stateFlow.update { it.copy(error = e.message) }
+        }
+    }
+
+    fun approve(requiredAmount: BigInteger) {
+        try {
+            Log.d(TAG, "requiredAmount=$requiredAmount")
+            _stateFlow.update { it.copy(true, false, false, R.string.Approving) }
+            val approveResult = approveService.approve(privateKey, spenderAddress, requiredAmount, address)
+            Log.d(TAG, "approve result=$approveResult")
+            if (approveResult.isNotBlank()) {
+                checkTransactionStatus()
+            } else {
+                _stateFlow.update { it.copy(error = "批准失败") }
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "approve error=$e")
             _stateFlow.update { it.copy(error = e.message) }
         }
     }
@@ -72,7 +82,7 @@ class SRC20ApproveManager(
             .subscribeOn(Schedulers.io())
             .subscribe {
                 if (it > currentHeight + 6) {
-                    _stateFlow.update { it.copy(false, true, R.string.Approving) }
+                    _stateFlow.update { it.copy(false, true, false, R.string.Approving) }
                 }
             }
     }
@@ -82,6 +92,7 @@ class SRC20ApproveManager(
 data class ApproveState(
     val needApprove: Boolean,
     val approveSuccess: Boolean,
+    val canApprove: Boolean = false,
     val hint: Int = 0,
     val error: String? = null
 )

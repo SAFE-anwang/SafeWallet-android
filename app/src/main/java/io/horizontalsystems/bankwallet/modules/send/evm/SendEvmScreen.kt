@@ -153,9 +153,11 @@ fun SendEvmScreen(
                             .padding(horizontal = 16.dp, vertical = 16.dp),
                         title = stringResource(uiState.approveState.hint),
                         onClick = {
-
+                            if (uiState.approveState.canApprove) {
+                                viewModel.approve()
+                            }
                         },
-                        enabled = false
+                        enabled = uiState.approveState.canApprove
                     )
                 }
             }

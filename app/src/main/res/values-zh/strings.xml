@@ -2311,6 +2311,8 @@
     <string name="list_footer">已经到底了～</string>
     <string name="Withdraw_All">一键提现</string>
     <string name="Approving">批准中...</string>
+    <string name="Approv_Button">批准</string>
+    <string name="Approve_Fail">批准失败</string>
     <!-- SRC20 end-->
 
 </resources>

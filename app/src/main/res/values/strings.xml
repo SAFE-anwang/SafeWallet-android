@@ -2648,6 +2648,8 @@
     <string name="list_footer">No more items～</string>
     <string name="Withdraw_All">Withdraw All</string>
     <string name="Approving">Approving...</string>
+    <string name="Approv_Button">Approve</string>
+    <string name="Approve_Fail">Approve fail</string>
     <!-- SRC20 end-->
 
 </resources>
