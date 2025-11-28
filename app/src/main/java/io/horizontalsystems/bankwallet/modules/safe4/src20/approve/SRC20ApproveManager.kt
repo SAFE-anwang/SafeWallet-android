@@ -77,11 +77,13 @@ class SRC20ApproveManager(
 
     private fun checkTransactionStatus() {
         val currentHeight = evmKit.lastBlockHeight ?: 0
+        Log.d("SRC20ApproveManager", "currentHeight=$currentHeight")
         dispose?.dispose()
         dispose = evmKit.lastBlockHeightFlowable
             .subscribeOn(Schedulers.io())
             .subscribe {
-                if (it > currentHeight + 6) {
+                Log.d("SRC20ApproveManager", "updateHeight=$it")
+                if (it >= currentHeight + 1) {
                     _stateFlow.update { it.copy(false, true, false, R.string.Approving) }
                 }
             }
