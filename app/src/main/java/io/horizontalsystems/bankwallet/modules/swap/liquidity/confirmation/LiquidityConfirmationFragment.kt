@@ -79,6 +79,9 @@ class LiquidityConfirmationFragment(
 //    override val feeViewModel by navGraphViewModels<EvmFeeCellViewModel>(navGraphId) { vmFactory }
 //    override val nonceViewModel by navGraphViewModels<SendEvmNonceViewModel>(navGraphId) { vmFactory }
 
+    override val isCreatePool: Boolean
+        get() = input.additionalInfo?.liquidityInfo?.isCreatePoll ?: false
+
     @Parcelize
     data class Input(
             val dex: SwapMainModule.Dex,

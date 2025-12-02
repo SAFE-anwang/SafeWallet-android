@@ -32,7 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -133,11 +135,20 @@ fun SRC20PromotionScreen(
         }
     }
     val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val imageUriState = remember { mutableStateOf<Uri?>(null) }
+    val imageUri by rememberUpdatedState(imageUriState)
     val galleryLauncher  = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = {
-            imageUri = it
+        onResult = { uri ->
+            imageUriState.value = uri
+            uri?.let {
+                val bytes = context.contentResolver.openInputStream(it)?.use { input ->
+                    ByteArrayOutputStream().apply {
+                        input.copyTo(this)
+                    }.toByteArray()
+                }
+                viewModel.setImageUrl(bytes)
+            }
         }
     )
 
@@ -151,15 +162,34 @@ fun SRC20PromotionScreen(
         }
     )
 
-    // 如果需要处理二进制数据，使用LaunchedEffect
-    LaunchedEffect(imageUri) {
-        imageUri?.let {
-            val bytes = context.contentResolver.openInputStream(it)?.use { input ->
-                ByteArrayOutputStream().apply {
-                    input.copyTo(this)
-                }.toByteArray()
+    val checkPermission = {
+        // 检查权限
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // 已有权限，直接打开图库
+                galleryLauncher.launch("image/png")
             }
-            viewModel.setImageUrl(bytes)
+
+            shouldShowRequestPermissionRationale(context as Activity, permission) -> {
+                // 解释为什么需要权限
+                // 这里可以显示一个对话框解释权限用途
+                // 然后再次请求权限
+                permissionLauncher.launch(permission)
+            }
+
+            else -> {
+                // 首次请求权限
+                permissionLauncher.launch(permission)
+            }
         }
     }
 
@@ -216,12 +246,15 @@ fun SRC20PromotionScreen(
                 text = stringResource(id = R.string.SRC20_Asset_Logo)
             )
             // 显示选择的图片
-            if (imageUri != null) {
+            if (imageUri.value != null) {
                 Image(
-                    painter = rememberAsyncImagePainter(imageUri),
+                    painter = rememberAsyncImagePainter(imageUri.value),
                     contentDescription = "Selected Image",
                     modifier = Modifier.padding(start = 16.dp)
-                        .size(50.dp)
+                        .size(50.dp).
+                        clickable {
+                            checkPermission.invoke()
+                        }
                 )
             } else {
                 if (tokenInfo.logoURI.isNotEmpty()) {
@@ -230,6 +263,9 @@ fun SRC20PromotionScreen(
                         placeholder = R.drawable.ic_safe_20,
                         modifier = Modifier.padding(start = 16.dp)
                             .size(50.dp)
+                            .clickable {
+                                checkPermission.invoke()
+                            }
                     )
                 } else {
                     Icon(
@@ -239,34 +275,7 @@ fun SRC20PromotionScreen(
                         modifier = Modifier.padding(start = 16.dp)
                             .size(50.dp)
                             .clickable {
-                                // 检查权限
-                                val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    Manifest.permission.READ_MEDIA_IMAGES
-                                } else {
-                                    Manifest.permission.READ_EXTERNAL_STORAGE
-                                }
-
-                                when {
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        permission
-                                    ) == PackageManager.PERMISSION_GRANTED -> {
-                                        // 已有权限，直接打开图库
-                                        galleryLauncher.launch("image/png")
-                                    }
-
-                                    shouldShowRequestPermissionRationale(context as Activity, permission) -> {
-                                        // 解释为什么需要权限
-                                        // 这里可以显示一个对话框解释权限用途
-                                        // 然后再次请求权限
-                                        permissionLauncher.launch(permission)
-                                    }
-
-                                    else -> {
-                                        // 首次请求权限
-                                        permissionLauncher.launch(permission)
-                                    }
-                                }
+                                checkPermission.invoke()
                             }
                     )
                 }

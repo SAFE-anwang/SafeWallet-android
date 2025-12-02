@@ -1673,9 +1673,13 @@
     <string name="Telegram_Join_Group">加入群组</string>
 
     <string name="Safe4_Title">SAFE专区</string>
-    <string name="Safe4_Cross_Chain_erc20">跨链(ETH)</string>
-    <string name="Safe4_Cross_Chain_bep20">跨链(BSC)</string>
-    <string name="Safe4_Cross_Chain_matic">跨链(MATIC)</string>
+    <string name="Safe4_Cross_Chain_erc20">SAFE跨链(ETH)</string>
+    <string name="Safe4_Cross_Chain_bep20">SAFE跨链(BSC)</string>
+    <string name="Safe4_Cross_Chain_matic">SAFE跨链(MATIC)</string>
+    <string name="Safe4_Cross_Chain_Usdt_ETH">USDT跨链(ETH)</string>
+    <string name="Safe4_Cross_Chain_Usdt_BSC">USDT跨链(BSC)</string>
+    <string name="Safe4_Cross_Chain_Usdt_TRON">USDT跨链(TRON)</string>
+    <string name="Safe4_Cross_Chain_Usdt_SOL">USDT跨链(SOL)</string>
     <string name="Safe4_Title_safe2wsafe_erc20">SAFE=>SAFE ERC20</string>
     <string name="Safe4_Title_wsafe2safe_erc20">SAFE ERC20=>SAFE</string>
     <string name="Safe4_Title_safe2wsafe_bep20">SAFE=>SAFE BEP20</string>
@@ -1696,6 +1700,7 @@
     <string name="Safe4_Coming_Soon">敬请期待</string>
     <string name="Safe4_Disabled">跨链转账业务暂停使用，请稍后再试</string>
     <string name="Safe4_Min_Fee">跨链转账最小金额是 %s SAFE</string>
+    <string name="Safe4_USDT_Min_Fee">跨链转账最小金额是 %s USDT</string>
 
     <string name="Send_Confirmation_Wsafe">跨链接收人</string>
     <string name="Send_Wsafe_Fee_Warn">该费用仅为参考，请以实际扣除为准</string>
@@ -2176,6 +2181,8 @@
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
+    <string name="Method_SRC20_Lock">SRC20 锁仓</string>
+    <string name="Method_USDT_Cross">USDT 跨链</string>
     <string name="Get_Safe3_Test_Coin">SAFE领取</string>
     <string name="Get_Safe3_Test_Coin_Button">领取</string>
     <string name="Get_Safe3_Test_Coin_Send_Sending">正在领取</string>
@@ -2217,7 +2224,7 @@
     <string name="SAFE4_Swap_Tx_Title">SAFE兑换</string>
 
     <string name="SAFE4_Withdraw">提现</string>
-    <string name="SAFE4_Withdraw_Release">投票释放/提现</string>
+    <string name="SAFE4_Withdraw_Release">提现</string>
     <string name="SAFE4_Withdraw_Master_Node">主节点提现</string>
     <string name="SAFE4_Withdraw_Super_Node">超级节点提现</string>
     <string name="SAFE4_Withdraw_Proposal">提案提现</string>
@@ -2234,7 +2241,8 @@
     <string name="SAFE4_Withdraw_Node_Hint_Master">主节点锁仓金额</string>
     <string name="SAFE4_Withdraw_Node_Hint_Super">超级节点锁仓金额</string>
     <string name="SAFE4_Withdraw_Vote_Hint">锁仓投票提现后将不再产生收益，确定提取吗？</string>
-    <string name="SAFE4_Withdraw_Local_Hint">确定提取锁仓的SAFE吗？</string>
+    <string name="SAFE4_Withdraw_Local_Hint">将解锁提现所选定的锁仓记录，确定提现吗？</string>
+    <string name="SAFE4_Withdraw_ALL_Local_Hint">将解锁提现所有的锁仓记录，确定提现吗？</string>
     <string name="SAFE4_Withdraw_Profit_Hint">确定提取所有收益吗？</string>
     <string name="SAFE4_Withdraw_Proposal_Hint">确定提取提案和普通锁仓的SAFE吗？</string>
     <string name="SAFE4_Withdraw_Send_Sending">正在提现</string>
@@ -2243,7 +2251,7 @@
     <string name="SAFE4_Line_Lock">SAFE 锁仓</string>
     <string name="SAFE4_Line_Lock_No_Data">您还没有线性锁仓记录</string>
     <string name="SAFE4_Line_Lock_Day">%d 个月</string>
-    <string name="SAFE4_Line_Lock_Amount_Hint">每次锁仓金额至少一个币</string>
+    <string name="SAFE4_Line_Lock_Amount_Hint">每次锁仓金额至少0.01个币</string>
 
     <!-- safe 4  end-->
 
@@ -2293,6 +2301,18 @@
     <string name="SRC20_Balance">账户余额：</string>
     <string name="SRC20_No_Deploy">您还没有发行资产</string>
     <string name="Super_Node_Modify_IncentivePlan">修改分红比例</string>
+    <string name="Revoke_Manager">合约授权管理</string>
+    <string name="Revoke_Connect">连接说明</string>
+    <string name="Menu_Item_Select_All">全选</string>
+    <string name="Menu_Item_Select_All_Cancel">取消</string>
+    <string name="Create_Pool">创建交易对</string>
+    <string name="RemoveVote">投票释放</string>
+    <string name="Transactions_Approve_Remove">撤销合约授权</string>
+    <string name="list_footer">已经到底了～</string>
+    <string name="Withdraw_All">一键提现</string>
+    <string name="Approving">批准中...</string>
+    <string name="Approv_Button">批准</string>
+    <string name="Approve_Fail">批准失败</string>
     <!-- SRC20 end-->
 
 </resources>

@@ -17,19 +17,25 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
 import io.horizontalsystems.bankwallet.modules.safe4.node.CreateViewItem
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfoRepository
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Node_Lock_Day
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeViewItem
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
+import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SafeFourVoteViewModel(
     val wallet: Wallet,
@@ -43,11 +49,18 @@ class SafeFourVoteViewModel(
     private val xRateService: XRateService,
     private val amountService: SendAmountService,
     val coinMaxAllowedDecimals: Int,
+    private val repository: LockRecordInfoRepository,
     private val connectivityManager: ConnectivityManager
 ) : ViewModelUiState<VoteUiState>() {
     val fiatMaxAllowedDecimals = App.appConfigProvider.fiatDecimal
     var coinRate by mutableStateOf(xRateService.getRate(sendToken.coin.uid))
         private set
+
+    var lockRecordTotal = 0
+    var offset = 0
+    var page = 0
+    val limit = 20
+    private val loading = AtomicBoolean(false)
 
     val tabs = if (isSuper && !isJoin) SafeFourVoteModule.Tab.values() else arrayOf(SafeFourVoteModule.Tab.SafeVote)
     val tabs2 = if (isSuper && !isJoin) SafeFourVoteModule.Tab2.values() else arrayOf(SafeFourVoteModule.Tab2.Creator)
@@ -56,7 +69,7 @@ class SafeFourVoteViewModel(
 
     private var amountState = amountService.stateFlow.value
 
-    private var lockIdsInfo: List<LockIdsInfo>? = null
+    private var lockIdsInfo: MutableList<LockIdsInfo>? = null
     private var lockIdsInfoLocked: List<LockIdsInfo>? = null
     private var proposalLockIdsInfoLocked: List<LockIdsInfo>? = null
     private var joinAmount =
@@ -74,7 +87,7 @@ class SafeFourVoteViewModel(
             handleUpdatedAmountState(it)
         }
 
-        lockVoteService.itemsObservable
+        /*lockVoteService.itemsObservable
                 .subscribeIO {
                     lockIdsInfo = it.map {
                         LockIdsInfo(it.lockId, it.lockValue, it.enable, getChecked(it.lockId), it.unlockHeight, it.releaseHeight, it.address)
@@ -83,9 +96,9 @@ class SafeFourVoteViewModel(
                 }
                 .let {
                     disposables.add(it)
-                }
+                }*/
 
-        lockVoteService.itemsObservableLocked
+        /*lockVoteService.itemsObservableLocked
                 .subscribeIO {
                     lockIdsInfoLocked = it.map {
                         LockIdsInfo(it.lockId, it.lockValue, it.enable, false, it.unlockHeight, it.releaseHeight, it.address)
@@ -94,9 +107,9 @@ class SafeFourVoteViewModel(
                 }
                 .let {
                     disposables.add(it)
-                }
+                }*/
 
-        lockVoteService.mineItemsObservable
+        /*lockVoteService.mineItemsObservable
                 .subscribeIO {
                     proposalLockIdsInfoLocked = it.map {
                         LockIdsInfo(it.lockId, it.lockValue, it.enable, getCheckedProposal(it.lockId), it.unlockHeight, it.releaseHeight, it.address)
@@ -105,7 +118,7 @@ class SafeFourVoteViewModel(
                 }
                 .let {
                     disposables.add(it)
-                }
+                }*/
 
         nodeService.nodeInfoObservable.subscribeIO {
             nodeInfo = it
@@ -114,14 +127,81 @@ class SafeFourVoteViewModel(
             disposables.add(it)
         }
 
+        viewModelScope.launch {
+            LockRecordManager.recordState.collectLatest {
+                withContext(Dispatchers.IO) {
+                    getTotal()
+                }
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
-            lockVoteService.loadItems(0)
-            lockVoteService.loadItemsLocked(0)
+//            lockVoteService.loadItems(0)
+//            lockVoteService.loadItemsLocked(0)
             nodeService.getNodeInfo(nodeId)
-            lockVoteService.getMinProposalNum()
+//            lockVoteService.getMinProposalNum()
+            getTotal()
         }
         if(isJoin) {
             onEnterAmount(BigDecimal(joinAmount))
+        }
+    }
+
+    private fun getTotal() {
+        lockRecordTotal = repository.getVoteTotal(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
+        android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal")
+        if (page == 0) {
+            getData()
+        }
+    }
+
+
+    private fun getData() {
+        if (loading.get())  return
+        loading.set(true)
+        if (lockRecordTotal == 0 || lockRecordTotal == (lockIdsInfo?.size ?: 0))   return
+        try {
+            offset = page * limit
+            val lastBlockHeight = adapter.evmKitWrapper.evmKit.lastBlockHeight?: 0L
+            val records = repository.getVoteRecordsPaged(adapter.evmKitWrapper.evmKit.receiveAddress.hex, limit, offset)
+            android.util.Log.d("LockedInfoViewModel", "get cache data: page=$page, offset=$offset, result=${records.map { it.id }}")
+            if (records.isNotEmpty()) {
+                val lockInfo = records.map {
+                    LockIdsInfo(
+                        it.id,
+                        it.value,
+                        lockVoteService.lockEnableVote(it),
+                        getChecked(it.id),
+                        it.unlockHeight?.toBigInteger() ?: BigInteger.ZERO,
+                        it.releaseHeight?.toBigInteger() ?: BigInteger.ZERO,
+                        it.address
+                    )
+                }
+                initIfNeed()
+                lockIdsInfo?.addAll(lockInfo)
+                android.util.Log.e("LockedInfoViewModel", "lockIdsInfo=${lockIdsInfo?.map { "${it.lockId}=${it.enable}" }}")
+            }
+            if (records.isNotEmpty() && records.size == limit && lockRecordTotal > (lockIdsInfo?.size ?: 0)) {
+                page ++
+            }
+            emitState()
+        } catch (e: Exception) {
+            android.util.Log.e("LockedInfoViewModel", "get record error=$e")
+        } finally {
+            loading.set(false)
+        }
+    }
+
+    private fun initIfNeed() {
+        if (lockIdsInfo == null) {
+            lockIdsInfo = mutableListOf()
+        }
+    }
+
+    fun start() {
+        viewModelScope.launch(Dispatchers.Default) {
+            getTotal()
+            getData()
         }
     }
 
@@ -157,10 +237,14 @@ class SafeFourVoteViewModel(
     }
 
     private fun getLockInfos(): List<LockIdsInfo>? {
-        if (lockIdsInfo == null && lockIdsInfoLocked == null && proposalLockIdsInfoLocked == null) {
+        if (lockIdsInfo == null) {
             return null
         }
-        return (lockIdsInfo ?: listOf()) + (lockIdsInfoLocked ?: listOf()) +  (proposalLockIdsInfoLocked ?: listOf())
+        val list = mutableListOf<LockIdsInfo>()
+        list.addAll(lockIdsInfo!!)
+
+        android.util.Log.d("LockedInfoViewModel", "vote lock record size=${list.size}")
+        return list.sortedByDescending { it.enable }
     }
 
     private fun getRecordVoteCanSend(): Boolean {
@@ -228,17 +312,17 @@ class SafeFourVoteViewModel(
             )
     }
 
-    private fun getChecked(lockId: Int): Boolean {
+    private fun getChecked(lockId: Long): Boolean {
         val info = lockIdsInfo?.find { it.lockId == lockId }
         return info?.checked ?: false
     }
 
-    private fun getCheckedProposal(lockId: Int): Boolean {
+    private fun getCheckedProposal(lockId: Long): Boolean {
         val info = proposalLockIdsInfoLocked?.find { it.lockId == lockId }
         return info?.checked ?: false
     }
 
-    fun checkLockVote(lockId: Int, checked: Boolean) {
+    fun checkLockVote(lockId: Long, checked: Boolean) {
         lockIdsInfo?.forEach { lockIdInfo ->
             if (lockId == lockIdInfo.lockId) {
                 lockIdInfo.checked = !lockIdInfo.checked
@@ -278,7 +362,8 @@ class SafeFourVoteViewModel(
 
     fun onBottomReached() {
         viewModelScope.launch(Dispatchers.IO) {
-            lockVoteService.loadNext()
+//            lockVoteService.loadNext()
+            getData()
         }
     }
 
@@ -366,7 +451,7 @@ data class VoteData(
 
 @Parcelize
 data class LockIdsInfo(
-        val lockId: Int,
+        val lockId: Long,
         val lockValue: BigInteger,
         val enable: Boolean,
         var checked: Boolean = false,

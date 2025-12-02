@@ -14,6 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
@@ -34,11 +38,13 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.TabScreen
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawUi.WithdrawItem
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.core.SnackbarDuration
@@ -62,7 +68,7 @@ fun WithDrawScreen(
     isSuperNode: Boolean,
     wallet: Wallet,
 ) {
-
+    var selectAllState by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState
     val sendResult = viewModel.sendResult
     val view = LocalView.current
@@ -101,6 +107,18 @@ fun WithDrawScreen(
                 else
                     R.string.SAFE4_Withdraw_Master_Node
             ),
+            menuItems = if (!isSuperNode) listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(
+                        if (selectAllState) R.string.Menu_Item_Select_All_Cancel else R.string.Menu_Item_Select_All),
+                    onClick = {
+                        if (uiState.list?.isNotEmpty() == true) {
+                            selectAllState = !selectAllState
+                            viewModel.selectAll(selectAllState)
+                        }
+                    }
+                )) else emptyList()
+            ,
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
             }

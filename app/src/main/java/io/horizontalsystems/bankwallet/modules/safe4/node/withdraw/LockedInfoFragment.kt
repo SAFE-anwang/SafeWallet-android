@@ -1,32 +1,52 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+//import androidx.paging.LoadState
+//import androidx.paging.compose.LazyPagingItems
+//import androidx.paging.compose.collectAsLazyPagingItems
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawUi.WithdrawLockItem
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -78,13 +98,25 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
+    var withdrawAll by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
             title = stringResource(id = R.string.Safe_Four_Lock),
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
-            }
+            },
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Withdraw_All),
+                    onClick = {
+                        withdrawAll = true
+                        viewModel.showConfirmation()
+                    },
+                    enabled = uiState.canWithdrawAll
+                )
+            )
         )
         if (nodeList.isNullOrEmpty()) {
             Column() {
@@ -133,16 +165,36 @@ fun WithdrawVoteScreen(
                             viewModel.onBottomReached()
                         }
                     )
+
+                    // 添加列表结束提示
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            body_grey(
+                                text = stringResource(R.string.list_footer),
+                            )
+                        }
+                    }
                 }
             }
         }
     }
     if (uiState.showConfirmDialog) {
         WithdrawConfirmationDialog(
-            content = stringResource(viewModel.getHintText()),
+            content = stringResource(if (withdrawAll) R.string.SAFE4_Withdraw_ALL_Local_Hint else R.string.SAFE4_Withdraw_Local_Hint),
             {
-                viewModel.withdraw()
+                if (withdrawAll) {
+                    viewModel.withdrawAllEnable()
+                } else {
+                    viewModel.withdraw()
+                }
+                withdrawAll = false
             }, {
+                withdrawAll = false
                 viewModel.closeDialog()
             }
         )
@@ -154,7 +206,7 @@ fun WithdrawVoteScreen(
 fun LazyListScope.WithdrawList(
     lockIdsList: List<WithdrawModule.WithDrawLockedInfo>,
     onWithdraw: (WithdrawModule.WithDrawLockedInfo) -> Unit,
-    onAddLockDay: (Int) -> Unit,
+    onAddLockDay: (Long) -> Unit,
     onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
@@ -181,7 +233,7 @@ fun LazyListScope.WithdrawList(
 }
 
 
-private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawLockedInfo>): Int? {
+private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawLockedInfo>): Long? {
     //get index not exact bottom but near to the bottom, to make scroll smoother
     val index = if (nodeList.size > 4) nodeList.size - 4 else 0
 

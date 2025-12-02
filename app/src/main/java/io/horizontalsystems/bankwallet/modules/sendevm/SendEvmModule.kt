@@ -7,21 +7,20 @@ import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
-import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
-import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.safe42usdt.Safe42UsdtConvertSendViewModel
+import io.horizontalsystems.bankwallet.modules.safe4.safe42usdt.Safe42UsdtConvertService
 import io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.Safe4ConvertSendViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe.Safe4ConvertService
+import io.horizontalsystems.bankwallet.modules.safe4.usdt2safe.SendUsdtToSafeService
+import io.horizontalsystems.bankwallet.modules.safe4.usdt2safe.SendUsdtToSafeViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
-import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
-import java.math.BigDecimal
 import java.math.BigInteger
 
 /*data class SendEvmData(
@@ -89,13 +88,15 @@ object SendEvmModule {
         val value: BigInteger,
         val input: ByteArray,
         val nonce: Long? = null,
-        val safe4Swap: Int = 0
+        val safe4Swap: Int = 0,
+        val isSafeUsdt: Boolean = false,
     ) : Parcelable {
         constructor(transactionData: TransactionData) : this(
             transactionData.to.hex,
             transactionData.value,
             transactionData.input,
-            safe4Swap = transactionData.safe4Swap
+            safe4Swap = transactionData.safe4Swap,
+            isSafeUsdt = transactionData.isSafeUsdt
         )
     }
 
@@ -194,6 +195,69 @@ object SendEvmModule {
         }
     }
 
+
+    class Safe4ToUsdtFactory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
+        private val adapter by lazy {App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val service by lazy { Safe42UsdtConvertService(wallet.token, adapter, chain) }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return when (modelClass) {
+                Safe42UsdtConvertSendViewModel::class.java -> {
+                    Safe42UsdtConvertSendViewModel(service, listOf(service)) as T
+                }
+                AmountInputViewModel::class.java -> {
+                    val switchService = AmountTypeSwitchServiceSendEvm()
+                    val fiatService = FiatServiceSendEvm(switchService, App.currencyManager, App.marketKit)
+                    switchService.add(fiatService.toggleAvailableObservable)
+
+                    AmountInputViewModel(
+                        service,
+                        fiatService,
+                        switchService,
+                        clearables = listOf(service, fiatService, switchService)
+                    ) as T
+                }
+                SendAvailableBalanceViewModel::class.java -> {
+                    val coinService = EvmCoinService(wallet.token, App.currencyManager, App.marketKit)
+                    SendAvailableBalanceViewModel(service, coinService, listOf(service, coinService)) as T
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+    }
+
+
+    class UsdtToSafeFactory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
+        private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val service by lazy { SendUsdtToSafeService(wallet.token, adapter) }
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return when (modelClass) {
+                SendUsdtToSafeViewModel::class.java -> {
+                    SendUsdtToSafeViewModel(service, listOf(service)) as T
+                }
+                AmountInputViewModel::class.java -> {
+                    val switchService = AmountTypeSwitchServiceSendEvm()
+                    val fiatService = FiatServiceSendEvm(switchService, App.currencyManager, App.marketKit)
+                    switchService.add(fiatService.toggleAvailableObservable)
+                    AmountInputViewModel(
+                        service,
+                        fiatService,
+                        switchService,
+                        clearables = listOf(service, fiatService, switchService)
+                    ) as T
+                }
+                SendAvailableBalanceViewModel::class.java -> {
+                    val coinService = EvmCoinService(wallet.token, App.currencyManager, App.marketKit)
+                    SendAvailableBalanceViewModel(service, coinService, listOf(service, coinService)) as T
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }
+    }
+
     @Parcelize
     data class Input(
             val safeWallet: Wallet,
@@ -209,5 +273,20 @@ object SendEvmModule {
             val chain: Chain,
             val isEth: Boolean,
             val isMatic: Boolean
+    ) : Parcelable
+
+    @Parcelize
+    data class InputSafe4ToUsdt(
+        val safeWallet: Wallet,
+        val chain: Chain,
+        val title: Int
+    ) : Parcelable
+
+    @Parcelize
+    data class InputUsdtToSafe4(
+        val usdtWallet: Wallet,
+        val safeWallet: Wallet,
+        val chain: Chain,
+        val title: Int
     ) : Parcelable
 }

@@ -60,9 +60,8 @@ class SafeFourProposalViewModel(
                     disposables.add(it)
                 }
         viewModelScope.launch(Dispatchers.IO) {
-            nodeService.getAllNum()
-            nodeService.getMinNum()
-            nodeService.loadAllItems(0)
+            nodeService.getCacheData()
+            nodeService.loadMineItems()
         }
     }
 
@@ -121,8 +120,16 @@ data class ProposalInfo(
         val state: Int,
         val createHeight: Long,
         val updateHeight: Long,
-        val rewordsIds: List<Int> = listOf()
+        val rewordsIds: List<RewardInfo> = listOf()
 ) : Parcelable {
+
+}
+
+@Parcelize
+data class RewardInfo(
+    val id: Long,
+    val unlockHeight: Long
+): Parcelable {
 
 }
 

@@ -9,6 +9,8 @@ import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20LockedInfoService
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
 import io.horizontalsystems.erc20kit.core.Erc20Kit
 import io.horizontalsystems.ethereumkit.core.EthereumKit.SyncState
 import io.horizontalsystems.ethereumkit.models.Address
@@ -61,7 +63,7 @@ class Eip20Adapter(
         get() = eip20Kit.syncStateFlowable.map { }
 
     override val balanceData: BalanceData
-        get() = BalanceData(balanceInBigDecimal(eip20Kit.balance, decimal))
+        get() = BalanceData(balanceInBigDecimal(eip20Kit.balance, decimal), balanceInBigDecimal(SRCLockManager.getLockAmount(contractAddress.hex, receiveAddress), decimal))
 
     override val balanceUpdatedFlowable: Flowable<Unit>
         get() = eip20Kit.balanceFlowable.map { Unit }

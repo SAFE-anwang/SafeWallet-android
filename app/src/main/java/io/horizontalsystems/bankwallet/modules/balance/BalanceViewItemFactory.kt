@@ -14,16 +14,21 @@ import io.horizontalsystems.bankwallet.core.swappable
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.cex.BalanceCexViewItem
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.core.helpers.DateHelper
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
+import java.math.BigInteger
 
 @Immutable
 data class BalanceViewItem(

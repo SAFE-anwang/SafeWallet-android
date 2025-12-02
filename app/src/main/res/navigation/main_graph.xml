@@ -615,6 +615,31 @@
             app:destination="@id/sendWsafe4ConfirmationFragment" />
     </fragment>
 
+
+    <fragment
+        android:id="@+id/sendSafe4ToUsdtConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe42usdt.confirmation.SendSafe4UsdtConfirmationFragment"/>
+
+    <fragment
+        android:id="@+id/sendSafe4UsdtFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safe42usdt.Safe42UsdtConvertSendFragment" >
+        <action
+            android:id="@+id/sendEvmFragment_to_sendSafe4ToUsdtConfirmationFragment"
+            app:destination="@id/sendSafe4ToUsdtConfirmationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/sendUsdtToSafe4ConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.usdt2safe.confirmation.SendUsdtToSafeConfirmationFragment"/>
+
+    <fragment
+        android:id="@+id/sendUsdtToSafe4Fragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.usdt2safe.SendUsdtToSafeFragment" >
+        <action
+            android:id="@+id/sendEvmFragment_to_sendUsdtToSafe4ConfirmationFragment"
+            app:destination="@id/sendUsdtToSafe4ConfirmationFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/safe4SwapFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment" >
@@ -681,5 +706,15 @@
     <fragment
         android:id="@+id/src20DestroyFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20DestroyFragment" />
+
+    <fragment
+        android:id="@+id/dappRevokeFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.RevokeCashFragment" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/sendEvmRevokeConfirmationFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.SendEvmRevokeConfirmationFragment" >
+    </fragment>
 
 </navigation>

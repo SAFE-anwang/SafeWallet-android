@@ -70,7 +70,7 @@ class LineLockSendSafeViewModel(
 
     override fun createState(): LineLockSafeModule.LineLockSafeUiState {
         return LineLockSafeModule.LineLockSafeUiState(
-            amountState.canBeSend && addressState.canBeSend && amountState.amount!! >= BigDecimal.ONE
+            amountState.canBeSend && addressState.canBeSend && amountState.amount!! >= BigDecimal("0.01").stripTrailingZeros()
                     && lockTimes != null && lockTimes!! >= 1
                     && intervalMonth != null && intervalMonth!! >= "1"
                     && startLockTime >= 0 ,

@@ -117,7 +117,12 @@ val TokenQuery.protocolType: String?
 
         is TokenType.Eip20 -> {
             when (blockchainType) {
-                BlockchainType.SafeFour -> "SRC20"
+                BlockchainType.SafeFour -> {
+                    if ((tokenType as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9")
+                        "SAFE"
+                    else
+                        "SRC20"
+                }
                 BlockchainType.Ethereum -> "ERC20"
                 BlockchainType.BinanceSmartChain -> "BEP20"
                 BlockchainType.Tron -> "TRC20"
@@ -249,8 +254,8 @@ val BlockchainType.restoreSettingTypes: List<RestoreSettingType>
 private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
     val map = mutableMapOf<BlockchainType, Int>()
     listOf(
-        BlockchainType.Safe,
         BlockchainType.SafeFour,
+        BlockchainType.Safe,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
@@ -303,8 +308,8 @@ val BlockchainType.title: String
     BlockchainType.Litecoin -> "Litecoin"
     BlockchainType.Dogecoin -> "Dogecoin"
     BlockchainType.Dash -> "Dash"
-    BlockchainType.SafeFour -> "Safe"
-    BlockchainType.Safe -> "Safe3"
+    BlockchainType.SafeFour -> "SAFE"
+    BlockchainType.Safe -> "SAFE3"
     BlockchainType.Zcash -> "Zcash"
     BlockchainType.Ethereum -> "Ethereum"
     BlockchainType.BinanceSmartChain -> "BNB Smart Chain"

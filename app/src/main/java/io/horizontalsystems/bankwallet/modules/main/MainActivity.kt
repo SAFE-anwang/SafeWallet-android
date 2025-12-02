@@ -1,8 +1,11 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.graphics.Color
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -11,6 +14,9 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -19,7 +25,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
@@ -37,6 +45,9 @@ import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
 import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
+import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
+import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4TokensService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -47,8 +58,12 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
 import io.horizontalsystems.core.hideKeyboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity() {
 
@@ -125,12 +140,51 @@ class MainActivity : BaseActivity() {
                 SyncSafe4Tokens.getTokens()
             }
         ).start()
+        Handler(mainLooper).postDelayed(
+            Runnable {
+                SRCLockManager.syncLockInfo()
+            },
+            10000
+        )
         /*Handler(mainLooper).postDelayed(
             Runnable {
                 SyncSafe4Tokens.getTokens()
             },
             40000
         )*/
+        viewModel.viewModelScope.launch {
+            LockRecordManager.newProposalRecordState.collectLatest {
+                if (it) {
+                    withContext(Dispatchers.Main) {
+                        val dialog = AlertDialog.Builder(this@MainActivity)
+                            .setTitle("提案")
+                            .setMessage("有新的提案，是否查看?")
+                            .setPositiveButton("查看"
+                            ) { p0, p1 ->
+                                LockRecordManager.updateProposalStatus()
+                                p0.dismiss()
+                                Safe4Module.handlerNode(Safe4Module.SafeFourType.Proposal, navController)
+                            }
+                            .setNegativeButton("不在提醒") { p0, p1 ->
+                                LockRecordManager.updateProposalStatus()
+                                p0.dismiss()
+                            }.create()
+                        if (App.localStorage.currentTheme == ThemeType.Blue) {
+                            dialog.setOnShowListener {
+                                // 获取按钮并修改颜色
+                                val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                                val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+                                positiveButton.setTextColor(Color.BLACK)
+                                negativeButton.setTextColor(Color.GRAY)
+                            }
+                        }
+                        dialog.show()
+                    }
+                }
+
+            }
+        }
 
     }
 
@@ -255,6 +309,7 @@ class MainActivity : BaseActivity() {
         unregisterReceiver(mMsgReceiver)
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false
+        LockRecordManager.exit()
     }
 
     private fun startUpgradeVersion() {

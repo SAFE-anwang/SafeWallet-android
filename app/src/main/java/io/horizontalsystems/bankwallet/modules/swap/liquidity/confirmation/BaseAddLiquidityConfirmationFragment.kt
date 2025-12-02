@@ -42,6 +42,7 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
     protected abstract val logger: AppLogger
     protected abstract val sendEvmTransactionViewModel: AddLiquidityTransactionViewModel
     protected abstract val navGraphId: Int
+    protected abstract val isCreatePool: Boolean
 
     private var snackbarInProcess: CustomSnackbar? = null
 
@@ -60,6 +61,7 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
                 BaseAddLiquidityConfirmationScreen(
                     sendEvmTransactionViewModel = sendEvmTransactionViewModel,
                     parentNavGraphId = navGraphId,
+                    isCreatePool = isCreatePool,
                     navController = findNavController(),
                     onSendClick = {
                         logger.info("click swap button")
@@ -86,7 +88,11 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
                 R.string.Hud_Text_Done
             )
             lifecycleScope.launchWhenResumed {
-                findNavController().popBackStack(R.id.liquidityFragment, true)
+                if (isCreatePool) {
+                    findNavController().popBackStack()
+                } else {
+                    findNavController().popBackStack(R.id.liquidityFragment, true)
+                }
             }
             /*Handler(Looper.getMainLooper()).postDelayed({
                 findNavController().popBackStack(R.id.swapFragment, true)
@@ -107,6 +113,7 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
 private fun BaseAddLiquidityConfirmationScreen(
     sendEvmTransactionViewModel: AddLiquidityTransactionViewModel,
     parentNavGraphId: Int,
+    isCreatePool: Boolean,
     navController: NavController,
     onSendClick: () -> Unit
 ) {
@@ -154,7 +161,8 @@ private fun BaseAddLiquidityConfirmationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
-                        title = stringResource(R.string.liquidity_add_title),
+                        title = stringResource(
+                            if (isCreatePool) R.string.Create_Pool else R.string.liquidity_add_title),
                         onClick = onSendClick,
                         enabled = enabled
                     )

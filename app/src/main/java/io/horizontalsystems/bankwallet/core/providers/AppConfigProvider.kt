@@ -58,6 +58,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     val safe4EthContract = "https://etherscan.io/token/0x96f59C9D155d598d4f895F07dd6991cCB5FA7DC7"
     val safe4BSCContract = "https://bscscan.com/token/0x3a5557AD6FA16699dD56fd0E418C70c83e42240a"
     val safe4MaticContract = "https://polygonscan.com/address/0xe0D3ff9b473976855B2242a1A022aC66f980Ce50"
+    val safe4UsdtContract = "https://safe4.anwang.com/address/0x9C1246a4BB3c57303587e594a82632c3171662C9"
 
     private val testSafe4Api = "https://safe4testnet.anwang.com/api/"
     private val mainSafe4Api = "https://safe4.anwang.com/api/"

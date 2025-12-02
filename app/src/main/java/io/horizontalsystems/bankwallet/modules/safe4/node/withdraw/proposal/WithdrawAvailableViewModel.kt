@@ -10,6 +10,7 @@ import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.RewardInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourProposalService
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
@@ -31,12 +32,16 @@ class WithdrawAvailableViewModel(
 
     private val disposables = CompositeDisposable()
     private var withdrawList : List<WithdrawModule.WithDrawInfo>? = null
-    private var rewardsId : MutableList<Int> = mutableListOf()
+    private var rewardsId : MutableList<RewardInfo> = mutableListOf()
 
     private var showConfirmationDialog = false
 
     private var isWithdrawing = AtomicBoolean(false)
     var sendResult by mutableStateOf<SendResult?>(null)
+
+    init {
+        start()
+    }
 
     override fun createState(): WithdrawModule.WithDrawNodeUiState {
         return getUiState()
@@ -44,7 +49,7 @@ class WithdrawAvailableViewModel(
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList?.filter { rewardsId.contains(it.id) },
+            withdrawList,
             withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog
         )
@@ -55,18 +60,20 @@ class WithdrawAvailableViewModel(
             .subscribeIO {
                 val list = mutableListOf<WithdrawModule.WithDrawInfo>()
                 it.forEach {
-                    rewardsId.addAll(it.rewordsIds)
-                    for (i in 0 until it.rewordsIds.size) {
-                        list.add(
-                            WithdrawModule.WithDrawInfo(
-                                it.rewordsIds[i],
-                                it.updateHeight,
-                                null,
-                                NodeCovertFactory.formatSafe(it.payAmount.divide(it.payTimes.toBigInteger())),
-                                it.creator,
-                                true
+                    if (it.rewordsIds.size > 0) {
+                        rewardsId.addAll(it.rewordsIds)
+                        for (i in 0 until it.rewordsIds.size) {
+                            list.add(
+                                WithdrawModule.WithDrawInfo(
+                                    it.rewordsIds[i].id,
+                                    it.rewordsIds[i].unlockHeight,
+                                    null,
+                                    NodeCovertFactory.formatSafe(it.payAmount.divide(it.payTimes.toBigInteger())),
+                                    it.creator,
+                                    true
+                                )
                             )
-                        )
+                        }
                     }
                 }
                 withdrawList = list
@@ -78,12 +85,15 @@ class WithdrawAvailableViewModel(
     }
 
     fun start() {
+        viewModelScope.launch(Dispatchers.IO) {
+            proposalService.loadMineItems()
+        }
     }
 
     fun onBottomReached() {
     }
 
-    fun check(lockId: Int) {
+    fun check(lockId: Long) {
         withdrawList?.forEach {
             if (it.id == lockId) {
                 it.checked = !it.checked

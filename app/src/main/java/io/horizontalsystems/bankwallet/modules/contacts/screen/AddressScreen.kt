@@ -92,7 +92,7 @@ fun AddressScreen(
                             modifier = Modifier.weight(1f)
                         )
                         subhead1_leah(
-                            text = uiState.blockchain.name,
+                            text = uiState.blockchain.coinName,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
                         if (uiState.canChangeBlockchain) {

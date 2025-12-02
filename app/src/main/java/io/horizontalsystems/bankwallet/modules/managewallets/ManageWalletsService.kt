@@ -227,7 +227,7 @@ class ManageWalletsService(
         if (selectedBlockchain == null) return true
         return if (selectedBlockchain!!.type == BlockchainType.Bitcoin) {
             isBitcoins(token.blockchain.type)
-        } else if (selectedBlockchain!!.type == BlockchainType.Safe && token.coin.isSafeCoin()) {
+        } else if (selectedBlockchain!!.type == BlockchainType.Safe && (token.coin.isSafeCoin() || token.coin.uid.isSafeFourCustomCoin())) {
             true
         } else if ((selectedBlockchain!!.type == BlockchainType.ArbitrumOne
             || selectedBlockchain!!.type == BlockchainType.Optimism

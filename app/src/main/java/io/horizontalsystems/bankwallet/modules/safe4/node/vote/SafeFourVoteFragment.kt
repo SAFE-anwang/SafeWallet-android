@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -91,6 +92,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_green50
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
@@ -197,6 +199,7 @@ fun TabScreen(
                     }
 
                     SafeFourVoteModule.Tab.LockVote -> {
+                        Log.d("LockedInfoViewModel", "LockVote")
                         viewModel.setIsLockVote(true)
                         LockVoteScreen(navController, title, viewModel)
                     }
@@ -347,6 +350,7 @@ fun LockVoteScreen(
     val proceedEnabled = uiState.recordVoteCanSend
     val nodeList = uiState.lockIdInfo
     val view = LocalView.current
+    Log.d("LockedInfoViewModel", "nodeList=${nodeList?.size}")
     if (nodeList.isNullOrEmpty()) {
         Column() {
             if (nodeList == null) {
@@ -427,6 +431,20 @@ fun LockVoteScreen(
                             viewModel.onBottomReached()
                         }
                 )
+
+                // 添加列表结束提示
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        body_grey(
+                            text = stringResource(R.string.list_footer),
+                        )
+                    }
+                }
             }
         }
     }
@@ -435,14 +453,14 @@ fun LockVoteScreen(
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.lockedList(
         lockIdsList: List<LockIdsView>,
-        onCheckedChange: (Int, Boolean) -> Unit,
+        onCheckedChange: (Long, Boolean) -> Unit,
         onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
     val nColumns = 3
     val itemsCount = lockIdsList.size
     val rows = (itemsCount + nColumns - 1) / nColumns
-
+    Log.d("LockedInfoViewModel", "size=${lockIdsList.size}")
     items(rows) { rowIndex ->
         Row(modifier = Modifier.fillMaxWidth()) {
             for(columnIndex in 0 until nColumns) {
@@ -459,14 +477,14 @@ fun LazyListScope.lockedList(
                                 checked = item.checked,
                                 enabled = item.enable,
                                 onCheckedChange = {
-                                    onCheckedChange.invoke(item.lockIds.toInt(), it)
+                                    onCheckedChange.invoke(item.lockIds.toLong(), it)
                                 }
                         )
                         val color = if (item.enable) {
                             ComposeAppTheme.colors.bran
                         } else {
                             if (App.localStorage.currentTheme == ThemeType.Blue) {
-                                if (item.enable) ComposeAppTheme.colors.grey  else LightGrey50
+                                LightGrey50
                             } else {
                                 ComposeAppTheme.colors.grey
                             }

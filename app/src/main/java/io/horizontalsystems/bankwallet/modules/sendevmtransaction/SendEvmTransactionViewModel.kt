@@ -27,7 +27,10 @@ import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
 import io.horizontalsystems.ethereumkit.decorations.OutgoingDecoration
+import io.horizontalsystems.ethereumkit.decorations.SafeFourDecorator
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
+import io.horizontalsystems.ethereumkit.decorations.safe4.Safe4DepositOutgoingDecoration
+import io.horizontalsystems.ethereumkit.decorations.safe4.USDTTranferOutgoingDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -136,6 +139,9 @@ class SendEvmTransactionViewModel(
         additionalInfo?.walletConnectInfo?.let {
             sections = sections + getWalletConnectSectionView(it)
         }
+        additionalInfo?.dAppInfo?.let {
+            sections = sections + getDappInfoSectionView(it)
+        }
 
         return sections
     }
@@ -158,6 +164,11 @@ class SendEvmTransactionViewModel(
         additionalInfo: AdditionalInfo?
     ): List<SectionViewItem>? =
         when (decoration) {
+            is USDTTranferOutgoingDecoration -> getEip20TransferViewItems(
+                decoration.to,
+                decoration.value,
+                decoration.contract
+            )
             is OutgoingDecoration -> getSendBaseCoinItems(
                 decoration.to,
                 decoration.value
@@ -735,6 +746,22 @@ class SendEvmTransactionViewModel(
                     ViewItem.Value(
                         it.chain.name,
                         it.address ?: "",
+                        ValueType.Regular
+                    )
+                )
+            }
+        }
+    )
+
+    private fun getDappInfoSectionView(
+        info: SendEvmData.DappInfo
+    ) = SectionViewItem(
+        buildList {
+            info.dAppName?.let {
+                add(
+                    ViewItem.Value(
+                        Translator.getString(R.string.WalletConnect_SignMessageRequest_dApp),
+                        it,
                         ValueType.Regular
                     )
                 )

@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseFragment
+import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.databinding.FragmentSelectImportTypeBinding
+import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.core.findNavController
 
 class SelectImportWayFragment: BaseFragment() {
@@ -32,10 +34,12 @@ class SelectImportWayFragment: BaseFragment() {
             findNavController().popBackStack()
         }
         binding.llPrivateKey.setOnClickListener {
-            findNavController().slideFromRight(R.id.restorePrivateKeyImportFragment, arguments)
+            findNavController().slideFromRight(R.id.restorePrivateKeyImportFragment,
+                findNavController().getInput<ManageAccountsModule.Input>())
         }
         binding.llPhrase.setOnClickListener {
-            findNavController().slideFromRight(R.id.restoreSelectWalletFragment, arguments)
+            findNavController().slideFromRight(R.id.restoreSelectWalletFragment,
+                findNavController().getInput<ManageAccountsModule.Input>())
         }
     }
 

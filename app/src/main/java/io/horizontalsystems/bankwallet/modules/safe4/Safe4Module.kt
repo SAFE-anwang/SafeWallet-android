@@ -183,6 +183,111 @@ object Safe4Module {
         }
     }
 
+    fun handlerUsdtToSafe4(chainType: ChainType, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        var usdtWallet: Wallet? = null
+        var chain: Chain = Chain.Ethereum
+
+        var title = 0
+        if (chainType == ChainType.ETH) {
+            chain = Chain.Ethereum
+            title = R.string.Safe4_Title_ethusdt2safe
+        } else if (chainType == ChainType.BSC) {
+            chain = Chain.BinanceSmartChain
+            title = R.string.Safe4_Title_bscusdt2safe
+        } else if (chainType == ChainType.TRON) {
+            chain = Chain.TRON
+            title = R.string.Safe4_Title_tronusdt2safe
+        } else if (chainType == ChainType.SOL) {
+            chain = Chain.SOL
+            title = R.string.Safe4_Title_solusdt2safe
+        }
+        for (it in walletList) {
+            if (it.token.type is TokenType.Eip20) {
+                val contact = (it.token.type as TokenType.Eip20).address
+                if (chain == Chain.Ethereum && contact == "0xdAC17F958D2ee523a2206206994597C13D831ec7".lowercase()) {
+                    usdtWallet = it
+                }
+                if (chain == Chain.BinanceSmartChain && contact == "0x55d398326f99059fF775485246999027B3197955".lowercase()) {
+                    usdtWallet = it
+                }
+                if (chain == Chain.TRON && contact == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t") {
+                    usdtWallet = it
+                }
+                if (chain == Chain.SOL && contact == "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB") {
+                    usdtWallet = it
+                }
+            }
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "Safe4USDT" && it.token.type is TokenType.Eip20) {
+                if ((it.token.type as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
+                    safeWallet = it
+                }
+            }
+        }
+        if (usdtWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "Tether USDT"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE USDT"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(usdtWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromBottom(
+                R.id.sendUsdtToSafe4Fragment,
+                SendEvmModule.InputUsdtToSafe4(usdtWallet, safeWallet, chain, title)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun handlerSafe42Usdt(chainType: ChainType, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        var chain: Chain = Chain.Ethereum
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "Safe4USDT" && it.token.type is TokenType.Eip20) {
+                if ((it.token.type as TokenType.Eip20).address == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
+                    safeWallet = it
+                }
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE USDT"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        var title = 0
+        if (chainType == ChainType.ETH) {
+            chain = Chain.Ethereum
+            title = R.string.Safe4_Title_safe2_eth_usdt
+        } else if (chainType == ChainType.BSC) {
+            chain = Chain.BinanceSmartChain
+            title = R.string.Safe4_Title_safe2_bsc_usdt
+        } else if (chainType == ChainType.TRON) {
+            chain = Chain.TRON
+            title = R.string.Safe4_Title_safe2_tron_usdt
+        } else if (chainType == ChainType.SOL) {
+            chain = Chain.SOL
+            title = R.string.Safe4_Title_safe2_sol_usdt
+        }
+        val balanceAdapterRepository = BalanceAdapterRepository(App.adapterManager, BalanceCache(App.appDatabase.enabledWalletsCacheDao()))
+        val state =  balanceAdapterRepository.state(safeWallet)
+        if (state is AdapterState.Synced){
+            navController.slideFromBottom(
+                R.id.sendSafe4UsdtFragment,
+                SendEvmModule.InputSafe4ToUsdt(safeWallet, chain, title)
+            )
+        } else {
+            Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun handlerEth2safe4(chainType: ChainType, navController: NavController) {
         val context = App.instance
         val walletList: List<Wallet> = App.walletManager.activeWallets
@@ -551,7 +656,7 @@ object Safe4Module {
     }
 
     enum class ChainType {
-        ETH, BSC, MATIC
+        ETH, BSC, MATIC, TRON, SOL
     }
 
     enum class WithdrawType {

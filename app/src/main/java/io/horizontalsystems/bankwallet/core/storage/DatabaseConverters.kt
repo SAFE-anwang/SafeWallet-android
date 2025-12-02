@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.providers.CexWithdrawNetworkRaw
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.Date
 
 class DatabaseConverters {
@@ -131,5 +132,15 @@ class DatabaseConverters {
     @TypeConverter
     fun toMap(v: String): Map<String, String> {
         return gson.fromJson(v, object : TypeToken<Map<String, String>>() {}.type)
+    }
+
+    @TypeConverter
+    fun fromBigInteger(value: BigInteger?): String? {
+        return value?.toString()
+    }
+
+    @TypeConverter
+    fun toBigInteger(value: String?): BigInteger? {
+        return value?.let { BigInteger(it) }
     }
 }

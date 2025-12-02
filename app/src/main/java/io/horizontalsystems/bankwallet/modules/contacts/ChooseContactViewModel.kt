@@ -32,7 +32,7 @@ class ChooseContactViewModel(
         items = repository.getContactsFiltered(blockchainType, query)
             .map {
                 ContactViewItem(
-                    it.name,
+                    it.name + if (it.uid == "safe-coin") "3" else "",
                     it.addresses.first { it.blockchain.type == blockchainType }.address
                 )
             }

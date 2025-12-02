@@ -261,9 +261,16 @@ class EvmKitWrapper(
         }
     }
 
-    fun withdrawByIds(ids: List<BigInteger>): Single<String> {
+    fun withdrawByIds(ids: List<BigInteger>, type: Int): Single<String> {
         if (blockchainType == BlockchainType.SafeFour && signer != null) {
-            return evmKit.withdrawByIds(signer.privateKey, ids)
+            return evmKit.withdrawByIds(signer.privateKey, ids, type)
+        }
+        return Single.just("withdraw fail")
+    }
+
+    fun removeVoteOrApproval(ids: List<BigInteger>): Single<String> {
+        if (blockchainType == BlockchainType.SafeFour && signer != null) {
+            return evmKit.removeVoteOrApproval(signer.privateKey, ids)
         }
         return Single.just("withdraw fail")
     }
@@ -287,6 +294,16 @@ class EvmKitWrapper(
     ) : Single<String> {
         return if (signer != null) {
             evmKit.safe4LineLock(signer.privateKey, transactionData)
+        } else {
+            Single.error(Exception())
+        }
+    }
+
+    fun src20Lock(
+        transactionData: TransactionData
+    ) : Single<String> {
+        return if (signer != null) {
+            evmKit.src20Lock(signer.privateKey, transactionData)
         } else {
             Single.error(Exception())
         }

@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.vote
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,11 +41,14 @@ import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.LightGrey50
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -64,6 +69,7 @@ fun WithdrawVoteScreen(
     navController: NavController,
     viewModel: WithdrawVoteViewModel
 ) {
+    var selectAllState by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState
     val proceedEnabled = uiState.enableWithdraw
     val nodeList = uiState.list
@@ -96,10 +102,32 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
+    var withdrawAll by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
         AppBar(
             title = stringResource(id = R.string.SAFE4_Withdraw_Locked),
+            menuItems = listOf(
+                /*MenuItem(
+                    title = TranslatableString.ResString(
+                        if (selectAllState) R.string.Menu_Item_Select_All_Cancel else R.string.Menu_Item_Select_All),
+                    onClick = {
+                        if (uiState.list?.isNotEmpty() == true) {
+                            selectAllState = !selectAllState
+                            viewModel.selectAll(selectAllState)
+                        }
+                    }
+                )*/
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.Withdraw_All),
+                    onClick = {
+                        withdrawAll = true
+                        viewModel.showConfirmation()
+                    },
+                    enabled = uiState.enableReleaseAll
+                )
+            ),
             navigationIcon = {
                 HsBackButton(onClick = { navController.popBackStack() })
             }
@@ -150,6 +178,20 @@ fun WithdrawVoteScreen(
                             viewModel.onBottomReached()
                         }
                     )
+
+                    // 添加列表结束提示
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            body_grey(
+                                text = stringResource(R.string.list_footer),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -158,9 +200,15 @@ fun WithdrawVoteScreen(
         WithdrawConfirmationDialog(
             content = stringResource(R.string.SAFE4_Withdraw_Vote_Hint),
             {
-                viewModel.withdraw()
+                if (withdrawAll) {
+                    viewModel.withdrawAllEnable()
+                } else {
+                    viewModel.withdraw()
+                }
+                withdrawAll = false
             }, {
                 viewModel.closeDialog()
+                withdrawAll = false
             }
         )
     }
@@ -170,7 +218,7 @@ fun WithdrawVoteScreen(
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.WithdrawList(
     lockIdsList: List<WithdrawModule.WithDrawInfo>,
-    onCheckedChange: (Int, Boolean) -> Unit,
+    onCheckedChange: (Long, Boolean) -> Unit,
     onBottomReached: () -> Unit,
 ) {
     val bottomReachedRank = getBottomReachedRank(lockIdsList)
@@ -193,7 +241,7 @@ fun LazyListScope.WithdrawList(
 }
 
 
-private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawInfo>): Int? {
+private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawInfo>): Long? {
     //get index not exact bottom but near to the bottom, to make scroll smoother
     val index = if (nodeList.size > 4) nodeList.size - 4 else 0
 

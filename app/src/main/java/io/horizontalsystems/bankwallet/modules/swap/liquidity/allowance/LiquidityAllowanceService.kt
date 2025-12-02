@@ -47,6 +47,7 @@ class LiquidityAllowanceService(
 
     fun set(token: Token?) {
         this.token = token
+        state = State.Loading
         sync()
     }
 

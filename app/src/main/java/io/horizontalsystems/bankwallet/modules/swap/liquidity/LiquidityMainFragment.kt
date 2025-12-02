@@ -359,6 +359,17 @@ fun SwapCards(
                     }
                 },
                 onTapProceed = {
+                    viewModel.getSendEvmData()?.let { sendEvmData ->
+                        navController.slideFromRight(
+                            R.id.liquidityConfirmationFragment,
+                            LiquidityConfirmationFragment.Input(
+                                swapState.dex,
+                                SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
+                                sendEvmData.additionalInfo,
+                                viewModel.getFromToken
+                            )
+                        )
+                    }
                     when (val swapData = viewModel.proceedParams) {
                         /*is LiquidityMainModule.SwapData.OneInchData -> {
                             navController.slideFromRight(
@@ -370,7 +381,7 @@ fun SwapCards(
                             )
                         }*/
 
-                        is LiquidityMainModule.SwapData.UniswapData -> {
+                        /*is LiquidityMainModule.SwapData.UniswapData -> {
 //                            viewModel.send(swapData)
                             viewModel.getSendEvmData(swapData)?.let { sendEvmData ->
                                 navController.slideFromRight(
@@ -383,7 +394,7 @@ fun SwapCards(
                                     )
                                 )
                             }
-                        }
+                        }*/
                         else -> {}
                     }
                 }

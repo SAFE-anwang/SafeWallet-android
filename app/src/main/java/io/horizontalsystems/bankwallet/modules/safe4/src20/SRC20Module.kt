@@ -86,6 +86,42 @@ object SRC20Module {
     }
 
 
+    fun isValidDecimalInput(newInput: String, previousValue: String): Boolean {
+        // 允许清空
+        if (newInput.isEmpty()) return true
+
+        // 检查是否只包含数字和小数点
+        if (!newInput.matches(Regex("^[0-9]*\\.?[0-9]*$"))) {
+            return false
+        }
+
+        // 检查小数点数量
+        val dotCount = newInput.count { it == '.' }
+        if (dotCount > 1) return false
+
+        // 分割整数和小数部分
+        val parts = newInput.split('.')
+        val integerPart = parts[0]
+        val decimalPart = if (parts.size > 1) parts[1] else ""
+
+        // 验证整数部分长度（最多20位）
+        if (integerPart.isNotEmpty() && integerPart.length > 20) {
+            return false
+        }
+
+        // 验证小数部分长度（最多8位）
+        if (decimalPart.isNotEmpty() && decimalPart.length > 8) {
+            return false
+        }
+
+        // 防止以0开头的多位整数（可选，根据需求）
+        if (integerPart.length > 1 && integerPart.startsWith("0") && !integerPart.startsWith("0.")) {
+            return false
+        }
+
+        return true
+    }
+
     @Parcelize
     data class Input(
         val wallet: Wallet

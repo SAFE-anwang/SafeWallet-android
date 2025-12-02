@@ -55,6 +55,9 @@ data class SendEvmData(
         @Parcelize
         class WalletConnectRequest(val info: WalletConnectInfo) : AdditionalInfo()
 
+        @Parcelize
+        class DAppInfo(val info: DappInfo) : AdditionalInfo()
+
         val sendInfo: SendInfo?
             get() = (this as? Send)?.info
 
@@ -66,6 +69,12 @@ data class SendEvmData(
 
         val walletConnectInfo: WalletConnectInfo?
             get() = (this as? WalletConnectRequest)?.info
+
+        val dAppInfo: DappInfo?
+            get() = (this as? DAppInfo)?.info
+
+        val liquidityInfo: UniswapLiquidityInfo?
+            get() = (this as? Liquidity)?.info
     }
 
     @Parcelize
@@ -83,6 +92,11 @@ data class SendEvmData(
     data class WalletConnectInfo(
         val dAppName: String?,
         val chain: WCChainData?
+    ) : Parcelable
+
+    @Parcelize
+    data class DappInfo(
+        val dAppName: String?
     ) : Parcelable
 
     @Parcelize
@@ -107,6 +121,7 @@ data class SendEvmData(
         val price: String? = null,
         val priceImpact: LiquidityMainModule.PriceImpactViewItem? = null,
         val gasPrice: String? = null,
+        val isCreatePoll: Boolean = false
     ) : Parcelable
 
     @Parcelize
@@ -130,6 +145,7 @@ object SendEvmModule {
         val input: ByteArray,
         val lockTime: Int?,
         val isBothErc: Boolean,
+        val isSRC20Lock: Boolean = false,
         val safe4Swap: Int = 0,
         val times: Int = -1,
         val spaceDay: Int = 0,
@@ -141,6 +157,7 @@ object SendEvmModule {
             transactionData.input,
             transactionData.lockTime,
             transactionData.isBothErc,
+            transactionData.isSRC20Lock,
             transactionData.safe4Swap,
             transactionData.times,
             transactionData.spaceDay,

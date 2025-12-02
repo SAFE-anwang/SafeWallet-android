@@ -68,7 +68,7 @@ class AddressViewModel(
             )
             val definedBlockchainTypes = definedAddresses?.map { it.blockchain.type } ?: listOf()
             val availableBlockchainUids =
-                allBlockchainTypes.filter { !definedBlockchainTypes.contains(it) }.map { it.uid }
+                allBlockchainTypes/*.filter { !definedBlockchainTypes.contains(it) }*/.map { it.uid }
 
             marketKit.blockchains(availableBlockchainUids).sortedBy { it.type.order }
         } else {

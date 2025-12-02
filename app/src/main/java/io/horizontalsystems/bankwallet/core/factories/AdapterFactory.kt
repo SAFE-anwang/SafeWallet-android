@@ -184,10 +184,10 @@ class AdapterFactory(
 
     fun evmTransactionsAdapter(source: TransactionSource, blockchainType: BlockchainType, isSafe4CustomCoin: Boolean = false, address: String = ""): ITransactionsAdapter? {
         val evmKitWrapper = evmBlockchainManager.getEvmKitManager(blockchainType).getEvmKitWrapper(source.account, blockchainType)
-        val baseCoin = (if (isSafe4CustomCoin)
+        /*val baseCoin = (if (isSafe4CustomCoin)
                 evmBlockchainManager.getBaseToken(blockchainType, address)
-            else
-                evmBlockchainManager.getBaseToken(blockchainType)) ?: return null
+            else*/
+        val baseCoin = evmBlockchainManager.getBaseToken(blockchainType) ?: return null
         val syncSource = evmSyncSourceManager.getSyncSource(blockchainType)
 
         return EvmTransactionsAdapter(evmKitWrapper, baseCoin, coinManager, source, syncSource.transactionSource, evmLabelManager)
