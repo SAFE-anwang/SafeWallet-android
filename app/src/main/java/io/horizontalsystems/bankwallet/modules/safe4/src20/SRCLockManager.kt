@@ -31,6 +31,7 @@ object SRCLockManager {
             customToken.forEach {
                 Log.d("SRC20LockedInfoService", "logo=${it.logoURI}, ${it.address}")
                 val src20LockedService = SRC20LockedInfoService(rpcBlockchainSafe4, it.address)
+                src20LockedService.updateLockInfo()
                 src20LockedService.loadLocked(0)
             }
         }
