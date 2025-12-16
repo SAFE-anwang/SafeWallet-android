@@ -2136,6 +2136,7 @@
     <string name="Redeem_Safe3_Account_Balance">账户余额</string>
     <string name="Redeem_Safe3_Master_Balance">主节点</string>
     <string name="Redeem_Safe3_Lock_Balance">锁仓余额</string>
+    <string name="Redeem_Safe3_Petty_Lock_Balance">小额锁仓余额</string>
     <string name="Redeem_Safe3_Lock_Num">(锁仓记录%d)</string>
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>

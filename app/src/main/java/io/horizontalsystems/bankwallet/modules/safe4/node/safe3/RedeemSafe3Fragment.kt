@@ -242,6 +242,15 @@ fun RedeemSafe3Screen(
 
 					Spacer(modifier = Modifier.height(16.dp))
 					Row {
+						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Petty_Lock_Balance))
+						Spacer(modifier = Modifier.width(16.dp))
+					}
+					Spacer(modifier = Modifier.height(6.dp))
+					body_bran(text = uiState.safe3PettyLockBalance,
+						textDecoration = if (uiState.existPettyLocked) TextDecoration.None else TextDecoration.LineThrough)
+					Spacer(modifier = Modifier.height(16.dp))
+
+					Row {
 						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Balance))
 						Spacer(modifier = Modifier.width(16.dp))
 						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Lock_Num, uiState.safe3LockNum))
@@ -250,6 +259,7 @@ fun RedeemSafe3Screen(
 					Spacer(modifier = Modifier.height(6.dp))
 					body_bran(text = uiState.safe3LockBalance,
 							textDecoration = if (uiState.existLocked) TextDecoration.None else TextDecoration.LineThrough)
+
 					if (uiState.masterNodeLock != null) {
 						Spacer(modifier = Modifier.height(16.dp))
 						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Master_Balance))

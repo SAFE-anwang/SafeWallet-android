@@ -44,6 +44,7 @@ class RedeemSafe3ViewModel(
 	private var step = 1
 	private var availableSafe3Info: AvailableSafe3Info? = null
 	private var lockList: List<LockedSafe3Info>? = null
+	private var availableSafe3InfoPetty: AvailableSafe3Info? = null
 
 	private var loadedPageNumber = 0
 	private val loading = AtomicBoolean(false)
@@ -51,6 +52,7 @@ class RedeemSafe3ViewModel(
 	private var maxLockedCount: Int = -1
 	private var existAvailable = false
 	private var existLocked = false
+	private var existPettyLocked = false
 	private var existMasterNode = false
 	private var privateKeyError = false
 
@@ -133,10 +135,12 @@ class RedeemSafe3ViewModel(
 				step,
 				availableBalance(),
 				lockValue,
+				pettyLockBalance(),
 				privateKeyError,
 				existAvailable,
 				existLocked,
-				existAvailable || existLocked,
+				existPettyLocked,
+				existAvailable || existLocked || existPettyLocked,
 				getAddress(privateKey),
 				if (maxLockedCount == -1) 0 else maxLockedCount,
 				masterLockBalance()
@@ -175,6 +179,14 @@ class RedeemSafe3ViewModel(
 	private fun  availableBalance(): String {
 		return if (availableSafe3Info != null) {
 			NodeCovertFactory.formatSafe(availableSafe3Info!!.amount)
+		} else {
+			NodeCovertFactory.formatSafe(BigInteger.ZERO)
+		}
+	}
+
+	private fun  pettyLockBalance(): String {
+		return if (availableSafe3InfoPetty != null) {
+			NodeCovertFactory.formatSafe(availableSafe3InfoPetty!!.amount)
 		} else {
 			NodeCovertFactory.formatSafe(BigInteger.ZERO)
 		}
@@ -221,6 +233,7 @@ class RedeemSafe3ViewModel(
 		existAvailable = safe4.existAvailableNeedToRedeem(address)
 		existLocked = safe4.existLockedNeedToRedeem(address)
 		existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
+		existPettyLocked = safe4.existPettyLockedNeedToRedeem(address)
 	}
 
 	private fun check(address: String?) {
@@ -230,6 +243,7 @@ class RedeemSafe3ViewModel(
 				checkNeedToRedeem(address)
 				availableSafe3Info = getAvailableSafe3Info(address)
 				loadItems(0, address)
+				getPettyInfo(address)
 				step = 3
 			} catch (e: Exception) {
 				Log.e("Redeem", "error=$e")
@@ -299,6 +313,23 @@ class RedeemSafe3ViewModel(
 				}).let {
 					disposables.add(it)
 				}
+	}
+
+	/**
+	 * 小額锁仓金额
+	 */
+	private fun getPettyInfo(address: String) {
+		val single = safe4.safe3GetPettyInfo(address)
+		single.subscribeOn(Schedulers.io())
+			.subscribe({
+				availableSafe3InfoPetty = it
+				android.util.Log.d("getPettyInfo", "$address=${it.amount}")
+				emitState()
+			}, {
+				Log.e("getPettyInfo", "get locked error=$it")
+			}).let {
+				disposables.add(it)
+			}
 	}
 
 	private fun getLockedAmount(address: String): Pair<BigInteger, BigInteger> {

@@ -120,7 +120,9 @@ class RedeemSafe3LocalViewModel(
 					it.existAvailable,
 					it.existLocked,
 					it.existMasterNode,
-					it.safe3LockNum
+				it.existPettyLocked,
+					it.safe3LockNum,
+				NodeCovertFactory.formatSafe(it.safe3PettyLockBalance)
 			)
 		}
 	}
@@ -155,7 +157,7 @@ class RedeemSafe3LocalViewModel(
 		sendResult = SendResult.Sending
 		viewModelScope.launch(Dispatchers.IO) {
 			val redeemableList = list.filter { it.redeemable }
-			val listPrivateKey = redeemableList.filter { it.existAvailable || it.existLocked
+			val listPrivateKey = redeemableList.filter { it.existAvailable || it.existLocked || it.existPettyLocked
 			}.map { it.privateKey.toHexString() }
 			val masterNodeKey = redeemableList.filter { it.existMasterNode }.map { it.privateKey.toHexString() }
 			try {
@@ -187,6 +189,15 @@ class RedeemSafe3LocalViewModel(
 	private fun getAvailableSafe3Info(address: String): AvailableSafe3Info? {
 		return try {
 			 safe4.safe3GetAvailableInfo(address).blockingGet()
+		} catch (e: Exception) {
+			Log.e("Redeem", "getAvailableSafe3Info error=$e")
+			null
+		}
+	}
+
+	private fun getSafe3PettyInfo(address: String): AvailableSafe3Info? {
+		return try {
+			 safe4.safe3GetPettyInfo(address).blockingGet()
 		} catch (e: Exception) {
 			Log.e("Redeem", "getAvailableSafe3Info error=$e")
 			null
@@ -282,17 +293,22 @@ class RedeemSafe3LocalViewModel(
 				val existAvailable = safe4.existAvailableNeedToRedeem(address)
 				val existLocked = safe4.existLockedNeedToRedeem(address)
 				val existMasterNode = safe4.existMasterNodeNeedToRedeem(address)
-				if (existAvailable || existLocked || existMasterNode) {
+				val existPettyLocked = safe4.existPettyLockedNeedToRedeem(address)
+				if (existAvailable || existLocked || existMasterNode || existPettyLocked) {
 					val safe3Info = getAvailableSafe3Info(address)
 					val (lockNum, safe3LockedInfo) = loadItems(address)
 					val lockedAmount = lockBalance(safe3LockedInfo)
 					val masterNodeAmount = masterLockBalance(safe3LockedInfo)
+					val safe3PettyInfo = getSafe3PettyInfo(address)
 					Log.d("redeem", "$address: available=${safe3Info?.amount}, locked=$lockedAmount")
 					if (safe3Info != null) {
 						redeemableAmount += safe3Info.amount
 					}
+					if (safe3PettyInfo != null) {
+						redeemableAmount += safe3PettyInfo.amount
+					}
 					redeemableLocked += lockedAmount
-					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
+					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && (safe3PettyInfo?.amount == null || safe3PettyInfo.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
 					bitcoinCore.getPrivateKey(it.publicKey)?.let { privateKey ->
 						Log.d("redeem", "privateKey=${privateKey.toHexString()}")
 						list.add(
@@ -302,11 +318,13 @@ class RedeemSafe3LocalViewModel(
 								lockedAmount,
 								existAvailable,
 								existLocked,
+								existPettyLocked,
 								existMasterNode,
 								lockNum,
 								masterNodeAmount,
 								privateKey,
-								true
+								true,
+								safe3PettyInfo?.amount ?: BigInteger.ZERO
 							)
 						)
 					}
@@ -322,6 +340,7 @@ class RedeemSafe3LocalViewModel(
 								lockedAmount,
 								existAvailable,
 								existLocked,
+								existPettyLocked,
 								existMasterNode,
 								0,
 								null,

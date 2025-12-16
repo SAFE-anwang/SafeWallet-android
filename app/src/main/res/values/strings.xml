@@ -2470,6 +2470,7 @@
     <string name="Redeem_Safe3_Account_Balance">Balance</string>
     <string name="Redeem_Safe3_Master_Balance">Master Node</string>
     <string name="Redeem_Safe3_Lock_Balance">Lock Amount</string>
+    <string name="Redeem_Safe3_Petty_Lock_Balance">Petty Lock Amount</string>
     <string name="Redeem_Safe3_Lock_Num">(Lock Record %d)</string>
     <string name="Redeem_Safe3_Private_Key_Error">Enter private key error</string>
     <string name="Redeem_Safe3_Send_Sending">Redemption</string>

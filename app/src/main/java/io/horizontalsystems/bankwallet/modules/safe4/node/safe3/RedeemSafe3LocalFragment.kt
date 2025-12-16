@@ -259,6 +259,16 @@ fun RedeemSafe3LocalScreen(
 						body_bran(text = it.masterNodeLock,
 								textDecoration = if (it.existLocked) TextDecoration.None else TextDecoration.LineThrough)
 					}
+
+					Spacer(modifier = Modifier.height(6.dp))
+					Row {
+						body_grey(text = stringResource(id = R.string.Redeem_Safe3_Petty_Lock_Balance))
+						Spacer(modifier = Modifier.width(16.dp))
+					}
+					Spacer(modifier = Modifier.height(6.dp))
+					body_bran(text = it.safe3PettyBalance,
+						textDecoration = if (it.existPettyLocked) TextDecoration.None else TextDecoration.LineThrough)
+					Spacer(modifier = Modifier.height(16.dp))
 				}
 				Spacer(modifier = Modifier.height(3.dp))
 			}
