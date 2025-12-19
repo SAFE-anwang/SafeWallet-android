@@ -93,7 +93,7 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	override fun createState() : RedeemSafe3Module.RedeemSafe3LocalUiState{
-		val canRedeem = list.filter { it.existAvailable || it.existLocked || it.existMasterNode }.isNotEmpty()
+		val canRedeem = list.filter { it.existAvailable || it.existLocked || it.existMasterNode || it.existPettyLocked }.isNotEmpty()
 		return RedeemSafe3Module.RedeemSafe3LocalUiState(
 				step,
 				syncing,
@@ -305,7 +305,7 @@ class RedeemSafe3LocalViewModel(
 						redeemableAmount += safe3Info.amount
 					}
 					if (safe3PettyInfo != null) {
-						redeemableAmount += safe3PettyInfo.amount
+						redeemableLocked += safe3PettyInfo.amount
 					}
 					redeemableLocked += lockedAmount
 					if ((safe3Info?.amount == null || safe3Info.amount == BigInteger.ZERO) && (safe3PettyInfo?.amount == null || safe3PettyInfo.amount == BigInteger.ZERO) && lockedAmount == BigInteger.ZERO && masterNodeAmount == BigInteger.ZERO)	return@forEach
