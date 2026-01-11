@@ -10,8 +10,11 @@ import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.multiswap.action.ISwapProviderAction
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
+import io.horizontalsystems.bankwallet.modules.safe4.kchart.KChartService
+import io.horizontalsystems.bankwallet.modules.safe4.kchart.KChartToken
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -215,6 +218,15 @@ class SwapViewModel(
                 tokenIn
             ) as T
         }
+    }
+
+    fun getToken(): KChartToken? {
+        val tokenA = quoteService.getTokenIn()
+        val tokenB = quoteService.getTokenOut()
+        if (tokenA != null && tokenA.type is TokenType.Eip20 && tokenB != null && tokenB.type is TokenType.Eip20) {
+            return KChartToken(tokenA, tokenB)
+        }
+        return null
     }
 }
 

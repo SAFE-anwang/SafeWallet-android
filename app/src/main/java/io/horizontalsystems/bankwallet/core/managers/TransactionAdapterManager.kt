@@ -67,7 +67,6 @@ class TransactionAdapterManager(
                     BlockchainType.Gnosis,
                     BlockchainType.Fantom,
                     BlockchainType.ArbitrumOne -> {
-                        Log.d("longwen", "uid=${wallet.coin.uid}")
                         adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType, wallet.coin.uid.isSafeFourCustomCoin(), wallet.address)
                     }
                     BlockchainType.Solana -> {

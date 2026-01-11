@@ -69,6 +69,7 @@ import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
@@ -80,6 +81,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HFillSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HSRow
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItemTimeoutIndicator
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantError
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
@@ -158,6 +160,11 @@ fun SwapScreen(navController: NavController, tokenIn: Token?) {
         onActionCompleted = {
             viewModel.onActionCompleted()
         },
+        onKChart = {
+            viewModel.getToken()?.let {
+                navController.slideFromBottom(R.id.kChartFragment, it)
+            }
+        },
         navController = navController
     )
 }
@@ -178,6 +185,7 @@ private fun SwapScreenInner(
     onClickNext: () -> Unit,
     onActionStarted: () -> Unit,
     onActionCompleted: () -> Unit,
+    onKChart: () -> Unit,
     navController: NavController,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -199,6 +207,12 @@ private fun SwapScreenInner(
                     HsBackButton(onClick = onClickClose)
                 },
                 menuItems = buildList {
+                    add(MenuItem(
+                        title = TranslatableString.ResString(R.string.KChart),
+                        onClick = {
+                            onKChart.invoke()
+                        }
+                    ))
                     uiState.timeRemainingProgress?.let { timeRemainingProgress ->
                         add(
                             MenuItemTimeoutIndicator(timeRemainingProgress)

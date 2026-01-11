@@ -28,6 +28,9 @@ interface CustomTokenDao {
     @Query("SELECT * FROM CustomToken")
     fun getAll(): List<CustomToken>
 
+    @Query("SELECT * FROM CustomToken WHERE address = :address")
+    fun getToken(address: String): CustomToken
+
     @Query("DELETE FROM CustomToken")
     fun clear()
 }

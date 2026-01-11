@@ -717,4 +717,14 @@
         android:name="io.horizontalsystems.bankwallet.modules.safe4.revokemanager.SendEvmRevokeConfirmationFragment" >
     </fragment>
 
+    <fragment
+        android:id="@+id/kChartFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.kchart.KChartFragment" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/marketPriceFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.safeprice.PriceFragment" >
+    </fragment>
+
 </navigation>

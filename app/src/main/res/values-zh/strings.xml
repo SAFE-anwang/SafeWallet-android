@@ -2314,6 +2314,15 @@
     <string name="Approving">批准中...</string>
     <string name="Approv_Button">批准</string>
     <string name="Approve_Fail">批准失败</string>
+    <string name="KChart">K线图</string>
+    <string name="No_Data_KChart">没有数据</string>
+    <string name="SRC20_Info_Title">资产详情</string>
+    <string name="SRC20_Info_Contact">合约地址</string>
+    <string name="SRC20_Info_Hint">无论您是否信任该资产，请谨慎访问外部链接。</string>
+    <string name="SRC20_Info_Type">特性</string>
+    <string name="SRC20_Info_Type_Not_Add">不可增发</string>
+    <string name="SRC20_Info_Type_Add">可增发</string>
+    <string name="SRC20_USDT_Price">SAFE/USDT 价格</string>
     <!-- SRC20 end-->
 
 </resources>

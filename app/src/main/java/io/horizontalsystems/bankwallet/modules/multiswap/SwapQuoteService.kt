@@ -218,6 +218,9 @@ class SwapQuoteService {
 
     fun getSwapSettings() = settings
 
+    fun getTokenIn() = tokenIn
+    fun getTokenOut() = tokenOut
+
     data class State(
         val amountIn: BigDecimal?,
         val tokenIn: Token?,
