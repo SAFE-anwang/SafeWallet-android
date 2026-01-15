@@ -2651,7 +2651,7 @@
     <string name="Approving">Approving...</string>
     <string name="Approv_Button">Approve</string>
     <string name="Approve_Fail">Approve fail</string>
-    <string name="KChart">K Chart</string>
+    <string name="KChart">Market conditions</string>
     <string name="No_Data_KChart">No Data</string>
     <string name="SRC20_Info_Title">资产详情</string>
     <string name="SRC20_Info_Contact">Contract</string>

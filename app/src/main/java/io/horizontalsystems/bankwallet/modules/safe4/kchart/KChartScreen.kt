@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,10 +19,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.CandleEntry as MPChartCandleEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import io.horizontalsystems.bankwallet.net.SafeApiKeyService
@@ -35,19 +41,21 @@ fun KChartScreen(
 
     AndroidView(
         factory = { ctx ->
+            Log.d("KChartScreen", "create")
             createCandleStickChart(ctx, candleData)
         },
-//        update = { chart ->
-//            updateChartData(chart, candleData)
-//        },
+        update = { chart ->
+            Log.d("KChartScreen", "update")
+            updateChartData(chart, candleData)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(400.dp)
     )
 }
 
-private fun createCandleStickChart(context: Context, candleData: List<KChartData>): CandleStickChart {
-    return CandleStickChart(context).apply {
+private fun createCandleStickChart(context: Context, candleData: List<KChartData>): CombinedChart {
+    return CombinedChart(context).apply {
         // 基础设置
         description.isEnabled = false
         setDrawGridBackground(false)
@@ -65,6 +73,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
             setDrawGridLines(true)
             gridColor = Color.LTGRAY
             textColor = Color.DKGRAY
+            labelRotationAngle = -45f
             valueFormatter = DateValueFormatter(
                 candleData.map { it.timestamp }
             )
@@ -102,7 +111,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
     }
 }
 
-private fun updateChartData(chart: CandleStickChart, candleData: List<KChartData>) {
+private fun updateChartData(chart: CombinedChart, candleData: List<KChartData>) {
     chart.data = createCandleDataSet(candleData)
 
     // 更新X轴格式化器
@@ -120,11 +129,34 @@ private fun updateChartData(chart: CandleStickChart, candleData: List<KChartData
     chart.axisLeft.axisMinimum = getMinPrice(candleData) * 0.98f
     chart.axisLeft.axisMaximum = getMaxPrice(candleData) * 1.02f
     chart.xAxis.labelCount = minOf(6, candleData.size)
+
+    chart.data.notifyDataChanged()
+    chart.notifyDataSetChanged()
+
     chart.invalidate()
+
+    resetChartView(chart, candleData)
 }
 
-private fun createCandleDataSet(candleData: List<KChartData>): CandleData {
+private fun resetChartView(chart: CombinedChart, candleData: List<KChartData>) {
+    // 设置可见范围
+    chart.setVisibleXRangeMaximum(20f)
+    chart.setVisibleXRangeMinimum(5f)
+
+    // 计算Y轴范围
+    val minPrice = candleData.minOfOrNull { it.low } ?: 0f
+    val maxPrice = candleData.maxOfOrNull { it.high } ?: 100f
+
+    chart.axisLeft.axisMinimum = minPrice * 0.99f
+    chart.axisLeft.axisMaximum = maxPrice * 1.01f
+
+    // 移动到最新数据
+    chart.moveViewToX(candleData.size.toFloat())
+}
+
+private fun createCandleDataSet(candleData: List<KChartData>): CombinedData {
     val entries = mutableListOf<CandleEntry>()
+    val maEntries = mutableListOf<Entry>()
 
     candleData.forEachIndexed { index, candle ->
         entries.add(
@@ -136,6 +168,9 @@ private fun createCandleDataSet(candleData: List<KChartData>): CandleData {
                 candle.close
             )
         )
+        maEntries.add(
+            Entry(index.toFloat(), (candle.high + candle.low) / 2)
+        )
     }
 
     val dataSet = CandleDataSet(entries, "Price").apply {
@@ -146,7 +181,7 @@ private fun createCandleDataSet(candleData: List<KChartData>): CandleData {
         decreasingColor = Color.RED
         decreasingPaintStyle = Paint.Style.FILL
         increasingColor = Color.GREEN
-        increasingPaintStyle = Paint.Style.STROKE
+        increasingPaintStyle = Paint.Style.FILL
         neutralColor = Color.GRAY
         isHighlightEnabled = true
 
@@ -162,7 +197,19 @@ private fun createCandleDataSet(candleData: List<KChartData>): CandleData {
         setShadowWidth(0.8f)
     }
 
-    return CandleData(dataSet)
+    val maDataSet = LineDataSet(maEntries, "MA5").apply {
+        color = Color.GREEN
+        lineWidth = 2f
+        setDrawCircles(false) // 不显示圆圈点
+        setDrawValues(false)  // 不显示数值
+        this.enableDashedLine(2f, 2f,1f)
+    }
+
+    // 3. 组合数据
+    val combinedData = CombinedData()
+    combinedData.setData(CandleData(dataSet))
+    combinedData.setData(LineData(maDataSet))
+    return combinedData
 }
 
 private fun getMinPrice(candleData: List<KChartData>): Float {
@@ -175,7 +222,7 @@ private fun getMaxPrice(candleData: List<KChartData>): Float {
 
 // 创建时间格式化器类
 class DateValueFormatter(private val timestamps: List<Long>) : ValueFormatter() {
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault())
 
     override fun getFormattedValue(value: Float): String {
         val index = value.toInt()
