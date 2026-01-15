@@ -856,11 +856,17 @@ class LiquidityMainViewModel(
         val coinAmount = fromTokenService.getCoinAmount(amount)
         if (amountsEqual(amountFrom, coinAmount)) return
         amountFrom = coinAmount
+        amountFrom?.let {
+            if (it.compareTo(balanceFrom) > 0) {
+                allErrors = listOf(SwapError.InsufficientBalanceFrom)
+            }
+        }
 //        amountTo = null
         fromTokenService.onChangeAmount(amount)
 //        toTokenService.onChangeAmount(null, true)
         resyncSwapData()
         syncButtonsState()
+
     }
 
     fun onToAmountChange(amount: String?) {
@@ -868,6 +874,11 @@ class LiquidityMainViewModel(
         val coinAmount = toTokenService.getCoinAmount(amount)
         if (amountsEqual(amountTo, coinAmount)) return
         amountTo = coinAmount
+        amountTo?.let {
+            if (it.compareTo(balanceFromB) > 0) {
+                allErrorsB = listOf(SwapError.InsufficientBalanceFrom)
+            }
+        }
 //        amountFrom = null
         toTokenService.onChangeAmount(amount)
 //        fromTokenService.onChangeAmount(null, true)
