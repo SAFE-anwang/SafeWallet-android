@@ -856,17 +856,13 @@ class LiquidityMainViewModel(
         val coinAmount = fromTokenService.getCoinAmount(amount)
         if (amountsEqual(amountFrom, coinAmount)) return
         amountFrom = coinAmount
-        amountFrom?.let {
-            if (it.compareTo(balanceFrom) > 0) {
-                allErrors = listOf(SwapError.InsufficientBalanceFrom)
-            }
-        }
 //        amountTo = null
         fromTokenService.onChangeAmount(amount)
 //        toTokenService.onChangeAmount(null, true)
         resyncSwapData()
         syncButtonsState()
 
+        resetButtons()
     }
 
     fun onToAmountChange(amount: String?) {
@@ -874,16 +870,24 @@ class LiquidityMainViewModel(
         val coinAmount = toTokenService.getCoinAmount(amount)
         if (amountsEqual(amountTo, coinAmount)) return
         amountTo = coinAmount
-        amountTo?.let {
-            if (it.compareTo(balanceFromB) > 0) {
-                allErrorsB = listOf(SwapError.InsufficientBalanceFrom)
-            }
-        }
+        resetButtons()
 //        amountFrom = null
         toTokenService.onChangeAmount(amount)
 //        fromTokenService.onChangeAmount(null, true)
         resyncSwapData()
         syncButtonsState()
+        resetButtons()
+    }
+
+    private fun resetButtons() {
+        buttons = SwapMainModule.SwapButtons2(
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden
+        )
+        syncUiState()
     }
 
     fun onTapSwitch() {
@@ -935,8 +939,9 @@ class LiquidityMainViewModel(
     fun getSendEvmData(): SendEvmData? {
         val tokenA = fromTokenService.token ?: return null
         val tokenB = toTokenService.token ?: return null
-        val tokenAAmount = amountFrom?.movePointRight(18)?.toBigInteger() ?: return null
-        val tokenBAmount = amountTo?.movePointRight(18)?.toBigInteger() ?: return null
+        val tokenAAmount = amountFrom?.movePointRight(tokenA.decimals)?.toBigInteger() ?: return null
+        val tokenBAmount = amountTo?.movePointRight(tokenB.decimals)?.toBigInteger() ?: return null
+        android.util.Log.d("LiquidityAllowanceService", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount, ${tokenB.decimals}")
         val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return null
 //        val tradeOptions = uniswapTradeService.tradeOptions
         val transactionData = try {

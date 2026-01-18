@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import java.math.BigDecimal
 
 class SwapCoinProvider(
@@ -52,7 +53,11 @@ class SwapCoinProvider(
         BlockchainType.Avalanche -> dex.blockchainType == BlockchainType.Avalanche
         BlockchainType.Gnosis -> dex.blockchainType == BlockchainType.Gnosis
         BlockchainType.Fantom -> dex.blockchainType == BlockchainType.Fantom
-        BlockchainType.SafeFour -> dex.blockchainType == BlockchainType.SafeFour
+        BlockchainType.SafeFour -> if (dex.isAddLiquidity) {
+            (dex.blockchainType == BlockchainType.SafeFour && token.type !is TokenType.Native)
+        } else {
+            dex.blockchainType == BlockchainType.SafeFour
+        }
         else -> false
     }
 

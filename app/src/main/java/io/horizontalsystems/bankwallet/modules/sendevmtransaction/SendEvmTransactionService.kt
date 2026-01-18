@@ -280,8 +280,9 @@ class SendEvmTransactionService(
                     )
                 ).send()
                 if (estimateGas.hasError()) {
-                    Log.e("addLiquidity", "error=${estimateGas.error.data}, ${estimateGas.error.message}")
-//                    return@launch
+                    Log.e("addLiquidity", "value=$value, error=${estimateGas.error.data}, ${estimateGas.error.message}")
+                    sendState = SendState.Failed(Exception(estimateGas.error.message))
+                    return@launch
                 }
                 val gasLimit =
                     estimateGas.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))

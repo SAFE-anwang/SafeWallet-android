@@ -229,7 +229,7 @@ object SwapMainModule {
     }
 
     @Parcelize
-    class Dex(val blockchain: Blockchain, val provider: ISwapProvider) : Parcelable {
+    class Dex(val blockchain: Blockchain, val provider: ISwapProvider, val isAddLiquidity: Boolean = false) : Parcelable {
         val blockchainType get() = blockchain.type
     }
 

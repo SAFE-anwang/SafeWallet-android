@@ -418,7 +418,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     height = 40.dp
                 )
             }
-            if (viewItem.liquidityVisible) {
+            if (viewItem.liquidityVisible && (viewItem.wallet.token.blockchainType == BlockchainType.SafeFour && viewItem.wallet.token.type != TokenType.Native)) {
                 Spacer(modifier = Modifier.width(8.dp))
                 HsIconButton(
                         onClick = {
