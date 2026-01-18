@@ -48,14 +48,14 @@ class KChartFragment : BaseComposeFragment() {
     @Composable
     override fun GetContent(navController: NavController) {
         val input = navController.getInput<KChartToken>()
-        ChartScreen(navController, input!!.tokenA, input.tokenB)
+        val viewModel = KChartViewModel(input!!.tokenA, input.tokenB)
+        ChartScreen(navController, viewModel)
     }
 }
 
 @Composable
-fun ChartScreen(navController: NavController, tokenA: Token, tokenB: Token) {
-    val viewModel = KChartViewModel(tokenA, tokenB)
-    val data = viewModel.chartDataState.collectAsState()
+fun ChartScreen(navController: NavController, viewModel: KChartViewModel) {
+    val uiState = viewModel.uiState
     Scaffold(
         topBar = {
             AppBar(
@@ -87,7 +87,7 @@ fun ChartScreen(navController: NavController, tokenA: Token, tokenB: Token) {
                     selectedTime = it
                     viewModel.getChartData(it.label)
                 }
-                data.value?.let {
+                uiState.data?.let {
                     if (it.isNotEmpty()) {
                         KChartScreen(it)
                     } else {

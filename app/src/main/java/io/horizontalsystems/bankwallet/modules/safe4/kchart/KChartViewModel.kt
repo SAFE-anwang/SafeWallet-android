@@ -18,13 +18,13 @@ class KChartViewModel(
 
     private val kChartService by lazy { KChartService() }
 
-    private val chartData = MutableStateFlow<List<KChartData>>(emptyList())
-    val chartDataState = chartData.asStateFlow()
+    private var chartData: List<KChartData>? = null
 
     init {
         kChartService.itemsObservable.subscribeOn(Schedulers.io())
             .subscribe({
-                chartData.value = it
+                chartData = it
+                emitState()
             }, {
 
             })
@@ -34,7 +34,7 @@ class KChartViewModel(
     }
 
     override fun createState(): ChartUiState {
-        return ChartUiState()
+        return ChartUiState(chartData)
     }
 
     fun getChartData(interval: String) {
@@ -46,5 +46,5 @@ class KChartViewModel(
 
 
 data class ChartUiState(
-    val time: String = "30M"
+    val data: List<KChartData>? = null
 )
