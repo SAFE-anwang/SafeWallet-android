@@ -33,7 +33,7 @@ class ChooseContactViewModel(
             .map {
                 ContactViewItem(
                     it.name + if (it.uid == "safe-coin") "3" else "",
-                    it.addresses.first { it.blockchain.type == blockchainType }.address
+                    it.addresses.filter { it.blockchain.type == blockchainType }.map { it.address }
                 )
             }
     }
@@ -47,4 +47,4 @@ class ChooseContactViewModel(
     }
 }
 
-data class ContactViewItem(val name: String, val address: String)
+data class ContactViewItem(val name: String, val address: List<String>)
