@@ -57,7 +57,7 @@ fun RedeemSafe3SelectScreen(
 				title = stringResource(id = R.string.Redeem_Safe3_Title),
 				showSpinner = viewModelSelect.uiState.syncing,
 				navigationIcon = {
-					HsBackButton(onClick = { navController.popBackStack() })
+					HsBackButton(onClick = { navController.navigateUp() })
 				}
 		)
 

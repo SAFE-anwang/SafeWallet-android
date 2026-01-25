@@ -70,7 +70,7 @@ fun TabScreen(
         AppBar(
                 title = stringResource(id = R.string.Safe_Four_Proposal_Title),
                 navigationIcon = {
-                    HsBackButton(onClick = { navController.popBackStack() })
+                    HsBackButton(onClick = { navController.navigateUp() })
                 },
                 menuItems = listOf(
                         MenuItem(

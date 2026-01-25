@@ -108,7 +108,7 @@ fun TabScreen(
 		AppBar(
 				title = title,
 				navigationIcon = {
-					HsBackButton(onClick = { navController.popBackStack() })
+					HsBackButton(onClick = { navController.navigateUp() })
 				},
 				menuItems = listOf(
 						MenuItem(

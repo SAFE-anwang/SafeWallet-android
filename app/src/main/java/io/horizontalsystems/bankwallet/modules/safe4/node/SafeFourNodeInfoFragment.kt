@@ -139,7 +139,7 @@ fun TabInfoScreen(
                     R.string.Safe_Four_Node_Info_Title_Master
                 ),
                 navigationIcon = {
-                    HsBackButton(onClick = { navController.popBackStack() })
+                    HsBackButton(onClick = { navController.navigateUp() })
                 }
         )
         Column(modifier = Modifier

@@ -150,10 +150,12 @@ class SafeFourCreateNodeViewModel(
     private fun existENode(eNode: String?) {
         eNode?.let { eNode ->
             try {
-                rpcBlockchainSafe4.existNodeEnode(eNode)
+                rpcBlockchainSafe4.existNodeEnode(isSuperNode, eNode)
                         .subscribeOn(Schedulers.io())
                         .subscribe({
                             existENode = it
+                            Log.d("Create", "existENode=$existENode")
+                            emitState()
                         }, {
 
                         }).let {

@@ -129,7 +129,7 @@ fun WithdrawVoteScreen(
                 )
             ),
             navigationIcon = {
-                HsBackButton(onClick = { navController.popBackStack() })
+                HsBackButton(onClick = { navController.navigateUp() })
             }
         )
         if (nodeList.isNullOrEmpty()) {

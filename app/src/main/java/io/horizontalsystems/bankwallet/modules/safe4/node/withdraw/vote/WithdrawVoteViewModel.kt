@@ -22,6 +22,9 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -50,6 +53,7 @@ class WithdrawVoteViewModel(
     val limit = 20
     private val loading = AtomicBoolean(false)
     var canWithdrawAll = false
+    var job: Job? = null
 
     override fun createState(): WithdrawModule.WithDrawNodeUiState {
         return getUiState()
@@ -85,14 +89,17 @@ class WithdrawVoteViewModel(
         val old = lockRecordTotal
         lockRecordTotal = repository.getEnableReleaseVoteTotal(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
-        if (page == 0) {
+        if (lockRecordTotal != 0 && page == 0) {
             getData()
         }
     }
 
     fun start() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getTotal()
+        job = viewModelScope.launch(Dispatchers.IO) {
+            while (lockRecordTotal == 0 && isActive) {
+                getTotal()
+                delay(5000)
+            }
             getData()
             service.updateLockedInfo()
         }
@@ -240,6 +247,7 @@ class WithdrawVoteViewModel(
     override fun onCleared() {
         super.onCleared()
         disposables.clear()
+        job?.cancel()
     }
 }
 
