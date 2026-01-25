@@ -1,5 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.safe4.kchart
 
+import android.content.Context
+import android.graphics.Color
+import android.graphics.Paint
+import android.icu.text.SimpleDateFormat
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,21 +38,42 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.github.mikephil.charting.charts.CombinedChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.CandleData
+import com.github.mikephil.charting.data.CandleDataSet
+import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.getInputX
+import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
+import java.util.Date
+import java.util.Locale
 
 class KChartFragment : BaseComposeFragment() {
+
+    private val input by lazy {
+        arguments?.getInputX<KChartToken>()!!
+    }
+    
+    val viewModel by lazy {  KChartViewModel(input.tokenA, input.tokenB) }
+
     @Composable
     override fun GetContent(navController: NavController) {
-        val input = navController.getInput<KChartToken>()
-        val viewModel = KChartViewModel(input!!.tokenA, input.tokenB)
         ChartScreen(navController, viewModel)
     }
 }
@@ -56,6 +81,8 @@ class KChartFragment : BaseComposeFragment() {
 @Composable
 fun ChartScreen(navController: NavController, viewModel: KChartViewModel) {
     val uiState = viewModel.uiState
+
+
     Scaffold(
         topBar = {
             AppBar(
@@ -67,7 +94,6 @@ fun ChartScreen(navController: NavController, viewModel: KChartViewModel) {
         },
         backgroundColor = ComposeAppTheme.colors.tyler,
     ) {
-        var selectedTime by remember { mutableStateOf(TimeOption.THIRTY_MINUTES) }
 
         Box(
             modifier = Modifier
@@ -79,17 +105,16 @@ fun ChartScreen(navController: NavController, viewModel: KChartViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(it)
-                    .verticalScroll(rememberScrollState()),
+                    ,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                TimeSwitchButtons(selectedTime = selectedTime) {
-                    selectedTime = it
+                TimeSwitchButtons() {
                     viewModel.getChartData(it.label)
                 }
-                uiState.data?.let {
-                    if (it.isNotEmpty()) {
-                        KChartScreen(it)
+                uiState.data?.let { data ->
+                    if (data.isNotEmpty()) {
+                        KChartScreen(data)
                     } else {
                         Text(stringResource(R.string.No_Data_KChart),
                             modifier = Modifier.padding(top = 16.dp))
@@ -105,9 +130,10 @@ fun ChartScreen(navController: NavController, viewModel: KChartViewModel) {
 @Composable
 fun TimeSwitchButtons(
     modifier: Modifier = Modifier,
-    selectedTime: TimeOption,
+//    selectedTime: TimeOption,
     onTimeSelected: (TimeOption) -> Unit
 ) {
+    var selectedTime by remember { mutableStateOf(TimeOption.THIRTY_MINUTES) }
     // 定义按钮数据
     val timeOptions = listOf(
         TimeOption.THIRTY_MINUTES,
@@ -150,7 +176,10 @@ fun TimeSwitchButtons(
                     text = option.label,
                     isSelected = isSelected,
                     shape = shape,
-                    onClick = { onTimeSelected(option) }
+                    onClick = {
+                        selectedTime = option
+                        onTimeSelected(option)
+                    }
                 )
             }
         }

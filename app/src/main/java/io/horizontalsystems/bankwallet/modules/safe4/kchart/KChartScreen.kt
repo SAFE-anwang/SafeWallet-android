@@ -38,7 +38,6 @@ import java.util.Locale
 fun KChartScreen(
     candleData: List<KChartData>
 ) {
-
     AndroidView(
         factory = { ctx ->
             Log.d("KChartScreen", "create")
@@ -112,6 +111,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
 }
 
 private fun updateChartData(chart: CombinedChart, candleData: List<KChartData>) {
+    chart.clear()
     chart.data = createCandleDataSet(candleData)
 
     // 更新X轴格式化器

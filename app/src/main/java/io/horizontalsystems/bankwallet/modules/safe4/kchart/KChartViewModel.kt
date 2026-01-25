@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.kchart
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.CandleEntry
@@ -28,9 +29,8 @@ class KChartViewModel(
             }, {
 
             })
-        viewModelScope.launch {
-            getChartData(TimeOption.THIRTY_MINUTES.label)
-        }
+
+        getChartData(TimeOption.THIRTY_MINUTES.label)
     }
 
     override fun createState(): ChartUiState {
@@ -40,7 +40,9 @@ class KChartViewModel(
     fun getChartData(interval: String) {
         val addressA = (tokenA.type as TokenType.Eip20).address
         val addressB = (tokenB.type as TokenType.Eip20).address
-        kChartService.getKChartData(addressA, addressB, interval)
+        viewModelScope.launch {
+            kChartService.getKChartData(addressA, addressB, interval)
+        }
     }
 }
 
