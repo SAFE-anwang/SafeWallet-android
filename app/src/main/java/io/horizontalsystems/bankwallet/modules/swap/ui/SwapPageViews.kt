@@ -428,7 +428,7 @@ fun ActionButtons2(
                     onClick = onTapApprove2,
                     enabled = actionButtons.approve2 is SwapActionState.Enabled,
                     step = if (actionButtons.proceed != SwapActionState.Hidden) 1 else null,
-                    showProgress = actionButtons.approve1.showProgress
+                    showProgress = actionButtons.approve2.showProgress
                 )
                 /*if (actionButtons.proceed != SwapActionState.Hidden) {
                     Spacer(Modifier.width(8.dp))
@@ -470,7 +470,7 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
         modifier = modifier,
         onClick = onClick,
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
-            backgroundColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.raina else ComposeAppTheme.colors.leah,
+            backgroundColor = ComposeAppTheme.colors.leah,
             contentColor = ComposeAppTheme.colors.claude,
             disabledBackgroundColor = ComposeAppTheme.colors.steel20,
             disabledContentColor = ComposeAppTheme.colors.grey50,
@@ -481,17 +481,18 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val textColor = if (enabled) ComposeAppTheme.colors.white else ComposeAppTheme.colors.grey
                 if (showProgress) {
                     HSCircularProgressIndicator()
                 } else {
                     step?.let {
                         val background = if (enabled) ComposeAppTheme.colors.steel10 else ComposeAppTheme.colors.steel20
-                        val textColor = if (enabled) ComposeAppTheme.colors.leah else ComposeAppTheme.colors.grey
+
                         BadgeStepCircle(text = "$it", background = background, textColor = textColor)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
-                Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, color = textColor)
             }
             if (showProgress || step != null) {
                 Row(modifier = Modifier.weight(1f)) {}

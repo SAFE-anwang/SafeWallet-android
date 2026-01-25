@@ -136,7 +136,7 @@ object LiquidityMainModule {
             tokenTo: Token?,
             amountFrom: BigDecimal?,
             amountTo: BigDecimal?,
-            exactType: ExactType
+            exactType: SwapMainModule.ExactType
         )
 
         fun updateSwapSettings(recipient: Address?, slippage: BigDecimal?, ttl: Long?)
@@ -337,10 +337,6 @@ object LiquidityMainModule {
         val balance: BigDecimal?,
         val fiatBalanceValue: CurrencyValue?,
     ) : Parcelable
-
-    enum class ExactType {
-        ExactFrom, ExactTo
-    }
 
 }
 

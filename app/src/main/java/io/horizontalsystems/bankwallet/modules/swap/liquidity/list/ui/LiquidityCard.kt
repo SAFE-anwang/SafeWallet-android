@@ -61,6 +61,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaul
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.RateColor
 import io.horizontalsystems.bankwallet.ui.compose.components.RateText
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
@@ -527,20 +528,11 @@ private fun WalletIcon(viewItem: Wallet) {
             .fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
-        if (viewItem.coin.code == "SAFE") {
-            Image(painter = painterResource(id = R.drawable.logo_safe_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(32.dp))
-        } else {
-            CoinImage(
-                iconUrl = viewItem.coin.imageUrl,
-                placeholder = viewItem.token.iconPlaceholder,
-                modifier = Modifier
-                    .size(32.dp)
-            )
-        }
+        CoinImageSafe(
+            uid = viewItem.token.coin.uid,
+            iconUrl = viewItem.token.coin.imageUrl,
+            placeholder = viewItem.token.iconPlaceholder ?: R.drawable.coin_placeholder,
+        )
     }
 }
 
