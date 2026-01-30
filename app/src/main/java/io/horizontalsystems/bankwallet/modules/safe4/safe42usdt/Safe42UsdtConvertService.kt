@@ -96,8 +96,8 @@ class Safe42UsdtConvertService(
     @Throws
     private fun validEvmAmount(amount: BigDecimal): BigInteger {
         // eth add fee
-        val safeInfoPO = SafeInfoManager.getSafeInfo(true)
-        val newAmount = amount + if (chain == Chain.Ethereum) BigDecimal(safeInfoPO.eth.safe_fee) else BigDecimal.ZERO
+        val safeInfoPO = SafeInfoManager.getSafeUsdtInfo()
+        val newAmount = amount + if (chain == Chain.Ethereum) BigDecimal(safeInfoPO.eth.usdt_fee) else BigDecimal.ZERO
 
         val evmAmount = try {
             newAmount.movePointRight(sendCoin.decimals).toBigInteger()

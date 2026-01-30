@@ -19,6 +19,7 @@ import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.core.AddressValidator
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 
@@ -39,8 +40,6 @@ class SendUsdtToSafeViewModel(
     val coin: Token
         get() = service.coin
 
-    var isMatic: Boolean = false
-
     init {
         service.stateObservable.subscribeIO {
             sync(it) }.let { disposable.add(it) }
@@ -50,11 +49,15 @@ class SendUsdtToSafeViewModel(
     }
 
     fun onClickProceed() {
-        val safeInfoPO = SafeInfoManager.getSafeInfo(true)
-        if ((isMatic && !safeInfoPO.matic.matic2safe) || !safeInfoPO.eth.eth2safe) {
+        val safeInfoPO = SafeInfoManager.getSafeUsdtInfo()
+        /*if ((chain == Chain.BinanceSmartChain && !safeInfoPO.bsc.bsc2safe)
+            || (chain == Chain.Ethereum && !safeInfoPO.eth.eth2safe)
+            || (chain == Chain.SOL && !safeInfoPO.sol.sol2safe)
+            || (chain == Chain.TRON && !safeInfoPO.trx.trx2safe)
+            ) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_Disabled), Toast.LENGTH_SHORT).show()
             return
-        }
+        }*/
         if (!service.isSendMinAmount(safeInfoPO, coin.decimals)) {
             Toast.makeText(App.instance, Translator.getString(R.string.Safe4_USDT_Min_Fee, "0.1"), Toast.LENGTH_SHORT).show()
             return
