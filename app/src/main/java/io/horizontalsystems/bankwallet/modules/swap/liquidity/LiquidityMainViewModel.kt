@@ -152,6 +152,7 @@ class LiquidityMainViewModel(
     var refreshState = false
     var isCloseDialog = false
     var isNoTrade = true
+    var isInitTrade = true
 
     var swapState by mutableStateOf(
         LiquidityMainModule.SwapState(
@@ -340,19 +341,24 @@ class LiquidityMainViewModel(
         val errorsB = mutableListOf<Throwable>()
         swapData = null
         setLoading(tradeService.state)
-
+        Log.d("LiquidityMainViewModel", "state=${tradeService.state}")
         when (val state = tradeService.state) {
             SwapResultState.Loading -> {
                 tradeView = tradeView?.copy(expired = true)
             }
 
             is SwapResultState.NotReady -> {
+                Log.d("LiquidityMainViewModel", "state=SwapResultState.NotReady")
                 isNoTrade = true
                 /*tradeView = null
                 errors.addAll(state.errors)*/
             }
 
             is SwapResultState.Ready -> {
+                if (!isInitTrade) {
+                    isInitTrade = false
+                    return
+                }
                 isNoTrade = false
                 swapData = state.swapData
                 when (val swapData = state.swapData) {
@@ -372,6 +378,7 @@ class LiquidityMainViewModel(
                             amountFrom = swapData.data.amountIn
                             fromTokenService.onChangeAmount(swapData.data.amountIn.toString(), true)
                         }
+                        Log.d("LiquidityMainViewModel", "state=amountTo=$amountTo, $amountFrom")
                     }
                 }
             }
@@ -860,7 +867,7 @@ class LiquidityMainViewModel(
         amountFrom = coinAmount
 //        amountTo = null
         fromTokenService.onChangeAmount(amount)
-        if (!isNoTrade) {
+        if (!isNoTrade && !isInitTrade) {
             toTokenService.onChangeAmount(null, true)
         }
         resyncSwapData()
@@ -877,7 +884,7 @@ class LiquidityMainViewModel(
         resetButtons()
 //        amountFrom = null
         toTokenService.onChangeAmount(amount)
-        if (!isNoTrade) {
+        if (!isNoTrade && !isInitTrade) {
             fromTokenService.onChangeAmount(null, true)
         }
         resyncSwapData()
