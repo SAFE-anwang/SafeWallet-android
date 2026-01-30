@@ -53,7 +53,6 @@ class WithdrawVoteViewModel(
     val limit = 20
     private val loading = AtomicBoolean(false)
     var canWithdrawAll = false
-    var job: Job? = null
 
     override fun createState(): WithdrawModule.WithDrawNodeUiState {
         return getUiState()
@@ -81,6 +80,12 @@ class WithdrawVoteViewModel(
             }.let {
                 disposables.add(it)
             }*/
+
+        viewModelScope.launch(Dispatchers.IO) {
+            LockRecordManager.recordState.collect {
+                getTotal()
+            }
+        }
         start()
     }
 
@@ -89,17 +94,19 @@ class WithdrawVoteViewModel(
         val old = lockRecordTotal
         lockRecordTotal = repository.getEnableReleaseVoteTotal(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
-        if (lockRecordTotal != 0 && page == 0) {
+        if (lockRecordTotal != 0) {
+            loading.set(false)
+            page = 0
+            withdrawList?.clear()
             getData()
+        } else {
+            initIfNeed()
+            emitState()
         }
     }
 
     fun start() {
-        job = viewModelScope.launch(Dispatchers.IO) {
-            while (lockRecordTotal == 0 && isActive) {
-                getTotal()
-                delay(5000)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
             getData()
             service.updateLockedInfo()
         }
@@ -247,7 +254,6 @@ class WithdrawVoteViewModel(
     override fun onCleared() {
         super.onCleared()
         disposables.clear()
-        job?.cancel()
     }
 }
 
