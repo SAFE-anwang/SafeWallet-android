@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.kchart
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import android.icu.text.SimpleDateFormat
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,26 +31,33 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.CandleEntry as MPChartCandleEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import io.horizontalsystems.bankwallet.net.SafeApiKeyService
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun KChartScreen(
     candleData: List<KChartData>
 ) {
-    AndroidView(
-        factory = { ctx ->
-            Log.d("KChartScreen", "create")
-            createCandleStickChart(ctx, candleData)
-        },
-        update = { chart ->
-            Log.d("KChartScreen", "update")
-            updateChartData(chart, candleData)
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(400.dp)
-    )
+    Box(
+        modifier = Modifier.padding(end = 16.dp)
+    ) {
+
+        AndroidView(
+            factory = { ctx ->
+                Log.d("KChartScreen", "create")
+                createCandleStickChart(ctx, candleData)
+            },
+            update = { chart ->
+                Log.d("KChartScreen", "update")
+                updateChartData(chart, candleData)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp)
+        )
+    }
 }
 
 private fun createCandleStickChart(context: Context, candleData: List<KChartData>): CombinedChart {
@@ -65,6 +72,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
         setScaleEnabled(true)
         setPinchZoom(true)
         isDoubleTapToZoomEnabled = true
+        setMinOffset(0f)
 
         // X轴设置
         xAxis.apply {
@@ -86,7 +94,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
             textColor = Color.DKGRAY
             axisMinimum = getMinPrice(candleData)  * 0.98f
             axisMaximum = getMaxPrice(candleData) * 1.02f
-            labelCount = 6
+            setLabelCount(6, true)
             valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     return String.format("%.2f", value)
@@ -95,6 +103,7 @@ private fun createCandleStickChart(context: Context, candleData: List<KChartData
         }
 
         axisRight.isEnabled = false
+        axisRight.setLabelCount(6, true)
 
         // 图例
         legend.isEnabled = false
@@ -222,7 +231,8 @@ private fun getMaxPrice(candleData: List<KChartData>): Float {
 
 // 创建时间格式化器类
 class DateValueFormatter(private val timestamps: List<Long>) : ValueFormatter() {
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
 
     override fun getFormattedValue(value: Float): String {
         val index = value.toInt()
