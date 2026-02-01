@@ -96,14 +96,19 @@ class SwapConfirmViewModel(
 
         viewModelScope.launch {
             sendTransactionService.stateFlow.collect { transactionState ->
-                sendTransactionState = transactionState
+                val cautions = transactionState.cautions
+                if (cautions.size == 1 && cautions.get(0).text.contains("INSUFFICIENT_OUTPUT_AMOUNT")) {
+                    sendTransactionService.reset(viewModelScope)
+                } else {
+                    sendTransactionState = transactionState
 
-                loading = transactionState.loading
+                    loading = transactionState.loading
 
-                emitState()
+                    emitState()
 
-                if (sendTransactionState.sendable) {
-                    timerService.start(10)
+                    if (sendTransactionState.sendable) {
+                        timerService.start(10)
+                    }
                 }
             }
         }
