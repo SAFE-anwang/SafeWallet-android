@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.dapp
 
+import android.annotation.SuppressLint
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -265,11 +267,12 @@ class DAppBrowseFragment: BaseFragment(){
         setting()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setting() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                if (url?.contains("requestId") == true) return true
                 Log.e("connectWallet", "shouldOverrideUrlLoading: $url")
+                if (url?.contains("requestId") == true) return true
                 if (url?.contains("/wc?uri=") == true) {
                     val connectLink = url.substring(url.indexOf("wc?uri=") + 7)
                     val decode = URLDecoder.decode(connectLink)
@@ -286,10 +289,19 @@ class DAppBrowseFragment: BaseFragment(){
                 }
                 return false
             }
+
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
+                Log.d("connectWallet", "onReceivedSslError= $error")
+                handler?.proceed()
+            }
         }
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
-//                Log.e("connectWallet", "progress: $newProgress")
+                Log.e("connectWallet", "progress: $newProgress")
                 binding.progressBar.progress = newProgress
                 super.onProgressChanged(view, newProgress)
                 if (newProgress == 100 && autoConnect) {
@@ -302,6 +314,12 @@ class DAppBrowseFragment: BaseFragment(){
         webViewSettings.javaScriptEnabled = true
         webViewSettings.domStorageEnabled = true
         webViewSettings.loadWithOverviewMode = true
+        webViewSettings.domStorageEnabled = true
+        webViewSettings.databaseEnabled = true
+        webViewSettings.loadWithOverviewMode = true
+        webViewSettings.useWideViewPort = true
+        webViewSettings.allowFileAccess = true
+        webViewSettings.allowContentAccess = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webViewSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
