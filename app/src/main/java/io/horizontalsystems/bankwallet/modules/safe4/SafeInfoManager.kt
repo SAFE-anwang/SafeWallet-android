@@ -87,7 +87,7 @@ object SafeInfoManager {
     fun saveUsdtMmkv(safeInfo: SafeUsdtInfo) {
         val gson = Gson()
         val safeInfoJson = gson.toJson(safeInfo)
-        val safeInfoPO = gson.fromJson(safeInfoJson, SafeInfoPO::class.java)
+        val safeInfoPO = gson.fromJson(safeInfoJson, SafeUsdtInfoPO::class.java)
         safeStorage?.encode(getKey(false, true), safeInfoPO)
     }
 
