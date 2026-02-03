@@ -49,6 +49,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.coroutines.delay
 
 class LockedInfoFragment(): BaseComposeFragment() {
     @Composable
@@ -67,6 +68,7 @@ fun WithdrawVoteScreen(
     navController: NavController,
     viewModel: LockedInfoViewModel
 ) {
+    var isAll by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState
     val nodeList = uiState.list
 
@@ -87,7 +89,9 @@ fun WithdrawVoteScreen(
                 R.string.SAFE4_Withdraw_Send_Success,
                 SnackbarDuration.LONG
             )
-            viewModel.sendResult = null
+            if (!isAll) {
+                viewModel.sendResult = null
+            }
         }
 
         is SendResult.Failed -> {
@@ -96,6 +100,13 @@ fun WithdrawVoteScreen(
         }
 
         null -> Unit
+    }
+
+    LaunchedEffect(sendResult) {
+        if (sendResult == SendResult.Sent) {
+            delay(1200)
+            navController.popBackStack(R.id.safe4LockedInfoFragment, true)
+        }
     }
 
     var withdrawAll by remember { mutableStateOf(false) }
@@ -188,8 +199,10 @@ fun WithdrawVoteScreen(
             content = stringResource(if (withdrawAll) R.string.SAFE4_Withdraw_ALL_Local_Hint else R.string.SAFE4_Withdraw_Local_Hint),
             {
                 if (withdrawAll) {
+                    isAll = true
                     viewModel.withdrawAllEnable()
                 } else {
+                    isAll = false
                     viewModel.withdraw()
                 }
                 withdrawAll = false
