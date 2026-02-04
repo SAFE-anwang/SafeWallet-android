@@ -68,6 +68,7 @@ object SafeInfoManager {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                Log.d("longwen", "usdt=$it")
                 saveUsdtMmkv(it)
             }, {
                 Log.e("safe4", "getSafeInfo error", it)

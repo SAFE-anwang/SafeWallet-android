@@ -395,7 +395,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     } else {
                         navController.slideFromRight(
                             R.id.sendXFragment,
-                            SendFragment.Input(viewItem.wallet, sendTitle)
+                            SendFragment.Input(viewItem.wallet, sendTitle, R.id.sendXFragment)
                         )
                     }
                 },

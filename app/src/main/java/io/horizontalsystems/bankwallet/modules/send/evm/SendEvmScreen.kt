@@ -146,7 +146,7 @@ fun SendEvmScreen(
             }
 
             uiState.approveState?.let {
-                if (uiState.approveState.needApprove && !uiState.approveState.approveSuccess) {
+                if (lockTimeInterval != null && uiState.approveState.needApprove && !uiState.approveState.approveSuccess) {
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()

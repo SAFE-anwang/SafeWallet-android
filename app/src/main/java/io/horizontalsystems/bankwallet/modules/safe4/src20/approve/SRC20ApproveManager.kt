@@ -26,7 +26,7 @@ class SRC20ApproveManager(
     private val TAG = "SRC20ApproveManager"
     var dispose: Disposable? = null
 
-    val state = ApproveState(false, false, hint = R.string.Button_Approve)
+    val state = ApproveState(true, false, hint = R.string.Button_Approve)
     private val _stateFlow = MutableStateFlow(state)
     val stateFlow: StateFlow<ApproveState>
         get() = _stateFlow
