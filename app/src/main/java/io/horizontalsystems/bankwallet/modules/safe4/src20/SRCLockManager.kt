@@ -16,7 +16,7 @@ import java.math.BigInteger
 object SRCLockManager {
 
     fun syncLockInfo() {
-        val customToken = App.appDatabase.customTokenDao().getAll().filter { it.logoURI.isNotBlank() }
+        val customToken = App.appDatabase.customTokenDao().getAll()
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
