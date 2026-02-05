@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.kchart
 
 import com.github.mikephil.charting.data.CandleEntry
 import com.google.android.exoplayer2.util.Log
+import io.horizontalsystems.bankwallet.net.Safe4KChartService
 import io.horizontalsystems.bankwallet.net.SafeApiKeyService
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.reactivex.Observable
@@ -19,10 +20,10 @@ class KChartService {
     private val itemsSubject = PublishSubject.create<List<KChartData>>()
     val itemsObservable: Observable<List<KChartData>> get() = itemsSubject
 
-    val safeApiKeyService by lazy { SafeApiKeyService(Chain.SafeFour.isSafe4TestNetId) }
+    val safeApiKeyService by lazy { Safe4KChartService(Chain.SafeFour.isSafe4TestNetId) }
 
     fun getKChartData(token0: String, token1: String, interval: String) {
-        safeApiKeyService.getKChart(token0, token1, interval)
+        safeApiKeyService.getKChart(token0.lowercase(), token1.lowercase(), interval)
             .subscribeOn(Schedulers.io())
 
             .subscribe({
