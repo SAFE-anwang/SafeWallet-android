@@ -150,7 +150,6 @@ class CreateAccountViewModel(
     private fun activateDefaultWallets(account: Account) {
         val tokenQueries = listOfNotNull(
             TokenQuery(BlockchainType.Bitcoin, TokenType.Derived(TokenType.Derivation.Bip84)),
-            TokenQuery(BlockchainType.Safe, TokenType.Native),
             TokenQuery(BlockchainType.SafeFour, TokenType.Native),
             TokenQuery(BlockchainType.Ethereum, TokenType.Native),
             TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native),

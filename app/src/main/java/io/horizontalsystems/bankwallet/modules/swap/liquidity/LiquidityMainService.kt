@@ -26,7 +26,7 @@ class LiquidityMainService(
 
     fun setProvider(provider: SwapMainModule.ISwapProvider) {
         if (dex.provider.id != provider.id) {
-            dex = SwapMainModule.Dex(dex.blockchain, provider)
+            dex = SwapMainModule.Dex(dex.blockchain, provider, true)
             _providerUpdatedFlow.tryEmit(provider)
 
             localStorage.setLiquidityProviderId(dex.blockchainType, provider.id)
@@ -37,7 +37,7 @@ class LiquidityMainService(
         val blockchain = getBlockchainForToken(tokenFrom)
         val provider = getSwapProvider(blockchain.type) ?: throw IllegalStateException("No provider found for ${blockchain.name}")
 
-        return SwapMainModule.Dex(blockchain, provider)
+        return SwapMainModule.Dex(blockchain, provider, true)
     }
 
     private fun getSwapProvider(blockchainType: BlockchainType): SwapMainModule.ISwapProvider? {

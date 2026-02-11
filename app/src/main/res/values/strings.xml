@@ -2470,6 +2470,7 @@
     <string name="Redeem_Safe3_Account_Balance">Balance</string>
     <string name="Redeem_Safe3_Master_Balance">Master Node</string>
     <string name="Redeem_Safe3_Lock_Balance">Lock Amount</string>
+    <string name="Redeem_Safe3_Petty_Lock_Balance">Petty Lock Amount</string>
     <string name="Redeem_Safe3_Lock_Num">(Lock Record %d)</string>
     <string name="Redeem_Safe3_Private_Key_Error">Enter private key error</string>
     <string name="Redeem_Safe3_Send_Sending">Redemption</string>
@@ -2650,6 +2651,15 @@
     <string name="Approving">Approving...</string>
     <string name="Approv_Button">Approve</string>
     <string name="Approve_Fail">Approve fail</string>
+    <string name="KChart">Market conditions</string>
+    <string name="No_Data_KChart">No Data</string>
+    <string name="SRC20_Info_Title">资产详情</string>
+    <string name="SRC20_Info_Contact">Contract</string>
+    <string name="SRC20_Info_Hint">无论您是否信任该资产，请谨慎访问外部链接。</string>
+    <string name="SRC20_Info_Type">Type</string>
+    <string name="SRC20_Info_Type_Not_Add">不可增发</string>
+    <string name="SRC20_Info_Type_Add">可增发</string>
+    <string name="SRC20_USDT_Price">SAFE/USDT Price</string>
     <!-- SRC20 end-->
 
 </resources>

@@ -189,6 +189,6 @@ class SendEvmViewModel(
     }
 
     fun isSetLogoCoin(): Boolean {
-        return sendToken.coin.uid.isSafeFourCustomCoin() && MMKV.defaultMMKV()?.getString(sendToken.tokenQuery.customCoinUid, null) != null
+        return sendToken.coin.uid.isSafeFourCustomCoin()
     }
 }

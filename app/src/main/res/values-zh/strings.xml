@@ -1698,7 +1698,7 @@
     <string name="Safe4_Wsafe_Receive_Address">跨链接收人</string>
     <string name="Safe4_Wallet_Tips">请在钱包管理打开%s</string>
     <string name="Safe4_Coming_Soon">敬请期待</string>
-    <string name="Safe4_Disabled">跨链转账业务暂停使用，请稍后再试</string>
+    <string name="Safe4_Disabled">功能未开放</string>
     <string name="Safe4_Min_Fee">跨链转账最小金额是 %s SAFE</string>
     <string name="Safe4_USDT_Min_Fee">跨链转账最小金额是 %s USDT</string>
 
@@ -2136,6 +2136,7 @@
     <string name="Redeem_Safe3_Account_Balance">账户余额</string>
     <string name="Redeem_Safe3_Master_Balance">主节点</string>
     <string name="Redeem_Safe3_Lock_Balance">锁仓余额</string>
+    <string name="Redeem_Safe3_Petty_Lock_Balance">小额锁仓余额</string>
     <string name="Redeem_Safe3_Lock_Num">(锁仓记录%d)</string>
     <string name="Redeem_Safe3_Private_Key_Error">请输入正确的私钥</string>
     <string name="Redeem_Safe3_Send_Sending">正在迁移</string>
@@ -2313,6 +2314,15 @@
     <string name="Approving">批准中...</string>
     <string name="Approv_Button">批准</string>
     <string name="Approve_Fail">批准失败</string>
+    <string name="KChart">行情</string>
+    <string name="No_Data_KChart">没有数据</string>
+    <string name="SRC20_Info_Title">资产详情</string>
+    <string name="SRC20_Info_Contact">合约地址</string>
+    <string name="SRC20_Info_Hint">无论您是否信任该资产，请谨慎访问外部链接。</string>
+    <string name="SRC20_Info_Type">特性</string>
+    <string name="SRC20_Info_Type_Not_Add">不可增发</string>
+    <string name="SRC20_Info_Type_Add">可增发</string>
+    <string name="SRC20_USDT_Price">SAFE/USDT 价格</string>
     <!-- SRC20 end-->
 
 </resources>

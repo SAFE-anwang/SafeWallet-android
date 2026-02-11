@@ -40,4 +40,8 @@ interface SRC20LockRecordDao {
 
     @Query("DELETE FROM SRC20LockedInfo")
     fun delete()
+
+    @Query("SELECT id FROM SRC20LockedInfo WHERE address = :address AND contract = :contract")
+    fun getLockId(address: String, contract: String): List<String>
+
 }

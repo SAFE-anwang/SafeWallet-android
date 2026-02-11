@@ -20,7 +20,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.util.logging.Logger
 
-class SafeApiKeyService(
+class Safe4KChartService(
     val isTest: Boolean = false
 ) {
 
@@ -31,7 +31,7 @@ class SafeApiKeyService(
     private val url: String = if (isTest)
         "https://safe4testnet.anwang.com/"
     else
-        "https://safewallet.anwang.com/"
+        "https://safe4.anwang.com/"
 
     init {
         gson = GsonBuilder()
@@ -41,11 +41,6 @@ class SafeApiKeyService(
         service = RetrofitUtils.build(url).create(SafeNetServiceApi::class.java)
     }
 
-    fun getRpcEndpoint(): Single<List<RpcEndpoint>> {
-        return service.getRpcEndpoint().map {
-            parseResponse(it)
-        }.retryWhenError(RequestError.RateLimitExceed::class)
-    }
 
     fun getApiKey(): Single<List<ApiKey>> {
         return service.getApiKey().map {

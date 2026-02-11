@@ -87,7 +87,7 @@ class LiquidityMainFragment : BaseFragment() {
                 mainViewModel.sendStateObservable.observe(viewLifecycleOwner, Observer {
                     if (it is SendEvmTransactionService.SendState.Sent) {
                         Toast.makeText(requireActivity(), R.string.Liquidity_Add_Success, Toast.LENGTH_LONG).show()
-                        findNavController().popBackStack()
+                        findNavController().navigateUp()
                     }
                 })
                 setContent {
@@ -103,7 +103,7 @@ class LiquidityMainFragment : BaseFragment() {
                 Toast.makeText(
                     App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
                 ).show()
-                findNavController().popBackStack()
+                findNavController().navigateUp()
             }
         }
     }
@@ -119,7 +119,7 @@ private fun SwapNavHost(
         navController = fragmentNavController,
         viewModel = mainViewModel,
         allowanceViewModel = allowanceViewModel,
-        onCloseClick = { fragmentNavController.popBackStack() },
+        onCloseClick = { fragmentNavController.navigateUp() },
     )
 }
 

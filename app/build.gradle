@@ -18,7 +18,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion compile_sdk_version
         versionCode 121
-        versionName "v0.38.0.1.0704"
+        versionName "v0.38.0.1.20260206"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         kapt {
@@ -450,6 +450,8 @@ dependencies {
 
     implementation 'com.github.xuexiangjys:XUpdate:2.1.5'
 //    implementation 'com.zhy:okhttputils:2.6.2'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
 
 configurations.all {

@@ -31,7 +31,6 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.TimerService
 import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.AmountTypeItem
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ExactType
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderViewItem
@@ -112,7 +111,7 @@ class LiquidityMainViewModel(
             )
         }
 
-    private var exactType: ExactType = ExactType.ExactFrom
+    private var exactType: SwapMainModule.ExactType = SwapMainModule.ExactType.ExactFrom
     private var balanceFrom: BigDecimal? = null
     private var balanceFromB: BigDecimal? = null
     private var availableBalance: String? = null
@@ -152,6 +151,8 @@ class LiquidityMainViewModel(
     var sendStateObservable = SingleLiveEvent<SendEvmTransactionService.SendState>()
     var refreshState = false
     var isCloseDialog = false
+    var isNoTrade = true
+    var isInitTrade = true
 
     var swapState by mutableStateOf(
         LiquidityMainModule.SwapState(
@@ -339,19 +340,26 @@ class LiquidityMainViewModel(
         val errors = mutableListOf<Throwable>()
         val errorsB = mutableListOf<Throwable>()
         swapData = null
-        /*setLoading(tradeService.state)
-
+        setLoading(tradeService.state)
+        Log.d("LiquidityMainViewModel", "state=${tradeService.state}")
         when (val state = tradeService.state) {
             SwapResultState.Loading -> {
                 tradeView = tradeView?.copy(expired = true)
             }
 
             is SwapResultState.NotReady -> {
-                tradeView = null
-                errors.addAll(state.errors)
+                Log.d("LiquidityMainViewModel", "state=SwapResultState.NotReady")
+                isNoTrade = true
+                /*tradeView = null
+                errors.addAll(state.errors)*/
             }
 
             is SwapResultState.Ready -> {
+                if (!isInitTrade) {
+                    isInitTrade = false
+                    return
+                }
+                isNoTrade = false
                 swapData = state.swapData
                 when (val swapData = state.swapData) {
                     is SwapData.OneInchData -> {
@@ -362,7 +370,7 @@ class LiquidityMainViewModel(
 
                     is SwapData.UniswapData -> {
                         tradeView = uniswapTradeViewItem(swapData, fromTokenService.token, toTokenService.token)
-                        if (exactType == ExactType.ExactFrom) {
+                        if (exactType == SwapMainModule.ExactType.ExactFrom) {
                             refreshState = true
                             amountTo = swapData.data.amountOut
                             toTokenService.onChangeAmount(swapData.data.amountOut.toString(), true)
@@ -370,10 +378,11 @@ class LiquidityMainViewModel(
                             amountFrom = swapData.data.amountIn
                             fromTokenService.onChangeAmount(swapData.data.amountIn.toString(), true)
                         }
+                        Log.d("LiquidityMainViewModel", "state=amountTo=$amountTo, $amountFrom")
                     }
                 }
             }
-        }*/
+        }
 
         when (val state = tradeServiceB.state) {
             SwapResultState.Loading -> {
@@ -494,7 +503,7 @@ class LiquidityMainViewModel(
     }
 
     private fun resyncSwapData() {
-//        tradeService.fetchSwapData(fromTokenService.token, toTokenService.token, amountFrom, amountTo, exactType)
+        tradeService.fetchSwapData(fromTokenService.token, toTokenService.token, amountFrom, amountTo, exactType)
 
 //        tradeServiceB.fetchSwapData(toTokenService.token, fromTokenService.token, amountTo, amountFrom, exactType)
     }
@@ -852,27 +861,46 @@ class LiquidityMainViewModel(
     }
 
     fun onFromAmountChange(amount: String?) {
-        exactType = ExactType.ExactFrom
+        exactType = SwapMainModule.ExactType.ExactFrom
         val coinAmount = fromTokenService.getCoinAmount(amount)
         if (amountsEqual(amountFrom, coinAmount)) return
         amountFrom = coinAmount
 //        amountTo = null
         fromTokenService.onChangeAmount(amount)
-//        toTokenService.onChangeAmount(null, true)
+        if (!isNoTrade && !isInitTrade) {
+            toTokenService.onChangeAmount(null, true)
+        }
         resyncSwapData()
         syncButtonsState()
+
+        resetButtons()
     }
 
     fun onToAmountChange(amount: String?) {
-        exactType = ExactType.ExactTo
+        exactType = SwapMainModule.ExactType.ExactTo
         val coinAmount = toTokenService.getCoinAmount(amount)
         if (amountsEqual(amountTo, coinAmount)) return
         amountTo = coinAmount
+        resetButtons()
 //        amountFrom = null
         toTokenService.onChangeAmount(amount)
-//        fromTokenService.onChangeAmount(null, true)
+        if (!isNoTrade && !isInitTrade) {
+            fromTokenService.onChangeAmount(null, true)
+        }
         resyncSwapData()
         syncButtonsState()
+        resetButtons()
+    }
+
+    private fun resetButtons() {
+        buttons = SwapMainModule.SwapButtons2(
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Hidden,
+            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Liquidity_Add))
+        )
+        syncUiState()
     }
 
     fun onTapSwitch() {
@@ -924,8 +952,9 @@ class LiquidityMainViewModel(
     fun getSendEvmData(): SendEvmData? {
         val tokenA = fromTokenService.token ?: return null
         val tokenB = toTokenService.token ?: return null
-        val tokenAAmount = amountFrom?.movePointRight(18)?.toBigInteger() ?: return null
-        val tokenBAmount = amountTo?.movePointRight(18)?.toBigInteger() ?: return null
+        val tokenAAmount = amountFrom?.movePointRight(tokenA.decimals)?.toBigInteger() ?: return null
+        val tokenBAmount = amountTo?.movePointRight(tokenB.decimals)?.toBigInteger() ?: return null
+        android.util.Log.d("LiquidityAllowanceService", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount, ${tokenB.decimals}")
         val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return null
 //        val tradeOptions = uniswapTradeService.tradeOptions
         val transactionData = try {

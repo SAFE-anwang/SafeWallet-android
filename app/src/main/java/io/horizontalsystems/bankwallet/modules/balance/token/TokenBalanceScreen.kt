@@ -85,6 +85,7 @@ import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCoin
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenType
 
 
 @Composable
@@ -394,7 +395,7 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     } else {
                         navController.slideFromRight(
                             R.id.sendXFragment,
-                            SendFragment.Input(viewItem.wallet, sendTitle)
+                            SendFragment.Input(viewItem.wallet, sendTitle, R.id.sendXFragment)
                         )
                     }
                 },
@@ -417,7 +418,11 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
                     height = 40.dp
                 )
             }
-            if (viewItem.liquidityVisible) {
+            if (viewItem.liquidityVisible
+                && (
+                        viewItem.wallet.token.blockchainType != BlockchainType.SafeFour
+                        || (viewItem.wallet.token.blockchainType == BlockchainType.SafeFour
+                                && viewItem.wallet.token.type != TokenType.Native))) {
                 Spacer(modifier = Modifier.width(8.dp))
                 HsIconButton(
                         onClick = {
@@ -460,15 +465,19 @@ private fun ButtonsRow(viewItem: BalanceViewItem, navController: NavController, 
         ButtonThirdCircle(
             icon = R.drawable.ic_chart_24,
             contentDescription = stringResource(R.string.Coin_Info),
-            enabled = !viewItem.wallet.token.isCustom,
+            enabled = !viewItem.wallet.token.isCustom || (viewItem.wallet.coin.uid.isSafeFourCustomCoin() && viewItem.wallet.token.type is TokenType.Eip20),
             onClick = {
-                var coinUid = viewItem.wallet.coin.uid
-                if (coinUid.isSafeFourCustomCoin()) {
-                    coinUid = "safe4-coin"
-                }
-                val arguments = CoinFragment.Input(coinUid, "wallet_token_balance")
+                if (viewItem.wallet.coin.uid.isSafeFourCustomCoin() && viewItem.wallet.token.type is TokenType.Eip20) {
+                    navController.slideFromRight(R.id.marketPriceFragment, viewItem.wallet)
+                } else {
+                    var coinUid = viewItem.wallet.coin.uid
+                    if (coinUid.isSafeFourCustomCoin()) {
+                        coinUid = "safe4-coin"
+                    }
+                    val arguments = CoinFragment.Input(coinUid, "wallet_token_balance")
 
-                navController.slideFromRight(R.id.coinFragment, arguments)
+                    navController.slideFromRight(R.id.coinFragment, arguments)
+                }
             },
         )
     }

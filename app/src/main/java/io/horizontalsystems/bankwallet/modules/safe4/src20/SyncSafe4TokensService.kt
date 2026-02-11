@@ -49,6 +49,7 @@ class SyncSafe4TokensService(
         service.getToken()
             .map { tokens ->
                 tokens.forEach {
+                    Log.d("longwen", "address=${it.address}, ${it.symbol}, ${it.name}")
                     saveLogo(it)
                 }
                 MMKV.defaultMMKV()?.putBoolean("DeleteDeployCoinPrice", true)
@@ -57,12 +58,12 @@ class SyncSafe4TokensService(
                 tokens.filter { it.creator.lowercase() != evmKit.receiveAddress.hex }
                     .forEach { tokenInfo ->
                         if (tokenInfo.logoURI != null && tokenInfo.logoURI.isNotBlank()) {
-                            App.appDatabase.customTokenDao().insert(tokenInfo)
+                            App.appDatabase.customTokenDao().insert(tokenInfo.copy(address = tokenInfo.address.lowercase()))
                         }
                     }
                 val filter = tokens.filter { it.creator.lowercase() == evmKit.receiveAddress.hex }
                 Constants.deployContracts = filter.map { it.address.lowercase() }
-                val address = filter.map { it.address }
+                val address = filter.map { it.address.lowercase() }
                 // 删除已经不存在的资产
                 cache?.let {
                     it.forEach {

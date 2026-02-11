@@ -52,6 +52,16 @@ class SRC20LockedInfoService(
         return lockRecordDao.getLockNum(contractAddress, rpcBlockchainSafe4.address.hex)
     }
 
+    fun updateLockInfo() {
+        val ids = lockRecordDao.getLockId(rpcBlockchainSafe4.address.hex, contractAddress.lowercase())
+        ids.forEach {
+            val record = getRecordInfo(it.toLong())
+            if (record != null && record.id == "0") {
+                lockRecordDao.delete(record.id.toLong(), contractAddress)
+            }
+        }
+    }
+
     fun loadLocked(page: Int) {
         if (loading.get()) return
         loading.set(true)

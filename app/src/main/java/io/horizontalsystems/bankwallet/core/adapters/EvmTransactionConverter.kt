@@ -212,7 +212,6 @@ class EvmTransactionConverter(
 
                 when {
                     transaction.from == address && contractAddress != null && value != null -> {
-                        Log.d("longwen", "token=$baseToken")
                         ContractCallTransactionRecord(
                             transaction, baseToken, source,
                             contractAddress!!.eip55,

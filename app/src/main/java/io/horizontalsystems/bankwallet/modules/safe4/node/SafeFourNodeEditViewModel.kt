@@ -149,7 +149,7 @@ class SafeFourNodeEditViewModel(
     private fun existENode(eNode: String?) {
         eNode?.let { eNode ->
             try {
-                safe4.existNodeEnode(eNode)
+                safe4.existNodeEnode(isSuper, eNode)
                         .subscribeOn(Schedulers.io())
                         .subscribe({
                             existENode = it

@@ -293,4 +293,6 @@ class MarketKitWrapper(
     fun deletePrice(coinUid: String) {
         marketKit.deleteCoinPrice(coinUid)
     }
+
+    fun saveCoinPrice(prices: List<CoinPrice>) = marketKit.saveCoinPrice(prices)
 }

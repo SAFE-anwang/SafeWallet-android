@@ -181,7 +181,7 @@ fun EditScreen(
         AppBar(
                 title = stringResource(id = title),
                 navigationIcon = {
-                    HsBackButton(onClick = { navController.popBackStack() })
+                    HsBackButton(onClick = { navController.navigateUp() })
                 }
         )
         HintView(

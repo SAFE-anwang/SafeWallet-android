@@ -205,9 +205,6 @@ object LiquidityListModule {
         val fiatBalanceValue: CurrencyValue?,
     ) : Parcelable
 
-    enum class ExactType {
-        ExactFrom, ExactTo
-    }
 
     enum class Tab(@StringRes val titleResId: Int) {
         SAFE4(R.string.Liquidity_Tab_SAFE4),

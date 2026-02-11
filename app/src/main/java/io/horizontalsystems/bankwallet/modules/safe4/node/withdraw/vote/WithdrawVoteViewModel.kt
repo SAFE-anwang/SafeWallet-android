@@ -22,6 +22,9 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -77,6 +80,12 @@ class WithdrawVoteViewModel(
             }.let {
                 disposables.add(it)
             }*/
+
+        viewModelScope.launch(Dispatchers.IO) {
+            LockRecordManager.recordState.collect {
+                getTotal()
+            }
+        }
         start()
     }
 
@@ -85,14 +94,19 @@ class WithdrawVoteViewModel(
         val old = lockRecordTotal
         lockRecordTotal = repository.getEnableReleaseVoteTotal(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
-        if (page == 0) {
+        if (lockRecordTotal != 0) {
+            loading.set(false)
+            page = 0
+            withdrawList?.clear()
             getData()
+        } else {
+            initIfNeed()
+            emitState()
         }
     }
 
     fun start() {
         viewModelScope.launch(Dispatchers.IO) {
-            getTotal()
             getData()
             service.updateLockedInfo()
         }

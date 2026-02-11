@@ -10,12 +10,16 @@ import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.managers.UserManager
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
+import io.horizontalsystems.bankwallet.modules.safe4.safeprice.SRC20InfoService
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCDelegate
 import io.horizontalsystems.core.IKeyStoreManager
 import io.horizontalsystems.core.IPinComponent
 import io.horizontalsystems.core.ISystemInfoManager
 import io.horizontalsystems.core.security.KeyStoreValidationError
+import io.horizontalsystems.marketkit.models.CoinPrice
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.collect
 
 class MainActivityViewModel(
     private val userManager: UserManager,
@@ -45,6 +49,7 @@ class MainActivityViewModel(
                 LockRecordManager.switchWallet()
             }
         }
+        updateSRC20Price()
     }
 
     fun onWcEventHandled() {
@@ -75,6 +80,27 @@ class MainActivityViewModel(
 
     fun onNavigatedToMain() {
         navigateToMainLiveData.postValue(false)
+    }
+
+    private fun updateSRC20Price() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val service = SRC20InfoService()
+            service.getPrice()
+            service.itemsObservable.collect {
+                val prices = it.map {
+                    if (it.address.lowercase() == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
+                        CoinPrice(
+                            "Safe4USDT", "USD", it.price.toBigDecimal(), it.change.toBigDecimal(), System.currentTimeMillis()/1000
+                        )
+                    } else {
+                        CoinPrice(
+                            "custom-safe4-coin|eip20:${it.address.lowercase()}", "USD", it.price.toBigDecimal(), it.change.toBigDecimal(), System.currentTimeMillis()/1000
+                        )
+                    }
+                }
+                App.marketKit.saveCoinPrice(prices)
+            }
+        }
     }
 
     class Factory : ViewModelProvider.Factory {

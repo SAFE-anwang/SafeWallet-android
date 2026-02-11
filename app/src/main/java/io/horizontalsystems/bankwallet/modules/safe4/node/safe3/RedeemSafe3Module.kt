@@ -82,9 +82,11 @@ object RedeemSafe3Module {
 			val step: Int,
 			val safe3Balance: String,
 			val safe3LockBalance: String,
+			val safe3PettyLockBalance: String,
 			val privateKeyError: Boolean,
 			val existAvailable: Boolean,
 			val existLocked: Boolean,
+			val existPettyLocked: Boolean,
 			val canRedeem: Boolean,
 			val safe4address: List<ReceiveAddress>,
 			val safe3LockNum: Int = 0,
@@ -125,7 +127,9 @@ object RedeemSafe3Module {
 			val existAvailable: Boolean,
 			val existLocked: Boolean,
 			val existMasterNode: Boolean,
-			val safe3LockNum: Int
+			val existPettyLocked: Boolean,
+			val safe3LockNum: Int,
+			val safe3PettyBalance: String
 	)
 
 
@@ -135,11 +139,13 @@ object RedeemSafe3Module {
 			val safe3LockBalance: BigInteger,
 			val existAvailable: Boolean,
 			val existLocked: Boolean,
+			val existPettyLocked: Boolean,
 			val existMasterNode: Boolean,
 			val safe3LockNum: Int = 0,
 			val masterNodeLock: BigInteger?,
 			val privateKey: BigInteger,
-			val redeemable: Boolean = false
+			val redeemable: Boolean = false,
+			val safe3PettyLockBalance: BigInteger = BigInteger.ZERO
 	)
 
 	data class Safe3LockItemView(

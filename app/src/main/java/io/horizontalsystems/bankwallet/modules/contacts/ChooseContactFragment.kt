@@ -146,18 +146,24 @@ fun ChooseContactScreen(
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                         VSpacer(height = 12.dp)
                         CellUniversalLawrenceSection(items, showFrame = true) { contact ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        navController.setNavigationResultX(ChooseContactFragment.Result(contact.address))
-                                        navController.popBackStack()
+                            Column {
+
+                                contact.address.forEach { address ->
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                navController.setNavigationResultX(ChooseContactFragment.Result(address))
+                                                navController.popBackStack()
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    ) {
+                                        body_leah(text = contact.name)
+                                        VSpacer(height = 1.dp)
+                                        subhead2_grey(text = address.shorten())
                                     }
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                            ) {
-                                body_leah(text = contact.name)
-                                VSpacer(height = 1.dp)
-                                subhead2_grey(text = contact.address.shorten())
+                                }
+
                             }
                         }
                     }

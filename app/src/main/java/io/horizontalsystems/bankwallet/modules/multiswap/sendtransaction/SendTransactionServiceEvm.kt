@@ -117,6 +117,11 @@ class SendTransactionServiceEvm(
         SendTransactionSettings.Evm(null, evmKitWrapper.evmKit.receiveAddress)
     )
     override val sendTransactionSettingsFlow = _sendTransactionSettingsFlow.asStateFlow()
+    override fun reset(coroutineScope: CoroutineScope) {
+        coroutineScope.launch {
+            settingsService.reset()
+        }
+    }
 
     private var transaction: SendEvmSettingsService.Transaction? = null
     private var feeAmountData: SendModule.AmountData? = null

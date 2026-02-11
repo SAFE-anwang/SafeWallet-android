@@ -112,6 +112,7 @@ class EvmLabelManager(
             "0x8000e9a6" -> Translator.getString(R.string.Method_Redeem_MasterNode)
             "0xd885085f",
             "0x4c9e906a",
+            "0x43594feb",
             "0x6d5b08d3" -> Translator.getString(R.string.Method_Redeem_Locked)
             "0xa6aa19d2" -> Translator.getString(R.string.Method_Node_Status_Upload)
             "0x60806040" -> Translator.getString(R.string.Method_Node_Contract_Deployment)

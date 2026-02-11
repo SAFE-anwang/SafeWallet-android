@@ -53,7 +53,7 @@ fun SendEvmScreen(
     val amountInputType = amountInputModeViewModel.inputType
 
     val lockTimeIntervals = viewModel.lockTimeIntervals
-    val lockTimeEnabled = viewModel.isLockTimeEnabled || viewModel.isSetLogoCoin()
+    val lockTimeEnabled = viewModel.isLockTimeEnabled
     val lockTimeInterval = uiState.lockTimeInterval
 
     val paymentAddressViewModel = viewModel<AddressParserViewModel>(
@@ -146,7 +146,7 @@ fun SendEvmScreen(
             }
 
             uiState.approveState?.let {
-                if (uiState.approveState.needApprove && !uiState.approveState.approveSuccess) {
+                if (lockTimeInterval != null && uiState.approveState.needApprove && !uiState.approveState.approveSuccess) {
                     ButtonPrimaryYellow(
                         modifier = Modifier
                             .fillMaxWidth()

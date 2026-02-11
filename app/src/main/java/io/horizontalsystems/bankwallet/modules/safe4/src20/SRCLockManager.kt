@@ -16,7 +16,7 @@ import java.math.BigInteger
 object SRCLockManager {
 
     fun syncLockInfo() {
-        val customToken = App.appDatabase.customTokenDao().getAll().filter { it.logoURI.isNotBlank() }
+        val customToken = App.appDatabase.customTokenDao().getAll()
         val walletList: List<Wallet> = App.walletManager.activeWallets
         var safeWallet: Wallet? = null
         for (it in walletList) {
@@ -31,6 +31,7 @@ object SRCLockManager {
             customToken.forEach {
                 Log.d("SRC20LockedInfoService", "logo=${it.logoURI}, ${it.address}")
                 val src20LockedService = SRC20LockedInfoService(rpcBlockchainSafe4, it.address)
+                src20LockedService.updateLockInfo()
                 src20LockedService.loadLocked(0)
             }
         }

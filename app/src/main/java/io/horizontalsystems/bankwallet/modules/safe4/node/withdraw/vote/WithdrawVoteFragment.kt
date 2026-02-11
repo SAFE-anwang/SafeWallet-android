@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
@@ -51,6 +53,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
+import kotlinx.coroutines.delay
 
 class WithdrawVoteFragment(): BaseComposeFragment() {
     @Composable
@@ -69,6 +72,9 @@ fun WithdrawVoteScreen(
     navController: NavController,
     viewModel: WithdrawVoteViewModel
 ) {
+    var withdrawAll by remember { mutableStateOf(false) }
+    var isAll by remember { mutableStateOf(false) }
+
     var selectAllState by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState
     val proceedEnabled = uiState.enableWithdraw
@@ -91,7 +97,9 @@ fun WithdrawVoteScreen(
                 R.string.SAFE4_Withdraw_Send_Success,
                 SnackbarDuration.LONG
             )
-            viewModel.sendResult = null
+            if (!isAll) {
+                viewModel.sendResult = null
+            }
         }
 
         is SendResult.Failed -> {
@@ -102,7 +110,13 @@ fun WithdrawVoteScreen(
         null -> Unit
     }
 
-    var withdrawAll by remember { mutableStateOf(false) }
+    LaunchedEffect(sendResult) {
+        if (sendResult == SendResult.Sent) {
+            delay(1200)
+            navController.popBackStack(R.id.safe4WithdrawVoteFragment, true)
+        }
+    }
+
 
     Column(modifier = Modifier
         .background(color = ComposeAppTheme.colors.tyler)) {
@@ -129,7 +143,7 @@ fun WithdrawVoteScreen(
                 )
             ),
             navigationIcon = {
-                HsBackButton(onClick = { navController.popBackStack() })
+                HsBackButton(onClick = { navController.navigateUp() })
             }
         )
         if (nodeList.isNullOrEmpty()) {
@@ -201,8 +215,10 @@ fun WithdrawVoteScreen(
             content = stringResource(R.string.SAFE4_Withdraw_Vote_Hint),
             {
                 if (withdrawAll) {
+                    isAll = true
                     viewModel.withdrawAllEnable()
                 } else {
+                    isAll = false
                     viewModel.withdraw()
                 }
                 withdrawAll = false
