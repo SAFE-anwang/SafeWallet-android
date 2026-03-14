@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,11 +43,10 @@ import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapActionState
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapButtons
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.SwapButtons2
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.BadgeStepCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.BadgeOrangeGradient
 import io.horizontalsystems.bankwallet.ui.compose.components.BoxTyler44
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimary
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaults
@@ -70,54 +70,8 @@ fun SwapError(modifier: Modifier = Modifier, text: String) {
     )
 }
 
-@Composable
-fun SwapAllowance(
-    viewModel: SwapAllowanceViewModel,
-    navController: NavController
-) {
-    val uiState = viewModel.uiState
-    val isError = uiState.isError
-    val allowanceAmount = uiState.allowance
-    val visible = uiState.isVisible
 
-    if (visible) {
-        Row(modifier = Modifier.height(40.dp), verticalAlignment = Alignment.CenterVertically) {
-            val infoTitle = stringResource(id = R.string.SwapInfo_AllowanceTitle)
-            val infoText = stringResource(id = R.string.SwapInfo_AllowanceDescription)
-            Row(
-                modifier = Modifier.clickable(
-                    onClick = {
-                        navController.slideFromBottom(
-                            R.id.feeSettingsInfoDialog,
-                            FeeSettingsInfoDialog.Input(infoTitle, infoText)
-                        )
-                    },
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                subhead2_grey(text = stringResource(R.string.Swap_Allowance))
-
-                Image(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    painter = painterResource(id = R.drawable.ic_info_20),
-                    contentDescription = ""
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            allowanceAmount?.let { amount ->
-                if (isError) {
-                    subhead2_lucian(text = amount)
-                } else {
-                    subhead2_grey(text = amount)
-                }
-            }
-        }
-    }
-}
-
-
+@SuppressLint("RememberInComposition")
 @Composable
 fun LiquidityAllowance(
     viewModel: LiquidityAllowanceViewModel,
@@ -198,7 +152,7 @@ fun SuggestionsBar(
                         Text(
                             text = "$percent%",
                             modifier = modifier,
-                            style = ComposeAppTheme.typography.subhead1,
+                            style = ComposeAppTheme.typography.subheadB,
                             color = if (selectEnabled) {
                                 ComposeAppTheme.colors.leah
                             } else {
@@ -272,7 +226,7 @@ fun Price(
                 Text(
                     text = if (showPrimaryPrice) primaryPrice else secondaryPrice,
                     maxLines = 1,
-                    style = ComposeAppTheme.typography.subhead2,
+                    style = ComposeAppTheme.typography.subheadB,
                     color = if (expired) ComposeAppTheme.colors.grey50 else ComposeAppTheme.colors.leah,
                 )
             }
@@ -471,7 +425,7 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
         onClick = onClick,
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.leah,
-            contentColor = ComposeAppTheme.colors.claude,
+            contentColor = ComposeAppTheme.colors.lawrence,
             disabledBackgroundColor = ComposeAppTheme.colors.steel20,
             disabledContentColor = ComposeAppTheme.colors.grey50,
         ),
@@ -488,7 +442,7 @@ fun ApproveButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
                     step?.let {
                         val background = if (enabled) ComposeAppTheme.colors.steel10 else ComposeAppTheme.colors.steel20
 
-                        BadgeStepCircle(text = "$it", background = background, textColor = textColor)
+                        BadgeOrangeGradient(text = "$it",)
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
@@ -522,7 +476,7 @@ fun ProceedButton(modifier: Modifier, title: String, onClick: () -> Unit, enable
                 step?.let {
                     val background = if (enabled) ComposeAppTheme.colors.dark else ComposeAppTheme.colors.steel20
                     val textColor = if (enabled) ComposeAppTheme.colors.yellowD else ComposeAppTheme.colors.grey
-                    BadgeStepCircle(text = "$it", background = background, textColor = textColor)
+                    BadgeOrangeGradient(text = "$it")
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)

@@ -4,8 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.providers.CexDepositNetworkRaw
-import io.horizontalsystems.bankwallet.core.providers.CexWithdrawNetworkRaw
+import io.horizontalsystems.bankwallet.core.BalanceData
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
@@ -99,39 +98,25 @@ class DatabaseConverters {
     }
 
     @TypeConverter
-    fun fromCexDepositNetworkList(networks: List<CexDepositNetworkRaw>): String {
-        return gson.toJson(networks)
-    }
-
-    @TypeConverter
-    fun toCexDepositNetworkList(json: String): List<CexDepositNetworkRaw>? {
-        return gson.fromJson(
-            json,
-            object : TypeToken<List<CexDepositNetworkRaw>>() {}.type
-        )
-    }
-
-    @TypeConverter
-    fun fromCexWithdrawNetworkList(networks: List<CexWithdrawNetworkRaw>): String {
-        return gson.toJson(networks)
-    }
-
-    @TypeConverter
-    fun toCexWithdrawNetworkList(json: String): List<CexWithdrawNetworkRaw>? {
-        return gson.fromJson(
-            json,
-            object : TypeToken<List<CexWithdrawNetworkRaw>>() {}.type
-        )
-    }
-
-    @TypeConverter
-    fun fromMap(v: Map<String, String>): String {
+    fun fromMap(v: Map<String, String?>): String {
         return gson.toJson(v)
     }
 
     @TypeConverter
-    fun toMap(v: String): Map<String, String> {
-        return gson.fromJson(v, object : TypeToken<Map<String, String>>() {}.type)
+    fun toMap(v: String): Map<String, String?> {
+        return gson.fromJson(v, object : TypeToken<Map<String, String?>>() {}.type)
+    }
+
+    @TypeConverter
+    fun fromBalanceData(v: BalanceData?): String? {
+        return v?.serialize(gson)
+    }
+
+    @TypeConverter
+    fun toBalanceData(v: String?): BalanceData? {
+        v ?: return null
+
+        return BalanceData.deserialize(v, gson)
     }
 
     @TypeConverter

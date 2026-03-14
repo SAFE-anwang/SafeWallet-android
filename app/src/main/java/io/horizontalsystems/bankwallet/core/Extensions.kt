@@ -22,11 +22,12 @@ import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.ethereumkit.core.toRawHexString
 import io.horizontalsystems.hdwalletkit.Language
 import io.horizontalsystems.hodler.LockTimeInterval
-import io.horizontalsystems.marketkit.models.Auditor
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.CoinCategory
 import io.horizontalsystems.marketkit.models.CoinInvestment
 import io.horizontalsystems.marketkit.models.CoinTreasury
 import io.horizontalsystems.marketkit.models.FullCoin
+import kotlinx.coroutines.delay
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -44,6 +45,12 @@ val <T> Optional<T>.orNull: T?
 
 val Platform.iconUrl: String
     get() = "https://cdn.blocksdecoded.com/blockchain-icons/32px/$uid@3x.png"
+
+val String.coinIconUrl: String
+    get() = "https://cdn.blocksdecoded.com/coin-icons/32px/$this@3x.png"
+
+val String.fiatIconUrl: String
+    get()= "https://cdn.blocksdecoded.com/fiat-icons/$this@3x.png"
 
 val CoinCategory.imageUrl: String
     get() = "https://cdn.blocksdecoded.com/category-icons/$uid@3x.png"
@@ -194,7 +201,7 @@ fun <T> Single<T>.subscribeIO(onSuccess: (t: T) -> Unit): Disposable {
 }
 
 fun String.shorten(characters: Int = 4): String {
-    val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:", "ecash:")
+    val prefixes = listOf("0x", "bc", "bnb", "ltc", "bitcoincash:", "ecash:", "xpub", "ypub", "zpub")
 
     var prefix = ""
     for (p in prefixes) {
@@ -241,10 +248,12 @@ fun NavGraphBuilder.composablePage(
 
 fun NavGraphBuilder.composablePopup(
     route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
     content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit
 ) {
     composable(
         route,
+        arguments = arguments,
         enterTransition = {
             slideIntoContainer(
                 AnimatedContentTransitionScope.SlideDirection.Up,
@@ -284,3 +293,27 @@ fun Context.findActivity(): Activity? = when (this) {
     is ContextWrapper -> baseContext.findActivity()
     else -> null
 }
+
+val BlockchainType.blockTime : Long?
+    get() = when (this) {
+        BlockchainType.Ethereum -> 15
+        BlockchainType.SafeFour,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Tron,
+            -> 3
+
+        BlockchainType.Polygon,
+        BlockchainType.Avalanche,
+        BlockchainType.Optimism,
+        BlockchainType.ArbitrumOne,
+        BlockchainType.Fantom,
+        BlockchainType.Base,
+        BlockchainType.ZkSync,
+            -> 2
+
+        BlockchainType.Gnosis,
+        BlockchainType.Stellar,
+            -> 5
+
+        else -> null
+    }

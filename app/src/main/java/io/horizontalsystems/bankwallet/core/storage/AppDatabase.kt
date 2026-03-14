@@ -5,9 +5,65 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import io.horizontalsystems.bankwallet.core.providers.CexAssetRaw
-import io.horizontalsystems.bankwallet.core.storage.migrations.*
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_31_32
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_32_33
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_33_34
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_34_35
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_35_36
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_36_37
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_37_38
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_38_39
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_39_40
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_40_41
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_41_42
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_42_43
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_43_44
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_44_45
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_45_46
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_46_47
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_47_48
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_48_49
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_49_50
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_50_51
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_51_52
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_52_53
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_53_54
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_54_55
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_55_56
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_56_57
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_57_58
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_58_59
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_59_60
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_60_61
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_61_62
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_62_63
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_63_64
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_64_65
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_65_66
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_66_67
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_67_68
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_68_69
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_69_70
+import io.horizontalsystems.bankwallet.core.storage.migrations.Migration_70_71
+import io.horizontalsystems.bankwallet.entities.ActiveAccount
+import io.horizontalsystems.bankwallet.entities.BlockchainSettingRecord
+import io.horizontalsystems.bankwallet.entities.EnabledWallet
+import io.horizontalsystems.bankwallet.entities.EnabledWalletCache
+import io.horizontalsystems.bankwallet.entities.EvmAddressLabel
+import io.horizontalsystems.bankwallet.entities.EvmMethodLabel
+import io.horizontalsystems.bankwallet.entities.EvmSyncSourceRecord
+import io.horizontalsystems.bankwallet.entities.LogEntry
+import io.horizontalsystems.bankwallet.entities.MoneroNodeRecord
+import io.horizontalsystems.bankwallet.entities.RecentAddress
+import io.horizontalsystems.bankwallet.entities.RestoreSettingRecord
+import io.horizontalsystems.bankwallet.entities.SRC20LockedInfo
+import io.horizontalsystems.bankwallet.entities.SpamAddress
+import io.horizontalsystems.bankwallet.entities.SpamScanState
+import io.horizontalsystems.bankwallet.entities.StatRecord
+import io.horizontalsystems.bankwallet.entities.SwapProviderAssetRecord
+import io.horizontalsystems.bankwallet.entities.SyncerState
+import io.horizontalsystems.bankwallet.entities.TokenAutoEnabledBlockchain
+import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadataRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftCollectionRecord
@@ -25,9 +81,8 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalState
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.Redeem
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WalletConnectV2Session
 import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionDao
-import io.horizontalsystems.marketkit.storage.CoinDao
 
-@Database(version = 70, exportSchema = false, entities = [
+@Database(version = 71, exportSchema = false, entities = [
     EnabledWallet::class,
     EnabledWalletCache::class,
     AccountRecord::class,
@@ -48,9 +103,14 @@ import io.horizontalsystems.marketkit.storage.CoinDao
     SyncerState::class,
     VpnServerInfo::class,
     TokenAutoEnabledBlockchain::class,
-    CexAssetRaw::class,
     ChartIndicatorSetting::class,
     Pin::class,
+    StatRecord::class,
+    SpamAddress::class,
+    SpamScanState::class,
+    RecentAddress::class,
+    MoneroNodeRecord::class,
+    SwapProviderAssetRecord::class,
     ProposalState::class,
     Redeem::class,
     CustomToken::class,
@@ -63,7 +123,6 @@ import io.horizontalsystems.marketkit.storage.CoinDao
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun chartIndicatorSettingsDao(): ChartIndicatorSettingsDao
-    abstract fun cexAssetsDao(): CexAssetsDao
     abstract fun walletsDao(): EnabledWalletsDao
     abstract fun enabledWalletsCacheDao(): EnabledWalletsCacheDao
     abstract fun accountsDao(): AccountsDao
@@ -80,6 +139,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun syncerStateDao(): SyncerStateDao
     abstract fun tokenAutoEnabledBlockchainDao(): TokenAutoEnabledBlockchainDao
     abstract fun pinDao(): PinDao
+    abstract fun statsDao(): StatsDao
+    abstract fun spamAddressDao(): SpamAddressDao
+    abstract fun recentAddressDao(): RecentAddressDao
+    abstract fun moneroNodeDao(): MoneroNodeDao
+    abstract fun swapProviderAssetDao(): SwapProviderAssetDao
     abstract fun vpnServerDao(): VpnServerInfoDao
 
     abstract fun proposalStateDao(): ProposalStateDao
@@ -144,7 +208,8 @@ abstract class AppDatabase : RoomDatabase() {
                             Migration_66_67,
                             Migration_67_68,
                             Migration_68_69,
-                        Migration_69_70,
+                            Migration_69_70,
+                            Migration_70_71,
                     )
                     .build()
         }

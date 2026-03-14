@@ -49,14 +49,9 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
-import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation.LiquidityConfirmationFragment
-import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSettingsFragment
-import io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.UniswapSettingsFragment
 import io.horizontalsystems.bankwallet.modules.swap.ui.*
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard.Opened
@@ -585,7 +580,7 @@ fun PriceImpact(
         Spacer(Modifier.weight(1f))
         Text(
             text = priceImpact.value,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = getPriceImpactColor(priceImpact.level),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

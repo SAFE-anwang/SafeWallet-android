@@ -12,12 +12,9 @@ import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.address.AddressValidationException
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
-import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.Token

@@ -70,7 +70,7 @@ class SafeFourCreateNodeConfirmationViewModel(
                     )
                 }
                 val result = single.blockingGet()
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 sendResult = SendResult.Failed(createCaution(e))
             }

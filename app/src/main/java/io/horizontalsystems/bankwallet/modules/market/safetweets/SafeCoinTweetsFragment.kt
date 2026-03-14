@@ -91,7 +91,7 @@ fun CoinTweetsScreen(
                                 modifier = Modifier.align(Alignment.Center),
                                 text = stringResource(id = R.string.CoinPage_Twitter_NotAvailable),
                                 color = ComposeAppTheme.colors.grey,
-                                style = ComposeAppTheme.typography.subhead2,
+                                style = ComposeAppTheme.typography.subheadB,
                             )
                         }
                     } else {

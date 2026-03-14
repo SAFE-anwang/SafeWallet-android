@@ -53,7 +53,7 @@ class FallbackBlockViewModel(
                         it.coin.uid == "safe-coin" && it.token.blockchainType == BlockchainType.Safe
                     }?.let {
                         try {
-                            adapterManager.getAdapterForWallet(it)?.let {
+                            adapterManager.getAdapterForWallet<SafeAdapter>(it)?.let {
                                 (it as SafeAdapter).fallbackBlock(year, month)
                             }
                             (App.adapterManager as AdapterManager).preloadAdapters()
@@ -67,7 +67,7 @@ class FallbackBlockViewModel(
                         it.token.blockchainType == BlockchainType.Dogecoin
                     }?.let {
                         try {
-                            adapterManager.getAdapterForWallet(it)?.let {
+                            adapterManager.getAdapterForWallet<DogecoinAdapter>(it)?.let {
                                 (it as DogecoinAdapter).fallbackBlock(year, month)
                             }
                             (App.adapterManager as AdapterManager).preloadAdapters()

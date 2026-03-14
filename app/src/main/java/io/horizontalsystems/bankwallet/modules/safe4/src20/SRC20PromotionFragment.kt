@@ -64,6 +64,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
 import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
@@ -112,7 +113,7 @@ fun SRC20PromotionScreen(
             viewModel.sendResult = null
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                 view,
                 R.string.Send_Success,
@@ -130,7 +131,7 @@ fun SRC20PromotionScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             navController.popBackStack()
         }
     }
@@ -258,8 +259,8 @@ fun SRC20PromotionScreen(
                 )
             } else {
                 if (tokenInfo.logoURI.isNotEmpty()) {
-                    CoinImage(
-                        iconUrl = tokenInfo.logoURI,
+                    HsImage(
+                        url = tokenInfo.logoURI,
                         placeholder = R.drawable.ic_safe_20,
                         modifier = Modifier.padding(start = 16.dp)
                             .size(50.dp)

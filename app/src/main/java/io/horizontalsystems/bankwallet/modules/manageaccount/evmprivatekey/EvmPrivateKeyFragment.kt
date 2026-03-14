@@ -1,113 +1,55 @@
 package io.horizontalsystems.bankwallet.modules.manageaccount.evmprivatekey
 
 import android.os.Parcelable
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
-import io.horizontalsystems.bankwallet.core.getInput
-import io.horizontalsystems.bankwallet.core.managers.FaqManager
-import io.horizontalsystems.bankwallet.modules.manageaccount.ui.ActionButton
-import io.horizontalsystems.bankwallet.modules.manageaccount.ui.ConfirmCopyBottomSheet
-import io.horizontalsystems.bankwallet.modules.manageaccount.ui.HidableContent
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
-import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
-import io.horizontalsystems.core.helpers.HudHelper
-import kotlinx.coroutines.launch
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.modules.manageaccount.SecretKeyScreen
 import kotlinx.parcelize.Parcelize
 
 class EvmPrivateKeyFragment : BaseComposeFragment(screenshotEnabled = false) {
 
-    @Parcelize
-    data class Input(val evmPrivateKey: String) : Parcelable
-
     @Composable
     override fun GetContent(navController: NavController) {
-        EvmPrivateKeyScreen(
-            navController = navController,
-            evmPrivateKey = navController.getInput<Input>()?.evmPrivateKey ?: ""
-        )
+        withInput<Input>(navController) { input ->
+            EvmPrivateKeyScreen(navController, input.evmPrivateKey)
+        }
     }
 
+    @Parcelize
+    data class Input(val evmPrivateKey: String) : Parcelable
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun EvmPrivateKeyScreen(
+fun EvmPrivateKeyScreen(
     navController: NavController,
     evmPrivateKey: String,
 ) {
-    val view = LocalView.current
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
+    SecretKeyScreen(
+        navController = navController,
+        secretKey = evmPrivateKey,
+        title = stringResource(R.string.EvmPrivateKey_Title),
+        hideScreenText = stringResource(R.string.EvmPrivateKey_ShowPrivateKey),
+        onCopyKey = {
+            stat(
+                page = StatPage.EvmPrivateKey,
+                event = StatEvent.Copy(StatEntity.EvmPrivateKey)
+            )
+        },
+        onOpenFaq = {
+            stat(
+                page = StatPage.EvmPrivateKey,
+                event = StatEvent.Open(StatPage.Info)
+            )
+        },
+        onToggleHidden = {
+            stat(page = StatPage.EvmPrivateKey, event = StatEvent.ToggleHidden)
+        }
     )
-
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
-        sheetContent = {
-            ConfirmCopyBottomSheet(
-                onConfirm = {
-                    coroutineScope.launch {
-                        TextHelper.copyText(evmPrivateKey)
-                        HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-                        sheetState.hide()
-                    }
-                },
-                onCancel = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                    }
-                }
-            )
-        }
-    ) {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = stringResource(R.string.EvmPrivateKey_Title),
-                navigationIcon = {
-                    HsBackButton(onClick = navController::popBackStack)
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Info_Title),
-                        icon = R.drawable.ic_info_24,
-                        onClick = {
-                            FaqManager.showFaqPage(navController, FaqManager.faqPathPrivateKeys)
-                        }
-                    )
-                )
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top
-            ) {
-                Spacer(Modifier.height(12.dp))
-                TextImportantWarning(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.PrivateKeys_NeverShareWarning)
-                )
-                Spacer(Modifier.height(24.dp))
-                HidableContent(evmPrivateKey, stringResource(R.string.EvmPrivateKey_ShowPrivateKey))
-            }
-            ActionButton(R.string.Alert_Copy) {
-                coroutineScope.launch {
-                    sheetState.show()
-                }
-            }
-        }
-    }
 }

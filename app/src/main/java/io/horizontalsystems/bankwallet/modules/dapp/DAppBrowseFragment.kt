@@ -113,11 +113,14 @@ class DAppBrowseFragment: BaseFragment(){
                         is SignEvent.SessionProposal -> {
                             val input = arguments?.getInputX<WCSessionModule.Input>()
                             viewModel = WCSessionViewModel(
-                                    App.wcSessionManager,
-                                    App.connectivityManager,
-                                    App.accountManager.activeAccount,
-                                    input?.sessionTopic,
-                                    App.evmBlockchainManager
+                                App.wcSessionManager,
+                                App.connectivityManager,
+                                App.accountManager.activeAccount,
+                                input?.sessionTopic,
+                                wcManager = App.wcManager,
+                                networkManager = App.networkManager,
+                                appConfigProvider = App.appConfigProvider,
+                                paidActionSettingsManager = App.paidActionSettingsManager
                             )
                             viewModel?.connect()
                         }

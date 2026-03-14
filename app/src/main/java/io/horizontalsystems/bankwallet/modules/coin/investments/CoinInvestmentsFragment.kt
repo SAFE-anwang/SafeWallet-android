@@ -3,9 +3,7 @@ package io.horizontalsystems.bankwallet.modules.coin.investments
 import android.os.Parcelable
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,41 +25,37 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
-import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.investments.CoinInvestmentsModule.FundViewItem
 import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_remus
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import kotlinx.parcelize.Parcelize
 
 class CoinInvestmentsFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        val input = navController.requireInput<Input>()
-        CoinInvestmentsScreen(
-            viewModel = viewModel(
-                factory = CoinInvestmentsModule.Factory(input.coinUid)
-            ),
-            onClickNavigation = {
-                navController.popBackStack()
-            },
-            onClickFundUrl = {
-                LinkHelper.openLinkInAppBrowser(requireContext(), it)
-            }
-        )
+        withInput<Input>(navController) { input ->
+            CoinInvestmentsScreen(
+                viewModel = viewModel(factory = CoinInvestmentsModule.Factory(input.coinUid)),
+                onClickNavigation = {
+                    navController.popBackStack()
+                },
+                onClickFundUrl = {
+                    LinkHelper.openLinkInAppBrowser(requireContext(), it)
+                }
+            )
+        }
     }
 
     @Parcelize
@@ -78,50 +72,55 @@ private fun CoinInvestmentsScreen(
     val isRefreshing by viewModel.isRefreshingLiveData.observeAsState(false)
     val viewItems by viewModel.viewItemsLiveData.observeAsState()
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = stringResource(R.string.CoinPage_FundsInvested),
-            navigationIcon = {
-                HsBackButton(onClick = onClickNavigation)
-            }
-        )
-
+    HSScaffold(
+        title = stringResource(R.string.CoinPage_FundsInvested),
+        onBack = onClickNavigation,
+    ) {
         HSSwipeRefresh(
             refreshing = isRefreshing,
-            onRefresh = viewModel::refresh
-        ) {
-            Crossfade(viewState) { viewState ->
-                when (viewState) {
-                    ViewState.Loading -> {
-                        Loading()
-                    }
+            modifier = Modifier.fillMaxSize(),
+            onRefresh = viewModel::refresh,
+            content = {
+                Crossfade(viewState, label = "") { viewState ->
+                    when (viewState) {
+                        ViewState.Loading -> {
+                            Loading()
+                        }
 
-                    is ViewState.Error -> {
-                        ListErrorView(stringResource(R.string.SyncError), viewModel::onErrorClick)
-                    }
+                        is ViewState.Error -> {
+                            ListErrorView(
+                                stringResource(R.string.SyncError),
+                                viewModel::onErrorClick
+                            )
+                        }
 
-                    ViewState.Success -> {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            viewItems?.forEach { viewItem ->
-                                item {
-                                    CoinInvestmentHeader(viewItem.amount, viewItem.info)
+                        ViewState.Success -> {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                viewItems?.forEach { viewItem ->
+                                    item {
+                                        CoinInvestmentHeader(viewItem.amount, viewItem.info)
 
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                }
-                                item {
-                                    CellSingleLineLawrenceSection(viewItem.fundViewItems) { fundViewItem ->
-                                        CoinInvestmentFund(fundViewItem) { onClickFundUrl(fundViewItem.url) }
+                                        Spacer(modifier = Modifier.height(12.dp))
                                     }
-                                    Spacer(modifier = Modifier.height(24.dp))
+                                    item {
+                                        CellSingleLineLawrenceSection(viewItem.fundViewItems) { fundViewItem ->
+                                            CoinInvestmentFund(fundViewItem) {
+                                                onClickFundUrl(
+                                                    fundViewItem.url
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(24.dp))
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    null -> {}
+                        null -> {}
+                    }
                 }
             }
-        }
+        )
     }
 }
 
@@ -146,8 +145,8 @@ fun CoinInvestmentFund(fundViewItem: FundViewItem, onClick: () -> Unit) {
             .clickable(onClick = onClick, enabled = hasWebsiteUrl),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CoinImage(
-            iconUrl = fundViewItem.logoUrl,
+        HsImage(
+            url = fundViewItem.logoUrl,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(24.dp)

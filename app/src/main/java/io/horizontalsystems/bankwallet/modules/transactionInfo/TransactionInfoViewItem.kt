@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import androidx.compose.runtime.Composable
+import io.horizontalsystems.bankwallet.core.stats.StatSection
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionStatus
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -14,6 +15,7 @@ sealed class TransactionInfoViewItem {
         val coinValue: ColoredValue,
         val fiatValue: ColoredValue,
         val coinIconUrl: String?,
+        val alternativeCoinIconUrl: String?,
         val coinIconPlaceholder: Int?,
         val coinUid: String?,
         val badge: String?,
@@ -33,7 +35,7 @@ sealed class TransactionInfoViewItem {
 
     class PriceWithToggle(val title: String, val valueOne: String, val valueTwo: String) : TransactionInfoViewItem()
 
-    class Address(val title: String, val value: String, val showAdd: Boolean, val blockchainType: BlockchainType, val showCopy: Boolean = true) : TransactionInfoViewItem()
+    class Address(val title: String, val value: String, val showAdd: Boolean, val blockchainType: BlockchainType, val statSection: StatSection, val showCopy: Boolean = true) : TransactionInfoViewItem()
 
     class ContactItem(val contact: Contact) : TransactionInfoViewItem()
 
@@ -56,21 +58,22 @@ sealed class TransactionInfoViewItem {
     class WarningMessage(val message: String) : TransactionInfoViewItem()
 
     class Description(val text: String) : TransactionInfoViewItem()
+
+    class TransactionSecretKey(val key: String) : TransactionInfoViewItem()
 }
 
 enum class AmountType {
-    YouSent, YouGot, Received, Sent, Approved;
+    YouSent, YouGot, Received, Sent, Approved, Minted;
 }
 
 data class ColoredValue(val value: String, val color: ColorName)
 
 enum class ColorName {
-    Remus, Lucian, Grey, Leah;
+    Remus, Grey, Leah;
 
     @Composable
     fun compose() = when (this) {
         Remus -> ComposeAppTheme.colors.remus
-        Lucian -> ComposeAppTheme.colors.lucian
         Leah -> ComposeAppTheme.colors.leah
         Grey -> ComposeAppTheme.colors.grey
     }

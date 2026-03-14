@@ -6,11 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
 import com.google.android.exoplayer2.util.Log
-import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
-import io.horizontalsystems.bankwallet.core.customCoinUid
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -19,7 +17,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.src20.approve.ApproveState
 import io.horizontalsystems.bankwallet.modules.safe4.src20.approve.SRC20ApproveManager
 import io.horizontalsystems.bankwallet.modules.send.SendUiState
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinPluginService
-import io.horizontalsystems.bankwallet.modules.swap.scaleUp
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.scaleUp
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
@@ -40,6 +38,7 @@ class SendEvmViewModel(
     val coinMaxAllowedDecimals: Int,
     private val showAddressInput: Boolean,
     private val connectivityManager: ConnectivityManager,
+    private val address: Address,
     private val pluginService: SendBitcoinPluginService
 ) : ViewModelUiState<SendUiState>() {
     val fiatMaxAllowedDecimals = App.appConfigProvider.fiatDecimal
@@ -85,14 +84,16 @@ class SendEvmViewModel(
                 emitState()
             }
         }
+
+        addressService.setAddress(address)
     }
 
     override fun createState() = SendUiState(
         availableBalance = amountState.availableBalance,
         amountCaution = amountState.amountCaution,
-        addressError = addressState.addressError,
         canBeSend = amountState.canBeSend && addressState.canBeSend && src20IsApproved(),
         showAddressInput = showAddressInput,
+        address = address,
         lockTimeInterval = pluginState.lockTimeInterval,
         lockAmountError = getLockAmountError(),
         approveState = approveState
@@ -131,10 +132,6 @@ class SendEvmViewModel(
 
     fun onEnterAmount(amount: BigDecimal?) {
         amountService.setAmount(amount)
-    }
-
-    fun onEnterAddress(address: Address?) {
-        addressService.setAddress(address)
     }
 
     private fun handleUpdatedAmountState(amountState: SendAmountService.State) {

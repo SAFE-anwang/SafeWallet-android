@@ -15,7 +15,7 @@ object ManageWalletsModule {
     class Factory(val accountType: AccountType? = null) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
-            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
+            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider, App.moneroBirthdayProvider)
         }
 
         private val manageWalletsService by lazy {

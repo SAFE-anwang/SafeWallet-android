@@ -28,21 +28,21 @@ class SettingsActivity : BaseActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
-        private val perAppProxy by lazy { findPreference(AppConfig.PREF_PER_APP_PROXY) as CheckBoxPreference }
-        private val localDns by lazy { findPreference(AppConfig.PREF_LOCAL_DNS_ENABLED) }
-        private val fakeDns by lazy { findPreference(AppConfig.PREF_FAKE_DNS_ENABLED) }
-        private val localDnsPort by lazy { findPreference(AppConfig.PREF_LOCAL_DNS_PORT) }
-        private val vpnDns by lazy { findPreference(AppConfig.PREF_VPN_DNS) }
-        private val sppedEnabled by lazy { findPreference(AppConfig.PREF_SPEED_ENABLED) as CheckBoxPreference }
-        private val sniffingEnabled by lazy { findPreference(AppConfig.PREF_SNIFFING_ENABLED) as CheckBoxPreference }
-        private val proxySharing by lazy { findPreference(AppConfig.PREF_PROXY_SHARING) as CheckBoxPreference }
-        private val domainStrategy by lazy { findPreference(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY) as ListPreference }
-        private val routingMode by lazy { findPreference(AppConfig.PREF_ROUTING_MODE) as ListPreference }
+        private val perAppProxy by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_PER_APP_PROXY) as CheckBoxPreference }
+        private val localDns by lazy { findPreference<Preference>(AppConfig.PREF_LOCAL_DNS_ENABLED) }
+        private val fakeDns by lazy { findPreference<Preference>(AppConfig.PREF_FAKE_DNS_ENABLED) }
+        private val localDnsPort by lazy { findPreference<Preference>(AppConfig.PREF_LOCAL_DNS_PORT) }
+        private val vpnDns by lazy { findPreference<Preference>(AppConfig.PREF_VPN_DNS) }
+        private val sppedEnabled by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_SPEED_ENABLED) as CheckBoxPreference }
+        private val sniffingEnabled by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_SNIFFING_ENABLED) as CheckBoxPreference }
+        private val proxySharing by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_PROXY_SHARING) as CheckBoxPreference }
+        private val domainStrategy by lazy { findPreference<ListPreference>(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY) as ListPreference }
+        private val routingMode by lazy { findPreference<ListPreference>(AppConfig.PREF_ROUTING_MODE) as ListPreference }
 
-        private val forwardIpv6 by lazy { findPreference(AppConfig.PREF_FORWARD_IPV6) as CheckBoxPreference }
-        private val enableLocalDns by lazy { findPreference(AppConfig.PREF_LOCAL_DNS_ENABLED) as CheckBoxPreference }
-        private val domesticDns by lazy { findPreference(AppConfig.PREF_DOMESTIC_DNS) as EditTextPreference }
-        private val remoteDns by lazy { findPreference(AppConfig.PREF_REMOTE_DNS) as EditTextPreference }
+        private val forwardIpv6 by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_FORWARD_IPV6) as CheckBoxPreference }
+        private val enableLocalDns by lazy { findPreference<CheckBoxPreference>(AppConfig.PREF_LOCAL_DNS_ENABLED) as CheckBoxPreference }
+        private val domesticDns by lazy { findPreference<EditTextPreference>(AppConfig.PREF_DOMESTIC_DNS) as EditTextPreference }
+        private val remoteDns by lazy { findPreference<EditTextPreference>(AppConfig.PREF_REMOTE_DNS) as EditTextPreference }
 
         //        val autoRestart by lazy { findPreference(PREF_AUTO_RESTART) as CheckBoxPreference }
 
@@ -50,13 +50,13 @@ class SettingsActivity : BaseActivity() {
 //        val socksPort by lazy { findPreference(PREF_SOCKS_PORT) as EditTextPreference }
 //        val httpPort by lazy { findPreference(PREF_HTTP_PORT) as EditTextPreference }
 
-        private val routingCustom: Preference by lazy { findPreference(AppConfig.PREF_ROUTING_CUSTOM) }
+        private val routingCustom by lazy { findPreference<Preference>(AppConfig.PREF_ROUTING_CUSTOM) }
 //        val donate: Preference by lazy { findPreference(PREF_DONATE) }
         //        val licenses: Preference by lazy { findPreference(PREF_LICENSES) }
 //        val feedback: Preference by lazy { findPreference(PREF_FEEDBACK) }
 //        val tgGroup: Preference by lazy { findPreference(PREF_TG_GROUP) }
 
-        private val mode by lazy { findPreference(AppConfig.PREF_MODE) as ListPreference }
+        private val mode by lazy { findPreference<ListPreference>(AppConfig.PREF_MODE) as ListPreference }
 
         private fun restartProxy() {
             Utils.stopVService(requireContext())
@@ -108,7 +108,7 @@ class SettingsActivity : BaseActivity() {
                 true
             }
 
-            routingCustom.setOnPreferenceClickListener {
+            routingCustom?.setOnPreferenceClickListener {
                 if (isRunning())
                     Utils.stopVService(requireContext())
                 startActivity(Intent(activity, RoutingSettingsActivity::class.java))
@@ -203,7 +203,7 @@ class SettingsActivity : BaseActivity() {
 
         override fun onStart() {
             super.onStart()
-            val defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+            val defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
             updateMode(defaultSharedPreferences.getString(AppConfig.PREF_MODE, "VPN"))
             var remoteDnsString = defaultSharedPreferences.getString(AppConfig.PREF_REMOTE_DNS, "")
             domesticDns.summary = defaultSharedPreferences.getString(AppConfig.PREF_DOMESTIC_DNS, "")
@@ -222,10 +222,10 @@ class SettingsActivity : BaseActivity() {
         }
 
         private fun updateMode(mode: String?) {
-            val defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+            val defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
             val vpn = mode == "VPN"
             perAppProxy.isEnabled = vpn
-            perAppProxy.isChecked = PreferenceManager.getDefaultSharedPreferences(activity)
+            perAppProxy.isChecked = PreferenceManager.getDefaultSharedPreferences(requireActivity())
                     .getBoolean(AppConfig.PREF_PER_APP_PROXY, false)
             localDns?.isEnabled = vpn
             fakeDns?.isEnabled = vpn

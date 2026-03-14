@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.evmfee.eip1559
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.Bound
@@ -140,7 +139,7 @@ class Eip1559GasPriceService(
                 tip < riskOfStuckBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
                     warnings.add(FeeSettingsWarning.RiskOfGettingStuck)
                 }
-                tip >= overpricingBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
+                tip > overpricingBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
                     warnings.add(FeeSettingsWarning.Overpricing)
                 }
             }
@@ -179,7 +178,7 @@ class Eip1559GasPriceService(
         val recommendedPriorityFee = max(recommendedPriorityFee(feeHistory), minPriorityFee ?: 0)
         currentPriorityFee = recommendedPriorityFee
 
-        val newRecommendGasPrice = GasPrice.Eip1559(recommendedBaseFee + recommendedPriorityFee, recommendedPriorityFee)
+        val newRecommendGasPrice = GasPrice.Eip1559((recommendedBaseFee + recommendedPriorityFee) * 125 / 100, recommendedPriorityFee)
 
         recommendedGasPrice = newRecommendGasPrice
 

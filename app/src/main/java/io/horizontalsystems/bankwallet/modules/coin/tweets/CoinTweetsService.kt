@@ -57,7 +57,7 @@ class CoinTweetsService(
                 }
             } else {
                 marketKit
-                    .marketInfoOverviewSingle(tmpCoinUid, "USD", "en", "market_tweets")
+                    .marketInfoOverviewSingle(tmpCoinUid, "USD", "en", App.roiManager.getSelectedCoins().map { it.uid }, App.roiManager.getSelectedPeriods())
                     .flatMap {
                         val username =
                             if (coinUid.isSafeCoin() || coinUid == "custom_safe-erc20-SAFE") App.appConfigProvider.safeTwitterUser else it.links[LinkType.Twitter]

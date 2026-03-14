@@ -45,14 +45,14 @@ fun AddLockDayConfirmationDialog(
 			Text(
 					text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day),
 					style = ComposeAppTheme.typography.title3,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 			)
 			Spacer(Modifier.height(16.dp))
 
 			Text(
 					text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Alert, day),
 					style = ComposeAppTheme.typography.body,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 			)
 
 

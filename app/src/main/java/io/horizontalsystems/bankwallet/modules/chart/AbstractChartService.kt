@@ -2,14 +2,21 @@ package io.horizontalsystems.bankwallet.modules.chart
 
 import androidx.annotation.CallSuper
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.chartview.ChartViewType
+import io.horizontalsystems.chartview.models.ChartPoint
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
+import java.math.BigDecimal
 import java.util.Optional
 
 abstract class AbstractChartService {
@@ -36,17 +43,15 @@ abstract class AbstractChartService {
 
     val chartPointsWrapperObservable = BehaviorSubject.create<Result<ChartPointsWrapper>>()
 
-    private var fetchItemsDisposable: Disposable? = null
-    private val disposables = CompositeDisposable()
+    protected val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var fetchItemsJob: Job? = null
 
     open suspend fun start() {
-        currencyManager.baseCurrencyUpdatedSignal
-            .subscribeIO {
+        coroutineScope.launch {
+            currencyManager.baseCurrencyUpdatedSignal.asFlow().collect {
                 fetchItems()
             }
-            .let {
-                disposables.add(it)
-            }
+        }
 
         chartInterval = initialChartInterval
         fetchItems()
@@ -57,8 +62,7 @@ abstract class AbstractChartService {
     }
 
     open fun stop() {
-        disposables.clear()
-        fetchItemsDisposable?.dispose()
+        coroutineScope.cancel()
     }
 
     @CallSuper
@@ -68,25 +72,48 @@ abstract class AbstractChartService {
         fetchItems()
     }
 
+    open fun chartPointsDiff(items: List<ChartPoint>): BigDecimal {
+        val values = items.map { it.value }
+        if (values.isEmpty()) {
+            return BigDecimal.ZERO
+        }
+
+        val firstValue = values.find { it != 0f }
+        val lastValue = values.last()
+        if (lastValue == 0f || firstValue == null) {
+            return BigDecimal.ZERO
+        }
+
+        return try {
+            ((lastValue - firstValue) / firstValue * 100).toBigDecimal()
+        } catch (e: Exception) {
+            BigDecimal.ZERO
+        }
+    }
+
     fun refresh() {
         fetchItems()
     }
 
     @Synchronized
     private fun fetchItems() {
-        val tmpChartInterval = chartInterval
-        val itemsSingle = when {
-            tmpChartInterval == null -> getAllItems(currency)
-            else -> getItems(tmpChartInterval, currency)
-        }
+        fetchItemsJob?.cancel()
+        fetchItemsJob = coroutineScope.launch {
+            val tmpChartInterval = chartInterval
+            val itemsSingle = when {
+                tmpChartInterval == null -> getAllItems(currency)
+                else -> getItems(tmpChartInterval, currency)
+            }
 
-        fetchItemsDisposable?.dispose()
-        fetchItemsDisposable = itemsSingle
-            .subscribeIO({
-                chartPointsWrapperObservable.onNext(Result.success(it))
-            }, {
-                chartPointsWrapperObservable.onNext(Result.failure(it))
-            })
+            try {
+                val chartPointsWrapper = itemsSingle.await()
+                chartPointsWrapperObservable.onNext(Result.success(chartPointsWrapper))
+            } catch (e: CancellationException) {
+                // Do nothing
+            } catch (e: Throwable) {
+                chartPointsWrapperObservable.onNext(Result.failure(e))
+            }
+        }
     }
 }
 

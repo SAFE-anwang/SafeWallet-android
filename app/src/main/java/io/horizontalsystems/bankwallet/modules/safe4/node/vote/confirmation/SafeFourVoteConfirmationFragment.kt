@@ -85,7 +85,7 @@ fun SafeFourVoteNodeConfirmationScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                     view,
                     R.string.Send_Success,
@@ -101,7 +101,7 @@ fun SafeFourVoteNodeConfirmationScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             delay(1200)
             navController.popBackStack(closeUntilDestId, true)
         }
@@ -110,7 +110,7 @@ fun SafeFourVoteNodeConfirmationScreen(
     DisposableLifecycleCallbacks(
             //additional close for cases when user closes app immediately after sending
             onResume = {
-                if (sendResult == SendResult.Sent) {
+                if (sendResult is SendResult.Sent) {
                     navController.popBackStack(closeUntilDestId, true)
                 }
             }

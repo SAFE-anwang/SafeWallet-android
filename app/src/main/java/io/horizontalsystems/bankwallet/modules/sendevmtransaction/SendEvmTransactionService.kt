@@ -85,15 +85,17 @@ class SendEvmTransactionService(
 
     override val ownAddress: Address = evmKit.receiveAddress
 
-    override suspend fun start() = withContext(Dispatchers.IO) {
-        launch {
-            settingsService.stateFlow
-                .collect {
-                    sync(it)
-                }
-        }
+    override suspend fun start() {
+        withContext(Dispatchers.IO) {
+            launch {
+                settingsService.stateFlow
+                    .collect {
+                        sync(it)
+                    }
+            }
 
-        settingsService.start()
+            settingsService.start()
+        }
     }
 
     private fun sync(settingsState: DataState<SendEvmSettingsService.Transaction>) {
@@ -171,6 +173,7 @@ class SendEvmTransactionService(
             txConfig.gasData.gasPrice,
             txConfig.gasData.gasLimit,
             txConfig.nonce,
+            false,
             sendEvmData.transactionData.lockTime
         )
             .subscribeIO({ fullTransaction ->

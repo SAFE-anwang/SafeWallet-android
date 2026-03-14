@@ -301,7 +301,7 @@ fun SingleButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran ,
+							color = ComposeAppTheme.colors.leah ,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp),) {
@@ -374,7 +374,7 @@ fun TimeList(
 							},
 					text = text,
 					maxLines = 1,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 					fontSize = 14.sp,
 			)
 		}
@@ -531,7 +531,7 @@ fun TwoButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran,
+							color = ComposeAppTheme.colors.leah,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), ) {
@@ -629,7 +629,7 @@ fun TwoButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran,
+							color = ComposeAppTheme.colors.leah,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), ) {

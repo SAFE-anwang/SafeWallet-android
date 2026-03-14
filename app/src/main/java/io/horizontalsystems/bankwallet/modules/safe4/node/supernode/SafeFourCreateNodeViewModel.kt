@@ -17,15 +17,12 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Mast
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Node_Lock_Day
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Super_Node_Create_Amount
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Super_Node_Create_Join_Amount
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourCreateNodeModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourConfirmationModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal

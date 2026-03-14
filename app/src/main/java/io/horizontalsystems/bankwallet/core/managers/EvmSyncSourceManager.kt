@@ -30,14 +30,16 @@ class EvmSyncSourceManager(
 
     private fun defaultTransactionSource(blockchainType: BlockchainType): TransactionSource {
         return when (blockchainType) {
-            BlockchainType.Ethereum -> TransactionSource.ethereumEtherscan(appConfigProvider.etherscanApiKey)
-            BlockchainType.BinanceSmartChain -> TransactionSource.bscscan(appConfigProvider.bscscanApiKey)
-            BlockchainType.Polygon -> TransactionSource.polygonscan(appConfigProvider.polygonscanApiKey)
-            BlockchainType.Avalanche -> TransactionSource.snowtrace(appConfigProvider.snowtraceApiKey)
-            BlockchainType.Optimism -> TransactionSource.optimisticEtherscan(appConfigProvider.optimisticEtherscanApiKey)
-            BlockchainType.ArbitrumOne -> TransactionSource.arbiscan(appConfigProvider.arbiscanApiKey)
-            BlockchainType.Gnosis -> TransactionSource.gnosis(appConfigProvider.gnosisscanApiKey)
-            BlockchainType.Fantom -> TransactionSource.fantom(appConfigProvider.ftmscanApiKey)
+            BlockchainType.Ethereum -> TransactionSource.ethereum(listOf(appConfigProvider.etherscanApiKey))
+            BlockchainType.BinanceSmartChain -> TransactionSource.binance(listOf(appConfigProvider.bscscanApiKey))
+            BlockchainType.Avalanche -> TransactionSource.avalanche(listOf(appConfigProvider.bscscanApiKey))
+            BlockchainType.Optimism -> TransactionSource.optimism(listOf(appConfigProvider.bscscanApiKey))
+            BlockchainType.Base -> TransactionSource.base(listOf(appConfigProvider.bscscanApiKey))
+            BlockchainType.Polygon-> TransactionSource.polygon(listOf(appConfigProvider.polygonscanApiKey))
+            BlockchainType.ArbitrumOne -> TransactionSource.arbitrumOne(listOf(appConfigProvider.arbiscanApiKey))
+            BlockchainType.Gnosis -> TransactionSource.gnosis(listOf(appConfigProvider.gnosisscanApiKey))
+            BlockchainType.Fantom -> TransactionSource.fantom(listOf(appConfigProvider.ftmscanApiKey))
+            BlockchainType.ZkSync -> TransactionSource.zkSync(appConfigProvider.otherScanApiKey)
             BlockchainType.SafeFour -> TransactionSource.safeFourscan(appConfigProvider.bscscanApiKey)
             else -> throw Exception("Non-supported EVM blockchain")
         }
@@ -70,6 +72,18 @@ class EvmSyncSourceManager(
                     RpcSource.binanceSmartChainHttp(),
                     defaultTransactionSource(blockchainType)
                 ),*/
+                evmSyncSource(
+                    blockchainType,
+                    "BlockRazor",
+                    RpcSource.Http(listOf(URI("https://unstoppable.bsc.blockrazor.xyz")), null),
+                    defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                    blockchainType,
+                    "48club",
+                    RpcSource.Http(listOf(URI("https://unstoppable.rpc.48.club")), null),
+                    defaultTransactionSource(blockchainType)
+                ),
                 evmSyncSource(
                     blockchainType,
                     "BSC RPC",
@@ -134,6 +148,42 @@ class EvmSyncSourceManager(
                         listOf(URI("https://endpoints.omniatech.io/v1/op/mainnet/public")),
                         null
                     ),
+                    defaultTransactionSource(blockchainType)
+                )
+            )
+
+            BlockchainType.Base -> listOf(
+                evmSyncSource(
+                    blockchainType,
+                    "Base",
+                    RpcSource.baseRpcHttp(),
+                    defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                    blockchainType,
+                    "dRPC",
+                    RpcSource.Http(
+                        listOf(URI("https://base.drpc.org")),
+                        null
+                    ),
+                    defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                    blockchainType,
+                    "PublicNode",
+                    RpcSource.Http(
+                        listOf(URI("https://base-rpc.publicnode.com")),
+                        null
+                    ),
+                    defaultTransactionSource(blockchainType)
+                )
+            )
+
+            BlockchainType.ZkSync -> listOf(
+                evmSyncSource(
+                    blockchainType,
+                    "ZKsync",
+                    RpcSource.zkSyncRpcHttp(),
                     defaultTransactionSource(blockchainType)
                 )
             )

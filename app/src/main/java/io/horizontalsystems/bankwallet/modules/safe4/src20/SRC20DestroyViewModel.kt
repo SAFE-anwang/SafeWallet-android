@@ -91,7 +91,7 @@ class SRC20DestroyViewModel(
             try {
                 service.src20BurnableBurn(evmKitWrapper.signer!!.privateKey.toHexString(),
                     NodeCovertFactory.scaleConvert(additionalNumber.toBigDecimal())).blockingGet()
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))

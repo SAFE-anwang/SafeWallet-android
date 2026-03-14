@@ -8,7 +8,6 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppService
-import io.horizontalsystems.bankwallet.modules.market.overview.MarketOverviewModule
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

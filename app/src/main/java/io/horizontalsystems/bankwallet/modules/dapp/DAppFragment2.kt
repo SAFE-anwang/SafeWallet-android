@@ -207,8 +207,8 @@ fun CellItems(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CoinImage(
-                iconUrl = dappItem.icon,
+            HsImage(
+                url = dappItem.icon,
                 placeholder = dappItem.iconPlaceholder,
                 modifier = Modifier
                     .size(24.dp)

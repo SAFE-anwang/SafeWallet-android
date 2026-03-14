@@ -91,7 +91,7 @@ fun WithdrawVoteScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                 view,
                 R.string.SAFE4_Withdraw_Send_Success,
@@ -111,7 +111,7 @@ fun WithdrawVoteScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             delay(1200)
             navController.popBackStack(R.id.safe4WithdrawVoteFragment, true)
         }

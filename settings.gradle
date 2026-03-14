@@ -1,13 +1,40 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+
+rootProject.name = "SafeWallet"
+
 include ':app'
 
 include ':core'
 include ':ui'
 include ':components:icons'
 include ':components:chartview'
+include ':subscriptions-core'
+if (file("subscriptions-google-play").exists()) {
+    include(":subscriptions-google-play")
+}
+include ':subscriptions-dev'
+include ':subscriptions-fdroid'
+
 include ':components:views'
 //include ':components:snackbar'
-include ':components:keystore'
 include ':components:seekbar'
+include(":components:chartview")
 
 includeFlat 'bitcoin-kit-android'
 include 'bitcoin-kit-android:bitcoincore'     // Bitcoin Core

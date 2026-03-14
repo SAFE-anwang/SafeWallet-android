@@ -34,6 +34,10 @@ class SettingsViewSwitch @JvmOverloads constructor(context: Context, attrs: Attr
             override fun onSingleSwitch(buttonView: CompoundButton?, isChecked: Boolean) {
                 listener(isChecked)
             }
+
+            override fun onCheckedChanged(p0: CompoundButton, p1: Boolean) {
+
+            }
         }
     }
 

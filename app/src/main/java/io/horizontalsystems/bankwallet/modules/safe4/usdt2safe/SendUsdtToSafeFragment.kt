@@ -28,7 +28,6 @@ import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevm.confirmation.SendEvmConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -188,7 +187,7 @@ class SendUsdtToSafeFragment : BaseFragment() {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(R.string.Safe4_Wsafe_Receive_Address),
-                        style = ComposeAppTheme.typography.subhead1,
+                        style = ComposeAppTheme.typography.subheadB,
                         color = ComposeAppTheme.colors.leah,
                         maxLines = 1
                     )

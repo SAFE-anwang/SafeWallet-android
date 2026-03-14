@@ -1,13 +1,25 @@
 package io.horizontalsystems.bankwallet.modules.contacts.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -21,17 +33,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.contacts.model.ContactAddress
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.ContactViewModel
 import io.horizontalsystems.bankwallet.modules.contacts.viewmodel.ContactViewModel.AddressViewItem
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryRed
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
+import io.horizontalsystems.bankwallet.ui.compose.components.body_lucian
+import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetHeader
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.bottomsheet.BottomSheetContent
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
@@ -42,7 +69,7 @@ enum class ContactScreenBottomSheetType {
     DeleteConfirmation, DiscardChangesConfirmation
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactScreen(
     viewModel: ContactViewModel,
@@ -53,10 +80,12 @@ fun ContactScreen(
     val view = LocalView.current
 
     var bottomSheetType: ContactScreenBottomSheetType? by remember { mutableStateOf(null) }
-    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.closeWithSuccess) {
         if (uiState.closeWithSuccess) {
@@ -68,122 +97,127 @@ fun ContactScreen(
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
-        sheetContent = {
-            when (bottomSheetType) {
-                null -> {
-                    Spacer(modifier = Modifier.height(1.dp))
-                }
+    val confirmNavigateToBack: () -> Unit = {
+        if (uiState.confirmBack) {
+            bottomSheetType = ContactScreenBottomSheetType.DiscardChangesConfirmation
+            focusManager.clearFocus(true)
+            showBottomSheet = true
+        } else {
+            focusManager.clearFocus(true)
+            onNavigateToBack()
+        }
+    }
 
-                ContactScreenBottomSheetType.DeleteConfirmation -> {
-                    ConfirmationBottomSheet(
-                        title = stringResource(R.string.Contacts_DeleteContact),
-                        text = stringResource(R.string.Contacts_DeleteContact_Warning),
-                        iconPainter = painterResource(R.drawable.ic_delete_20),
-                        iconTint = ColorFilter.tint(ComposeAppTheme.colors.lucian),
-                        confirmText = stringResource(R.string.Button_Delete),
-                        cautionType = Caution.Type.Error,
-                        cancelText = stringResource(R.string.Button_Cancel),
-                        onConfirm = viewModel::onDelete,
-                        onClose = { coroutineScope.launch { modalBottomSheetState.hide() } }
-                    )
-                }
-
-                ContactScreenBottomSheetType.DiscardChangesConfirmation -> {
-                    ConfirmationBottomSheet(
-                        title = stringResource(R.string.Alert_TitleWarning),
-                        text = stringResource(R.string.Contacts_DiscardChanges_Warning),
-                        iconPainter = painterResource(R.drawable.icon_warning_2_20),
-                        iconTint = ColorFilter.tint(ComposeAppTheme.colors.jacob),
-                        confirmText = stringResource(R.string.Contacts_DiscardChanges),
-                        cautionType = Caution.Type.Error,
-                        cancelText = stringResource(R.string.Contacts_KeepEditing),
-                        onConfirm = onNavigateToBack,
-                        onClose = { coroutineScope.launch { modalBottomSheetState.hide() } }
-                    )
-                }
-            }
-        },
+    HSScaffold(
+        title = stringResource(R.string.CoinPage_Indicators),
+        onBack = confirmNavigateToBack,
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Button_Save),
+                enabled = uiState.saveEnabled,
+                tint = ComposeAppTheme.colors.jacob,
+                onClick = viewModel::onSave
+            )
+        )
     ) {
-        val confirmNavigateToBack: () -> Unit = {
-            if (uiState.confirmBack) {
-                bottomSheetType = ContactScreenBottomSheetType.DiscardChangesConfirmation
-                coroutineScope.launch {
-                    focusManager.clearFocus(true)
-                    modalBottomSheetState.show()
-                }
-            } else {
-                focusManager.clearFocus(true)
-                onNavigateToBack()
-            }
-        }
-
-        BackHandler {
-            if (modalBottomSheetState.isVisible) {
-                coroutineScope.launch { modalBottomSheetState.hide() }
-            } else {
-                confirmNavigateToBack()
-            }
-        }
-
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = ComposeAppTheme.colors.tyler)
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            AppBar(
-                title = uiState.headerTitle.getString(),
-                navigationIcon = {
-                    HsBackButton {
-                        confirmNavigateToBack()
-                    }
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Save),
-                        enabled = uiState.saveEnabled,
-                        onClick = viewModel::onSave
-                    )
-                )
+            VSpacer(12.dp)
+            FormsInput(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(horizontal = 16.dp)
+                    .onGloballyPositioned {
+                        if (uiState.focusOnContactName) {
+                            focusRequester.requestFocus()
+                        }
+                    },
+                initial = viewModel.contact.name,
+                pasteEnabled = false,
+                state = uiState.error?.let { DataState.Error(it) },
+                hint = stringResource(R.string.Contacts_NameHint),
+                onValueChange = viewModel::onNameChange
             )
 
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Spacer(Modifier.height(12.dp))
-                FormsInput(
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .padding(horizontal = 16.dp)
-                        .onGloballyPositioned {
-                            if (uiState.focusOnContactName) {
-                                focusRequester.requestFocus()
-                            }
-                        },
-                    initial = viewModel.contact.name,
-                    pasteEnabled = false,
-                    state = uiState.error?.let { DataState.Error(it) },
-                    hint = stringResource(R.string.Contacts_NameHint),
-                    onValueChange = viewModel::onNameChange
-                )
+            Addresses(
+                addressViewItems = uiState.addressViewItems,
+                onClickAddress = onNavigateToAddress
+            )
 
-                Addresses(
-                    addressViewItems = uiState.addressViewItems,
-                    onClickAddress = onNavigateToAddress
-                )
+            ActionButtons(
+                onAddAddress = { onNavigateToAddress(null) },
+                showDelete = uiState.showDelete,
+                onDeleteContact = {
+                    bottomSheetType = ContactScreenBottomSheetType.DeleteConfirmation
+                    showBottomSheet = true
+                }
+            )
 
-                ActionButtons(
-                    onAddAddress = { onNavigateToAddress(null) },
-                    showDelete = uiState.showDelete,
-                    onDeleteContact = {
-                        bottomSheetType = ContactScreenBottomSheetType.DeleteConfirmation
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+            VSpacer(32.dp)
+        }
+        if (showBottomSheet) {
+            BottomSheetContent(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                when (bottomSheetType) {
+                    null -> {
+                        Spacer(modifier = Modifier.height(1.dp))
                     }
-                )
 
-                Spacer(Modifier.height(32.dp))
+                    ContactScreenBottomSheetType.DeleteConfirmation -> {
+                        ConfirmationBottomSheet(
+                            title = stringResource(R.string.Contacts_DeleteContact),
+                            text = stringResource(R.string.Contacts_DeleteContact_Warning),
+                            iconPainter = painterResource(R.drawable.ic_delete_20),
+                            iconTint = ColorFilter.tint(ComposeAppTheme.colors.lucian),
+                            confirmText = stringResource(R.string.Button_Delete),
+                            cautionType = Caution.Type.Error,
+                            cancelText = stringResource(R.string.Button_Cancel),
+                            onConfirm = {
+                                viewModel.onDelete()
+                                scope.launch {
+                                    sheetState.hide()
+                                    showBottomSheet = false
+                                }
+                            },
+                            onClose = {
+                                scope.launch {
+                                    sheetState.hide()
+                                    showBottomSheet = false
+                                }
+                            }
+                        )
+                    }
+
+                    ContactScreenBottomSheetType.DiscardChangesConfirmation -> {
+                        ConfirmationBottomSheet(
+                            title = stringResource(R.string.Alert_TitleWarning),
+                            text = stringResource(R.string.Contacts_DiscardChanges_Warning),
+                            iconPainter = painterResource(R.drawable.icon_warning_2_20),
+                            iconTint = ColorFilter.tint(ComposeAppTheme.colors.jacob),
+                            confirmText = stringResource(R.string.Contacts_DiscardChanges),
+                            cautionType = Caution.Type.Error,
+                            cancelText = stringResource(R.string.Contacts_KeepEditing),
+                            onConfirm = {
+                                onNavigateToBack()
+                                scope.launch {
+                                    sheetState.hide()
+                                    showBottomSheet = false
+                                }
+                            },
+                            onClose = {
+                                scope.launch {
+                                    sheetState.hide()
+                                    showBottomSheet = false
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -336,7 +370,7 @@ private fun ContactAddress(
             placeholder = R.drawable.ic_platform_placeholder_32
         )
         Column(modifier = Modifier.weight(1f)) {
-            body_leah(text = addressViewItem.blockchain.name)
+            headline2_leah(text = addressViewItem.blockchain.name)
             subhead2_grey(text = addressViewItem.contactAddress.address)
         }
         Spacer(Modifier.width(9.dp))

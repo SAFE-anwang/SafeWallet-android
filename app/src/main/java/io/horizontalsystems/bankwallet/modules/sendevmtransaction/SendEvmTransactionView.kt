@@ -1,6 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,15 +32,13 @@ import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.shorten
-import io.horizontalsystems.bankwallet.core.stats.StatEntity
-import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.modules.evmfee.Cautions
-import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
-import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataFieldFee
 import io.horizontalsystems.bankwallet.modules.send.SendModule
+import io.horizontalsystems.bankwallet.modules.evmfee.EvmFeeCellViewModel
+import io.horizontalsystems.bankwallet.modules.fee.FeeCell
 import io.horizontalsystems.bankwallet.modules.send.evm.settings.SendEvmNonceViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
@@ -50,12 +54,17 @@ import io.horizontalsystems.bankwallet.ui.compose.components.TransactionInfoCont
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.cell.SectionUniversalLawrence
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellMiddleInfo
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellPrimary
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellRightInfo
+import io.horizontalsystems.bankwallet.uiv3.components.cell.hs
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Blockchain
@@ -63,47 +72,6 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
-
-@Composable
-fun SendEvmTransactionView(
-    transactionViewModel: SendEvmTransactionViewModel,
-    feeCellViewModel: EvmFeeCellViewModel,
-    nonceViewModel: SendEvmNonceViewModel,
-    navController: NavController,
-) {
-
-    val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
-    val fee by feeCellViewModel.feeLiveData.observeAsState(null)
-    val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
-
-    Column {
-        items.forEach { sectionViewItem ->
-            SectionView(sectionViewItem.viewItems, navController)
-        }
-
-        NonceView(nonceViewModel)
-
-            Spacer(Modifier.height(16.dp))
-            RowUniversal(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-//                listOf {
-                    FeeCell(
-                        title = stringResource(R.string.FeeSettings_NetworkFee),
-                        info = stringResource(R.string.FeeSettings_NetworkFee_Info),
-                        value = fee,
-                        viewState = viewState,
-                        navController = navController
-                    )
-                }
-//            )
-
-        val cautions by transactionViewModel.cautionsLiveData.observeAsState()
-        cautions?.let {
-            Cautions(it)
-        }
-    }
-}
 
 @Composable
 fun SendEvmTransactionView(
@@ -117,23 +85,25 @@ fun SendEvmTransactionView(
     Column {
         items.forEach { sectionViewItem ->
             SectionView(sectionViewItem.viewItems, navController, statPage)
+            VSpacer(16.dp)
         }
 
-        if (transactionFields.isNotEmpty()) {
-            VSpacer(height = 16.dp)
-            SectionUniversalLawrence {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(ComposeAppTheme.colors.lawrence)
+                .padding(vertical = 8.dp)
+        ) {
+            if (transactionFields.isNotEmpty()) {
                 transactionFields.forEachIndexed { index, field ->
-                    field.GetContent(navController, index != 0)
+                    field.GetContent(navController)
                 }
             }
-        }
-
-        VSpacer(height = 16.dp)
-        SectionUniversalLawrence {
             DataFieldFee(
                 navController,
                 networkFee?.primary?.getFormattedPlain() ?: "---",
-                networkFee?.secondary?.getFormattedPlain() ?: "---"
+                networkFee?.secondary?.getFormattedPlain()
             )
         }
 
@@ -144,89 +114,64 @@ fun SendEvmTransactionView(
 }
 
 @Composable
-private fun NonceView(nonceViewModel: SendEvmNonceViewModel) {
-    val uiState = nonceViewModel.uiState
-    if (!uiState.showInConfirmation) return
-    val nonce = uiState.nonce ?: return
-
-    Spacer(Modifier.height(16.dp))
-    CellUniversalLawrenceSection(
-        listOf {
-            RowUniversal(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                subhead2_grey(
-                    text = stringResource(id = R.string.Send_Confirmation_Nonce)
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = nonce.toString(),
-                    maxLines = 1,
-                    style = ComposeAppTheme.typography.subhead1,
-                    color = setColorByType(ValueType.Regular)
+fun SectionView(viewItems: List<ViewItem>, navController: NavController, statPage: StatPage) {
+    Box {
+        CellUniversalLawrenceSection(viewItems) { item ->
+            when (item) {
+                is ViewItem.Subhead -> Subhead(item)
+                is ViewItem.Value -> TitleValue(item)
+                is ViewItem.Amount -> Amount(item)
+                is ViewItem.AmountMulti -> AmountMulti(item)
+                is ViewItem.AmountWithTitle -> AmountWithTitle(item)
+                is ViewItem.NftAmount -> NftAmount(item)
+                is ViewItem.Address -> AddressCell(address = item.address, contact = item.contact)
+                is ViewItem.Input -> TitleValueHex(item.title, item.value.shorten(), item.value)
+                is ViewItem.TokenItem -> Token(item)
+                is ViewItem.Fee -> DataFieldFee(
+                    navController,
+                    item.networkFee.primary.getFormattedPlain() ?: "---",
+                    item.networkFee.secondary?.getFormattedPlain() ?: "---"
                 )
             }
         }
+        if (viewItems.size == 2) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_down_20),
+                contentDescription = null,
+                tint = ComposeAppTheme.colors.grey,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 57.dp) //top cell is 67.dp - iconWidth/2(which is equal 10.dp)
+                    .clip(CircleShape)
+                    .background(ComposeAppTheme.colors.lawrence)
+            )
+        }
+    }
+}
+
+@Composable
+fun AddressCell(
+    address: String,
+    contact: String?,
+) {
+    val image = if (contact != null) R.drawable.user_wrapped_32 else R.drawable.wallet_wrapped_32
+    val description = if (contact != null) address else null
+    CellPrimary(
+        left = {
+            Image(
+                painter = painterResource(image),
+                modifier = Modifier.size(32.dp),
+                contentDescription = null
+            )
+        },
+        middle = {
+            CellMiddleInfo(
+                eyebrow = (contact ?: address).hs(color = ComposeAppTheme.colors.leah),
+                subtitle = description?.hs
+            )
+        },
     )
 }
-
-@Composable
-private fun SectionView(viewItems: List<ViewItem>, navController: NavController) {
-    Spacer(Modifier.height(16.dp))
-    CellUniversalLawrenceSection(viewItems) { item ->
-        when (item) {
-            is ViewItem.Subhead -> Subhead(item)
-            is ViewItem.Value -> TitleValue(item)
-            is ViewItem.ValueMulti -> TitleValueMulti(item)
-            is ViewItem.AmountMulti -> AmountMulti(item)
-            is ViewItem.Amount -> Amount(item)
-            is ViewItem.AmountWithTitle -> AmountWithTitle(item)
-            is ViewItem.NftAmount -> NftAmount(item)
-            is ViewItem.Address -> {
-                TransactionInfoAddressCell(
-                    title = item.title,
-                    value = item.value,
-                    showAdd = item.showAdd,
-                    blockchainType = item.blockchainType,
-                    navController = navController,
-                )
-            }
-            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
-            is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
-            is ViewItem.TokenItem -> Token(item)
-        }
-    }
-}
-
-
-@Composable
-private fun SectionView(viewItems: List<ViewItem>, navController: NavController, statPage: StatPage) {
-    Spacer(Modifier.height(16.dp))
-    CellUniversalLawrenceSection(viewItems) { item ->
-        when (item) {
-            is ViewItem.Subhead -> Subhead(item)
-            is ViewItem.Value -> TitleValue(item)
-            is ViewItem.ValueMulti -> TitleValueMulti(item)
-            is ViewItem.AmountMulti -> AmountMulti(item)
-            is ViewItem.Amount -> Amount(item)
-            is ViewItem.AmountWithTitle -> AmountWithTitle(item)
-            is ViewItem.NftAmount -> NftAmount(item)
-            is ViewItem.Address -> {
-                TransactionInfoAddressCell(
-                        title = item.title,
-                        value = item.value,
-                        showAdd = item.showAdd,
-                        blockchainType = item.blockchainType,
-                        navController = navController,
-                )
-            }
-            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
-            is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
-            is ViewItem.TokenItem -> Token(item)
-        }
-    }
-}
-
 
 @Composable
 private fun Subhead(item: ViewItem.Subhead) {
@@ -263,82 +208,9 @@ fun TitleValue(item: ViewItem.Value) {
         Text(
             text = item.value,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subhead,
             color = setColorByType(item.type)
         )
-    }
-}
-
-@Composable
-private fun TitleValueMulti(item: ViewItem.ValueMulti) {
-    RowUniversal(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        subhead2_grey(
-            text = item.title
-        )
-        Spacer(Modifier.weight(1f))
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = item.primaryValue,
-                maxLines = 1,
-                style = ComposeAppTheme.typography.subhead1,
-                color = setColorByType(item.type)
-            )
-            Text(
-                text = item.secondaryValue,
-                maxLines = 1,
-                style = ComposeAppTheme.typography.caption,
-                color = ComposeAppTheme.colors.grey
-            )
-        }
-    }
-}
-
-@Composable
-private fun AmountMulti(item: ViewItem.AmountMulti) {
-    RowUniversal(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        CoinImageSafe(
-            uid = item.token.coin.uid,
-            iconUrl = item.token.coin.imageUrl,
-            placeholder = item.token.iconPlaceholder
-        )
-        Column(
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = item.amounts[0].coinAmount,
-                    maxLines = 1,
-                    style = ComposeAppTheme.typography.subhead1,
-                    color = setColorByType(item.type)
-                )
-                Spacer(Modifier.weight(1f))
-                subhead2_grey(
-                    text = item.amounts[0].fiatAmount ?: ""
-                )
-            }
-            if (item.amounts.size > 1) {
-                Spacer(Modifier.height(3.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    caption_grey(
-                        text = item.amounts[1].coinAmount
-                    )
-                    Spacer(Modifier.weight(1f))
-                    caption_grey(
-                        text = item.amounts[1].fiatAmount ?: ""
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -355,7 +227,7 @@ private fun Amount(item: ViewItem.Amount) {
         Text(
             text = item.coinAmount,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subhead,
             color = setColorByType(item.type)
         )
         Spacer(Modifier.weight(1f))
@@ -367,34 +239,27 @@ private fun Amount(item: ViewItem.Amount) {
 
 @Composable
 private fun AmountWithTitle(item: ViewItem.AmountWithTitle) {
-    RowUniversal(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    ) {
-        CoinImageSafe(
-            uid = item.token.coin.uid,
-            iconUrl = item.token.coin.imageUrl,
-            placeholder = item.token.iconPlaceholder
-        )
-        HSpacer(16.dp)
-        Column {
-            subhead2_leah(text = item.title)
-            VSpacer(height = 1.dp)
-            caption_grey(text = item.badge ?: stringResource(id =R.string.CoinPlatforms_Native))
-        }
-        HFillSpacer(minWidth = 8.dp)
-        Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = item.coinAmount,
-                maxLines = 1,
-                style = ComposeAppTheme.typography.subhead1,
-                color = setColorByType(item.type)
+    CellPrimary(
+        left = {
+            CoinImageSafe(
+                uid = item.token.coin.uid,
+                iconUrl = item.token.coin.imageUrl,
+                placeholder = item.token.iconPlaceholder
             )
-            item.fiatAmount?.let {
-                VSpacer(height = 1.dp)
-                subhead2_grey(text = it)
-            }
+        },
+        middle = {
+            CellMiddleInfo(
+                eyebrow = item.title.hs(color = ComposeAppTheme.colors.leah),
+                subtitle = (item.badge ?: stringResource(id =R.string.CoinPlatforms_Native)).hs
+            )
+        },
+        right = {
+            CellRightInfo(
+                eyebrow = item.coinAmount.hs(color = ComposeAppTheme.colors.leah),
+                subtitle = item.fiatAmount?.hs
+            )
         }
-    }
+    )
 }
 
 @Composable
@@ -409,7 +274,7 @@ private fun NftAmount(item: ViewItem.NftAmount) {
         Text(
             text = item.amount,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadR,
             color = setColorByType(item.type)
         )
     }
@@ -457,7 +322,7 @@ private fun TitleValueHex(
 @Composable
 private fun setColorByType(type: ValueType) =
     when (type) {
-        ValueType.Regular -> ComposeAppTheme.colors.bran
+        ValueType.Regular -> ComposeAppTheme.colors.leah
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus
@@ -485,28 +350,6 @@ private fun Preview_TitleValue() {
 
 @Preview
 @Composable
-private fun Preview_AmountMulti() {
-    val token = Token(
-        coin = Coin("uid", "KuCoin", "KCS"),
-        blockchain = Blockchain(BlockchainType.Ethereum, "Ethereum", null),
-        type = TokenType.Eip20("eef"),
-        decimals = 18
-    )
-    val item = ViewItem.AmountMulti(
-        listOf(
-            AmountValues("0.104 KCS (est)", "$0.99"),
-            AmountValues("0.103 KCS (min)", "$0.95"),
-        ),
-        ValueType.Incoming,
-        token
-    )
-    ComposeAppTheme {
-        AmountMulti(item)
-    }
-}
-
-@Preview
-@Composable
 private fun Preview_Amount() {
     val token = Token(
         coin = Coin("uid", "KuCoin", "KCS"),
@@ -524,6 +367,126 @@ private fun Preview_Amount() {
         Amount(item)
     }
 }
+
+
+@Composable
+fun SendEvmTransactionView(
+    transactionViewModel: SendEvmTransactionViewModel,
+    feeCellViewModel: EvmFeeCellViewModel,
+    nonceViewModel: SendEvmNonceViewModel,
+    navController: NavController,
+) {
+
+    val items by transactionViewModel.viewItemsLiveData.observeAsState(listOf())
+    val fee by feeCellViewModel.feeLiveData.observeAsState(null)
+    val viewState by feeCellViewModel.viewStateLiveData.observeAsState()
+
+    Column {
+        items.forEach { sectionViewItem ->
+            SectionView(sectionViewItem.viewItems, navController, StatPage.Send)
+        }
+
+        NonceView(nonceViewModel)
+
+        Spacer(Modifier.height(16.dp))
+        RowUniversal(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+//                listOf {
+            FeeCell(
+                title = stringResource(R.string.FeeSettings_NetworkFee),
+                info = stringResource(R.string.FeeSettings_NetworkFee_Info),
+                value = fee,
+                viewState = viewState,
+                navController = navController
+            )
+        }
+//            )
+
+        val cautions by transactionViewModel.cautionsLiveData.observeAsState()
+        cautions?.let {
+            Cautions(it)
+        }
+    }
+}
+
+
+
+@Composable
+private fun AmountMulti(item: ViewItem.AmountMulti) {
+    RowUniversal(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        CoinImageSafe(
+            uid = item.token.coin.uid,
+            iconUrl = item.token.coin.imageUrl,
+            placeholder = item.token.iconPlaceholder
+        )
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.amounts[0].coinAmount,
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.subheadB,
+                    color = setColorByType(item.type)
+                )
+                Spacer(Modifier.weight(1f))
+                subhead2_grey(
+                    text = item.amounts[0].fiatAmount ?: ""
+                )
+            }
+            if (item.amounts.size > 1) {
+                Spacer(Modifier.height(3.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    caption_grey(
+                        text = item.amounts[1].coinAmount
+                    )
+                    Spacer(Modifier.weight(1f))
+                    caption_grey(
+                        text = item.amounts[1].fiatAmount ?: ""
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun NonceView(nonceViewModel: SendEvmNonceViewModel) {
+    val uiState = nonceViewModel.uiState
+    if (!uiState.showInConfirmation) return
+    val nonce = uiState.nonce ?: return
+
+    Spacer(Modifier.height(16.dp))
+    CellUniversalLawrenceSection(
+        listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                subhead2_grey(
+                    text = stringResource(id = R.string.Send_Confirmation_Nonce)
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text = nonce.toString(),
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.subheadB,
+                    color = setColorByType(ValueType.Regular)
+                )
+            }
+        }
+    )
+}
+
 
 @Preview
 @Composable

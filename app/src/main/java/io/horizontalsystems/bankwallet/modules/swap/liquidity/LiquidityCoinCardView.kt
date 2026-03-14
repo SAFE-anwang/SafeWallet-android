@@ -48,15 +48,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
-import io.horizontalsystems.bankwallet.modules.swap.coinselect.SelectSwapCoinFragment
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -118,7 +114,7 @@ fun SwapCoinCardView(
                         val params = SelectSwapCoinFragment.prepareParams(cardState.uuid, dex)
                         navController.slideFromBottom(R.id.selectSwapCoinDialog, params)*/
 
-                        navController.slideFromBottomForResult<CoinBalanceItem>(
+                        navController.slideFromBottomForResult<LiquidityMainModule.CoinBalanceItem>(
                                 R.id.selectSwapCoinDialog,
                                 dex
                         ) {

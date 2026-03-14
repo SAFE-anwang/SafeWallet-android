@@ -9,7 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.core.managers.ActionCompletedDelegate
+import io.horizontalsystems.bankwallet.modules.balance.OpenSendTokenSelect
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import kotlinx.parcelize.Parcelize
 
@@ -25,9 +26,12 @@ object MainModule {
                 App.termsManager,
                 App.accountManager,
                 App.releaseNotesManager,
+                App.donationShowManager,
                 App.localStorage,
                 App.wcSessionManager,
                 App.wcManager,
+                App.networkManager,
+                ActionCompletedDelegate
             ) as T
         }
     }
@@ -48,8 +52,14 @@ object MainModule {
     fun startAsNewTask(context: Activity) {
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        context.startActivity(intent)
-        context.overridePendingTransition(0, 0)
+
+        val options = androidx.core.app.ActivityOptionsCompat.makeCustomAnimation(
+            context,
+            0,  // No enter animation
+            0   // No exit animation
+        )
+
+        context.startActivity(intent, options.toBundle())
     }
 
     sealed class BadgeType {
@@ -68,10 +78,10 @@ object MainModule {
     enum class MainNavigation(val iconRes: Int, val titleRes: Int) : Parcelable {
         Market(R.drawable.ic_market_24, R.string.Market_Title),
         Balance(R.drawable.ic_wallet_24, R.string.Balance_Title),
-//        Transactions(R.drawable.ic_transactions, R.string.Transactions_Title),
+//        Transactions(R.drawable.ic_transactions_24, R.string.Transactions_Title),
         Safe4(R.drawable.ic_safe_20, R.string.Transactions_Title),
         Tg(R.drawable.ic_telegram_20, R.string.Transactions_Title),
-        Settings(R.drawable.ic_settings, R.string.Settings_Title);
+        Settings(R.drawable.ic_settings_24, R.string.Settings_Title);
 
         companion object {
             private val map = values().associateBy(MainNavigation::name)
@@ -85,11 +95,11 @@ object MainModule {
         val deeplinkPage: DeeplinkPage?,
         val mainNavItems: List<NavigationViewItem>,
         val showRateAppDialog: Boolean,
-        val contentHidden: Boolean,
         val showWhatsNew: Boolean,
-        val activeWallet: Account?,
+        val showDonationPage: Boolean,
         val torEnabled: Boolean,
-        val wcSupportState: WCManager.SupportState?
+        val wcSupportState: WCManager.SupportState?,
+        val openSend: OpenSendTokenSelect?,
     )
 
     var isOpenDapp = false

@@ -46,7 +46,7 @@ fun WithdrawConfirmationDialog(
 			Text(
 					text = content,
 					style = ComposeAppTheme.typography.body,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 			)
 
 

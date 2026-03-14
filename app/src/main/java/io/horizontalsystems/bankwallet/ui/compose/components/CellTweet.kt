@@ -125,7 +125,7 @@ private fun TweetText(text: String, entities: List<Extractor.Entity>) {
             spanStyles = spanStyles,
         ),
         color = ComposeAppTheme.colors.leah,
-        style = ComposeAppTheme.typography.subhead2
+        style = ComposeAppTheme.typography.subheadB
     )
 }
 
@@ -207,7 +207,7 @@ private fun AttachmentPoll(attachment: Tweet.Attachment.Poll) {
                 ComposeAppTheme.colors.steel20
             }
             val textColor = if (option.votes == maxVotes) {
-                ComposeAppTheme.colors.claude
+                ComposeAppTheme.colors.lawrence
             } else {
                 ComposeAppTheme.colors.leah
             }

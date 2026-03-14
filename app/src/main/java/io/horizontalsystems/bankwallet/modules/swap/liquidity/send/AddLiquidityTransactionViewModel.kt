@@ -28,9 +28,6 @@ import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.*
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
-import io.horizontalsystems.bankwallet.modules.swap.scaleUp
-import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
-import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
 import io.horizontalsystems.ethereumkit.decorations.OutgoingDecoration
@@ -183,10 +180,10 @@ class AddLiquidityTransactionViewModel(
         }
 
         if (additionalInfo != null) {
-            val oneInchSwapInfo = additionalInfo.oneInchSwapInfo
+            /*val oneInchSwapInfo = additionalInfo.oneInchSwapInfo
             if (oneInchSwapInfo != null) {
                 return getOneInchViewItems(oneInchSwapInfo)
-            }
+            }*/
         }
 
         if (dataState.transactionData != null) {
@@ -244,7 +241,7 @@ class AddLiquidityTransactionViewModel(
                 additionalInfo?.uniswapInfo
             )
 
-            is OneInchSwapDecoration -> getOneInchSwapViewItems(
+            /*is OneInchSwapDecoration -> getOneInchSwapViewItems(
                 decoration.tokenIn,
                 decoration.tokenOut,
                 decoration.amountIn,
@@ -261,7 +258,7 @@ class AddLiquidityTransactionViewModel(
                 oneInchInfo = additionalInfo?.oneInchSwapInfo
             )
 
-            is OneInchDecoration -> additionalInfo?.oneInchSwapInfo?.let { getOneInchViewItems(it) }
+            is OneInchDecoration -> additionalInfo?.oneInchSwapInfo?.let { getOneInchViewItems(it) }*/
 
             is OutgoingEip721Decoration -> getNftTransferItems(
                 decoration.to,
@@ -312,17 +309,15 @@ class AddLiquidityTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     addressValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
 
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         sections.add(SectionViewItem(viewItems))
@@ -372,16 +367,14 @@ class AddLiquidityTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.SwapSettings_RecipientAddressTitle),
                     addressValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressRecipient
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 otherViewItems.add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
         uniswapInfo?.price?.let {
             otherViewItems.add(
@@ -427,14 +420,14 @@ class AddLiquidityTransactionViewModel(
                             coinServiceIn.token
                         )
                     )
-                    otherViewItems.add(
+                    /*otherViewItems.add(
                         ViewItem.ValueMulti(
                             Translator.getString(R.string.SwapInfo_MaxSpendTitle),
                             maxAmountData.primary.getFormatted(),
                             maxAmountData.secondary?.getFormatted() ?: "---",
                             ValueType.Regular
                         )
-                    )
+                    )*/
 
                 } else {
                     inViewItems.add(getMaxAmount(maxAmountData, coinServiceIn.token))
@@ -463,14 +456,14 @@ class AddLiquidityTransactionViewModel(
                             )
                         )
                     }
-                    otherViewItems.add(
+                    /*otherViewItems.add(
                         ViewItem.ValueMulti(
                             Translator.getString(R.string.SwapInfo_GuaranteedAmountTitle),
                             guaranteedAmountData.primary.getFormatted(),
                             guaranteedAmountData.secondary?.getFormatted() ?: "---",
                             ValueType.Regular
                         )
-                    )
+                    )*/
                 } else {
                     outViewItems.add(getGuaranteedAmount(guaranteedAmountData, coinServiceOut.token))
                 }
@@ -502,7 +495,7 @@ class AddLiquidityTransactionViewModel(
         return sections
     }
 
-    private fun getOneInchSwapViewItems(
+    /*private fun getOneInchSwapViewItems(
         tokenIn: OneInchDecoration.Token,
         tokenOut: OneInchDecoration.Token?,
         amountIn: BigInteger,
@@ -689,7 +682,7 @@ class AddLiquidityTransactionViewModel(
         } else {
             "$slippage%"
         }
-    }
+    }*/
 
     private fun getEip20TransferViewItems(
         to: Address,
@@ -716,16 +709,14 @@ class AddLiquidityTransactionViewModel(
             ViewItem.Address(
                 Translator.getString(R.string.Send_Confirmation_To),
                 addressValue,
-                contact == null,
-                blockchainType,
-                StatSection.Input
+                contact?.addresses?.first()?.address
             )
         )
-        contact?.let {
+        /*contact?.let {
             viewItems.add(
                 ViewItem.ContactItem(it)
             )
-        }
+        }*/
 
         return listOf(SectionViewItem(viewItems))
     }
@@ -772,16 +763,14 @@ class AddLiquidityTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Approve_Spender),
                     addressValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressSpender
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         return listOf(SectionViewItem(viewItems))
@@ -806,16 +795,14 @@ class AddLiquidityTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
 
             methodName?.let {
                 add(
@@ -827,7 +814,7 @@ class AddLiquidityTransactionViewModel(
                 )
             }
 
-            add(ViewItem.Input(transactionData.input.toHexString()))
+//            add(ViewItem.Input(transactionData.input.toHexString()))
 
             dAppName?.let {
                 add(
@@ -867,16 +854,14 @@ class AddLiquidityTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         return listOf(

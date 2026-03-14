@@ -83,7 +83,7 @@ class SRC20PromotionViewModel(
             try {
                 localImage?.let {
                     service.setLogoPayAmount(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), it).blockingGet()
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

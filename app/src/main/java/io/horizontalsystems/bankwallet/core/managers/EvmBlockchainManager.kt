@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.factories.EvmAccountManagerFactory
-import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -46,6 +46,8 @@ class EvmBlockchainManager(
         BlockchainType.Polygon -> Chain.Polygon
         BlockchainType.Avalanche -> Chain.Avalanche
         BlockchainType.Optimism -> Chain.Optimism
+        BlockchainType.Base -> Chain.Base
+        BlockchainType.ZkSync -> Chain.ZkSync
         BlockchainType.ArbitrumOne -> Chain.ArbitrumOne
         BlockchainType.Gnosis -> Chain.Gnosis
         BlockchainType.Fantom -> Chain.Fantom
@@ -85,6 +87,8 @@ class EvmBlockchainManager(
             BlockchainType.ArbitrumOne,
             BlockchainType.Gnosis,
             BlockchainType.Fantom,
+            BlockchainType.Base,
+            BlockchainType.ZkSync,
         )
     }
 }

@@ -50,33 +50,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.horizontalsystems.bankwallet.core.requireInput
-import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeModule
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
-import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
-import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteRecordViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteViewModel
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.VoteRecordView
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.AdditionalDataCell2
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondary
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
-import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
-import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
-import io.horizontalsystems.bankwallet.ui.compose.components.body_green50
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.findNavController
 import io.horizontalsystems.core.helpers.HudHelper
@@ -207,8 +192,8 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(id = R.string.Safe_Four_Node_Info),
-                style = ComposeAppTheme.typography.subhead1,
-                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.subheadB,
+                color = ComposeAppTheme.colors.leah,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 16.sp,
                 maxLines = 1,
@@ -230,7 +215,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.id.toString(),
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -252,7 +237,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.status.title().getString(),
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -322,7 +307,7 @@ fun NodeInfoScreen(
             Text(
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                     text = nodeInfo.name,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -344,7 +329,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.createPledge,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -366,7 +351,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = "${nodeInfo.voteCompleteCount} SAFE",
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -412,7 +397,7 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 text = nodeInfo.desc,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
                 maxLines = 1,
         )
@@ -433,13 +418,13 @@ fun NodeInfoScreen(
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Creator),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
             Text(
                     text = uiState.creatorText,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -462,13 +447,13 @@ fun NodeInfoScreen(
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Partner),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
             Text(
                     text = uiState.partnerText,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -492,13 +477,13 @@ fun NodeInfoScreen(
                 Text(
                         text = stringResource(id = R.string.Safe_Four_Register_Voters),
                         style = ComposeAppTheme.typography.body,
-                        color = ComposeAppTheme.colors.bran,
+                        color = ComposeAppTheme.colors.leah,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                 )
                 Text(
                         text = uiState.voterText,
-                        color = ComposeAppTheme.colors.bran,
+                        color = ComposeAppTheme.colors.leah,
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )

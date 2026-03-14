@@ -90,7 +90,7 @@ fun SafeFourCreateNodeConfirmationScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                     view,
                     R.string.Send_Success,
@@ -106,7 +106,7 @@ fun SafeFourCreateNodeConfirmationScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             delay(1200)
             navController.popBackStack(R.id.createSuperNodeFragment, true)
         }
@@ -147,8 +147,8 @@ fun SafeFourCreateNodeConfirmationScreen(
                             modifier = Modifier
                                     .padding(start = 16.dp, top = 16.dp),
                             text = stringResource(id = R.string.Safe_Four_Register_Lock_Confirmation),
-                            style = ComposeAppTheme.typography.subhead1,
-                            color = ComposeAppTheme.colors.bran,
+                            style = ComposeAppTheme.typography.subheadB,
+                            color = ComposeAppTheme.colors.leah,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1,
                     )
@@ -167,7 +167,7 @@ fun SafeFourCreateNodeConfirmationScreen(
                         Text(
                                 modifier = Modifier.padding(end = 16.dp),
                                 text = uiState.lockAmount,
-                                color = ComposeAppTheme.colors.bran,
+                                color = ComposeAppTheme.colors.leah,
                                 style = ComposeAppTheme.typography.body,
                                 maxLines = 1,
                         )

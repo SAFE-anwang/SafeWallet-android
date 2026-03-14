@@ -77,7 +77,7 @@ class SafeConvertSendActivity : BaseActivity() {
 
         setToolbar()
 
-        val adapter by lazy { App.adapterManager.getAdapterForWallet(wsafeWallet) as ISendEthereumAdapter }
+        val adapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wsafeWallet) as ISendEthereumAdapter }
 
         mainPresenter =
             ViewModelProvider(this, SendModule.SafeConvertFactory(safeWallet, adapter)).get(SendPresenter::class.java)

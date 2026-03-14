@@ -232,7 +232,7 @@ class LockedInfoViewModel(
                     service.withdraw(it, 2)
                     repository.delete(it, service.getContract(2))
                 }
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 Log.e("LockedInfoViewModel", "withdraw all record error=$e")
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
@@ -306,7 +306,7 @@ class LockedInfoViewModel(
                         clickWithdrawInfo!!.type
                     )
                 }
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
                 val isOnlyWithdraw = clickWithdrawInfo!!.unlockHeight == 0L
                 if (isOnlyWithdraw) {
                     withdrawList = withdrawList?.filter { it.id != clickWithdrawInfo?.id } as MutableList<WithdrawModule.WithDrawLockedInfo>?

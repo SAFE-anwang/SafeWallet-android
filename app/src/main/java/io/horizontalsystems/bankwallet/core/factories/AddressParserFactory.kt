@@ -20,9 +20,10 @@ val BlockchainType.uriScheme: String?
             BlockchainType.SafeFour -> "safe4"
             BlockchainType.Zcash -> "zcash"
             BlockchainType.Ethereum -> "ethereum"
-            BlockchainType.BinanceChain -> "binancecoin"
             BlockchainType.Ton -> "toncoin"
             BlockchainType.Tron -> "tron"
+            BlockchainType.Stellar -> "stellar"
+            BlockchainType.Monero -> "monero"
             else -> null
         }
     }
@@ -40,9 +41,10 @@ val BlockchainType.removeScheme: Boolean
             BlockchainType.Safe,
             BlockchainType.Zcash,
             BlockchainType.Ethereum,
-            BlockchainType.BinanceChain,
             BlockchainType.Ton,
-            BlockchainType.Tron -> true
+            BlockchainType.Tron,
+            BlockchainType.Stellar,
+            BlockchainType.Monero -> true
 
             else -> false
         }

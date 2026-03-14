@@ -27,10 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
-import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.slideFromRightForResult
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.chart.ChartViewModel
 import io.horizontalsystems.bankwallet.modules.coin.CoinLink
@@ -42,16 +47,18 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.Restor
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsModule
 import io.horizontalsystems.bankwallet.modules.managewallets.ManageWalletsViewModel
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownFragment
-import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
+import io.horizontalsystems.bankwallet.modules.restoreconfig.BirthdayHeightConfig
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CellFooter
+import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.ListErrorView
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
@@ -61,11 +68,10 @@ import io.horizontalsystems.marketkit.models.LinkType
 
 @Composable
 fun CoinOverviewScreen(
-    apiTag: String,
     fullCoin: FullCoin,
     navController: NavController
 ) {
-    val vmFactory by lazy { CoinOverviewModule.Factory(fullCoin, apiTag) }
+    val vmFactory by lazy { CoinOverviewModule.Factory(fullCoin) }
     val viewModel = viewModel<CoinOverviewViewModel>(factory = vmFactory)
     val chartViewModel = viewModel<ChartViewModel>(factory = vmFactory)
 
@@ -101,10 +107,13 @@ fun CoinOverviewScreen(
     val manageWalletsViewModel = viewModel<ManageWalletsViewModel>(factory = vmFactory1)
     val restoreSettingsViewModel = viewModel<RestoreSettingsViewModel>(factory = vmFactory1)
 
-    if (restoreSettingsViewModel.openZcashConfigure != null) {
-        restoreSettingsViewModel.zcashConfigureOpened()
+    restoreSettingsViewModel.openBirthdayHeightConfig?.let { token ->
+        restoreSettingsViewModel.birthdayHeightConfigOpened()
 
-        navController.slideFromBottomForResult<ZcashConfigure.Result>(R.id.zcashConfigure) {
+        navController.slideFromRightForResult<BirthdayHeightConfig.Result>(
+            resId = R.id.zcashConfigure,
+            input = token
+        ) {
             if (it.config != null) {
                 restoreSettingsViewModel.onEnter(it.config)
             } else {
@@ -126,6 +135,7 @@ fun CoinOverviewScreen(
                     ViewState.Loading -> {
                         Loading()
                     }
+
                     ViewState.Success -> {
                         overview?.let { overview ->
                             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -134,6 +144,7 @@ fun CoinOverviewScreen(
                                     fullCoin.coin.name,
                                     overview.marketCapRank,
                                     fullCoin.coin.imageUrl,
+                                    fullCoin.coin.alternativeImageUrl,
                                     fullCoin.iconPlaceholder
                                 )
 
@@ -144,7 +155,6 @@ fun CoinOverviewScreen(
                                 CellUniversalLawrenceSection {
                                     RowUniversal(
                                         modifier = Modifier
-                                            .height(52.dp)
                                             .fillMaxWidth()
                                             .padding(horizontal = 16.dp),
                                     ) {
@@ -157,21 +167,38 @@ fun CoinOverviewScreen(
                                                     title = stringResource(id = R.string.Button_Hide),
                                                     onClick = {
                                                         viewModel.disableChartIndicators()
+
+                                                        stat(
+                                                            page = StatPage.CoinOverview,
+                                                            event = StatEvent.ToggleIndicators(false)
+                                                        )
                                                     }
                                                 )
                                             } else {
                                                 ButtonSecondaryDefault(
+                                                    modifier = Modifier.height(28.dp),
                                                     title = stringResource(id = R.string.Button_Show),
                                                     onClick = {
                                                         viewModel.enableChartIndicators()
+
+                                                        stat(
+                                                            page = StatPage.CoinOverview,
+                                                            event = StatEvent.ToggleIndicators(true)
+                                                        )
                                                     }
                                                 )
                                             }
                                             HSpacer(width = 8.dp)
                                             ButtonSecondaryCircle(
+                                                modifier = Modifier.height(28.dp),
                                                 icon = R.drawable.ic_setting_20
                                             ) {
                                                 navController.slideFromRight(R.id.indicatorsFragment)
+
+                                                stat(
+                                                    page = StatPage.CoinOverview,
+                                                    event = StatEvent.Open(StatPage.Indicators)
+                                                )
                                             }
                                         }
                                     }
@@ -183,8 +210,12 @@ fun CoinOverviewScreen(
                                 }
 
                                 if (overview.roi.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    CellSingleLineClear(borderTop = true) {
+                                        body_leah(text = stringResource(R.string.CoinPage_ROI_Title, viewModel.fullCoin.coin.code))
+                                    }
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    Roi(overview.roi)
+                                    Roi(overview.roi, navController)
                                 }
 
                                 viewModel.tokenVariants?.let { tokenVariants ->
@@ -193,16 +224,36 @@ fun CoinOverviewScreen(
                                         tokenVariants = tokenVariants,
                                         onClickAddToWallet = {
                                             manageWalletsViewModel.enable(it)
+
+                                            stat(
+                                                page = StatPage.CoinOverview,
+                                                event = StatEvent.AddToWallet
+                                            )
                                         },
                                         onClickRemoveWallet = {
                                             manageWalletsViewModel.disable(it)
+
+                                            stat(
+                                                page = StatPage.CoinOverview,
+                                                event = StatEvent.RemoveFromWallet
+                                            )
                                         },
                                         onClickCopy = {
                                             TextHelper.copyText(it)
                                             HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+
+                                            stat(
+                                                page = StatPage.CoinOverview,
+                                                event = StatEvent.Copy(StatEntity.ContractAddress)
+                                            )
                                         },
                                         onClickExplorer = {
                                             LinkHelper.openLinkInAppBrowser(context, it)
+
+                                            stat(
+                                                page = StatPage.CoinOverview,
+                                                event = StatEvent.Open(StatPage.ExternalBlockExplorer)
+                                            )
                                         },
                                     )
                                 }
@@ -223,12 +274,14 @@ fun CoinOverviewScreen(
                         }
 
                     }
+
                     is ViewState.Error -> {
                         ListErrorView(stringResource(id = R.string.BalanceSyncError_Title)) {
                             viewModel.retry()
                             chartViewModel.refresh()
                         }
                     }
+
                     null -> {}
                 }
             }
@@ -246,7 +299,41 @@ private fun onClick(coinLink: CoinLink, context: Context, navController: NavCont
                 MarkdownFragment.Input(absoluteUrl, true)
             )
         }
+
         else -> LinkHelper.openLinkInAppBrowser(context, absoluteUrl)
+    }
+
+    when (coinLink.linkType) {
+        LinkType.Guide -> stat(page = StatPage.CoinOverview, event = StatEvent.Open(StatPage.Guide))
+        LinkType.Website -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalCoinWebsite)
+        )
+
+        LinkType.Whitepaper -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalCoinWhitePaper)
+        )
+
+        LinkType.Twitter -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalTwitter)
+        )
+
+        LinkType.Telegram -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalTelegram)
+        )
+
+        LinkType.Reddit -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalReddit)
+        )
+
+        LinkType.Github -> stat(
+            page = StatPage.CoinOverview,
+            event = StatEvent.Open(StatPage.ExternalGithub)
+        )
     }
 }
 

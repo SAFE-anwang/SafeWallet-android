@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.send.bitcoin
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.IFeeRateProvider
 import io.horizontalsystems.bankwallet.modules.send.SendErrorFetchFeeRateFailed
@@ -25,7 +26,8 @@ class SendBitcoinFeeRateService(private val feeRateProvider: IFeeRateProvider) {
         State(
             feeRate = feeRate,
             feeRateCaution = feeRateCaution,
-            canBeSend = canBeSend
+            canBeSend = canBeSend,
+            isRecommended = feeRate == recommendedFeeRate
         )
     )
     val stateFlow = _stateFlow.asStateFlow()
@@ -34,11 +36,19 @@ class SendBitcoinFeeRateService(private val feeRateProvider: IFeeRateProvider) {
         try {
             val feeRates = feeRateProvider.getFeeRates()
 
-            recommendedFeeRate = feeRates.recommended
-            minimumFeeRate = feeRates.minimum
-            feeRate = recommendedFeeRate
-        } catch (e: Throwable) {
+            if (recommendedFeeRate == null) {
+                setRecommendedAndMin(feeRates.recommended, feeRates.minimum)
+            }
+        } catch (error: Throwable) {
+            Log.e("SendBitcoinFeeRateService", "feeRateProvider.getFeeRates()", error )
         }
+    }
+
+    fun setRecommendedAndMin(recommended: Int, minimum: Int) {
+        recommendedFeeRate = recommended
+        minimumFeeRate = minimum
+
+        feeRate = recommendedFeeRate
 
         validateFeeRate()
         emitState()
@@ -63,7 +73,8 @@ class SendBitcoinFeeRateService(private val feeRateProvider: IFeeRateProvider) {
             State(
                 feeRate = feeRate,
                 feeRateCaution = feeRateCaution,
-                canBeSend = canBeSend
+                canBeSend = canBeSend,
+                isRecommended = feeRate == recommendedFeeRate
             )
         }
     }
@@ -96,5 +107,6 @@ class SendBitcoinFeeRateService(private val feeRateProvider: IFeeRateProvider) {
         val feeRate: Int?,
         val feeRateCaution: HSCaution?,
         val canBeSend: Boolean,
+        val isRecommended: Boolean,
     )
 }

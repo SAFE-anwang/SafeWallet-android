@@ -5,9 +5,9 @@ import android.widget.CompoundButton
 
 abstract class SingleSwitchListener : CompoundButton.OnCheckedChangeListener {
 
-    override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+    override fun onCheckedChanged(p0: CompoundButton, isChecked: Boolean) {
         if (canBeChanged()) {
-            onSingleSwitch(buttonView, isChecked)
+            onSingleSwitch(p0, isChecked)
         }
     }
 

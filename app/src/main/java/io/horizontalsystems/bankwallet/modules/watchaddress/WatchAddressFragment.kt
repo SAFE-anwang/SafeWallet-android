@@ -1,10 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.watchaddress
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -33,17 +30,24 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
+import io.horizontalsystems.bankwallet.core.slideFromRightForResult
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
+import io.horizontalsystems.bankwallet.modules.restoreconfig.BirthdayHeightConfig
 import io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains.SelectBlockchainsFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputMultiline
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.delay
 
 class WatchAddressFragment : BaseComposeFragment() {
@@ -96,44 +100,55 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
         )
     }
 
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = stringResource(R.string.ManageAccounts_WatchAddress),
-            navigationIcon = {
-                HsBackButton(onClick = { navController.popBackStack() })
-            },
-            menuItems = buildList {
-                when (submitType) {
-                    is SubmitButtonType.Watch -> {
-                        add(
-                            MenuItem(
-                                title = TranslatableString.ResString(R.string.Watch_Address_Watch),
-                                onClick = viewModel::onClickWatch,
-                                enabled = submitType.enabled
-                            )
-                        )
-                    }
+    if (uiState.openBirthdayHeightScreen) {
+        viewModel.onBirthdayHeightScreenOpened()
 
-                    is SubmitButtonType.Next -> {
-                        add(
-                            MenuItem(
-                                title = TranslatableString.ResString(R.string.Watch_Address_Watch),
-                                onClick = viewModel::onClickNext,
-                                enabled = submitType.enabled
-                            )
+        navController.slideFromRightForResult<BirthdayHeightConfig.Result>(
+            resId = R.id.zcashConfigure,
+            input = BlockchainType.Monero
+        ) { result ->
+            if (result.config != null) {
+                viewModel.onBirthdayHeightEntered(result.config.birthdayHeight?.toLongOrNull())
+            } else {
+                viewModel.onBirthdayHeightCancelled()
+            }
+        }
+    }
+
+    HSScaffold(
+        title = stringResource(R.string.ManageAccounts_WatchAddress),
+        onBack = navController::popBackStack,
+        menuItems = buildList {
+            when (submitType) {
+                is SubmitButtonType.Watch -> {
+                    add(
+                        MenuItem(
+                            title = TranslatableString.ResString(R.string.Button_Done),
+                            onClick = viewModel::onClickWatch,
+                            enabled = submitType.enabled,
+                            tint = ComposeAppTheme.colors.jacob
                         )
-                    }
+                    )
+                }
+
+                is SubmitButtonType.Next -> {
+                    add(
+                        MenuItem(
+                            title = TranslatableString.ResString(R.string.Button_Next),
+                            onClick = viewModel::onClickNext,
+                            enabled = submitType.enabled
+                        )
+                    )
                 }
             }
-        )
-
+        }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            VSpacer(12.dp)
 
             HeaderText(stringResource(id = R.string.ManageAccount_Name))
             FormsInput(
@@ -143,16 +158,39 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
                 hint = viewModel.defaultAccountName,
                 onValueChange = viewModel::onEnterAccountName
             )
-            Spacer(Modifier.height(32.dp))
+            VSpacer(32.dp)
             FormsInputMultiline(
                 modifier = Modifier.padding(horizontal = 16.dp),
+                initial = uiState.inputState?.dataOrNull,
                 hint = stringResource(id = R.string.Watch_Address_Hint),
                 qrScannerEnabled = true,
-                state = uiState.inputState
-            ) {
-                viewModel.onEnterInput(it)
+                state = uiState.inputState,
+                onValueChange = {
+                    viewModel.onEnterInput(it)
+                },
+                onClear = {
+                    stat(page = StatPage.WatchWallet, event = StatEvent.Clear(StatEntity.Key))
+                },
+                onScanQR = {
+                    stat(page = StatPage.WatchWallet, event = StatEvent.ScanQr(StatEntity.Key))
+                },
+                onPaste = {
+                    stat(page = StatPage.WatchWallet, event = StatEvent.Paste(StatEntity.Key))
+                }
+            )
+
+            if (uiState.addressType == WatchAddressViewModel.Type.MoneroAddress) {
+                FormsInput(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    initial = uiState.viewKeyState?.dataOrNull,
+                    pasteEnabled = true,
+                    hint = stringResource(R.string.Watch_ViewKey),
+                    onValueChange = viewModel::onEnterViewKey,
+                    state = uiState.viewKeyState
+                )
             }
-            Spacer(Modifier.height(32.dp))
+
+            VSpacer(32.dp)
         }
     }
 }

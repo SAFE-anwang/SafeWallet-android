@@ -103,7 +103,7 @@ class SafeFourRewardViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = service.withdraw(listOf(0))
             if (result != null) {
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
                 MMKV.defaultMMKV()?.encode(address, System.currentTimeMillis())
                 emitState()
             } else {

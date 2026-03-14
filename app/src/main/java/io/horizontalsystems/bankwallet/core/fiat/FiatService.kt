@@ -1,6 +1,6 @@
 package io.horizontalsystems.bankwallet.core.fiat
 
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService.AmountType
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm.AmountType
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.CoinValue
@@ -21,10 +21,10 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class FiatService(
-    private val switchService: AmountTypeSwitchService,
+    private val switchService: AmountTypeSwitchServiceSendEvm,
     private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper
-) : AmountTypeSwitchService.IToggleAvailableListener {
+) {
 
     private val disposables = CompositeDisposable()
     private var latestRateDisposable: Disposable? = null
@@ -32,15 +32,6 @@ class FiatService(
     private var token: Token? = null
     private var coinAmount: BigDecimal? = null
     private var currencyAmount: BigDecimal? = null
-
-    private val toggleAvailableSubject = PublishSubject.create<Boolean>()
-    override var toggleAvailable: Boolean = false
-        private set(value) {
-            field = value
-            toggleAvailableSubject.onNext(value)
-        }
-    override val toggleAvailableObservable: Observable<Boolean>
-        get() = toggleAvailableSubject
 
     private var rate: BigDecimal? = null
 
@@ -64,8 +55,6 @@ class FiatService(
         latestRateDisposable?.dispose()
         latestRateDisposable = null
 
-        toggleAvailable = false
-
         val token = token ?: return
 
         syncLatestRate(marketKit.coinPrice(token.coin.uid, currency.code))
@@ -84,8 +73,6 @@ class FiatService(
         } else {
             null
         }
-
-        toggleAvailable = rate != null
 
         _fullAmountInfoFlow.tryEmit(fullAmountInfo())
     }

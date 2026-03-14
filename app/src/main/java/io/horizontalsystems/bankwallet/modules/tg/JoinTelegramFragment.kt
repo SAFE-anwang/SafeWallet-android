@@ -62,7 +62,7 @@ class JoinTelegramFragment: BaseFragment() {
                             Text(
                                 modifier = Modifier.padding(horizontal = 48.dp),
                                 text = stringResource(id = R.string.Telegram_Join_Group),
-                                style = ComposeAppTheme.typography.subhead2,
+                                style = ComposeAppTheme.typography.subheadB,
                                 color = ComposeAppTheme.colors.grey,
                                 textAlign = TextAlign.Center,
                             )

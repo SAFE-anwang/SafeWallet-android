@@ -1,12 +1,21 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.parcelize)
+}
+
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
 
 android {
-    compileSdkVersion compile_sdk_version
+    compileSdk = libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion min_sdk_version
-        targetSdkVersion compile_sdk_version
+        minSdk = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.compileSdk.get().toInteger()
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -21,12 +30,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     namespace 'io.horizontalsystems.seekbar'
@@ -34,11 +39,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:$core_ktx_version"
-    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.core.ktx)
 
     implementation project(':components:views')
 
-    testImplementation "junit:junit:$junit_version"
+    // Unit Tests
+    testImplementation(libs.junit)
+    testImplementation(libs.arch.core.testing)
 }

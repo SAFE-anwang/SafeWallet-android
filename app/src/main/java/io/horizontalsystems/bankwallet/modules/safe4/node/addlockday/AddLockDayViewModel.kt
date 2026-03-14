@@ -124,13 +124,13 @@ class AddLockDayViewModel(
 					}*/
 					val lockDay = inputDay
 					if (lockDay <= 0) {
-						sendResult = SendResult.Sent
+						sendResult = SendResult.Sent()
 						emitState()
 						return@launch
 					}
 					safe4.addLockDay(privateKey, selectLockId, lockDay)
 							.subscribe({
-								sendResult = SendResult.Sent
+								sendResult = SendResult.Sent()
 								emitState()
 							}, {
 								sendResult = SendResult.Failed(NodeCovertFactory.createCaution(it))

@@ -59,6 +59,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow2
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
@@ -229,8 +230,8 @@ fun LazyListScope.managerList(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            CoinImage(
-                                iconUrl = item.token.logoURI,
+                            HsImage(
+                                url = item.token.logoURI,
                                 placeholder = R.drawable.ic_safe_20,
                                 modifier = Modifier
                                     .size(32.dp)

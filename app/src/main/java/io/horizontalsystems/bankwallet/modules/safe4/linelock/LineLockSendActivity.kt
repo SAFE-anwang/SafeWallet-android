@@ -124,7 +124,7 @@ class LineLockSendActivity : BaseActivity() {
 
 
         presenterView.showSendConfirmation.observe(this, Observer {
-            hideSoftKeyboard()
+//            hideSoftKeyboard()
 
             supportFragmentManager.commit {
                 setCustomAnimations(
@@ -155,7 +155,7 @@ class LineLockSendActivity : BaseActivity() {
     }
 
     fun showFeeInfo() {
-        hideSoftKeyboard()
+//        hideSoftKeyboard()
 
         supportFragmentManager.commit {
             setCustomAnimations(

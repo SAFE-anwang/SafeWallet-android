@@ -27,7 +27,8 @@ object TransactionsModule {
             val transactionViewItemFactory = TransactionViewItemFactory(
                 App.evmLabelManager,
                 App.contactsRepository,
-                App.balanceHiddenManager
+                App.balanceHiddenManager,
+                App.localStorage
             )
 
             return TransactionsViewModel(
@@ -36,7 +37,8 @@ object TransactionsModule {
                 App.balanceHiddenManager,
                 App.transactionAdapterManager,
                 App.walletManager,
-                filterService,
+                TransactionFilterService(App.marketKit, App.transactionAdapterManager, App.spamManager),
+                App.localStorage
             ) as T
         }
     }

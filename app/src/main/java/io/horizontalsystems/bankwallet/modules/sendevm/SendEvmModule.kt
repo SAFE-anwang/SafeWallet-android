@@ -102,7 +102,7 @@ object SendEvmModule {
 
 
     class Factory(private val wallet: Wallet) : ViewModelProvider.Factory {
-        private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { SendEvmService(wallet.token, adapter) }
 
         @Suppress("UNCHECKED_CAST")
@@ -134,7 +134,7 @@ object SendEvmModule {
 
 
     class WsafeFactory(private val wallet: Wallet, private val isSafe4: Boolean) : ViewModelProvider.Factory {
-        private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { SendWsafeService(wallet.token, adapter, isSafe4) }
 
         @Suppress("UNCHECKED_CAST")
@@ -165,7 +165,7 @@ object SendEvmModule {
 
 
     class Safe4Factory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
-        private val adapter by lazy {App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy {App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { Safe4ConvertService(wallet.token, adapter, chain) }
 
         @Suppress("UNCHECKED_CAST")
@@ -197,7 +197,7 @@ object SendEvmModule {
 
 
     class Safe4ToUsdtFactory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
-        private val adapter by lazy {App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy {App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { Safe42UsdtConvertService(wallet.token, adapter, chain) }
 
         @Suppress("UNCHECKED_CAST")
@@ -229,7 +229,7 @@ object SendEvmModule {
 
 
     class UsdtToSafeFactory(private val wallet: Wallet, private val chain: Chain) : ViewModelProvider.Factory {
-        private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { SendUsdtToSafeService(wallet.token, adapter) }
 
         @Suppress("UNCHECKED_CAST")

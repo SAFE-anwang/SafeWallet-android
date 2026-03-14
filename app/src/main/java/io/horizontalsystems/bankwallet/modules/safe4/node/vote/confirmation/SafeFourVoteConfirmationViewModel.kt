@@ -54,7 +54,7 @@ class SafeFourVoteConfirmationViewModel(
                     safe4RpcBlockChain.voteOrApproval(evmKitWrapper.signer!!.privateKey.toHexString(),true, voteData.dstAddr, voteData.recordsIds.map { it.lockId.toBigInteger() })
                 }.blockingGet()
 
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 if (e is SocketTimeoutException) {
                     send()

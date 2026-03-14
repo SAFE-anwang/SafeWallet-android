@@ -18,14 +18,14 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 
 object TransactionInfoModule {
 
-    class Factory(private val transactionItem: TransactionItem) : ViewModelProvider.Factory {
+    class Factory(val transactionRecord: TransactionRecord) : ViewModelProvider.Factory {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val transactionSource = transactionItem.record.source
+            val transactionSource = transactionRecord.source
             val adapter: ITransactionsAdapter = App.transactionAdapterManager.getAdapter(transactionSource)!!
             val service = TransactionInfoService(
-                transactionItem.record,
+                transactionRecord,
                 adapter,
                 App.marketKit,
                 App.currencyManager,
@@ -71,6 +71,6 @@ data class TransactionInfoItem(
 val BlockchainType.resendable: Boolean
     get() =
         when (this) {
-            BlockchainType.Optimism, BlockchainType.ArbitrumOne -> false
+            BlockchainType.Optimism, BlockchainType.Base, BlockchainType.ZkSync, BlockchainType.ArbitrumOne -> false
             else -> true
         }

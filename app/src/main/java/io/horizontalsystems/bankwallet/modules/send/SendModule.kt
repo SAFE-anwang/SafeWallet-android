@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.linelock.LineLockSendHandler
@@ -50,8 +51,8 @@ object SendModule {
 
         fun getFormatted(): String {
             val prefix = if (approximate) "~" else ""
-            return prefix + when (this) {
-                is CoinValueInfo -> coinValue.getFormattedFull()
+            return when (this) {
+                is CoinValueInfo -> prefix + coinValue.getFormatted()
                 is CurrencyValueInfo -> App.numberFormatter.formatFiatFull(
                     currencyValue.value, currencyValue.currency.symbol
                 )
@@ -60,13 +61,13 @@ object SendModule {
 
         fun getFormattedPlain(): String {
             val prefix = if (approximate) "~" else ""
-            return prefix + when (this) {
+            return when (this) {
                 is CoinValueInfo -> {
-                    App.numberFormatter.formatCoinFull(value, coinValue.coin.code, coinValue.decimal)
+                    prefix + App.numberFormatter.formatCoinFull(value, coinValue.coin.code, coinValue.decimal)
                 }
 
                 is CurrencyValueInfo -> {
-                    App.numberFormatter.formatFiatFull(currencyValue.value, currencyValue.currency.symbol)
+                    App.numberFormatter.formatFiatShort(currencyValue.value, currencyValue.currency.symbol, 4)
                 }
             }
         }
@@ -83,7 +84,7 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet)) {
                 /*is ISendBitcoinAdapter -> {
                     val bitcoinInteractor = SendBitcoinInteractor(adapter, App.localStorage)
                     val handler = SendBitcoinHandler(bitcoinInteractor, wallet.coinType)
@@ -259,7 +260,7 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet)) {
                 is ISendSafeAdapter -> {
                     val safeInteractor = SendSafeConvertInteractor(adapter)
                     val handler = SendSafeConvertHandler(safeInteractor, ethAdapter)
@@ -344,7 +345,7 @@ object SendModule {
             val router = SendRouter()
             val presenter = SendPresenter(interactor, router)
 
-            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+            val handler: ISendHandler = when (val adapter = App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet)) {
                 is ISendSafeAdapter -> {
                     val safeInteractor = LineLockSendInteractor(adapter)
                     val handler = LineLockSendHandler(safeInteractor)
@@ -540,7 +541,7 @@ object SendModule {
 
 sealed class SendResult {
     object Sending : SendResult()
-    object Sent : SendResult()
+    class Sent(val transactionRecord: TransactionRecord? = null) : SendResult()
     class Failed(val caution: HSCaution) : SendResult()
 }
 

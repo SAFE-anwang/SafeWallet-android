@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,19 +45,11 @@ fun Box44(
             .then(colorModifier)
     ) {
         if (borderTop) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
+            HsDivider(modifier = Modifier.align(Alignment.TopCenter))
         }
 
         if (borderBottom) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+            HsDivider(modifier = Modifier.align(Alignment.BottomCenter))
         }
 
         content.invoke()

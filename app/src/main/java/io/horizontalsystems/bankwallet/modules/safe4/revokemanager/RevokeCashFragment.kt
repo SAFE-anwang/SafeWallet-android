@@ -101,7 +101,10 @@ class RevokeCashFragment: BaseFragment() {
                             App.connectivityManager,
                             App.accountManager.activeAccount,
                             input?.sessionTopic,
-                            App.evmBlockchainManager
+                            App.wcManager,
+                            App.networkManager,
+                            App.appConfigProvider,
+                            App.paidActionSettingsManager
                         )
                         wcSessionViewModel?.connect()
                     }

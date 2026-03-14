@@ -96,7 +96,7 @@ fun GetSafe3TestCoinScreen(
 			)
 		}
 
-		SendResult.Sent -> {
+		is SendResult.Sent -> {
 			HudHelper.showSuccessMessage(
 					view,
 					R.string.Get_Safe3_Test_Coin_Send_Success,

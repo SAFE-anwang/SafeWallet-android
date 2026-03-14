@@ -16,22 +16,18 @@ import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 
 @Composable
 fun SendScreen(
     title: String,
-    onCloseClick: () -> Unit,
+    onBack: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = title,
-            navigationIcon = {
-                HsBackButton(onClick = onCloseClick)
-            },
-            menuItems = listOf()
-        )
-
+    HSScaffold(
+        title = title,
+        onBack = onBack,
+    ) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             content.invoke(this)
         }

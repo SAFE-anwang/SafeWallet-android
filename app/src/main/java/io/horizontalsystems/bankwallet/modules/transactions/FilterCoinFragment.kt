@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,17 +32,18 @@ import androidx.navigation.navGraphViewModels
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.B2
 import io.horizontalsystems.bankwallet.ui.compose.components.Badge
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.D1
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 
@@ -53,6 +54,18 @@ class FilterCoinFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
+        val viewModel: TransactionsViewModel? = try {
+            navGraphViewModels<TransactionsViewModel>(R.id.mainFragment) { TransactionsModule.Factory() }.value
+        } catch (e: IllegalStateException) {
+            Toast.makeText(App.instance, "ViewModel is Null", Toast.LENGTH_SHORT).show()
+            null
+        }
+
+        if (viewModel == null) {
+            navController.popBackStack(R.id.filterCoinFragment, true)
+            return
+        }
+
         FilterCoinScreen(navController, viewModel)
     }
 
@@ -64,14 +77,11 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
     val filterCoins by viewModel.filterTokensLiveData.observeAsState()
 
     ComposeAppTheme {
-        Surface(color = ComposeAppTheme.colors.tyler) {
+        HSScaffold(
+            title = stringResource(R.string.Transactions_Filter_ChooseCoin),
+            onBack = navController::popBackStack,
+        ) {
             Column {
-                AppBar(
-                    title = stringResource(R.string.Transactions_Filter_ChooseCoin),
-                    navigationIcon = {
-                        HsBackButton(onClick = navController::popBackStack)
-                    }
-                )
                 filterCoins?.let { filterCoins ->
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 32.dp)
@@ -93,8 +103,12 @@ fun FilterCoinScreen(navController: NavController, viewModel: TransactionsViewMo
                                         CoinImageSafe(
                                             uid = token.coin.uid,
                                             iconUrl = token.coin.imageUrl,
-                                            placeholder = token.iconPlaceholder
+                                            placeholder = token.iconPlaceholder,
+                                            modifier = Modifier
+                                                .padding(end = 16.dp)
+                                                .size(24.dp),
                                         )
+
                                         Column {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 B2(text = token.coin.code)

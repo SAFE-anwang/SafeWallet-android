@@ -73,7 +73,6 @@ import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
 import io.horizontalsystems.bankwallet.modules.safe4.node.ListEmptyView2
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
 import io.horizontalsystems.bankwallet.modules.safe4.node.vote.confirmation.SafeFourVoteConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.LightGrey50
@@ -86,8 +85,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox2
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
-import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults
-import io.horizontalsystems.bankwallet.ui.compose.components.SecondaryButtonDefaults.buttonColors
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
@@ -481,7 +478,7 @@ fun LazyListScope.lockedList(
                                 }
                         )
                         val color = if (item.enable) {
-                            ComposeAppTheme.colors.bran
+                            ComposeAppTheme.colors.leah
                         } else {
                             if (App.localStorage.currentTheme == ThemeType.Blue) {
                                 LightGrey50
@@ -707,7 +704,7 @@ private fun JoinAmountView(
         Text(
                 text = "${percent.value} SAFE",
                 modifier = modifier,
-                style = ComposeAppTheme.typography.subhead2,
+                style = ComposeAppTheme.typography.subheadB,
                 color = if (percent.selected) {
                     ComposeAppTheme.colors.jacob
                 } else {
@@ -729,8 +726,8 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp),
                 text = stringResource(id = R.string.Safe_Four_Node_Info),
-                style = ComposeAppTheme.typography.subhead1,
-                color = ComposeAppTheme.colors.bran,
+                style = ComposeAppTheme.typography.subheadB,
+                color = ComposeAppTheme.colors.leah,
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 16.sp,
                 maxLines = 1,
@@ -752,7 +749,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.id.toString(),
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -774,7 +771,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.status.title().getString(),
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -796,7 +793,7 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 text = nodeInfo.address.hex,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
         )
         Divider(
@@ -816,7 +813,7 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 text = nodeInfo.creator.hex,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
         )
         if (isSuperNode) {
@@ -836,7 +833,7 @@ fun NodeInfoScreen(
             Text(
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                     text = nodeInfo.name,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -858,7 +855,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.createPledge,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -880,7 +877,7 @@ fun NodeInfoScreen(
             Spacer(Modifier.weight(1f))
             Text(
                     text = nodeInfo.voteCompleteCount,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -902,7 +899,7 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 text = nodeInfo.enode,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body
         )
         Divider(
@@ -922,7 +919,7 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                 text = nodeInfo.desc,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
                 maxLines = 1,
         )
@@ -943,13 +940,13 @@ fun NodeInfoScreen(
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Creator),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
             Text(
                     text = uiState.creatorText,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -972,13 +969,13 @@ fun NodeInfoScreen(
             Text(
                     text = stringResource(id = R.string.Safe_Four_Register_Partner),
                     style = ComposeAppTheme.typography.body,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
             )
             Text(
                     text = uiState.partnerText,
-                    color = ComposeAppTheme.colors.bran,
+                    color = ComposeAppTheme.colors.leah,
                     style = ComposeAppTheme.typography.body,
                     maxLines = 1,
             )
@@ -1002,13 +999,13 @@ fun NodeInfoScreen(
                 Text(
                         text = stringResource(id = R.string.Safe_Four_Register_Voters),
                         style = ComposeAppTheme.typography.body,
-                        color = ComposeAppTheme.colors.bran,
+                        color = ComposeAppTheme.colors.leah,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                 )
                 Text(
                         text = uiState.voterText,
-                        color = ComposeAppTheme.colors.bran,
+                        color = ComposeAppTheme.colors.leah,
                         style = ComposeAppTheme.typography.body,
                         maxLines = 1,
                 )

@@ -13,22 +13,22 @@ import java.util.*
 
 object GuidesManager {
 
-    private val guidesUrl = App.appConfigProvider.guidesUrl
+    private val eduUrl = App.appConfigProvider.eduUrl
 
     private val gson = GsonBuilder()
             .setDateFormat("yyyy-MM-dd")
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .registerTypeAdapter(Guide::class.java, GuideDeserializer(guidesUrl))
+            .registerTypeAdapter(Guide::class.java, GuideDeserializer(eduUrl))
             .create()
 
     fun getGuideCategories(): Single<Array<GuideCategoryMultiLang>> {
         return Single.fromCallable {
             val request = Request.Builder()
-                    .url(guidesUrl)
+                    .url(eduUrl)
                     .build()
 
             val response = OkHttpClient().newCall(request).execute()
-            val categories = gson.fromJson(response.body.charStream(), Array<GuideCategoryMultiLang>::class.java)
+            val categories = gson.fromJson(response.body?.charStream(), Array<GuideCategoryMultiLang>::class.java)
             response.close()
 
             categories
@@ -42,10 +42,8 @@ object GuidesManager {
             val jsonObject = json.asJsonObject
 
             return Guide(
-                    jsonObject.get("title").asString,
-                    context.deserialize(jsonObject.get("updated_at"), Date::class.java),
-                    jsonObject["image"].asString?.let { absolutify(it) },
-                    absolutify(jsonObject["file"].asString)
+                jsonObject.get("title").asString,
+                absolutify(jsonObject.get("markdown").asString)
             )
         }
 

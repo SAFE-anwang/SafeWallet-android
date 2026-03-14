@@ -104,7 +104,7 @@ fun ProposalInfoScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                     view,
                     R.string.Send_Success,
@@ -328,7 +328,7 @@ fun ProposalInfoScreen(
                                     ) {
                                         Text(
                                                 text = stringResource(id = R.string.Safe_Four_Proposal_Vote_Agree),
-                                                style = ComposeAppTheme.typography.subhead1,
+                                                style = ComposeAppTheme.typography.subheadB,
                                                 color = ComposeAppTheme.colors.greenD,
                                         )
                                     }
@@ -351,7 +351,7 @@ fun ProposalInfoScreen(
                                     ) {
                                         Text(
                                                 text = stringResource(id = R.string.Safe_Four_Proposal_Vote_Refuse),
-                                                style = ComposeAppTheme.typography.subhead1,
+                                                style = ComposeAppTheme.typography.subheadB,
                                                 color = ComposeAppTheme.colors.redD,
                                         )
                                     }
@@ -374,7 +374,7 @@ fun ProposalInfoScreen(
                                     ) {
                                         Text(
                                                 text = stringResource(id = R.string.Safe_Four_Proposal_Vote_Give_up),
-                                                style = ComposeAppTheme.typography.subhead1,
+                                                style = ComposeAppTheme.typography.subheadB,
                                                 color = ComposeAppTheme.colors.grey,
                                         )
                                     }

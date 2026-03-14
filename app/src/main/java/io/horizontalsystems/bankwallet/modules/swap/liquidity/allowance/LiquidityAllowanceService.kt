@@ -53,7 +53,7 @@ class LiquidityAllowanceService(
 
     fun revokeEvmData(): SendEvmData? {
         val token = token
-        val adapter = token?.let { adapterManager.getAdapterForToken(it) } as? Eip20Adapter ?: return null
+        val adapter = token?.let { adapterManager.getAdapterForToken<Eip20Adapter>(it) } as? Eip20Adapter ?: return null
         val address = spenderAddress ?: return null
 
         return SendEvmData(adapter.eip20Kit.buildApproveTransactionData(address, BigInteger.ZERO))
@@ -91,7 +91,7 @@ class LiquidityAllowanceService(
 
         val address = spenderAddress
         val token = token
-        val adapter = token?.let { adapterManager.getAdapterForToken(it) } as? Eip20Adapter
+        val adapter = token?.let { adapterManager.getAdapterForToken<Eip20Adapter>(it) } as? Eip20Adapter
 
         if (address == null || token == null || adapter == null) {
             state = null

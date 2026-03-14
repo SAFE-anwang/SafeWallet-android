@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAdapterManager
+import io.horizontalsystems.bankwallet.core.IReceiveAdapter
 import io.horizontalsystems.bankwallet.core.UsedAddress
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.accountTypeDerivation
@@ -30,6 +31,7 @@ import java.math.BigDecimal
 class ReceiveAddressViewModel(
     private val wallet: Wallet,
     private val adapterManager: IAdapterManager,
+    private val isTransparentAddress: Boolean,
     private val evmKitManager: EvmKitManager?
 ) : ViewModelUiState<ReceiveModule.UiState>() {
 
@@ -37,13 +39,15 @@ class ReceiveAddressViewModel(
     private var address = ""
     private var usedAddresses: List<UsedAddress> = listOf()
     private var usedChangeAddresses: List<UsedAddress> = listOf()
-    private var uri = ""
     private var amount: BigDecimal? = null
-    private var accountActive = true
-    private var networkName = ""
+    private var blockchainName: String? = null
+    private var addressFormat: String? = null
+    private var addressType: String? = null
     private var mainNet = true
     private var watchAccount = wallet.account.isWatchAccount
-    private var alertText: ReceiveModule.AlertText? = getAlertText(watchAccount)
+    private val addressUriService = AddressUriService(wallet.token)
+
+    private var addressUriState = addressUriService.stateFlow.value
     private var moreAddressInfo: List<MoreAddressInfo> = listOf()
 
     init {
@@ -56,6 +60,13 @@ class ReceiveAddressViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             setData()
         }
+
+        viewModelScope.launch {
+            addressUriService.stateFlow.collect {
+                handleUpdatedAddressUriState(it)
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             evmKitManager?.evmKitWrapper?.evmKit?.anBaoAddressList?.let {
                 moreAddressInfo = it.map {
@@ -79,60 +90,60 @@ class ReceiveAddressViewModel(
         setNetworkName()
     }
 
+    private fun handleUpdatedAddressUriState(state: AddressUriService.State) {
+        addressUriState = state
+
+        emitState()
+    }
+
     override fun createState() = ReceiveModule.UiState(
         viewState = viewState,
         address = address,
+        mainNet = mainNet,
         usedAddresses = usedAddresses,
         usedChangeAddresses = usedChangeAddresses,
-        uri = uri,
-        networkName = networkName,
+        uri = addressUriState.uri,
+        blockchainName = blockchainName,
+        addressFormat = addressFormat,
+        addressType = addressType,
         watchAccount = watchAccount,
-        additionalItems = getAdditionalData(),
         amount = amount,
-        alertText = alertText,
-            showMoreButton = wallet.account.isAnBaoWallet
-                    && (wallet.token.blockchainType is BlockchainType.Ethereum || wallet.token.blockchainType is BlockchainType.BinanceSmartChain),
-            moreAddress = moreAddressInfo
+        amountString = amount?.let { App.numberFormatter.formatCoinFull(it, wallet.token.coin.code, wallet.token.decimals) },
+        alertText = null,
+        showMoreButton = wallet.account.isAnBaoWallet
+                && (wallet.token.blockchainType is BlockchainType.Ethereum || wallet.token.blockchainType is BlockchainType.BinanceSmartChain),
+        moreAddress = moreAddressInfo
     )
 
     private fun setNetworkName() {
         when (val tokenType = wallet.token.type) {
             is TokenType.Derived -> {
-                networkName = Translator.getString(R.string.Balance_Format) + ": "
-                networkName += "${tokenType.derivation.accountTypeDerivation.addressType} (${tokenType.derivation.accountTypeDerivation.rawName})"
+                addressFormat = "${tokenType.derivation.accountTypeDerivation.addressType} (${tokenType.derivation.accountTypeDerivation.rawName})"
             }
 
             is TokenType.AddressTyped -> {
-                networkName = Translator.getString(R.string.Balance_Format) + ": "
-                networkName += tokenType.type.bitcoinCashCoinType.title
+                addressFormat = tokenType.type.bitcoinCashCoinType.title
             }
 
             else -> {
-                networkName = Translator.getString(R.string.Balance_Network) + ": "
-                networkName += wallet.token.blockchain.name
+                if (wallet.token.blockchainType == BlockchainType.Zcash) {
+                    addressType =
+                        Translator.getString(if (isTransparentAddress) R.string.Balance_Zcash_Transparent else R.string.Balance_Zcash_Unified)
+                } else {
+                    blockchainName = wallet.token.blockchain.name
+                }
             }
         }
-        if (!mainNet) {
-            networkName += " (TestNet)"
-        }
         emitState()
-    }
-
-    private fun getAlertText(watchAccount: Boolean): ReceiveModule.AlertText? {
-        return if (watchAccount) ReceiveModule.AlertText.Normal(
-            Translator.getString(R.string.Balance_Receive_WatchAddressAlert)
-        )
-        else null
     }
 
     private suspend fun setData() {
         val adapter = adapterManager.getReceiveAdapterForWallet(wallet)
         if (adapter != null) {
-            address = adapter.receiveAddress
+            address = getFreshReceiveAddress(adapter, isTransparentAddress)
+            addressUriService.setAddress(address)
             usedAddresses = adapter.usedAddresses(false)
             usedChangeAddresses = adapter.usedAddresses(true)
-            uri = getUri()
-            accountActive = adapter.isAddressActive(adapter.receiveAddress)
             mainNet = adapter.isMainNet
             viewState = ViewState.Success
         } else {
@@ -141,39 +152,15 @@ class ReceiveAddressViewModel(
         emitState()
     }
 
-    private fun getUri(): String {
-        var newUri = address
-        amount?.let {
-            val parser = AddressUriParser(wallet.token.blockchainType, wallet.token.type)
-            val addressUri = AddressUri(wallet.token.blockchainType.uriScheme ?: "")
-            addressUri.address = newUri
-            addressUri.parameters[AddressUri.Field.amountField(wallet.token.blockchainType)] = it.toString()
-            addressUri.parameters[AddressUri.Field.BlockchainUid] = wallet.token.blockchainType.uid
-            if (wallet.token.type !is TokenType.Derived && wallet.token.type !is TokenType.AddressTyped) {
-                addressUri.parameters[AddressUri.Field.TokenUid] = wallet.token.type.id
-            }
-            newUri = parser.uri(addressUri)
+    private suspend fun getFreshReceiveAddress(
+        adapter: IReceiveAdapter,
+        transparentAddress: Boolean
+    ): String {
+        return if (transparentAddress) {
+            adapter.getFreshReceiveAddressTransparent() ?: adapter.receiveAddressTransparent ?: ""
+        } else {
+            adapter.getFreshReceiveAddress()
         }
-
-        return newUri
-    }
-
-    private fun getAdditionalData(): List<AdditionalData> {
-        val items = mutableListOf<AdditionalData>()
-
-        if (!accountActive) {
-            items.add(AdditionalData.AccountNotActive)
-        }
-
-        amount?.let {
-            items.add(
-                AdditionalData.Amount(
-                    value = it.toString()
-                )
-            )
-        }
-
-        return items
     }
 
     fun onErrorClick() {
@@ -183,15 +170,10 @@ class ReceiveAddressViewModel(
     }
 
     fun setAmount(amount: BigDecimal?) {
-        amount?.let {
-            if (it <= BigDecimal.ZERO) {
-                this.amount = null
-                emitState()
-                return
-            }
-        }
         this.amount = amount
-        uri = getUri()
+
+        addressUriService.setAmount(amount)
+
         emitState()
     }
 

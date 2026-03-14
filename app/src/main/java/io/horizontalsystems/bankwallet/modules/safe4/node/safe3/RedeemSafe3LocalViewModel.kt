@@ -26,6 +26,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.extensions.toHexString
 import io.horizontalsystems.bitcoincore.storage.UnspentOutput
+import io.horizontalsystems.bitcoincore.storage.UtxoFilters
 import io.horizontalsystems.bitcoincore.transactions.scripts.ScriptType
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
@@ -175,7 +176,7 @@ class RedeemSafe3LocalViewModel(
 							true
 					))
 				}
-				sendResult = SendResult.Sent
+				sendResult = SendResult.Sent()
 				isRedeemSuccess = true
 				emitState()
 				App.preferences.edit().putBoolean(evmKitWrapper.evmKit.receiveAddress.hex, true).commit()
@@ -266,7 +267,7 @@ class RedeemSafe3LocalViewModel(
 			val alreadyRedeem = redeemStorage.allRedeem()
 			/*val unspentOutputs = allUtxo()
 					.distinctBy { it.transaction.hash.toHexString() }*/
-			val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()/*.distinctBy { it.transaction.hash.toHexString() }*/
+			val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo(UtxoFilters())/*.distinctBy { it.transaction.hash.toHexString() }*/
 			availableAmount = spendableUtxo.sumOf { it.output.value }
 			val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()/*.distinctBy { it.transaction.hash.toHexString() }*/
 			lockedAmount = spendableTimeLockUtxo.sumOf { it.output.value }
@@ -364,7 +365,7 @@ class RedeemSafe3LocalViewModel(
 	}
 
 	private fun allUtxo(): List<UnspentOutput> {
-		val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo()
+		val spendableUtxo = bitcoinCore.dataProvider.getSpendableUtxo(UtxoFilters())
 		val spendableTimeLockUtxo = bitcoinCore.dataProvider.getSpendableTimeLockUtxo()
 		return spendableUtxo + spendableTimeLockUtxo
 	}
@@ -373,7 +374,7 @@ class RedeemSafe3LocalViewModel(
 		super.onCleared()
 		disposables.clear()
 
-		sendResult = SendResult.Sent
+		sendResult = SendResult.Sent()
 	}
 
 	companion object {

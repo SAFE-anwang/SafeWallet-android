@@ -16,7 +16,6 @@ import io.horizontalsystems.bankwallet.modules.address.AddressValidationExceptio
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.ethereumkit.models.Chain

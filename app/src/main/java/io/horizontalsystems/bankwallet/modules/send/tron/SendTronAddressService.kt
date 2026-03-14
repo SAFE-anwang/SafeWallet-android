@@ -12,15 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import io.horizontalsystems.tronkit.models.Address as TronAddress
 
-class SendTronAddressService(
-    private val adapter: ISendTronAdapter,
-    private val token: Token,
-    prefilledAddress: String?
-) {
-    var address: Address? = prefilledAddress?.let { Address(it) }
-        private set
+class SendTronAddressService(private val adapter: ISendTronAdapter, private val token: Token) {
+    private var address: Address? = null
     private var addressError: Throwable? = null
-    private var tronAddress: TronAddress? = prefilledAddress?.let { TronAddress.fromBase58(it) }
+    private var tronAddress: TronAddress? = null
     private var isInactiveAddress: Boolean = false
 
     private val _stateFlow = MutableStateFlow(
@@ -49,13 +44,7 @@ class SendTronAddressService(
 
         try {
             val validAddress = TronAddress.fromBase58(address.hex)
-
-            if (!adapter.isAddressActive(validAddress)) {
-                isInactiveAddress = true
-                addressError = FormsInputStateWarning(Translator.getString(R.string.Tron_AddressNotActive_Warning))
-            } else {
-                isInactiveAddress = false
-            }
+            isInactiveAddress = !adapter.isAddressActive(validAddress)
 
             if (token.type == TokenType.Native && adapter.isOwnAddress(validAddress)) {
                 addressError = Throwable(Translator.getString(R.string.Tron_SelfSendTrxNotAllowed))

@@ -145,7 +145,7 @@ class WithdrawNodeViewModel(
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
                     service.withdraw(checkedList)
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                     withdrawList = withdrawList?.filter { !it.checked } as MutableList<WithdrawModule.WithDrawInfo>?
                     emitState()
                 } catch (e: Exception) {

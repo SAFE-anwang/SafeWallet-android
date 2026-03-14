@@ -19,18 +19,21 @@ import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.EvmSyncSourceManager
 import io.horizontalsystems.bankwallet.core.managers.LanguageManager
 import io.horizontalsystems.bankwallet.core.managers.MarketFavoritesManager
+import io.horizontalsystems.bankwallet.core.managers.MoneroNodeManager
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
 import io.horizontalsystems.bankwallet.core.managers.SolanaRpcSourceManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
+import io.horizontalsystems.bankwallet.core.storage.MoneroNodeStorage
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.BtcRestoreMode
 import io.horizontalsystems.bankwallet.entities.EnabledWallet
 import io.horizontalsystems.bankwallet.entities.LaunchPage
+import io.horizontalsystems.bankwallet.entities.MoneroNodeRecord
 import io.horizontalsystems.bankwallet.entities.TransactionDataSortMode
 import io.horizontalsystems.bankwallet.modules.backuplocal.BackupLocalModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewType
@@ -43,7 +46,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIcon
 import io.horizontalsystems.bankwallet.modules.settings.appearance.AppIconService
 import io.horizontalsystems.bankwallet.modules.settings.appearance.LaunchScreenService
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.modules.settings.appearance.PriceChangeInterval
 import io.horizontalsystems.bankwallet.modules.theme.ThemeService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.core.toHexString
@@ -102,6 +105,8 @@ class BackupProvider(
     private val evmSyncSourceManager: EvmSyncSourceManager,
     private val evmSyncSourceStorage: EvmSyncSourceStorage,
     private val solanaRpcSourceManager: SolanaRpcSourceManager,
+    private val moneroNodeManager: MoneroNodeManager,
+    private val moneroNodeStorage: MoneroNodeStorage,
     private val contactsRepository: ContactsRepository
 ) {
     private val encryptDecryptManager by lazy { EncryptDecryptManager() }
@@ -131,13 +136,6 @@ class BackupProvider(
         return BackupLocalModule.getAccountTypeFromData(backup.type, decrypted)
     }
 
-    fun restoreCexAccount(accountType: AccountType, accountName: String) {
-        val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
-        val isSafe3Wallet = if (accountType is AccountType.Mnemonic) accountType.isSafe3Wallet else false
-        val account = accountFactory.account(accountName, accountType, AccountOrigin.Restored, true, true, isAnBaoWallet, isSafe3Wallet)
-        accountManager.save(account)
-    }
-
     fun restoreSingleWalletBackup(
         type: AccountType,
         accountName: String,
@@ -155,7 +153,8 @@ class BackupProvider(
                 accountId = account.id,
                 coinName = it.coinName,
                 coinCode = it.coinCode,
-                coinDecimals = it.decimals
+                coinDecimals = it.decimals,
+                coinImage = null
             )
         }
         walletManager.saveEnabledWallets(enabledWallets)
@@ -185,7 +184,8 @@ class BackupProvider(
                     accountId = account.id,
                     coinName = it.coinName,
                     coinCode = it.coinCode,
-                    coinDecimals = it.decimals
+                    coinDecimals = it.decimals,
+                    coinImage = null
                 )
             }
 
@@ -229,12 +229,10 @@ class BackupProvider(
 
         settings.conversionTokenQueryId?.let { baseTokenManager.setBaseTokenQueryId(it) }
 
-        settings.swapProviders.forEach {
-            localStorage.setSwapProviderId(BlockchainType.fromUid(it.blockchainTypeId), it.provider)
-        }
-
         launchScreenService.setLaunchScreen(settings.launchScreen)
         localStorage.marketsTabEnabled = settings.marketsTabEnabled
+        localStorage.balanceTabButtonsEnabled = settings.balanceHideButtons ?: false
+        localStorage.priceChangeInterval = settings.priceChangeMode ?: PriceChangeInterval.LAST_24H
         currencyManager.setBaseCurrencyCode(settings.baseCurrency)
 
 
@@ -264,6 +262,18 @@ class BackupProvider(
 
         settings.solanaSyncSource?.let {
             blockchainSettingsStorage.save(settings.solanaSyncSource.name, BlockchainType.Solana)
+        }
+
+        settings.moneroNodes?.custom?.forEach { node ->
+            val password = node.password?.let {
+                val decryptedPassword = decrypted(it, passphrase)
+                String(decryptedPassword, Charsets.UTF_8)
+            }
+            moneroNodeStorage.save(MoneroNodeRecord(node.url, node.login, password, node.trusted))
+        }
+
+        settings.moneroNodes?.selected?.forEach { node ->
+            blockchainSettingsStorage.saveMoneroNode(node.url)
         }
 
         if (settings.appIcon != (localStorage.appIcon ?: AppIcon.Main).titleText) {
@@ -352,8 +362,6 @@ class BackupProvider(
 
             val account = if (type.isWatchAccountType) {
                 accountFactory.watchAccount(name, type)
-            } else if (type is AccountType.Cex) {
-                accountFactory.account(name, type, AccountOrigin.Restored, true, true, false, false)
             } else {
                 val isAnBaoWallet = if (type is AccountType.Mnemonic) type.isAnBaoWallet else false
                 val isSafe3Wallet = if (type is AccountType.Mnemonic) type.isSafe3Wallet else false
@@ -438,11 +446,6 @@ class BackupProvider(
 
         val watchlist = marketFavoritesManager.getAll().map { it.coinUid }
 
-        val swapProviders = EvmBlockchainManager.blockchainTypes.map { blockchainType ->
-            val provider = localStorage.getSwapProviderId(blockchainType) ?: SwapMainModule.OneInchProvider.id
-            SwapProvider(blockchainType.uid, provider)
-        }
-
         val btcModes = btcBlockchainManager.allBlockchains.map { blockchain ->
             val restoreMode = btcBlockchainManager.restoreMode(blockchain.type)
             val sortMode = btcBlockchainManager.transactionSortMode(blockchain.type)
@@ -466,24 +469,33 @@ class BackupProvider(
 
         val solanaSyncSource = SolanaSyncSource(BlockchainType.Solana.uid, solanaRpcSourceManager.rpcSource.name)
 
+        val selectedMoneroNode = MoneroNodeBackup(BlockchainType.Monero.uid, moneroNodeManager.currentNode.host, null, null, false)
+        val customMoneroNodes = moneroNodeStorage.getAll().map { nodeRecord ->
+            val password = nodeRecord.password?.let { encrypted(it, passphrase) }
+            MoneroNodeBackup(BlockchainType.Monero.uid, nodeRecord.url, nodeRecord.username, password, false)
+        }
+        val moneroNodes = MoneroNodes(listOf(selectedMoneroNode), customMoneroNodes)
+
         val chartIndicators = chartIndicators()
 
         val settings = Settings(
             balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value,
             appIcon = localStorage.appIcon?.titleText ?: AppIcon.Main.titleText,
-            currentTheme = themeService.optionsFlow.value.selected,
+            currentTheme = themeService.selectedTheme,
             chartIndicatorsEnabled = localStorage.chartIndicatorsEnabled,
             chartIndicators = chartIndicators,
             balanceAutoHidden = balanceHiddenManager.balanceAutoHidden,
             conversionTokenQueryId = baseTokenManager.token?.tokenQuery?.id,
-            swapProviders = swapProviders,
             language = languageManager.currentLocaleTag,
-            launchScreen = launchScreenService.optionsFlow.value.selected,
+            launchScreen = launchScreenService.selectedLaunchScreen,
             marketsTabEnabled = localStorage.marketsTabEnabled,
+            balanceHideButtons = localStorage.balanceTabButtonsEnabled,
             baseCurrency = currencyManager.baseCurrency.code,
             btcModes = btcModes,
+            priceChangeMode = localStorage.priceChangeInterval,
             evmSyncSources = evmSyncSources,
             solanaSyncSource = solanaSyncSource,
+            moneroNodes = moneroNodes,
         )
 
         val contacts = if (contactsRepository.contacts.isNotEmpty())
@@ -581,7 +593,7 @@ class BackupProvider(
             val tokenQuery = TokenQuery.fromId(it.tokenQueryId) ?: return@mapNotNull null
             val settings = settingsManager.settings(account, tokenQuery.blockchainType).values
             BackupLocalModule.EnabledWalletBackup(
-                tokenQueryId = it.tokenQueryId.lowercase(),
+                tokenQueryId = it.tokenQueryId,
                 coinName = it.coinName,
                 coinCode = it.coinCode,
                 decimals = it.coinDecimals,
@@ -653,13 +665,6 @@ data class FullBackup(
     val id: String
 )
 
-data class SwapProvider(
-    @SerializedName("blockchain_type_id")
-    val blockchainTypeId: String,
-    @SerializedName("provider")
-    val provider: String
-)
-
 data class BtcMode(
     @SerializedName("blockchain_type_id")
     val blockchainTypeId: String,
@@ -685,6 +690,20 @@ data class SolanaSyncSource(
     @SerializedName("blockchain_type_id")
     val blockchainTypeId: String,
     val name: String
+)
+
+data class MoneroNodeBackup(
+    @SerializedName("blockchain_type_id")
+    val blockchainTypeId: String,
+    val url: String,
+    val login: String?,
+    val password: BackupLocalModule.BackupCrypto?,
+    val trusted: Boolean,
+)
+
+data class MoneroNodes(
+    val selected: List<MoneroNodeBackup>,
+    val custom: List<MoneroNodeBackup>
 )
 
 data class RsiBackup(
@@ -726,22 +745,26 @@ data class Settings(
     val balanceAutoHidden: Boolean,
     @SerializedName("conversion_token_query_id")
     val conversionTokenQueryId: String?,
-    @SerializedName("swap_providers")
-    val swapProviders: List<SwapProvider>,
     val language: String,
     @SerializedName("launch_screen")
     val launchScreen: LaunchPage,
     @SerializedName("show_market")
     val marketsTabEnabled: Boolean,
+    @SerializedName("balance_hide_buttons")
+    val balanceHideButtons: Boolean?,
     @SerializedName("currency")
     val baseCurrency: String,
 
     @SerializedName("btc_modes")
     val btcModes: List<BtcMode>,
+    @SerializedName("price_change_mode")
+    val priceChangeMode: PriceChangeInterval?,
     @SerializedName("evm_sync_sources")
     val evmSyncSources: EvmSyncSources,
     @SerializedName("solana_sync_source")
-    val solanaSyncSource: SolanaSyncSource?
+    val solanaSyncSource: SolanaSyncSource?,
+    @SerializedName("monero_nodes")
+    val moneroNodes: MoneroNodes?
 )
 
 sealed class RestoreException(message: String) : Exception(message) {

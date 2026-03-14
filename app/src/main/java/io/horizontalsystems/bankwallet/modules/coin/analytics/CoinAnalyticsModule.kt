@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.stats.StatPremiumTrigger
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.coin.audits.CoinAuditsModule
 import io.horizontalsystems.bankwallet.modules.coin.detectors.IssueParcelable
@@ -15,6 +16,7 @@ import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.StackBarSlice
 import io.horizontalsystems.chartview.ChartData
 import io.horizontalsystems.chartview.models.ChartPoint
+import io.horizontalsystems.marketkit.models.Analytics
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainIssues
 import io.horizontalsystems.marketkit.models.Coin
@@ -23,16 +25,14 @@ import kotlinx.parcelize.Parcelize
 
 object CoinAnalyticsModule {
 
-    class Factory(private val fullCoin: FullCoin, private val apiTag: String) : ViewModelProvider.Factory {
+    class Factory(private val fullCoin: FullCoin) : ViewModelProvider.Factory {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             val service = CoinAnalyticsService(
                 fullCoin,
-                apiTag,
                 App.marketKit,
                 App.currencyManager,
-                App.subscriptionManager,
                 App.accountManager,
             )
 
@@ -48,6 +48,7 @@ object CoinAnalyticsModule {
     data class BlockViewItem(
         val title: Int?,
         val info: AnalyticInfo?,
+        val showAsPreview: Boolean,
         val value: String? = null,
         val valuePeriod: String? = null,
         val analyticChart: ChartViewItem?,
@@ -55,6 +56,7 @@ object CoinAnalyticsModule {
         val sectionTitle: Int? = null,
         val sectionDescription: String? = null,
         val showFooterDivider: Boolean = true,
+        val statTrigger: StatPremiumTrigger?,
     )
 
 
@@ -97,9 +99,8 @@ object CoinAnalyticsModule {
     }
 
     data class TechAdviceData(
-        val adviceTitle: String,
         val detailText: String,
-        val sliderPosition: Int
+        val advice: Analytics.TechnicalAdvice.Advice
     )
 
     enum class OverallScore(val title: Int, val icon: Int) {
@@ -187,13 +188,11 @@ object CoinAnalyticsModule {
     )
 
     sealed class AnalyticsViewItem {
-        class Preview(val blocks: List<PreviewBlockViewItem>) : AnalyticsViewItem()
         class Analytics(val blocks: List<BlockViewItem>) : AnalyticsViewItem()
         object NoData : AnalyticsViewItem()
     }
 
     sealed class ActionType {
-        object Preview : ActionType()
         object OpenTvl : ActionType()
         class OpenOverallScoreInfo(val scoreCategory: ScoreCategory) : ActionType()
         class OpenRank(val type: RankType) : ActionType()

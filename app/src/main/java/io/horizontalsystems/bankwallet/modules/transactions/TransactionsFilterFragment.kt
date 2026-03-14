@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactions
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +26,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.slideFromRight
@@ -33,23 +34,31 @@ import io.horizontalsystems.bankwallet.core.slideFromRightForResult
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 
 class TransactionsFilterFragment : BaseComposeFragment() {
 
-//    private val viewModel by navGraphViewModels<TransactionsViewModel>(R.id.mainFragment)
-    private val viewModel by viewModels<TransactionsViewModel> { TransactionsModule.Factory() }
-
     @Composable
     override fun GetContent(navController: NavController) {
+        val viewModel: TransactionsViewModel? = try {
+            viewModels<TransactionsViewModel>{ TransactionsModule.Factory() }.value
+        } catch (e: IllegalStateException) {
+            Toast.makeText(App.instance, "ViewModel is Null", Toast.LENGTH_SHORT).show()
+            null
+        }
+
+        if (viewModel == null) {
+            navController.popBackStack(R.id.filterCoinFragment, true)
+            return
+        }
+
         FilterScreen(
             navController,
             viewModel
@@ -82,27 +91,21 @@ fun FilterScreen(
 
     val filterBlockchain = filterBlockchains?.firstOrNull { it.selected }?.item
 
-    Scaffold(
-        backgroundColor = ComposeAppTheme.colors.tyler,
-        topBar = {
-            AppBar(
-                title = stringResource(R.string.Transactions_Filter),
-                navigationIcon = {
-                    HsBackButton(onClick = navController::popBackStack)
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Reset),
-                        enabled = filterResetEnabled,
-                        onClick = {
-                            viewModel.resetFilters()
-                        }
-                    )
-                )
+    HSScaffold(
+        title = stringResource(R.string.Transactions_Filter),
+        onBack = navController::popBackStack,
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Button_Reset),
+                enabled = filterResetEnabled,
+                tint = ComposeAppTheme.colors.jacob,
+                onClick = {
+                    viewModel.resetFilters()
+                }
             )
-        }
+        )
     ) {
-        Column(Modifier.padding(it)) {
+        Column {
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -113,7 +116,8 @@ fun FilterScreen(
                     listOf {
                         FilterDropdownCell(
                             title = stringResource(R.string.Transactions_Filter_Blockchain),
-                            value = filterBlockchain?.name ?: stringResource(id = R.string.Transactions_Filter_AllBlockchains) ,
+                            value = filterBlockchain?.name
+                                ?: stringResource(id = R.string.Transactions_Filter_AllBlockchains),
                             valueColor = if (filterBlockchain != null) ComposeAppTheme.colors.leah else ComposeAppTheme.colors.grey,
                             onClick = {
                                 navController.slideFromRight(R.id.filterBlockchainFragment)
@@ -126,7 +130,8 @@ fun FilterScreen(
                     listOf {
                         FilterDropdownCell(
                             title = stringResource(R.string.Transactions_Filter_Coin),
-                            value = selectedCoinFilterTitle ?: stringResource(id = R.string.Transactions_Filter_AllCoins) ,
+                            value = selectedCoinFilterTitle
+                                ?: stringResource(id = R.string.Transactions_Filter_AllCoins),
                             valueColor = if (filterBlockchain != null) ComposeAppTheme.colors.leah else ComposeAppTheme.colors.grey,
                             onClick = {
                                 navController.slideFromRight(R.id.filterCoinFragment)
@@ -139,12 +144,16 @@ fun FilterScreen(
                     listOf {
                         FilterDropdownCell(
                             title = stringResource(R.string.Transactions_Filter_Contacts),
-                            value = filterContact?.name ?: stringResource(id = R.string.Transactions_Filter_AllContacts) ,
+                            value = filterContact?.name
+                                ?: stringResource(id = R.string.Transactions_Filter_AllContacts),
                             valueColor = if (filterContact != null) ComposeAppTheme.colors.leah else ComposeAppTheme.colors.grey,
                             onClick = {
                                 navController.slideFromRightForResult<SelectContactFragment.Result>(
                                     R.id.selectContact,
-                                    SelectContactFragment.Input(filterContact, filterBlockchain?.type)
+                                    SelectContactFragment.Input(
+                                        filterContact,
+                                        filterBlockchain?.type
+                                    )
                                 ) {
                                     viewModel.onEnterContact(it.contact)
                                 }
@@ -236,7 +245,7 @@ private fun FilterDropdownCell(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = value ?: stringResource(R.string.Any),
+                text = value,
                 maxLines = 1,
                 style = ComposeAppTheme.typography.body,
                 color = valueColor

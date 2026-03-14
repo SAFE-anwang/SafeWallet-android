@@ -1,17 +1,21 @@
 package io.horizontalsystems.bankwallet.modules.main
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.Toast
 import android.os.Handler
 import android.util.Log
 import android.view.View
@@ -19,6 +23,11 @@ import android.view.View.OnClickListener
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,11 +36,11 @@ import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
+import com.walletconnect.web3.wallet.client.Wallet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
-import com.walletconnect.web3.wallet.client.Wallet
 import com.xuexiang.xupdate.XUpdate
 import com.xuexiang.xupdate.entity.UpdateEntity
 import com.xuexiang.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION
@@ -41,10 +50,20 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
 import io.horizontalsystems.bankwallet.core.slideFromBottom
-import io.horizontalsystems.bankwallet.entities.UpgradeVersion
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
 import io.horizontalsystems.bankwallet.modules.keystore.KeyStoreActivity
-import io.horizontalsystems.bankwallet.modules.lockscreen.LockScreenActivity
+import io.horizontalsystems.bankwallet.modules.pin.ui.PinUnlock
+import io.horizontalsystems.bankwallet.modules.tonconnect.TonConnectNewFragment
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.core.helpers.HudHelper
+import io.horizontalsystems.core.hideKeyboard
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import io.horizontalsystems.bankwallet.entities.UpgradeVersion
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
@@ -53,19 +72,13 @@ import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4TokensServic
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bankwallet.net.VpnConnectService
-
-import io.horizontalsystems.bankwallet.modules.walletconnect.AuthEvent
-import io.horizontalsystems.bankwallet.modules.walletconnect.SignEvent
-import io.horizontalsystems.bankwallet.modules.walletconnect.WCViewModel
-import io.horizontalsystems.core.hideKeyboard
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity() {
+
+    private lateinit var pinLockComposeView: ComposeView
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private val viewModel by viewModels<MainActivityViewModel> {
         MainActivityViewModel.Factory()
@@ -77,6 +90,21 @@ class MainActivity : BaseActivity() {
             }
         }
 
+    private var showPinLockScreen by mutableStateOf(false)
+
+    override fun onResume() {
+        super.onResume()
+        validate()
+        viewModel.onResume()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        viewModel.setIntent(intent)
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -86,6 +114,8 @@ class MainActivity : BaseActivity() {
             window.statusBarColor = getColor(R.color.safe_blue)
         }
         setContentView(R.layout.activity_main)
+
+        pinLockComposeView = findViewById(R.id.pinLockComposeView)
 
         val navHost =
             supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
@@ -109,17 +139,71 @@ class MainActivity : BaseActivity() {
                     is Wallet.Model.SessionRequest -> {
                         navController.slideFromBottom(R.id.wcRequestFragment)
                     }
+
                     is Wallet.Model.SessionProposal -> {
                         if (!MainModule.isOpenDapp) {
-                            navController.slideFromBottom(R.id.wcSessionFragment)
+                            navController.slideFromBottom(R.id.wcSessionBottomSheetDialog)
                         }
                     }
+
+                    is Wallet.Model.Error -> {
+                        navHost.view?.let {
+                            HudHelper.showErrorMessage(it, wcEvent.throwable.message ?: "Error")
+                        }
+                    }
+
+                    is Wallet.Model.SettledSessionResponse.Result -> {
+                        navHost.view?.let {
+                            HudHelper.showSuccessMessage(it, getString(R.string.Hud_Text_Connected))
+                        }
+                    }
+
                     else -> {}
                 }
 
                 viewModel.onWcEventHandled()
             }
         }
+
+        viewModel.tcSendRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottom(R.id.tcSendRequestFragment)
+            }
+        }
+
+        viewModel.tcDappRequest.observe(this) { request ->
+            if (request != null) {
+                navController.slideFromBottomForResult<TonConnectNewFragment.Result>(
+                    R.id.tcNewFragment,
+                    request.dAppRequest
+                ) { result ->
+                    if (request.closeAppOnResult) {
+                        if (result.approved) {
+                            //Need delay to get connected before closing activity
+                            closeAfterDelay()
+                        } else {
+                            finish()
+                        }
+                    }
+                }
+                viewModel.onTcDappRequestHandled()
+            }
+        }
+
+        viewModel.setIntent(intent)
+
+        pinLockComposeView.setContent {
+            ComposeAppTheme {
+                PinUnlock(
+                    showPinLockScreen = showPinLockScreen,
+                    onSuccess = {
+                        showPinLockScreen = false
+                    }
+                )
+            }
+        }
+
+        observeLockState()
 
         val filter = IntentFilter()
         filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
@@ -185,13 +269,22 @@ class MainActivity : BaseActivity() {
 
             }
         }
-
     }
 
+    private fun observeLockState() {
+        scope.launch {
+            App.pinComponent.isLockedFlow.collect { isLocked ->
+                showPinLockScreen = isLocked
+                pinLockComposeView.visibility = if (isLocked) { VISIBLE } else { GONE }
+            }
+        }
+    }
 
-    override fun onResume() {
-        super.onResume()
-        validate()
+    private fun closeAfterDelay() {
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        handler.postDelayed({
+            finish()
+        }, 1000)
     }
 
     private fun validate() = try {
@@ -208,38 +301,11 @@ class MainActivity : BaseActivity() {
     } catch (e: MainScreenValidationError.Welcome) {
         IntroActivity.start(this)
         finish()
-    } catch (e: MainScreenValidationError.Unlock) {
-        LockScreenActivity.start(this)
+    } catch (e: MainScreenValidationError.KeystoreRuntimeException) {
+        Toast.makeText(App.instance, "Issue with Keystore", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
-    private fun handleWeb3WalletEvents(
-        navController: NavController,
-        wcViewModel: WCViewModel,
-    ) {
-        wcViewModel.walletEvents
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { event ->
-                when (event) {
-                    is SignEvent.SessionProposal -> {
-                        if (!MainModule.isOpenDapp) {
-                            navController.slideFromBottom(R.id.wcSessionFragment)
-                        }
-                    }
-                    is SignEvent.SessionRequest -> {
-                        navController.slideFromBottom(R.id.wcRequestFragment,)
-                    }
-
-                    is SignEvent.Disconnect -> {
-                    }
-
-                    is AuthEvent.OnRequest -> {
-                    }
-
-                    else -> Unit
-                }
-            }
-            .launchIn(lifecycleScope)
-    }
 
     fun openSend(wallet: Wallet) {
         /*startActivity(Intent(this, SendActivity::class.java).apply {
@@ -306,6 +372,7 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        scope.cancel()
         unregisterReceiver(mMsgReceiver)
         Utils.stopVService(this)
         VpnConnectService.startLoopCheckConnection = false

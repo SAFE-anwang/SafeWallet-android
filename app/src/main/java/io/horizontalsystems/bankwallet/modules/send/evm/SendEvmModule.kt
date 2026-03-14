@@ -15,15 +15,14 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
-import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.EvmKitWrapperHoldingViewModel
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
-import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCChainData
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.SendBitcoinPluginService
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactViewItem
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
+import io.horizontalsystems.bankwallet.modules.walletconnect.request.WCChainData
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
@@ -50,9 +49,6 @@ data class SendEvmData(
         class Liquidity(val info: UniswapLiquidityInfo) : AdditionalInfo()
 
         @Parcelize
-        class OneInchSwap(val info: OneInchSwapInfo) : AdditionalInfo()
-
-        @Parcelize
         class WalletConnectRequest(val info: WalletConnectInfo) : AdditionalInfo()
 
         @Parcelize
@@ -64,8 +60,6 @@ data class SendEvmData(
         val uniswapInfo: UniswapInfo?
             get() = (this as? Uniswap)?.info
 
-        val oneInchSwapInfo: OneInchSwapInfo?
-            get() = (this as? OneInchSwap)?.info
 
         val walletConnectInfo: WalletConnectInfo?
             get() = (this as? WalletConnectRequest)?.info
@@ -123,17 +117,6 @@ data class SendEvmData(
         val gasPrice: String? = null,
         val isCreatePoll: Boolean = false
     ) : Parcelable
-
-    @Parcelize
-    data class OneInchSwapInfo(
-        val tokenFrom: Token,
-        val tokenTo: Token,
-        val amountFrom: BigDecimal,
-        val estimatedAmountTo: BigDecimal,
-        val slippage: BigDecimal,
-        val recipient: Address?,
-        val price: String? = null
-    ) : Parcelable
 }
 
 object SendEvmModule {
@@ -166,15 +149,16 @@ object SendEvmModule {
     }
 
 
-    class Factory(private val wallet: Wallet, private val predefinedAddress: String?) : ViewModelProvider.Factory {
-        val adapter = (App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter) ?: throw IllegalArgumentException("SendEthereumAdapter is null")
+    class Factory(
+        private val wallet: Wallet,
+        private val address: Address,
+        private val hideAddress: Boolean,
+        private val adapter: ISendEthereumAdapter
+    ) : ViewModelProvider.Factory {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return when (modelClass) {
-                EvmKitWrapperHoldingViewModel::class.java -> {
-                    EvmKitWrapperHoldingViewModel(adapter.evmKitWrapper) as T
-                }
                 SendEvmViewModel::class.java -> {
                     val amountValidator = AmountValidator()
                     val coinMaxAllowedDecimals = wallet.token.decimals
@@ -185,7 +169,7 @@ object SendEvmModule {
                         adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
                         wallet.token.type.isNative
                     )
-                    val addressService = SendEvmAddressService(predefinedAddress)
+                    val addressService = SendEvmAddressService()
                     val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
                     val pluginService = SendBitcoinPluginService(wallet.token.blockchainType, wallet.token.type is TokenType.Native)
 
@@ -197,8 +181,9 @@ object SendEvmModule {
                         amountService,
                         addressService,
                         coinMaxAllowedDecimals,
-                        predefinedAddress == null,
+                        !hideAddress,
                         App.connectivityManager,
+                        address,
                         pluginService
                     ) as T
                 }
@@ -207,9 +192,8 @@ object SendEvmModule {
         }
     }
 
-
     class WsafeFactory(private val wallet: Wallet) : ViewModelProvider.Factory {
-        private val adapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendEthereumAdapter }
+        private val adapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wallet) as ISendEthereumAdapter }
         private val service by lazy { SendWsafeService(wallet.token, adapter) }
 
         @Suppress("UNCHECKED_CAST")

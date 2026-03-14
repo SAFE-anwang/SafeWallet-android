@@ -5,9 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.INetworkManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
+import io.horizontalsystems.bankwallet.core.managers.ReleaseNotesManager
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
+import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownBlock
 import io.horizontalsystems.bankwallet.modules.markdown.MarkdownVisitorBlock
@@ -16,17 +19,18 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.commonmark.parser.Parser
 import java.net.URL
+import java.util.Calendar
 
 class ReleaseNotesViewModel(
     private val networkManager: INetworkManager,
     private val contentUrl: String,
     private val connectivityManager: ConnectivityManager,
+    private val releaseNotesManager: ReleaseNotesManager,
     appConfigProvider: AppConfigProvider
 ) : ViewModel() {
 
     val twitterUrl = appConfigProvider.appTwitterLink
     val telegramUrl = appConfigProvider.appTelegramLink
-    val redditUrl = appConfigProvider.appRedditLink
 
     var markdownBlocks by mutableStateOf<List<MarkdownBlock>>(listOf())
         private set
@@ -51,6 +55,10 @@ class ReleaseNotesViewModel(
         loadContent()
     }
 
+    fun whatsNewShown() {
+        releaseNotesManager.updateShownAppVersion()
+    }
+
     private fun loadContent() {
         viewModelScope.launch {
             try {
@@ -71,7 +79,15 @@ class ReleaseNotesViewModel(
 
         document.accept(markdownVisitor)
 
-        return markdownVisitor.blocks + MarkdownBlock.Footer()
+        val footerText = getFooterText()
+
+        return markdownVisitor.blocks + MarkdownBlock.Footer(footerText)
+    }
+
+    private fun getFooterText(): String {
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val footerText = Translator.getString(R.string.FooterText, currentYear)
+        return footerText
     }
 
     private suspend fun getContent(): String {

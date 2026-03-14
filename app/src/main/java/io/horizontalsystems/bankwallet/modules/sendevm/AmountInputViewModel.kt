@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.sendevm
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
 import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatServiceSendEvm
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -124,12 +123,12 @@ class AmountInputViewModel(
         inputParamsLiveData.postValue(inputParams)
     }
 
-    private fun getAmountType(primaryInfo: FiatServiceSendEvm.PrimaryInfo): AmountTypeSwitchService.AmountType {
-        var type = AmountTypeSwitchService.AmountType.Coin
+    private fun getAmountType(primaryInfo: FiatServiceSendEvm.PrimaryInfo): AmountTypeSwitchServiceSendEvm.AmountType {
+        var type = AmountTypeSwitchServiceSendEvm.AmountType.Coin
         if (primaryInfo is FiatServiceSendEvm.PrimaryInfo.Info) {
             primaryInfo.amountInfo?.let {
                 if (it is AmountInfo.CurrencyValueInfo) {
-                    type = AmountTypeSwitchService.AmountType.Currency
+                    type = AmountTypeSwitchServiceSendEvm.AmountType.Currency
                 }
             }
         }

@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
@@ -98,20 +98,14 @@ class AddTokenViewModel(private val addTokenService: AddTokenService) :
 
     private fun getErrorText(error: Throwable): String = when (error) {
         is AddTokenService.TokenError.NotFound -> {
-            if (selectedBlockchain.type == BlockchainType.BinanceChain)
-                Translator.getString(R.string.AddEvmToken_Bep2NotFound)
-            else
-                Translator.getString(
-                    R.string.AddEvmToken_ContractAddressNotFoundInBlockchain,
-                    selectedBlockchain.name
-                )
+            Translator.getString(
+                R.string.AddEvmToken_ContractAddressNotFoundInBlockchain,
+                selectedBlockchain.name
+            )
         }
 
         is AddTokenService.TokenError.InvalidReference -> {
-            if (selectedBlockchain.type == BlockchainType.BinanceChain)
-                Translator.getString(R.string.AddToken_InvalidBep2Symbol)
-            else
-                Translator.getString(R.string.AddToken_InvalidContractAddress)
+            Translator.getString(R.string.AddToken_InvalidContractAddress)
         }
 
         else -> Translator.getString(R.string.Error)

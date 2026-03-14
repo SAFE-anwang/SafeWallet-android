@@ -14,9 +14,9 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
+import io.horizontalsystems.bankwallet.modules.send.address.EnterAddressFragment
 import io.horizontalsystems.bankwallet.modules.tokenselect.TokenSelectScreen
 import io.horizontalsystems.bankwallet.modules.tokenselect.TokenSelectViewModel
-import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.parcelize.Parcelize
@@ -30,50 +30,36 @@ class SendTokenSelectFragment : BaseComposeFragment() {
 
         val blockchainTypes = input?.blockchainTypes
         val tokenTypes = input?.tokenTypes
-        val prefilledData = input?.prefilledData
         val view = LocalView.current
         TokenSelectScreen(
             navController = navController,
             title = stringResource(R.string.Balance_Send),
-            searchHintText = stringResource(R.string.Balance_SendHint_CoinName),
             onClickItem = {
-                when {
-                    it.sendEnabled -> {
-                        val sendTitle = Translator.getString(R.string.Send_Title, it.wallet.token.fullCoin.coin.code)
-                        if (it.wallet.coin.uid == "safe-coin" && it.wallet.token.blockchain.type is BlockchainType.Safe) {
-                            navController.slideFromBottom(
-                                    R.id.sendSafeFragment,
-                                    SendFragment.Input(
-                                            wallet = it.wallet,
-                                            sendEntryPointDestId = R.id.sendTokenSelectFragment,
-                                            title = sendTitle,
-                                            prefilledAddressData = prefilledData,
-                                    )
-                            )
-                        } else {
-                            navController.slideFromRight(
-                                R.id.sendXFragment,
-                                SendFragment.Input(
-                                        wallet = it.wallet,
-                                        sendEntryPointDestId = R.id.sendTokenSelectFragment,
-                                        title = sendTitle,
-                                        prefilledAddressData = prefilledData,
-                                )
-                            )
-                        }
-                    }
-
-                    it.syncingProgress.progress != null -> {
-                        HudHelper.showWarningMessage(view, R.string.Hud_WaitForSynchronization)
-                    }
-
-                    it.errorMessage != null -> {
-                        HudHelper.showErrorMessage(view, it.errorMessage ?: "")
-                    }
+                val sendTitle = Translator.getString(R.string.Send_Title, it.wallet.token.fullCoin.coin.code)
+                if (it.wallet.coin.uid == "safe-coin" && it.wallet.token.blockchain.type is BlockchainType.Safe) {
+                    navController.slideFromBottom(
+                        R.id.sendSafeFragment,
+                        SendFragment.Input(
+                            wallet = it.wallet,
+                            sendEntryPointDestId = R.id.sendTokenSelectFragment,
+                            title = sendTitle,
+                        )
+                    )
+                } else {
+                    navController.slideFromRight(
+                        R.id.enterAddressFragment,
+                        EnterAddressFragment.Input(
+                            wallet = it.wallet,
+                            title = sendTitle,
+                            sendEntryPointDestId = R.id.sendTokenSelectFragment,
+                            address = input?.address,
+                            amount = input?.amount,
+                            memo = input?.memo,
+                        )
+                    )
                 }
             },
             viewModel = viewModel(factory = TokenSelectViewModel.FactoryForSend(blockchainTypes, tokenTypes)),
-            emptyItemsText = stringResource(R.string.Balance_NoAssetsToSend)
         )
     }
 
@@ -83,10 +69,8 @@ class SendTokenSelectFragment : BaseComposeFragment() {
         val tokenTypes: List<TokenType>?,
         val address: String,
         val amount: BigDecimal?,
-    ) : Parcelable {
-        val prefilledData: PrefilledData
-            get() = PrefilledData(address, amount)
-    }
+        val memo: String?
+    ) : Parcelable
 }
 
 @Parcelize

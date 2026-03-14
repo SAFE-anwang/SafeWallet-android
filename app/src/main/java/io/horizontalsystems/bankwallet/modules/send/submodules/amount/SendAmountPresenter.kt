@@ -2,7 +2,7 @@ package io.horizontalsystems.bankwallet.modules.send.submodules.amount
 
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.Currency
@@ -329,10 +329,10 @@ class SendAmountPresenter(
         view.setInputFields(inputParams)
     }
 
-    private fun getAmountType(inputType: AmountInputType): AmountTypeSwitchService.AmountType {
+    private fun getAmountType(inputType: AmountInputType): AmountTypeSwitchServiceSendEvm.AmountType {
         return when(inputType){
-            AmountInputType.COIN -> AmountTypeSwitchService.AmountType.Coin
-            AmountInputType.CURRENCY -> AmountTypeSwitchService.AmountType.Currency
+            AmountInputType.COIN -> AmountTypeSwitchServiceSendEvm.AmountType.Coin
+            AmountInputType.CURRENCY -> AmountTypeSwitchServiceSendEvm.AmountType.Currency
         }
     }
 

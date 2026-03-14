@@ -267,7 +267,7 @@ class RedeemSafe3ViewModel(
 				if (existMasterNode) {
 					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), targetAddress)
 				}
-				sendResult = SendResult.Sent
+				sendResult = SendResult.Sent()
 				reset()
 			} catch (e: Exception) {
 				Log.e("Redeem", "redeem error=$e")
@@ -361,7 +361,7 @@ class RedeemSafe3ViewModel(
 		super.onCleared()
 		disposables.clear()
 
-		sendResult = SendResult.Sent
+		sendResult = SendResult.Sent()
 	}
 
 	companion object {

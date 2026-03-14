@@ -89,7 +89,7 @@ fun AddLockDayScreen(
 			)
 		}
 
-		SendResult.Sent -> {
+		is SendResult.Sent -> {
 			HudHelper.showSuccessMessage(
 					view,
 					R.string.Send_Success,
@@ -105,7 +105,7 @@ fun AddLockDayScreen(
 	}
 
 	LaunchedEffect(sendResult) {
-		if (sendResult == SendResult.Sent) {
+		if (sendResult is SendResult.Sent) {
 			delay(1200)
 			navController.popBackStack(R.id.addLockDayFragment, true)
 		}
@@ -190,7 +190,7 @@ fun AddLockDayScreen(
 						Text(
 								text = stringResource(id = R.string.Safe_Four_Node_Add_Lock_Day_Text, day.toInt()),
 								style = ComposeAppTheme.typography.body,
-								color = ComposeAppTheme.colors.bran,
+								color = ComposeAppTheme.colors.leah,
 								overflow = TextOverflow.Ellipsis,
 								maxLines = 1,
 						)

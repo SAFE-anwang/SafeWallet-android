@@ -3,54 +3,75 @@ package io.horizontalsystems.bankwallet.modules.multiswap
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
-import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.ISendTransactionService
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.OneInchException
+import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.AbstractSendTransactionService
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionServiceFactory
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionSettings
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
 import io.horizontalsystems.bankwallet.modules.send.SendModule
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
+import io.horizontalsystems.bankwallet.uiv3.components.message.DefenseSystemMessage
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import java.math.RoundingMode
+import kotlin.coroutines.cancellation.CancellationException
 
 class SwapConfirmViewModel(
     private val swapProvider: IMultiSwapProvider,
-    swapQuote: ISwapQuote,
-    private val swapSettings: Map<String, Any?>,
+    private val swapQuote: SwapQuote,
     private val currencyManager: CurrencyManager,
     private val fiatServiceIn: FiatService,
     private val fiatServiceOut: FiatService,
     private val fiatServiceOutMin: FiatService,
-    val sendTransactionService: ISendTransactionService,
+    val sendTransactionService: AbstractSendTransactionService,
     private val timerService: TimerService,
-    private val priceImpactService: PriceImpactService
+    private val priceImpactService: PriceImpactService,
+    private val swapDefenseSystemService: SwapDefenseSystemService
 ) : ViewModelUiState<SwapConfirmUiState>() {
     private var sendTransactionSettings: SendTransactionSettings? = null
     private val currency = currencyManager.baseCurrency
     private val tokenIn = swapQuote.tokenIn
     private val tokenOut = swapQuote.tokenOut
-    private val amountIn = swapQuote.amountIn
+    private val amountIn = swapQuote.amountIn.let { amount ->
+        if (amount.scale() > tokenIn.decimals) {
+            amount.setScale(tokenIn.decimals, RoundingMode.DOWN)
+        } else {
+            amount
+        }
+    }
     private var fiatAmountIn: BigDecimal? = null
+    private var recipient: Address? = null
+    private var slippage: BigDecimal? = null
 
     private var fiatAmountOut: BigDecimal? = null
     private var fiatAmountOutMin: BigDecimal? = null
 
+    private var error: Throwable? = null
+    private var initialLoading = true
     private var loading = true
     private var timerState = timerService.stateFlow.value
     private var sendTransactionState = sendTransactionService.stateFlow.value
     private var priceImpactState = priceImpactService.stateFlow.value
+    private var swapDefenseState = swapDefenseSystemService.stateFlow.value
 
     private var amountOut: BigDecimal? = null
     private var amountOutMin: BigDecimal? = null
+    private var estimatedTime: Long? = null
     private var quoteFields: List<DataField> = listOf()
+    private var fetchFinalQuoteJob: Job? = null
 
     init {
         fiatServiceIn.setCurrency(currency)
@@ -68,6 +89,7 @@ class SwapConfirmViewModel(
         viewModelScope.launch {
             fiatServiceIn.stateFlow.collect {
                 fiatAmountIn = it.fiatAmount
+                priceImpactService.setAmountIn(fiatAmountIn)
                 emitState()
             }
         }
@@ -75,6 +97,7 @@ class SwapConfirmViewModel(
         viewModelScope.launch {
             fiatServiceOut.stateFlow.collect {
                 fiatAmountOut = it.fiatAmount
+                priceImpactService.setAmountOut(fiatAmountOut)
                 emitState()
             }
         }
@@ -102,12 +125,15 @@ class SwapConfirmViewModel(
                 } else {
                     sendTransactionState = transactionState
 
+                    initialLoading = initialLoading && transactionState.loading
                     loading = transactionState.loading
+
+                    swapDefenseSystemService.setSendable(sendTransactionState.sendable)
 
                     emitState()
 
                     if (sendTransactionState.sendable) {
-                        timerService.start(10)
+                        timerService.start(20)
                     }
                 }
             }
@@ -117,7 +143,9 @@ class SwapConfirmViewModel(
             timerService.stateFlow.collect {
                 timerState = it
 
-                emitState()
+                if (timerState.timeout) {
+                    refresh(silent = true)
+                }
             }
         }
 
@@ -126,8 +154,16 @@ class SwapConfirmViewModel(
                 handleUpdatedPriceImpactState(it)
             }
         }
+        viewModelScope.launch {
+            swapDefenseSystemService.stateFlow.collect {
+                swapDefenseState = it
+
+                emitState()
+            }
+        }
 
         sendTransactionService.start(viewModelScope)
+        swapDefenseSystemService.start(viewModelScope)
 
         fetchFinalQuote()
     }
@@ -135,101 +171,138 @@ class SwapConfirmViewModel(
     private fun handleUpdatedPriceImpactState(priceImpactState: PriceImpactService.State) {
         this.priceImpactState = priceImpactState
 
+        swapDefenseSystemService.setPriceImpact(priceImpactState.priceImpact, priceImpactState.priceImpactLevel)
+
         emitState()
     }
 
-    override fun createState(): SwapConfirmUiState {
-        var cautions = sendTransactionState.cautions
-
-        if (cautions.isEmpty()) {
-            priceImpactState.priceImpactCaution?.let { hsCaution ->
-                cautions = listOf(
-                    CautionViewItem(
-                        hsCaution.s.toString(),
-                        hsCaution.description.toString(),
-                        when (hsCaution.type) {
-                            HSCaution.Type.Error -> CautionViewItem.Type.Error
-                            HSCaution.Type.Warning -> CautionViewItem.Type.Warning
-                        }
-                    )
-                )
-            }
-        }
-
-        return SwapConfirmUiState(
-            expiresIn = timerState.remaining,
-            expired = timerState.timeout,
-            loading = loading,
-            tokenIn = tokenIn,
-            tokenOut = tokenOut,
-            amountIn = amountIn,
-            amountOut = amountOut,
-            amountOutMin = amountOutMin,
-            fiatAmountIn = fiatAmountIn,
-            fiatAmountOut = fiatAmountOut,
-            fiatAmountOutMin = fiatAmountOutMin,
-            currency = currency,
-            networkFee = sendTransactionState.networkFee,
-            cautions = cautions,
-            validQuote = sendTransactionState.sendable,
-            priceImpact = priceImpactState.priceImpact,
-            priceImpactLevel = priceImpactState.priceImpactLevel,
-            quoteFields = quoteFields,
-            transactionFields = sendTransactionState.fields,
-        )
-    }
+    override fun createState() = SwapConfirmUiState(
+        expiresIn = timerState.remaining,
+        initialLoading = initialLoading,
+        loading = loading,
+        tokenIn = tokenIn,
+        tokenOut = tokenOut,
+        amountIn = amountIn,
+        amountOut = amountOut,
+        amountOutMin = amountOutMin,
+        fiatAmountIn = fiatAmountIn,
+        fiatAmountOut = fiatAmountOut,
+        fiatAmountOutMin = fiatAmountOutMin,
+        currency = currency,
+        networkFee = sendTransactionState.networkFee,
+        cautions = sendTransactionState.cautions,
+        validQuote = error == null && sendTransactionState.sendable,
+        priceImpact = priceImpactState.priceImpact,
+        priceImpactLevel = priceImpactState.priceImpactLevel,
+        quoteFields = quoteFields,
+        transactionFields = sendTransactionState.fields,
+        hasSettings = sendTransactionService.hasSettings,
+        hasNonceSettings = sendTransactionService.hasNonceSettings,
+        swapDefenseSystemMessage = swapDefenseState.systemMessage,
+        recipient = recipient,
+        slippage = slippage,
+        estimatedTime = estimatedTime,
+        error = error
+    )
 
     override fun onCleared() {
         timerService.stop()
     }
 
-    fun refresh() {
-        loading = true
-        emitState()
+    fun refresh(silent: Boolean = false) {
+        if (!silent) {
+            loading = true
+            emitState()
+        }
 
+        sendTransactionService.refreshUuid()
         fetchFinalQuote()
+
+        stat(page = StatPage.SwapConfirmation, event = StatEvent.Refresh)
     }
 
     private fun fetchFinalQuote() {
-        viewModelScope.launch(Dispatchers.Default) {
+        fetchFinalQuoteJob?.cancel()
+        fetchFinalQuoteJob = viewModelScope.launch(Dispatchers.Default) {
             try {
-                val finalQuote = swapProvider.fetchFinalQuote(tokenIn, tokenOut, amountIn, swapSettings, sendTransactionSettings)
+                error = null
+
+                val finalQuote = swapProvider.fetchFinalQuote(
+                    tokenIn,
+                    tokenOut,
+                    amountIn,
+                    sendTransactionSettings,
+                    swapQuote,
+                    recipient,
+                    slippage ?: IMultiSwapProvider.DEFAULT_SLIPPAGE
+                )
+
+                ensureActive()
 
                 amountOut = finalQuote.amountOut
                 amountOutMin = finalQuote.amountOutMin
+                estimatedTime = finalQuote.estimatedTime
                 quoteFields = finalQuote.fields
+                slippage = finalQuote.slippage
                 emitState()
 
                 fiatServiceOut.setAmount(amountOut)
                 fiatServiceOutMin.setAmount(amountOutMin)
                 sendTransactionService.setSendTransactionData(finalQuote.sendTransactionData)
 
-                priceImpactService.setPriceImpact(finalQuote.priceImpact, swapProvider.title)
+                priceImpactService.setProviderTitle(swapProvider.title)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: OneInchException) {
+                // in this case we should keep state as loading
+                // temp solution. need find better one
             } catch (t: Throwable) {
-//                Log.e("AAA", "fetchFinalQuote error", t)
+                loading = false
+                initialLoading = false
+                error = t
+
+                emitState()
             }
         }
     }
 
     suspend fun swap() = withContext(Dispatchers.Default) {
-        sendTransactionService.sendTransaction()
+        timerService.stop()
+
+        stat(page = StatPage.SwapConfirmation, event = StatEvent.Send)
+
+        sendTransactionService.sendTransaction(swapDefenseState.mevProtectionEnabled)
+    }
+
+    fun setRecipient(recipient: Address?) {
+        this.recipient = recipient
+
+        refresh()
+    }
+
+    fun setSlippage(slippage: BigDecimal) {
+        if (slippage == this.slippage) return
+
+        this.slippage = slippage
+
+        refresh()
     }
 
     companion object {
-        fun init(quote: SwapProviderQuote, settings: Map<String, Any?>): CreationExtras.() -> SwapConfirmViewModel = {
-            val sendTransactionService = SendTransactionServiceFactory.create(quote.tokenIn.blockchainType)
+        fun init(quote: SwapProviderQuote): CreationExtras.() -> SwapConfirmViewModel = {
+            val sendTransactionService = SendTransactionServiceFactory.create(quote.tokenIn)
 
             SwapConfirmViewModel(
                 quote.provider,
                 quote.swapQuote,
-                settings,
                 App.currencyManager,
                 FiatService(App.marketKit),
                 FiatService(App.marketKit),
                 FiatService(App.marketKit),
                 sendTransactionService,
                 TimerService(),
-                PriceImpactService()
+                PriceImpactService(PriceImpactLevel.Normal),
+                SwapDefenseSystemService(sendTransactionService.supportsMevProtection, App.paidActionSettingsManager)
             )
         }
     }
@@ -238,7 +311,7 @@ class SwapConfirmViewModel(
 
 data class SwapConfirmUiState(
     val expiresIn: Long?,
-    val expired: Boolean,
+    val initialLoading: Boolean,
     val loading: Boolean,
     val tokenIn: Token,
     val tokenOut: Token,
@@ -253,7 +326,14 @@ data class SwapConfirmUiState(
     val cautions: List<CautionViewItem>,
     val validQuote: Boolean,
     val priceImpact: BigDecimal?,
-    val priceImpactLevel: SwapMainModule.PriceImpactLevel?,
+    val priceImpactLevel: PriceImpactLevel?,
     val quoteFields: List<DataField>,
     val transactionFields: List<DataField>,
+    val hasSettings: Boolean,
+    val hasNonceSettings: Boolean,
+    val swapDefenseSystemMessage: DefenseSystemMessage?,
+    val recipient: Address?,
+    val slippage: BigDecimal?,
+    val estimatedTime: Long?,
+    val error: Throwable?,
 )

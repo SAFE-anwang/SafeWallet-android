@@ -1,13 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.balance.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -25,71 +17,47 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.navigateWithTermsAccepted
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.cards.CardsErrorMessageDefault
 
 @Composable
 fun BalanceNoAccount(navController: NavController) {
     Surface(color = ComposeAppTheme.colors.tyler) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        HSScaffold(
+            title = stringResource(R.string.Wallet_Title)
         ) {
-            Box(
+            CardsErrorMessageDefault(
                 modifier = Modifier
-                    .size(100.dp)
-                    .background(
-                        color = ComposeAppTheme.colors.raina,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    modifier = Modifier.size(48.dp),
-                    painter = painterResource(R.drawable.icon_add_to_wallet_24),
-                    contentDescription = "",
-                    tint = ComposeAppTheme.colors.grey
-                )
-            }
-            Spacer(Modifier.height(32.dp))
-            ButtonPrimaryYellow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 48.dp),
-                title = stringResource(R.string.ManageAccounts_CreateNewWallet),
+                    .align(Alignment.Center)
+                    .padding(horizontal = 64.dp),
+                icon = painterResource(R.drawable.wallet_add_24),
+                iconTint = ComposeAppTheme.colors.grey,
+                buttonTitle = stringResource(R.string.ManageAccounts_CreateNewWallet),
+                buttonTitle2 = stringResource(R.string.ManageAccounts_ImportWallet),
+                buttonTitle3 = stringResource(R.string.ManageAccounts_WatchAddress),
                 onClick = {
                     navController.navigateWithTermsAccepted {
                         navController.slideFromRight(R.id.createAccountFragment)
+
+                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.NewWallet))
                     }
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            ButtonPrimaryDefault(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 48.dp),
-                title = stringResource(R.string.ManageAccounts_ImportWallet),
-                onClick = {
-                    val args = ManageAccountsModule.Input(R.id.mainFragment, true)
+                },
+                onClick2 = {
                     navController.navigateWithTermsAccepted {
-                        navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment, args)
+                        navController.slideFromRight(R.id.importWalletFragment)
+
+                        stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.ImportWallet))
                     }
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            ButtonPrimaryTransparent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 48.dp),
-                title = stringResource(R.string.ManageAccounts_WatchAddress),
-                onClick = {
+                },
+                onClick3 = {
                     navController.slideFromRight(R.id.watchAddressFragment)
+
+                    stat(page = StatPage.Balance, event = StatEvent.Open(StatPage.WatchWallet))
                 }
             )
         }

@@ -44,13 +44,13 @@ fun RedeemConfirmationDialog(
 		) {
 			Safe3Text(
 				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec),
-				color = ComposeAppTheme.colors.bran,
+				color = ComposeAppTheme.colors.leah,
 			)
 			Spacer(Modifier.height(16.dp))
 			Safe3Text(
 				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation1),
 				stringResource(id = R.string.Redeem_Safe4_Redeem_Onec_Confrimation2),
-				color = ComposeAppTheme.colors.bran,
+				color = ComposeAppTheme.colors.leah,
 			)
 			Spacer(Modifier.height(10.dp))
 			Text(

@@ -8,27 +8,22 @@ import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.balance.BalanceAccountsViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceScreenState
-import io.horizontalsystems.bankwallet.modules.balance.cex.BalanceForAccountCex
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
 @Composable
-fun BalanceScreen(navController: NavController) {
+fun BalanceScreen(
+    navController: NavController,
+) {
     val viewModel = viewModel<BalanceAccountsViewModel>(factory = BalanceModule.AccountsFactory())
 
     when (val tmpAccount = viewModel.balanceScreenState) {
-        BalanceScreenState.NoAccount ->  {
+        BalanceScreenState.NoAccount -> {
             App.accountManager.setLevel(0)
             BalanceNoAccount(navController)
         }
-        is BalanceScreenState.HasAccount -> when (tmpAccount.accountViewItem.type) {
-            is AccountType.Cex -> {
-                BalanceForAccountCex(navController, tmpAccount.accountViewItem)
-            }
-
-            else -> {
-                BalanceForAccount(navController, tmpAccount.accountViewItem)
-            }
+        is BalanceScreenState.HasAccount -> {
+            BalanceForAccount(navController, tmpAccount.accountViewItem)
         }
 
         else -> {}

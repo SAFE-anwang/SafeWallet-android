@@ -335,7 +335,6 @@ public final class C {
   public @interface SpatializationBehavior {}
 
   /**
-   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO
    */
   public static final int SPATIALIZATION_BEHAVIOR_AUTO =
       AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO;

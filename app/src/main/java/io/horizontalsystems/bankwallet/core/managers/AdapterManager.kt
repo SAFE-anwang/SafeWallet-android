@@ -1,7 +1,5 @@
 package io.horizontalsystems.bankwallet.core.managers
 
-import android.os.Handler
-import android.os.HandlerThread
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
@@ -9,15 +7,16 @@ import io.horizontalsystems.bankwallet.core.IReceiveAdapter
 import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.util.concurrent.ConcurrentHashMap
 
 class AdapterManager(
@@ -25,59 +24,60 @@ class AdapterManager(
     private val adapterFactory: AdapterFactory,
     private val btcBlockchainManager: BtcBlockchainManager,
     private val evmBlockchainManager: EvmBlockchainManager,
-    private val binanceKitManager: BinanceKitManager,
     private val solanaKitManager: SolanaKitManager,
-    private val tronKitManager: TronKitManager
-) : IAdapterManager, HandlerThread("A") {
+    private val tronKitManager: TronKitManager,
+    private val tonKitManager: TonKitManager,
+    private val stellarKitManager: StellarKitManager,
+    private val moneroNodeManager: MoneroNodeManager,
+    private val restoreSettingsManager: RestoreSettingsManager
+) : IAdapterManager {
 
-    private val handler: Handler
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val adaptersReadySubject = PublishSubject.create<Map<Wallet, IAdapter>>()
     private val adaptersMap = ConcurrentHashMap<Wallet, IAdapter>()
 
     override val adaptersReadyObservable: Flowable<Map<Wallet, IAdapter>> =
         adaptersReadySubject.toFlowable(BackpressureStrategy.BUFFER)
 
-    init {
-        start()
-        handler = Handler(looper)
-    }
-
     override fun startAdapterManager() {
-        disposables.add(walletManager.activeWalletsUpdatedObservable
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe { wallets ->
+        coroutineScope.launch {
+            walletManager.activeWalletsUpdatedObservable.asFlow().collect { wallets ->
                 initAdapters(wallets)
             }
-        )
-
-        disposables.add(btcBlockchainManager.restoreModeUpdatedObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            btcBlockchainManager.restoreModeUpdatedObservable.asFlow().collect {
                 handleUpdatedRestoreMode(it)
             }
-        )
-
-        disposables.add(solanaKitManager.kitStoppedObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            solanaKitManager.kitStoppedObservable.asFlow().collect {
                 handleUpdatedKit(BlockchainType.Solana)
             }
-        )
-
+        }
         for (blockchain in evmBlockchainManager.allBlockchains) {
-            evmBlockchainManager.getEvmKitManager(blockchain.type).evmKitUpdatedObservable
-                .subscribeIO {
-                    handleUpdatedKit(blockchain.type)
-                }
-                .let {
-                    disposables.add(it)
-                }
+            coroutineScope.launch {
+                evmBlockchainManager.getEvmKitManager(blockchain.type).evmKitUpdatedObservable.asFlow()
+                    .collect {
+                        handleUpdatedKit(blockchain.type)
+                    }
+            }
+        }
+        coroutineScope.launch {
+            moneroNodeManager.currentNodeUpdatedFlow.collect {
+                handleUpdatedKit(BlockchainType.Monero)
+            }
+        }
+        coroutineScope.launch {
+            restoreSettingsManager.settingsUpdatedFlow.collect { blockchainType ->
+                handleUpdatedKit(blockchainType)
+            }
         }
     }
 
     private fun handleUpdatedKit(blockchainType: BlockchainType) {
         val wallets = adaptersMap.keys().toList().filter {
-            it.token.blockchain.type == blockchainType
+            it.token.blockchainType == blockchainType
         }
 
         if (wallets.isEmpty()) return
@@ -106,23 +106,22 @@ class AdapterManager(
     }
 
     fun preloadAdapters() {
-        handler.post {
+        coroutineScope.launch {
             initAdapters(walletManager.activeWallets)
         }
     }
 
-    override fun refresh() {
-        handler.post {
-            adaptersMap.values.forEach { it.refresh() }
-        }
+    override suspend fun refresh() {
+        adaptersMap.values.forEach { it.refresh() }
 
         for (blockchain in evmBlockchainManager.allBlockchains) {
             evmBlockchainManager.getEvmKitManager(blockchain.type).evmKitWrapper?.evmKit?.refresh()
         }
 
-        binanceKitManager.binanceKit?.refresh()
         solanaKitManager.solanaKitWrapper?.solanaKit?.refresh()
         tronKitManager.tronKitWrapper?.tronKit?.refresh()
+        tonKitManager.tonKitWrapper?.tonKit?.refresh()
+        stellarKitManager.stellarKitWrapper?.stellarKit?.refresh()
     }
 
     @Synchronized
@@ -133,7 +132,7 @@ class AdapterManager(
         wallets.forEach { wallet ->
             var adapter = currentAdapters.remove(wallet)
             if (adapter == null) {
-                adapterFactory.getAdapter(wallet)?.let {
+                adapterFactory.getAdapterOrNull(wallet)?.let {
                     it.start()
 
                     adapter = it
@@ -153,38 +152,6 @@ class AdapterManager(
         }
     }
 
-    /**
-     * Partial refresh of adapters
-     * For the given list of wallets do:
-     * - remove corresponding adapters from adaptersMap and stop them
-     * - create new adapters, start and add them to adaptersMap
-     * - trigger adaptersReadySubject
-     */
-    @Synchronized
-    override fun refreshAdapters(wallets: List<Wallet>) {
-        handler.post {
-            val walletsToRefresh = wallets.filter { adaptersMap.containsKey(it) }
-
-            //remove and stop adapters
-            walletsToRefresh.forEach { wallet ->
-                adaptersMap.remove(wallet)?.let { previousAdapter ->
-                    previousAdapter.stop()
-                    adapterFactory.unlinkAdapter(wallet)
-                }
-            }
-
-            //add and start new adapters
-            walletsToRefresh.forEach { wallet ->
-                adapterFactory.getAdapter(wallet)?.let { adapter ->
-                    adaptersMap[wallet] = adapter
-                    adapter.start()
-                }
-            }
-
-            adaptersReadySubject.onNext(adaptersMap)
-        }
-    }
-
     override fun refreshByWallet(wallet: Wallet) {
         val blockchain = evmBlockchainManager.getBlockchain(wallet.token)
 
@@ -195,15 +162,9 @@ class AdapterManager(
         }
     }
 
-    override fun getAdapterForWallet(wallet: Wallet): IAdapter? {
-        return adaptersMap[wallet]
-    }
-
-    override fun getAdapterForToken(token: Token): IAdapter? {
+    override fun <T> getAdapterForToken(token: Token): T? {
         return walletManager.activeWallets.firstOrNull { it.token == token }
-            ?.let { wallet ->
-                adaptersMap[wallet]
-            }
+            ?.let { getAdapterForWallet(it) }
     }
 
     override fun getBalanceAdapterForWallet(wallet: Wallet): IBalanceAdapter? {
@@ -214,8 +175,12 @@ class AdapterManager(
         return adaptersMap[wallet]?.let { it as? IReceiveAdapter }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> getAdapterForWallet(wallet: Wallet): T? {
+        return adaptersMap[wallet] as? T
+    }
     override fun refreshSafeAdapter() {
-        handler.post {
+        coroutineScope.launch {
             adaptersMap.values.forEach { if (it is SafeAdapter) it.refresh() }
         }
     }

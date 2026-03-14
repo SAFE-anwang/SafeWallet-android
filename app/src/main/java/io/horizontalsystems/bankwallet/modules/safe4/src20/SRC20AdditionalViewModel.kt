@@ -103,7 +103,7 @@ class SRC20AdditionalViewModel(
                         amount
                     ).blockingGet()
                 }
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))

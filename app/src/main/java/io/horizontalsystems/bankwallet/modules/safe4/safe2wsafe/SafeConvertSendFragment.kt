@@ -57,8 +57,8 @@ class SafeConvertSendFragment : BaseFragment() {
     private val isETH by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_ETH)!! }
     private val isMatic by lazy { requireArguments().getBoolean(SafeConvertSendActivity.IS_MATIC)!! }
 
-    val wsafeAdapter by lazy { App.adapterManager.getAdapterForWallet(wsafeWallet) as ISendEthereumAdapter }
-    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(safeWallet) as ISendSafeAdapter }
+    val wsafeAdapter by lazy { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(wsafeWallet) as ISendEthereumAdapter }
+    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(safeWallet) as ISendSafeAdapter }
     val safeInteractor by lazy { SendSafeConvertInteractor(safeAdapter) }
     val safeConvertHandler by lazy { SendSafeConvertHandler(safeInteractor, wsafeAdapter) }
     private val vmFactory by lazy { SendModule.SafeConvertFactory2(safeAdapter, safeConvertHandler, safeInteractor) }

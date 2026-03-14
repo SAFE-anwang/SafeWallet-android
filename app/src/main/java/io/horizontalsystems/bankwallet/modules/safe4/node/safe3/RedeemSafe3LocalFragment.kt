@@ -92,7 +92,7 @@ fun RedeemSafe3LocalScreen(
 			)
 		}
 
-		SendResult.Sent -> {
+		is SendResult.Sent -> {
 			HudHelper.showSuccessMessage(
 					view,
 					R.string.Redeem_Safe3_Send_Success,
@@ -232,7 +232,7 @@ fun RedeemSafe3LocalScreen(
 					Safe3Text(
 						stringResource(id = R.string.Redeem_Safe3_Address_Hint_1),
 						stringResource(id = R.string.Redeem_Safe3_Address_Hint_2, it.address),
-						color = ComposeAppTheme.colors.bran
+						color = ComposeAppTheme.colors.leah
 					)
 					Spacer(modifier = Modifier.height(2.dp))
 					body_grey(text = stringResource(id = R.string.Redeem_Safe3_Account_Balance))

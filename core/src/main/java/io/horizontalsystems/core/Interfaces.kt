@@ -1,13 +1,11 @@
 package io.horizontalsystems.core
 
-import android.app.Activity
-import io.horizontalsystems.core.security.KeyStoreValidationResult
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Date
 import javax.crypto.SecretKey
 
 interface ICoreApp {
-    var backgroundManager: BackgroundManager
     var encryptionManager: IEncryptionManager
     var systemInfoManager: ISystemInfoManager
     var keyStoreManager: IKeyStoreManager
@@ -35,10 +33,11 @@ interface ISystemInfoManager {
 interface IPinComponent {
     var isBiometricAuthEnabled: Boolean
     val isPinSet: Boolean
+    val isLockedFlow: StateFlow<Boolean>
     val isLocked: Boolean
-    val pinSetFlowable: Flowable<Unit>
+    val pinSetFlow: SharedFlow<Unit>
 
-    fun willEnterForeground(activity: Activity)
+    fun willEnterForeground()
     fun didEnterBackground()
     fun setPin(pin: String)
     fun setDuressPin(pin: String)
@@ -49,9 +48,7 @@ interface IPinComponent {
     fun validateCurrentLevel(pin: String): Boolean
     fun onBiometricUnlock()
     fun initDefaultPinLevel()
-    fun lock()
     fun updateLastExitDateBeforeRestart()
-    fun shouldShowPin(activity: Activity): Boolean
     fun isUnique(pin: String, forDuress: Boolean): Boolean
     fun keepUnlocked()
 }
@@ -71,7 +68,7 @@ interface IThirdKeyboard {
 }
 
 interface IKeyStoreManager {
-    fun validateKeyStore(): KeyStoreValidationResult
+    fun validateKeyStore()
     fun removeKey()
     fun resetApp(reason: String)
 }

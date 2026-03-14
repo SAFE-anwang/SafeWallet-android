@@ -3,12 +3,12 @@ package io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.IAccountFactory
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.restore.restoremnemonic.RestoreMnemonicService
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.reactivex.BackpressureStrategy
 import io.reactivex.disposables.CompositeDisposable
@@ -42,7 +42,7 @@ class RestoreHDWalletViewModel(
     }
 
     private fun wordItems(text: String): List<WordItem> {
-        return regex.findAll(text.toLowerCase(Locale.ENGLISH))
+        return regex.findAll(text.lowercase(Locale.ENGLISH))
             .map { WordItem(it.value, it.range) }
             .toList()
     }

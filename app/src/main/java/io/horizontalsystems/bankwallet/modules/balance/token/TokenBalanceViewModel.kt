@@ -1,21 +1,29 @@
 package io.horizontalsystems.bankwallet.modules.balance.token
 
 import androidx.lifecycle.viewModelScope
-import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.AdapterState
+import io.horizontalsystems.bankwallet.core.IAdapterManager
+import io.horizontalsystems.bankwallet.core.ICoinManager
+import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
+import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
+import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.balance.AttentionIcon
+import io.horizontalsystems.bankwallet.modules.balance.AttentionIconType
 import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItemFactory
-import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewType
 import io.horizontalsystems.bankwallet.modules.balance.token.TokenBalanceModule.TokenBalanceUiState
 import io.horizontalsystems.bankwallet.modules.safe4.swap.Safe4SwapViewModel
@@ -24,9 +32,13 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItemFactory
 import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.TokenQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import java.math.BigDecimal
 
 class TokenBalanceViewModel(
     val wallet: Wallet,
@@ -35,15 +47,25 @@ class TokenBalanceViewModel(
     private val transactionsService: TokenTransactionsService,
     private val transactionViewItem2Factory: TransactionViewItemFactory,
     private val balanceHiddenManager: BalanceHiddenManager,
+    private val adapterManager: IAdapterManager,
     private val connectivityManager: ConnectivityManager,
-    private val accountManager: IAccountManager
+    private val localStorage: ILocalStorage,
+    private val coinManager: ICoinManager,
+    private val restoreSettingsManager: RestoreSettingsManager,
 ) : ViewModelUiState<TokenBalanceUiState>() {
 
     private val title = wallet.token.coin.code + wallet.token.badge?.let { " ($it)" }.orEmpty()
-    private val disposables = CompositeDisposable()
 
     private var balanceViewItem: BalanceViewItem? = null
     private var transactions: Map<String, List<TransactionViewItem>>? = null
+    private var addressForAccount: String? = null
+    private var error: TokenBalanceModule.TokenBalanceError? = null
+    private var failedErrorMessage: String? = null
+    private var waringMessage: String? = null
+    private var loadingTransactions = true
+    private var alertUnshieldedBalance: BigDecimal? = null
+    private var attentionIcon: AttentionIcon? = null
+    private var showTronNotActiveAlert: Boolean? = null
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -64,13 +86,11 @@ class TokenBalanceViewModel(
             }
         }
 
-        transactionsService.itemsObservable
-            .subscribeIO {
+        viewModelScope.launch {
+            transactionsService.itemsObservable.asFlow().collect {
                 updateTransactions(it)
             }
-            .let {
-                disposables.add(it)
-            }
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             balanceService.start()
@@ -80,44 +100,144 @@ class TokenBalanceViewModel(
                 (App.adapterManager.getBalanceAdapterForWallet(wallet) as Eip20Adapter).refresh()
             }
         }
+
+        if (wallet.account.type is AccountType.MoneroWatchAccount) {
+            waringMessage = Translator.getString(R.string.Watch_Monero_Warning)
+        }
     }
 
     override fun createState() = TokenBalanceUiState(
         title = title,
         balanceViewItem = balanceViewItem,
         transactions = transactions,
+        receiveAddress = addressForAccount,
+        failedErrorMessage = failedErrorMessage,
+        error = error,
+        warningMessage = waringMessage,
+        alertUnshieldedBalance = alertUnshieldedBalance,
+        attentionIcon = attentionIcon,
+        showTronNotActiveAlert = showTronNotActiveAlert ?: false,
     )
+
+    private fun setReceiveAddressForWatchAccount() {
+        addressForAccount = adapterManager.getReceiveAdapterForWallet(wallet)?.receiveAddress
+        emitState()
+    }
 
     private fun updateTransactions(items: List<TransactionItem>) {
         transactions = items
             .map { transactionViewItem2Factory.convertToViewItemCached(it) }
             .groupBy { it.formattedDate }
 
+        loadingTransactions = false
+        updateErrorState()
         emitState()
     }
 
     private fun updateBalanceViewItem(balanceItem: BalanceModule.BalanceItem) {
+
         val balanceViewItem = balanceViewItemFactory.viewItem(
             balanceItem,
             balanceService.baseCurrency,
             balanceHiddenManager.balanceHidden,
             wallet.account.isWatchAccount,
-            BalanceViewType.CoinThenFiat
+            BalanceViewType.CoinThenFiat,
+            connectivityManager.isConnected
         )
+
+        attentionIcon = balanceViewItem.attentionIcon
+        failedErrorMessage = balanceViewItem.errorMessage
+
+        if (wallet.account.isWatchAccount) {
+            setReceiveAddressForWatchAccount()
+        }
+
+        if (wallet.token.blockchainType == BlockchainType.Zcash) {
+            handleZcashBalanceUpdate(balanceItem)
+        }
+
+        val birthdayHeight = getBirthdayHeight()
 
         this.balanceViewItem = balanceViewItem.copy(
-            primaryValue = balanceViewItem.primaryValue.copy(value = balanceViewItem.primaryValue.value + " " + balanceViewItem.coinCode)
+            primaryValue = balanceViewItem.primaryValue?.let {
+                it.copy(value = it.value + " " + balanceViewItem.wallet.coin.code)
+            },
+            birthdayHeight = birthdayHeight
         )
 
+        if (balanceViewItem.attentionIcon?.type == AttentionIconType.TronNotActive && showTronNotActiveAlert == null) {
+            showTronNotActiveAlert = true
+        }
+
+        updateErrorState()
         emitState()
     }
 
-    @Throws(BackupRequiredError::class, IllegalStateException::class)
+    private fun handleZcashBalanceUpdate(balanceItem: BalanceModule.BalanceItem) {
+        if (balanceItem.state == AdapterState.Synced && balanceItem.balanceData.unshielded > ZcashAdapter.minimalShieldThreshold) {
+            val unshielded = balanceItem.balanceData.unshielded
+            val lastAlertedUnshieldedBalance = getLastAlertedUnshieldedBalance(wallet)
+
+            if (lastAlertedUnshieldedBalance == null || lastAlertedUnshieldedBalance.compareTo(unshielded) != 0) {
+                alertUnshieldedBalance = unshielded
+            }
+        }
+    }
+
+    private fun getLastAlertedUnshieldedBalance(wallet: Wallet): BigDecimal? {
+        return localStorage.zcashUnshieldedBalanceAlerts.get(wallet.account.id)
+    }
+
+    private fun setLastAlertedUnshieldedBalance(
+        wallet: Wallet,
+        unshielded: BigDecimal
+    ) {
+        localStorage.zcashUnshieldedBalanceAlerts = localStorage.zcashUnshieldedBalanceAlerts + mapOf(wallet.account.id to unshielded)
+    }
+
+    private fun updateErrorState() {
+        if (!loadingTransactions && transactions.isNullOrEmpty()) {
+            error = if (balanceViewItem?.syncingProgress?.progress != null) {
+                TokenBalanceModule.TokenBalanceError(
+                    message = Translator.getString(R.string.Transactions_WaitForSync),
+                )
+            } else if (balanceViewItem?.warning != null) {
+                balanceViewItem?.warning?.let {
+                    TokenBalanceModule.TokenBalanceError(
+                        message = it.text.toString(),
+                        errorTitle = it.title?.toString(),
+                        icon = it.icon ?: R.drawable.warning_filled_24
+                    )
+                }
+            } else {
+                TokenBalanceModule.TokenBalanceError(
+                    message = Translator.getString(R.string.Transactions_EmptyList)
+                )
+            }
+        } else {
+            error = null
+        }
+    }
+
+    @Throws(BackupRequiredError::class)
     fun getWalletForReceive(): Wallet {
-        val account = accountManager.activeAccount ?: throw IllegalStateException("Active account is not set")
         when {
-            account.hasAnyBackup -> return wallet
-            else -> throw BackupRequiredError(account, wallet.coin.name)
+            wallet.account.hasAnyBackup -> return wallet
+            else -> throw BackupRequiredError(wallet.account, wallet.coin.name)
+        }
+    }
+
+    @Throws(BackupRequiredError::class, IllegalStateException::class)
+    fun getWalletForTronReceive(): Wallet {
+        when {
+            wallet.account.hasAnyBackup -> {
+                val tronToken =
+                    coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: throw IllegalStateException("Tron token not found")
+                val tronWallet = wallet.copy(token = tronToken)
+                return tronWallet
+            }
+
+            else -> throw BackupRequiredError(wallet.account, wallet.coin.name)
         }
     }
 
@@ -129,21 +249,36 @@ class TokenBalanceViewModel(
         transactionsService.fetchRateIfNeeded(viewItem.uid)
     }
 
-    fun getTransactionItem(viewItem: TransactionViewItem) = transactionsService.getTransactionItem(viewItem.uid)
+    fun getTransactionItem(viewItem: TransactionViewItem) =
+        transactionsService.getTransactionItem(viewItem.uid)?.record
 
     fun toggleBalanceVisibility() {
         balanceHiddenManager.toggleBalanceHidden()
     }
 
-    fun getSyncErrorDetails(viewItem: BalanceViewItem): BalanceViewModel.SyncError = when {
-        connectivityManager.isConnected -> BalanceViewModel.SyncError.Dialog(viewItem.wallet, viewItem.errorMessage)
-        else -> BalanceViewModel.SyncError.NetworkNotAvailable()
+    fun transparentZecAmountWarningShown(alertUnshieldedBalance: BigDecimal) {
+        setLastAlertedUnshieldedBalance(wallet, alertUnshieldedBalance)
+        this.alertUnshieldedBalance = null
+
+        emitState()
+    }
+
+    fun hideTronNotActiveAlert() {
+        showTronNotActiveAlert = false
+        emitState()
+    }
+
+    private fun getBirthdayHeight(): Long? {
+        val blockchainType = wallet.token.blockchainType
+        if (blockchainType != BlockchainType.Zcash && blockchainType != BlockchainType.Monero) {
+            return null
+        }
+        return restoreSettingsManager.settings(wallet.account, blockchainType).birthdayHeight
     }
 
     override fun onCleared() {
         super.onCleared()
 
-        disposables.clear()
         balanceService.clear()
     }
 

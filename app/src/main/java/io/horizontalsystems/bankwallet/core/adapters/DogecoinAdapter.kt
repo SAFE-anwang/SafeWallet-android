@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.adapters
 
 import io.horizontalsystems.bankwallet.core.AdapterErrorWrongParameters
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
 import io.horizontalsystems.bankwallet.core.purpose
@@ -14,7 +15,7 @@ import io.horizontalsystems.bitcoincore.models.BlockInfo
 import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.models.TransactionInfo
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
-import io.horizontalsystems.core.BackgroundManager
+import io.horizontalsystems.bitcoincore.storage.UtxoFilters
 import io.horizontalsystems.dogecoinkit.DogecoinKit
 import io.horizontalsystems.dogecoinkit.DogecoinKit.NetworkType
 import io.horizontalsystems.hdwalletkit.HDWallet
@@ -44,7 +45,7 @@ class DogecoinAdapter(
     // BitcoinBaseAdapter
     //
 
-    override val satoshisInBitcoin: BigDecimal = BigDecimal.valueOf(Math.pow(10.0, decimal.toDouble()))
+    val satoshisInBitcoin: BigDecimal = BigDecimal.valueOf(Math.pow(10.0, decimal.toDouble()))
 
     //
     // LitecoinKit Listener
@@ -86,9 +87,6 @@ class DogecoinAdapter(
     override fun onTransactionsDelete(hashes: List<String>) {
         // ignored for now
     }
-
-    override val unspentOutputs: List<UnspentOutputInfo>
-        get() = kit.unspentOutputs
 
     override val blockchainType = BlockchainType.Dogecoin
 

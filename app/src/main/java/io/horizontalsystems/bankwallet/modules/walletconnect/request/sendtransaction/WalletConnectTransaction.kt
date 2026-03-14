@@ -5,15 +5,15 @@ import io.horizontalsystems.ethereumkit.models.GasPrice
 import java.math.BigInteger
 
 data class WalletConnectTransaction(
-        val from: Address,
-        val to: Address,
-        val nonce: Long?,
-        val gasPrice: Long?,
-        val gasLimit: Long?,
-        val maxPriorityFeePerGas: Long?,
-        val maxFeePerGas: Long?,
-        val value: BigInteger,
-        val data: ByteArray
+    val from: Address,
+    val to: Address,
+    val nonce: Long?,
+    val gasPrice: Long?,
+    val gasLimit: Long?,
+    val maxPriorityFeePerGas: Long?,
+    val maxFeePerGas: Long?,
+    val value: BigInteger,
+    val data: ByteArray
 ) {
     fun getGasPriceObj() = when {
         maxFeePerGas != null && maxPriorityFeePerGas != null -> {

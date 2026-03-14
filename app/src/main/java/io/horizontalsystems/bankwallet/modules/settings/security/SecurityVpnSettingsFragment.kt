@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.settings.security
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -32,13 +33,13 @@ import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule
+import io.horizontalsystems.bankwallet.modules.settings.privacy.tor.SecurityTorSettingsModule
+import io.horizontalsystems.bankwallet.modules.settings.privacy.tor.SecurityTorSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.BottomSheetFallbackBlockSelectDialog
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockModule
 import io.horizontalsystems.bankwallet.modules.settings.security.fallbackblock.FallbackBlockViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.passcode.SecurityPasscodeSettingsModule
 import io.horizontalsystems.bankwallet.modules.settings.security.passcode.SecuritySettingsViewModel
-import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsModule
-import io.horizontalsystems.bankwallet.modules.settings.security.tor.SecurityTorSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.PasscodeBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.TorBlock
 import io.horizontalsystems.bankwallet.modules.settings.security.ui.*
@@ -76,6 +77,7 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
         FallbackBlockModule.Factory()
     }
 
+    @SuppressLint("ViewModelConstructorInComposable")
     @Composable
     override fun GetContent(navController: NavController) {
         val vpnViewModel = SecurityVpnSettingsViewModel(requireContext().getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)) { connectState ->

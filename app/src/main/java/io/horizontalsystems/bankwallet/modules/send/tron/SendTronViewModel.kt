@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.core.ISendTronAdapter
 import io.horizontalsystems.bankwallet.core.LocalizedException
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
+import io.horizontalsystems.bankwallet.core.managers.RecentAddressManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -21,6 +22,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.tronkit.transaction.Fee
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,8 @@ class SendTronViewModel(
     private val contactsRepo: ContactsRepository,
     private val showAddressInput: Boolean,
     private val connectivityManager: ConnectivityManager,
+    private val address: Address,
+    private val recentAddressManager: RecentAddressManager
 ) : ViewModelUiState<SendUiState>() {
     val logger: AppLogger = AppLogger("send-tron")
 
@@ -84,6 +88,10 @@ class SendTronViewModel(
                 feeCoinRate = it
             }
         }
+
+        viewModelScope.launch {
+            addressService.setAddress(address)
+        }
     }
 
     override fun createState() = SendUiState(
@@ -93,8 +101,9 @@ class SendTronViewModel(
         proceedEnabled = amountState.canBeSend && addressState.canBeSend,
         sendEnabled = feeState is FeeState.Success && cautions.isEmpty(),
         feeViewState = feeState.viewState,
-        cautions = cautions,
+        cautions = cautions.map { it.toCautionViewItem() },
         showAddressInput = showAddressInput,
+        address = address
     )
 
     fun onEnterAmount(amount: BigDecimal?) {
@@ -121,7 +130,7 @@ class SendTronViewModel(
             resourcesConsumed = null,
             address = address,
             contact = contact,
-            coin = wallet.coin,
+            token = wallet.token,
             feeCoin = feeToken.coin,
             isInactiveAddress = addressState.isInactiveAddress
         )
@@ -141,7 +150,9 @@ class SendTronViewModel(
         cautions = if (trxAmount + totalFee > availableBalance) {
             listOf(
                 HSCaution(
-                    TranslatableString.PlainString(
+                    s = TranslatableString.PlainString(Translator.getString(R.string.EthereumTransaction_Error_InsufficientBalance_Title)),
+                    type = HSCaution.Type.Error,
+                    description = TranslatableString.PlainString(
                         Translator.getString(
                             R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
                             feeToken.coin.code
@@ -152,7 +163,9 @@ class SendTronViewModel(
         } else if (sendToken == feeToken && confirmationData.amount <= BigDecimal.ZERO) {
             listOf(
                 HSCaution(
-                    TranslatableString.PlainString(
+                    s = TranslatableString.PlainString(Translator.getString(R.string.Error)),
+                    type = HSCaution.Type.Error,
+                    description = TranslatableString.PlainString(
                         Translator.getString(
                             R.string.Tron_ZeroAmountTrxNotAllowed,
                             sendToken.coin.code
@@ -248,8 +261,10 @@ class SendTronViewModel(
             val amount = confirmationData.amount
             adapter.send(amount, addressState.tronAddress!!, feeState.feeLimit)
 
-            sendResult = SendResult.Sent
+            sendResult = SendResult.Sent()
             logger.info("success")
+
+            recentAddressManager.setRecentAddress(addressState.address!!, BlockchainType.Tron)
         } catch (e: Throwable) {
             sendResult = SendResult.Failed(createCaution(e))
             logger.warning("failed", e)

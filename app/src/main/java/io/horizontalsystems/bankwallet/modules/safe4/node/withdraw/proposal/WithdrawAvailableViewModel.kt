@@ -124,7 +124,7 @@ class WithdrawAvailableViewModel(
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
                     service.withdraw(checkedList)
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                     withdrawList = list.filter { !it.checked }
                     emitState()
                 } catch (e: Exception) {

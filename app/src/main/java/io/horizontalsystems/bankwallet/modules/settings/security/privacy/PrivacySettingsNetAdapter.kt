@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.databinding.ViewHolderNetControlBinding
-import io.horizontalsystems.bankwallet.modules.settings.security.tor.TorStatus
+import io.horizontalsystems.bankwallet.modules.settings.privacy.tor.TorStatus
 
 
 class PrivacySettingsNetAdapter(val context: Context, private val listener: Listener) : RecyclerView.Adapter<PrivacySettingsNetAdapter.NetControlViewHolder>() {

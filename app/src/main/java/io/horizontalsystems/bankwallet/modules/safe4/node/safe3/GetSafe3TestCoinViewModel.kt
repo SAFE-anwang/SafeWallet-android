@@ -98,7 +98,7 @@ class GetSafe3TestCoinViewModel(
 						getResponse = it
 						getStatus = it.status
 						if (getStatus) {
-							sendResult = SendResult.Sent
+							sendResult = SendResult.Sent()
 							canEnable = false
 						} else {
 							sendResult = SendResult.Failed(createCaution(Throwable(it.message)))
@@ -119,7 +119,7 @@ class GetSafe3TestCoinViewModel(
 		super.onCleared()
 		disposables.clear()
 
-		sendResult = SendResult.Sent
+		sendResult = SendResult.Sent()
 	}
 
 	data class GetResult(

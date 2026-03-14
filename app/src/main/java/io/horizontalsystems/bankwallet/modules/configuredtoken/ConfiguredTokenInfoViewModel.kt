@@ -2,11 +2,18 @@ package io.horizontalsystems.bankwallet.modules.configuredtoken
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.IAccountManager
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
+import io.horizontalsystems.bankwallet.core.assetUrl
+import io.horizontalsystems.bankwallet.core.eip20TokenUrl
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.jettonUrl
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
-import io.horizontalsystems.bankwallet.modules.address.*
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SyncSafe4Tokens
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
@@ -27,17 +34,20 @@ class ConfiguredTokenInfoViewModel(
         val imageUrl = if (token.tokenQuery.customCoinUid.isSafeFourCustomCoin()) {
             SyncSafe4Tokens.getLogo(token.tokenQuery.customCoinUid) ?: ""
         } else {
-            token.blockchain.type.imageUrl
+            token.coin.imageUrl
         }
         val type = when (val type = token.type) {
             is TokenType.Eip20 -> {
                 ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, imageUrl, token.blockchain.eip20TokenUrl(type.address))
             }
-            is TokenType.Bep2 -> {
-                ConfiguredTokenInfoType.Contract(token.coin.uid, type.symbol, token.blockchain.type.imageUrl, token.blockchain.bep2TokenUrl(type.symbol))
-            }
             is TokenType.Spl -> {
                 ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, token.blockchain.type.imageUrl, token.blockchain.eip20TokenUrl(type.address))
+            }
+            is TokenType.Jetton -> {
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.address, token.blockchain.type.imageUrl, token.blockchain.jettonUrl(type.address))
+            }
+            is TokenType.Asset -> {
+                ConfiguredTokenInfoType.Contract(token.coin.uid,"${type.code}-${type.issuer}", token.blockchain.type.imageUrl, token.blockchain.assetUrl(type.code, type.issuer))
             }
             is TokenType.Derived -> {
                 ConfiguredTokenInfoType.Bips(token.blockchain.name)
@@ -46,6 +56,7 @@ class ConfiguredTokenInfoViewModel(
                 ConfiguredTokenInfoType.Bch
             }
             TokenType.Native -> when (token.blockchainType) {
+                BlockchainType.Monero,
                 BlockchainType.Zcash -> {
                     ConfiguredTokenInfoType.BirthdayHeight(getBirthdayHeight(token))
                 }
