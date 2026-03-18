@@ -52,7 +52,7 @@ val bluePalette = Colors(
     laguna = LagunaL,
     raina = White50,
     andy = Black50,
-    blade = Carbon,
+    blade = Blue,
 )
 
 @Composable

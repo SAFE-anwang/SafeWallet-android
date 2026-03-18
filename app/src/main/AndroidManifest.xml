@@ -146,7 +146,7 @@
             android:name="${applicationId}.MainLauncherAlias"
             android:enabled="true"
             android:exported="true"
-            android:icon="@mipmap/launcher_main"
+            android:icon="@mipmap/ic_app_color"
             android:label="@string/App_Name"
             android:targetActivity=".modules.main.MainActivity">
             <intent-filter>

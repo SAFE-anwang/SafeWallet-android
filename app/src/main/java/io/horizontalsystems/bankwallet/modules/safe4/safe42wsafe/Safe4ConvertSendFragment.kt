@@ -144,6 +144,7 @@ class Safe4ConvertSendFragment : BaseFragment() {
                 titleRes = R.string.Safe4_Title_safe42wsafe_matic
             }
             ComposeAppTheme {
+                Spacer(modifier = Modifier.height(24.dp))
                 AppBar(
                     title = stringResource(titleRes),
                     navigationIcon = {

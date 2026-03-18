@@ -332,13 +332,13 @@ object LiquidityMainModule {
         object ForbiddenPriceImpactLevel : SwapError()
     }
 
-    @Parcelize
+    /*@Parcelize
     data class CoinBalanceItem(
         val token: Token,
         val balance: BigDecimal?,
         val fiatBalanceValue: CurrencyValue?,
     ) : Parcelable
-
+*/
 }
 
 fun BigDecimal.scaleUp(scale: Int): BigInteger {

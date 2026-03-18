@@ -45,7 +45,6 @@
 
         <!--  Gradient colors-->
         <item name="ColorGradientWhite">@color/white_20</item>
-        <item name="ColorWindowBackground">@color/dark</item>
     </style>
 
     <!--Final, top-level theme-->

@@ -44,6 +44,12 @@ class SendEvmSettingsService(
                 sync()
             }
         }
+        launch {
+            nonceService.start()
+        }
+        launch {
+            feeService.start()
+        }
     }
 
     fun clear() {

@@ -177,7 +177,7 @@ class EvmKitManager(
 //            nftKit = nftKitInstance
 //        }
 
-        val merkleTransactionAdapter = MerkleTransactionAdapter.getInstance(
+        /*val merkleTransactionAdapter = MerkleTransactionAdapter.getInstance(
             merkleIoPubKey = "pk_mbs_5f012edb2cf20a96b49429a3ed285a45",
             address = address,
             chain = chain,
@@ -187,14 +187,14 @@ class EvmKitManager(
             sourceTag = "unstoppable-wallet-android"
         )
 
-        merkleTransactionAdapter?.registerInKit(evmKit)
+        merkleTransactionAdapter?.registerInKit(evmKit)*/
 
         evmKit.start()
         seed?.let {
             evmKit.getAnBaoAllAddressInfo(it)
         }
 
-        return EvmKitWrapper(evmKit, nftKit, blockchainType, signer, merkleTransactionAdapter)
+        return EvmKitWrapper(evmKit, nftKit, blockchainType, signer, /*merkleTransactionAdapter*/)
     }
 
     @Synchronized
@@ -247,7 +247,7 @@ class EvmKitWrapper(
     val nftKit: NftKit?,
     val blockchainType: BlockchainType,
     val signer: Signer?,
-    val merkleTransactionAdapter: MerkleTransactionAdapter?
+//    val merkleTransactionAdapter: MerkleTransactionAdapter?
 ) {
 
     fun sendSingle(
@@ -259,17 +259,17 @@ class EvmKitWrapper(
         lockTime: Int? = null
     ): Single<FullTransaction> {
         if (signer == null) return Single.error(Exception())
-        if (mevProtectionEnabled && merkleTransactionAdapter == null) return Single.error(Exception())
+//        if (mevProtectionEnabled && merkleTransactionAdapter == null) return Single.error(Exception())
         if (lockTime == null) {
             return evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
                 .flatMap { rawTransaction ->
                     val signature = signer.signature(rawTransaction)
 
-                    if (mevProtectionEnabled && merkleTransactionAdapter != null) {
-                        merkleTransactionAdapter.send(rawTransaction, signature)
-                    } else {
-                        evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
-                    }
+//                    if (mevProtectionEnabled && merkleTransactionAdapter != null) {
+//                        merkleTransactionAdapter.send(rawTransaction, signature)
+//                    } else {
+                        evmKit.send(rawTransaction, signature, signer.privateKey)
+//                    }
                 }
         } else {
             return evmKit.safe4LockRawTransaction(transactionData, gasPrice, gasLimit, lockTime, nonce)

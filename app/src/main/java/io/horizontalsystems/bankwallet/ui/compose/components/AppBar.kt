@@ -3,6 +3,8 @@ package io.horizontalsystems.bankwallet.ui.compose.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -100,13 +102,15 @@ fun AppBar(
             )
         }
     }
-
-    AppBar(
-        title = titleComposable,
-        navigationIcon = navigationIcon,
-        menuItems = menuItems,
-        backgroundColor = backgroundColor
-    )
+    Column {
+        Spacer(modifier = Modifier.height(24.dp))
+        AppBar(
+            title = titleComposable,
+            navigationIcon = navigationIcon,
+            menuItems = menuItems,
+            backgroundColor = backgroundColor
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,6 +127,7 @@ fun AppBar(
         modifier = Modifier
             .windowInsetsPadding(windowInsets)
             .height(64.dp),
+        windowInsets = windowInsets,
         title = title,
         backgroundColor = backgroundColor,
         navigationIcon = navigationIcon?.let {

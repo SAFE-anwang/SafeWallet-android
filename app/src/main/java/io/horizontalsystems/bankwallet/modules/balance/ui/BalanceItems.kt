@@ -74,6 +74,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.sendtokenselect.SendTokenSelectFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
@@ -412,30 +413,6 @@ fun BalanceItems(
             }
 
             stickyHeader {
-                HsIconButton(
-                    onClick = {
-                        navController.slideFromRight(R.id.listLiquidity)
-                    },
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (App.localStorage.currentTheme == ThemeType.Blue)
-                                ComposeAppTheme.colors.tyler
-                            else
-                                ComposeAppTheme.colors.leah
-                        ),
-                    rippleColor = ComposeAppTheme.colors.lawrence
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_liquidity),
-                        contentDescription = stringResource(R.string.ManageCoins_title),
-                        tint = ComposeAppTheme.colors.lawrence
-                    )
-                }
-
-                Spacer(modifier = Modifier.padding(start = 16.dp))
-
                 TabsSectionButtons(
                     left = {
                         BalanceSortingSelector(
@@ -463,6 +440,36 @@ fun BalanceItems(
                         if (!uiState.networkAvailable) {
                             subheadSB_lucian(stringResource(R.string.Hud_Text_NoInternet))
                         }
+                        HsIconButton(
+                            onClick = {
+                                navController.slideFromRight(R.id.listLiquidity)
+                            },
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (App.localStorage.currentTheme == ThemeType.Blue)
+                                        ComposeAppTheme.colors.tyler
+                                    else
+                                        ComposeAppTheme.colors.leah
+                                ),
+                            rippleColor = ComposeAppTheme.colors.lawrence
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_liquidity),
+                                contentDescription = stringResource(R.string.ManageCoins_title),
+                                tint = ComposeAppTheme.colors.lawrence
+                            )
+                        }
+
+                        ButtonSecondaryCircle(
+                            icon = R.drawable.ic_transactions_24,
+                            onClick = {
+                                navController.slideFromRight(
+                                    R.id.transactionFragment
+                                )
+                            }
+                        )
                     }
                 )
             }

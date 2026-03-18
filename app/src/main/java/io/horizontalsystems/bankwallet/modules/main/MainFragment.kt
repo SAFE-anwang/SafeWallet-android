@@ -224,11 +224,15 @@ private fun MainScreen(
                         HsNavigationBarItem(
                             selected = destination.selected,
                             onClick = {
-                                viewModel.onSelect(destination.mainNavItem)
-                                stat(
-                                    page = StatPage.Main,
-                                    event = StatEvent.SwitchTab(destination.mainNavItem.statTab)
-                                )
+                                if (destination.mainNavItem == MainNavigation.Tg) {
+                                    openLink.invoke(App.appConfigProvider.appTelegramLink)
+                                } else {
+                                    viewModel.onSelect(destination.mainNavItem)
+                                    stat(
+                                        page = StatPage.Main,
+                                        event = StatEvent.SwitchTab(destination.mainNavItem.statTab)
+                                    )
+                                }
                             },
                             onLongClick = if (destination.selected && destination.mainNavItem == MainNavigation.Balance) {
                                 {

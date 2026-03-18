@@ -860,6 +860,7 @@ private fun Safe4Sections(
 @Composable
 fun Safe3Cell(
     @StringRes title: Int,
+    isBlueBg: Boolean = false
 ) {
     Row {
         Text(
@@ -869,7 +870,7 @@ fun Safe3Cell(
             maxLines = 1,
             modifier = Modifier.padding(start = 16.dp)
         )
-        Safe3Badge()
+        Safe3Badge(isBlueBg)
         Text(
             text = stringResource(title),
             style = ComposeAppTheme.typography.subheadB,
@@ -953,7 +954,7 @@ fun Safe3HsSettingCell(
             painter = painterResource(id = icon),
             contentDescription = null,
         )
-        Safe3Cell(title)
+        Safe3Cell(title, true)
         Spacer(Modifier.weight(1f))
         value?.let {
             Text(
@@ -1027,7 +1028,7 @@ fun HsSettingCellForEth(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.grey)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1083,7 +1084,7 @@ fun HsSettingCellForUsdt(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(ComposeAppTheme.colors.grey)
+                    .background(ComposeAppTheme.colors.blade)
                 ) {
             Text(
                 modifier = Modifier.padding(
@@ -1115,7 +1116,7 @@ fun HsSettingCellForUsdt(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.grey)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1171,7 +1172,7 @@ fun HsSettingCellForSafe(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.grey)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1271,7 +1272,7 @@ fun HsSettingCellForSRC(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.grey)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(

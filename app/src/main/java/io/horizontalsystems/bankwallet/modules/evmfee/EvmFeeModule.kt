@@ -59,6 +59,7 @@ object EvmFeeModule {
 interface IEvmFeeService {
     val transactionStatusFlow: Flow<DataState<Transaction>>
 
+    fun start()
     fun clear()
     fun reset()
 }

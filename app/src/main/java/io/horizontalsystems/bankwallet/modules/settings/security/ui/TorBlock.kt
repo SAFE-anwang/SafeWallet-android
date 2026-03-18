@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.settings.privacy.tor.SecurityTorSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.settings.security.SecurityCenterCell
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 
@@ -24,33 +25,36 @@ fun TorBlock(
         showAppRestartAlert()
         viewModel.restartAppAlertShown()
     }
-
-    SecurityCenterCell(
-        start = {
-            Icon(
-                modifier = Modifier.size(24.dp),
-                painter = painterResource(R.drawable.ic_tor_connection_24),
-                tint = ComposeAppTheme.colors.grey,
-                contentDescription = null,
-            )
-        },
-        center = {
-            body_leah(
-                text = stringResource(R.string.Tor_Title),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        },
-        end = {
-            HsSwitch(
-                checked = viewModel.torCheckEnabled,
-                onCheckedChange = { checked ->
-                    viewModel.setTorEnabledWithChecks(checked)
+    CellMultilineLawrenceSection(
+        listOf {
+            SecurityCenterCell(
+                start = {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.ic_tor_connection_24),
+                        tint = ComposeAppTheme.colors.grey,
+                        contentDescription = null,
+                    )
+                },
+                center = {
+                    body_leah(
+                        text = stringResource(R.string.Tor_Title),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                end = {
+                    HsSwitch(
+                        checked = viewModel.torCheckEnabled,
+                        onCheckedChange = { checked ->
+                            viewModel.setTorEnabledWithChecks(checked)
+                        }
+                    )
+                },
+                onClick = {
+                    viewModel.setTorEnabledWithChecks(!viewModel.torCheckEnabled)
                 }
             )
-        },
-        onClick = {
-            viewModel.setTorEnabledWithChecks(!viewModel.torCheckEnabled)
         }
     )
 }

@@ -93,8 +93,9 @@ class SendEvmTransactionService(
                         sync(it)
                     }
             }
-
-            settingsService.start()
+            launch {
+                settingsService.start()
+            }
         }
     }
 

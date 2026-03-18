@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.multiswap
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -203,6 +204,7 @@ fun SwapScreen(navController: NavController, tokenIn: Token?) {
     )
 }
 
+@SuppressLint("BuildListAdds")
 @Composable
 private fun SwapScreenInner(
     uiState: SwapUiState,
@@ -234,14 +236,15 @@ private fun SwapScreenInner(
     HSScaffold(
         title = stringResource(R.string.Swap),
         onBack = onClickClose,
+        menuItems = buildList {
+            MenuItem(
+                title = TranslatableString.ResString(R.string.KChart),
+                onClick = {
+                    onKChart.invoke()
+                }
+            )
+        }
     ) {
-        // TODO::
-        /*add(MenuItem(
-            title = TranslatableString.ResString(R.string.KChart),
-            onClick = {
-                onKChart.invoke()
-            }
-        ))*/
         val focusManager = LocalFocusManager.current
         val keyboardState by observeKeyboardState()
         var amountInputHasFocus by remember { mutableStateOf(false) }

@@ -903,7 +903,18 @@ private fun ButtonsRow(
                     viewItem.wallet.token.blockchainType != BlockchainType.SafeFour
                             || (viewItem.wallet.token.blockchainType == BlockchainType.SafeFour
                             && viewItem.wallet.token.type != TokenType.Native))) {
-            Spacer(modifier = Modifier.width(8.dp))
+            BalanceActionButton(
+                variant = ButtonVariant.Secondary,
+                icon = R.drawable.ic_liquidity,
+                title = stringResource(R.string.liquidity_title),
+                onClick = {
+                    navController.slideFromRight(
+                        R.id.liquidityFragment,
+                        LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                    )
+                },
+            )
+            /*Spacer(modifier = Modifier.width(8.dp))
             HsIconButton(
                 onClick = {
                     navController.slideFromRight(
@@ -912,7 +923,7 @@ private fun ButtonsRow(
                     )
                 },
                 modifier = Modifier
-                    .size(40.dp)
+                    .wrapContentSize()
                     .clip(CircleShape)
                     .background(
                         if (App.localStorage.currentTheme == ThemeType.Blue)
@@ -927,7 +938,7 @@ private fun ButtonsRow(
                     contentDescription = stringResource(R.string.ManageCoins_title),
                     tint = ComposeAppTheme.colors.lawrence
                 )
-            }
+            }*/
         }
         if (viewItem.swapVisible) {
             BalanceActionButton(

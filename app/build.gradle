@@ -518,6 +518,7 @@ configurations.all {
         force "io.ktor:ktor-utils:2.3.7"
         force "io.ktor:ktor-io:2.3.7"
         force "io.ktor:ktor-client-core:2.3.7"
+        force 'commons-codec:commons-codec:1.15'
     }
 
     exclude group: "com.google.protobuf", module: "protobuf-java"

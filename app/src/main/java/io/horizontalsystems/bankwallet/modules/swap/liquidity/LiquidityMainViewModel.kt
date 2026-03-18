@@ -315,7 +315,7 @@ class LiquidityMainViewModel(
             timerService.stateFlow.collect {
 
                 resyncSwapData()
-                tradePriceExpiration = it.remaining as Float?
+                tradePriceExpiration = it.remaining?.toFloat()
                 syncUiState()
             }
         }

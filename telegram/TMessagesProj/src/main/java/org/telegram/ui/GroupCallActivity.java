@@ -1067,7 +1067,7 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
 
     @Override
     public void dismiss() {
-        parentActivity.removeOnUserLeaveHintListener(onUserLeaveHintListener);
+        parentActivity.removeOnUserLeaveHintListener1(onUserLeaveHintListener);
         parentActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         groupCallUiVisible = false;
         if (groupVoipInviteAlert != null) {
@@ -8670,7 +8670,7 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        parentActivity.addOnUserLeaveHintListener(onUserLeaveHintListener);
+        parentActivity.addOnUserLeaveHintListener1(onUserLeaveHintListener);
     }
 
     public void onResume() {

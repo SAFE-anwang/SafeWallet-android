@@ -114,7 +114,7 @@ fun SwapCoinCardView(
                         val params = SelectSwapCoinFragment.prepareParams(cardState.uuid, dex)
                         navController.slideFromBottom(R.id.selectSwapCoinDialog, params)*/
 
-                        navController.slideFromBottomForResult<LiquidityMainModule.CoinBalanceItem>(
+                        navController.slideFromBottomForResult<SwapMainModule.CoinBalanceItem>(
                                 R.id.selectSwapCoinDialog,
                                 dex
                         ) {

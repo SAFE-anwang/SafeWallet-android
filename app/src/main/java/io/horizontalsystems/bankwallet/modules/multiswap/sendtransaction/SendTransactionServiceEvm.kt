@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -128,7 +129,7 @@ class SendTransactionServiceEvm(
         SendTransactionSettings.Evm(null, evmKitWrapper.evmKit.receiveAddress)
     )
     override val sendTransactionSettingsFlow = _sendTransactionSettingsFlow.asStateFlow()
-    override val supportsMevProtection = evmKitWrapper.merkleTransactionAdapter != null
+    override val supportsMevProtection = false/*evmKitWrapper.merkleTransactionAdapter != null*/
 
     override fun reset(coroutineScope: CoroutineScope) {
         coroutineScope.launch {
@@ -153,6 +154,7 @@ class SendTransactionServiceEvm(
     )
 
     override fun start(coroutineScope: CoroutineScope) {
+        Log.d("add-liquidity", "start")
         gasPriceService.start()
 //        feeService.start()
 

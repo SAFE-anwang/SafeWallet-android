@@ -52,7 +52,7 @@ fun ButtonPrimaryDefaultWithIcon(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.leah,
             contentColor = ComposeAppTheme.colors.blade,
-            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            disabledBackgroundColor = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Gray else  ComposeAppTheme.colors.blade,
             disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {
@@ -227,8 +227,8 @@ fun ButtonPrimaryYellow(
         onClick = onClick,
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.yellowD,
-            contentColor = ComposeAppTheme.colors.dark,
-            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            contentColor = ComposeAppTheme.colors.white,
+            disabledBackgroundColor = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Gray else  ComposeAppTheme.colors.blade ,
             disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {
@@ -341,7 +341,7 @@ fun ButtonPrimaryYellowWithIcon(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.yellowD,
             contentColor = ComposeAppTheme.colors.dark,
-            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            disabledBackgroundColor = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Gray else  ComposeAppTheme.colors.blade,
             disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {
@@ -381,7 +381,7 @@ fun ButtonPrimaryRed(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.lucian,
             contentColor = ComposeAppTheme.colors.lawrence,
-            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            disabledBackgroundColor = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Gray else  ComposeAppTheme.colors.blade,
             disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -404,7 +404,7 @@ fun ButtonPrimaryYellowWithSpinner(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.yellowD,
             contentColor = ComposeAppTheme.colors.dark,
-            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            disabledBackgroundColor = if(App.localStorage.currentTheme == ThemeType.Blue) Color.Gray else  ComposeAppTheme.colors.blade,
             disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {

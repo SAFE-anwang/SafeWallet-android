@@ -561,12 +561,14 @@ fun Safe3Text(
 }
 
 @Composable
-fun Safe3Badge() {
+fun Safe3Badge(
+	isBlueBg: Boolean = false
+) {
 	Box(
 		modifier = Modifier
 			.padding(start = 6.dp)
 			.clip(RoundedCornerShape(4.dp))
-			.background(ComposeAppTheme.colors.grey)
+			.background(if (isBlueBg) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.steel20)
 	) {
 		Text(
 			modifier = Modifier.padding(
@@ -575,7 +577,7 @@ fun Safe3Badge() {
 				bottom = 1.dp
 			),
 			text = "SAFE3",
-			color = ComposeAppTheme.colors.leah,
+			color = if(isBlueBg) ComposeAppTheme.colors.lawrence else ComposeAppTheme.colors.leah,
 			style = ComposeAppTheme.typography.microSB,
 			maxLines = 1,
 		)

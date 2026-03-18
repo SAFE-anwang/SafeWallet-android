@@ -254,12 +254,6 @@ fun IconCell(
     if (failedIconVisible) {
         CellLeftLoaderCoinSyncFailed(onClickSyncError)
     } else {
-        CoinImage(
-            token = token,
-            modifier = Modifier
-                .size(32.dp)
-                .alpha(iconAlpha),
-        )
         CoinImageSafe(
             uid = token.coin.uid,
             iconUrl = token.coin.imageUrl,

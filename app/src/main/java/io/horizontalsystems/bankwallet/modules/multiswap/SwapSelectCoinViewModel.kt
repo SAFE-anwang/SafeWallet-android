@@ -20,7 +20,6 @@ import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
-import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,14 +78,14 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     .thenBy { it.token.coin.code }
                     .thenBy { it.token.blockchainType.order }
                     .thenBy { it.token.badge }
-            ).filter { it.token.blockchainType == otherSelectedToken?.blockchainType }
+            )
                 .let {
                     resultTokens.addAll(it)
                 }
 
             // Suggested Tokens
             otherSelectedToken?.let { otherToken ->
-                val topFullCoins = marketKit.fullCoins("", limit = 200)
+                val topFullCoins = marketKit.fullCoins("", limit = 100)
                 val tokens =
                     topFullCoins.map { fullCoin ->
                         fullCoin.tokens.filter { it.blockchainType == otherToken.blockchainType }
@@ -115,11 +114,7 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                 }
 
                 else -> {
-                    if (otherSelectedToken != null) {
-                        listOf(TokenQuery(otherSelectedToken.blockchainType, TokenType.Native))
-                    } else {
-                        BlockchainType.supported.map { it.defaultTokenQuery }
-                    }
+                    BlockchainType.supported.map { it.defaultTokenQuery }
                 }
             }
 
@@ -136,7 +131,7 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     resultTokens.addAll(it)
                 }
 
-            coinBalanceItems = resultTokens/*.filter { dexSupportsCoin(it.token) }*/
+            coinBalanceItems = resultTokens
             return@withContext
         }
 
