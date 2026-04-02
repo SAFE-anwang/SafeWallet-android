@@ -12,11 +12,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.IconButton
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -101,6 +104,7 @@ class PrivateKeyImportFragment: BaseFragment() {
                 }
             }
             ComposeAppTheme {
+                Spacer(modifier = Modifier.height(24.dp))
                 AppBar(
                         title = stringResource(R.string.Restore_Import_Private_Key),
                         navigationIcon = {
@@ -114,7 +118,8 @@ class PrivateKeyImportFragment: BaseFragment() {
                                             qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(requireContext()))
                                         }
                                 )
-                        )
+                        ),
+                    backgroundColor = Color.Transparent
                 )
             }
         }

@@ -237,11 +237,13 @@ private fun SwapScreenInner(
         title = stringResource(R.string.Swap),
         onBack = onClickClose,
         menuItems = buildList {
-            MenuItem(
-                title = TranslatableString.ResString(R.string.KChart),
-                onClick = {
-                    onKChart.invoke()
-                }
+            add(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.KChart),
+                    onClick = {
+                        onKChart.invoke()
+                    }
+                )
             )
         }
     ) {

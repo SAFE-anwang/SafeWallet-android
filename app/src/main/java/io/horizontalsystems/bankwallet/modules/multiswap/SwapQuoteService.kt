@@ -39,6 +39,9 @@ class SwapQuoteService {
         USwapProvider(UProvider.LetsExchange),
         USwapProvider(UProvider.StealthEx),
         USwapProvider(UProvider.Swapuz),
+        PancakeSwapV3Provider,
+        UniswapV3Provider,
+        USwapProvider(UProvider.Swapuz),
         SafeSwapProvider,
     )
 

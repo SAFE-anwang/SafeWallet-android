@@ -199,7 +199,7 @@ public class StarsController {
                                 .build()
                         );
                     }
-                    BillingController.getInstance().queryProductDetails(productQueries, (result, list) -> AndroidUtilities.runOnUIThread(() -> {
+                    /*BillingController.getInstance().queryProductDetails(productQueries, (result, list) -> AndroidUtilities.runOnUIThread(() -> {
                         if (result.getResponseCode() != BillingClient.BillingResponseCode.OK) {
                             bulletinError("BILLING_" + BillingController.getResponseCodeString(result.getResponseCode()));
                             return;
@@ -225,7 +225,7 @@ public class StarsController {
                             }
                         }
                         NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.starOptionsLoaded);
-                    }));
+                    }));*/
                 };
                 if (!BillingController.getInstance().isReady()) {
                     BillingController.getInstance().whenSetuped(fetchStorePrices);
@@ -421,7 +421,7 @@ public class StarsController {
                 .setProductType(BillingClient.ProductType.INAPP)
                 .setProductId(option.store_product)
                 .build();
-        BillingController.getInstance().queryProductDetails(Arrays.asList(product), (billingResult, list) -> AndroidUtilities.runOnUIThread(() -> {
+        /*BillingController.getInstance().queryProductDetails(Arrays.asList(product), (billingResult, list) -> AndroidUtilities.runOnUIThread(() -> {
             if (list.isEmpty()) {
                 AndroidUtilities.runOnUIThread(() -> whenDone.run(false, "PRODUCT_NOT_FOUND"));
                 return;
@@ -451,7 +451,7 @@ public class StarsController {
                             .setProductDetails(list.get(0))
                             .build())
             );
-        }));
+        }));*/
     }
 
     public Runnable pay(MessageObject messageObject, Runnable whenShown) {

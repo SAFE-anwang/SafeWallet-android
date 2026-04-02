@@ -186,7 +186,8 @@ class WCSessionViewModel(
 
         viewModelScope.launch {
             UserSubscriptionManager.activeSubscriptionStateFlow.collect {
-                hasSubscription = it != null
+//                hasSubscription = it != null
+                hasSubscription = true
                 emitState()
             }
         }

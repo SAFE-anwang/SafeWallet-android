@@ -5,7 +5,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BalanceData
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeIncentivePlan
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeMemberInfo
+import io.horizontalsystems.bankwallet.modules.safe4.node.NodeStatus
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -127,5 +131,50 @@ class DatabaseConverters {
     @TypeConverter
     fun toBigInteger(value: String?): BigInteger? {
         return value?.let { BigInteger(it) }
+    }
+
+    // List<NodeMemberInfo> 转换
+    @TypeConverter
+    fun fromNodeMemberInfo(list: List<NodeMemberInfo>): String {
+        return gson.toJson(list)
+    }
+
+    @TypeConverter
+    fun toNodeMemberInfo(json: String): List<NodeMemberInfo> {
+        val type = object : TypeToken<List<NodeMemberInfo>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    // NodeIncentivePlan 转换
+    @TypeConverter
+    fun fromNodeIncentivePlan(plan: NodeIncentivePlan): String {
+        return gson.toJson(plan)
+    }
+
+    @TypeConverter
+    fun toNodeIncentivePlan(json: String): NodeIncentivePlan {
+        return gson.fromJson(json, NodeIncentivePlan::class.java)
+    }
+
+    // Address 类型转换
+    /*@TypeConverter
+    fun fromAddress(address: Address): String {
+        return address.hex
+    }
+
+    @TypeConverter
+    fun toAddress(addressJson: String): Address {
+        return Address(addressJson)
+    }*/
+
+    // NodeStatus 枚举转换
+    @TypeConverter
+    fun fromNodeStatus(status: NodeStatus): String {
+        return NodeStatus.convert(status).toString()
+    }
+
+    @TypeConverter
+    fun toNodeStatus(statusStr: String): NodeStatus {
+        return NodeStatus.get(statusStr.toInt())
     }
 }

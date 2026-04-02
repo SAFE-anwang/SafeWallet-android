@@ -68,9 +68,9 @@ object NodeCovertFactory {
 			creatorTotalAmount.toInt() < Master_Node_Create_Amount
 
 		val canJoin = if (isSuperNode)
-			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && isPledgeAll
+			!isSuperOrMasterNode && nodeItem.addr != receiveAddress && isPledgeAll
 		else
-			!isSuperOrMasterNode && nodeItem.addr.hex != receiveAddress && isPledgeAll
+			!isSuperOrMasterNode && nodeItem.addr != receiveAddress && isPledgeAll
 
 		val createPledge = if (isSuperNode)
 			Super_Node_Create_Amount
@@ -94,11 +94,11 @@ object NodeCovertFactory {
 				createPledge = "${creatorTotalAmount.toInt()} SAFE",
 				canJoin = canJoin,
 				isEdit = nodeItem.isEdit,
-				isMine = receiveAddress == nodeItem.addr.hex || receiveAddress == nodeItem.creator.hex || isPartner,
-				isVoteEnable = !isPledgeAll && !isCreatorNode && receiveAddress != nodeItem.addr.hex,
-				isPartner = isPartner && receiveAddress != nodeItem.creator.hex,
-				isCreator = receiveAddress == nodeItem.creator.hex,
-				isAddLockDay = receiveAddress == nodeItem.creator.hex || isPartner,
+				isMine = receiveAddress == nodeItem.addr || receiveAddress == nodeItem.creator || isPartner,
+				isVoteEnable = !isPledgeAll && !isCreatorNode && receiveAddress != nodeItem.addr,
+				isPartner = isPartner && receiveAddress != nodeItem.creator,
+				isCreator = receiveAddress == nodeItem.creator,
+				isAddLockDay = receiveAddress == nodeItem.creator || isPartner,
 				incentivePlan = nodeItem.incentivePlan
 		)
 	}
@@ -183,8 +183,8 @@ object NodeCovertFactory {
 	fun covertSuperNode(info: SuperNodeInfo, walletAddress: Address): NodeInfo {
 		return NodeInfo(
 			info.id.toInt(),
-			io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
-			io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
+			info.addr.value,
+			info.creator.value,
 			info.enode,
 			info.description,
 			info.isOfficial,
@@ -198,7 +198,8 @@ object NodeCovertFactory {
 			info.updateHeight.toLong(),
 			info.name,
 			availableLimit = NodeCovertFactory.scaleConvert(Super_Node_Create_Amount) - info.founders.sumOf { it.amount },
-			isEdit = walletAddress.hex.equals(info.creator.value, true)
+			isEdit = walletAddress.hex.equals(info.creator.value, true),
+			type = 0
 
 		)
 	}
@@ -206,8 +207,8 @@ object NodeCovertFactory {
 	fun covertMasterNode(info: MasterNodeInfo, walletAddress: Address): NodeInfo {
 		return NodeInfo(
 			info.id.toInt(),
-			io.horizontalsystems.bankwallet.entities.Address(info.addr.value),
-			io.horizontalsystems.bankwallet.entities.Address(info.creator.value),
+			info.addr.value,
+			info.creator.value,
 			info.enode,
 			info.description,
 			info.isOfficial,
@@ -220,7 +221,8 @@ object NodeCovertFactory {
 			info.createHeight.toLong(),
 			info.updateHeight.toLong(),
 			availableLimit = NodeCovertFactory.scaleConvert(Master_Node_Create_Amount) - info.founders.sumOf { it.amount },
-			isEdit = walletAddress.hex.equals(info.creator.value, true)
+			isEdit = walletAddress.hex.equals(info.creator.value, true),
+			type = 1
 		)
 	}
 

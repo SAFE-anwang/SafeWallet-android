@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -220,8 +221,8 @@ private fun Amount(item: ViewItem.Amount) {
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
         CoinImageSafe(
-            uid = item.token.coin.uid,
-            iconUrl = item.token.coin.imageUrl,
+            uid = if (item.isSafe) "safe4-coin" else item.token.coin.uid,
+            iconUrl = if (item.isSafe) null else item.token.coin.imageUrl,
             placeholder = item.token.iconPlaceholder
         )
         Text(

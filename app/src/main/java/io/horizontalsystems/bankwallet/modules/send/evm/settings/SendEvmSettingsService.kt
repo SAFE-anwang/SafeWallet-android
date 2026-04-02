@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.send.evm.settings
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.Warning
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.evmfee.GasData

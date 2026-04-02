@@ -158,7 +158,7 @@ private fun SettingSections(
         }
     }
 
-    BannerCarousel(banners = banners)
+//    BannerCarousel(banners = banners)
 
     VSpacer(12.dp)
 
@@ -308,7 +308,7 @@ private fun SettingSections(
                     }
                 )
             }
-            if (!BuildConfig.FDROID_BUILD) {
+            /*if (!BuildConfig.FDROID_BUILD) {
                 add {
                     HsSettingCell(
                         R.string.Settings_Subscription,
@@ -319,7 +319,7 @@ private fun SettingSections(
                         }
                     )
                 }
-            }
+            }*/
             add {
                 HsSettingCell(
                     R.string.Contacts,
@@ -360,7 +360,7 @@ private fun SettingSections(
     }
 
     SectionPremiumUniversalLawrence {
-        HsSettingCell(
+        /*HsSettingCell(
             title = if(isFDroidBuild) R.string.Settings_Support else R.string.Settings_VipSupport,
             icon = R.drawable.ic_support_yellow_24,
             iconTint = ComposeAppTheme.colors.jacob,
@@ -379,7 +379,7 @@ private fun SettingSections(
                 )
             }
         )
-        HsDivider()
+        HsDivider()*/
         HsSettingCell(
             title = R.string.SettingsAddressChecker_Title,
             icon = R.drawable.ic_radar_24,

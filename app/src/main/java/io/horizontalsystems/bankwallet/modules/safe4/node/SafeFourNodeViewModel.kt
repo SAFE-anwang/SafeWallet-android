@@ -3,8 +3,10 @@ package io.horizontalsystems.bankwallet.modules.safe4.node
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
+import androidx.room.Entity
 import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Address
@@ -105,6 +107,16 @@ class SafeFourNodeViewModel(
             } catch (e: Exception) {
             }
         }
+        getCacheData()
+    }
+
+    private fun getCacheData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val cacheDatas = App.appDatabase.nodeInfoDao().getNodeInfoList(if (isSuperNode) 0 else 1)
+            nodes = cacheDatas
+            mineNodes = cacheDatas.filter { it.creator.lowercase() == ethereumKit.receiveAddress.hex.lowercase() }
+            emitState()
+        }
     }
 
     private fun isRegisterNode(): Boolean {
@@ -129,7 +141,7 @@ class SafeFourNodeViewModel(
                 if (isFilterId) {
                     it.id.toString() == query
                 } else {
-                    it.id.toString() == query || it.addr.hex.contains(query!!, true)
+                    it.id.toString() == query || it.addr.contains(query!!, true)
                 }
             }?.mapIndexed { index, nodeItem -> NodeCovertFactory.createNoteItemView(index, nodeItem, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress()) }
             getFilterNodes(nodes)
@@ -151,7 +163,7 @@ class SafeFourNodeViewModel(
                     )
                 }
             } else {
-                if (item.id.toString() == query || item.addr.hex.contains(query!!, true)) {
+                if (item.id.toString() == query || item.addr.contains(query!!, true)) {
                     temp.add(
                         NodeCovertFactory.createNoteItemView(index, item, isSuperNode, isSuperOrMasterNode, isCreator(), receiveAddress =  receiveAddress())
                     )
@@ -247,10 +259,13 @@ class SafeFourNodeViewModel(
 
 }
 
+@Entity(
+    primaryKeys = ["id"]
+)
 data class NodeInfo(
         val id: Int,
-        val addr: Address,
-        val creator: Address,
+        val addr: String,
+        val creator: String,
         val enode: String,
         val description: String,
         val isOfficial: Boolean,
@@ -265,19 +280,21 @@ data class NodeInfo(
         var totalVoteNum: BigInteger = BigInteger.ZERO,
         var totalAmount: BigInteger = BigInteger.ZERO,
         var allVoteNum: BigInteger = BigInteger.ZERO,
-        var availableLimit: BigInteger = BigInteger.ZERO
+        var availableLimit: BigInteger = BigInteger.ZERO,
+    var type: Int = 0
 ) {
     override fun toString(): String {
         return "NodeItem(id=$id, addr=$addr, creator=$creator, enode='$enode', description='$description', isOfficial=$isOfficial, state=$state, founders=$founders, incentivePlan=$incentivePlan, lastRewardHeight=$lastRewardHeight, createHeight=$createHeight, updateHeight=$updateHeight, name='$name')"
     }
 }
 
+@Parcelize
 data class NodeMemberInfo(
         val lockID: Long,
         val addr: Address,
         val amount: BigInteger,
         val height: Long
-) {
+):Parcelable {
     override fun toString(): String {
         return "NodeMemberInfo(lockID=$lockID, addr=$addr, amount=$amount, height=$height)"
     }
@@ -304,8 +321,8 @@ data class NodeViewItem(
         val voteCompleteCount: String,
         val progress: Float,
         val progressText: String,
-        val address: Address,
-        val creator: Address,
+        val address: String,
+        val creator: String,
         val status: NodeStatus,
         val founders: List<NodeMemberInfo> = emptyList(),
         val enode: String = "",
@@ -345,6 +362,13 @@ sealed class NodeStatus {
                 Online
             else
                 Exception
+        }
+
+        fun convert(status: NodeStatus): Int {
+            return if (status == Online)
+                1
+            else
+                0
         }
     }
 }

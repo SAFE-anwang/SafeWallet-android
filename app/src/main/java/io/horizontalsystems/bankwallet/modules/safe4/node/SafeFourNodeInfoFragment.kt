@@ -259,10 +259,10 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                         .clickable {
-                            TextHelper.copyText(nodeInfo.address.hex)
+                            TextHelper.copyText(nodeInfo.address)
                             HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
                         },
-                text = nodeInfo.address.hex,
+                text = nodeInfo.address,
                 color = ComposeAppTheme.colors.issykBlue,
                 style = ComposeAppTheme.typography.body,
         )
@@ -283,10 +283,10 @@ fun NodeInfoScreen(
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                         .clickable {
-                            TextHelper.copyText(nodeInfo.creator.hex)
+                            TextHelper.copyText(nodeInfo.creator)
                             HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
                         },
-                text = nodeInfo.creator.hex,
+                text = nodeInfo.creator,
                 color = ComposeAppTheme.colors.issykBlue,
                 style = ComposeAppTheme.typography.body,
         )

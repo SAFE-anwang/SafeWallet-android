@@ -181,7 +181,7 @@ public class GiftPremiumBottomSheet extends BottomSheetWithRecyclerListView impl
                 }
             } else if (!products.isEmpty()) {
                 long startMs = System.currentTimeMillis();
-                BillingController.getInstance().queryProductDetails(products, (billingResult, list) -> {
+                /*BillingController.getInstance().queryProductDetails(products, (billingResult, list) -> {
                     long pricePerMonthMaxStore = 0;
 
                     for (ProductDetails details : list) {
@@ -204,7 +204,7 @@ public class GiftPremiumBottomSheet extends BottomSheetWithRecyclerListView impl
                         recyclerListView.getAdapter().notifyDataSetChanged();
                         updateButtonText(System.currentTimeMillis() - startMs > 1000);
                     });
-                });
+                });*/
             }
         }
 

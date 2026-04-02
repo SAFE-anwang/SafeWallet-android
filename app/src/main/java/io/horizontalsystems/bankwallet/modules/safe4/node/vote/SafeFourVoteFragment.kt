@@ -792,7 +792,7 @@ fun NodeInfoScreen(
         Spacer(Modifier.height(4.dp))
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                text = nodeInfo.address.hex,
+                text = nodeInfo.address,
                 color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
         )
@@ -812,7 +812,7 @@ fun NodeInfoScreen(
         Spacer(Modifier.height(4.dp))
         Text(
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                text = nodeInfo.creator.hex,
+                text = nodeInfo.creator,
                 color = ComposeAppTheme.colors.leah,
                 style = ComposeAppTheme.typography.body,
         )

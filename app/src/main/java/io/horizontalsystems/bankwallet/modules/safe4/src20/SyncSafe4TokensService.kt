@@ -49,7 +49,6 @@ class SyncSafe4TokensService(
         service.getToken()
             .map { tokens ->
                 tokens.forEach {
-                    Log.d("longwen", "address=${it.address}, ${it.symbol}, ${it.name}")
                     saveLogo(it)
                 }
                 MMKV.defaultMMKV()?.putBoolean("DeleteDeployCoinPrice", true)
@@ -108,7 +107,7 @@ class SyncSafe4TokensService(
 
     fun addToken(tokenInfo: CustomToken) {
         val tokenQuery = TokenQuery(BlockchainType.SafeFour, TokenType.Eip20(tokenInfo.address.lowercase()))
-        val coin = Coin(tokenQuery.customCoinUid, tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals.toInt(), tokenInfo.symbol)
+        val coin = Coin(tokenQuery.customCoinUid, tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals.toInt(), tokenInfo.symbol, "")
         val token = Token(
             coin = coin,
             blockchain = Blockchain(BlockchainType.SafeFour, tokenInfo.name, tokenInfo.address),

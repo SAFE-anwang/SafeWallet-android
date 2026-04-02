@@ -34,7 +34,8 @@ object UserSubscriptionManager {
     }
 
     fun isActionAllowed(paidAction: IPaidAction): Boolean {
-        return service.isActionAllowed(paidAction)
+        return true
+//        return service.isActionAllowed(paidAction)
     }
 
     suspend fun getSubscriptions(): List<Subscription> {

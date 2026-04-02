@@ -52,7 +52,8 @@ class SendEvmTransactionViewModel(
     private val coinServiceFactory: EvmCoinServiceFactory,
     private val cautionViewItemFactory: CautionViewItemFactory,
     private val contactsRepo: ContactsRepository,
-    private val blockchainType: BlockchainType
+    private val blockchainType: BlockchainType,
+    private val isSafe: Boolean = false
 ) : ViewModel() {
     private val disposable = CompositeDisposable()
 
@@ -858,7 +859,8 @@ class SendEvmTransactionViewModel(
             amountData.secondary?.getFormatted(),
             amountData.primary.getFormatted(),
             valueType,
-            token
+            token,
+            isSafe
         )
 
     private fun getEstimatedSwapAmount(amountData: SendModule.AmountData) = AmountValues(

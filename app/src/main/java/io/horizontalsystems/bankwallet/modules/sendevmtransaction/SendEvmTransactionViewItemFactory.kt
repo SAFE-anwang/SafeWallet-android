@@ -553,7 +553,8 @@ sealed class ViewItem {
         val fiatAmount: String?,
         val coinAmount: String,
         val type: ValueType,
-        val token: Token
+        val token: Token,
+        val isSafe: Boolean = false
     ) : ViewItem()
 
     class AmountWithTitle(

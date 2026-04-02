@@ -365,6 +365,10 @@
         </activity-alias>
 
         <activity
+            android:name=".modules.main.WebViewActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".modules.safe4.safe2wsafe.SafeConvertSendActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateVisible|adjustResize" />

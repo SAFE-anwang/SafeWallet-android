@@ -431,6 +431,27 @@ fun B5(
         color = ComposeAppTheme.colors.lucian,
     )
 }
+
+@Composable
+fun B6(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines,
+        onTextLayout = onTextLayout,
+        style = ComposeAppTheme.typography.body,
+        color = ComposeAppTheme.colors.tgBlue,
+    )
+}
 @Composable
 fun body_lucian(
     text: String,
@@ -1624,7 +1645,7 @@ fun body_issykBlue(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
-    B5(
+    B6(
         text = text,
         modifier = modifier,
         textAlign = textAlign,

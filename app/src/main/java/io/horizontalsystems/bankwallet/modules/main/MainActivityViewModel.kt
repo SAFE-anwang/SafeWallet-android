@@ -75,6 +75,11 @@ class MainActivityViewModel(
             }
         }
 
+        viewModelScope.launch {
+            accountManager.activeAccountStateFlow.collect {
+                LockRecordManager.switchWallet()
+            }
+        }
         updateSRC20Price()
     }
 
@@ -132,15 +137,9 @@ class MainActivityViewModel(
             service.getPrice()
             service.itemsObservable.collect {
                 val prices = it.map {
-                    if (it.address.lowercase() == "0x9c1246a4bb3c57303587e594a82632c3171662c9") {
-                        CoinPrice(
-                            "Safe4USDT", "USD", it.price.toBigDecimal(), it.change.toBigDecimal(), it.change.toBigDecimal(), System.currentTimeMillis()/1000
-                        )
-                    } else {
-                        CoinPrice(
-                            "custom-safe4-coin|eip20:${it.address.lowercase()}", "USD", it.price.toBigDecimal(), it.change.toBigDecimal(), it.change.toBigDecimal(), System.currentTimeMillis()/1000
-                        )
-                    }
+                    CoinPrice(
+                        "custom-safe4-coin|eip20:${it.address.lowercase()}", "USD", it.price.toBigDecimal(), it.change.toBigDecimal(), it.change.toBigDecimal(), System.currentTimeMillis()/1000
+                    )
                 }
                 App.marketKit.saveCoinPrice(prices)
             }

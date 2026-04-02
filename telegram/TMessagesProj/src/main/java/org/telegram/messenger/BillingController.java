@@ -73,7 +73,7 @@ public class BillingController implements PurchasesUpdatedListener, BillingClien
 
     private BillingController(Context ctx) {
         billingClient = BillingClient.newBuilder(ctx)
-                .enablePendingPurchases()
+//                .enablePendingPurchases()
                 .setListener(this)
                 .build();
     }
@@ -454,7 +454,7 @@ public class BillingController implements PurchasesUpdatedListener, BillingClien
             isDisconnected = false;
             triesLeft = 3;
             try {
-                queryProductDetails(Collections.singletonList(PREMIUM_PRODUCT), this::onQueriedPremiumProductDetails);
+//                queryProductDetails(Collections.singletonList(PREMIUM_PRODUCT), this::onQueriedPremiumProductDetails);
             } catch (Exception e) {
                 FileLog.e(e);
             }
@@ -499,7 +499,7 @@ public class BillingController implements PurchasesUpdatedListener, BillingClien
                 }
                 AndroidUtilities.runOnUIThread(() -> {
                     try {
-                        queryProductDetails(Collections.singletonList(PREMIUM_PRODUCT), this::onQueriedPremiumProductDetails);
+//                        queryProductDetails(Collections.singletonList(PREMIUM_PRODUCT), this::onQueriedPremiumProductDetails);
                     } catch (Exception e) {
                         FileLog.e(e);
                     }

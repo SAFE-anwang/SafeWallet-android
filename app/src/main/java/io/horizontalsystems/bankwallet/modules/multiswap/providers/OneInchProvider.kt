@@ -37,6 +37,7 @@ object OneInchProvider : IMultiSwapProvider {
     private val evmCoinAddress = Address("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
 
     override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+        BlockchainType.SafeFour,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,

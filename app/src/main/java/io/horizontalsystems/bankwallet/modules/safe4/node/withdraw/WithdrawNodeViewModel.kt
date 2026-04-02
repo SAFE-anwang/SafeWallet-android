@@ -86,7 +86,7 @@ class WithdrawNodeViewModel(
                             it.height,
                             null,
                             NodeCovertFactory.formatSafe(it.amount),
-                            nodeInfo.addr.hex,
+                            nodeInfo.addr,
                             it.height > (evmKit.lastBlockHeight ?: 0L)
                         )
                     }
