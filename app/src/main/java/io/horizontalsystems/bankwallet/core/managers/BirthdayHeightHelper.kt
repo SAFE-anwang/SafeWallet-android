@@ -7,6 +7,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.monerokit.MoneroKit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Date
 
@@ -20,23 +21,19 @@ object BirthdayHeightHelper {
         else -> 0L
     }
 
-    fun datePickerYears(blockchainType: BlockchainType): List<Int> {
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        val startYear = when (blockchainType) {
-            BlockchainType.Zcash -> 2018
-            BlockchainType.Monero -> 2014
-            else -> 2009
-        }
-        return (startYear..currentYear).toList()
+    fun getFirstBlockDate(blockchainType: BlockchainType) = when (blockchainType) {
+        BlockchainType.Zcash -> LocalDate.of(2018, 10, 29)
+        BlockchainType.Monero -> LocalDate.of(2014, 4, 18)
+        else -> throw IllegalArgumentException()
     }
 
-    fun getInitialDateForPicker(cachedDate: Date?): Triple<Int, Int, Int> {
-        val date = cachedDate ?: Date()
-        val calendar = Calendar.getInstance().apply { time = date }
-        return Triple(
-            calendar.get(Calendar.DAY_OF_MONTH),
+    fun getInitialDateForPicker(cachedDate: Date?): LocalDate {
+        if (cachedDate == null) return LocalDate.now()
+        val calendar = Calendar.getInstance().apply { time = cachedDate }
+        return LocalDate.of(
+            calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH) + 1,
-            calendar.get(Calendar.YEAR)
+            calendar.get(Calendar.DAY_OF_MONTH)
         )
     }
 

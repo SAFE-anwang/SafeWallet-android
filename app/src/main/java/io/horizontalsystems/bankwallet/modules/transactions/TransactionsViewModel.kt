@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.util.Log
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ILocalStorage
-import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.App
@@ -42,7 +42,7 @@ class TransactionsViewModel(
     private val transactionViewItem2Factory: TransactionViewItemFactory,
     private val balanceHiddenManager: BalanceHiddenManager,
     private val transactionAdapterManager: TransactionAdapterManager,
-    private val walletManager: IWalletManager,
+    private val walletManager: WalletManager,
     private val transactionFilterService: TransactionFilterService,
     private val localStorage: ILocalStorage,
 ) : ViewModelUiState<TransactionsUiState>() {

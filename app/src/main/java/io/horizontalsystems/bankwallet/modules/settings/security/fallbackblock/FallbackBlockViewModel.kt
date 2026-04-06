@@ -5,10 +5,10 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IAdapterManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.adapters.DogecoinAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Observable
@@ -19,7 +19,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class FallbackBlockViewModel(
-    val walletManager: IWalletManager,
+    val walletManager: WalletManager,
     val accountManager: IAccountManager,
     val adapterManager: IAdapterManager
 ) : ViewModel() {

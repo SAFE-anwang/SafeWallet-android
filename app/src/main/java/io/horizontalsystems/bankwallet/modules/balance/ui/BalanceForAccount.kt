@@ -74,7 +74,9 @@ fun BalanceForAccount(
     val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
 
     val context = LocalContext.current
-    val sheetState = androidx.compose.material3.rememberModalBottomSheetState()
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     var isWCInvalidUrlBottomSheetVisible by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()

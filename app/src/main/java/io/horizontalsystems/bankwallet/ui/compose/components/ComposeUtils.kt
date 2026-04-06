@@ -14,11 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import coil.imageLoader
 import com.google.android.exoplayer2.util.Log
@@ -115,16 +113,15 @@ fun HsImage(
 ) {
     val fallback = placeholder ?: R.drawable.coin_placeholder
 
-    val isAlternativeCached = alternativeUrl != null && isImageCached(alternativeUrl)
-    val imageUrl = if (isAlternativeCached) alternativeUrl else url
-
     when {
-        imageUrl != null -> Image(
+        url != null -> Image(
             painter = rememberAsyncImagePainter(
-                model = imageUrl,
+                model = url,
+                placeholder = painterResource(fallback),
                 error = alternativeUrl?.let {
                     rememberAsyncImagePainter(
-                        model = alternativeUrl,
+                        model = it,
+                        placeholder = painterResource(fallback),
                         error = painterResource(fallback)
                     )
                 } ?: painterResource(fallback),
@@ -232,19 +229,6 @@ fun CoinImageSafe(
                 .size(size),
             colorFilter = colorFilter
         )
-    }
-}
-
-@Composable
-@OptIn(ExperimentalCoilApi::class)
-private fun isImageCached(url: String): Boolean {
-    val context = LocalContext.current
-    val snapshot = context.imageLoader.diskCache?.openSnapshot(url) ?: return false
-
-    return try {
-        snapshot.data.toFile().exists()
-    } catch (t: Throwable) {
-        false
     }
 }
 

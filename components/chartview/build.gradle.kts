@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 }
 
-
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -11,46 +10,44 @@ kotlin {
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
-        targetSdk = libs.versions.compileSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
+//        targetSdk = 34
 
-        consumerProguardFiles 'consumer-rules.pro'
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
         vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         debug {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
         release {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
-    namespace 'io.horizontalsystems.views'
+    namespace = "io.horizontalsystems.chartview"
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.core.ktx)
 
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-
-//    implementation project(':components:icons')
-    implementation project(':ui')
+    implementation("androidx.compose.runtime:runtime:1.9.2")
 }

@@ -298,25 +298,40 @@ interface ITransactionsAdapter {
     val lastBlockUpdatedFlowable: Flowable<Unit>
     val additionalTokenQueries: List<TokenQuery> get() = listOf()
 
-    fun getTransactionsAsync(
+    suspend fun getTransactions(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Single<List<TransactionRecord>>
+    ): List<TransactionRecord>
 
-    fun getTransactionsAfter(
+    suspend fun getTransactionsAfter(
         fromTransactionId: String?
-    ): Single<List<TransactionRecord>> = Single.just(emptyList())
+    ): List<TransactionRecord> = emptyList()
+
+    suspend fun getFullTransactionsBefore(
+        fromTransactionHash: ByteArray?,
+        limit: Int
+    ): List<io.horizontalsystems.ethereumkit.models.FullTransaction> = emptyList()
+
+    suspend fun getTronFullTransactionsBefore(
+        fromTransactionHash: ByteArray?,
+        limit: Int
+    ): List<io.horizontalsystems.tronkit.models.FullTransaction> = emptyList()
+
+    suspend fun getStellarOperationsBefore(
+        fromId: Long?,
+        limit: Int
+    ): List<io.horizontalsystems.stellarkit.room.Operation> = emptyList()
 
     fun getRawTransaction(transactionHash: String): String? = null
 
-    fun getTransactionRecordsFlowable(
+    fun getTransactionRecordsFlow(
         token: Token?,
         transactionType: FilterTransactionType,
         address: String?
-    ): Flowable<List<TransactionRecord>>
+    ): Flow<List<TransactionRecord>>
 
     fun getTransactionUrl(transactionHash: String): String
 }
@@ -466,10 +481,10 @@ interface ISendEthereumAdapter {
 
 interface ISendZcashAdapter {
     val availableBalance: BigDecimal
-    val fee: BigDecimal
 
     suspend fun validate(address: String): ZcashAdapter.ZCashAddressType
     suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger)
+    suspend fun fee(amount: BigDecimal, address: String, memo: String): BigDecimal
 }
 
 interface IAdapter {
@@ -548,17 +563,6 @@ interface IEnabledWalletStorage {
     fun save(enabledWallets: List<EnabledWallet>)
     fun delete(enabledWallets: List<EnabledWallet>)
     fun deleteAll()
-}
-
-interface IWalletManager {
-    val activeWallets: List<Wallet>
-    val activeWalletsUpdatedObservable: Observable<List<Wallet>>
-
-    fun save(wallets: List<Wallet>)
-    fun saveEnabledWallets(enabledWallets: List<EnabledWallet>)
-    fun delete(wallets: List<Wallet>)
-    fun clear()
-    fun handle(newWallets: List<Wallet>, deletedWallets: List<Wallet>)
 }
 
 interface IAppNumberFormatter {

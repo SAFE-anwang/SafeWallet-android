@@ -6,7 +6,6 @@ import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.WalletInitMode
 import cash.z.ecc.android.sdk.block.processor.CompactBlockProcessor
-import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZec
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
@@ -52,10 +51,12 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Instant
 import java.math.BigDecimal
@@ -203,31 +204,28 @@ class ZcashAdapter(
     override fun refresh() {
     }
 
-    override fun getTransactionsAsync(
+    override suspend fun getTransactions(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Single<List<TransactionRecord>> {
+    ): List<TransactionRecord> {
         val fromParams = from?.let {
             val transactionHash = it.transactionHash.fromHex().reversedArray()
             Triple(transactionHash, it.timestamp, it.transactionIndex)
         }
         return transactionsProvider.getTransactions(fromParams, transactionType, address, limit)
-            .map { transactions ->
-                transactions.map {
-                    getTransactionRecord(it)
-                }
-            }
+            .map { getTransactionRecord(it) }
     }
 
-    override fun getTransactionRecordsFlowable(
+    override fun getTransactionRecordsFlow(
         token: Token?,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Flowable<List<TransactionRecord>> {
+    ): Flow<List<TransactionRecord>> {
         return transactionsProvider.getNewTransactionsFlowable(transactionType, address)
+            .asFlow()
             .map { transactions ->
                 transactions.map { getTransactionRecord(it) }
             }
@@ -238,9 +236,6 @@ class ZcashAdapter(
 
     override val availableBalance: BigDecimal
         get() = balanceData?.available ?: BigDecimal.ZERO
-
-    override val fee: BigDecimal
-        get() = ZcashSdk.MINERS_FEE.convertZatoshiToZec(decimalCount)
 
     override suspend fun validate(address: String): ZCashAddressType {
         if (address == receiveAddress) throw ZcashError.SendToSelfNotAllowed
@@ -296,7 +291,12 @@ class ZcashAdapter(
 
     override suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger) {
         logger.info("call sendTransferProposal")
-        sendTransferProposal(amount, address, memo)
+        val transferProposal = transferProposal(amount, address, memo)
+        send(transferProposal)
+    }
+
+    override suspend fun fee(amount: BigDecimal, address: String, memo: String): BigDecimal {
+        return transferProposal(amount, address, memo).totalFeeRequired().convertZatoshiToZec(decimalCount)
     }
 
     private suspend fun transferProposal(
@@ -340,15 +340,6 @@ class ZcashAdapter(
         } catch (e: Exception) {
             throw RuntimeException("Unexpected error while sending Zcash: ${e.message}", e)
         }
-    }
-
-    private suspend fun sendTransferProposal(
-        amount: BigDecimal,
-        address: String,
-        memo: String
-    ) {
-        val transferProposal = transferProposal(amount, address, memo)
-        send(transferProposal)
     }
 
     suspend fun createProposal(outputs: List<TransferOutput>): Proposal {

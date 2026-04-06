@@ -69,7 +69,8 @@ object LineLockSafeModule {
                 TransactionSyncStateRepository(App.transactionAdapterManager),
                 App.contactsRepository,
                 NftMetadataService(App.nftMetadataManager),
-                App.spamManager
+                App.spamManager,
+                App.transactionAdapterManager
             )
 
             return LineLockInfoViewModel(

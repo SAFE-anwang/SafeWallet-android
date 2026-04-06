@@ -2,7 +2,7 @@ package io.horizontalsystems.bankwallet.modules.balance.token
 
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.IAdapterManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.core.managers.BirthdayHeightHelper
@@ -13,6 +13,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.util.Date
 
 class EnterBirthdayHeightViewModel(
@@ -21,11 +22,11 @@ class EnterBirthdayHeightViewModel(
     private val currentBirthdayHeight: Long?,
     private val restoreSettingsManager: RestoreSettingsManager,
     private val adapterManager: IAdapterManager,
-    private val walletManager: IWalletManager
+    private val walletManager: WalletManager
 ) : ViewModelUiState<EnterBirthdayHeightModule.UiState>() {
 
     private val minBirthdayHeight = BirthdayHeightHelper.minBirthdayHeight(blockchainType)
-    private val datePickerYears = BirthdayHeightHelper.datePickerYears(blockchainType)
+    private val firstBlockDate = BirthdayHeightHelper.getFirstBlockDate(blockchainType)
 
     private var birthdayHeight: Long? = null
     private var birthdayHeightText: String? = null
@@ -46,7 +47,7 @@ class EnterBirthdayHeightViewModel(
         rescanButtonEnabled = rescanButtonEnabled,
         rescanLoading = rescanLoading,
         closeAfterRescan = closeAfterRescan,
-        datePickerYears = datePickerYears
+        firstBlockDate = firstBlockDate
     )
 
     fun setBirthdayHeight(heightText: String) {
@@ -99,7 +100,7 @@ class EnterBirthdayHeightViewModel(
         emitState()
     }
 
-    fun getInitialDateForPicker(): Triple<Int, Int, Int> {
+    fun getInitialDateForPicker(): LocalDate {
         return BirthdayHeightHelper.getInitialDateForPicker(cachedEstimatedDate)
     }
 

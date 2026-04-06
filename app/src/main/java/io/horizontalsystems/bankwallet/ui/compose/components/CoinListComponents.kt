@@ -304,11 +304,13 @@ fun ListErrorView(
 
 @Composable
 fun ListEmptyView(
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues(),
     text: String,
     @DrawableRes icon: Int
 ) {
     ScreenMessageWithAction(
+        modifier = modifier,
         paddingValues = paddingValues,
         text = text,
         icon = icon
@@ -319,11 +321,12 @@ fun ListEmptyView(
 fun ScreenMessageWithAction(
     text: String,
     @DrawableRes icon: Int,
+    modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues(),
     actionsComposable: (@Composable () -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(paddingValues)
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.ime)

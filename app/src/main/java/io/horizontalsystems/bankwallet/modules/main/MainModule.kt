@@ -91,7 +91,6 @@ object MainModule {
     }
 
     data class UiState(
-        val selectedTabIndex: Int,
         val deeplinkPage: DeeplinkPage?,
         val mainNavItems: List<NavigationViewItem>,
         val showRateAppDialog: Boolean,
@@ -100,6 +99,7 @@ object MainModule {
         val torEnabled: Boolean,
         val wcSupportState: WCManager.SupportState?,
         val openSend: OpenSendTokenSelect?,
+        val selectedTabItem: MainNavigation
     )
 
     var isOpenDapp = false

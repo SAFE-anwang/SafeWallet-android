@@ -11,41 +11,41 @@ kotlin {
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
-        targetSdk = libs.versions.compileSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
+//        targetSdk = libs.versions.compileSdk.get().toInt()
 
-        consumerProguardFiles "consumer-rules.pro"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         debug {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
         release {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace 'io.horizontalsystems.seekbar'
+    namespace = "io.horizontalsystems.seekbar"
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.core.ktx)
 
-    implementation project(':components:views')
+    implementation(project(":components:views"))
 
     // Unit Tests
     testImplementation(libs.junit)

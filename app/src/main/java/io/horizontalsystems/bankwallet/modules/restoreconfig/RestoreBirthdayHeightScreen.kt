@@ -44,6 +44,7 @@ import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonVariant
 import io.horizontalsystems.bankwallet.uiv3.components.controls.HSButton
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,10 +91,9 @@ fun RestoreBirthdayHeightScreen(
             },
             sheetState = datePickerSheetState,
             loading = loading,
-            initialDay = initialDate.first,
-            initialMonth = initialDate.second,
-            initialYear = initialDate.third,
-            years = uiState.datePickerYears,
+            initialDate = initialDate,
+            startDate = uiState.firstBlockDate,
+            endDate = LocalDate.now(),
             onConfirm = { day, month, year ->
                 coroutineScope.launch {
                     loading = true

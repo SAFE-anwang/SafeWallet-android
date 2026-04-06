@@ -255,12 +255,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     }
 
     val solanaAlchemyApiKey by lazy {
-//        Translator.getString(R.string.solanaAlchemyApiKey)
-        ApiKeyUtil.getApiKey("solscan")?.let {
-            val index = Random().nextInt(it.size)
-            return@lazy it.get(index)
-        }
-        Translator.getString(R.string.solscanApiKey)
+        Translator.getString(R.string.solanaAlchemyApiKey)
     }
 
     val solanaJupiterApiKey by lazy {
@@ -384,16 +379,21 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
         }
     }
 
-    // coinCode -> min value
+    // coinCode -> risk threshold (used for dust detection scoring)
+    // spam = risk/10 (auto-spam), risk = config value (+3 points), danger = risk*5 (+2 points)
     val spamCoinValueLimits: Map<String, BigDecimal> = mapOf(
-        "USDT" to BigDecimal("0.01"),
-        "USDC" to BigDecimal("0.01"),
-        "DAI" to BigDecimal("0.01"),
-        "BUSD" to BigDecimal("0.01"),
-        "EURS" to BigDecimal("0.01"),
-        "BSC-USD" to BigDecimal("0.01"),
-        "TRX" to BigDecimal("10"),
-        "XLM" to BigDecimal("0.01"),
+        "XLM" to BigDecimal("0.1"),
+        "USDT" to BigDecimal("1"),
+        "USDC" to BigDecimal("1"),
+        "USDD" to BigDecimal("1"),
+        "DAI" to BigDecimal("1"),
+        "BUSD" to BigDecimal("1"),
+        "EURS" to BigDecimal("1"),
+        "BSC-USD" to BigDecimal("1"),
+        "TRX" to BigDecimal("1"),
+        "ETH" to BigDecimal("0.0005"),
+        "POL" to BigDecimal("1"),
+        "BNB" to BigDecimal("0.0002"),
     )
 
     val chainalysisBaseUrl by lazy {

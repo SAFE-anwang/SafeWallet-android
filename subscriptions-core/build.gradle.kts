@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 kotlin {
@@ -9,11 +10,11 @@ kotlin {
 }
 
 android {
-    namespace = "io.horizontalsystems.subscriptions.googleplay"
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    namespace = "io.horizontalsystems.subscriptions.core"
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -21,7 +22,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled = false
+            isMinifyEnabled  = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -34,10 +35,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":subscriptions-core"))
-    implementation(libs.androidx.startup)
-    implementation(libs.billing.ktx)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)

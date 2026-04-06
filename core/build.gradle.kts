@@ -10,21 +10,21 @@ kotlin {
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
 
-        consumerProguardFiles 'consumer-rules.pro'
+        consumerProguardFiles("consumer-rules.pro")
         vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         debug {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
         release {
-            minifyEnabled false
+            isMinifyEnabled = false
         }
     }
 
@@ -33,11 +33,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace 'io.horizontalsystems.core'
+    namespace = "io.horizontalsystems.core"
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)

@@ -10,13 +10,17 @@ kotlin {
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        ndk {
+            abiFilters += listOf("x86", "x86_64", "armeabi-v7a", "arm64-v8a")
+        }
     }
 
     compileOptions {
@@ -26,27 +30,27 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled false
-            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            isMinifyEnabled = false
         }
         release {
-            minifyEnabled false
-            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            isMinifyEnabled = false
         }
     }
 
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
-    namespace 'com.v2ray.ang'
+    namespace = "com.v2ray.ang"
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
 
     // AndroidX Core
     implementation(libs.androidx.appcompat)
@@ -70,17 +74,19 @@ dependencies {
     androidTestImplementation(libs.junit.ext)
     androidTestImplementation(libs.espresso.core)
 
-    implementation "androidx.preference:preference:1.0.0"
-    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation("androidx.preference:preference:1.0.0")
+    implementation("androidx.multidex:multidex:2.0.1")
 //    api 'com.tencent:mmkv-static:1.2.7'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'io.reactivex:rxjava:1.3.4'
-    implementation 'io.reactivex:rxandroid:1.2.1'
-//    implementation 'com.tbruyelle.rxpermissions:rxpermissions:0.9.4@aar'
-    implementation 'me.dm7.barcodescanner:core:1.9.8'
-    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
-//    implementation 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
-    implementation 'me.drakeet.support:toastcompat:1.1.0'
-    implementation 'com.blacksquircle.ui:editorkit:2.0.0'
-    implementation 'com.blacksquircle.ui:language-json:2.0.0'
+    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("io.reactivex:rxjava:1.3.4")
+    implementation("io.reactivex:rxandroid:1.2.1")
+//    implementation("com.tbruyelle.rxpermissions:rxpermissions:0.9.4@aar")
+    implementation("me.dm7.barcodescanner:core:1.9.8")
+    implementation("me.dm7.barcodescanner:zxing:1.9.8")
+//    implementation("com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
+    implementation("me.drakeet.support:toastcompat:1.1.0")
+    implementation("com.blacksquircle.ui:editorkit:2.0.0")
+    implementation("com.blacksquircle.ui:language-json:2.0.0")
+
+    api(files("libs/mmkv-static-1.2.7.aar"))
 }

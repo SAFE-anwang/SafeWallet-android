@@ -237,11 +237,13 @@ fun TransactionsScreen(
                         if (transactionItems.isEmpty()) {
                             if (syncing) {
                                 ListEmptyView(
+                                    modifier = Modifier.background(ComposeAppTheme.colors.lawrence),
                                     text = stringResource(R.string.Transactions_WaitForSync),
                                     icon = R.drawable.ic_clock
                                 )
                             } else {
                                 ListEmptyView(
+                                    modifier = Modifier.background(ComposeAppTheme.colors.lawrence),
                                     text = stringResource(R.string.Transactions_EmptyList),
                                     icon = R.drawable.ic_outgoingraw
                                 )
@@ -268,6 +270,7 @@ fun TransactionsScreen(
                             LazyColumn(
                                 state = listState,
                                 modifier = Modifier
+                                    .fillMaxSize()
                                     .padding(vertical = 16.dp, horizontal = 16.dp)
                                     .clip(RoundedCornerShape(16.dp))
                                     .background(ComposeAppTheme.colors.lawrence)

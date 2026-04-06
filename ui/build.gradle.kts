@@ -9,10 +9,10 @@ kotlin {
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInteger()
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -20,7 +20,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled  = false
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -30,7 +30,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    namespace 'io.horizonstalsystems.ui'
+    namespace = "io.horizonstalsystems.ui"
 }
 
 dependencies {

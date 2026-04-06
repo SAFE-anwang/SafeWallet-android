@@ -4,7 +4,7 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.core.eligibleTokens
 import io.horizontalsystems.bankwallet.core.isDefault
 import io.horizontalsystems.bankwallet.core.isNative
@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
 class ManageWalletsService(
-    private val walletManager: IWalletManager,
+    private val walletManager: WalletManager,
     private val restoreSettingsService: RestoreSettingsService,
     private val fullCoinsProvider: FullCoinsProvider?,
     private val account: Account?

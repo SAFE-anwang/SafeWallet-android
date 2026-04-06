@@ -61,7 +61,8 @@ class BitcoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFe
 
 class LitecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        return FeeRates(2)
+        val feeRate = feeRateProvider.litecoinFeeRate()
+        return FeeRates(feeRate.toInt())
     }
 }
 
