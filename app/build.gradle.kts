@@ -500,6 +500,8 @@ configurations.all {
         force("io.ktor:ktor-utils:2.3.7")
         force("io.ktor:ktor-io:2.3.7")
         force("io.ktor:ktor-client-core:2.3.7")
+
+        force("junit:junit:4.13.2")
     }
 
     exclude(group = "com.google.protobuf", module = "protobuf-java")
