@@ -59,6 +59,7 @@ class WebViewActivity: BaseActivity(){
     private fun setting() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url?.startsWith("data:text/html") == true)   return true
                 url?.let {
                     view?.loadUrl(url)
                 }
