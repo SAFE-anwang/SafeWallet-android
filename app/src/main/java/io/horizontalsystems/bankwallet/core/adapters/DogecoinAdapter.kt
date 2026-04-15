@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.AdapterErrorWrongParameters
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BackgroundManager
@@ -29,7 +30,7 @@ class DogecoinAdapter(
     syncMode: BitcoinCore.SyncMode,
     backgroundManager: BackgroundManager,
     wallet: Wallet,
-) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), DogecoinKit.Listener, ISendBitcoinAdapter {
+) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet), DogecoinKit.Listener, ISendBitcoinAdapter {
 
     constructor(
             wallet: Wallet, syncMode:
