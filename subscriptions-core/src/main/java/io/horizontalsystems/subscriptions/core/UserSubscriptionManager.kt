@@ -39,7 +39,8 @@ object UserSubscriptionManager {
     }
 
     suspend fun getSubscriptions(): List<Subscription> {
-        return service.getSubscriptions()
+//        return service.getSubscriptions()
+        return emptyList()
     }
 
     suspend fun hasFreeTrial(): Boolean {

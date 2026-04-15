@@ -102,7 +102,7 @@ portmapper = "2.0.6"
 startup = "1.2.0"
 
 # Billing
-billing = "8.0.0"
+billing = "5.1.0"
 
 # Testing
 junit = "4.13.2"

@@ -898,11 +898,7 @@ private fun ButtonsRow(
                 )
             },
         )
-        if (viewItem.liquidityVisible
-            && (
-                    viewItem.wallet.token.blockchainType != BlockchainType.SafeFour
-                            || (viewItem.wallet.token.blockchainType == BlockchainType.SafeFour
-                            && viewItem.wallet.token.type != TokenType.Native))) {
+        if (viewItem.liquidityVisible && viewItem.wallet.token.type != TokenType.Native) {
             BalanceActionButton(
                 variant = ButtonVariant.Secondary,
                 icon = R.drawable.ic_liquidity,

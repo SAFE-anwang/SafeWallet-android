@@ -41,9 +41,10 @@ class LiquidityMainService(
     }
 
     private fun getSwapProvider(blockchainType: BlockchainType): SwapMainModule.ISwapProvider? {
-        val providerId = localStorage.getLiquidityProviderId(blockchainType)
-            ?: if (blockchainType is BlockchainType.SafeFour)
+        val providerId = if (blockchainType is BlockchainType.SafeFour)
                 LiquidityMainModule.Safe4LiquidityProvider.id
+            else if (blockchainType is BlockchainType.Ethereum)
+                LiquidityMainModule.UniswapLiquidityProvider.id
             else
                 LiquidityMainModule.PancakeLiquidityProvider.id
 

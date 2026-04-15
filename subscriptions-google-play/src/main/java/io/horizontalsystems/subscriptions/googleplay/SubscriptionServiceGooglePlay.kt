@@ -14,7 +14,6 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -51,7 +50,7 @@ class SubscriptionServiceGooglePlay(
 
     private val billingClient = BillingClient.newBuilder(context)
         .setListener(this)
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
+//        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
         // Configure other settings.
         .build()
 

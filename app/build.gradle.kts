@@ -474,6 +474,7 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-core:1.5.4")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
+    implementation("commons-codec:commons-codec:1.15")
 }
 
 // Flavor-specific dependencies must be added after evaluation
@@ -502,6 +503,7 @@ configurations.all {
         force("io.ktor:ktor-client-core:2.3.7")
 
         force("junit:junit:4.13.2")
+        force("commons-codec:commons-codec:1.15")
     }
 
     exclude(group = "com.google.protobuf", module = "protobuf-java")

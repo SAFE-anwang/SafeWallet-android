@@ -132,13 +132,6 @@ fun ReceiveScreen(
             }
         },
         onBackPress = { navController.popBackStack() },
-        closeModule = {
-            if (receiveEntryPointDestId == 0) {
-                null
-            } else {
-                navController.popBackStack(receiveEntryPointDestId, true)
-            }
-        },
         onMoreClikc = {
 
         }

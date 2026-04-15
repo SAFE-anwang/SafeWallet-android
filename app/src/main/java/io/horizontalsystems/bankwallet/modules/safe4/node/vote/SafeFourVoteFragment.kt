@@ -470,7 +470,7 @@ fun LazyListScope.lockedList(
                             horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        HsCheckbox2(
+                        HsCheckbox(
                                 checked = item.checked,
                                 enabled = item.enable,
                                 onCheckedChange = {

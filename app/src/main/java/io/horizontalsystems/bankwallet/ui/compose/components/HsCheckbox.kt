@@ -40,7 +40,11 @@ fun HsCheckbox(
             painter = painterResource(id = R.drawable.checkbox_inactive_24),
             contentDescription = null,
             tint = if (App.localStorage.currentTheme == ThemeType.Blue) {
-                if (enabled) ComposeAppTheme.colors.grey  else LightGrey50
+                if(enabled) {
+                    ComposeAppTheme.colors.grey
+                } else {
+                    ComposeAppTheme.colors.black50
+                }
             } else {
                 ComposeAppTheme.colors.grey
             }

@@ -801,7 +801,6 @@ val TokenType.meta: String?
 
 val BlockchainType.Companion.supported: List<BlockchainType>
     get() = listOf(
-        BlockchainType.Safe,
         BlockchainType.SafeFour,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
@@ -825,7 +824,6 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Stellar,
         BlockchainType.Monero,
         BlockchainType.Dogecoin,
-        BlockchainType.Ton
     )
 
 val CoinPrice.diff: BigDecimal?

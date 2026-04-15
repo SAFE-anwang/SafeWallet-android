@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -95,10 +96,11 @@ class LiquidityMainFragment : BaseFragment() {
                     }
                 }
             } catch (t: Throwable) {
+                Log.e("longwen", "error=$t, ${Exception().stackTraceToString()}")
                 Toast.makeText(
                     App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
                 ).show()
-                findNavController().navigateUp()
+
             }
         }
     }

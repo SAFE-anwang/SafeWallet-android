@@ -201,7 +201,7 @@ class BalanceViewModel(
     private fun refreshViewItems() {
         refreshViewItemsJob?.cancel()
         refreshViewItemsJob = viewModelScope.launch(Dispatchers.Default) {
-            val balanceItemsTmp = balanceItems
+            val balanceItemsTmp = balanceItems?.toList()
             // 解决列表key相同闪退bug，过滤相同的记录
             val tmpBalanceViewItems = balanceItemsTmp?.distinctBy {
                 it.wallet.hashCode()

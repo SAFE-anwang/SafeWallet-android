@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance
 
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
+import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
@@ -10,6 +11,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.DefaultBlockParameter
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
