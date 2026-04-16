@@ -50,6 +50,7 @@ class SubscriptionServiceGooglePlay(
 
     private val billingClient = BillingClient.newBuilder(context)
         .setListener(this)
+        .enablePendingPurchases()
 //        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
         // Configure other settings.
         .build()
