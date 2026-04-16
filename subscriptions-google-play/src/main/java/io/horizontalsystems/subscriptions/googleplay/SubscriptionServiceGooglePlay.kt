@@ -48,12 +48,12 @@ class SubscriptionServiceGooglePlay(
     override var predefinedSubscriptions: List<Subscription> = listOf()
     private var inProgressPurchaseResult: CancellableContinuation<HSPurchase?>? = null
 
-    private val billingClient = BillingClient.newBuilder(context)
+    /*private val billingClient = BillingClient.newBuilder(context)
         .setListener(this)
         .enablePendingPurchases()
 //        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
         // Configure other settings.
-        .build()
+        .build()*/
 
     private var productDetailsResult: ProductDetailsResult? = null
 
@@ -66,11 +66,11 @@ class SubscriptionServiceGooglePlay(
     private var billingServiceDisconnected = false
 
     init {
-        startConnection()
+//        startConnection()
     }
 
     private fun startConnection() {
-        billingClient.startConnection(object : BillingClientStateListener {
+        /*billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     coroutineScope.launch {
@@ -82,15 +82,15 @@ class SubscriptionServiceGooglePlay(
             override fun onBillingServiceDisconnected() {
                 billingServiceDisconnected = true
             }
-        })
+        })*/
     }
 
     override suspend fun onResume() {
-        fetchAndHandleUserPurchases()
+//        fetchAndHandleUserPurchases()
     }
 
     private suspend fun fetchAndHandleUserPurchases() {
-        Log.e("AAA", "billingClient.isReady: ${billingClient.isReady}")
+        /*Log.e("AAA", "billingClient.isReady: ${billingClient.isReady}")
         activeSubscriptions.clear()
         if (!billingClient.isReady) {
             if (billingServiceDisconnected) {
@@ -111,7 +111,7 @@ class SubscriptionServiceGooglePlay(
 
         _activeSubscriptionStateFlow.update {
             activeSubscriptions.firstOrNull()
-        }
+        }*/
     }
 
     override fun isActionAllowed(paidAction: IPaidAction) = activeSubscriptions.any {
@@ -197,7 +197,7 @@ class SubscriptionServiceGooglePlay(
             .setProductList(productList)
             .build()
 
-        productDetailsResult = billingClient.queryProductDetails(params)
+//        productDetailsResult = billingClient.queryProductDetails(params)
 
         return buildList {
             productDetailsResult?.productDetailsList?.forEach { productDetails ->
@@ -243,11 +243,11 @@ class SubscriptionServiceGooglePlay(
                 .build()
         )
 
-        val billingFlowParams = BillingFlowParams.newBuilder()
+        /*val billingFlowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(productDetailsParamsList)
             .build()
 
-        val billingResult = billingClient.launchBillingFlow(activity, billingFlowParams)
+        val billingResult = billingClient.launchBillingFlow(activity, billingFlowParams)*/
 
         return suspendCancellableCoroutine {
             inProgressPurchaseResult = it
@@ -291,7 +291,7 @@ class SubscriptionServiceGooglePlay(
     }
 
     private suspend fun handlePurchase(purchase: Purchase) {
-        Log.e("AAA", "handlePurchase: $purchase")
+        /*Log.e("AAA", "handlePurchase: $purchase")
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (purchase.isAcknowledged) {
                 addAcknowledgedPurchase(purchase)
@@ -305,7 +305,7 @@ class SubscriptionServiceGooglePlay(
                     addAcknowledgedPurchase(purchase)
                 }
             }
-        }
+        }*/
     }
 
     private fun addAcknowledgedPurchase(purchase: Purchase) {

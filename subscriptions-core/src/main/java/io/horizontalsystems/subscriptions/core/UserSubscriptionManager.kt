@@ -44,10 +44,11 @@ object UserSubscriptionManager {
     }
 
     suspend fun hasFreeTrial(): Boolean {
-        val hasFreeTrial = getSubscriptions().flatMap { subscription ->
+        /*val hasFreeTrial = getSubscriptions().flatMap { subscription ->
             getBasePlans(subscription.id)
         }.any { it.hasFreeTrial }
-        return hasFreeTrial
+        return hasFreeTrial*/
+        return true
     }
 
     suspend fun launchPurchaseFlow(
