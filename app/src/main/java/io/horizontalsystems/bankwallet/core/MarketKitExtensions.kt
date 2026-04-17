@@ -826,6 +826,29 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Dogecoin,
     )
 
+val BlockchainType.Companion.supportedCoinManager: List<BlockchainType>
+    get() = listOf(
+        BlockchainType.SafeFour,
+        BlockchainType.Bitcoin,
+        BlockchainType.Ethereum,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Polygon,
+        BlockchainType.Avalanche,
+        BlockchainType.Gnosis,
+        BlockchainType.Fantom,
+        BlockchainType.Zcash,
+        BlockchainType.Dash,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Litecoin,
+        BlockchainType.Solana,
+        BlockchainType.ECash,
+        BlockchainType.Tron,
+        BlockchainType.Ton,
+        BlockchainType.Stellar,
+        BlockchainType.Monero,
+        BlockchainType.Dogecoin,
+    )
+
 val CoinPrice.diff: BigDecimal?
     get() = when (App.priceManager.priceChangeInterval) {
         PriceChangeInterval.LAST_24H -> diff24h

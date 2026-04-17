@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.supported
+import io.horizontalsystems.bankwallet.core.supportedCoinManager
 import io.horizontalsystems.bankwallet.core.title
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
@@ -37,7 +38,7 @@ class ManageWalletsViewModel(
     private var searchQuery = ""
     private val allTab = SelectChainTab(title = Translator.getString(R.string.Market_All), null)
     private var selectedChainTab: SelectChainTab = allTab
-    private var availableBlockchainTypes: List<BlockchainType>? = BlockchainType.supported
+    private var availableBlockchainTypes: List<BlockchainType>? = BlockchainType.supportedCoinManager
 
     val addTokenEnabled: Boolean
         get() = service.accountType?.canAddTokens ?: false
