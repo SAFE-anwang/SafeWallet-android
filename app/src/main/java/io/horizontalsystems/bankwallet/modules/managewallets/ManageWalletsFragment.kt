@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -183,7 +182,7 @@ private fun ManageWalletsScreen(
                     ButtonSecondaryTransparent(
                         title = filterBlockchain?.name
                             ?: stringResource(R.string.Transactions_Filter_AllBlockchains),
-                        iconRight = R.drawable.ic_arrow_drop_down,
+                        iconRight = R.drawable.ic_arrow_big_down_20,
                         onClick = {
                             showFilterBlockchainDialog = true
                         }

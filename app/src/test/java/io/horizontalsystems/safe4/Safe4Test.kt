@@ -1,7 +1,6 @@
 package io.horizontalsystems.safe4
 
 import com.anwang.Safe4
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.ethereumkit.models.Chain
 import org.junit.Test
 import org.web3j.protocol.Web3j

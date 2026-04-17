@@ -83,15 +83,24 @@ class SRC20LockedInfoService(
             loading.set(false)
             return
         }
-        val ids =
-            rpcBlockchainSafe4.src20LockFactory.getLockedIDs(getContract(), getAddress(), itemsCount.toBigInteger(), itemsPerPage.toBigInteger())
-        ids.map { id ->
-            getRecordInfo(id.toLong())
-        }.forEach {
-            if (it != null) {
-                Log.d(TAG, "lock info=$it")
-                lockRecordDao.insert(it)
+        try {
+            val ids =
+                rpcBlockchainSafe4.src20LockFactory.getLockedIDs(
+                    getContract(),
+                    getAddress(),
+                    itemsCount.toBigInteger(),
+                    itemsPerPage.toBigInteger()
+                )
+            ids.map { id ->
+                getRecordInfo(id.toLong())
+            }.forEach {
+                if (it != null) {
+                    Log.d(TAG, "lock info=$it")
+                    lockRecordDao.insert(it)
+                }
             }
+        } catch (e: Exception) {
+
         }
     }
 

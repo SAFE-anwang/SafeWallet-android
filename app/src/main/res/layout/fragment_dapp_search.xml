@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_back"
-        app:title="@string/Search"
+        app:title="@string/Button_Search"
         app:titleTextAppearance="@style/Title3" />
 
     <LinearLayout

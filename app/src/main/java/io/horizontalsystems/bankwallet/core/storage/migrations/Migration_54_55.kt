@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.storage.migrations
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.google.android.exoplayer2.util.Log
 
 object Migration_54_55 : Migration(54, 55) {
     override fun migrate(db: SupportSQLiteDatabase) {

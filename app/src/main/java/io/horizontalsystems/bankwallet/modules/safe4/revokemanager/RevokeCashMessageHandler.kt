@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.revokemanager
 
 import android.webkit.JavascriptInterface
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.core.hexStringToIntOrNull
 import io.horizontalsystems.ethereumkit.models.Address

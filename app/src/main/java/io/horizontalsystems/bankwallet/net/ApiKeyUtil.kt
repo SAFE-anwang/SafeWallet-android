@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.net
 
-import com.google.android.exoplayer2.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV

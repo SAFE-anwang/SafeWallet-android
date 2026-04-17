@@ -12,7 +12,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.navGraphViewModels
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 

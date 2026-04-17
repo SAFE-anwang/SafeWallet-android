@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.subscribeIO

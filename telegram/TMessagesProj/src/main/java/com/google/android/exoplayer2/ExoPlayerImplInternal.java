@@ -56,7 +56,7 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
-import com.google.android.exoplayer2.util.Log;
+import android.util.Log
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;

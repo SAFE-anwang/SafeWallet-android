@@ -41,7 +41,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.delay
-import org.telegram.ui.Stories.recorder.StoryLinkSheet.WebpagePreviewView.Factory.item
 
 class SafeFourVoteConfirmationFragment: BaseComposeFragment() {
     @Composable

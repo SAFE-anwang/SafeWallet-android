@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw
 
 import com.anwang.types.accountmanager.RecordUseInfo
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordInfo

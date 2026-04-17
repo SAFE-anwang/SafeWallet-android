@@ -9,7 +9,7 @@ import com.anwang.safewallet.safekit.MainNetSafe
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState

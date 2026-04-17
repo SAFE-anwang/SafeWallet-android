@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -12,7 +13,6 @@ import io.horizontalsystems.dashkit.models.DashTransactionInfo
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo

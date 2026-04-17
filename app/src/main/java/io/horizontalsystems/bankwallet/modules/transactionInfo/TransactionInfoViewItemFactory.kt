@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import com.anwang.utils.Safe4Contract
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App.Companion.numberFormatter
 import io.horizontalsystems.bankwallet.core.IAppNumberFormatter

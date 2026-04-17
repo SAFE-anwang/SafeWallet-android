@@ -24,8 +24,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navGraphViewModels
-import androidx.recyclerview.widget1.LinearLayoutManager
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import com.tencent.mmkv.MMKV
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet

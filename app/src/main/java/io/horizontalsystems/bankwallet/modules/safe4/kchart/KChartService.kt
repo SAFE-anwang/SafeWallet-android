@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.kchart
 
 import com.github.mikephil.charting.data.CandleEntry
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.net.Safe4KChartService
 import io.horizontalsystems.bankwallet.net.SafeApiKeyService
 import io.horizontalsystems.ethereumkit.models.Chain

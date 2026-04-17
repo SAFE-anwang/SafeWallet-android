@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import androidx.room.Entity
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState

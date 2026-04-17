@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App.Companion.appConfigProvider
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException

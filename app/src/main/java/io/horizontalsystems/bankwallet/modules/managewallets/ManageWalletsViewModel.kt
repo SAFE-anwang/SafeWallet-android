@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.managewallets
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.alternativeImageUrl

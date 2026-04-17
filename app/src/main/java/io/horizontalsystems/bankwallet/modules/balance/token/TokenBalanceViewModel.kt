@@ -7,7 +7,6 @@ import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter

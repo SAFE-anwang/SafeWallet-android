@@ -1,7 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.lockinfo
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.toHexString

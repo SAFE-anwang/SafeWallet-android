@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import kotlinx.coroutines.*
-import org.telegram.messenger.UserConfig
-import org.telegram.ui.AnWangUtils
-import org.telegram.ui.LaunchActivity
+//import org.telegram.messenger.UserConfig
+//import org.telegram.ui.AnWangUtils
+//import org.telegram.ui.LaunchActivity
 
 class StartTelegramsService(
     val activity: Activity
@@ -15,7 +15,7 @@ class StartTelegramsService(
     private var checkTelegramLoginState = false
 
     fun join(group: String) {
-        var uri = ""
+        /*var uri = ""
         // 未登录过，是首次打开tg，需要直接进群
         if (UserConfig.getActivatedAccountsCount() <= 0 || AnWangUtils.isLeaveAnwangGroup) {
             uri = group
@@ -26,18 +26,18 @@ class StartTelegramsService(
             AnWangUtils.isCheckInAnwangGroup = false
         }
         startTelegram(uri)
-        startCheckLoginState(group)
+        startCheckLoginState(group)*/
     }
 
     private fun startTelegram(uri: String) {
-        val intent = Intent(activity, LaunchActivity::class.java)
+        /*val intent = Intent(activity, LaunchActivity::class.java)
         intent.action = Intent.ACTION_VIEW
         intent.data = Uri.parse(uri)
-        activity.startActivity(intent)
+        activity.startActivity(intent)*/
     }
 
     private fun startCheckLoginState(group: String) {
-        if (UserConfig.getActivatedAccountsCount() > 0) return
+        /*if (UserConfig.getActivatedAccountsCount() > 0) return
         checkTelegramLoginState = true
         GlobalScope.launch(Dispatchers.IO) {
             while (checkTelegramLoginState) {
@@ -50,7 +50,7 @@ class StartTelegramsService(
                 }
                 delay(2000)
             }
-        }
+        }*/
     }
 
     fun stopCheckLoginStatus() {

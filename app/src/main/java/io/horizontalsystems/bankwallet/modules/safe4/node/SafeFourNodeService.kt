@@ -2,7 +2,7 @@ package io.horizontalsystems.bankwallet.modules.safe4.node
 
 import com.anwang.types.masternode.MasterNodeInfo
 import com.anwang.types.supernode.SuperNodeInfo
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider

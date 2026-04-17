@@ -1,7 +1,11 @@
 package org.consenlabs.tokencore.wallet.validators;
 
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
+//import static com.google.android.exoplayer2.util.Assertions.checkState;
+
+import static androidx.core.util.Preconditions.checkState;
+
+import android.annotation.SuppressLint;
 
 import org.consenlabs.tokencore.foundation.crypto.Hash;
 import org.consenlabs.tokencore.foundation.utils.NumericUtil;
@@ -52,6 +56,7 @@ public class ETHAddressValidator implements Validator<Void> {
     }
   }
 
+  @SuppressLint("RestrictedApi")
   private boolean validateChecksumAddress(String address) {
     address = NumericUtil.cleanHexPrefix(address);
     checkState(address.length() == 40);

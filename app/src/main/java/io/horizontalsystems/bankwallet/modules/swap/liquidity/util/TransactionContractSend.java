@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.swap.liquidity.util;
 
-import com.google.android.exoplayer2.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
