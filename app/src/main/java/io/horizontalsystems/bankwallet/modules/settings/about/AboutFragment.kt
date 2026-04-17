@@ -104,7 +104,7 @@ private fun SettingSections(
 
     val context = LocalContext.current
 
-    /*CellUniversalLawrenceSection(
+    CellUniversalLawrenceSection(
         listOf {
             HsSettingCell(
                 title = R.string.SettingsAboutApp_AppVersion,
@@ -119,7 +119,7 @@ private fun SettingSections(
         }
     )
 
-    Spacer(Modifier.height(32.dp))*/
+    Spacer(Modifier.height(32.dp))
 
     CellUniversalLawrenceSection(
         listOf(/*{

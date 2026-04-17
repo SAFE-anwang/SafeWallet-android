@@ -220,7 +220,7 @@ private fun SettingSections(
                     stat(page = StatPage.Settings, event = StatEvent.Open(StatPage.Security))
                 }
             )
-        }, {
+        }, /*{
             HsSettingCell(
                 R.string.Settings_Privacy,
                 R.drawable.ic_eye_20,
@@ -230,7 +230,7 @@ private fun SettingSections(
                     stat(page = StatPage.AboutApp, event = StatEvent.Open(StatPage.Privacy))
                 }
             )
-        }, {
+        },*/ {
             HsSettingCell(
                 R.string.DAppConnection_Title,
                 R.drawable.ic_wallet_connect_20,

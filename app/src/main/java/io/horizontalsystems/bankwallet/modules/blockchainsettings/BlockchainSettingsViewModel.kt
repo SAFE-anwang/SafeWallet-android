@@ -42,7 +42,7 @@ class BlockchainSettingsViewModel(
                 .filterIsInstance<BlockchainSettingsModule.BlockchainItem.Btc>()
                 .map { item ->
                     BlockchainSettingsModule.BlockchainViewItem(
-                        title = item.blockchain.name,
+                        title = item.blockchain.coinName,
                         subtitle = Translator.getString(item.restoreMode.title),
                         imageUrl = item.blockchain.type.imageUrl,
                         blockchainItem = item

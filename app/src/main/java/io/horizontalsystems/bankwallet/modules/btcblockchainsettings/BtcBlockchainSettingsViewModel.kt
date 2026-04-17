@@ -29,7 +29,7 @@ class BtcBlockchainSettingsViewModel(
     var saveButtonEnabled by mutableStateOf(false)
         private set
 
-    val title: String = service.blockchain.name
+    val title: String = service.blockchain.coinName
     val blockchainIconUrl = service.blockchain.type.imageUrl
 
     val isSafe = service.blockchain.type == BlockchainType.Safe

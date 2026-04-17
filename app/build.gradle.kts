@@ -39,7 +39,7 @@ android {
         resValue("string", "appTelegramLink", "tg://resolve?domain=safeanwang4")
         resValue("string", "appRedditLink", "https://www.reddit.com/user/safe_2018")
         resValue("string", "reportEmail", "foundation@anwang.com")
-        resValue("string", "releaseNotesUrl", "https://api.github.com/repos/horizontalsystems/unstoppable-wallet-android/releases/tags/")
+        resValue("string", "releaseNotesUrl", "https://api.github.com/repos/SAFE-anwang/SafeWallet-android/releases/tags/")
         resValue("string", "walletConnectAppMetaDataName", "Safe Wallet")
         resValue("string", "walletConnectAppMetaDataUrl", "example.wallet")
         resValue("string", "walletConnectAppMetaDataIcon", "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media")
