@@ -265,7 +265,7 @@ android {
 
         resolutionStrategy.eachDependency {
             if (requested.group == "com.squareup.okhttp3") {
-                useVersion("4.12.0")
+                useVersion("4.10.0")
             }
         }
     }

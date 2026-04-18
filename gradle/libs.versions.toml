@@ -36,7 +36,7 @@ gson = "2.13.2"
 
 # Networking
 retrofit = "3.0.0"
-okhttp = "5.1.0"
+okhttp = "4.10.0"
 
 # Rx
 rxjava = "2.2.19"

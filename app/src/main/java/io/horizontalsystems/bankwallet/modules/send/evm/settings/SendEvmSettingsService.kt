@@ -48,9 +48,6 @@ class SendEvmSettingsService(
         launch {
             nonceService.start()
         }
-        launch {
-            feeService.start()
-        }
     }
 
     fun clear() {

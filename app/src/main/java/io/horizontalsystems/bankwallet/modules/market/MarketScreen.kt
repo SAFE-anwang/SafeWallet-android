@@ -94,41 +94,43 @@ fun MarketScreen(
                     viewModel.onSelect(tab)
                 }
             }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 24.dp)
-                    .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(bottom = 72.dp),//bottomBar height 56 + 16 padding
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            if (uiState.selectedTab != Tab.DApp) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(ComposeAppTheme.colors.blade)
-                        .height(48.dp)
-                        .clickable {
-                            navController.slideFromBottom(R.id.marketSearchFragment)
-                            stat(
-                                page = StatPage.Markets,
-                                event = StatEvent.Open(StatPage.MarketSearch)
-                            )
-                        }
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 24.dp)
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .padding(bottom = 72.dp),//bottomBar height 56 + 16 padding
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_search),
-                        contentDescription = "Search",
-                        tint = ComposeAppTheme.colors.grey,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    HSpacer(8.dp)
-                    body_grey(
-                        text = stringResource(R.string.Balance_ReceiveHint_Search),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(ComposeAppTheme.colors.blade)
+                            .height(48.dp)
+                            .clickable {
+                                navController.slideFromBottom(R.id.marketSearchFragment)
+                                stat(
+                                    page = StatPage.Markets,
+                                    event = StatEvent.Open(StatPage.MarketSearch)
+                                )
+                            }
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_search),
+                            contentDescription = "Search",
+                            tint = ComposeAppTheme.colors.grey,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        HSpacer(8.dp)
+                        body_grey(
+                            text = stringResource(R.string.Balance_ReceiveHint_Search),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
