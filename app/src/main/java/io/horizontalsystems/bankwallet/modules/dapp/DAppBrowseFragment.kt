@@ -378,7 +378,6 @@ class DAppBrowseFragment: BaseFragment(){
         webViewSettings.useWideViewPort = true
         webViewSettings.allowFileAccess = true
         webViewSettings.allowContentAccess = true
-        webViewSettings.cacheMode = WebSettings.LOAD_DEFAULT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webViewSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
