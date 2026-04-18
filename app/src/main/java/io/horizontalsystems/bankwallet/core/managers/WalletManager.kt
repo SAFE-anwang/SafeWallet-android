@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
+import java.util.concurrent.CopyOnWriteArraySet
 
 class WalletManager(
     private val accountManager: IAccountManager,
@@ -21,7 +22,7 @@ class WalletManager(
     val activeWallets get() = walletsSet.toList()
     val activeWalletsUpdatedObservable = PublishSubject.create<List<Wallet>>()
 
-    private val walletsSet = mutableSetOf<Wallet>()
+    private val walletsSet = CopyOnWriteArraySet<Wallet>()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     init {

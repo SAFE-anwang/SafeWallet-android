@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains
 
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.IAccountFactory
 import io.horizontalsystems.bankwallet.core.IAccountManager
@@ -24,7 +25,10 @@ import io.horizontalsystems.bankwallet.modules.enablecoin.blockchaintokens.Block
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.marketkit.models.TokenQuery
+import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
@@ -91,6 +95,21 @@ class RestoreBlockchainsService(
 
         syncInternalItems()
         syncState()
+    }
+
+    private fun initDefaultToken() {
+        val bscUSDT = App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Eip20("0x55d398326f99059ff775485246999027b3197955")))
+
+        val ethUSDT = App.marketKit.token(TokenQuery(BlockchainType.Ethereum, TokenType.Eip20("0xdac17f958d2ee523a2206206994597c13d831ec7")))
+
+        val bscSafe = App.marketKit.token(TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Eip20("0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1")))
+
+        val ethSafe = App.marketKit.token(TokenQuery(BlockchainType.Ethereum, TokenType.Eip20("0xee9c1ea4dcf0aaf4ff2d78b6ff83aa69797b65eb")))
+
+        enabledTokens.add(bscUSDT)
+        enabledTokens.add(ethUSDT)
+        enabledTokens.add(bscSafe)
+        enabledTokens.add(ethSafe)
     }
 
     private fun syncInternalItems() {
@@ -209,7 +228,7 @@ class RestoreBlockchainsService(
         items.filter { it.enabled }.forEach { item ->
             tokenAutoEnableManager.markAutoEnable(account, item.blockchain.type)
         }
-
+        initDefaultToken()
         if (enabledTokens.isEmpty()) return
 
         val wallets = enabledTokens.map { Wallet(it, account) }
