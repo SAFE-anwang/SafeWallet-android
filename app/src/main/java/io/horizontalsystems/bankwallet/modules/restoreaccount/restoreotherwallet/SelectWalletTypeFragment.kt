@@ -54,7 +54,9 @@ class SelectWalletTypeFragment: BaseFragment() {
                 }
                 WalletType.TokenPocket,
                 WalletType.Bither,
-                WalletType.ImToken,
+                WalletType.ImToken -> {
+                    findNavController().slideFromRight(R.id.restoreMnemonicFragment, inputParams)
+                }
                 WalletType.HD -> {
                     findNavController().slideFromRight(R.id.restoreMnemonicFragmentHd, inputParams)
                 }
