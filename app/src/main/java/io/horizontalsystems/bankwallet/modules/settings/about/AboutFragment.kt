@@ -38,6 +38,7 @@ import io.horizontalsystems.bankwallet.modules.settings.terms.TermsScreen
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.InfoTextBody
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
@@ -89,7 +90,11 @@ private fun AboutScreen(
         onBack = onBackPress,
     ) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            VSpacer(12.dp)
+            Spacer(Modifier.height(12.dp))
+            AboutHeader(aboutViewModel.appVersion)
+            Spacer(Modifier.height(24.dp))
+            InfoTextBody(text = stringResource(R.string.SettingsTerms_Text))
+            Spacer(Modifier.height(24.dp))
             SettingSections(aboutViewModel, navController)
             VSpacer(36.dp)
         }
@@ -104,22 +109,19 @@ private fun SettingSections(
 
     val context = LocalContext.current
 
-    CellUniversalLawrenceSection(
+    /*CellUniversalLawrenceSection(
         listOf {
             HsSettingCell(
-                title = R.string.SettingsAboutApp_AppVersion,
-                icon = R.drawable.ic_info_20,
-                value = viewModel.appVersion,
+                R.string.SettingsAboutApp_WhatsNew,
+                R.drawable.ic_info_20,
                 onClick = {
                     navController.navigate(ReleaseNotesPage)
-
-                    stat(page = StatPage.AboutApp, event = StatEvent.Open(StatPage.WhatsNew))
                 }
             )
         }
     )
 
-    Spacer(Modifier.height(32.dp))
+    Spacer(Modifier.height(32.dp))*/
 
     CellUniversalLawrenceSection(
         listOf(/*{

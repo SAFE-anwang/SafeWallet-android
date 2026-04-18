@@ -2601,5 +2601,8 @@
     <string name="SRC20_Info_Type_Add">可增发</string>
     <string name="SRC20_USDT_Price">SAFE/USDT Price</string>
     <!-- SRC20 end-->
+    <string name="SettingsTerms_Text">The SafeWallet is built for those looking to invest and store cryptocurrencies in a private and independent manner.
+\n\nIt\'s a non-custodial, peer-to-peer wallet where only the user has control over the funds. It doesn\'t collect any data and keeps the user independent by not locking the user\'s funds to a specific wallet app.
+\n\nThe SafeWallet is fully open-source and anyone can confirm the app works exactly as it claims to.</string>
 
 </resources>
