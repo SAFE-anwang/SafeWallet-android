@@ -22,7 +22,7 @@ class PrivacySettingsNetAdapter(val context: Context, private val listener: List
 
 
     private val sp = context.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)
-    private var vpnChecked = sp.getBoolean("vpnOpen", true)
+    private var vpnChecked = sp.getBoolean("vpnOpen", false)
 
     private var torStatus: TorStatus = TorStatus.Closed
     private var checked = false

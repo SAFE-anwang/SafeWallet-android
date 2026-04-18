@@ -39,7 +39,7 @@ object VpnConnectService {
         .readTimeout(5000, TimeUnit.MILLISECONDS).build()
 
     fun startVpn(activity: Activity) {
-        if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
+        if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", false)) {
             return
         }
         SafeNetService().getVpnNodes().map { response ->

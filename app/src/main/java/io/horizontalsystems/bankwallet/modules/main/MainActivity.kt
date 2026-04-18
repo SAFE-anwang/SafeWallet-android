@@ -316,7 +316,7 @@ class MainActivity : BaseActivity() {
     private fun startVpn() {
         if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean(
                 "vpnOpen",
-                true
+                false
             )
         ) {
             return
