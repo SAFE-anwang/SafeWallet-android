@@ -11,7 +11,9 @@
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/toolbarCompose"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize" />
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:background="@color/transparent"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

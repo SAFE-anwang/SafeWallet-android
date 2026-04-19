@@ -145,7 +145,7 @@ private fun SendEvmConfirmationScreen(
                     HsBackButton(onClick = { navController.popBackStack() })
                 },
                 menuItems = listOf(
-                    MenuItem(
+                    /*MenuItem(
                         title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
                         icon = R.drawable.ic_manage_2,
                         tint = ComposeAppTheme.colors.jacob,
@@ -155,7 +155,7 @@ private fun SendEvmConfirmationScreen(
                                 SendEvmSettingsFragment.Input(parentNavGraphId)
                             )
                         }
-                    )
+                    )*/
                 )
             )
         }

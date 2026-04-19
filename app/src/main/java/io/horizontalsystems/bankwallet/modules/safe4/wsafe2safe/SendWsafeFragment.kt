@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
@@ -147,7 +149,9 @@ class SendWsafeFragment : BaseFragment() {
                 viewModel.isMatic = isMatic
                 titleRes = R.string.Safe4_Title_wsafe2safe_matic
             }
-            ComposeAppTheme {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 AppBar(
                     title = stringResource(titleRes),
                     navigationIcon = {
