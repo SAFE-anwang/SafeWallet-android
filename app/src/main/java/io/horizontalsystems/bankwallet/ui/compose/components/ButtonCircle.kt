@@ -34,7 +34,7 @@ fun ButtonPrimaryCircle(
             .background(
                 if (enabled) {
                     if (App.localStorage.currentTheme == ThemeType.Blue)
-                        ComposeAppTheme.colors.tyler
+                        ComposeAppTheme.colors.leah
                     else
                         ComposeAppTheme.colors.leah
                 } else ComposeAppTheme.colors.blade
@@ -45,7 +45,14 @@ fun ButtonPrimaryCircle(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = contentDescription,
-            tint = if (enabled) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.andy
+            tint = if (enabled) {
+                if (App.localStorage.currentTheme == ThemeType.Blue)
+                    ComposeAppTheme.colors.lawrence
+                else
+                    ComposeAppTheme.colors.leah
+            } else {
+                ComposeAppTheme.colors.andy
+            }
         )
     }
 }
