@@ -49,7 +49,7 @@ fun ButtonPrimaryCircle(
                 if (App.localStorage.currentTheme == ThemeType.Blue)
                     ComposeAppTheme.colors.lawrence
                 else
-                    ComposeAppTheme.colors.leah
+                    ComposeAppTheme.colors.andy
             } else {
                 ComposeAppTheme.colors.andy
             }
