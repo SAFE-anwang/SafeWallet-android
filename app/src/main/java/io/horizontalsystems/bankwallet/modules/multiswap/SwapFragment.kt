@@ -341,7 +341,7 @@ private fun SwapScreenInner(
                             action.getTitle()
                         }
 
-                        ButtonPrimaryDefault(
+                        ButtonPrimaryYellow(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .fillMaxWidth(),
