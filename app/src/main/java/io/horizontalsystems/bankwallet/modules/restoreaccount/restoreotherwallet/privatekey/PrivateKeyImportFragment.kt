@@ -104,7 +104,6 @@ class PrivateKeyImportFragment: BaseFragment() {
                 }
             }
             ComposeAppTheme {
-                Spacer(modifier = Modifier.height(24.dp))
                 AppBar(
                         title = stringResource(R.string.Restore_Import_Private_Key),
                         navigationIcon = {

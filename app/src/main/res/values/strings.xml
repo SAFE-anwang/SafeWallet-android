@@ -1633,7 +1633,7 @@
     <!-- Nym VPN -->
 
     <string name="NymVpn_GetNymVpn" translatable="false">Get Nym VPN</string>
-    <string name="NymVpn_Description" translatable="false">Unstoppable recommends NYM VPN for increased privacy.</string>
+    <string name="NymVpn_Description" translatable="false">SafeWallet recommends NYM VPN for increased privacy.</string>
 
     <!-- Tor -->
 
@@ -2605,4 +2605,10 @@
 \n\nIt\'s a non-custodial, peer-to-peer wallet where only the user has control over the funds. It doesn\'t collect any data and keeps the user independent by not locking the user\'s funds to a specific wallet app.
 \n\nThe SafeWallet is fully open-source and anyone can confirm the app works exactly as it claims to.</string>
 
+    <string name="Privacy_BulletedText1">User data always remains on the user\'s device.</string>
+    <string name="Privacy_BulletedText2">The wallet doesn\'t collect any data about users.</string>
+    <string name="Privacy_BulletedText3">The wallet doesn\'t share any data about users.</string>
+    <string name="Privacy_BulletedText4">There are no user accounts or databases keeping user data elsewhere.</string>
+
+    <string name="FooterText2" translatable="false">© Horizontal Systems &amp; SAFE Foundation 2021</string>
 </resources>

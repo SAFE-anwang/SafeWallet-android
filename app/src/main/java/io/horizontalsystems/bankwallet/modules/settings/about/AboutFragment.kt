@@ -34,6 +34,7 @@ import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesScreen
 import io.horizontalsystems.bankwallet.modules.settings.appstatus.AppStatusScreen
 import io.horizontalsystems.bankwallet.modules.settings.main.HsSettingCell
+import io.horizontalsystems.bankwallet.modules.settings.privacy.PrivacyScreen
 import io.horizontalsystems.bankwallet.modules.settings.terms.TermsScreen
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
@@ -56,6 +57,7 @@ class AboutFragment : BaseComposeFragment() {
 private const val AboutPage = "about"
 private const val ReleaseNotesPage = "release_notes"
 private const val AppStatusPage = "app_status"
+private const val PrivacyPage = "privacy"
 private const val TermsPage = "terms"
 
 @Composable
@@ -75,6 +77,7 @@ private fun AboutNavHost(fragmentNavController: NavController) {
             ReleaseNotesScreen(false, { navController.popBackStack() })
         }
         composablePage(AppStatusPage) { AppStatusScreen(navController) }
+        composablePage(PrivacyPage) { PrivacyScreen(navController) }
         composablePopup(TermsPage) { TermsScreen(navController) }
     }
 }
@@ -143,6 +146,14 @@ private fun SettingSections(
                     navController.navigate(TermsPage)
 
                     stat(page = StatPage.AboutApp, event = StatEvent.Open(StatPage.Terms))
+                }
+            )
+        }, {
+            HsSettingCell(
+                R.string.Settings_Privacy,
+                R.drawable.ic_user_20,
+                onClick = {
+                    navController.navigate(PrivacyPage)
                 }
             )
         })
