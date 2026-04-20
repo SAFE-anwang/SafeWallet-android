@@ -15,6 +15,7 @@ kotlin {
     }
 }
 
+
 android {
     namespace = "io.horizontalsystems.bankwallet"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -455,7 +456,9 @@ dependencies {
 
     // VPN
     implementation(project(":vpn"))
-//    implementation(project(":telegram:TMessagesProj"))
+
+    implementation(project(":telegram:TMessagesProj"))
+
 
     implementation("androidx.multidex:multidex:2.0.1")
 

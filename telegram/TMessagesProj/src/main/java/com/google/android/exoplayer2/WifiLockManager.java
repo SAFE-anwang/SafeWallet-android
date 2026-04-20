@@ -19,7 +19,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import androidx.annotation.Nullable;
-import android.util.Log
+import android.util.Log;
 
 /**
  * Handles a {@link WifiLock}

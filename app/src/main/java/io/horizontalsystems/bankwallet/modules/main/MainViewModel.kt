@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
+import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
@@ -79,7 +80,7 @@ class MainViewModel(
                 MainNavigation.Balance,
 //                MainNavigation.Transactions,
                 MainNavigation.Safe4,
-//                MainNavigation.Tg,
+                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         } else {
@@ -87,7 +88,7 @@ class MainViewModel(
                 MainNavigation.Balance,
                 MainNavigation.Safe4,
 //                MainNavigation.Transactions,
-//                MainNavigation.Tg,
+                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         }
