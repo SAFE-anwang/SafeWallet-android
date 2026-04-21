@@ -72,6 +72,7 @@
             android:name=".modules.keystore.KeyStoreActivity"
             android:screenOrientation="portrait" />
 
+        <!--android:theme="@style/Theme.App.Starting"-->
         <activity
             android:name=".modules.main.MainActivity"
             android:exported="true"
