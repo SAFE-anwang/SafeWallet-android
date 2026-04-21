@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.AppLogger
@@ -14,8 +14,8 @@ import io.horizontalsystems.bankwallet.core.EvmError
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
 import io.horizontalsystems.bankwallet.core.convertedError
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService.AmountType
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm.AmountType
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -24,12 +24,11 @@ import io.horizontalsystems.bankwallet.core.toHexString
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.evmfee.GasDataError
 import io.horizontalsystems.bankwallet.modules.multiswap.EvmBlockchainHelper
+import io.horizontalsystems.bankwallet.modules.multiswap.TimerService
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
 import io.horizontalsystems.bankwallet.modules.swap.ErrorShareService
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.TimerService
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.AmountTypeItem
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
@@ -40,30 +39,18 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModul
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService.State
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.SwapPendingAllowanceState
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.api.jsonrpc.JsonRpc
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.ethereumkit.models.Chain
-import io.horizontalsystems.ethereumkit.models.GasPrice
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.uniswapkit.Extensions
 import io.horizontalsystems.uniswapkit.liquidity.PancakeSwapKit
-import io.horizontalsystems.uniswapkit.liquidity.TradeError
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.web3j.crypto.Credentials
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.utils.Convert
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -73,7 +60,7 @@ import java.util.UUID
 class LiquidityMainViewModel(
     private val formatter: LiquidityViewItemHelper,
     val service: LiquidityMainService,
-    private val switchService: AmountTypeSwitchService,
+    private val switchService: AmountTypeSwitchServiceSendEvm,
     private val fromTokenService: LiquidityTokenService,
     private val toTokenService: LiquidityTokenService,
     private val allowanceServiceA: LiquidityAllowanceService,
@@ -270,7 +257,7 @@ class LiquidityMainViewModel(
         toTokenService.start()
         setBalance()
         subscribeToTradeService()
-        timerService.start()
+        timerService.start(20)
         allowanceServiceA.start()
         allowanceServiceB.start()
         syncButtonsState()
@@ -324,15 +311,22 @@ class LiquidityMainViewModel(
             }
             syncSwapDataState()
         }
+        viewModelScope.launch {
+            timerService.stateFlow.collect {
 
-        timerService.reSyncFlow.collectWith(viewModelScope) {
+                resyncSwapData()
+                tradePriceExpiration = it.remaining?.toFloat()
+                syncUiState()
+            }
+        }
+        /*timerService.reSyncFlow.collectWith(viewModelScope) {
             resyncSwapData()
         }
 
         timerService.timeoutProgressFlow.collectWith(viewModelScope) {
             tradePriceExpiration = it
             syncUiState()
-        }
+        }*/
 
     }
 
@@ -926,7 +920,7 @@ class LiquidityMainViewModel(
         subscribeToTradeService()
 
         timerService.stop()
-        timerService.start()
+        timerService.start(20)
 
         refocusKey = UUID.randomUUID().leastSignificantBits
         syncUiState()

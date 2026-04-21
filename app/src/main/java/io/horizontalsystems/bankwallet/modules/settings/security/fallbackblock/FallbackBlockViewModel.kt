@@ -5,10 +5,10 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IAdapterManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.adapters.DogecoinAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Observable
@@ -19,7 +19,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class FallbackBlockViewModel(
-    val walletManager: IWalletManager,
+    val walletManager: WalletManager,
     val accountManager: IAccountManager,
     val adapterManager: IAdapterManager
 ) : ViewModel() {
@@ -53,7 +53,7 @@ class FallbackBlockViewModel(
                         it.coin.uid == "safe-coin" && it.token.blockchainType == BlockchainType.Safe
                     }?.let {
                         try {
-                            adapterManager.getAdapterForWallet(it)?.let {
+                            adapterManager.getAdapterForWallet<SafeAdapter>(it)?.let {
                                 (it as SafeAdapter).fallbackBlock(year, month)
                             }
                             (App.adapterManager as AdapterManager).preloadAdapters()
@@ -67,7 +67,7 @@ class FallbackBlockViewModel(
                         it.token.blockchainType == BlockchainType.Dogecoin
                     }?.let {
                         try {
-                            adapterManager.getAdapterForWallet(it)?.let {
+                            adapterManager.getAdapterForWallet<DogecoinAdapter>(it)?.let {
                                 (it as DogecoinAdapter).fallbackBlock(year, month)
                             }
                             (App.adapterManager as AdapterManager).preloadAdapters()

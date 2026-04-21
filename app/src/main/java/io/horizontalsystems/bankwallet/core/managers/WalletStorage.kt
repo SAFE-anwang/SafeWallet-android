@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.customCoinUid
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.EnabledWallet
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.marketkit.models.Coin
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
 
@@ -18,24 +19,29 @@ class WalletStorage(
         val enabledWallets = storage.enabledWallets(account.id)
 
         val queries = enabledWallets.mapNotNull { TokenQuery.fromId(it.tokenQueryId) }
-        val tokens = marketKit.tokens(queries)
+        val tokensMap = marketKit.tokens(queries).associate { it.tokenQuery.id to it }
 
         val blockchainUids = queries.map { it.blockchainType.uid }
         val blockchains = marketKit.blockchains(blockchainUids)
 
         return enabledWallets.mapNotNull { enabledWallet ->
-            val tokenQuery = TokenQuery.fromId(enabledWallet.tokenQueryId) ?: return@mapNotNull null
-
-            tokens.find { it.tokenQuery == tokenQuery }?.let { token ->
-                return@mapNotNull Wallet(token, account)
+            tokensMap[enabledWallet.tokenQueryId]?.let {
+                return@mapNotNull Wallet(it, account)
             }
+
+            val tokenQuery = TokenQuery.fromId(enabledWallet.tokenQueryId) ?: return@mapNotNull null
 
             if (enabledWallet.coinName != null && enabledWallet.coinCode != null && enabledWallet.coinDecimals != null) {
                 val coinUid = tokenQuery.customCoinUid
                 val blockchain = blockchains.firstOrNull { it.uid == tokenQuery.blockchainType.uid } ?: return@mapNotNull null
 
                 val token = Token(
-                    coin = io.horizontalsystems.marketkit.models.Coin(coinUid, enabledWallet.coinName, enabledWallet.coinCode),
+                    coin = Coin(
+                        uid = coinUid,
+                        name = enabledWallet.coinName,
+                        code = enabledWallet.coinCode,
+                        image = enabledWallet.coinImage
+                    ),
                     blockchain = blockchain,
                     type = tokenQuery.tokenType,
                     decimals = enabledWallet.coinDecimals
@@ -49,16 +55,7 @@ class WalletStorage(
     }
 
     override fun save(wallets: List<Wallet>) {
-        val enabledWallets = mutableListOf<EnabledWallet>()
-
-        wallets.forEachIndexed { index, wallet ->
-
-            enabledWallets.add(
-                enabledWallet(wallet, index)
-            )
-        }
-
-        storage.save(enabledWallets)
+        storage.save(wallets.map { enabledWallet(it) })
     }
 
     override fun delete(wallets: List<Wallet>) {
@@ -73,14 +70,12 @@ class WalletStorage(
         storage.deleteAll()
     }
 
-    private fun enabledWallet(wallet: Wallet, index: Int? = null): EnabledWallet {
-        return EnabledWallet(
-            wallet.token.tokenQuery.id,
-            wallet.account.id,
-            index,
-            wallet.coin.name,
-            wallet.coin.code,
-            wallet.decimal
-        )
-    }
+    private fun enabledWallet(wallet: Wallet) = EnabledWallet(
+        tokenQueryId = wallet.token.tokenQuery.id,
+        accountId = wallet.account.id,
+        coinName = wallet.coin.name,
+        coinCode = wallet.coin.code,
+        coinDecimals = wallet.decimal,
+        coinImage = wallet.coin.image
+    )
 }

@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -103,7 +102,7 @@ class SafeFourRewardViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = service.withdraw(listOf(0))
             if (result != null) {
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
                 MMKV.defaultMMKV()?.encode(address, System.currentTimeMillis())
                 emitState()
             } else {

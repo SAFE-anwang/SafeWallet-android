@@ -12,7 +12,7 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
 
     //  colors
     val textFont: Typeface = Typeface.DEFAULT
-    var timelineTextColor = context.getColor(R.color.nina)
+    var timelineTextColor = context.getColor(R.color.leah)
 
     var gridTextColor = context.getColor(R.color.grey)
     var gridLineColor = Color.parseColor("#4D4D4D")
@@ -28,7 +28,7 @@ class ChartConfig(private val context: Context, attrs: AttributeSet?) {
     var trendDownColor = context.getColor(R.color.red_d)
     var neutralColor = context.getColor(R.color.jacob)
     var barColor = context.getColor(R.color.jacob)
-    var barPressedColor = context.getColor(R.color.nina)
+    var barPressedColor = context.getColor(R.color.leah)
     var neutralGradientColor = GradientColor(Color.parseColor("#FFA800"), Color.parseColor("#FFA800"))
     var trendUpGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))
     var trendDownGradient = GradientColor(Color.parseColor("#4D4D4D"), Color.parseColor("#4D4D4D"))

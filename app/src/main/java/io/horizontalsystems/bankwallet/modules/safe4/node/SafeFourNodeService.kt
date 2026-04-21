@@ -2,7 +2,8 @@ package io.horizontalsystems.bankwallet.modules.safe4.node
 
 import com.anwang.types.masternode.MasterNodeInfo
 import com.anwang.types.supernode.SuperNodeInfo
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.modules.safe4.SafeFourProvider
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Master_Node_Create_Amount
@@ -150,6 +151,9 @@ class SafeFourNodeService(
 							info?.let {
 								nodeList.add(it)
 							}
+						}
+						if (nodeList.isNotEmpty()) {
+							App.appDatabase.nodeInfoDao().insert(nodeList)
 						}
 						nodeList
 					}
@@ -508,8 +512,8 @@ class SafeFourNodeService(
 						nodeInfo?.apply {
 							when (nodeType) {
 								NodeType.SuperNode -> {
-									this.totalVoteNum = getTotalVoteNum(this.addr.hex)
-									this.totalAmount = getTotalAmount(this.addr.hex)
+									this.totalVoteNum = getTotalVoteNum(this.addr)
+									this.totalAmount = getTotalAmount(this.addr)
 								}
 
 								NodeType.MainNode -> {

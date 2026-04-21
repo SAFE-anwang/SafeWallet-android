@@ -2,10 +2,26 @@ package io.horizontalsystems.bankwallet.core
 
 import androidx.compose.runtime.Composable
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.ethereumkit.api.jsonrpc.JsonRpc
 import io.horizontalsystems.ethereumkit.core.AddressValidator
+
+interface ICaution {
+    fun toCautionViewItem(): CautionViewItem
+}
+
+class InsufficientBalance(val coinCode: String) : Exception(), ICaution {
+    override fun toCautionViewItem() = CautionViewItem(
+        Translator.getString(R.string.EthereumTransaction_Error_InsufficientBalance_Title),
+        Translator.getString(
+            R.string.EthereumTransaction_Error_InsufficientBalanceForFee,
+            coinCode
+        ),
+        CautionViewItem.Type.Error
+    )
+}
 
 open class HSCaution(
     val s: TranslatableString,
@@ -24,6 +40,15 @@ open class HSCaution(
 
     fun isError() = type == Type.Error
     fun isWarning() = type == Type.Warning
+
+    fun toCautionViewItem() = CautionViewItem(
+        s.toString(),
+        description?.toString() ?: "",
+        when (type) {
+            Type.Error -> CautionViewItem.Type.Error
+            Type.Warning -> CautionViewItem.Type.Warning
+        }
+    )
 }
 class NotEnoughData() : Exception()
 class UnsupportedException(override val message: String?) : Exception()

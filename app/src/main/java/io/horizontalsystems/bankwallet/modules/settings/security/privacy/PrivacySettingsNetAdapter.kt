@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.databinding.ViewHolderNetControlBinding
-import io.horizontalsystems.bankwallet.modules.settings.security.tor.TorStatus
+import io.horizontalsystems.bankwallet.modules.settings.privacy.tor.TorStatus
 
 
 class PrivacySettingsNetAdapter(val context: Context, private val listener: Listener) : RecyclerView.Adapter<PrivacySettingsNetAdapter.NetControlViewHolder>() {
@@ -22,7 +22,7 @@ class PrivacySettingsNetAdapter(val context: Context, private val listener: List
 
 
     private val sp = context.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)
-    private var vpnChecked = sp.getBoolean("vpnOpen", true)
+    private var vpnChecked = sp.getBoolean("vpnOpen", false)
 
     private var torStatus: TorStatus = TorStatus.Closed
     private var checked = false

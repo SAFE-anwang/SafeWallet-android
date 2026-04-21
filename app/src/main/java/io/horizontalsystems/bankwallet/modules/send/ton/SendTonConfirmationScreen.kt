@@ -5,51 +5,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
-import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationScreen
-import io.horizontalsystems.bankwallet.ui.compose.DisposableLifecycleCallbacks
 
 @Composable
 fun SendTonConfirmationScreen(
     navController: NavController,
     sendViewModel: SendTonViewModel,
-    amountInputModeViewModel: AmountInputModeViewModel,
     sendEntryPointDestId: Int
 ) {
     var confirmationData by remember { mutableStateOf(sendViewModel.getConfirmationData()) }
     var refresh by remember { mutableStateOf(false) }
 
-    DisposableLifecycleCallbacks(
-        onResume = {
-            if (refresh) {
-                confirmationData = sendViewModel.getConfirmationData()
-            }
-        },
-        onPause = {
+    LifecycleResumeEffect(Unit) {
+        if (refresh) {
+            confirmationData = sendViewModel.getConfirmationData()
+        }
+
+        onPauseOrDispose {
             refresh = true
         }
-    )
+    }
 
     SendConfirmationScreen(
         navController = navController,
         coinMaxAllowedDecimals = sendViewModel.coinMaxAllowedDecimals,
         feeCoinMaxAllowedDecimals = sendViewModel.feeTokenMaxAllowedDecimals,
-        fiatMaxAllowedDecimals = sendViewModel.fiatMaxAllowedDecimals,
-        amountInputType = amountInputModeViewModel.inputType,
         rate = sendViewModel.coinRate,
         feeCoinRate = sendViewModel.feeCoinRate,
         sendResult = sendViewModel.sendResult,
-        blockchainType = sendViewModel.blockchainType,
-        coin = confirmationData.coin,
+        token = confirmationData.token,
         feeCoin = confirmationData.feeCoin,
         amount = confirmationData.amount,
         address = confirmationData.address,
         contact = confirmationData.contact,
         fee = confirmationData.fee,
-        lockTimeInterval = confirmationData.lockTimeInterval,
         memo = confirmationData.memo,
-        rbfEnabled = confirmationData.rbfEnabled,
         onClickSend = sendViewModel::onClickSend,
         sendEntryPointDestId = sendEntryPointDestId
     )

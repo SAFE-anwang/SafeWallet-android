@@ -165,7 +165,7 @@ private fun SwapApproveConfirmationScreen(
                 title = stringResource(R.string.Send_Confirmation_Title),
                 navigationIcon = navigationIcon,
                 menuItems = listOf(
-                    MenuItem(
+                    /*MenuItem(
                         title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
                         icon = R.drawable.ic_manage_2,
                         tint = ComposeAppTheme.colors.jacob,
@@ -175,7 +175,7 @@ private fun SwapApproveConfirmationScreen(
                                 SendEvmSettingsFragment.Input(parentNavGraphId)
                             )
                         }
-                    )
+                    )*/
                 )
             )
         }

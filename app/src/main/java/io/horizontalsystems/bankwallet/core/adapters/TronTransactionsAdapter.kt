@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.managers.TronKitWrapper
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
+import io.horizontalsystems.ethereumkit.core.hexStringToByteArrayOrNull
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.tronkit.TronKit
@@ -14,10 +15,9 @@ import io.horizontalsystems.tronkit.models.Address
 import io.horizontalsystems.tronkit.models.TransactionTag
 import io.horizontalsystems.tronkit.network.Network
 import io.reactivex.Flowable
-import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx2.asFlowable
-import kotlinx.coroutines.rx2.rxSingle
 
 class TronTransactionsAdapter(
     val tronKitWrapper: TronKitWrapper,
@@ -47,34 +47,45 @@ class TronTransactionsAdapter(
     override val transactionsStateUpdatedFlowable: Flowable<Unit>
         get() = tronKit.syncStateFlow.asFlowable().map {}
 
-    override fun getTransactionsAsync(
+    override suspend fun getTransactions(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Single<List<TransactionRecord>> {
-        return rxSingle {
-            tronKit.getFullTransactionsBefore(
-                getFilters(token, transactionType, address),
-                from?.transactionHash?.hexStringToByteArray(),
-                limit
-            ).map {
-                transactionConverter.transactionRecord(it)
-            }
+    ): List<TransactionRecord> {
+        return tronKit.getFullTransactionsBefore(
+            getFilters(token, transactionType, address),
+            from?.transactionHash?.hexStringToByteArray(),
+            limit
+        ).map {
+            transactionConverter.transactionRecord(it)
         }
     }
 
-    override fun getTransactionRecordsFlowable(
+    override fun getTransactionRecordsFlow(
         token: Token?,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Flowable<List<TransactionRecord>> {
+    ): Flow<List<TransactionRecord>> {
         return tronKit.getFullTransactionsFlow(getFilters(token, transactionType, address))
             .map { transactions ->
                 transactions.map { transactionConverter.transactionRecord(it) }
             }
-            .asFlowable()
+    }
+
+    override suspend fun getTransactionsAfter(fromTransactionId: String?): List<TransactionRecord> {
+        return tronKit.getFullTransactionsAfter(listOf(), fromTransactionId?.hexStringToByteArrayOrNull())
+            .map {
+                transactionConverter.transactionRecord(it)
+            }
+    }
+
+    override suspend fun getTronFullTransactionsBefore(
+        fromTransactionHash: ByteArray?,
+        limit: Int
+    ): List<io.horizontalsystems.tronkit.models.FullTransaction> {
+        return tronKit.getFullTransactionsBefore(listOf(), fromTransactionHash, limit)
     }
 
     private fun convertToAdapterState(syncState: TronKit.SyncState): AdapterState =
@@ -117,10 +128,12 @@ class TronTransactionsAdapter(
                 token != null -> incomingTag(token)
                 else -> TransactionTag.INCOMING
             }
+
             FilterTransactionType.Outgoing -> when {
                 token != null -> outgoingTag(token)
                 else -> TransactionTag.OUTGOING
             }
+
             FilterTransactionType.Swap -> TransactionTag.SWAP
             FilterTransactionType.Approve -> TransactionTag.TRC20_APPROVE
         }

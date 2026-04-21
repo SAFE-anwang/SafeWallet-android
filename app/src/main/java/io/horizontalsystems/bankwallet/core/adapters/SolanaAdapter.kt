@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.core.adapters
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BalanceData
-import io.horizontalsystems.bankwallet.core.ISendSolanaAdapter
 import io.horizontalsystems.bankwallet.core.managers.SolanaKitWrapper
 import io.horizontalsystems.solanakit.SolanaKit
 import io.horizontalsystems.solanakit.models.Address
@@ -14,7 +13,7 @@ import kotlinx.coroutines.rx2.asFlowable
 import java.math.BigDecimal
 import java.math.BigInteger
 
-class SolanaAdapter(kitWrapper: SolanaKitWrapper) : BaseSolanaAdapter(kitWrapper, decimal), ISendSolanaAdapter {
+class SolanaAdapter(kitWrapper: SolanaKitWrapper) : BaseSolanaAdapter(kitWrapper, decimal) {
 
     // IAdapter
 
@@ -64,22 +63,22 @@ class SolanaAdapter(kitWrapper: SolanaKitWrapper) : BaseSolanaAdapter(kitWrapper
             is SolanaKit.SyncState.Syncing -> AdapterState.Syncing()
         }
 
-    private fun scaleDown(amount: BigDecimal, decimals: Int = decimal): BigDecimal {
-        return amount.movePointLeft(decimals).stripTrailingZeros()
-    }
-
-    private fun scaleUp(amount: BigDecimal, decimals: Int = decimal): BigInteger {
-        return amount.movePointRight(decimals).toBigInteger()
-    }
-
-    private fun balanceInBigDecimal(balance: Long?, decimal: Int): BigDecimal {
-        balance?.toBigDecimal()?.let {
-            return scaleDown(it, decimal)
-        } ?: return BigDecimal.ZERO
-    }
-
     companion object {
         const val decimal = 9
+
+        private fun scaleDown(amount: BigDecimal, decimals: Int = decimal): BigDecimal {
+            return amount.movePointLeft(decimals).stripTrailingZeros()
+        }
+
+        private fun scaleUp(amount: BigDecimal, decimals: Int = decimal): BigInteger {
+            return amount.movePointRight(decimals).toBigInteger()
+        }
+
+        fun balanceInBigDecimal(balance: Long?, decimal: Int): BigDecimal {
+            balance?.toBigDecimal()?.let {
+                return scaleDown(it, decimal)
+            } ?: return BigDecimal.ZERO
+        }
 
         fun clear(walletId: String) {
             SolanaKit.clear(App.instance, walletId)

@@ -50,9 +50,9 @@ fun ButtonSecondaryDefault(
         onClick = onClick,
         content = {
             if (enabled) {
-                subhead1_leah(text = title, maxLines = 1)
+                captionSB_leah(text = title, maxLines = 1)
             } else {
-                subhead1_grey50(text = title, maxLines = 1)
+                captionSB_grey50(text = title, maxLines = 1)
             }
         },
         enabled = enabled
@@ -72,13 +72,14 @@ fun ButtonSecondaryYellow(
         buttonColors = ButtonPrimaryDefaults.textButtonColors(
             backgroundColor = ComposeAppTheme.colors.yellowD,
             contentColor = ComposeAppTheme.colors.dark,
-            disabledBackgroundColor = ComposeAppTheme.colors.steel20,
-            disabledContentColor = ComposeAppTheme.colors.grey50,
+            disabledBackgroundColor = ComposeAppTheme.colors.blade,
+            disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {
             Text(
                 title,
                 maxLines = 1,
+                style = ComposeAppTheme.typography.captionSB,
                 overflow = TextOverflow.Ellipsis,
             )
         },
@@ -99,22 +100,22 @@ fun ButtonSecondaryWithIcon(
         onClick = onClick,
         contentPadding = PaddingValues(
             start = 16.dp,
-            end = 12.dp,
+            end = 8.dp,
         ),
         content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                subhead1_leah(
+                captionSB_leah(
                     text = title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Icon(
-                    modifier = Modifier.padding(start = 4.dp),
+                    modifier = Modifier.padding(start = 2.dp),
                     painter = iconRight,
                     contentDescription = null,
-                    tint = ComposeAppTheme.colors.grey
+                    tint = ComposeAppTheme.colors.leah
                 )
             }
         },
@@ -138,16 +139,18 @@ fun ButtonSecondaryTransparent(
             backgroundColor = ComposeAppTheme.colors.transparent,
             contentColor = ComposeAppTheme.colors.leah,
             disabledBackgroundColor = ComposeAppTheme.colors.transparent,
-            disabledContentColor = ComposeAppTheme.colors.grey50,
+            disabledContentColor = ComposeAppTheme.colors.andy,
         ),
         content = {
             if (iconRight != null) {
-                Row {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ){
                     Text(
-                        title,
+                        text = title,
                         maxLines = 1,
+                        style = ComposeAppTheme.typography.captionSB,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
                     )
                     Icon(
                         modifier = Modifier.padding(start = 4.dp),
@@ -157,7 +160,12 @@ fun ButtonSecondaryTransparent(
                     )
                 }
             } else {
-                Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.captionSB,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         },
         enabled = enabled
@@ -185,7 +193,12 @@ fun <T : WithTranslatableTitle> ButtonSecondaryToggle(
                 modifier = Modifier.height(IntrinsicSize.Max),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(select.selected.title.getString(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = select.selected.title.getString(),
+                    maxLines = 1,
+                    style = ComposeAppTheme.typography.captionSB,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Column(
                     modifier = Modifier
                         .height(16.dp)
@@ -230,7 +243,7 @@ fun ButtonSecondary(
         enabled = enabled,
     ) {
         ProvideTextStyle(
-            value = ComposeAppTheme.typography.subhead1
+            value = ComposeAppTheme.typography.captionSB
         ) {
             Row(
                 Modifier
@@ -270,10 +283,10 @@ object SecondaryButtonDefaults {
 
     @Composable
     fun buttonColors(
-        backgroundColor: Color = ComposeAppTheme.colors.steel20,
+        backgroundColor: Color = ComposeAppTheme.colors.blade,
         contentColor: Color = ComposeAppTheme.colors.leah,
-        disabledBackgroundColor: Color = ComposeAppTheme.colors.steel20,
-        disabledContentColor: Color = ComposeAppTheme.colors.grey50,
+        disabledBackgroundColor: Color = ComposeAppTheme.colors.blade,
+        disabledContentColor: Color = ComposeAppTheme.colors.andy,
     ): ButtonColors = HsButtonColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,

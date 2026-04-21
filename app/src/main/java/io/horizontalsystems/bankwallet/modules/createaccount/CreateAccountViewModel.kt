@@ -58,7 +58,7 @@ class CreateAccountViewModel(
     var passphraseState by mutableStateOf<DataState.Error?>(null)
         private set
 
-    var successMessage by mutableStateOf<Int?>(null)
+    var success by mutableStateOf<AccountType?>(null)
         private set
     var languageType by mutableStateOf(Language.English)
         private set
@@ -82,7 +82,8 @@ class CreateAccountViewModel(
         accountManager.save(account)
         activateDefaultWallets(account)
         predefinedBlockchainSettingsProvider.prepareNew(account, BlockchainType.Zcash)
-        successMessage = R.string.Hud_Text_Created
+        predefinedBlockchainSettingsProvider.prepareNew(account, BlockchainType.Monero)
+        success = accountType
     }
 
     fun onChangeAccountName(name: String) {
@@ -120,7 +121,7 @@ class CreateAccountViewModel(
     }
 
     fun onSuccessMessageShown() {
-        successMessage = null
+        success = null
     }
 
     private fun passphraseIsInvalid(): Boolean {
@@ -152,9 +153,14 @@ class CreateAccountViewModel(
             TokenQuery(BlockchainType.Bitcoin, TokenType.Derived(TokenType.Derivation.Bip84)),
             TokenQuery(BlockchainType.SafeFour, TokenType.Native),
             TokenQuery(BlockchainType.Ethereum, TokenType.Native),
+            TokenQuery(BlockchainType.Monero, TokenType.Native),
+            TokenQuery(BlockchainType.Tron, TokenType.Native),
             TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Native),
-            TokenQuery(BlockchainType.Ethereum, TokenType.Eip20("0xdac17f958d2ee523a2206206994597c13d831ec7")),
-            TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Eip20("0xe9e7cea3dedca5984780bafc599bd69add087d56")),
+            TokenQuery(BlockchainType.Tron, TokenType.Eip20("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")),//USDT(TRC20)
+            TokenQuery(BlockchainType.Ethereum, TokenType.Eip20("0xdac17f958d2ee523a2206206994597c13d831ec7")),//USDT(erc20)
+            TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Eip20("0x55d398326f99059ff775485246999027b3197955")),//USDT(BEP20)
+            TokenQuery(BlockchainType.BinanceSmartChain, TokenType.Eip20("0x4d7fa587ec8e50bd0e9cd837cb4da796f47218a1")),//SAFE(erc20)
+            TokenQuery(BlockchainType.Ethereum, TokenType.Eip20("0xee9c1ea4dcf0aaf4ff2d78b6ff83aa69797b65eb")),//SAFE(erc20)
         )
         walletActivator.activateWallets(account, tokenQueries)
     }

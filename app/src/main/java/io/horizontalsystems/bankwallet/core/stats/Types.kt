@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.stats
 
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.bitcoinCashCoinType
 import io.horizontalsystems.bankwallet.core.derivation
 import io.horizontalsystems.bankwallet.entities.BtcRestoreMode
@@ -59,6 +60,9 @@ enum class StatPage(val key: String) {
     DoubleSpend("double_spend"),
     EvmAddress("evm_address"),
     EvmPrivateKey("evm_private_key"),
+    StellarSecretKey("stellar_secret_key"),
+    MoneroPrivateKey("monero_private_key"),
+    MoneroPublicKey("monero_public_key"),
     ExportFull("export_full"),
     ExportFullToFiles("export_full_to_files"),
     ExportWalletToFiles("export_wallet_to_files"),
@@ -103,6 +107,8 @@ enum class StatPage(val key: String) {
     PrivateKeys("private_keys"),
     Privacy("privacy"),
     PublicKeys("public_keys"),
+    PurchaseList("purchase_list"),
+    PurchaseSelector("purchase_selector"),
     RateUs("rate_us"),
     Receive("receive"),
     ReceiveTokenList("receive_token_list"),
@@ -131,6 +137,7 @@ enum class StatPage(val key: String) {
     TransactionInfo("transaction_info"),
     UnlinkWallet("unlink_wallet"),
     WalletConnect("wallet_connect"),
+    TonConnect("ton_connect"),
     WatchWallet("watch_wallet"),
     WhatsNew("whats_news"),
     Widget("widget"),
@@ -187,6 +194,7 @@ sealed class StatEvent {
     data class OpenTokenPage(val token: Token?, val assetId: String? = null) : StatEvent()
     data class OpenTokenInfo(val token: Token) : StatEvent()
     data class Open(val page: StatPage) : StatEvent()
+    data class OpenPremium(val from: StatPremiumTrigger) : StatEvent()
 
     data class HideBalanceButtons(val shown: Boolean): StatEvent()
     data class SelectTheme(val type: String): StatEvent()
@@ -200,6 +208,8 @@ sealed class StatEvent {
     data class ShowSignals(val shown: Boolean): StatEvent()
     data class EnableUiStats(val enabled: Boolean): StatEvent()
 
+    object Subscribe: StatEvent()
+    data class SubscribePremium(val trigger: StatPremiumTrigger) : StatEvent()
     data class SwitchBaseCurrency(val code: String) : StatEvent()
     data class SwitchBtcSource(val chainUid: String, val type: BtcRestoreMode) : StatEvent()
     data class SwitchEvmSource(val chainUid: String, val type: String) : StatEvent()
@@ -284,6 +294,7 @@ sealed class StatEvent {
             is Open -> "open_page"
 
             is OpenTokenInfo -> "open_token_info"
+            is OpenPremium -> "open_premium_from"
 
             is HideBalanceButtons -> "hide_balance_buttons"
             is SelectTheme -> "select_theme"
@@ -297,6 +308,8 @@ sealed class StatEvent {
             is ShowSignals -> "show_signals"
             is EnableUiStats -> "enable_ui_stats"
 
+            is Subscribe -> "subscribe"
+            is SubscribePremium -> "subscribe_premium_from"
             is SwapSelectTokenIn -> "swap_select_token_in"
             is SwapSelectTokenOut -> "swap_select_token_out"
             is SwapSelectProvider -> "swap_select_provider"
@@ -490,6 +503,8 @@ sealed class StatEvent {
 
             is Share -> mapOf(StatParam.Entity to entity.key)
 
+            is OpenPremium -> mapOf(StatParam.Trigger to from.value) + trialExpired
+
             else -> null
         }
 
@@ -524,7 +539,9 @@ enum class StatParam(val key: String) {
     Provider("provider"),
     RelativeUrl("relative_url"),
     Shown("shown"),
+    Status("status"),
     Tab("tab"),
+    Trigger("trigger"),
     TvlChain("tvl_chain"),
     Type("type"),
     WalletType("wallet_type")
@@ -538,6 +555,7 @@ enum class StatTab(val key: String) {
     Overview("overview"),
     News("news"),
     Watchlist("watchlist"),
+    Earn("earn"),
     Analytics("analytics"),
     All("all"),
     Incoming("incoming"),
@@ -546,7 +564,12 @@ enum class StatTab(val key: String) {
     Approve("approve"),
     Coins("coins"),
     Pairs("pairs"),
+    Sectors("sectors"),
     Platforms("platforms"),
+    Safe4("Safe4"),
+    TG("TG"),
+    Dapp("Dapp"),
+    Tweets("Tweets"),
 }
 
 enum class StatSortType(val key: String) {
@@ -601,6 +624,7 @@ enum class StatEntity(val key: String) {
     Derivation("derivation"),
     EvmAddress("evm_address"),
     EvmPrivateKey("evm_private_key"),
+    StellarSecretKey("stellar_secret_key"),
     Key("key"),
     Passphrase("passphrase"),
     ReceiveAddress("receive_address"),
@@ -609,6 +633,7 @@ enum class StatEntity(val key: String) {
     Status("status"),
     Token("token"),
     TransactionId("transaction_id"),
+    TransactionKey("transaction_key"),
     Wallet("wallet"),
     WalletName("wallet_name")
 }
@@ -617,3 +642,44 @@ enum class StatResendType(val key: String) {
     SpeedUp("speed_up"),
     Cancel("cancel")
 }
+
+enum class StatPremiumTrigger(val value: String) {
+    TradingAssistant("trading_assistant"),
+    DexVolume("dex_volume"),
+    DexLiquidity("dex_liquidity"),
+    TransactionCount("transaction_count"),
+    ActiveAddresses("active_addresses"),
+    Holders("holders"),
+    ProjectFee("project_fee"),
+    ProjectRevenue("project_revenue"),
+    IssueBlockchains("issue_blockchains"),
+    Other("other"),
+    Banner("banner"),
+    GetPremium("get_premium"),
+    DuressMode("duress_mode"),
+    VipSupport("vip_support"),
+    AddressChecker("address_checker"),
+    Sectors("sectors"),
+    PriceChange("price_change"),
+    PricePeriod("price_period"),
+    TradingSignal("trading_signal"),
+    PriceCloseTo("price_close_to"),
+    OutperformedBtc("outperformed_btc"),
+    OutperformedEth("outperformed_eth"),
+    OutperformedBnb("outperformed_bnb"),
+    OutperformedGold("outperformed_gold"),
+    OutperformedSp500("outperformed_sp500"),
+    GoodCexVolume("good_cex_volume"),
+    GoodDexVolume("good_dex_volume"),
+    GoodDistribution("good_distribution"),
+    ListedOnTopExchanges("listed_on_top_exchanges")
+}
+
+private val trialExpired: Map<StatParam, String>
+    get() {
+        return if (App.trialExpired) {
+            mapOf(StatParam.Status to "trial_expired")
+        } else {
+            emptyMap()
+        }
+    }

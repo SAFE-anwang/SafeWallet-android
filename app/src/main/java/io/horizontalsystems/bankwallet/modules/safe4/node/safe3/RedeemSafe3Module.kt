@@ -63,7 +63,7 @@ object RedeemSafe3Module {
 	class Factory3(val safe4Wallet: Wallet?) : ViewModelProvider.Factory {
 
 		val adapter =
-				(safe4Wallet?.let { App.adapterManager.getAdapterForWallet(it) } as? ISendEthereumAdapter)
+				(safe4Wallet?.let { App.adapterManager.getAdapterForWallet<ISendEthereumAdapter>(it) } as? ISendEthereumAdapter)
 
 
 		@Suppress("UNCHECKED_CAST")

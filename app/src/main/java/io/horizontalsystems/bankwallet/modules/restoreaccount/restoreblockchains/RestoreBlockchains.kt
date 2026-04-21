@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
@@ -29,6 +29,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,31 +40,37 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.blockchaintokens.BlockchainTokensViewModel
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.extensions.BottomSheetSelectorMultiple
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.Blockchain
+import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageWalletsScreen(
     mainViewModel: RestoreViewModel,
-    openZCashConfigure: () -> Unit,
+    openBirthdayHeightConfigure: (Token) -> Unit,
     onBackClick: () -> Unit,
     onFinish: () -> Unit
 ) {
@@ -72,12 +79,27 @@ fun ManageWalletsScreen(
         onBackClick.invoke()
         return
     }
+
+    val statPage = mainViewModel.statPage ?: run {
+        Toast.makeText(App.instance, "Error: statPage is NULL", Toast.LENGTH_SHORT).show()
+        onBackClick.invoke()
+        return
+    }
+
     val manualBackup = mainViewModel.manualBackup
     val fileBackup = mainViewModel.fileBackup
     val isAnBaoWallet = if (accountType is AccountType.Mnemonic) accountType.isAnBaoWallet else false
     val isSafe3Wallet = if (accountType is AccountType.Mnemonic) accountType.isSafe3Wallet else false
 
-    val factory = RestoreBlockchainsModule.Factory(mainViewModel.accountName, accountType, manualBackup, fileBackup, isAnBaoWallet, isSafe3Wallet)
+    val factory = RestoreBlockchainsModule.Factory(
+        mainViewModel.accountName,
+        accountType,
+        manualBackup,
+        fileBackup,
+        statPage,
+        isAnBaoWallet,
+        isSafe3Wallet
+    )
     val viewModel: RestoreBlockchainsViewModel = viewModel(factory = factory)
     val restoreSettingsViewModel: RestoreSettingsViewModel = viewModel(factory = factory)
     val blockchainTokensViewModel: BlockchainTokensViewModel = viewModel(factory = factory)
@@ -88,19 +110,21 @@ fun ManageWalletsScreen(
     val doneButtonEnabled by viewModel.restoreEnabledLiveData.observeAsState(false)
     val restored = viewModel.restored
 
-    mainViewModel.zCashConfig?.let { config ->
+    mainViewModel.birthdayHeightConfig?.let { config ->
         restoreSettingsViewModel.onEnter(config)
-        mainViewModel.setZCashConfig(null)
+        mainViewModel.setBirthdayHeightConfig(null)
     }
 
-    if (mainViewModel.cancelZCashConfig) {
+    if (mainViewModel.cancelBirthdayHeightConfig) {
         restoreSettingsViewModel.onCancelEnterBirthdayHeight()
-        mainViewModel.cancelZCashConfig = false
+        mainViewModel.cancelBirthdayHeightConfig = false
     }
 
-    if (restoreSettingsViewModel.openZcashConfigure != null) {
-        restoreSettingsViewModel.zcashConfigureOpened()
-        openZCashConfigure.invoke()
+    restoreSettingsViewModel.openBirthdayHeightConfig?.let { token ->
+        restoreSettingsViewModel.birthdayHeightConfigOpened()
+        openBirthdayHeightConfigure.invoke(token)
+
+        stat(page = StatPage.RestoreSelect, event = StatEvent.Open(StatPage.BirthdayInput))
     }
 
     LaunchedEffect(restored) {
@@ -116,141 +140,141 @@ fun ManageWalletsScreen(
         }
     }
 
-    val coroutineScope = rememberCoroutineScope()
     val skipHalfExpanded by remember { mutableStateOf(true) }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = skipHalfExpanded
+
+    val scope = rememberCoroutineScope()
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+        skipPartiallyExpanded = skipHalfExpanded,
     )
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(blockchainTokensViewModel.showBottomSheetDialog) {
         if (blockchainTokensViewModel.showBottomSheetDialog) {
-            coroutineScope.launch {
-                modalBottomSheetState.show()
-            }
+            showBottomSheet = true
             blockchainTokensViewModel.bottomSheetDialogShown()
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
-        sheetContent = {
+    HSScaffold(
+        title = stringResource(R.string.Restore_Title),
+        onBack = onBackClick,
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Button_Restore),
+                onClick = { viewModel.onRestore() },
+                enabled = doneButtonEnabled,
+                tint = ComposeAppTheme.colors.jacob
+            )
+        ),
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+                HsDivider()
+            }
+            coinItems?.let {
+                items(it) { viewItem ->
+                    CellMultilineClear(
+                        borderBottom = true,
+                        onClick = { onItemClick(viewItem, viewModel) }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Image(
+                                painter = viewItem.imageSource.painter(),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .size(32.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row {
+                                    body_leah(
+                                        text = viewItem.title,
+                                        maxLines = 1,
+                                    )
+                                    viewItem.bridge?.let {
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = 6.dp)
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(ComposeAppTheme.colors.jacob)
+                                        ) {
+                                            Text(
+                                                modifier = Modifier.padding(
+                                                    start = 4.dp,
+                                                    end = 4.dp,
+                                                    bottom = 1.dp
+                                                ),
+                                                text = it,
+                                                color = ComposeAppTheme.colors.lawrence,
+                                                style = ComposeAppTheme.typography.microSB,
+                                                maxLines = 1,
+                                            )
+                                        }
+                                    }
+                                }
+                                subhead2_grey(
+                                    text = viewItem.subtitle,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(top = 1.dp)
+                                )
+                            }
+                            HSpacer(12.dp)
+                            if (viewItem.hasSettings) {
+                                HsIconButton(
+                                    onClick = { viewModel.onClickSettings(viewItem.item) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_edit_20),
+                                        contentDescription = null,
+                                        tint = ComposeAppTheme.colors.grey
+                                    )
+                                }
+                            }
+                            HsSwitch(
+                                checked = viewItem.enabled,
+                                onCheckedChange = { onItemClick(viewItem, viewModel) },
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                VSpacer(height = 32.dp)
+            }
+        }
+
+        if (showBottomSheet) {
             blockchainTokensViewModel.config?.let { config ->
                 BottomSheetSelectorMultiple(
+                    sheetState = sheetState,
                     config = config,
                     onItemsSelected = { blockchainTokensViewModel.onSelect(it) },
                     onCloseClick = {
                         blockchainTokensViewModel.onCancelSelect()
-                        coroutineScope.launch { modalBottomSheetState.hide() }
+                        scope.launch {
+                            sheetState.hide()
+                            showBottomSheet = false
+                        }
                     },
                 )
-            }
-        },
-    ) {
-        Column(
-            modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)
-        ) {
-            AppBar(
-                title = stringResource(R.string.Restore_Title),
-                navigationIcon = {
-                    HsBackButton(onClick = onBackClick)
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Button_Restore),
-                        onClick = { viewModel.onRestore() },
-                        enabled = doneButtonEnabled
-                    )
-                ),
-            )
-
-            LazyColumn {
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider(
-                        thickness = 1.dp,
-                        color = ComposeAppTheme.colors.steel10,
-                    )
-                }
-                coinItems?.let {
-                    items(it) { viewItem ->
-                        CellMultilineClear(
-                            borderBottom = true,
-                            onClick = { onItemClick(viewItem, viewModel) }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp)
-                            ) {
-                                Image(
-                                    painter = viewItem.imageSource.painter(),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(end = 16.dp)
-                                        .size(32.dp)
-                                )
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row {
-                                        body_leah(
-                                            text = viewItem.title,
-                                            maxLines = 1,
-                                        )
-                                        viewItem.bridge?.let {
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 6.dp)
-                                                    .clip(RoundedCornerShape(4.dp))
-                                                    .background(ComposeAppTheme.colors.jeremy)
-                                            ) {
-                                                Text(
-                                                    modifier = Modifier.padding(
-                                                        start = 4.dp,
-                                                        end = 4.dp,
-                                                        bottom = 1.dp
-                                                    ),
-                                                    text = it,
-                                                    color = ComposeAppTheme.colors.bran,
-                                                    style = ComposeAppTheme.typography.microSB,
-                                                    maxLines = 1,
-                                                )
-                                            }
-                                        }
-                                    }
-                                    subhead2_grey(
-                                        text = viewItem.subtitle,
-                                        maxLines = 1,
-                                        modifier = Modifier.padding(top = 1.dp)
-                                    )
-                                }
-                                Spacer(Modifier.width(12.dp))
-                                if (viewItem.hasSettings) {
-                                    HsIconButton(
-                                        onClick = { viewModel.onClickSettings(viewItem.item) }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.ic_edit_20),
-                                            contentDescription = null,
-                                            tint = ComposeAppTheme.colors.grey
-                                        )
-                                    }
-                                }
-                                HsSwitch(
-                                    checked = viewItem.enabled,
-                                    onCheckedChange = { onItemClick(viewItem, viewModel) },
-                                )
-                            }
-                        }
-                    }
-                }
             }
         }
     }
 }
 
-private fun onItemClick(viewItem: CoinViewItem<Blockchain>, viewModel: RestoreBlockchainsViewModel) {
+private fun onItemClick(
+    viewItem: CoinViewItem<Blockchain>,
+    viewModel: RestoreBlockchainsViewModel
+) {
     if (viewItem.enabled) {
         viewModel.disable(viewItem.item)
     } else {

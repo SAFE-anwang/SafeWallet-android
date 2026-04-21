@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,14 +50,9 @@ import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.ProviderTradeData
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule.PriceImpactLevel
-import io.horizontalsystems.bankwallet.modules.swap.approve.SwapApproveModule
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.approve.confirmation.SwapApproveConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.confirmation.oneinch.OneInchSwapConfirmationFragment
-import io.horizontalsystems.bankwallet.modules.swap.confirmation.uniswap.UniswapConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.confirmation.LiquidityConfirmationFragment
-import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSettingsFragment
-import io.horizontalsystems.bankwallet.modules.swap.settings.uniswap.UniswapSettingsFragment
 import io.horizontalsystems.bankwallet.modules.swap.ui.*
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard.Opened
@@ -100,10 +96,11 @@ class LiquidityMainFragment : BaseFragment() {
                     }
                 }
             } catch (t: Throwable) {
+                Log.e("longwen", "error=$t, ${Exception().stackTraceToString()}")
                 Toast.makeText(
                     App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
                 ).show()
-                findNavController().navigateUp()
+
             }
         }
     }
@@ -153,13 +150,16 @@ private fun SwapMainScreen(
             Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
                 AppBar(
                     title = stringResource(R.string.liquidity_title),
-                    menuItems = listOf(
+                    navigationIcon = {
+                        HsBackButton(onClick = navController::popBackStack)
+                    },
+                    /*menuItems = listOf(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.Button_Close),
                             icon = R.drawable.ic_close,
                             onClick = onCloseClick
                         )
-                    )
+                    )*/
                 )
                 Column(
                     modifier = Modifier.weight(1f)
@@ -585,7 +585,7 @@ fun PriceImpact(
         Spacer(Modifier.weight(1f))
         Text(
             text = priceImpact.value,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = getPriceImpactColor(priceImpact.level),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

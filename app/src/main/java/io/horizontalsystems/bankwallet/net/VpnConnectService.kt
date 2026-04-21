@@ -16,8 +16,6 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
 import io.horizontalsystems.bankwallet.modules.main.MainActivity
-import io.horizontalsystems.binancechainkit.BinanceChainKit
-import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -41,7 +39,7 @@ object VpnConnectService {
         .readTimeout(5000, TimeUnit.MILLISECONDS).build()
 
     fun startVpn(activity: Activity) {
-        if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", true)) {
+        if (!activity.getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean("vpnOpen", false)) {
             return
         }
         SafeNetService().getVpnNodes().map { response ->

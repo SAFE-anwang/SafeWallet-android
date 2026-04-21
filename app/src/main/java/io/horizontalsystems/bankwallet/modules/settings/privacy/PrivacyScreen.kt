@@ -70,7 +70,7 @@ fun PrivacyScreen(navController: NavController) {
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = stringResource(R.string.FooterText),
+            text = stringResource(R.string.FooterText2),
             style = ComposeAppTheme.typography.caption,
             color = ComposeAppTheme.colors.grey,
             modifier = Modifier
@@ -88,7 +88,7 @@ private fun BulletedText(@StringRes text: Int) {
         Text(
             text = "\u2022 ",
             style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.bran,
+            color = ComposeAppTheme.colors.leah,
             modifier = Modifier.width(32.dp),
             textAlign = TextAlign.Center
         )
@@ -96,7 +96,7 @@ private fun BulletedText(@StringRes text: Int) {
         Text(
             text = stringResource(text),
             style = ComposeAppTheme.typography.body,
-            color = ComposeAppTheme.colors.bran,
+            color = ComposeAppTheme.colors.leah,
             modifier = Modifier.padding(end = 32.dp)
         )
     }

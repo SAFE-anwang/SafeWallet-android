@@ -1,146 +1,246 @@
 package io.horizontalsystems.bankwallet.modules.market.topcoins
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.entities.DataState
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.managers.MarketFavoritesManager
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.ViewState
-import io.horizontalsystems.bankwallet.modules.market.*
-import io.horizontalsystems.bankwallet.modules.market.category.MarketItemWrapper
-import io.horizontalsystems.bankwallet.modules.market.topcoins.MarketTopCoinsModule.Menu
-import io.horizontalsystems.bankwallet.ui.compose.Select
-import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.delay
+import io.horizontalsystems.bankwallet.modules.market.MarketItem
+import io.horizontalsystems.bankwallet.modules.market.MarketViewItem
+import io.horizontalsystems.bankwallet.modules.market.SortingField
+import io.horizontalsystems.bankwallet.modules.market.TimeDuration
+import io.horizontalsystems.bankwallet.modules.market.TopMarket
+import io.horizontalsystems.bankwallet.modules.market.favorites.period
+import io.horizontalsystems.bankwallet.modules.market.sort
+import io.horizontalsystems.marketkit.models.MarketInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
+import kotlin.enums.EnumEntries
+import kotlin.math.min
 
 class MarketTopCoinsViewModel(
-    private val service: MarketTopCoinsService,
-    private var marketField: MarketField
-) : ViewModel() {
+    private var topMarket: TopMarket,
+    private var sortingField: SortingField,
+    private val marketKit: MarketKitWrapper,
+    private val currencyManager: CurrencyManager,
+    private val favoritesManager: MarketFavoritesManager,
+) : ViewModelUiState<MarketTopCoinsUiState>() {
 
-    private val disposables = CompositeDisposable()
-    private val marketFields = MarketField.values().toList()
-    private var marketItems: List<MarketItemWrapper> = listOf()
+    private val periods = listOf(
+        TimeDuration.OneDay,
+        TimeDuration.SevenDay,
+        TimeDuration.ThirtyDay,
+        TimeDuration.ThreeMonths,
+    )
+    private val sortingFields = listOf(
+        SortingField.HighestCap,
+        SortingField.LowestCap,
+        SortingField.TopGainers,
+        SortingField.TopLosers,
+    )
+    private val topMarkets = TopMarket.entries
+    private val baseCurrency get() = currencyManager.baseCurrency
 
-    val headerLiveData = MutableLiveData<MarketModule.Header>()
-    val menuLiveData = MutableLiveData<Menu>()
-    val viewItemsLiveData = MutableLiveData<List<MarketViewItem>>()
-    val viewStateLiveData = MutableLiveData<ViewState>(ViewState.Loading)
-    val isRefreshingLiveData = MutableLiveData<Boolean>()
-    val selectorDialogStateLiveData = MutableLiveData<SelectorDialogState>()
+    private var isRefreshing = false
+    private var viewState: ViewState = ViewState.Loading
+    private var viewItems: List<MarketViewItem> = listOf()
+    private var period = periods[0]
+    private var favoriteCoinUids: List<String> = listOf()
+
+    override fun createState() = MarketTopCoinsUiState(
+        isRefreshing = isRefreshing,
+        viewState = viewState,
+        viewItems = viewItems,
+        topMarkets = topMarkets,
+        topMarket = topMarket,
+        sortingFields = sortingFields,
+        sortingField = sortingField,
+        periods = periods,
+        period = period,
+    )
+
+    private var marketInfoList: List<MarketInfo>? = null
+    private var marketItemList: List<MarketItem>? = null
+    private var sortedMarketItems: List<MarketItem>? = null
 
     init {
-        syncHeader()
-        syncMenu()
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                reload()
 
-        service.stateObservable
-            .subscribeIO {
-                syncState(it)
-            }.let {
-                disposables.add(it)
+                viewState = ViewState.Success
+            } catch (e: Throwable) {
+                viewState = ViewState.Error(e)
             }
 
-        service.start()
-    }
-
-    private fun syncState(state: DataState<List<MarketItemWrapper>>) {
-        state.viewState?.let {
-            viewStateLiveData.postValue(it)
+            emitState()
         }
 
-        state.dataOrNull?.let {
-            marketItems = it
+        viewModelScope.launch(Dispatchers.Default) {
+            favoritesManager.dataUpdatedAsync.asFlow().collect {
+                refreshFavoriteCoinUids()
+                refreshViewItems()
 
-            syncMarketViewItems()
-        }
-
-        syncMenu()
-    }
-
-    private fun syncHeader() {
-        headerLiveData.postValue(
-            MarketModule.Header(
-                Translator.getString(R.string.Market_Category_TopCoins),
-                Translator.getString(R.string.Market_Category_TopCoins_Description),
-                ImageSource.Local(R.drawable.ic_top_coins)
-            )
-        )
-    }
-
-    private fun syncMenu() {
-        menuLiveData.postValue(
-            Menu(
-                Select(service.sortingField, service.sortingFields),
-                Select(service.topMarket, service.topMarkets),
-                Select(marketField, marketFields)
-            )
-        )
-    }
-
-    private fun syncMarketViewItems() {
-        viewItemsLiveData.postValue(
-            marketItems.map {
-                MarketViewItem.create(it.marketItem, marketField, it.favorited)
+                emitState()
             }
-        )
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
+            currencyManager.baseCurrencyUpdatedFlow.collect {
+                try {
+                    reload()
+
+                    viewState = ViewState.Success
+                } catch (e: Throwable) {
+                    viewState = ViewState.Error(e)
+                }
+
+                emitState()
+            }
+        }
     }
 
-    private fun refreshWithMinLoadingSpinnerPeriod() {
-        service.refresh()
-        viewModelScope.launch {
-            isRefreshingLiveData.postValue(true)
-            delay(1000)
-            isRefreshingLiveData.postValue(false)
+    private suspend fun reload() {
+        fetchMarketInfoList()
+
+        refreshFavoriteCoinUids()
+        refreshMarketItemList()
+        refreshSortedMarketItems()
+        refreshViewItems()
+    }
+
+    private fun refreshFavoriteCoinUids() {
+        favoriteCoinUids = favoritesManager.getAll().map { it.coinUid }
+    }
+
+    private suspend fun fetchMarketInfoList() {
+        marketInfoList = marketKit.topCoinsMarketInfosSingle(500, baseCurrency.code).await()
+    }
+
+    private fun refreshMarketItemList() {
+        marketItemList = marketInfoList?.map { marketInfo ->
+            MarketItem.createFromCoinMarket(
+                marketInfo,
+                baseCurrency,
+                period.period,
+            )
+        }
+    }
+
+    private fun refreshSortedMarketItems() {
+        sortedMarketItems = marketItemList?.let { list ->
+            list
+                .subList(0, min(list.size, topMarket.value))
+                .sort(sortingField)
+        }
+    }
+
+    private fun refreshViewItems() {
+        sortedMarketItems?.let { list ->
+            viewItems = list.map {
+                MarketViewItem.create(it, favoriteCoinUids.contains(it.fullCoin.coin.uid))
+            }
+        }
+    }
+
+    fun refresh() {
+        isRefreshing = true
+        emitState()
+
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                reload()
+
+                viewState = ViewState.Success
+            } catch (e: Throwable) {
+                viewState = ViewState.Error(e)
+            }
+
+            isRefreshing = false
+            emitState()
+        }
+    }
+
+    fun onAddFavorite(uid: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            favoritesManager.add(uid)
+        }
+    }
+
+    fun onRemoveFavorite(uid: String) {
+        viewModelScope.launch(Dispatchers.Default) {
+            favoritesManager.remove(uid)
         }
     }
 
     fun onSelectSortingField(sortingField: SortingField) {
-        service.setSortingField(sortingField)
-        selectorDialogStateLiveData.postValue(SelectorDialogState.Closed)
+        this.sortingField = sortingField
+        emitState()
+
+        viewModelScope.launch(Dispatchers.Default) {
+            refreshSortedMarketItems()
+            refreshViewItems()
+
+            emitState()
+        }
     }
 
     fun onSelectTopMarket(topMarket: TopMarket) {
-        service.setTopMarket(topMarket)
+        this.topMarket = topMarket
+        emitState()
+
+        viewModelScope.launch(Dispatchers.Default) {
+            refreshSortedMarketItems()
+            refreshViewItems()
+
+            emitState()
+        }
     }
 
-    fun onSelectMarketField(marketField: MarketField) {
-        this.marketField = marketField
+    fun onSelectPeriod(period: TimeDuration) {
+        this.period = period
+        emitState()
 
-        syncMarketViewItems()
-        syncMenu()
+        viewModelScope.launch(Dispatchers.Default) {
+            refreshMarketItemList()
+            refreshSortedMarketItems()
+            refreshViewItems()
+
+            emitState()
+        }
     }
 
-    fun refresh() {
-        refreshWithMinLoadingSpinnerPeriod()
-    }
-
-    fun onErrorClick() {
-        refreshWithMinLoadingSpinnerPeriod()
-    }
-
-    override fun onCleared() {
-        service.stop()
-        disposables.clear()
-    }
-
-    fun onSelectorDialogDismiss() {
-        selectorDialogStateLiveData.postValue(SelectorDialogState.Closed)
-    }
-
-    fun showSelectorMenu() {
-        selectorDialogStateLiveData.postValue(
-            SelectorDialogState.Opened(Select(service.sortingField, service.sortingFields))
-        )
-    }
-
-    fun onAddFavorite(coinUid: String) {
-        service.addFavorite(coinUid)
-    }
-
-    fun onRemoveFavorite(coinUid: String) {
-        service.removeFavorite(coinUid)
+    class Factory(
+        private val topMarket: TopMarket,
+        private val sortingField: SortingField,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return MarketTopCoinsViewModel(
+                topMarket,
+                sortingField,
+                App.marketKit,
+                App.currencyManager,
+                App.marketFavoritesManager
+            ) as T
+        }
     }
 }
+
+data class MarketTopCoinsUiState(
+    val isRefreshing: Boolean,
+    val viewState: ViewState,
+    val viewItems: List<MarketViewItem>,
+    val topMarkets: EnumEntries<TopMarket>,
+    val topMarket: TopMarket,
+    val sortingFields: List<SortingField>,
+    val sortingField: SortingField,
+    val periods: List<TimeDuration>,
+    val period: TimeDuration,
+)

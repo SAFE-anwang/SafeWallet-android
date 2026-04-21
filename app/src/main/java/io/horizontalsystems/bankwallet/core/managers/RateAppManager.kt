@@ -6,11 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import androidx.core.content.ContextCompat
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.IRateAppManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -20,7 +18,7 @@ import java.time.Instant
 
 
 class RateAppManager(
-        private val walletManager: IWalletManager,
+        private val walletManager: WalletManager,
         private val adapterManager: IAdapterManager,
         private val localStorage: ILocalStorage) : IRateAppManager {
 
@@ -41,8 +39,8 @@ class RateAppManager(
 
         for (wallet in walletManager.activeWallets) {
             val adapter = adapterManager.getBalanceAdapterForWallet(wallet)
-            adapter?.let {
-                balance = it.balanceData.available
+            adapter?.balanceData?.available?.let {
+                balance = it
             }
 
             if (balance > BigDecimal.ZERO)
@@ -100,7 +98,7 @@ class RateAppManager(
 
         fun openPlayMarket(context: Context) {
             try {
-                ContextCompat.startActivity(context, getPlayMarketAppIntent(), null)
+                context.startActivity(getPlayMarketAppIntent())
             } catch (e: ActivityNotFoundException) {
                 val appPlayStoreLink =
                     "http://play.google.com/store/apps/details?id=io.horizontalsystems.bankwallet"

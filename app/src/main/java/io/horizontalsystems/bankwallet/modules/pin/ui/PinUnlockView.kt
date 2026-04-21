@@ -7,9 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,20 +30,26 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.pin.unlock.PinUnlockModule
 import io.horizontalsystems.bankwallet.modules.pin.unlock.PinUnlockViewModel
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.headline1_leah
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PinUnlock(
+    showPinLockScreen: Boolean,
     onSuccess: () -> Unit,
 ) {
     val viewModel = viewModel<PinUnlockViewModel>(factory = PinUnlockModule.Factory())
     val uiState = viewModel.uiState
-    var showBiometricPrompt by remember {
-        mutableStateOf(
-            uiState.fingerScannerEnabled && uiState.inputState is PinUnlockModule.InputState.Enabled
-        )
-    }
+
+    var showBiometricPrompt by remember { mutableStateOf(false) }
     var showBiometricDisabledAlert by remember { mutableStateOf(false) }
+    LaunchedEffect(showPinLockScreen, uiState.fingerScannerEnabled, uiState.inputState) {
+        if (showPinLockScreen &&
+            uiState.fingerScannerEnabled &&
+            uiState.inputState is PinUnlockModule.InputState.Enabled) {
+            showBiometricPrompt = true
+        }
+    }
 
     if (uiState.unlocked) {
         onSuccess.invoke()
@@ -59,6 +71,10 @@ fun PinUnlock(
         )
     }
 
+    if (!showPinLockScreen) {
+        return
+    }
+
     if (showBiometricDisabledAlert) {
         BiometricDisabledDialog {
             showBiometricDisabledAlert = false
@@ -67,15 +83,19 @@ fun PinUnlock(
 
     Scaffold(
         backgroundColor = ComposeAppTheme.colors.tyler,
+        modifier = Modifier
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         topBar = {
             Row(
                 modifier = Modifier
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets)
                     .fillMaxWidth()
                     .height(64.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                title3_leah(
+                headline1_leah(
                     text = stringResource(R.string.Unlock_Title),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

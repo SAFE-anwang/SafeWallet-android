@@ -4,24 +4,30 @@ import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.LanguageManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
+import io.horizontalsystems.bankwallet.modules.roi.RoiManager
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 import java.net.URL
 
 class CoinOverviewService(
     val fullCoin: FullCoin,
-    private val apiTag: String,
     private val marketKit: MarketKitWrapper,
     private val currencyManager: CurrencyManager,
     private val appConfigProvider: AppConfigProvider,
-    private val languageManager: LanguageManager
+    private val languageManager: LanguageManager,
+    private val roiManager: RoiManager
 ) {
     val currency get() = currencyManager.baseCurrency
 
+    private var job: Job? = null
     private val coinOverviewSubject = BehaviorSubject.create<DataState<CoinOverviewItem>>()
     val coinOverviewObservable: Observable<DataState<CoinOverviewItem>>
         get() = coinOverviewSubject
@@ -45,29 +51,50 @@ class CoinOverviewService(
     private val guideUrl: String?
         get() = guideUrls[fullCoin.coin.uid]?.let { URL(URL(appConfigProvider.guidesUrl), it).toString() }
 
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     fun start() {
+        coroutineScope.launch {
+            roiManager.dataUpdatedFlow.collect {
+                job?.cancel()
+                fetchCoinOverview()
+            }
+        }
+
         fetchCoinOverview()
     }
 
     private fun fetchCoinOverview() {
-        marketKit.marketInfoOverviewSingle(fullCoin.coin.uid, currencyManager.baseCurrency.code, languageManager.currentLanguage, apiTag)
-            .subscribeIO({ marketInfoOverview ->
-                coinOverviewSubject.onNext(DataState.Success(CoinOverviewItem(fullCoin.coin.code, marketInfoOverview, guideUrl)))
-            }, {
-                coinOverviewSubject.onNext(DataState.Error(it))
-            }).let {
-                disposables.add(it)
+        job = coroutineScope.launch {
+            try {
+                val marketInfoOverview = marketKit.marketInfoOverviewSingle(
+                    fullCoin.coin.uid,
+                    currencyManager.baseCurrency.code,
+                    languageManager.currentLanguage,
+                    roiManager.getSelectedCoins().map { it.uid },
+                    roiManager.getSelectedPeriods()
+                ).await()
+                coinOverviewSubject.onNext(
+                    DataState.Success(
+                        CoinOverviewItem(
+                            fullCoin.coin.code,
+                            marketInfoOverview,
+                            guideUrl
+                        )
+                    )
+                )
+            } catch (e: Throwable) {
+                coinOverviewSubject.onNext(DataState.Error(e))
             }
+        }
     }
 
     fun stop() {
-        disposables.clear()
+        coroutineScope.cancel()
     }
 
     fun refresh() {
-        stop()
+        job?.cancel()
         start()
     }
 }

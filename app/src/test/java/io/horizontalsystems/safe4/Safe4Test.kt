@@ -1,7 +1,6 @@
 package io.horizontalsystems.safe4
 
 import com.anwang.Safe4
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.ethereumkit.models.Chain
 import org.junit.Test
 import org.web3j.protocol.Web3j
@@ -44,7 +43,7 @@ class Safe4Test {
     fun getLockedCount() {
         val web3j = Web3j.build(HttpService("http://172.104.162.94:8545"))
         val web3jSafe4: Safe4 = Safe4(web3j, Chain.SafeFour.id.toLong())
-        val ethBalance = web3jSafe4.getAccount().getTotalAmount(org.web3j.abi.datatypes.Address("0x929455e1fe152709A7D71D4257f10E082d092442"))
+        val ethBalance = web3jSafe4.account.getTotalAmount(org.web3j.abi.datatypes.Address("0x929455e1fe152709A7D71D4257f10E082d092442"))
 
         val balance = ethBalance.amount
         print("lock=$balance")

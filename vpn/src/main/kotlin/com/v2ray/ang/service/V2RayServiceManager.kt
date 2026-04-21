@@ -161,7 +161,7 @@ object V2RayServiceManager {
             v2rayPoint.enableLocalDNS = settingsStorage?.decodeBool(AppConfig.PREF_LOCAL_DNS_ENABLED) ?: false
             v2rayPoint.forwardIpv6 = settingsStorage?.decodeBool(AppConfig.PREF_FORWARD_IPV6) ?: false
             v2rayPoint.proxyOnly = settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" != "VPN"
-
+            showNotification()
             try {
                 v2rayPoint.runLoop()
             } catch (e: Exception) {

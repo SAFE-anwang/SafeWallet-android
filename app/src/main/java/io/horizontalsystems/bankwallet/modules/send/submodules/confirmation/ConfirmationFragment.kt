@@ -247,7 +247,7 @@ private fun SectionTitleCell(title: Int, value: String) {
                 .weight(1f)
                 .padding(start = 8.dp),
             text = value,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey,
             textAlign = TextAlign.End,
             maxLines = 1,
@@ -266,7 +266,7 @@ private fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, locked: B
     ) {
         Text(
             text = fiatAmount ?: "",
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Text(
@@ -274,7 +274,7 @@ private fun ConfirmAmountCell(fiatAmount: String?, coinAmount: String, locked: B
                 .weight(1f)
                 .padding(start = 8.dp),
             text = coinAmount,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.jacob,
             textAlign = TextAlign.End,
             maxLines = 1,
@@ -301,7 +301,7 @@ private fun WsafeCell(title :String, address: String, onClickCopy: (String) -> U
     ) {
         Text(
             text = title,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))
@@ -324,7 +324,7 @@ private fun AddressCell(address: String, onClickCopy: (String) -> Unit) {
     ) {
         Text(
             text = stringResource(R.string.Send_Confirmation_To),
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))
@@ -347,13 +347,13 @@ private fun MemoCell(value: String) {
     ) {
         Text(
             text = stringResource(R.string.Send_Confirmation_HintMemo),
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))
         Text(
             text = value,
-            style = ComposeAppTheme.typography.subheadItalic,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.leah
         )
     }
@@ -369,13 +369,13 @@ private fun ValueCell(title: String, value: String) {
     ) {
         Text(
             text = title,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subhead,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))
         Text(
             text = value,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.leah
         )
     }
@@ -390,13 +390,13 @@ private fun FeeCell(value: String) {
     ) {
         Text(
             text = stringResource(R.string.Send_Fee),
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))
         Text(
             text = value,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
     }
@@ -422,7 +422,7 @@ private fun TransactionSpeedCell(
         Text(
             modifier = Modifier.padding(start = 4.dp),
             text = stringResource(R.string.Send_DialogSpeed),
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.grey
         )
         Spacer(Modifier.weight(1f))

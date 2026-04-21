@@ -120,7 +120,7 @@ class SafeFourProposalInfoViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 nodeService?.vote(voteType)?.blockingGet()
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
                 storage.save(ProposalState(proposalInfo.id, reciverAddress, voteType))
                 voteStatus = voteType
                 isAlreadyVote = true

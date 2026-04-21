@@ -1,12 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.safe4.linelocksafe
 
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -24,8 +22,6 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import org.apache.commons.lang3.StringUtils
 import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 import java.text.SimpleDateFormat
 
 class LineLockSendSafeViewModel(

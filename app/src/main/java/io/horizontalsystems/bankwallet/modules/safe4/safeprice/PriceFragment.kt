@@ -65,6 +65,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemPosition
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
@@ -74,15 +75,12 @@ import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
-import io.horizontalsystems.bankwallet.ui.compose.components.title2_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.title3_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.title3_remus
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.core.helpers.HudHelper
-import io.horizontalsystems.marketkit.models.Token
 import kotlinx.parcelize.Parcelize
 
 class PriceFragment : BaseComposeFragment() {
+    @SuppressLint("ViewModelConstructorInComposable")
     @Composable
     override fun GetContent(navController: NavController) {
         val input = navController.getInput<Wallet>()
@@ -188,8 +186,8 @@ fun LazyListScope.priceList(prices: List<MarketPrice>) {
                             end = 16.dp,
                         )
                     ) {
-                        CoinImage(
-                            iconUrl = item.logoURI,
+                        HsImage(
+                            url = item.logoURI,
                             placeholder = R.drawable.ic_safe_20,
                             modifier = Modifier
                                 .size(32.dp)
@@ -211,7 +209,7 @@ fun LazyListScope.priceList(prices: List<MarketPrice>) {
                                     modifier = Modifier
                                         .padding(start = 8.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(ComposeAppTheme.colors.jeremy)
+                                        .background(ComposeAppTheme.colors.grey)
                                 ) {
                                     androidx.compose.material.Text(
                                         modifier = Modifier.padding(
@@ -220,7 +218,7 @@ fun LazyListScope.priceList(prices: List<MarketPrice>) {
                                             bottom = 1.dp
                                         ),
                                         text = "SRC20",
-                                        color = ComposeAppTheme.colors.bran,
+                                        color = ComposeAppTheme.colors.leah,
                                         style = ComposeAppTheme.typography.microSB,
                                         maxLines = 1,
                                     )
@@ -273,8 +271,8 @@ fun TokenInfo(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CoinImage(
-                iconUrl = customToken.logoURI,
+            HsImage(
+                url = customToken.logoURI,
                 placeholder = R.drawable.ic_safe_20,
                 modifier = Modifier
                     .size(32.dp)

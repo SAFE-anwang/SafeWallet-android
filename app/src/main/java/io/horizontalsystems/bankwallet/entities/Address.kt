@@ -10,20 +10,29 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 open class Address(
-    val hex: String,
-    val domain: String? = null,
-    val blockchainType: BlockchainType? = null,
+    open val hex: String,
+    open val domain: String? = null,
+    open val blockchainType: BlockchainType? = null,
 ) : Parcelable {
     val title: String
         get() = domain ?: hex
 }
 
+@Parcelize
+class MoneroWatchAddress(
+    val address: String,
+    val viewKey: String,
+    val height: Long?
+): Address(address, blockchainType = BlockchainType.Monero)
+
+@Parcelize
 class BitcoinAddress(
-    hex: String,
-    domain: String?,
-    blockchainType: BlockchainType?,
+    override val hex: String,
+    override val domain: String?,
+    override val blockchainType: BlockchainType?,
     val scriptType: ScriptType
 ) : Address(hex, domain, blockchainType)
+
 
 private val ScriptType.derivation: TokenType.Derivation
     get() = when (this.purpose!!) {
@@ -47,17 +56,30 @@ val BitcoinAddress.tokenType: TokenType
         BlockchainType.Zcash,
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
-        BlockchainType.BinanceChain,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
+        BlockchainType.Base,
+        BlockchainType.ZkSync,
         BlockchainType.ArbitrumOne,
         BlockchainType.Solana,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
         BlockchainType.Tron,
         BlockchainType.Ton,
+        BlockchainType.Stellar,
+        BlockchainType.Monero,
         BlockchainType.SafeFour,
         is BlockchainType.Unsupported,
         null -> TokenType.Unsupported("", "")
     }
+
+fun Address?.getEthereumKitAddress(): io.horizontalsystems.ethereumkit.models.Address? {
+    val hex = this?.hex ?: return null
+
+    return try {
+        io.horizontalsystems.ethereumkit.models.Address(hex)
+    } catch (err: Exception) {
+        null
+    }
+}

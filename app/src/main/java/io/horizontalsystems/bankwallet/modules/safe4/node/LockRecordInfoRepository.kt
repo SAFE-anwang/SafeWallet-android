@@ -1,6 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.storage.LockRecordDao
 
 class LockRecordInfoRepository(

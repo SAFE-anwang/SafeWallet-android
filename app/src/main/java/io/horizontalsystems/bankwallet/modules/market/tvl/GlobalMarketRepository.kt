@@ -15,8 +15,7 @@ import io.reactivex.Single
 import java.math.BigDecimal
 
 class GlobalMarketRepository(
-    private val marketKit: MarketKitWrapper,
-    private val apiTag: String
+    private val marketKit: MarketKitWrapper
 ) {
 
     private var cache: List<DefiMarketInfo> = listOf()
@@ -31,9 +30,8 @@ class GlobalMarketRepository(
                 list.map { point ->
                     val value = when (metricsType) {
                         MetricsType.TotalMarketCap -> point.marketCap
-                        MetricsType.BtcDominance -> point.btcDominance
                         MetricsType.Volume24h -> point.volume24h
-                        MetricsType.DefiCap -> point.defiMarketCap
+                        MetricsType.Etf -> point.defiMarketCap
                         MetricsType.TvlInDefi -> point.tvl
                     }
 
@@ -56,44 +54,6 @@ class GlobalMarketRepository(
             }
     }
 
-    fun getMarketItems(
-        currency: Currency,
-        sortDescending: Boolean,
-        metricsType: MetricsType
-    ): Single<List<MarketItem>> {
-        return marketKit.marketInfosSingle(250, currency.code, defi = metricsType == MetricsType.DefiCap, apiTag)
-            .map { coinMarkets ->
-                val marketItems = coinMarkets.map { MarketItem.createFromCoinMarket(it, currency) }
-                val sortingField = when (metricsType) {
-                    MetricsType.Volume24h -> if (sortDescending) SortingField.HighestVolume else SortingField.LowestVolume
-                    else -> if (sortDescending) SortingField.HighestCap else SortingField.LowestCap
-                }
-                marketItems.sort(sortingField)
-            }
-    }
-
-    fun getMarketItems(
-        currency: Currency,
-        sortDescending: Boolean,
-        metricsType: MetricsType,
-        marketField: MarketField
-    ): Single<List<MarketItem>> {
-        return marketKit.marketInfosSingle(250, currency.code, defi = metricsType == MetricsType.DefiCap, apiTag)
-            .map { coinMarkets ->
-                val marketItems = coinMarkets.map { MarketItem.createFromCoinMarket(it, currency) }
-                val sortingField = getSortingField(marketField, sortDescending)
-                marketItems.sort(sortingField)
-            }
-    }
-
-    fun getSortingField(marketField: MarketField, sortDescending: Boolean): SortingField {
-        return when (marketField) {
-            MarketField.MarketCap -> if (sortDescending) SortingField.HighestCap else SortingField.LowestCap
-            MarketField.PriceDiff -> if (sortDescending) SortingField.HighestPrice else SortingField.LowestPrice
-            else -> if (sortDescending) SortingField.HighestVolume else SortingField.LowestVolume
-        }
-    }
-
     fun getMarketTvlItems(
         currency: Currency,
         chain: TvlModule.Chain,
@@ -113,7 +73,7 @@ class GlobalMarketRepository(
 
     private fun defiMarketInfos(currencyCode: String, forceRefresh: Boolean): List<DefiMarketInfo> =
         if (forceRefresh || cache.isEmpty()) {
-            val defiMarketInfo = marketKit.defiMarketInfosSingle(currencyCode, apiTag).blockingGet()
+            val defiMarketInfo = marketKit.defiMarketInfosSingle(currencyCode).blockingGet()
 
             cache = defiMarketInfo
 

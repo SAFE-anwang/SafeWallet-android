@@ -52,7 +52,7 @@ import io.horizontalsystems.marketkit.models.FullCoin
 class LineLockSendFragment : BaseFragment() {
 
     private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
-    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
+    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet) as ISendSafeAdapter }
     private val safeInteractor by lazy { LineLockSendInteractor(safeAdapter) }
     private val safeConvertHandler by lazy { LineLockSendHandler(safeInteractor) }
     private val vmFactory by lazy { SendModule.LineLockFactory2(safeAdapter, safeConvertHandler, safeInteractor) }

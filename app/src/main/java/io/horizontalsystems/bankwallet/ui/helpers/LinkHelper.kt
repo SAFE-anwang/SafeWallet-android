@@ -1,10 +1,13 @@
 package io.horizontalsystems.bankwallet.ui.helpers
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import java.net.MalformedURLException
 import java.net.URL
 
@@ -12,6 +15,25 @@ object LinkHelper {
     fun openLinkInAppBrowser(context: Context, link: String) {
         val urlString = getValidUrl(link) ?: return
 
+        try {
+            openInInternalBrowser(context, urlString)
+        } catch (e: Exception) {
+            // Fallback to standard intent if Custom Tabs fails
+            try {
+                openInExternalBrowser(urlString, context)
+            } catch (e: Exception) {
+                Toast.makeText(App.instance, context.getString(R.string.Error_BrowserNotFound), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun openInExternalBrowser(urlString: String, context: Context) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
+    private fun openInInternalBrowser(context: Context, urlString: String) {
         val builder = CustomTabsIntent.Builder()
 
         val color = context.getColor(R.color.tyler)

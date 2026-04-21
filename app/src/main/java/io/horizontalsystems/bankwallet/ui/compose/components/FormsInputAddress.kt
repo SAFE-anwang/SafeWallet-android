@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +43,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.ChooseContactFragment
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
@@ -52,6 +52,7 @@ fun FormsInputAddress(
     value: String,
     hint: String,
     state: DataState<Address>? = null,
+    showStateIcon: Boolean = true,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
     navController: NavController?,
     chooseContactEnable: Boolean,
@@ -61,15 +62,15 @@ fun FormsInputAddress(
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
-    val borderColor = when (state) {
-        is DataState.Error -> {
-            if (state.error is FormsInputStateWarning) {
-                ComposeAppTheme.colors.yellow50
-            } else {
-                ComposeAppTheme.colors.red50
-            }
-        }
-        else -> ComposeAppTheme.colors.steel20
+    val borderColor = if (state is DataState.Error && state.error is FormsInputStateWarning) {
+        ComposeAppTheme.colors.yellow50
+    } else {
+        ComposeAppTheme.colors.blade
+    }
+
+    val textColor = when (state) {
+        is DataState.Error -> ComposeAppTheme.colors.lucian
+        else -> ComposeAppTheme.colors.leah
     }
 
     val cautionColor = if (state?.errorOrNull is FormsInputStateWarning) {
@@ -83,8 +84,8 @@ fun FormsInputAddress(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 44.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
                 .background(ComposeAppTheme.colors.lawrence),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -101,18 +102,18 @@ fun FormsInputAddress(
                     onValueChange.invoke(text)
                 },
                 textStyle = ColoredTextStyle(
-                    color = ComposeAppTheme.colors.leah,
+                    color = textColor,
                     textStyle = ComposeAppTheme.typography.body
                 ),
                 singleLine = false,
-                cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+                cursorBrush = SolidColor(ComposeAppTheme.colors.leah),
                 decorationBox = { innerTextField ->
                     if (value.isEmpty()) {
                         Text(
                             hint,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1,
-                            color = ComposeAppTheme.colors.grey50,
+                            color = ComposeAppTheme.colors.andy,
                             style = ComposeAppTheme.typography.body
                         )
                     }
@@ -127,20 +128,28 @@ fun FormsInputAddress(
                     HSCircularProgressIndicator()
                 }
                 is DataState.Error -> {
-                    Icon(
-                        modifier = Modifier.padding(end = 8.dp),
-                        painter = painterResource(id = R.drawable.ic_attention_20),
-                        contentDescription = null,
-                        tint = cautionColor
-                    )
+                    if(showStateIcon) {
+                        Icon(
+                            modifier = Modifier.padding(end = 8.dp),
+                            painter = painterResource(id = R.drawable.ic_attention_20),
+                            contentDescription = null,
+                            tint = cautionColor
+                        )
+                    } else {
+                        HSpacer(28.dp)
+                    }
                 }
                 is DataState.Success -> {
-                    Icon(
-                        modifier = Modifier.padding(end = 8.dp),
-                        painter = painterResource(id = R.drawable.ic_check_20),
-                        contentDescription = null,
-                        tint = ComposeAppTheme.colors.remus
-                    )
+                    if(showStateIcon) {
+                        Icon(
+                            modifier = Modifier.padding(end = 8.dp),
+                            painter = painterResource(id = R.drawable.ic_check_20),
+                            contentDescription = null,
+                            tint = ComposeAppTheme.colors.remus
+                        )
+                    } else {
+                        HSpacer(28.dp)
+                    }
                 }
                 else -> {
                     Spacer(modifier = Modifier.width(28.dp))
@@ -192,14 +201,13 @@ fun FormsInputAddress(
                     }
                 )
 
-                val clipboardManager = LocalClipboardManager.current
                 ButtonSecondaryDefault(
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .height(28.dp),
                     title = stringResource(id = R.string.Send_Button_Paste),
                     onClick = {
-                        clipboardManager.getText()?.text?.let { textInClipboard ->
+                        TextHelper.getCopiedText()?.let { textInClipboard ->
                             val textProcessed = textPreprocessor.process(textInClipboard)
                             onValueChange.invoke(textProcessed)
                         }

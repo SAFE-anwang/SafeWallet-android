@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -17,17 +17,16 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Mast
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Node_Lock_Day
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Super_Node_Create_Amount
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Super_Node_Create_Join_Amount
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
 import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourCreateNodeModule
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
 import io.horizontalsystems.bankwallet.modules.safe4.node.confirmation.SafeFourConfirmationModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -61,6 +60,8 @@ class SafeFourCreateNodeViewModel(
     private var existNodeFounder = false
     private var isInputCurrentWalletAddress = false
 
+    var createMasterNodeNum = 0
+
     private val disposables = CompositeDisposable()
 
     init {
@@ -73,6 +74,13 @@ class SafeFourCreateNodeViewModel(
         onEnterAmount(BigDecimal(getLockAmount()))
 
         initIncentive()
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!isSuperNode) {
+                createMasterNodeNum =
+                    rpcBlockchainSafe4.getAddrNum4Creator(isSuperNode, getReceiveAddress())
+                        .blockingGet().toInt()
+            }
+        }
     }
 
     private fun handleUpdatedAmountState(amountState: SendAmountService.State) {
@@ -258,7 +266,7 @@ class SafeFourCreateNodeViewModel(
                 BigDecimal.valueOf(getLockAmount().toLong()).movePointRight(18).toBigInteger(),
                 isUnion,
                 addressState.address!!.hex,
-                BigInteger.valueOf(Node_Lock_Day.toLong()),
+                BigInteger.valueOf((Node_Lock_Day + (createMasterNodeNum + 1) * 30).toLong()),
                 superNodeName,
                 eNode,
                 introduction,

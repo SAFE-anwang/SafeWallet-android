@@ -176,7 +176,7 @@ fun ProposalItemCell(
 									.weight(3f),
 							text = item.title,
 							style = ComposeAppTheme.typography.body,
-							color = ComposeAppTheme.colors.bran,
+							color = ComposeAppTheme.colors.leah,
 							overflow = TextOverflow.Ellipsis,
 							maxLines = 1,
 							fontWeight = FontWeight.Bold

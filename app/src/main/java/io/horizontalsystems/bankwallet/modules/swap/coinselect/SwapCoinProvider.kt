@@ -1,9 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.swap.coinselect
 
 import io.horizontalsystems.bankwallet.core.IAdapterManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
@@ -14,7 +14,7 @@ import java.math.BigDecimal
 
 class SwapCoinProvider(
     private val dex: SwapMainModule.Dex,
-    private val walletManager: IWalletManager,
+    private val walletManager: WalletManager,
     private val adapterManager: IAdapterManager,
     private val currencyManager: CurrencyManager,
     private val marketKit: MarketKitWrapper

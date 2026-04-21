@@ -28,23 +28,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.core.getInputX
 import io.horizontalsystems.bankwallet.core.slideFromBottom
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
-import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.ZCashConfig
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsFragment
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restore.restoreotherwallet.WalletType
 import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
-import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigure
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
@@ -65,6 +63,9 @@ class RestoreBlockchainsFragment : BaseFragment() {
         RestoreBlockchainsModule.Factory(
             input!!.accountName!!,
             input.accountType!!,
+            true,
+            true,
+            StatPage.RestoreSelect,
             true,
             true
         )
@@ -128,26 +129,6 @@ class RestoreBlockchainsFragment : BaseFragment() {
         }
     }
 
-    private fun showBottomSelectorDialog(
-        config: BottomSheetSelectorMultipleDialog.Config,
-        onSelect: (indexes: List<Int>) -> Unit,
-        onCancel: () -> Unit
-    ) {
-        BottomSheetSelectorMultipleDialog.show(
-            fragmentManager = childFragmentManager,
-            title = config.title,
-            icon = config.icon,
-            items = config.viewItems,
-            selected = config.selectedIndexes,
-            onItemSelected = { onSelect(it) },
-            onCancelled = { onCancel() },
-            warningTitle = config.descriptionTitle,
-            warning = config.description,
-            notifyUnchanged = true,
-            allowEmpty = config.allowEmpty
-        )
-    }
-
     companion object {
         const val ACCOUNT_NAME_KEY = "account_name_key"
         const val ACCOUNT_TYPE_KEY = "account_type_key"
@@ -178,25 +159,6 @@ private fun ManageWalletsScreen(
     val coinItems by viewModel.viewItemsLiveData.observeAsState()
     val doneButtonEnabled by viewModel.restoreEnabledLiveData.observeAsState(false)
     val restored = viewModel.restored
-
-    if (restoreSettingsViewModel.openZcashConfigure != null) {
-        restoreSettingsViewModel.zcashConfigureOpened()
-
-        navController.getNavigationResult(ZcashConfigure.resultBundleKey) { bundle ->
-            val requestResult = bundle.getInt(ZcashConfigure.requestResultKey)
-
-            if (requestResult == ZcashConfigure.RESULT_OK) {
-                val zcashConfig = bundle.getParcelable<ZCashConfig>(ZcashConfigure.zcashConfigKey)
-                zcashConfig?.let { config ->
-                    restoreSettingsViewModel.onEnter(config)
-                }
-            } else {
-                restoreSettingsViewModel.onCancelEnterBirthdayHeight()
-            }
-        }
-
-        navController.slideFromBottom(R.id.zcashConfigure)
-    }
 
     LaunchedEffect(restored) {
         if (restored) {

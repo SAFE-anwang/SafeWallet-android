@@ -64,7 +64,7 @@ class SafeSendFragment : BaseFragment() {
 //        requireArguments().getParcelable<Wallet>(WALLET)!!
         input.wallet
     }
-    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
+    private val safeAdapter by lazy { App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet) as ISendSafeAdapter }
     private val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
     private val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
     private val vmFactory by lazy { SendModule.Factory2(safeAdapter, safeConvertHandler, safeInteractor) }

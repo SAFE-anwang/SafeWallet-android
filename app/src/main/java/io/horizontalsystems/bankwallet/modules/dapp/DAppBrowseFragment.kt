@@ -24,8 +24,11 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navGraphViewModels
-import androidx.recyclerview.widget1.LinearLayoutManager
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
+import android.webkit.WebViewClient.ERROR_CONNECT
+import android.webkit.WebViewClient.ERROR_HOST_LOOKUP
+import android.webkit.WebViewClient.ERROR_PROXY_AUTHENTICATION
+import android.webkit.WebViewClient.ERROR_TIMEOUT
 import com.tencent.mmkv.MMKV
 import com.walletconnect.web3.wallet.client.Wallet
 import com.walletconnect.web3.wallet.client.Web3Wallet
@@ -113,11 +116,14 @@ class DAppBrowseFragment: BaseFragment(){
                         is SignEvent.SessionProposal -> {
                             val input = arguments?.getInputX<WCSessionModule.Input>()
                             viewModel = WCSessionViewModel(
-                                    App.wcSessionManager,
-                                    App.connectivityManager,
-                                    App.accountManager.activeAccount,
-                                    input?.sessionTopic,
-                                    App.evmBlockchainManager
+                                App.wcSessionManager,
+                                App.connectivityManager,
+                                App.accountManager.activeAccount,
+                                input?.sessionTopic,
+                                wcManager = App.wcManager,
+                                networkManager = App.networkManager,
+                                appConfigProvider = App.appConfigProvider,
+                                paidActionSettingsManager = App.paidActionSettingsManager
                             )
                             viewModel?.connect()
                         }
@@ -267,12 +273,15 @@ class DAppBrowseFragment: BaseFragment(){
         setting()
     }
 
+    private val maxRetries = 3
+    private var retryCount = 0
+    private var lastFailedUrl: String? = null
     @SuppressLint("SetJavaScriptEnabled")
     private fun setting() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 Log.e("connectWallet", "shouldOverrideUrlLoading: $url")
-                if (url?.contains("requestId") == true) return true
+                if (url?.contains("requestId") == true || url?.startsWith("data:text/html") == true) return true
                 if (url?.contains("/wc?uri=") == true) {
                     val connectLink = url.substring(url.indexOf("wc?uri=") + 7)
                     val decode = URLDecoder.decode(connectLink)
@@ -297,6 +306,55 @@ class DAppBrowseFragment: BaseFragment(){
             ) {
                 Log.d("connectWallet", "onReceivedSslError= $error")
                 handler?.proceed()
+            }
+
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
+                Log.d("connectWallet", "onReceivedError error=${error?.errorCode}, ${error?.description}")
+                // 只处理主框架的错误，不处理 iframe 等子资源
+                if (request?.isForMainFrame == true) {
+                    val errorCode = error?.errorCode
+                    val url = request.url.toString()
+
+                    if (isRetryableError(errorCode) && retryCount < maxRetries) {
+                        retryCount++
+                        lastFailedUrl = url
+
+                        Log.d("WebView", "加载失败，${retryCount}/${maxRetries} 次重试: $url")
+
+                        // 延迟后重试
+                        view?.postDelayed({
+                            view.loadUrl(url)
+                        }, 2000)
+                    } else {
+                        // 超过重试次数或非可重试错误，显示错误页面
+                        retryCount = 0
+                        showErrorPage(view, errorCode ?: -1)
+                    }
+                } else {
+//                    super.onReceivedError(view, request, error)
+                }
+            }
+
+            override fun onReceivedError(
+                view: WebView?,
+                errorCode: Int,
+                description: String?,
+                failingUrl: String?
+            ) {
+
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // 页面加载成功，重置重试计数
+                if (url == lastFailedUrl) {
+                    retryCount = 0
+                    lastFailedUrl = null
+                }
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
@@ -323,6 +381,57 @@ class DAppBrowseFragment: BaseFragment(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webViewSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
+    }
+
+    private fun isRetryableError(errorCode: Int?): Boolean {
+        return errorCode == ERROR_TIMEOUT ||           // ERR_CONNECTION_TIMED_OUT
+                errorCode == ERROR_CONNECT ||           // 连接失败
+                errorCode == ERROR_HOST_LOOKUP ||       // DNS 解析失败
+                errorCode == ERROR_PROXY_AUTHENTICATION // 代理认证
+    }
+
+    private fun showErrorPage(view: WebView?, errorCode: Int) {
+        val html = """
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    text-align: center;
+                    padding: 50px;
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+                h2 {
+                    font-size: 48px;
+                    margin-bottom: 20px;
+                }
+                p {
+                    font-size: 32px;
+                    margin-bottom: 40px;
+                    color: #666;
+                }
+                button {
+                    font-size: 36px;
+                    padding: 16px 48px;
+                    background-color: #007aff;
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                }
+                button:active {
+                    background-color: #0051d5;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>加载失败</h2>
+            <p>错误码: $errorCode</p>
+            <button onclick="location.reload()">点击重试</button>
+        </body>
+        </html>
+    """.trimIndent()
+        view?.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
     }
 
     private fun getSession() {

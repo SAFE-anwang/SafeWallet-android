@@ -5,10 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.Clearable
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.marketkit.models.Token
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import kotlinx.parcelize.Parcelize
 
 class RestoreSettingsViewModel(
@@ -16,21 +17,17 @@ class RestoreSettingsViewModel(
     private val clearables: List<Clearable>
 ) : ViewModel() {
 
-    var openZcashConfigure by mutableStateOf<Token?>(null)
+    var openBirthdayHeightConfig by mutableStateOf<Token?>(null)
         private set
-
-    private var disposables = CompositeDisposable()
 
     private var currentRequest: RestoreSettingsService.Request? = null
 
     init {
-        service.requestObservable
-                .subscribeIO {
-                    handleRequest(it)
-                }
-                .let {
-                    disposables.add(it)
-                }
+        viewModelScope.launch {
+            service.requestObservable.asFlow().collect {
+                handleRequest(it)
+            }
+        }
     }
 
     private fun handleRequest(request: RestoreSettingsService.Request) {
@@ -38,17 +35,17 @@ class RestoreSettingsViewModel(
 
         when (request.requestType) {
             RestoreSettingsService.RequestType.BirthdayHeight -> {
-                openZcashConfigure = request.token
+                openBirthdayHeightConfig = request.token
             }
         }
     }
 
-    fun onEnter(zcashConfig: ZCashConfig) {
+    fun onEnter(config: BirthdayHeightConfig) {
         val request = currentRequest ?: return
 
         when (request.requestType) {
             RestoreSettingsService.RequestType.BirthdayHeight -> {
-                service.enter(zcashConfig, request.token)
+                service.enter(config, request.token)
             }
         }
     }
@@ -61,13 +58,12 @@ class RestoreSettingsViewModel(
 
     override fun onCleared() {
         clearables.forEach(Clearable::clear)
-        disposables.clear()
     }
 
-    fun zcashConfigureOpened() {
-        openZcashConfigure = null
+    fun birthdayHeightConfigOpened() {
+        openBirthdayHeightConfig = null
     }
 }
 
 @Parcelize
-data class ZCashConfig(val birthdayHeight: String?, val restoreAsNew: Boolean) : Parcelable
+data class BirthdayHeightConfig(val birthdayHeight: String?, val restoreAsNew: Boolean) : Parcelable

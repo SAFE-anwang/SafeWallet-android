@@ -1,43 +1,21 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
-import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
-import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.HSCaution
-import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
-import io.horizontalsystems.bankwallet.core.adapters.BaseEvmAdapter
-import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
-import io.horizontalsystems.bankwallet.modules.safe4.node.CreateViewItem
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.Node_Lock_Day
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory.createCaution
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeInfo
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeViewItem
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourLockedVoteService
-import io.horizontalsystems.bankwallet.modules.safe4.node.vote.SafeFourVoteModule
 import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
-import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
-import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
-import java.math.BigInteger
 
 class SafeFourNodeEditViewModel(
         val wallet: Wallet,
@@ -199,7 +177,7 @@ class SafeFourNodeEditViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 safe4.changeName(privateKey, nodeAddress, inputNodeName)
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent(null)
                 nameUpdateSuccess = true
                 emitState()
             } catch (e: Exception) {
@@ -213,7 +191,7 @@ class SafeFourNodeEditViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 safe4.changeAddress(isSuper, privateKey, nodeAddress, addressState.address!!.hex)
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent(null)
                 addressUpdateSuccess = true
                 emitState()
             } catch (e: Exception) {
@@ -227,7 +205,7 @@ class SafeFourNodeEditViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 safe4.changeEnode(isSuper, privateKey, nodeAddress, inputNodeEnode)
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent(null)
                 enodeUpdateSuccess = true
                 emitState()
             } catch (e: Exception) {
@@ -241,7 +219,7 @@ class SafeFourNodeEditViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 safe4.changeDescription(isSuper, privateKey, nodeAddress, inputNodeDesc)
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent(null)
                 descUpdateSuccess = true
                 emitState()
             } catch (e: Exception) {
@@ -256,7 +234,7 @@ class SafeFourNodeEditViewModel(
             try {
                 safe4.changeIncentive(privateKey, nodeId.toBigInteger(),
                     inputCreatorIncentive.toBigInteger(), inputPartnerIncentive.toBigInteger(), inputVoterIncentive.toBigInteger())
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent(null)
                 incentiveUpdateSuccess = true
                 emitState()
             } catch (e: Exception) {

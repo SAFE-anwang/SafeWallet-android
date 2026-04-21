@@ -1,8 +1,13 @@
 package io.horizontalsystems.bankwallet.modules.multiswap
 
 import android.util.Log
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.AllBridgeProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.MayaProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.OneInchProvider
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.ThorChainProvider
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.UProvider
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.USwapProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.PancakeSwapProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.PancakeSwapV3Provider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.QuickSwapProvider
@@ -26,13 +31,18 @@ import java.math.BigDecimal
 class SwapQuoteService {
     private val allProviders = listOf(
         OneInchProvider,
-        PancakeSwapProvider,
+        ThorChainProvider,
+        MayaProvider,
+        AllBridgeProvider,
+        USwapProvider(UProvider.Near),
+        USwapProvider(UProvider.QuickEx),
+        USwapProvider(UProvider.LetsExchange),
+        USwapProvider(UProvider.StealthEx),
+        USwapProvider(UProvider.Swapuz),
         PancakeSwapV3Provider,
-        QuickSwapProvider,
-        UniswapProvider,
         UniswapV3Provider,
-        UniswapV3Provider,
-        SafeSwapProvider
+        USwapProvider(UProvider.Swapuz),
+        SafeSwapProvider,
     )
 
     private var amountIn: BigDecimal? = null
@@ -60,7 +70,28 @@ class SwapQuoteService {
 
     private var coroutineScope = CoroutineScope(Dispatchers.Default)
     private var quotingJob: Job? = null
-    private var settings: Map<String, Any?> = mapOf()
+
+    fun start() {
+        coroutineScope.launch {
+            startProviders()
+
+            runQuotation(silent = true)
+        }
+    }
+
+    private suspend fun startProviders() = coroutineScope {
+        allProviders
+            .map {
+                async {
+                    try {
+                        it.start()
+                    } catch (e: Throwable) {
+                        Log.d("AAA", "error on starting ${it.id}, $e", e)
+                    }
+                }
+            }
+            .awaitAll()
+    }
 
     private fun emitState() {
         _stateFlow.update {
@@ -77,14 +108,16 @@ class SwapQuoteService {
         }
     }
 
-    private fun runQuotation() {
+    private fun runQuotation(silent: Boolean = false) {
         quotingJob?.cancel()
         quoting = false
         quotes = listOf()
         quote = null
         error = null
 
-        emitState()
+        if (!silent) {
+            emitState()
+        }
 
         val tokenIn = tokenIn
         val tokenOut = tokenOut
@@ -97,8 +130,10 @@ class SwapQuoteService {
                 error = NoSupportedSwapProvider()
                 emitState()
             } else if (amountIn != null && amountIn > BigDecimal.ZERO) {
-                quoting = true
-                emitState()
+                if (!silent) {
+                    quoting = true
+                    emitState()
+                }
 
                 quotingJob = coroutineScope.launch {
                     quotes = fetchQuotes(supportedProviders, tokenIn, tokenOut, amountIn)
@@ -133,7 +168,7 @@ class SwapQuoteService {
                 async {
                     try {
                         withTimeout(5000) {
-                            val quote = provider.fetchQuote(tokenIn, tokenOut, amountIn, settings)
+                            val quote = provider.fetchQuote(tokenIn, tokenOut, amountIn)
                             SwapProviderQuote(provider = provider, swapQuote = quote)
                         }
                     } catch (e: Throwable) {
@@ -199,13 +234,7 @@ class SwapQuoteService {
     }
 
     fun reQuote() {
-        runQuotation()
-    }
-
-    fun setSwapSettings(settings: Map<String, Any?>) {
-        this.settings = settings
-
-        runQuotation()
+        runQuotation(silent = true)
     }
 
     fun onActionStarted() {
@@ -213,10 +242,8 @@ class SwapQuoteService {
     }
 
     fun onActionCompleted() {
-        reQuote()
+        runQuotation()
     }
-
-    fun getSwapSettings() = settings
 
     fun getTokenIn() = tokenIn
     fun getTokenOut() = tokenOut

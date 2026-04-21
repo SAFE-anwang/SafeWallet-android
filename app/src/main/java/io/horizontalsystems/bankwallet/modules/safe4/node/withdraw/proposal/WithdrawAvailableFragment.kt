@@ -78,7 +78,7 @@ fun WithdrawVoteScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                 view,
                 R.string.SAFE4_Withdraw_Send_Success,

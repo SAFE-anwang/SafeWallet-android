@@ -6,16 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class BlockchainSettingsViewModel(
     private val service: BlockchainSettingsService
 ) : ViewModel() {
-
-    private var disposables: CompositeDisposable = CompositeDisposable()
 
     var btcLikeChains by mutableStateOf<List<BlockchainSettingsModule.BlockchainViewItem>>(listOf())
         private set
@@ -24,12 +22,11 @@ class BlockchainSettingsViewModel(
         private set
 
     init {
-        service.blockchainItemsObservable
-            .subscribeIO {
+        viewModelScope.launch {
+            service.blockchainItemsObservable.asFlow().collect {
                 sync(it)
-            }.let {
-                disposables.add(it)
             }
+        }
 
         service.start()
         sync(service.blockchainItems)
@@ -37,21 +34,31 @@ class BlockchainSettingsViewModel(
 
     override fun onCleared() {
         service.stop()
-        disposables.clear()
     }
 
     private fun sync(blockchainItems: List<BlockchainSettingsModule.BlockchainItem>) {
         viewModelScope.launch {
-            btcLikeChains = blockchainItems
+            val btcItems = blockchainItems
                 .filterIsInstance<BlockchainSettingsModule.BlockchainItem.Btc>()
                 .map { item ->
                     BlockchainSettingsModule.BlockchainViewItem(
-                        title = item.blockchain.name,
+                        title = item.blockchain.coinName,
                         subtitle = Translator.getString(item.restoreMode.title),
                         imageUrl = item.blockchain.type.imageUrl,
                         blockchainItem = item
                     )
                 }
+            val moneroItems = blockchainItems
+                .filterIsInstance<BlockchainSettingsModule.BlockchainItem.Monero>()
+                .map { item ->
+                    BlockchainSettingsModule.BlockchainViewItem(
+                        title = item.blockchain.name,
+                        subtitle = item.node.name,
+                        imageUrl = item.blockchain.type.imageUrl,
+                        blockchainItem = item
+                    )
+                }
+            btcLikeChains = (btcItems + moneroItems).sortedBy { it.blockchainItem.blockchain.type.order }
 
             otherChains = blockchainItems
                 .filterNot { it is BlockchainSettingsModule.BlockchainItem.Btc }

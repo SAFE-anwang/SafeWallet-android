@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.send.submodules.hodler
 
 import androidx.lifecycle.ViewModel
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bitcoincore.core.IPluginData
 import io.horizontalsystems.hodler.HodlerData
 import io.horizontalsystems.hodler.HodlerPlugin

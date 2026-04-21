@@ -6,6 +6,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.isNative
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
@@ -33,8 +34,8 @@ class SafeFourCreateNodeModule {
 					adapter.balanceData.available.setScale(coinMaxAllowedDecimals, RoundingMode.DOWN),
 					wallet.token.type.isNative
 			)
-			val addressService = SendEvmAddressService(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
-
+			val addressService = SendEvmAddressService()
+			addressService.setAddress(Address(adapter.evmKitWrapper.evmKit.receiveAddress.hex))
 			val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 
 			return SafeFourCreateNodeViewModel(wallet, isSuperNode, amountService, addressService, adapter.evmKitWrapper.evmKit, coinMaxAllowedDecimals, xRateService, rpcBlockchainSafe4) as T

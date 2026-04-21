@@ -6,19 +6,22 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.core.composablePopup
 import io.horizontalsystems.bankwallet.core.getInput
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.ManageWalletsScreen
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.RestoreMenuModule
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremenu.RestoreMenuViewModel
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.RestorePhrase
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonicnonstandard.RestorePhraseNonStandard
-import io.horizontalsystems.bankwallet.modules.zcashconfigure.ZcashConfigureScreen
+import io.horizontalsystems.bankwallet.modules.restoreconfig.RestoreBirthdayHeightScreen
+import io.horizontalsystems.marketkit.models.BlockchainType
 
 class RestoreAccountFragment : BaseComposeFragment(screenshotEnabled = false) {
 
@@ -50,7 +53,8 @@ private fun RestoreAccountNavHost(
     isSafe3Wallet: Boolean
 ) {
     val navController = rememberNavController()
-    val restoreMenuViewModel: RestoreMenuViewModel = viewModel(factory = RestoreMenuModule.Factory())
+    val restoreMenuViewModel: RestoreMenuViewModel =
+        viewModel(factory = RestoreMenuModule.Factory())
     val mainViewModel: RestoreViewModel = viewModel()
     NavHost(
         navController = navController,
@@ -76,14 +80,27 @@ private fun RestoreAccountNavHost(
                 isAnBaoWallet = isAnBaoWallet,
                 isSafe3Wallet = isSafe3Wallet,
                 openSelectCoinsScreen = { navController.navigate("restore_select_coins") },
-                openNonStandardRestore = { navController.navigate("restore_phrase_nonstandard") },
+                openNonStandardRestore = {
+                    navController.navigate("restore_phrase_nonstandard")
+
+                    stat(
+                        page = StatPage.ImportWalletFromKeyAdvanced,
+                        event = StatEvent.Open(StatPage.ImportWalletNonStandard)
+                    )
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }
         composablePage("restore_select_coins") {
             ManageWalletsScreen(
                 mainViewModel = mainViewModel,
-                openZCashConfigure = { navController.navigate("zcash_configure") },
+                openBirthdayHeightConfigure = { token ->
+                    when (token.blockchainType) {
+                        BlockchainType.Zcash -> navController.navigate("zcash_configure")
+                        BlockchainType.Monero -> navController.navigate("monero_configure")
+                        else -> Unit
+                    }
+                },
                 onBackClick = { navController.popBackStack() }
             ) { fragmentNavController.popBackStack(popUpToInclusiveId, inclusive) }
         }
@@ -94,14 +111,28 @@ private fun RestoreAccountNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
-        composablePopup("zcash_configure") {
-            ZcashConfigureScreen(
+        composablePage("zcash_configure") {
+            RestoreBirthdayHeightScreen(
+                blockchainType = BlockchainType.Zcash,
                 onCloseWithResult = { config ->
-                    mainViewModel.setZCashConfig(config)
+                    mainViewModel.setBirthdayHeightConfig(config)
                     navController.popBackStack()
                 },
                 onCloseClick = {
-                    mainViewModel.cancelZCashConfig = true
+                    mainViewModel.cancelBirthdayHeightConfig = true
+                    navController.popBackStack()
+                }
+            )
+        }
+        composablePage("monero_configure") {
+            RestoreBirthdayHeightScreen(
+                blockchainType = BlockchainType.Monero,
+                onCloseWithResult = { config ->
+                    mainViewModel.setBirthdayHeightConfig(config)
+                    navController.popBackStack()
+                },
+                onCloseClick = {
+                    mainViewModel.cancelBirthdayHeightConfig = true
                     navController.popBackStack()
                 }
             )

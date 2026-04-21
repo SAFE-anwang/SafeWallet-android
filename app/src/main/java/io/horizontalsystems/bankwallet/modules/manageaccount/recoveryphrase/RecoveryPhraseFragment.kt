@@ -1,9 +1,17 @@
 package io.horizontalsystems.bankwallet.modules.manageaccount.recoveryphrase
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -13,16 +21,21 @@ import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
-import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.manageaccount.ui.ActionButton
 import io.horizontalsystems.bankwallet.modules.manageaccount.ui.ConfirmCopyBottomSheet
 import io.horizontalsystems.bankwallet.modules.manageaccount.ui.PassphraseCell
 import io.horizontalsystems.bankwallet.modules.manageaccount.ui.SeedPhraseList
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
+import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.launch
 
@@ -30,89 +43,92 @@ class RecoveryPhraseFragment : BaseComposeFragment(screenshotEnabled = false) {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        RecoveryPhraseScreen(
-            navController = navController,
-            account = navController.requireInput()
-        )
+        withInput<Account>(navController) { input ->
+            RecoveryPhraseScreen(navController, input)
+        }
     }
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecoveryPhraseScreen(
     navController: NavController,
     account: Account,
 ) {
-    val viewModel = viewModel<RecoveryPhraseViewModel>(factory = RecoveryPhraseModule.Factory(account))
+    val viewModel =
+        viewModel<RecoveryPhraseViewModel>(factory = RecoveryPhraseModule.Factory(account))
 
     val view = LocalView.current
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-    )
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
 
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetBackgroundColor = ComposeAppTheme.colors.transparent,
-        sheetContent = {
-            ConfirmCopyBottomSheet(
-                onConfirm = {
-                    coroutineScope.launch {
-                        TextHelper.copyText(viewModel.words.joinToString(" "))
-                        HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-                        sheetState.hide()
-                    }
-                },
-                onCancel = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                    }
+    HSScaffold(
+        title = stringResource(R.string.RecoveryPhrase_Title),
+        onBack = navController::popBackStack,
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Info_Title),
+                icon = R.drawable.ic_info_24,
+                onClick = {
+                    FaqManager.showFaqPage(navController, FaqManager.faqPathPrivateKeys)
+                    stat(
+                        page = StatPage.RecoveryPhrase,
+                        event = StatEvent.Open(StatPage.Info)
+                    )
                 }
             )
-        }
+        )
     ) {
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = stringResource(R.string.RecoveryPhrase_Title),
-                navigationIcon = {
-                    HsBackButton(onClick = navController::popBackStack)
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.Info_Title),
-                        icon = R.drawable.ic_info_24,
-                        onClick = {
-                            FaqManager.showFaqPage(navController, FaqManager.faqPathPrivateKeys)
-                        }
-                    )
-                )
-            )
-
+        Column {
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top
             ) {
-                Spacer(Modifier.height(12.dp))
+                VSpacer(12.dp)
                 TextImportantWarning(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     text = stringResource(R.string.RecoveryPhrase_NeverShareWarning)
                 )
-                Spacer(Modifier.height(24.dp))
+                VSpacer(24.dp)
                 var hidden by remember { mutableStateOf(true) }
                 SeedPhraseList(viewModel.wordsNumbered, hidden) {
                     hidden = !hidden
+                    stat(page = StatPage.RecoveryPhrase, event = StatEvent.ToggleHidden)
                 }
-                Spacer(Modifier.height(24.dp))
+                VSpacer(24.dp)
                 PassphraseCell(viewModel.passphrase, hidden)
             }
             ActionButton(R.string.Alert_Copy) {
-                coroutineScope.launch {
-                    sheetState.show()
-                }
+                showBottomSheet = true
             }
+        }
+        if (showBottomSheet) {
+            ConfirmCopyBottomSheet(
+                sheetState = sheetState,
+                onConfirm = {
+                    scope.launch {
+                        sheetState.hide()
+                        showBottomSheet = false
+                    }
+
+                    TextHelper.copyText(viewModel.words.joinToString(" "))
+                    HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+
+                    stat(
+                        page = StatPage.RecoveryPhrase,
+                        event = StatEvent.Copy(StatEntity.RecoveryPhrase)
+                    )
+                },
+                onDismiss = {
+                    scope.launch {
+                        sheetState.hide()
+                        showBottomSheet = false
+                    }
+                }
+            )
         }
     }
 }

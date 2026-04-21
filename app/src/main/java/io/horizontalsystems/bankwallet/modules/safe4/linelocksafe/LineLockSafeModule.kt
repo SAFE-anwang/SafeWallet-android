@@ -6,30 +6,20 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
 import io.horizontalsystems.bankwallet.core.isNative
+import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
 import io.horizontalsystems.bankwallet.modules.amount.SendAmountService
-import io.horizontalsystems.bankwallet.modules.balance.BalanceAdapterRepository
-import io.horizontalsystems.bankwallet.modules.balance.BalanceCache
-import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItemFactory
-import io.horizontalsystems.bankwallet.modules.balance.BalanceXRateRepository
-import io.horizontalsystems.bankwallet.modules.balance.token.TokenBalanceService
-import io.horizontalsystems.bankwallet.modules.balance.token.TokenBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.balance.token.TokenTransactionsService
 import io.horizontalsystems.bankwallet.modules.safe4.linelocksafe.lockinfo.LineLockInfoViewModel
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeType
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeService
-import io.horizontalsystems.bankwallet.modules.safe4.node.SafeFourNodeViewModel
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmAddressService
 import io.horizontalsystems.bankwallet.modules.transactions.NftMetadataService
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionRecordRepository
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSyncStateRepository
-import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItem
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionViewItemFactory
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsRateRepository
 import io.horizontalsystems.bankwallet.modules.xrate.XRateService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
-import io.horizontalsystems.ethereumkit.models.Address
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -50,7 +40,8 @@ object LineLockSafeModule {
                 wallet.token.type.isNative
             )
             val xRateService = XRateService(App.marketKit, App.currencyManager.baseCurrency)
-            val addressService = SendEvmAddressService(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
+            val addressService = SendEvmAddressService()
+            addressService.setAddress(Address(adapter.evmKitWrapper.evmKit.receiveAddress.hex))
             val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
 
             return LineLockSendSafeViewModel(
@@ -78,13 +69,14 @@ object LineLockSafeModule {
                 TransactionSyncStateRepository(App.transactionAdapterManager),
                 App.contactsRepository,
                 NftMetadataService(App.nftMetadataManager),
-                App.spamManager
+                App.spamManager,
+                App.transactionAdapterManager
             )
 
             return LineLockInfoViewModel(
                 wallet,
                 tokenTransactionsService,
-                TransactionViewItemFactory(App.evmLabelManager, App.contactsRepository, App.balanceHiddenManager),
+                TransactionViewItemFactory(App.evmLabelManager, App.contactsRepository, App.balanceHiddenManager, App.localStorage),
             ) as T
         }
     }

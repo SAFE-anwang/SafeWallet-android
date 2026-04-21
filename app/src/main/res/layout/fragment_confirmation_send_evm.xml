@@ -15,7 +15,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/Send_Confirmation_Title"
-        app:titleTextAppearance="@style/Title3" />
+        app:titleTextAppearance="@style/Title3"
+        android:layout_marginTop="24dp"/>
 
     <!--<io.horizontalsystems.bankwallet.modules.swap.liquidity.send.SendEvmTransactionView
         android:id="@+id/sendEvmTransactionView"
@@ -31,11 +32,10 @@
         android:id="@+id/sendEvmTransactionView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="?attr/actionBarSize"
         app:layout_constraintBottom_toTopOf="@id/buttonSendCompose"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <View
         android:layout_width="0dp"

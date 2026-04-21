@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.ui.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -11,18 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HSSwipeRefresh(
     refreshing: Boolean,
+    modifier: Modifier = Modifier,
+    topPadding: Int = 0,
     onRefresh: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
@@ -30,8 +34,10 @@ fun HSSwipeRefresh(
         PullRefreshIndicator(
             refreshing = refreshing,
             state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter),
-            backgroundColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.lawrence else ComposeAppTheme.colors.claude,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(topPadding.dp),
+            backgroundColor = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.lawrence else ComposeAppTheme.colors.blade,
             contentColor = ComposeAppTheme.colors.leah,
             scale = true
         )

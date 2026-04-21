@@ -108,12 +108,13 @@ private fun SectionView(viewItems: List<ViewItem>, navController: NavController)
         when (item) {
             is ViewItem.Subhead -> Subhead(item)
             is ViewItem.Value -> TitleValue(item)
-            is ViewItem.ValueMulti -> TitleValueMulti(item)
+//            is ViewItem.ValueMulti -> TitleValueMulti(item)
             is ViewItem.AmountMulti -> AmountMulti(item)
             is ViewItem.Amount -> Amount(item)
             is ViewItem.NftAmount -> NftAmount(item)
-            is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.value, item.showAdd, item.blockchainType, navController)
-            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
+            // TODO::
+            is ViewItem.Address -> TransactionInfoAddressCell(item.title, item.address, false, null)
+//            is ViewItem.ContactItem -> TransactionInfoContactCell(item.contact.name)
             is ViewItem.Input -> TitleValueHex("Input", item.value.shorten(), item.value)
             is ViewItem.TokenItem -> Token(item)
             else -> null
@@ -156,12 +157,13 @@ private fun TitleValue(item: ViewItem.Value) {
         Text(
             text = item.value,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = setColorByType(item.type)
         )
     }
 }
 
+/*
 @Composable
 private fun TitleValueMulti(item: ViewItem.ValueMulti) {
     RowUniversal(
@@ -186,7 +188,7 @@ private fun TitleValueMulti(item: ViewItem.ValueMulti) {
             )
         }
     }
-}
+}*/
 
 @Composable
 private fun AmountMulti(item: ViewItem.AmountMulti) {
@@ -209,7 +211,7 @@ private fun AmountMulti(item: ViewItem.AmountMulti) {
                 Text(
                     text = item.amounts[0].coinAmount,
                     maxLines = 1,
-                    style = ComposeAppTheme.typography.subhead1,
+                    style = ComposeAppTheme.typography.subheadB,
                     color = setColorByType(item.type)
                 )
                 Spacer(Modifier.weight(1f))
@@ -248,7 +250,7 @@ private fun Amount(item: ViewItem.Amount) {
         Text(
             text = item.coinAmount,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = setColorByType(item.type)
         )
         Spacer(Modifier.weight(1f))
@@ -270,7 +272,7 @@ private fun NftAmount(item: ViewItem.NftAmount) {
         Text(
             text = item.amount,
             maxLines = 1,
-            style = ComposeAppTheme.typography.subhead2,
+            style = ComposeAppTheme.typography.subheadB,
             color = setColorByType(item.type)
         )
     }
@@ -318,7 +320,7 @@ private fun TitleValueHex(
 @Composable
 private fun setColorByType(type: ValueType) =
     when (type) {
-        ValueType.Regular -> ComposeAppTheme.colors.bran
+        ValueType.Regular -> ComposeAppTheme.colors.lawrence
         ValueType.Disabled -> ComposeAppTheme.colors.grey
         ValueType.Outgoing -> ComposeAppTheme.colors.leah
         ValueType.Incoming -> ComposeAppTheme.colors.remus

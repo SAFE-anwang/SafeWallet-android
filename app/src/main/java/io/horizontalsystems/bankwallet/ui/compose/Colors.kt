@@ -15,15 +15,12 @@ class Colors(
     remus: Color,
     lucian: Color,
     tyler: Color,
-    bran: Color,
     leah: Color,
-    claude: Color,
     lawrence: Color,
-    jeremy: Color,
     laguna: Color,
-    purple: Color,
     raina: Color,
     andy: Color,
+    blade: Color,
 ) {
 
     //base colors
@@ -42,6 +39,7 @@ class Colors(
     val grey50 = Grey50
     val yellow50 = Yellow50
     val yellow20 = Yellow20
+    val green20 = Green20
 
     val yellowD = YellowD
     val yellowL = YellowL
@@ -65,23 +63,17 @@ class Colors(
         private set
     var tyler by mutableStateOf(tyler)
         private set
-    var bran by mutableStateOf(bran)
-        private set
     var leah by mutableStateOf(leah)
-        private set
-    var claude by mutableStateOf(claude)
         private set
     var lawrence by mutableStateOf(lawrence)
         private set
-    var jeremy by mutableStateOf(jeremy)
-        private set
     var laguna by mutableStateOf(laguna)
-        private set
-    var purple by mutableStateOf(purple)
         private set
     var raina by mutableStateOf(raina)
         private set
     var andy by mutableStateOf(andy)
+        private set
+    var blade by mutableStateOf(blade)
         private set
 
     fun update(other: Colors) {
@@ -89,15 +81,12 @@ class Colors(
         remus = other.remus
         lucian = other.lucian
         tyler = other.tyler
-        bran = other.bran
         leah = other.leah
-        claude = other.claude
         lawrence = other.lawrence
-        jeremy = other.jeremy
         laguna = other.laguna
-        purple = other.purple
         raina = other.raina
         andy = other.andy
+        blade = other.blade
     }
 
     fun copy(): Colors = Colors(
@@ -105,14 +94,11 @@ class Colors(
         remus = remus,
         lucian = lucian,
         tyler = tyler,
-        bran = bran,
         leah = leah,
-        claude = claude,
         lawrence = lawrence,
-        jeremy = jeremy,
         laguna = laguna,
-        purple = purple,
         raina = raina,
         andy = andy,
+        blade = blade,
     )
 }

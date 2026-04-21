@@ -127,7 +127,7 @@ private fun EmptyScreen(viewModel: DAppSearchViewModel) {
                                 } else {
                                     ListEmptyView(
                                         text = stringResource(R.string.DApp_Search_no_data),
-                                        icon = R.drawable.ic_image_empty
+                                        icon = R.drawable.ic_no_data
                                     )
                                 }
                             }

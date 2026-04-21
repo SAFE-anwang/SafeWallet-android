@@ -3,6 +3,7 @@ package io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchain
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.enablecoin.blockchaintokens.BlockchainTokensService
 import io.horizontalsystems.bankwallet.modules.enablecoin.blockchaintokens.BlockchainTokensViewModel
@@ -20,12 +21,13 @@ object RestoreBlockchainsModule {
         private val accountType: AccountType,
         private val manualBackup: Boolean,
         private val fileBackup: Boolean,
+        private val statPage: StatPage,
         private val isAnBaoWallet: Boolean = false,
         private val isSafe3Wallet: Boolean = false,
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
-            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
+            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider, App.moneroBirthdayProvider)
         }
         private val blockchainTokensService by lazy {
             BlockchainTokensService()
@@ -45,7 +47,8 @@ object RestoreBlockchainsModule {
                 App.marketKit,
                 App.tokenAutoEnableManager,
                 blockchainTokensService,
-                restoreSettingsService
+                restoreSettingsService,
+                statPage
             )
         }
 
@@ -78,7 +81,7 @@ object RestoreBlockchainsModule {
     ) : ViewModelProvider.Factory {
 
         private val restoreSettingsService by lazy {
-            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider)
+            RestoreSettingsService(App.restoreSettingsManager, App.zcashBirthdayProvider, App.moneroBirthdayProvider)
         }
         private val blockchainTokensService by lazy {
             BlockchainTokensService()

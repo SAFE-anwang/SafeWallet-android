@@ -34,7 +34,6 @@ class AddressViewModel(
     private val contactUid: String?,
     private val contactsRepository: ContactsRepository,
     private val addressHandlerFactory: AddressHandlerFactory,
-    evmBlockchainManager: EvmBlockchainManager,
     marketKit: MarketKitWrapper,
     contactAddress: ContactAddress?,
     definedAddresses: List<ContactAddress>?
@@ -61,10 +60,10 @@ class AddressViewModel(
                 BlockchainType.Dogecoin,
                 BlockchainType.Zcash,
                 BlockchainType.Solana,
-                BlockchainType.BinanceChain,
                 BlockchainType.ECash,
                 BlockchainType.Tron,
                 BlockchainType.Ton,
+                BlockchainType.Stellar,
             )
             val definedBlockchainTypes = definedAddresses?.map { it.blockchain.type } ?: listOf()
             val availableBlockchainUids =

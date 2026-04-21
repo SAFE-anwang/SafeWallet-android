@@ -10,7 +10,7 @@ import io.horizontalsystems.bankwallet.modules.fee.FeeItem
 import kotlinx.coroutines.launch
 
 class EvmFeeCellViewModel(
-    val feeService: IEvmFeeService,
+    val feeService: EvmFeeService,
     val gasPriceService: IEvmGasPriceService,
     val coinService: EvmCoinService
 ) : ViewModel() {
@@ -24,6 +24,7 @@ class EvmFeeCellViewModel(
                 syncTransactionStatus(it)
             }
         }
+        feeService.start()
     }
 
     private fun syncTransactionStatus(transactionStatus: DataState<Transaction>) {

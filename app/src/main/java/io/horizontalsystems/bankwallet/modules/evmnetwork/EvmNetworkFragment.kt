@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -44,7 +42,9 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePopup
 import io.horizontalsystems.bankwallet.core.imageUrl
-import io.horizontalsystems.bankwallet.core.requireInput
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.EvmSyncSource
 import io.horizontalsystems.bankwallet.modules.btcblockchainsettings.BlockchainSettingCell
 import io.horizontalsystems.bankwallet.modules.evmnetwork.addrpc.AddRpcScreen
@@ -58,12 +58,13 @@ import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
-import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.headline2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeIcon
@@ -73,10 +74,9 @@ class EvmNetworkFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        EvmNetworkNavHost(
-            navController,
-            navController.requireInput()
-        )
+        withInput<Blockchain>(navController) { input ->
+            EvmNetworkNavHost(navController, input)
+        }
     }
 
 }
@@ -161,6 +161,11 @@ private fun EvmNetworkScreen(
                     CellUniversalLawrenceSection(viewModel.viewState.defaultItems) { item ->
                         BlockchainSettingCell(item.name, item.url, item.selected, null) {
                             viewModel.onSelectSyncSource(item.syncSource)
+
+                            stat(
+                                page = StatPage.BlockchainSettingsEvm,
+                                event = StatEvent.SwitchEvmSource(blockchain.uid, item.name)
+                            )
                         }
                     }
                 }
@@ -171,6 +176,11 @@ private fun EvmNetworkScreen(
                         revealedCardId,
                         onClick = { syncSource ->
                             viewModel.onSelectSyncSource(syncSource)
+
+                            stat(
+                                page = StatPage.BlockchainSettingsEvm,
+                                event = StatEvent.SwitchEvmSource(blockchain.uid, "custom")
+                            )
                         },
                         onReveal = { id ->
                             if (revealedCardId != id) {
@@ -183,6 +193,11 @@ private fun EvmNetworkScreen(
                     ) {
                         viewModel.onRemoveCustomRpc(it)
                         HudHelper.showErrorMessage(view, R.string.Hud_Removed)
+
+                        stat(
+                            page = StatPage.BlockchainSettingsEvm,
+                            event = StatEvent.DeleteCustomEvmSource(blockchain.uid)
+                        )
                     }
                 }
 
@@ -190,6 +205,11 @@ private fun EvmNetworkScreen(
                     Spacer(Modifier.height(32.dp))
                     AddButton {
                         navController.navigate(AddRpcPage)
+
+                        stat(
+                            page = StatPage.BlockchainSettingsEvm,
+                            event = StatEvent.OpenBlockchainSettingsEvmAdd(blockchain.uid)
+                        )
                     }
                 }
             }
@@ -228,7 +248,7 @@ private fun LazyListScope.CustomRpcListSection(
                         content = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_circle_minus_24),
-                                tint = Color.Gray,
+                                tint = ComposeAppTheme.colors.grey,
                                 contentDescription = "delete",
                             )
                         }
@@ -298,11 +318,7 @@ fun RpcCell(
         contentAlignment = Alignment.Center
     ) {
         if (showDivider) {
-            Divider(
-                thickness = 1.dp,
-                color = ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
+            HsDivider(modifier = Modifier.align(Alignment.TopCenter))
         }
         Row(
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
@@ -314,7 +330,7 @@ fun RpcCell(
                     else -> stringResource(id = R.string.WalletConnect_Unnamed)
                 }
 
-                body_leah(
+                headline2_leah(
                     text = title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

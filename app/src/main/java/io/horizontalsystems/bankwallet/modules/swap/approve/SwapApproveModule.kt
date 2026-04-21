@@ -26,7 +26,7 @@ object SwapApproveModule {
                     val wallet =
                         checkNotNull(App.walletManager.activeWallets.firstOrNull { it.token == approveData.token })
                     val erc20Adapter =
-                        App.adapterManager.getAdapterForWallet(wallet) as Eip20Adapter
+                        App.adapterManager.getAdapterForWallet<Eip20Adapter>(wallet) as Eip20Adapter
                     val approveAmountBigInteger =
                         approveData.amount.movePointRight(approveData.token.decimals).toBigInteger()
                     val allowanceAmountBigInteger =

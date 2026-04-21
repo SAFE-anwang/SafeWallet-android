@@ -12,7 +12,8 @@ class ContractCallTransactionRecord(
     val contractAddress: String,
     val method: String?,
     val incomingEvents: List<TransferEvent>,
-    val outgoingEvents: List<TransferEvent>
+    val outgoingEvents: List<TransferEvent>,
+    protected: Boolean
 ) : EvmTransactionRecord(transaction, baseToken, source) {
 
     override val mainValue: TransactionValue?

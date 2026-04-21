@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +30,8 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.WCSessionModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.BadgeCount
+import io.horizontalsystems.bankwallet.ui.compose.components.BadgeText
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 
@@ -50,18 +50,14 @@ fun WCSessionCell(
             .background(ComposeAppTheme.colors.lawrence)
             .clickable {
                 navController.slideFromBottom(
-                    R.id.wcSessionFragment,
+                    R.id.wcSessionBottomSheetDialog,
                     WCSessionModule.Input(session.sessionTopic)
                 )
             },
         contentAlignment = Alignment.Center
     ) {
         if (showDivider) {
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
+            HsDivider(modifier = Modifier.align(Alignment.TopCenter))
         }
         Row(
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
@@ -92,7 +88,7 @@ fun WCSessionCell(
                 subhead2_grey(text = session.subtitle)
             }
             if (session.pendingRequestsCount > 0) {
-                BadgeCount(
+                BadgeText(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     text = session.pendingRequestsCount.toString()
                 )

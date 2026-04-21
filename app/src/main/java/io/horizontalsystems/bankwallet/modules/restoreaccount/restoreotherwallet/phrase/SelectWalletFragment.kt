@@ -165,7 +165,7 @@ private fun CoinCell(
                 Text(
                     text = type.getString(),
                     color = ComposeAppTheme.colors.grey,
-                    style = ComposeAppTheme.typography.subhead2,
+                    style = ComposeAppTheme.typography.subheadB,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 1.dp)
                 )

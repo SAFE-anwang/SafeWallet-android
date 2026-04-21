@@ -105,7 +105,7 @@ fun RedeemSafe3Screen(
 			)
 		}
 
-		SendResult.Sent -> {
+		is SendResult.Sent -> {
 			HudHelper.showSuccessMessage(
 					view,
 					R.string.Redeem_Safe3_Send_Success,
@@ -184,7 +184,7 @@ fun RedeemSafe3Screen(
 			Safe3Text(
 				stringResource(id = R.string.Redeem_Safe3_Private_Key1),
 				stringResource(id = R.string.Redeem_Safe3_Private_Key2),
-				color = ComposeAppTheme.colors.bran
+				color = ComposeAppTheme.colors.leah
 			)
 			FormsInput2(
 					textState = textState,

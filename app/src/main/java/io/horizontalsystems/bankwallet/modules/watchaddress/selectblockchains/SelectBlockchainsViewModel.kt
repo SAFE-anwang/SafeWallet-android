@@ -7,9 +7,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
 import io.horizontalsystems.bankwallet.core.badge
 import io.horizontalsystems.bankwallet.core.description
 import io.horizontalsystems.bankwallet.core.imageUrl
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statAccountType
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.restoreaccount.restoreblockchains.CoinViewItem
@@ -32,14 +37,16 @@ class SelectBlockchainsViewModel(
         val tokens = service.tokens(accountType)
 
         when (accountType) {
+            is AccountType.MoneroWatchAccount,
             is AccountType.SolanaAddress,
             is AccountType.TronAddress,
             is AccountType.BitcoinAddress,
             is AccountType.TonAddress,
-            is AccountType.Cex,
+            is AccountType.StellarAddress,
             is AccountType.Mnemonic,
+            is AccountType.EvmPrivateKey,
             is AccountType.PrivateKey,
-            is AccountType.EvmPrivateKey -> Unit // N/A
+            is AccountType.StellarSecretKey -> Unit // N/A
             is AccountType.EvmAddress -> {
                 title = R.string.Watch_Select_Blockchains
                 coinViewItems = tokens.map {
@@ -112,6 +119,11 @@ class SelectBlockchainsViewModel(
         service.watchTokens(accountType, selectedCoins.toList(), accountName)
         accountCreated = true
         emitState()
+
+        stat(
+            page = StatPage.WatchWallet,
+            event = StatEvent.WatchWallet(accountType.statAccountType)
+        )
     }
 
 }

@@ -201,7 +201,7 @@ public class BoostRepository {
                 .setProductType(BillingClient.ProductType.INAPP)
                 .setProductId(option.store_product)
                 .build();
-        BillingController.getInstance().queryProductDetails(Arrays.asList(product), (billingResult, list) -> {
+        /*BillingController.getInstance().queryProductDetails(Arrays.asList(product), (billingResult, list) -> {
             ProductDetails.OneTimePurchaseOfferDetails offerDetails = list.get(0).getOneTimePurchaseOfferDetails();
             payload.currency = offerDetails.getPriceCurrencyCode();
             payload.amount = (long) ((offerDetails.getPriceAmountMicros() / Math.pow(10, 6)) * Math.pow(10, BillingController.getInstance().getCurrencyExp(option.currency)));
@@ -230,7 +230,7 @@ public class BoostRepository {
                     );
                 }
             }));
-        });
+        });*/
     }
 
     public static void launchPreparedGiveaway(TL_stories.TL_prepaidGiveaway prepaidGiveaway, List<TLObject> chats, List<TLObject> selectedCountries,
@@ -398,7 +398,7 @@ public class BoostRepository {
             payload.countries_iso2.add(country.iso2);
         }
 
-        QueryProductDetailsParams.Product product = QueryProductDetailsParams.Product.newBuilder()
+        /*QueryProductDetailsParams.Product product = QueryProductDetailsParams.Product.newBuilder()
                 .setProductType(BillingClient.ProductType.INAPP)
                 .setProductId(option.store_product)
                 .build();
@@ -431,7 +431,7 @@ public class BoostRepository {
                     );
                 }
             }));
-        });
+        });*/
     }
 
     public static List<TLRPC.TL_premiumGiftCodeOption> filterGiftOptions(List<TLRPC.TL_premiumGiftCodeOption> list, int selected) {
@@ -540,7 +540,7 @@ public class BoostRepository {
                     AndroidUtilities.runOnUIThread(() -> onDone.run(result));
                     return;
                 }
-                BillingController.getInstance().queryProductDetails(products, (billingResult, list) -> {
+                /*BillingController.getInstance().queryProductDetails(products, (billingResult, list) -> {
                     for (ProductDetails productDetails : list) {
                         ProductDetails.OneTimePurchaseOfferDetails offerDetails = productDetails.getOneTimePurchaseOfferDetails();
                         for (TLRPC.TL_premiumGiftCodeOption option : result) {
@@ -552,7 +552,7 @@ public class BoostRepository {
                         }
                     }
                     AndroidUtilities.runOnUIThread(() -> onDone.run(result));
-                });
+                });*/
             }
         });
     }

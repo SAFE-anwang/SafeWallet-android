@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.core.adapters
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -8,15 +9,14 @@ import io.horizontalsystems.bitcoincore.BitcoinCore
 import io.horizontalsystems.bitcoincore.models.BalanceInfo
 import io.horizontalsystems.bitcoincore.models.BlockInfo
 import io.horizontalsystems.bitcoincore.models.TransactionDataSortType
-import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.dashkit.models.DashTransactionInfo
 import io.horizontalsystems.hodler.LockTimeInterval
 import io.reactivex.Single
 import com.anwang.safewallet.safekit.SafeKit
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.net.SafeNetWork
 import io.horizontalsystems.bitcoincore.models.Checkpoint
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
+import io.horizontalsystems.bitcoincore.storage.UtxoFilters
 import io.horizontalsystems.bitcoincore.utils.JsonUtils
 import io.horizontalsystems.dashkit.DashKit
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -44,7 +44,7 @@ class SafeAdapter(
     // BitcoinBaseAdapter
     //
 
-    override val satoshisInBitcoin: BigDecimal = BigDecimal.valueOf(Math.pow(10.0, decimal.toDouble()))
+    val satoshisInBitcoin: BigDecimal = BigDecimal.valueOf(Math.pow(10.0, decimal.toDouble()))
 
     // ITransactionsAdapter
 
@@ -57,7 +57,7 @@ class SafeAdapter(
     // DashKit Listener
     //
 
-    override fun sendAllowed(): Boolean {
+    fun sendAllowed(): Boolean {
         return false
     }
 
@@ -101,7 +101,7 @@ class SafeAdapter(
     // ISendDashAdapter
 
     override fun availableBalanceSafe(address: String?): BigDecimal {
-        return availableBalance(feeRate, address, null, null, mapOf())
+        return availableBalance(feeRate, address, null, null, mapOf(), false, UtxoFilters())
     }
 
     override fun minimumSendAmountSafe(address: String?): BigDecimal? {
@@ -117,14 +117,14 @@ class SafeAdapter(
     }
 
     override fun feeSafe(amount: BigDecimal, address: String?): BigDecimal? {
-        return bitcoinFeeInfo(amount, feeRate, address, null, null, mapOf())?.fee
+        return bitcoinFeeInfo(amount, feeRate, address, null, null, mapOf(), false, UtxoFilters())?.fee
     }
 
     override fun convertFeeSafe(amount: BigDecimal, address: String?): BigDecimal? {
         // 增加兑换WSAFE流量手续费
         var convertFeeRate = feeRate
         convertFeeRate += 50
-        return bitcoinFeeInfo(amount, convertFeeRate, address,null, null, mapOf())?.fee
+        return bitcoinFeeInfo(amount, convertFeeRate, address,null, null, mapOf(), false, UtxoFilters())?.fee
     }
 
     override fun validateSafe(address: String) {
@@ -154,7 +154,7 @@ class SafeAdapter(
                     newReverseHex = JsonUtils.objToString(lineLock)
                     Log.i("safe4", "---线性锁仓信息: $lineLock")
                 }
-                kit.sendSafe(address, null, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, null, mapOf(), false, unlockedHeight, newReverseHex)
+                kit.sendSafe(address, null, (amount * satoshisInBitcoin).toLong(), true, convertFeeRate.toInt(), TransactionDataSortType.Shuffle, null, mapOf(), false, false, UtxoFilters(), unlockedHeight, newReverseHex)
                 emitter.onSuccess(Unit)
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -174,9 +174,6 @@ class SafeAdapter(
     /*private fun satoshiToBTC(value: Long, roundingMode: RoundingMode = RoundingMode.HALF_EVEN): BigDecimal {
         return BigDecimal(value).divide(satoshisInBitcoin, decimal, roundingMode)
     }*/
-
-    override val unspentOutputs: List<UnspentOutputInfo>
-        get() = kit.unspentOutputs
 
     override val blockchainType = BlockchainType.Safe
 

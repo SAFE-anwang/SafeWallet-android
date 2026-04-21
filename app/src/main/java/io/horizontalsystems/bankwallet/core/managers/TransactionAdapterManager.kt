@@ -7,24 +7,27 @@ import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.marketkit.SafeExtend.isSafeFourCustomCoin
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 import java.util.concurrent.ConcurrentHashMap
 
 class TransactionAdapterManager(
     private val adapterManager: IAdapterManager,
     private val adapterFactory: AdapterFactory
 ) {
-    private val disposables = CompositeDisposable()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     private val _adaptersReadyFlow =
         MutableSharedFlow<Map<TransactionSource, ITransactionsAdapter>>(
@@ -36,13 +39,9 @@ class TransactionAdapterManager(
     val adaptersMap = ConcurrentHashMap<TransactionSource, ITransactionsAdapter>()
 
     init {
-        adapterManager.adaptersReadyObservable
-            .subscribeIO {
-                initAdapters(it)
-            }
-            .let {
-                disposables.add(it)
-            }
+        coroutineScope.launch {
+            adapterManager.adaptersReadyObservable.asFlow().collect(::initAdapters)
+        }
     }
 
     fun getAdapter(source: TransactionSource): ITransactionsAdapter? = adaptersMap[source]
@@ -64,16 +63,24 @@ class TransactionAdapterManager(
                     BlockchainType.Polygon,
                     BlockchainType.Avalanche,
                     BlockchainType.Optimism,
+                    BlockchainType.Base,
+                    BlockchainType.ZkSync,
                     BlockchainType.Gnosis,
                     BlockchainType.Fantom,
                     BlockchainType.ArbitrumOne -> {
-                        adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType, wallet.coin.uid.isSafeFourCustomCoin(), wallet.address)
+                        adapterFactory.evmTransactionsAdapter(wallet.transactionSource, blockchainType)
                     }
                     BlockchainType.Solana -> {
                         adapterFactory.solanaTransactionsAdapter(wallet.transactionSource)
                     }
                     BlockchainType.Tron -> {
                         adapterFactory.tronTransactionsAdapter(wallet.transactionSource)
+                    }
+                    BlockchainType.Ton -> {
+                        adapterFactory.tonTransactionsAdapter(wallet.transactionSource)
+                    }
+                    BlockchainType.Stellar -> {
+                        adapterFactory.stellarTransactionsAdapter(wallet.transactionSource)
                     }
                     else -> adapter as? ITransactionsAdapter
                 }

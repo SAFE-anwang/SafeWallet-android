@@ -1,16 +1,17 @@
 package io.horizontalsystems.bankwallet.modules.releasenotes
 
 import android.os.Parcelable
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,12 +30,12 @@ import io.horizontalsystems.bankwallet.modules.markdown.MarkdownContent
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
+import io.horizontalsystems.bankwallet.ui.compose.components.caption_jacob
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import kotlinx.parcelize.Parcelize
 
 class ReleaseNotesFragment : BaseComposeFragment() {
@@ -55,32 +56,32 @@ class ReleaseNotesFragment : BaseComposeFragment() {
 fun ReleaseNotesScreen(
     closeablePopup: Boolean,
     onCloseClick: () -> Unit,
-    viewModel: ReleaseNotesViewModel = viewModel(factory = ReleaseNotesModule.Factory())
+    viewModel: ReleaseNotesViewModel = viewModel(factory = ReleaseNotesModule.Factory()),
 ) {
+    BackHandler() {
+        viewModel.whatsNewShown()
+        onCloseClick.invoke()
+    }
 
-    Scaffold(
-        backgroundColor = ComposeAppTheme.colors.tyler,
-        topBar = {
-            if (closeablePopup) {
-                AppBar(
-                    menuItems = listOf(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Close),
-                            icon = R.drawable.ic_close,
-                            onClick = onCloseClick
-                        )
-                    )
-                )
-            } else {
-                AppBar(
-                    navigationIcon = {
-                        HsBackButton(onClick = onCloseClick)
-                    }
-                )
-            }
-        }
+    HSScaffold(
+        title = "",
+        onBack = if (closeablePopup) null else onCloseClick,
+        menuItems = if (closeablePopup) listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Button_Close),
+                icon = R.drawable.ic_close,
+                onClick = {
+                    viewModel.whatsNewShown()
+                    onCloseClick.invoke()
+                }
+            )
+        ) else listOf()
     ) {
-        Column(Modifier.padding(it)) {
+        Column(
+            modifier = Modifier
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        ) {
             MarkdownContent(
                 modifier = Modifier.weight(1f),
                 viewState = viewModel.viewState,
@@ -89,10 +90,7 @@ fun ReleaseNotesScreen(
                 onUrlClick = {}
             )
 
-            Divider(
-                thickness = 1.dp,
-                color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10,
-            )
+            HsDivider()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,17 +109,12 @@ fun ReleaseNotesScreen(
                     viewModel.telegramUrl,
                     stringResource(R.string.CoinPage_Telegram)
                 )
-                IconButton(
-                    R.drawable.ic_reddit_filled_24,
-                    viewModel.redditUrl,
-                    stringResource(R.string.CoinPage_Reddit)
-                )
 
                 Spacer(Modifier.weight(1f))
 
-                caption_grey(
+                caption_jacob(
                     modifier = Modifier.padding(end = 24.dp),
-                    text = stringResource(R.string.ReleaseNotes_FollowUs)
+                    text = stringResource(R.string.ReleaseNotes_JoinUnstoppables)
                 )
             }
         }
@@ -135,7 +128,7 @@ private fun IconButton(icon: Int, url: String, description: String) {
         Icon(
             painter = painterResource(id = icon),
             contentDescription = description,
-            tint = ComposeAppTheme.colors.grey
+            tint = ComposeAppTheme.colors.jacob
         )
     }
 }

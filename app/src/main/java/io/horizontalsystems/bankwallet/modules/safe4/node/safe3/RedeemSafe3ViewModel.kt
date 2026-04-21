@@ -8,7 +8,7 @@ import cash.z.ecc.android.sdk.ext.collectWith
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
@@ -267,7 +267,7 @@ class RedeemSafe3ViewModel(
 				if (existMasterNode) {
 					safe4.redeemMasterNode(receivePrivateKey(), listOf(privateKey), targetAddress)
 				}
-				sendResult = SendResult.Sent
+				sendResult = SendResult.Sent()
 				reset()
 			} catch (e: Exception) {
 				Log.e("Redeem", "redeem error=$e")
@@ -361,7 +361,7 @@ class RedeemSafe3ViewModel(
 		super.onCleared()
 		disposables.clear()
 
-		sendResult = SendResult.Sent
+		sendResult = SendResult.Sent()
 	}
 
 	companion object {

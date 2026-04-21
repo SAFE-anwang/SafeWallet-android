@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -124,7 +123,7 @@ class WithdrawAvailableViewModel(
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
                     service.withdraw(checkedList)
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                     withdrawList = list.filter { !it.checked }
                     emitState()
                 } catch (e: Exception) {

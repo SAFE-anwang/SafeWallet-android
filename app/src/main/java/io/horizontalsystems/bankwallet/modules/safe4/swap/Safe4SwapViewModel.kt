@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastCbrt
 import androidx.lifecycle.ViewModel
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -15,13 +15,10 @@ import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.convertedError
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
-import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService.AmountCaution
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService.AmountError
 import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeService.AmountWarning
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.TransactionData
@@ -70,7 +67,7 @@ class Safe4SwapViewModel(
     init {
         balance()
         if (token2.type == TokenType.Eip20(safe4SwapContractAddress)) {
-            (App.adapterManager.getAdapterForToken(token2) as Eip20Adapter).refresh()
+            (App.adapterManager.getAdapterForToken<Eip20Adapter>(token2) as Eip20Adapter).refresh()
         }
     }
 

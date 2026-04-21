@@ -117,7 +117,7 @@ class SRC20EditViewModel(
                 if (descriptionUpdate && description != null) {
                     service.setDescription(type.type, evmKitWrapper.signer!!.privateKey.toHexString(), description!!)
                 }
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
             }

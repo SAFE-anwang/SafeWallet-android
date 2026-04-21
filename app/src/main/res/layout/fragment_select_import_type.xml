@@ -14,7 +14,8 @@
         android:paddingEnd="6dp"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/Restore_Select_Import_Way"
-        app:titleTextAppearance="@style/Title3" />
+        app:titleTextAppearance="@style/Title3"
+        android:paddingTop="24dp"/>
 
 
     <LinearLayout
@@ -74,7 +75,7 @@
         android:layout_marginTop="1dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:background="@drawable/rounded_lawrence_background_bottom">
+        android:background="@drawable/rounded_lawrence_background_middle">
 
         <ImageView
             android:layout_width="24dp"
@@ -100,6 +101,54 @@
                 android:layout_height="wrap_content"
                 style="@style/Subhead2"
                 android:text="@string/Restore_Import_Private_Key_Desc"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            app:srcCompat="@drawable/ic_arrow_right"
+            app:tint="@color/grey" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="1dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/rounded_lawrence_background_bottom">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_download_24"
+            android:layout_marginStart="10dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Body"
+                android:text="@string/ImportWallet_BackupFile"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Subhead2"
+                android:text="@string/ImportWallet_BackupFile_Description"
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
 

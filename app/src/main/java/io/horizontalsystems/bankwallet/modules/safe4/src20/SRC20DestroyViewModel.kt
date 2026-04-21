@@ -35,7 +35,7 @@ class SRC20DestroyViewModel(
 ) : ViewModelUiState<DeployDestroyUIState>() {
 
     private val disposables = CompositeDisposable()
-    private var additionalNumber: BigInteger = BigInteger.ZERO
+    private var additionalNumber: BigDecimal = BigDecimal.ZERO
     private var totalSupply: BigInteger = BigInteger.ZERO
 //    private var balance: BigInteger = BigInteger.ZERO
 
@@ -58,17 +58,16 @@ class SRC20DestroyViewModel(
         return DeployDestroyUIState(
             NodeCovertFactory.formatSafe(totalSupply, code = symbol),
             App.numberFormatter.formatCoinFull(balance, code = symbol, 8),
-            additionalNumber > BigInteger.ZERO,
+            additionalNumber > BigDecimal.ZERO,
             showConfirmationDialog
         )
     }
 
     fun setAdditionalNumber(number: String) {
         try {
-            this.additionalNumber = number.toBigInteger()
+            this.additionalNumber = BigDecimal(number)
             emitState()
         } catch (e: Exception) {
-
         }
     }
 
@@ -90,8 +89,8 @@ class SRC20DestroyViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 service.src20BurnableBurn(evmKitWrapper.signer!!.privateKey.toHexString(),
-                    NodeCovertFactory.scaleConvert(additionalNumber.toBigDecimal())).blockingGet()
-                sendResult = SendResult.Sent
+                    NodeCovertFactory.scaleConvert(additionalNumber)).blockingGet()
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))

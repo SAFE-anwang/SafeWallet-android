@@ -9,21 +9,12 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Warning
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
-import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.swap.*
-import io.horizontalsystems.bankwallet.modules.swap.allowance.*
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService
-import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
-import io.horizontalsystems.ethereumkit.core.EthereumKit
-import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.flow.Flow
@@ -96,11 +87,11 @@ object LiquidityListModule {
 
     sealed class SwapResultState {
         object Loading : SwapResultState()
-        class Ready(val swapData: SwapData) : SwapResultState()
+//        class Ready(val swapData: SwapData) : SwapResultState()
         class NotReady(val errors: List<Throwable> = listOf()) : SwapResultState()
     }
 
-    sealed class SwapData {
+    /*sealed class SwapData {
         data class OneInchData(val data: OneInchSwapParameters) : SwapData()
         data class UniswapData(val data: UniversalSwapTradeData) : SwapData() {
             private val normalPriceImpact = BigDecimal(1)
@@ -116,7 +107,7 @@ object LiquidityListModule {
                 }
             }
         }
-    }
+    }*/
 
     data class TradeViewX(
         val providerTradeData: ProviderTradeData,

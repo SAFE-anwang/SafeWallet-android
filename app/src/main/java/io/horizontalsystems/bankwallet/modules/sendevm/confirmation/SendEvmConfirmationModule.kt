@@ -32,7 +32,8 @@ object SendEvmConfirmationModule {
     class Factory(
         private val evmKitWrapper: EvmKitWrapper,
         private val sendEvmData: SendEvmData,
-        private val predefinedGasLimit: Long? = null
+        private val predefinedGasLimit: Long? = null,
+        private val isSafe: Boolean = false
     ) : ViewModelProvider.Factory {
 
         private val blockchainType = when (evmKitWrapper.evmKit.chain) {
@@ -102,7 +103,8 @@ object SendEvmConfirmationModule {
                         coinServiceFactory,
                         cautionViewItemFactory,
                         blockchainType = blockchainType,
-                        contactsRepo = App.contactsRepository
+                        contactsRepo = App.contactsRepository,
+                        isSafe = isSafe
                     ) as T
                 }
                 EvmFeeCellViewModel::class.java -> {

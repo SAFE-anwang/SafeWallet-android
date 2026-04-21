@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
@@ -124,13 +123,13 @@ class AddLockDayViewModel(
 					}*/
 					val lockDay = inputDay
 					if (lockDay <= 0) {
-						sendResult = SendResult.Sent
+						sendResult = SendResult.Sent()
 						emitState()
 						return@launch
 					}
 					safe4.addLockDay(privateKey, selectLockId, lockDay)
 							.subscribe({
-								sendResult = SendResult.Sent
+								sendResult = SendResult.Sent()
 								emitState()
 							}, {
 								sendResult = SendResult.Failed(NodeCovertFactory.createCaution(it))

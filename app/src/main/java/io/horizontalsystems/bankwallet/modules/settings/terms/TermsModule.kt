@@ -16,18 +16,26 @@ object TermsModule {
 
     enum class TermType(val key: String) {
         Backup("term_backup"),
-        PrivateKeys("term_privatekeys"),
-        DisablingPin("term_disablingpin"),
-        JailBraking("term_jailbraking"),
-        Bugs("term_bugs");
+        DisablingPin("term_disabling_pin"),
+        PrivacyNotice("term_privacy_notice"),
+        WeNotHoldingYourAssets("term_we_not_holding_your_assets"),
+        MonetizationDisclosure("term_monetization_disclosure"),
+        TransactionsIrreversible("term_transactions_irreversible"),
+        OpenSource("term_open_source"),
+        LegalObligations("term_legal_obligations"),
+        UserResponsibility("term_user_responsibility");
 
         val description: Int
             get() = when (this) {
                 Backup -> R.string.SettingsTerms_Backup
-                PrivateKeys -> R.string.SettingsTerms_PrivateKeys
                 DisablingPin -> R.string.SettingsTerms_DisablingPin
-                JailBraking -> R.string.SettingsTerms_JailBraking
-                Bugs -> R.string.SettingsTerms_Bugs
+                PrivacyNotice -> R.string.SettingsTerms_PrivacyNotice
+                WeNotHoldingYourAssets -> R.string.SettingsTerms_WeNotHoldingYourAssets
+                MonetizationDisclosure -> R.string.SettingsTerms_MonetizationDisclosure
+                TransactionsIrreversible -> R.string.SettingsTerms_TransactionsIrreversible
+                OpenSource -> R.string.SettingsTerms_OpenSource
+                LegalObligations -> R.string.SettingsTerms_LegalObligations
+                UserResponsibility -> R.string.SettingsTerms_UserResponsibility
             }
     }
 

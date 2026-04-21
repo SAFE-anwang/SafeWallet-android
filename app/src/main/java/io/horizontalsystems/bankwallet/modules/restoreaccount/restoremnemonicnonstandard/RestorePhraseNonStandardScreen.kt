@@ -8,15 +8,36 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -25,7 +46,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -45,6 +65,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.displayNameStringRes
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.core.utils.Utils
 import io.horizontalsystems.bankwallet.entities.DataState
@@ -55,6 +79,29 @@ import io.horizontalsystems.bankwallet.modules.restoreaccount.restoremnemonic.Su
 import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.*
 import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
+import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.Keyboard
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
+import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
+import io.horizontalsystems.bankwallet.ui.compose.components.CustomKeyboardWarningDialog
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputPassword
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
+import io.horizontalsystems.bankwallet.ui.compose.components.HsSwitch
+import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
+import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.caption_lucian
+import io.horizontalsystems.bankwallet.ui.compose.observeKeyboardState
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.menu.MenuGroup
+import io.horizontalsystems.bankwallet.uiv3.components.menu.MenuItemX
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -92,27 +139,31 @@ fun RestorePhraseNonStandard(
     val borderColor = if (uiState.error != null) {
         ComposeAppTheme.colors.red50
     } else {
-        ComposeAppTheme.colors.steel20
+        ComposeAppTheme.colors.blade
     }
 
     val focusRequester1 = remember { FocusRequester() }
 
     val coroutineScope = rememberCoroutineScope()
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = stringResource(R.string.Restore_NonStandardRestore),
-            navigationIcon = {
-                HsBackButton(onClick = onBackClick)
-            },
-            menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.Button_Next),
-                    onClick = viewModel::onProceed
-                )
+    HSScaffold(
+        title = stringResource(R.string.Restore_NonStandardRestore),
+        onBack = onBackClick,
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Button_Next),
+                onClick = viewModel::onProceed,
+                tint = ComposeAppTheme.colors.jacob
             )
         )
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
                 Spacer(Modifier.height(12.dp))
 
                 InfoText(text = stringResource(R.string.Restore_NonStandard_Description))
@@ -132,8 +183,8 @@ fun RestorePhraseNonStandard(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(16.dp))
+                        .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
                         .background(ComposeAppTheme.colors.lawrence),
                 ) {
 
@@ -170,7 +221,7 @@ fun RestorePhraseNonStandard(
                             textStyle = ComposeAppTheme.typography.body
                         ),
                         maxLines = 6,
-                        cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+                        cursorBrush = SolidColor(ComposeAppTheme.colors.leah),
                         visualTransformation = {
                             try {
                                 val annotatedString = buildAnnotatedString {
@@ -213,6 +264,11 @@ fun RestorePhraseNonStandard(
                                 onClick = {
                                     textState = textState.copy(text = "", selection = TextRange(0))
                                     viewModel.onEnterMnemonicPhrase("", "".length)
+
+                                    stat(
+                                        page = StatPage.ImportWalletNonStandard,
+                                        event = StatEvent.Clear(StatEntity.RecoveryPhrase)
+                                    )
                                 }
                             )
                         } else {
@@ -223,15 +279,19 @@ fun RestorePhraseNonStandard(
                                     qrScannerLauncher.launch(
                                         QRScannerActivity.getScanQrIntent(context)
                                     )
+
+                                    stat(
+                                        page = StatPage.ImportWalletNonStandard,
+                                        event = StatEvent.ScanQr(StatEntity.RecoveryPhrase)
+                                    )
                                 }
                             )
 
-                            val clipboardManager = LocalClipboardManager.current
                             ButtonSecondaryDefault(
                                 modifier = Modifier.padding(end = 16.dp),
                                 title = stringResource(id = R.string.Send_Button_Paste),
                                 onClick = {
-                                    clipboardManager.getText()?.text?.let { textInClipboard ->
+                                    TextHelper.getCopiedText()?.let { textInClipboard ->
                                         textState = textState.copy(
                                             text = textInClipboard,
                                             selection = TextRange(textInClipboard.length)
@@ -239,6 +299,11 @@ fun RestorePhraseNonStandard(
                                         viewModel.onEnterMnemonicPhrase(
                                             textInClipboard,
                                             textInClipboard.length
+                                        )
+
+                                        stat(
+                                            page = StatPage.ImportWalletNonStandard,
+                                            event = StatEvent.Paste(StatEntity.RecoveryPhrase)
                                         )
                                     }
                                 },
@@ -262,38 +327,57 @@ fun RestorePhraseNonStandard(
 
                 BottomSection(viewModel, uiState, focusRequester1, coroutineScope)
 
-                Spacer(Modifier.height(44.dp))
+                Spacer(Modifier.height(64.dp))
             }
 
             if (isMnemonicPhraseInputFocused && keyboardState == Keyboard.Opened) {
-                SuggestionsBar(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    wordSuggestions = uiState.wordSuggestions
-                ) { wordItem, suggestion ->
-                    HudHelper.vibrate(context)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        // Add IME (keyboard) padding to push content above keyboard
+                        .windowInsetsPadding(WindowInsets.ime)
+                        .systemBarsPadding()
+                ) {
+                    SuggestionsBar(
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                        wordSuggestions = uiState.wordSuggestions
+                    ) { wordItem, suggestion ->
+                        HudHelper.vibrate(context)
 
-                    val cursorIndex = wordItem.range.first + suggestion.length + 1
-                    var text = textState.text.replaceRange(wordItem.range, suggestion)
+                        val cursorIndex = wordItem.range.first + suggestion.length + 1
+                        var text = textState.text.replaceRange(wordItem.range, suggestion)
 
-                    if (text.length < cursorIndex) {
-                        text = "$text "
+                        if (text.length < cursorIndex) {
+                            text = "$text "
+                        }
+
+                        textState = TextFieldValue(
+                            text = text,
+                            selection = TextRange(cursorIndex)
+                        )
+
+                        viewModel.onEnterMnemonicPhrase(text, cursorIndex)
                     }
-
-                    textState = TextFieldValue(
-                        text = text,
-                        selection = TextRange(cursorIndex)
-                    )
-
-                    viewModel.onEnterMnemonicPhrase(text, cursorIndex)
                 }
             }
         }
     }
 
     uiState.accountType?.let { accountType ->
-        mainViewModel.setAccountData(accountType, viewModel.accountName, true, false)
+        mainViewModel.setAccountData(
+            accountType,
+            viewModel.accountName,
+            true,
+            false,
+            StatPage.ImportWalletNonStandard
+        )
         openSelectCoinsScreen.invoke()
         viewModel.onSelectCoinsShown()
+
+        stat(
+            page = StatPage.ImportWalletNonStandard,
+            event = StatEvent.Open(StatPage.RestoreSelect)
+        )
     }
 
     if (showCustomKeyboardDialog) {
@@ -332,10 +416,10 @@ private fun BottomSection(
     val focusRequester2 = remember { FocusRequester() }
 
     if (showLanguageSelectorDialog) {
-        SelectorDialogCompose(
+        MenuGroup(
             title = stringResource(R.string.CreateWallet_Wordlist),
             items = viewModel.mnemonicLanguages.map {
-                SelectorItem(
+                MenuItemX(
                     stringResource(it.displayNameStringRes),
                     it == uiState.language,
                     it
@@ -355,14 +439,15 @@ private fun BottomSection(
     }
 
     CellSingleLineLawrenceSection(
-        listOf({
-            MnemonicLanguageCell(
-                language = uiState.language,
-                showLanguageSelectorDialog = {
-                    showLanguageSelectorDialog = true
-                }
-            )
-        },
+        listOf(
+            {
+                MnemonicLanguageCell(
+                    language = uiState.language,
+                    showLanguageSelectorDialog = {
+                        showLanguageSelectorDialog = true
+                    }
+                )
+            },
             {
                 Row(
                     modifier = Modifier

@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.IAccountManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
 import io.horizontalsystems.bankwallet.entities.EnabledWallet
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors
 
 class TronAccountManager(
     private val accountManager: IAccountManager,
-    private val walletManager: IWalletManager,
+    private val walletManager: WalletManager,
     private val marketKit: MarketKitWrapper,
     private val tronKitManager: TronKitManager,
     private val tokenAutoEnableManager: TokenAutoEnableManager
@@ -151,7 +150,8 @@ class TronAccountManager(
                             type = foundToken.tokenType,
                             coinName = token.coin.name,
                             coinCode = token.coin.code,
-                            tokenDecimals = token.decimals
+                            tokenDecimals = token.decimals,
+                            coinImage = token.coin.image
                         )
                     )
                 } else if (foundToken.tokenInfo != null) {
@@ -160,7 +160,8 @@ class TronAccountManager(
                             type = foundToken.tokenType,
                             coinName = foundToken.tokenInfo.tokenName,
                             coinCode = foundToken.tokenInfo.tokenSymbol,
-                            tokenDecimals = foundToken.tokenInfo.tokenDecimal
+                            tokenDecimals = foundToken.tokenInfo.tokenDecimal,
+                            coinImage = null
                         )
                     )
                 }
@@ -174,7 +175,8 @@ class TronAccountManager(
                             type = tokenType,
                             coinName = token.coin.name,
                             coinCode = token.coin.code,
-                            tokenDecimals = token.decimals
+                            tokenDecimals = token.decimals,
+                            coinImage = token.coin.image
                         )
                     )
                 }
@@ -221,7 +223,8 @@ class TronAccountManager(
                 accountId = account.id,
                 coinName = tokenInfo.coinName,
                 coinCode = tokenInfo.coinCode,
-                coinDecimals = tokenInfo.tokenDecimals
+                coinDecimals = tokenInfo.tokenDecimals,
+                coinImage = tokenInfo.coinImage
             )
         }
 
@@ -234,7 +237,8 @@ class TronAccountManager(
         val type: TokenType,
         val coinName: String,
         val coinCode: String,
-        val tokenDecimals: Int
+        val tokenDecimals: Int,
+        val coinImage: String?,
     )
 
     data class FoundToken(

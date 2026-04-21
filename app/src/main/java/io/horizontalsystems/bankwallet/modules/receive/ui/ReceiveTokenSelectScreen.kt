@@ -1,30 +1,39 @@
 package io.horizontalsystems.bankwallet.modules.receive.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.imagePlaceholder
+import io.horizontalsystems.bankwallet.core.alternativeImageUrl
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
 import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -37,92 +46,155 @@ import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SearchBar
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImageCircle
+import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.bottom.BottomSearchBar
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellMiddleInfo
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellPrimary
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellRightNavigation
+import io.horizontalsystems.bankwallet.uiv3.components.cell.hs
+import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReceiveTokenSelectScreen(
     activeAccount: Account,
     onMultipleAddressesClick: (String) -> Unit,
     onMultipleDerivationsClick: (String) -> Unit,
     onMultipleBlockchainsClick: (String) -> Unit,
+    onMultipleZcashAddressTypeClick: (Wallet) -> Unit,
     onCoinClick: (Wallet) -> Unit,
     onBackPress: () -> Unit,
 ) {
     val viewModel = viewModel<ReceiveTokenSelectViewModel>(
         factory = ReceiveTokenSelectViewModel.Factory(activeAccount)
     )
-    val fullCoins = viewModel.uiState.fullCoins
-    val coroutineScope = rememberCoroutineScope()
+    val uiState = viewModel.uiState
+    val fullCoins = uiState.fullCoins
+    val scope = rememberCoroutineScope()
+    var searchQuery by remember { mutableStateOf(uiState.searchQuery) }
+    var isSearchActive by remember { mutableStateOf(false) }
 
-    Scaffold(
-        backgroundColor = ComposeAppTheme.colors.tyler,
-        topBar = {
-            SearchBar(
-                title = stringResource(R.string.Balance_Receive),
-                searchHintText = stringResource(R.string.Balance_ReceiveHint_Search),
-                menuItems = listOf(),
-                onClose = onBackPress,
-                onSearchTextChanged = { text ->
-                    viewModel.updateFilter(text)
-                }
-            )
+    val lazyListState = rememberSaveable(
+        fullCoins.size,
+        saver = LazyListState.Saver
+    ) {
+        LazyListState()
+    }
+
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (lazyListState.isScrollInProgress) {
+            if (isSearchActive) {
+                isSearchActive = false
+            }
         }
-    ) { paddingValues ->
-        LazyColumn(contentPadding = paddingValues,
+    }
+
+    HSScaffold(
+        title = stringResource(id = R.string.Balance_Receive),
+        onBack = onBackPress,
+    ) {
+        Column {
+            Box(
                 modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(ComposeAppTheme.colors.lawrence)) {
-            item {
-                VSpacer(12.dp)
-            }
-            itemsIndexed(fullCoins) { index, fullCoin ->
-                val coin = fullCoin.coin
-                val lastItem = index == fullCoins.size - 1
-                SectionUniversalItem(borderTop = true, borderBottom = lastItem) {
-                    ReceiveCoin(
-                        coinName = coin.name,
-                        coinCode = coin.code,
-                        uid = coin.uid,
-                        coinIconUrl = coin.imageUrl,
-                        coinIconPlaceholder = coin.imagePlaceholder,
-                        badge = viewModel.getBadge(coin),
-                        onClick = {
-                            coroutineScope.launch {
-                                when (val coinActiveWalletsType = viewModel.getCoinForReceiveType(fullCoin)) {
-                                    CoinForReceiveType.MultipleAddressTypes -> {
-                                        onMultipleAddressesClick.invoke(coin.uid)
-                                    }
-
-                                    CoinForReceiveType.MultipleDerivations -> {
-                                        onMultipleDerivationsClick.invoke(coin.uid)
-                                    }
-
-                                    CoinForReceiveType.MultipleBlockchains -> {
-                                        onMultipleBlockchainsClick.invoke(coin.uid)
-                                    }
-
-                                    is CoinForReceiveType.Single -> {
-                                        onCoinClick.invoke(coinActiveWalletsType.wallet)
-                                    }
-
-                                    null -> Unit
-                                }
-                            }
-                        }
+                    .fillMaxSize()
+                    .background(ComposeAppTheme.colors.lawrence)
+            ) {
+                if (fullCoins.all { (_, items) -> items.isEmpty() }) {
+                    ListEmptyView(
+                        text = stringResource(R.string.Search_NotFounded),
+                        icon = R.drawable.warning_filled_24
                     )
+                } else {
+                    LazyColumn(
+                        state = lazyListState
+                    ) {
+                        items(fullCoins) { fullCoin ->
+                            ReceiveCoin(
+                                coinName = fullCoin.coin.name,
+                                coinCode = fullCoin.coin.code,
+                                uid = fullCoin.coin.uid,
+                                coinIconUrl = fullCoin.coin.imageUrl,
+                                alternativeCoinIconUrl = fullCoin.coin.alternativeImageUrl,
+                                coinIconPlaceholder = fullCoin.iconPlaceholder,
+                                badge = viewModel.getBadge(fullCoin.coin),
+                                onClick = {
+                                    scope.launch {
+                                        val type = viewModel.getCoinForReceiveType(fullCoin)
+
+                                        processCoinClick(
+                                            type,
+                                            fullCoin,
+                                            onMultipleAddressesClick,
+                                            onMultipleDerivationsClick,
+                                            onMultipleBlockchainsClick,
+                                            onMultipleZcashAddressTypeClick,
+                                            onCoinClick
+                                        )
+                                    }
+                                }
+                            )
+                            HsDivider()
+                        }
+                        item {
+                            VSpacer(88.dp)
+                        }
+                    }
                 }
-            }
-            item {
-                VSpacer(32.dp)
+                BottomSearchBar(
+                    searchQuery = searchQuery,
+                    isSearchActive = isSearchActive,
+                    onActiveChange = { active ->
+                        isSearchActive = active
+                    },
+                    onSearchQueryChange = { query ->
+                        viewModel.updateFilter(query)
+                        searchQuery = query
+                    }
+                )
             }
         }
+    }
+}
+
+private fun processCoinClick(
+    type: CoinForReceiveType?,
+    fullCoin: FullCoin,
+    onMultipleAddressesClick: (String) -> Unit,
+    onMultipleDerivationsClick: (String) -> Unit,
+    onMultipleBlockchainsClick: (String) -> Unit,
+    onMultipleZcashAddressTypeClick: (Wallet) -> Unit,
+    onCoinClick: (Wallet) -> Unit
+) {
+    when (type) {
+        CoinForReceiveType.MultipleAddressTypes -> onMultipleAddressesClick(
+            fullCoin.coin.uid
+        )
+
+        CoinForReceiveType.MultipleDerivations -> onMultipleDerivationsClick(
+            fullCoin.coin.uid
+        )
+
+        CoinForReceiveType.MultipleBlockchains -> onMultipleBlockchainsClick(
+            fullCoin.coin.uid
+        )
+
+        is CoinForReceiveType.MultipleZcashAddressTypes -> onMultipleZcashAddressTypeClick(
+            type.wallet
+        )
+
+        is CoinForReceiveType.Single -> {
+            onCoinClick(type.wallet)
+        }
+
+        null -> Unit
     }
 }
 
@@ -132,49 +204,31 @@ fun ReceiveCoin(
     coinCode: String,
     uid: String,
     coinIconUrl: String,
+    alternativeCoinIconUrl: String?,
     coinIconPlaceholder: Int,
     badge: String? = null,
     onClick: (() -> Unit)? = null
 ) {
-    RowUniversal(
-        modifier = Modifier.padding(horizontal = 16.dp),
+    CellPrimary(
+        left = {
+            CoinImageSafe(
+                uid = uid,
+                iconUrl = coinIconUrl,
+                placeholder = coinIconPlaceholder,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(32.dp)
+            )
+        },
+        middle = {
+            CellMiddleInfo(
+                title = coinCode.hs,
+                subtitle = coinName.hs,
+            )
+        },
+        right = {
+            CellRightNavigation()
+        },
         onClick = onClick
-    ) {
-        CoinImageSafe(
-            uid = uid,
-            iconUrl = coinIconUrl,
-            placeholder = coinIconPlaceholder,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .size(32.dp)
-        )
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                body_leah(
-                    modifier = Modifier,
-                    text = coinCode,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                badge?.let {
-                    Safe3Badge()
-                }
-            }
-            VSpacer(3.dp)
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                subhead2_grey(
-                    text = coinName,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
+    )
 }

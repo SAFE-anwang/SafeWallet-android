@@ -3,12 +3,6 @@ package io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ApproveTransactionRecord
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState.Approved
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState.Approving
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState.NA
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState.Revoked
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceState.Revoking
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -19,6 +13,11 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.concurrent.Executors
 
+enum class SwapPendingAllowanceState {
+    NA, Revoking, Revoked, Approving, Approved;
+
+    fun loading() = this == Revoking || this == Approving
+}
 
 class LiquidityPendingAllowanceService(
     private val adapterManager: IAdapterManager,
@@ -31,7 +30,7 @@ class LiquidityPendingAllowanceService(
     private val coroutineScope = CoroutineScope(singleDispatcher)
 
     private val stateSubject = PublishSubject.create<SwapPendingAllowanceState>()
-    var state: SwapPendingAllowanceState = NA
+    var state: SwapPendingAllowanceState = SwapPendingAllowanceState.NA
         private set(value) {
             if (field != value) {
                 field = value
@@ -76,7 +75,7 @@ class LiquidityPendingAllowanceService(
         val allowanceState = allowanceService.state
 
         if (pendingAllowance == null || allowanceState == null || allowanceState !is LiquidityAllowanceService.State.Ready) {
-            state = NA
+            state = SwapPendingAllowanceState.NA
             return
         }
 
@@ -84,13 +83,13 @@ class LiquidityPendingAllowanceService(
 
         state = if (pendingAllowance.compareTo(BigDecimal.ZERO) == 0) {
             when {
-                pendingAllowanceConfirmed -> Revoked
-                else -> Revoking
+                pendingAllowanceConfirmed -> SwapPendingAllowanceState.Revoked
+                else -> SwapPendingAllowanceState.Revoking
             }
         } else {
             when {
-                pendingAllowanceConfirmed -> Approved
-                else -> Approving
+                pendingAllowanceConfirmed -> SwapPendingAllowanceState.Approved
+                else -> SwapPendingAllowanceState.Approving
             }
         }
     }

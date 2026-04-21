@@ -139,7 +139,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.SAFE4_Line_Lock),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -207,7 +207,7 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
     Text(
             text = stringResource(R.string.Safe_Four),
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -286,7 +286,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_erc20),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -347,7 +347,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_bep20),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -406,7 +406,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_matic),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -455,7 +455,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_Usdt_ETH),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -501,7 +501,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_Usdt_BSC),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -643,7 +643,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.SAFE4_Swap),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -668,7 +668,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.SAFE4_Withdraw),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -731,7 +731,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.SRC20_Deploy_Title),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -767,7 +767,7 @@ private fun Safe4Sections(
 
     Text(
         text = stringResource(R.string.Safe4_Safe_Basic_Info),
-        style = ComposeAppTheme.typography.subhead1,
+        style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,
         maxLines = 1,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -860,6 +860,7 @@ private fun Safe4Sections(
 @Composable
 fun Safe3Cell(
     @StringRes title: Int,
+    isBlueBg: Boolean = false
 ) {
     Row {
         Text(
@@ -869,10 +870,10 @@ fun Safe3Cell(
             maxLines = 1,
             modifier = Modifier.padding(start = 16.dp)
         )
-        Safe3Badge()
+        Safe3Badge(isBlueBg)
         Text(
             text = stringResource(title),
-            style = ComposeAppTheme.typography.subhead1,
+            style = ComposeAppTheme.typography.subheadB,
             color = ComposeAppTheme.colors.leah,
             maxLines = 1
         )
@@ -910,7 +911,7 @@ fun HsSettingCell(
         value?.let {
             Text(
                 text = it,
-                style = ComposeAppTheme.typography.subhead1,
+                style = ComposeAppTheme.typography.subheadB,
                 color = ComposeAppTheme.colors.leah,
                 maxLines = 1,
                 modifier = Modifier.padding(horizontal = 8.dp)
@@ -953,12 +954,12 @@ fun Safe3HsSettingCell(
             painter = painterResource(id = icon),
             contentDescription = null,
         )
-        Safe3Cell(title)
+        Safe3Cell(title, true)
         Spacer(Modifier.weight(1f))
         value?.let {
             Text(
                 text = it,
-                style = ComposeAppTheme.typography.subhead1,
+                style = ComposeAppTheme.typography.subheadB,
                 color = ComposeAppTheme.colors.leah,
                 maxLines = 1,
                 modifier = Modifier.padding(horizontal = 8.dp)
@@ -1027,7 +1028,7 @@ fun HsSettingCellForEth(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.jeremy)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1036,7 +1037,7 @@ fun HsSettingCellForEth(
                     bottom = 1.dp
                 ),
                 text = chainName,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.lawrence,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
             )
@@ -1083,7 +1084,7 @@ fun HsSettingCellForUsdt(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(ComposeAppTheme.colors.jeremy)
+                    .background(ComposeAppTheme.colors.blade)
                 ) {
             Text(
                 modifier = Modifier.padding(
@@ -1092,7 +1093,7 @@ fun HsSettingCellForUsdt(
                     bottom = 1.dp
                 ),
                 text = coinName,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.lawrence,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
             )
@@ -1115,7 +1116,7 @@ fun HsSettingCellForUsdt(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.jeremy)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1124,7 +1125,7 @@ fun HsSettingCellForUsdt(
                     bottom = 1.dp
                 ),
                 text = chainName,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.lawrence,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
             )
@@ -1171,7 +1172,7 @@ fun HsSettingCellForSafe(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.jeremy)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1180,7 +1181,7 @@ fun HsSettingCellForSafe(
                     bottom = 1.dp
                 ),
                 text = chainName,
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.lawrence,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
             )
@@ -1271,7 +1272,7 @@ fun HsSettingCellForSRC(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.jeremy)
+                .background(ComposeAppTheme.colors.blade)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1280,7 +1281,7 @@ fun HsSettingCellForSRC(
                     bottom = 1.dp
                 ),
                 text = "SRC20",
-                color = ComposeAppTheme.colors.bran,
+                color = ComposeAppTheme.colors.lawrence,
                 style = ComposeAppTheme.typography.microSB,
                 maxLines = 1,
             )

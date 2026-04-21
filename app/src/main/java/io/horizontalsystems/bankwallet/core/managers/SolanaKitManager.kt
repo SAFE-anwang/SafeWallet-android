@@ -1,31 +1,34 @@
 package io.horizontalsystems.bankwallet.core.managers
 
-import android.os.Handler
-import android.os.Looper
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.BackgroundManager
+import io.horizontalsystems.bankwallet.core.BackgroundManagerState
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
-import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.solanakit.Signer
 import io.horizontalsystems.solanakit.SolanaKit
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.rx2.asObservable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class SolanaKitManager(
     private val appConfigProvider: AppConfigProvider,
     private val rpcSourceManager: SolanaRpcSourceManager,
     private val walletManager: SolanaWalletManager,
-    backgroundManager: BackgroundManager
-) : BackgroundManager.Listener {
+    private val backgroundManager: BackgroundManager
+) {
 
-    private val disposables = CompositeDisposable()
-    private var tokenAccountDisposable: Disposable? = null
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var backgroundEventListenerJob: Job? = null
+    private var rpcUpdatedJob: Job? = null
+    private var tokenAccountJob: Job? = null
 
     var solanaKitWrapper: SolanaKitWrapper? = null
 
@@ -39,18 +42,6 @@ class SolanaKitManager(
 
     val statusInfo: Map<String, Any>?
         get() = solanaKitWrapper?.solanaKit?.statusInfo()
-
-    init {
-        backgroundManager.registerListener(this)
-
-        rpcSourceManager.rpcSourceUpdateObservable
-                .subscribeIO {
-                    handleUpdateNetwork()
-                }
-                .let {
-                    disposables.add(it)
-                }
-    }
 
     private fun handleUpdateNetwork() {
         stopKit()
@@ -68,14 +59,17 @@ class SolanaKitManager(
             val accountType = account.type
             this.solanaKitWrapper = when (accountType) {
                 is AccountType.Mnemonic -> {
-                    createKitInstance(accountType, account)
+                    createKitInstanceFromMnemonic(accountType, account)
                 }
+
                 is AccountType.SolanaAddress -> {
-                    createKitInstance(accountType, account)
+                    createKitInstanceFromAddress(accountType, account)
                 }
+
                 else -> throw UnsupportedAccountException()
             }
             startKit()
+            subscribeToEvents()
             useCount = 0
             currentAccount = account
         }
@@ -84,7 +78,7 @@ class SolanaKitManager(
         return this.solanaKitWrapper!!
     }
 
-    private fun createKitInstance(
+    private fun createKitInstanceFromMnemonic(
         accountType: AccountType.Mnemonic,
         account: Account
     ): SolanaKitWrapper {
@@ -97,15 +91,14 @@ class SolanaKitManager(
             addressString = address,
             rpcSource = rpcSourceManager.rpcSource,
             walletId = account.id,
-            solscanApiKey = appConfigProvider.solscanApiKey
         )
 
         return SolanaKitWrapper(kit, signer)
     }
 
-    private fun createKitInstance(
-            accountType: AccountType.SolanaAddress,
-            account: Account
+    private fun createKitInstanceFromAddress(
+        accountType: AccountType.SolanaAddress,
+        account: Account
     ): SolanaKitWrapper {
         val address = accountType.address
 
@@ -114,7 +107,6 @@ class SolanaKitManager(
             addressString = address,
             rpcSource = rpcSourceManager.rpcSource,
             walletId = account.id,
-            solscanApiKey = appConfigProvider.solscanApiKey
         )
 
         return SolanaKitWrapper(kit, null)
@@ -135,35 +127,53 @@ class SolanaKitManager(
         solanaKitWrapper?.solanaKit?.stop()
         solanaKitWrapper = null
         currentAccount = null
-        tokenAccountDisposable?.dispose()
+        tokenAccountJob?.cancel()
+        backgroundEventListenerJob?.cancel()
+        rpcUpdatedJob?.cancel()
     }
 
     private fun startKit() {
         solanaKitWrapper?.solanaKit?.let { kit ->
-            kit.start()
-            kit.fungibleTokenAccountsFlow.asObservable()
-                    .subscribeIO {
-                        walletManager.add(it)
-                    }
-                    .let {
-                        tokenAccountDisposable = it
-                    }
+            tokenAccountJob = coroutineScope.launch {
+                kit.start()
+                kit.fungibleTokenAccountsFlow.collect {
+                    walletManager.add(it)
+                }
+            }
         }
     }
 
-    //
-    // BackgroundManager.Listener
-    //
+    private fun subscribeToEvents() {
+        backgroundEventListenerJob = coroutineScope.launch {
+            backgroundManager.stateFlow.collect { state ->
+                when (state) {
+                    BackgroundManagerState.EnterForeground -> {
+                        solanaKitWrapper?.solanaKit?.let { kit ->
+                            kit.resume()
+                            delay(1000)
+                            kit.refresh()
+                        }
+                    }
 
-    override fun willEnterForeground() {
-        this.solanaKitWrapper?.solanaKit?.let { kit ->
-            Handler(Looper.getMainLooper()).postDelayed({
-                kit.refresh()
-            }, 1000)
+                    BackgroundManagerState.EnterBackground -> {
+                        solanaKitWrapper?.solanaKit?.pause()
+                    }
+                }
+            }
+        }
+        rpcUpdatedJob = coroutineScope.launch {
+            rpcSourceManager.rpcSourceUpdateObservable.asFlow().collect {
+                handleUpdateNetwork()
+            }
         }
     }
 
-    override fun didEnterBackground() = Unit
+    fun getAddress(accountType: AccountType) = when (accountType) {
+        is AccountType.Mnemonic -> Signer.address(accountType.seed)
+        is AccountType.SolanaAddress -> accountType.address
+        else -> throw UnsupportedAccountException()
+    }
+
 }
 
 class SolanaKitWrapper(val solanaKit: SolanaKit, val signer: Signer?)

@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ethereum.EvmCoinService
@@ -54,11 +53,11 @@ class LegacyFeeSettingsViewModel(
     }
 
     fun onIncrementGasPrice(currentWeiValue: Long) {
-        gasPriceService.setGasPrice(currentWeiValue + scale.scaleValue)
+        gasPriceService.setGasPrice(currentWeiValue * 110 / 100)
     }
 
     fun onDecrementGasPrice(currentWeiValue: Long) {
-        gasPriceService.setGasPrice((currentWeiValue - scale.scaleValue).coerceAtLeast(0))
+        gasPriceService.setGasPrice(currentWeiValue * 90 / 100)
     }
 
     private fun syncTransactionStatus(transactionStatus: DataState<Transaction>) {

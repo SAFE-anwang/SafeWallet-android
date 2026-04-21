@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.LocalizedException
@@ -54,7 +53,7 @@ class SafeFourVoteConfirmationViewModel(
                     safe4RpcBlockChain.voteOrApproval(evmKitWrapper.signer!!.privateKey.toHexString(),true, voteData.dstAddr, voteData.recordsIds.map { it.lockId.toBigInteger() })
                 }.blockingGet()
 
-                sendResult = SendResult.Sent
+                sendResult = SendResult.Sent()
             } catch (e: Exception) {
                 if (e is SocketTimeoutException) {
                     send()

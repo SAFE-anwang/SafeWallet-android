@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.android.sdk.ext.collectWith
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
@@ -275,7 +274,7 @@ class SafeFourVoteViewModel(
                     it.movePointRight((adapter as BaseEvmAdapter).decimal).toBigInteger(),
                     isJoin,
                     true,
-                    nodeInfo!!.addr.hex,
+                    nodeInfo!!.addr,
                     nodeInfo!!.id,
                     nodeInfo!!.name,
                     nodeInfo!!.description,
@@ -291,7 +290,7 @@ class SafeFourVoteViewModel(
                 BigInteger.ZERO,
                 isJoin,
                 false,
-                nodeInfo!!.addr.hex,
+                nodeInfo!!.addr,
                 nodeInfo!!.id,
                 nodeInfo!!.name,
                 nodeInfo!!.description,
@@ -304,7 +303,7 @@ class SafeFourVoteViewModel(
                     NodeCovertFactory.scaleConvert(joinAmount),
                     true,
                     false,
-                    nodeInfo!!.addr.hex,
+                    nodeInfo!!.addr,
                     nodeInfo!!.id,
                     nodeInfo!!.name,
                     nodeInfo!!.description,

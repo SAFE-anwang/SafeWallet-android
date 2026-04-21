@@ -98,7 +98,7 @@ fun ProposalInfoScreen(
             )
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                     view,
                     R.string.Send_Success,
@@ -114,7 +114,7 @@ fun ProposalInfoScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             delay(1200)
             navController.popBackStack(R.id.createProposalFragment, true)
         }

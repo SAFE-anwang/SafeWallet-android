@@ -3,9 +3,12 @@ package io.horizontalsystems.bankwallet.modules.addtoken
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ICoinManager
-import io.horizontalsystems.bankwallet.core.IWalletManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.order
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -14,7 +17,7 @@ import io.horizontalsystems.marketkit.models.TokenType
 
 class AddTokenService(
     private val coinManager: ICoinManager,
-    private val walletManager: IWalletManager,
+    private val walletManager: WalletManager,
     private val accountManager: IAccountManager,
     marketKit: MarketKitWrapper,
 ) {
@@ -23,13 +26,16 @@ class AddTokenService(
         BlockchainType.Ethereum,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Tron,
+        BlockchainType.Ton,
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
-        BlockchainType.BinanceChain,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
         BlockchainType.ArbitrumOne,
         BlockchainType.Optimism,
+        BlockchainType.Base,
+        BlockchainType.ZkSync,
+        BlockchainType.Solana,
         BlockchainType.SafeFour,
     )
 
@@ -43,12 +49,14 @@ class AddTokenService(
         if (reference.isEmpty()) return null
 
         val blockchainService = when (blockchain.type) {
-            BlockchainType.BinanceChain -> AddBep2TokenBlockchainService(
-                blockchain,
-                App.networkManager
-            )
             BlockchainType.Tron -> {
                 AddTronTokenBlockchainService.getInstance(blockchain)
+            }
+            BlockchainType.Ton -> {
+                AddTonTokenBlockchainService(blockchain)
+            }
+            BlockchainType.Solana -> {
+                AddSolanaTokenBlockchainService.getInstance(blockchain, App.appConfigProvider.solanaJupiterApiKey)
             }
             else -> AddEvmTokenBlockchainService.getInstance(blockchain)
         }
@@ -72,6 +80,8 @@ class AddTokenService(
         val account = accountManager.activeAccount ?: return
         val wallet = Wallet(token.token, account)
         walletManager.save(listOf(wallet))
+
+        stat(page = StatPage.AddToken, event = StatEvent.AddToken(token.token))
     }
 
     sealed class TokenError : Exception() {

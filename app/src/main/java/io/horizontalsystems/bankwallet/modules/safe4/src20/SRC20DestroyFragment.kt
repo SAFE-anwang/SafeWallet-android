@@ -110,7 +110,7 @@ fun SRC20DestroyScreen(
             viewModel.sendResult = null
         }
 
-        SendResult.Sent -> {
+        is SendResult.Sent -> {
             HudHelper.showSuccessMessage(
                 view,
                 R.string.Send_Success,
@@ -128,7 +128,7 @@ fun SRC20DestroyScreen(
     }
 
     LaunchedEffect(sendResult) {
-        if (sendResult == SendResult.Sent) {
+        if (sendResult is SendResult.Sent) {
             navController.popBackStack()
         }
     }

@@ -68,7 +68,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.window.DialogProperties
 import androidx.glance.layout.Spacer
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
@@ -301,7 +300,7 @@ fun SingleButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran ,
+							color = ComposeAppTheme.colors.leah ,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp),) {
@@ -374,7 +373,7 @@ fun TimeList(
 							},
 					text = text,
 					maxLines = 1,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 					fontSize = 14.sp,
 			)
 		}
@@ -531,7 +530,7 @@ fun TwoButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran,
+							color = ComposeAppTheme.colors.leah,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), ) {
@@ -629,7 +628,7 @@ fun TwoButtonDatePickerView(
 							modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 							text = time,
 							maxLines = 1,
-							color = ComposeAppTheme.colors.bran,
+							color = ComposeAppTheme.colors.leah,
 							fontSize = 16.sp,
 					)
 					Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp), ) {

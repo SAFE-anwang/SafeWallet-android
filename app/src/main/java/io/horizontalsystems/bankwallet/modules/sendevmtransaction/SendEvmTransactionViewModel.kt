@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.ethereum.CautionViewItem
@@ -16,13 +15,7 @@ import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.bankwallet.modules.send.SendModule
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData.AdditionalInfo
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.PriceImpactLevel
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.ILiquidityTradeService
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Constants
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.TransactionContractSend
-import io.horizontalsystems.bankwallet.modules.swap.scaleUp
-import io.horizontalsystems.bankwallet.modules.swap.settings.oneinch.OneInchSwapSettingsModule
+import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.core.toHexString
 import io.horizontalsystems.erc20kit.decorations.ApproveEip20Decoration
 import io.horizontalsystems.erc20kit.decorations.OutgoingEip20Decoration
@@ -58,7 +51,8 @@ class SendEvmTransactionViewModel(
     private val coinServiceFactory: EvmCoinServiceFactory,
     private val cautionViewItemFactory: CautionViewItemFactory,
     private val contactsRepo: ContactsRepository,
-    private val blockchainType: BlockchainType
+    private val blockchainType: BlockchainType,
+    private val isSafe: Boolean = false
 ) : ViewModel() {
     private val disposable = CompositeDisposable()
 
@@ -105,7 +99,7 @@ class SendEvmTransactionViewModel(
     private fun sync(state: SendEvmTransactionService.State) {
         when (state) {
             is SendEvmTransactionService.State.Ready -> {
-                val sendEnabled = service.txDataState.additionalInfo?.uniswapInfo?.priceImpact?.level != PriceImpactLevel.Forbidden
+                val sendEnabled = service.txDataState.additionalInfo?.uniswapInfo?.priceImpact?.level != SwapMainModule.PriceImpactLevel.Forbidden
                 sendEnabledLiveData.postValue(sendEnabled)
                 cautionsLiveData.postValue(cautionViewItemFactory.cautionViewItems(state.warnings, errors = listOf()))
             }
@@ -126,9 +120,9 @@ class SendEvmTransactionViewModel(
         } ?: listOf()
 
         if (sections.isEmpty()) {
-            if (additionalInfo?.oneInchSwapInfo != null) {
+            /*if (additionalInfo?.oneInchSwapInfo != null) {
                 sections = getOneInchViewItems(additionalInfo.oneInchSwapInfo!!)
-            } else if (dataState.transactionData != null) {
+            } else*/ if (dataState.transactionData != null) {
                 sections = getUnknownMethodItems(
                     dataState.transactionData,
                     service.methodName(dataState.transactionData.input)
@@ -136,9 +130,9 @@ class SendEvmTransactionViewModel(
             }
         }
 
-        additionalInfo?.walletConnectInfo?.let {
+        /*additionalInfo?.walletConnectInfo?.let {
             sections = sections + getWalletConnectSectionView(it)
-        }
+        }*/
         additionalInfo?.dAppInfo?.let {
             sections = sections + getDappInfoSectionView(it)
         }
@@ -186,7 +180,7 @@ class SendEvmTransactionViewModel(
                 decoration.contractAddress
             )
 
-            is SwapDecoration -> getUniswapViewItems(
+            /*is SwapDecoration -> getUniswapViewItems(
                 decoration.amountIn,
                 decoration.amountOut,
                 decoration.tokenIn,
@@ -212,7 +206,7 @@ class SendEvmTransactionViewModel(
                 oneInchInfo = additionalInfo?.oneInchSwapInfo
             )
 
-            is OneInchDecoration -> additionalInfo?.oneInchSwapInfo?.let { getOneInchViewItems(it) }
+            is OneInchDecoration -> additionalInfo?.oneInchSwapInfo?.let { getOneInchViewItems(it) }*/
 
             is OutgoingEip721Decoration -> getNftTransferItems(
                 decoration.to,
@@ -263,23 +257,22 @@ class SendEvmTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     addressValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
 
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         sections.add(SectionViewItem(viewItems))
 
         return sections
     }
+/*
 
     private fun getUniswapViewItems(
         amountIn: SwapDecoration.Amount,
@@ -623,14 +616,15 @@ class SendEvmTransactionViewModel(
 
         return sections
     }
+*/
 
-    private fun getFormattedSlippage(slippage: BigDecimal): String? {
+    /*private fun getFormattedSlippage(slippage: BigDecimal): String? {
         return if (slippage.compareTo(OneInchSwapSettingsModule.defaultSlippage) == 0) {
             null
         } else {
             "$slippage%"
         }
-    }
+    }*/
 
     private fun getEip20TransferViewItems(
         to: Address,
@@ -657,16 +651,14 @@ class SendEvmTransactionViewModel(
             ViewItem.Address(
                 Translator.getString(R.string.Send_Confirmation_To),
                 addressValue,
-                contact == null,
-                blockchainType,
-                StatSection.AddressTo
+                contact?.addresses?.first()?.address
             )
         )
-        contact?.let {
+        /*contact?.let {
             viewItems.add(
                 ViewItem.ContactItem(it)
             )
-        }
+        }*/
 
         return listOf(SectionViewItem(viewItems))
     }
@@ -713,22 +705,20 @@ class SendEvmTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Approve_Spender),
                     addressValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressSpender
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         return listOf(SectionViewItem(viewItems))
     }
 
-    private fun getWalletConnectSectionView(
+    /*private fun getWalletConnectSectionView(
         info: SendEvmData.WalletConnectInfo
     ) = SectionViewItem(
         buildList {
@@ -751,7 +741,7 @@ class SendEvmTransactionViewModel(
                 )
             }
         }
-    )
+    )*/
 
     private fun getDappInfoSectionView(
         info: SendEvmData.DappInfo
@@ -787,22 +777,20 @@ class SendEvmTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
 
             methodName?.let {
                 add(ViewItem.Value(Translator.getString(R.string.Send_Confirmation_Method), it, ValueType.Regular))
             }
 
-            add(ViewItem.Input(transactionData.input.toHexString()))
+//            add(ViewItem.Input(transactionData.input.toHexString()))
         }
 
         return listOf(SectionViewItem(viewItems))
@@ -832,16 +820,14 @@ class SendEvmTransactionViewModel(
                 ViewItem.Address(
                     Translator.getString(R.string.Send_Confirmation_To),
                     toValue,
-                    contact == null,
-                    blockchainType,
-                    StatSection.AddressTo
+                    contact?.addresses?.first()?.address
                 )
             )
-            contact?.let {
+            /*contact?.let {
                 add(
                     ViewItem.ContactItem(it)
                 )
-            }
+            }*/
         }
 
         return listOf(
@@ -872,7 +858,8 @@ class SendEvmTransactionViewModel(
             amountData.secondary?.getFormatted(),
             amountData.primary.getFormatted(),
             valueType,
-            token
+            token,
+            isSafe
         )
 
     private fun getEstimatedSwapAmount(amountData: SendModule.AmountData) = AmountValues(

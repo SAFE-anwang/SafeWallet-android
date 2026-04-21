@@ -22,7 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navGraphViewModels
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -101,7 +101,10 @@ class RevokeCashFragment: BaseFragment() {
                             App.connectivityManager,
                             App.accountManager.activeAccount,
                             input?.sessionTopic,
-                            App.evmBlockchainManager
+                            App.wcManager,
+                            App.networkManager,
+                            App.appConfigProvider,
+                            App.paidActionSettingsManager
                         )
                         wcSessionViewModel?.connect()
                     }

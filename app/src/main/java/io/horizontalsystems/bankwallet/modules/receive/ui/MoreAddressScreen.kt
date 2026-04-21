@@ -21,6 +21,7 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,7 +37,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.UsedAddress
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
@@ -80,7 +80,9 @@ data class MoreAddressInfo(
         val balance: String
 )
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun MoreAddressScreen(
         params: List<MoreAddressInfo>,
@@ -91,8 +93,11 @@ fun MoreAddressScreen(
     val view = LocalView.current
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
+        initialValue = ModalBottomSheetValue.Hidden,
     )
+
+    val sheetState2 =
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var clickPrivateKey by remember { mutableStateOf("") }
 
     ModalBottomSheetLayout(
@@ -100,18 +105,19 @@ fun MoreAddressScreen(
             sheetBackgroundColor = ComposeAppTheme.colors.transparent,
             sheetContent = {
                 ConfirmCopyBottomSheet(
-                        onConfirm = {
-                            coroutineScope.launch {
-                                TextHelper.copyText(clickPrivateKey.toString())
-                                HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-                                sheetState.hide()
-                            }
-                        },
-                        onCancel = {
-                            coroutineScope.launch {
-                                sheetState.hide()
-                            }
+                    sheetState = sheetState2,
+                    onConfirm = {
+                        coroutineScope.launch {
+                            TextHelper.copyText(clickPrivateKey.toString())
+                            HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
+                            sheetState.hide()
                         }
+                    },
+                    onDismiss = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                        }
+                    }
                 )
             }
     ) {

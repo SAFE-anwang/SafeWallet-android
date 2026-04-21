@@ -1,16 +1,20 @@
 package io.horizontalsystems.bankwallet.modules.send.bitcoin.utxoexpert
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Scaffold
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,33 +25,26 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.ISendBitcoinAdapter
 import io.horizontalsystems.bankwallet.core.shorten
-import io.horizontalsystems.bankwallet.entities.Address
-import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryTransparent
+import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.HsCheckbox
+import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SectionItemBorderedRowUniversalClear
-import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_lucian
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.bitcoincore.storage.UnspentOutputInfo
 import io.horizontalsystems.marketkit.models.Token
-import java.math.BigDecimal
 
 @Composable
 fun UtxoExpertModeScreen(
     adapter: ISendBitcoinAdapter,
     token: Token,
-    address: Address?,
-    memo: String?,
-    value: BigDecimal?,
-    feeRate: Int?,
     customUnspentOutputs: List<UnspentOutputInfo>?,
     updateUnspentOutputs: (List<UnspentOutputInfo>) -> Unit,
     onBackClick: () -> Unit
@@ -57,39 +54,59 @@ fun UtxoExpertModeScreen(
         factory = UtxoExpertModeModule.Factory(
             adapter,
             token,
-            address,
-            memo,
-            value,
-            feeRate,
             customUnspentOutputs
         )
     )
     val uiState = viewModel.uiState
 
     ComposeAppTheme {
-        Scaffold(
-            backgroundColor = ComposeAppTheme.colors.tyler,
-            topBar = {
-                AppBar(
-                    title = stringResource(R.string.Send_Utxos),
-                    navigationIcon = {
-                        HsBackButton(onClick = onBackClick)
-                    },
-                )
+        HSScaffold(
+            title = stringResource(R.string.Send_Utxos),
+            onBack = onBackClick,
+            bottomBar = {
+                Box(
+                    modifier = Modifier
+                        .height(62.dp)
+                        .systemBarsPadding()
+                        .fillMaxWidth()
+                ) {
+                    HsDivider(modifier = Modifier.fillMaxWidth())
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        ButtonSecondaryTransparent(
+                            title = stringResource(id = R.string.Send_Utxo_UnselectAll),
+                            enabled = uiState.unselectAllIsEnabled,
+                            onClick = {
+                                viewModel.unselectAll()
+                                updateUnspentOutputs(viewModel.customOutputs)
+                            }
+                        )
+                        ButtonSecondaryTransparent(
+                            title = stringResource(id = R.string.Send_Utxo_SelectAll),
+                            onClick = {
+                                viewModel.selectAll()
+                                updateUnspentOutputs(viewModel.customOutputs)
+                            }
+                        )
+                    }
+                }
             }
         ) {
             Column(
                 modifier = Modifier
-                    .padding(it)
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                Column(
-                    modifier = Modifier.background(ComposeAppTheme.colors.lawrence)
-                ) {
-                    UtxoInfoSection(
-                        uiState.sendToInfo,
-                        uiState.changeInfo,
-                        uiState.feeInfo,
+                CellUniversalLawrenceSection {
+                    UtxoInfoCell(
+                        title = stringResource(R.string.Send_Utxo_AvailableBalance),
+                        value = uiState.availableBalanceInfo.value,
+                        subValue = uiState.availableBalanceInfo.subValue
                     )
                 }
                 Box(
@@ -101,15 +118,6 @@ fun UtxoExpertModeScreen(
                             viewModel.onUnspentOutputClicked(it)
                             updateUnspentOutputs(viewModel.customOutputs)
                         }
-                    )
-                }
-                ButtonsGroupWithShade {
-                    ButtonPrimaryYellow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
-                        title = stringResource(R.string.Button_Done),
-                        onClick = onBackClick,
                     )
                 }
             }
@@ -151,52 +159,8 @@ private fun UtxoList(
 }
 
 @Composable
-private fun UtxoInfoSection(
-    sendToInfo: UtxoExpertModeModule.InfoItem,
-    changeInfo: UtxoExpertModeModule.InfoItem?,
-    feeInfo: UtxoExpertModeModule.InfoItem
-) {
-    val infoItems = buildList<@Composable () -> Unit> {
-        add {
-            UtxoInfoCell(
-                title = stringResource(R.string.Send_Utxo_SendTo),
-                subtitle = sendToInfo.subTitle,
-                value = sendToInfo.value,
-                subValue = sendToInfo.subValue
-            )
-        }
-        changeInfo?.let {
-            add {
-                UtxoInfoCell(
-                    title = stringResource(R.string.Send_Utxo_Change),
-                    subtitle = changeInfo.subTitle,
-                    value = changeInfo.value,
-                    subValue = changeInfo.subValue
-                )
-            }
-        }
-        add {
-            UtxoInfoCell(
-                title = stringResource(R.string.Send_Fee),
-                subtitle = feeInfo.subTitle,
-                value = feeInfo.value,
-                subValue = feeInfo.subValue
-            )
-        }
-    }
-    infoItems.forEachIndexed { index, composable ->
-        SectionUniversalItem(
-            borderTop = index != 0,
-        ) {
-            composable()
-        }
-    }
-}
-
-@Composable
 private fun UtxoInfoCell(
     title: String,
-    subtitle: String?,
     value: String?,
     subValue: String?
 ) {
@@ -211,9 +175,6 @@ private fun UtxoInfoCell(
             modifier = Modifier.weight(1f)
         ) {
             subhead2_leah(text = title)
-            subtitle?.let {
-                subhead2_grey(text = it)
-            }
         }
         Column(
             horizontalAlignment = Alignment.End
@@ -242,9 +203,9 @@ private fun UtxoCell(
     bottomRoundedCorners: Boolean
 ) {
     val shape = when {
-        topRoundedCorners && bottomRoundedCorners -> RoundedCornerShape(12.dp)
-        topRoundedCorners -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-        bottomRoundedCorners -> RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+        topRoundedCorners && bottomRoundedCorners -> RoundedCornerShape(16.dp)
+        topRoundedCorners -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        bottomRoundedCorners -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
         else -> RoundedCornerShape(0.dp)
     }
     Box(

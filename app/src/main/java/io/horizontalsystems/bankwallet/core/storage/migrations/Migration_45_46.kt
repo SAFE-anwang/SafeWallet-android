@@ -9,13 +9,13 @@ import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.parcelize.Parcelize
 
 object Migration_45_46 : Migration(45, 46) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        renameColumnEnabledWallet(database)
-        renameColumnEnabledWalletCache(database)
-        renameColumnRestoreSettingRecord(database)
-        renameColumnNftCollectionRecord(database)
-        renameColumnNftAssetRecord(database)
-        deleteRecordsAppLogMemory(database)
+    override fun migrate(db: SupportSQLiteDatabase) {
+        renameColumnEnabledWallet(db)
+        renameColumnEnabledWalletCache(db)
+        renameColumnRestoreSettingRecord(db)
+        renameColumnNftCollectionRecord(db)
+        renameColumnNftAssetRecord(db)
+        deleteRecordsAppLogMemory(db)
     }
 
     private fun renameColumnEnabledWallet(database: SupportSQLiteDatabase) {
@@ -93,11 +93,11 @@ object Migration_45_46 : Migration(45, 46) {
             is CoinType.ArbitrumOneErc20 -> {
                 TokenQuery(BlockchainType.ArbitrumOne, TokenType.Eip20(coinType.address))
             }
-            is CoinType.Bep2 -> if (coinType.symbol == "BNB") {
-                TokenQuery(BlockchainType.BinanceChain, TokenType.Native)
-            } else {
-                TokenQuery(BlockchainType.BinanceChain, TokenType.Bep2(coinType.symbol))
-            }
+//            is CoinType.Bep2 -> if (coinType.symbol == "BNB") {
+//                TokenQuery(BlockchainType.BinanceChain, TokenType.Native)
+//            } else {
+//                TokenQuery(BlockchainType.BinanceChain, TokenType.Bep2(coinType.symbol))
+//            }
             else -> {
                 TokenQuery(BlockchainType.Unsupported(""), TokenType.Unsupported("", ""))
             }

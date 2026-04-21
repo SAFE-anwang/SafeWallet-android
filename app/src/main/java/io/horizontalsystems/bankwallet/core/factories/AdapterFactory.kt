@@ -1,11 +1,12 @@
 package io.horizontalsystems.bankwallet.core.factories
 
 import android.content.Context
+import android.util.Log
+import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.ICoinManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
-import io.horizontalsystems.bankwallet.core.adapters.BinanceAdapter
 import io.horizontalsystems.bankwallet.core.adapters.BitcoinAdapter
 import io.horizontalsystems.bankwallet.core.adapters.BitcoinCashAdapter
 import io.horizontalsystems.bankwallet.core.adapters.DashAdapter
@@ -13,41 +14,52 @@ import io.horizontalsystems.bankwallet.core.adapters.ECashAdapter
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmTransactionsAdapter
+import io.horizontalsystems.bankwallet.core.adapters.JettonAdapter
 import io.horizontalsystems.bankwallet.core.adapters.LitecoinAdapter
+import io.horizontalsystems.bankwallet.core.adapters.MoneroAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionConverter
 import io.horizontalsystems.bankwallet.core.adapters.SolanaTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SplAdapter
+import io.horizontalsystems.bankwallet.core.adapters.StellarAdapter
+import io.horizontalsystems.bankwallet.core.adapters.StellarAssetAdapter
+import io.horizontalsystems.bankwallet.core.adapters.StellarTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.TonAdapter
+import io.horizontalsystems.bankwallet.core.adapters.TonTransactionConverter
+import io.horizontalsystems.bankwallet.core.adapters.TonTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.Trc20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.TronAdapter
 import io.horizontalsystems.bankwallet.core.adapters.TronTransactionConverter
 import io.horizontalsystems.bankwallet.core.adapters.TronTransactionsAdapter
 import io.horizontalsystems.bankwallet.core.adapters.*
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
-import io.horizontalsystems.bankwallet.core.managers.BinanceKitManager
 import io.horizontalsystems.bankwallet.core.managers.BtcBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.managers.EvmSyncSourceManager
+import io.horizontalsystems.bankwallet.core.managers.MoneroNodeManager
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettingsManager
 import io.horizontalsystems.bankwallet.core.managers.SolanaKitManager
+import io.horizontalsystems.bankwallet.core.managers.StellarKitManager
+import io.horizontalsystems.bankwallet.core.managers.TonKitManager
 import io.horizontalsystems.bankwallet.core.managers.TronKitManager
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
-import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.tonkit.Address
 
 class AdapterFactory(
     private val context: Context,
     private val btcBlockchainManager: BtcBlockchainManager,
     private val evmBlockchainManager: EvmBlockchainManager,
     private val evmSyncSourceManager: EvmSyncSourceManager,
-    private val binanceKitManager: BinanceKitManager,
     private val solanaKitManager: SolanaKitManager,
     private val tronKitManager: TronKitManager,
+    private val tonKitManager: TonKitManager,
+    private val stellarKitManager: StellarKitManager,
+    private val moneroNodeManager: MoneroNodeManager,
     private val backgroundManager: BackgroundManager,
     private val restoreSettingsManager: RestoreSettingsManager,
     private val coinManager: ICoinManager,
@@ -79,13 +91,33 @@ class AdapterFactory(
         return SplAdapter(solanaKitWrapper, wallet, address)
     }
 
-    private fun getTrc20Adapter(wallet: Wallet, address: String): IAdapter {
+    private fun getTrc20Adapter(wallet: Wallet, address: String): Trc20Adapter? {
         val tronKitWrapper = tronKitManager.getTronKitWrapper(wallet.account)
+        val baseToken = coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: return null
 
-        return Trc20Adapter(tronKitWrapper, address, wallet)
+        return Trc20Adapter(tronKitWrapper, address, wallet, coinManager, baseToken, evmLabelManager)
     }
 
-    fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
+    private fun getJettonAdapter(wallet: Wallet, address: String): IAdapter {
+        val tonKitWrapper = tonKitManager.getTonKitWrapper(wallet.account)
+
+        return JettonAdapter(tonKitWrapper, address, wallet)
+    }
+
+    private fun getStellarAssetAdapter(wallet: Wallet, code: String, issuer: String): IAdapter {
+        val stellarKitWrapper = stellarKitManager.getStellarKitWrapper(wallet.account)
+
+        return StellarAssetAdapter(stellarKitWrapper, code, issuer)
+    }
+
+    fun getAdapterOrNull(wallet: Wallet) = try {
+        getAdapter(wallet)
+    } catch (e: Throwable) {
+        Log.e("AAA", "get adapter error", e)
+        null
+    }
+
+    private fun getAdapter(wallet: Wallet) = when (val tokenType = wallet.token.type) {
         is TokenType.Derived -> {
             when (wallet.token.blockchainType) {
                 BlockchainType.Bitcoin -> {
@@ -137,14 +169,12 @@ class AdapterFactory(
             BlockchainType.Polygon,
             BlockchainType.Avalanche,
             BlockchainType.Optimism,
+            BlockchainType.Base,
+            BlockchainType.ZkSync,
             BlockchainType.Gnosis,
             BlockchainType.Fantom,
             BlockchainType.ArbitrumOne -> {
                 getEvmAdapter(wallet)
-            }
-
-            BlockchainType.BinanceChain -> {
-                getBinanceAdapter(wallet, "BNB")
             }
 
             BlockchainType.Solana -> {
@@ -155,7 +185,18 @@ class AdapterFactory(
                 TronAdapter(tronKitManager.getTronKitWrapper(wallet.account))
             }
             BlockchainType.Ton -> {
-                TonAdapter(wallet)
+                TonAdapter(tonKitManager.getTonKitWrapper(wallet.account))
+            }
+            BlockchainType.Stellar -> {
+                StellarAdapter(stellarKitManager.getStellarKitWrapper(wallet.account))
+            }
+            BlockchainType.Monero -> {
+                MoneroAdapter.create(
+                    context = context,
+                    wallet = wallet,
+                    restoreSettings = restoreSettingsManager.settings(wallet.account, wallet.token.blockchainType),
+                    node = moneroNodeManager.currentNode
+                )
             }
 
             else -> null
@@ -167,26 +208,14 @@ class AdapterFactory(
                 getEip20Adapter(wallet, tokenType.address)
             }
         }
-        is TokenType.Bep2 -> getBinanceAdapter(wallet, tokenType.symbol)
         is TokenType.Spl -> getSplAdapter(wallet, tokenType.address)
+        is TokenType.Jetton -> getJettonAdapter(wallet, tokenType.address)
+        is TokenType.Asset -> getStellarAssetAdapter(wallet, tokenType.code, tokenType.issuer)
         is TokenType.Unsupported -> null
     }
 
-    private fun getBinanceAdapter(
-        wallet: Wallet,
-        symbol: String
-    ): BinanceAdapter? {
-        val query = TokenQuery(BlockchainType.BinanceChain, TokenType.Native)
-        return coinManager.getToken(query)?.let { feeToken ->
-            BinanceAdapter(binanceKitManager.binanceKit(wallet), symbol, feeToken, wallet)
-        }
-    }
-
-    fun evmTransactionsAdapter(source: TransactionSource, blockchainType: BlockchainType, isSafe4CustomCoin: Boolean = false, address: String = ""): ITransactionsAdapter? {
+    fun evmTransactionsAdapter(source: TransactionSource, blockchainType: BlockchainType): ITransactionsAdapter? {
         val evmKitWrapper = evmBlockchainManager.getEvmKitManager(blockchainType).getEvmKitWrapper(source.account, blockchainType)
-        /*val baseCoin = (if (isSafe4CustomCoin)
-                evmBlockchainManager.getBaseToken(blockchainType, address)
-            else*/
         val baseCoin = evmBlockchainManager.getBaseToken(blockchainType) ?: return null
         val syncSource = evmSyncSourceManager.getSyncSource(blockchainType)
 
@@ -209,24 +238,68 @@ class AdapterFactory(
         return TronTransactionsAdapter(tronKitWrapper, tronTransactionConverter)
     }
 
+    fun tonTransactionsAdapter(source: TransactionSource): ITransactionsAdapter? {
+        val tonKitWrapper = tonKitManager.getTonKitWrapper(source.account)
+        val address = tonKitWrapper.tonKit.receiveAddress
+
+        val tonTransactionConverter = tonTransactionConverter(address, source) ?: return null
+
+        return TonTransactionsAdapter(tonKitWrapper, tonTransactionConverter)
+    }
+
+    fun stellarTransactionsAdapter(source: TransactionSource): ITransactionsAdapter? {
+        val stellarKitWrapper = stellarKitManager.getStellarKitWrapper(source.account)
+
+        val tokenQuery = TokenQuery(BlockchainType.Stellar, TokenType.Native)
+        val baseToken = coinManager.getToken(tokenQuery) ?: return null
+
+        val transactionConverter = StellarTransactionConverter(
+            source,
+            stellarKitWrapper.stellarKit.receiveAddress,
+            coinManager,
+            baseToken
+        )
+
+        return StellarTransactionsAdapter(stellarKitWrapper, transactionConverter)
+    }
+
+    fun tonTransactionConverter(
+        address: Address,
+        source: TransactionSource,
+    ): TonTransactionConverter? {
+        val query = TokenQuery(BlockchainType.Ton, TokenType.Native)
+        val baseToken = coinManager.getToken(query) ?: return null
+        return TonTransactionConverter(
+            address,
+            coinManager,
+            source,
+            baseToken
+        )
+    }
+
     fun unlinkAdapter(wallet: Wallet) {
         when (val blockchainType = wallet.transactionSource.blockchain.type) {
             BlockchainType.Ethereum,
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
+            BlockchainType.Base,
+            BlockchainType.ZkSync,
             BlockchainType.ArbitrumOne -> {
                 val evmKitManager = evmBlockchainManager.getEvmKitManager(blockchainType)
                 evmKitManager.unlink(wallet.account)
-            }
-            BlockchainType.BinanceChain -> {
-                binanceKitManager.unlink(wallet.account)
             }
             BlockchainType.Solana -> {
                 solanaKitManager.unlink(wallet.account)
             }
             BlockchainType.Tron -> {
                 tronKitManager.unlink(wallet.account)
+            }
+            BlockchainType.Ton -> {
+                tonKitManager.unlink(wallet.account)
+            }
+            BlockchainType.Stellar -> {
+                stellarKitManager.unlink(wallet.account)
             }
             else -> Unit
         }
@@ -238,6 +311,8 @@ class AdapterFactory(
             BlockchainType.BinanceSmartChain,
             BlockchainType.Polygon,
             BlockchainType.Optimism,
+            BlockchainType.Base,
+            BlockchainType.ZkSync,
             BlockchainType.ArbitrumOne -> {
                 val evmKitManager = evmBlockchainManager.getEvmKitManager(blockchainType)
                 evmKitManager.unlink(transactionSource.account)
@@ -247,6 +322,12 @@ class AdapterFactory(
             }
             BlockchainType.Tron -> {
                 tronKitManager.unlink(transactionSource.account)
+            }
+            BlockchainType.Ton -> {
+                tonKitManager.unlink(transactionSource.account)
+            }
+            BlockchainType.Stellar -> {
+                stellarKitManager.unlink(transactionSource.account)
             }
             else -> Unit
         }

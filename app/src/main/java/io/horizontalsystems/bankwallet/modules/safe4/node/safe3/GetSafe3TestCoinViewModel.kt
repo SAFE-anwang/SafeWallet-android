@@ -8,7 +8,7 @@ import cash.z.ecc.android.sdk.ext.collectWith
 import com.anwang.types.safe3.AvailableSafe3Info
 import com.anwang.types.safe3.LockedSafe3Info
 import com.anwang.utils.Safe3Util
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
@@ -98,7 +98,7 @@ class GetSafe3TestCoinViewModel(
 						getResponse = it
 						getStatus = it.status
 						if (getStatus) {
-							sendResult = SendResult.Sent
+							sendResult = SendResult.Sent()
 							canEnable = false
 						} else {
 							sendResult = SendResult.Failed(createCaution(Throwable(it.message)))
@@ -119,7 +119,7 @@ class GetSafe3TestCoinViewModel(
 		super.onCleared()
 		disposables.clear()
 
-		sendResult = SendResult.Sent
+		sendResult = SendResult.Sent()
 	}
 
 	data class GetResult(

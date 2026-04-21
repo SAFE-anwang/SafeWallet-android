@@ -51,8 +51,8 @@ class SafeFourModule {
             val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
             val isSuperNode = nodeType == NodeType.SuperNode.ordinal
 
-            val addressService = SendEvmAddressService(adapter.evmKitWrapper.evmKit.receiveAddress.hex)
-
+            val addressService = SendEvmAddressService()
+            addressService.setAddress(io.horizontalsystems.bankwallet.entities.Address(adapter.evmKitWrapper.evmKit.receiveAddress.hex))
             return SafeFourNodeEditViewModel(
                 wallet,
                 isSuperNode,

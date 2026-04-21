@@ -2,7 +2,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.src20
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.toLowerCase
-import com.google.android.exoplayer2.util.Log
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter

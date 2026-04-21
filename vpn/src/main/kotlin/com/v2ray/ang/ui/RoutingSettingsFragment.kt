@@ -24,7 +24,7 @@ class RoutingSettingsFragment : Fragment() {
         private const val routing_arg = "routing_arg"
     }
 
-    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
+    val defaultSharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

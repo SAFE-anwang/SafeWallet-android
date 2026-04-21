@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.storage.LockRecordDao
 import io.horizontalsystems.bankwallet.core.storage.ProposalRecordDao
 

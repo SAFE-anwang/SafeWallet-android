@@ -1,14 +1,12 @@
 package io.horizontalsystems.bankwallet.core.managers
 
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.BackgroundManager
+import io.horizontalsystems.bankwallet.core.BackgroundManagerState
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
-import io.horizontalsystems.bankwallet.core.subscribeIO
-import io.horizontalsystems.bankwallet.core.supportedNftTypes
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
-import io.horizontalsystems.core.BackgroundManager
 import io.horizontalsystems.erc20kit.core.Erc20Kit
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.core.signer.Signer
@@ -29,30 +27,31 @@ import io.horizontalsystems.uniswapkit.UniswapKit
 import io.horizontalsystems.uniswapkit.UniswapV3Kit
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.math.BigInteger
 import java.net.URI
 
 class EvmKitManager(
     val chain: Chain,
-    backgroundManager: BackgroundManager,
+    private val backgroundManager: BackgroundManager,
     private val syncSourceManager: EvmSyncSourceManager
-) : BackgroundManager.Listener {
-
-    private val disposables = CompositeDisposable()
+) {
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var job: Job? = null
 
     init {
-        backgroundManager.registerListener(this)
-
-        syncSourceManager.syncSourceObservable
-            .subscribeIO { blockchain ->
+        coroutineScope.launch {
+            syncSourceManager.syncSourceObservable.asFlow().collect { blockchain ->
                 handleUpdateNetwork(blockchain)
             }
-            .let {
-                disposables.add(it)
-            }
+        }
     }
 
     private fun handleUpdateNetwork(blockchainType: BlockchainType) {
@@ -95,6 +94,7 @@ class EvmKitManager(
             evmKitWrapper = createKitInstance(accountType, account, blockchainType)
             useCount = 0
             currentAccount = account
+            subscribeToEvents()
         }
 
         useCount++
@@ -157,31 +157,44 @@ class EvmKitManager(
         }
         OneInchKit.addDecorators(evmKit)
 
-        var nftKit: NftKit? = null
-        val supportedNftTypes = blockchainType.supportedNftTypes
-        if (supportedNftTypes.isNotEmpty()) {
-            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
-            supportedNftTypes.forEach {
-                when (it) {
-                    NftType.Eip721 -> {
-                        nftKitInstance.addEip721TransactionSyncer()
-                        nftKitInstance.addEip721Decorators()
-                    }
-                    NftType.Eip1155 -> {
-                        nftKitInstance.addEip1155TransactionSyncer()
-                        nftKitInstance.addEip1155Decorators()
-                    }
-                }
-            }
-            nftKit = nftKitInstance
-        }
+        val nftKit: NftKit? = null
+//        var nftKit: NftKit? = null
+//        val supportedNftTypes = blockchainType.supportedNftTypes
+//        if (supportedNftTypes.isNotEmpty()) {
+//            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
+//            supportedNftTypes.forEach {
+//                when (it) {
+//                    NftType.Eip721 -> {
+//                        nftKitInstance.addEip721TransactionSyncer()
+//                        nftKitInstance.addEip721Decorators()
+//                    }
+//                    NftType.Eip1155 -> {
+//                        nftKitInstance.addEip1155TransactionSyncer()
+//                        nftKitInstance.addEip1155Decorators()
+//                    }
+//                }
+//            }
+//            nftKit = nftKitInstance
+//        }
+
+        /*val merkleTransactionAdapter = MerkleTransactionAdapter.getInstance(
+            merkleIoPubKey = "pk_mbs_5f012edb2cf20a96b49429a3ed285a45",
+            address = address,
+            chain = chain,
+            context = App.instance,
+            walletId = account.id,
+            transactionManager = evmKit.transactionManager,
+            sourceTag = "unstoppable-wallet-android"
+        )
+
+        merkleTransactionAdapter?.registerInKit(evmKit)*/
 
         evmKit.start()
         seed?.let {
             evmKit.getAnBaoAllAddressInfo(it)
         }
 
-        return EvmKitWrapper(evmKit, nftKit, blockchainType, signer)
+        return EvmKitWrapper(evmKit, nftKit, blockchainType, signer, /*merkleTransactionAdapter*/)
     }
 
     @Synchronized
@@ -190,30 +203,37 @@ class EvmKitManager(
             useCount -= 1
 
             if (useCount < 1) {
+                Log.d("AAA", "stopEvmKit()")
                 stopEvmKit()
             }
         }
     }
 
+    private fun subscribeToEvents(){
+        job = coroutineScope.launch {
+            backgroundManager.stateFlow.collect { state ->
+                when (state) {
+                    BackgroundManagerState.EnterForeground -> {
+                        evmKitWrapper?.evmKit?.let { kit ->
+                            kit.onEnterForeground()
+                            delay(1000)
+                            kit.refresh()
+                        }
+                    }
+                    BackgroundManagerState.EnterBackground -> {
+                        evmKitWrapper?.evmKit?.onEnterBackground()
+                    }
+                }
+            }
+        }
+    }
+
     private fun stopEvmKit() {
+        job?.cancel()
         evmKitWrapper?.evmKit?.stop()
         evmKitWrapper = null
         currentAccount = null
     }
-
-    //
-    // BackgroundManager.Listener
-    //
-
-    override fun willEnterForeground() {
-        this.evmKitWrapper?.evmKit?.let { kit ->
-            Handler(Looper.getMainLooper()).postDelayed({
-                kit.refresh()
-            }, 1000)
-        }
-    }
-
-    override fun didEnterBackground() = Unit
 }
 
 val RpcSource.uris: List<URI>
@@ -226,7 +246,8 @@ class EvmKitWrapper(
     val evmKit: EthereumKit,
     val nftKit: NftKit?,
     val blockchainType: BlockchainType,
-    val signer: Signer?
+    val signer: Signer?,
+//    val merkleTransactionAdapter: MerkleTransactionAdapter?
 ) {
 
     fun sendSingle(
@@ -234,24 +255,28 @@ class EvmKitWrapper(
         gasPrice: GasPrice,
         gasLimit: Long,
         nonce: Long?,
+        mevProtectionEnabled: Boolean,
         lockTime: Int? = null
     ): Single<FullTransaction> {
-        return if (signer != null) {
-            if (lockTime == null) {
-                evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
-                        .flatMap { rawTransaction ->
-                            val signature = signer.signature(rawTransaction)
-                            evmKit.send(rawTransaction, signature, signer.privateKey)
-                        }
-            } else {
-                evmKit.safe4LockRawTransaction(transactionData, gasPrice, gasLimit, lockTime, nonce)
-                        .flatMap { rawTransaction ->
-                            val signature = signer.signature(rawTransaction)
-                            evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
-                        }
-            }
+        if (signer == null) return Single.error(Exception())
+//        if (mevProtectionEnabled && merkleTransactionAdapter == null) return Single.error(Exception())
+        if (lockTime == null) {
+            return evmKit.rawTransaction(transactionData, gasPrice, gasLimit, nonce)
+                .flatMap { rawTransaction ->
+                    val signature = signer.signature(rawTransaction)
+
+//                    if (mevProtectionEnabled && merkleTransactionAdapter != null) {
+//                        merkleTransactionAdapter.send(rawTransaction, signature)
+//                    } else {
+                        evmKit.send(rawTransaction, signature, signer.privateKey)
+//                    }
+                }
         } else {
-            Single.error(Exception())
+            return evmKit.safe4LockRawTransaction(transactionData, gasPrice, gasLimit, lockTime, nonce)
+                .flatMap { rawTransaction ->
+                    val signature = signer.signature(rawTransaction)
+                    evmKit.send(rawTransaction, signature, signer.privateKey, lockTime)
+                }
         }
     }
 

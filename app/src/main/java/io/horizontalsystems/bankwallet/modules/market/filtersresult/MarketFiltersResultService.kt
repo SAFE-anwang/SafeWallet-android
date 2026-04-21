@@ -1,56 +1,62 @@
 package io.horizontalsystems.bankwallet.modules.market.filtersresult
 
 import io.horizontalsystems.bankwallet.core.managers.MarketFavoritesManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.core.managers.SignalsControlManager
 import io.horizontalsystems.bankwallet.entities.DataState
-import io.horizontalsystems.bankwallet.modules.market.MarketField
 import io.horizontalsystems.bankwallet.modules.market.MarketItem
 import io.horizontalsystems.bankwallet.modules.market.SortingField
-import io.horizontalsystems.bankwallet.modules.market.category.MarketCategoryModule
-import io.horizontalsystems.bankwallet.modules.market.category.MarketItemWrapper
+import io.horizontalsystems.bankwallet.modules.market.favorites.MarketItemWrapper
 import io.horizontalsystems.bankwallet.modules.market.filters.IMarketListFetcher
 import io.horizontalsystems.bankwallet.modules.market.sort
-import io.horizontalsystems.bankwallet.ui.compose.Select
-import io.reactivex.disposables.Disposable
+import io.horizontalsystems.marketkit.models.Analytics
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.rx2.await
 
 class MarketFiltersResultService(
     private val fetcher: IMarketListFetcher,
     private val favoritesManager: MarketFavoritesManager,
+    private val signalsControlManager: SignalsControlManager,
+    private val marketKitWrapper: MarketKitWrapper,
 ) {
+    val showSignals: Boolean
+        get() = signalsControlManager.showSignals
     val stateObservable: BehaviorSubject<DataState<List<MarketItemWrapper>>> =
         BehaviorSubject.create()
 
     var marketItems: List<MarketItem> = listOf()
+    var signals: Map<String, Analytics.TechnicalAdvice.Advice> = mapOf()
 
-    val sortingFields = SortingField.values().toList()
-    private val marketFields = MarketField.values().toList()
+    val sortingFields = listOf(
+        SortingField.HighestCap,
+        SortingField.LowestCap,
+        SortingField.TopGainers,
+        SortingField.TopLosers,
+    )
+
     var sortingField = SortingField.HighestCap
-    var marketField = MarketField.PriceDiff
 
-    val menu: MarketCategoryModule.Menu
-        get() = MarketCategoryModule.Menu(
-            Select(sortingField, sortingFields),
-            Select(marketField, marketFields)
-        )
-
-    private var fetchDisposable: Disposable? = null
-    private var favoriteDisposable: Disposable? = null
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private var fetchJob: Job? = null
 
     fun start() {
-        fetch()
-
-        favoritesManager.dataUpdatedAsync
-            .subscribeIO {
+        coroutineScope.launch {
+            favoritesManager.dataUpdatedAsync.asFlow().collect {
                 syncItems()
-            }.let {
-                favoriteDisposable = it
             }
+        }
+
+        fetch()
     }
 
     fun stop() {
-        favoriteDisposable?.dispose()
-        fetchDisposable?.dispose()
+        coroutineScope.cancel()
     }
 
     fun refresh() {
@@ -70,18 +76,32 @@ class MarketFiltersResultService(
         favoritesManager.remove(coinUid)
     }
 
-    private fun fetch() {
-        fetchDisposable?.dispose()
+    fun showSignals() {
+        signalsControlManager.showSignals = true
+        refresh()
+    }
 
-        fetcher.fetchAsync()
-            .subscribeIO({
-                marketItems = it
+    fun hideSignals() {
+        signalsControlManager.showSignals = false
+        refresh()
+    }
+
+    private fun fetch() {
+        fetchJob?.cancel()
+
+        fetchJob = coroutineScope.launch {
+            try {
+                marketItems = fetcher.fetchAsync().await()
+                if (showSignals) {
+                    signals = marketKitWrapper
+                        .getCoinSignalsSingle(marketItems.map { it.fullCoin.coin.uid })
+                        .await()
+                }
                 syncItems()
-            }, {
-                stateObservable.onNext(DataState.Error(it))
-            }).let {
-                fetchDisposable = it
+            } catch (e: Throwable) {
+                stateObservable.onNext(DataState.Error(e))
             }
+        }
     }
 
     private fun syncItems() {
@@ -89,7 +109,13 @@ class MarketFiltersResultService(
 
         val items = marketItems
             .sort(sortingField)
-            .map { MarketItemWrapper(it, favorites.contains(it.fullCoin.coin.uid)) }
+            .map {
+                MarketItemWrapper(
+                    marketItem = it,
+                    favorited = favorites.contains(it.fullCoin.coin.uid),
+                    signal = if (showSignals) signals[it.fullCoin.coin.uid] else null
+                )
+            }
 
         stateObservable.onNext(DataState.Success(items))
     }

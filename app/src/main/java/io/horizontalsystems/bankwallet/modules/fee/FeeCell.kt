@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.fee
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,6 +30,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 
+@SuppressLint("RememberInComposition")
 @Composable
 fun FeeCell(
     title: String,
@@ -85,7 +87,7 @@ fun FeeCell(
                     modifier = Modifier.alpha(if (viewState == ViewState.Loading) 0f else 1f),
                     text = value?.primary ?: stringResource(id = R.string.NotAvailable),
                     maxLines = 1,
-                    style = ComposeAppTheme.typography.subhead1,
+                    style = ComposeAppTheme.typography.subheadB,
                     color = color
                 )
                 Text(

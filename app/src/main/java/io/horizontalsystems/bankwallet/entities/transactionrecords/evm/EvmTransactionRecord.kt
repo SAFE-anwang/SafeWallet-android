@@ -14,7 +14,7 @@ open class EvmTransactionRecord(
     baseToken: Token,
     source: TransactionSource,
     val foreignTransaction: Boolean = false,
-    spam: Boolean = false
+    spam: Boolean = false,
 ) :
     TransactionRecord(
         uid = transaction.hashString,
@@ -90,6 +90,7 @@ open class EvmTransactionRecord(
 
                     is TransactionValue.RawValue -> value
                     is TransactionValue.NftValue -> value.copy(value = totalValue)
+                    is TransactionValue.JettonValue -> value
                 }
 
                 if (totalValue > BigDecimal.ZERO) {

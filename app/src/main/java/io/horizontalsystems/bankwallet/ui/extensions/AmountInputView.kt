@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.databinding.ViewInputAmountBinding
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryCircle
@@ -126,20 +126,20 @@ class AmountInputView @JvmOverloads constructor(
         }
     }
 
-    private fun getPrimaryTextColor(type: AmountTypeSwitchService.AmountType): Int {
+    private fun getPrimaryTextColor(type: AmountTypeSwitchServiceSendEvm.AmountType): Int {
         return when (type) {
-            AmountTypeSwitchService.AmountType.Currency -> R.color.jacob
-            AmountTypeSwitchService.AmountType.Coin -> R.color.oz
+            AmountTypeSwitchServiceSendEvm.AmountType.Currency -> R.color.jacob
+            AmountTypeSwitchServiceSendEvm.AmountType.Coin -> R.color.oz
         }
     }
 
     private fun getSecondaryTextColor(
-        type: AmountTypeSwitchService.AmountType,
+        type: AmountTypeSwitchServiceSendEvm.AmountType,
         switchEnabled: Boolean
     ): Int {
         return when {
             !switchEnabled -> R.color.grey_50
-            type == AmountTypeSwitchService.AmountType.Coin -> R.color.jacob
+            type == AmountTypeSwitchServiceSendEvm.AmountType.Coin -> R.color.jacob
             else -> R.color.oz
         }
     }
@@ -174,7 +174,7 @@ class AmountInputView @JvmOverloads constructor(
     }
 
     class InputParams(
-        val amountType: AmountTypeSwitchService.AmountType,
+        val amountType: AmountTypeSwitchServiceSendEvm.AmountType,
         val primaryPrefix: String?,
         val switchEnabled: Boolean
     )

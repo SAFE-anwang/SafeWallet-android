@@ -41,32 +41,15 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.Wallet
-import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
-import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
-import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
-import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
-import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendActivity
-import io.horizontalsystems.bankwallet.modules.send.SendFragment
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
-import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityListViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.LiquidityViewItem
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.DraggableCardSimple
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryCircle
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefault
-import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaultBlue
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.bankwallet.ui.compose.components.CellMultilineClear
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
-import io.horizontalsystems.bankwallet.ui.compose.components.RateColor
-import io.horizontalsystems.bankwallet.ui.compose.components.RateText
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
-import io.horizontalsystems.marketkit.models.BlockchainType
 
 @Composable
 fun LiquidityCardSwipable(
@@ -146,7 +129,7 @@ fun LiquidityCard(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(ComposeAppTheme.colors.jeremy)
+                                        .background(ComposeAppTheme.colors.grey)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(
@@ -155,7 +138,7 @@ fun LiquidityCard(
                                             bottom = 1.dp
                                         ),
                                         text = viewItem.walletA.badge!!,
-                                        color = ComposeAppTheme.colors.bran,
+                                        color = ComposeAppTheme.colors.lawrence,
                                         style = ComposeAppTheme.typography.microSB,
                                         maxLines = 1,
                                     )
@@ -208,7 +191,7 @@ fun LiquidityCard(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(ComposeAppTheme.colors.jeremy)
+                                        .background(ComposeAppTheme.colors.grey)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(
@@ -217,7 +200,7 @@ fun LiquidityCard(
                                             bottom = 1.dp
                                         ),
                                         text = viewItem.walletB.badge!!,
-                                        color = ComposeAppTheme.colors.bran,
+                                        color = ComposeAppTheme.colors.lawrence,
                                         style = ComposeAppTheme.typography.microSB,
                                         maxLines = 1,
                                     )
@@ -342,7 +325,7 @@ fun RemoveLiquidityCard(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(ComposeAppTheme.colors.jeremy)
+                                        .background(ComposeAppTheme.colors.grey)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(
@@ -351,7 +334,7 @@ fun RemoveLiquidityCard(
                                             bottom = 1.dp
                                         ),
                                         text = viewItem.walletA.badge!!,
-                                        color = ComposeAppTheme.colors.bran,
+                                        color = ComposeAppTheme.colors.lawrence,
                                         style = ComposeAppTheme.typography.microSB,
                                         maxLines = 1,
                                     )
@@ -404,7 +387,7 @@ fun RemoveLiquidityCard(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(ComposeAppTheme.colors.jeremy)
+                                        .background(ComposeAppTheme.colors.grey)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(
@@ -413,7 +396,7 @@ fun RemoveLiquidityCard(
                                             bottom = 1.dp
                                         ),
                                         text = viewItem.walletB.badge!!,
-                                        color = ComposeAppTheme.colors.bran,
+                                        color = ComposeAppTheme.colors.lawrence,
                                         style = ComposeAppTheme.typography.microSB,
                                         maxLines = 1,
                                     )

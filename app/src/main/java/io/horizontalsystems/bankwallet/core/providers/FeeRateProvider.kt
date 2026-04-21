@@ -1,9 +1,10 @@
 package io.horizontalsystems.bankwallet.core.providers
 
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IFeeRateProvider
 import io.horizontalsystems.feeratekit.FeeRateKit
 import io.horizontalsystems.feeratekit.model.FeeProviderConfig
-import io.horizontalsystems.feeratekit.providers.MempoolSpaceProvider
+import io.horizontalsystems.feeratekit.providers.BitcoinFeeProvider
 import io.reactivex.Single
 import kotlinx.coroutines.rx2.await
 import java.math.BigInteger
@@ -16,33 +17,35 @@ class FeeRateProvider(appConfig: AppConfigProvider) {
                 ethEvmUrl = appConfig.blocksDecodedEthereumRpc,
                 ethEvmAuth = null,
                 bscEvmUrl = FeeProviderConfig.defaultBscEvmUrl(),
-                mempoolSpaceUrl = appConfig.mempoolSpaceUrl
+                mempoolSpaceUrl = appConfig.mempoolSpaceUrl,
+                blockCypherUrl = appConfig.blockCypherUrl,
+                torEnabled = App.torKitManager.isTorEnabled
             )
         )
     }
 
-    fun bitcoinFeeRate(): Single<MempoolSpaceProvider.RecommendedFees> {
+    suspend fun bitcoinFeeRate(): BitcoinFeeProvider.RecommendedFees {
         return feeRateKit.bitcoin()
     }
 
-    fun litecoinFeeRate(): Single<BigInteger> {
+    suspend fun litecoinFeeRate(): BigInteger {
         return feeRateKit.litecoin()
     }
 
-    fun dogecoinFeeRate(): Single<BigInteger> {
-        return Single.just(BigInteger("4000"))
+    suspend fun dogecoinFeeRate(): BigInteger {
+        return BigInteger("4000")
     }
 
-    fun bitcoinCashFeeRate(): Single<BigInteger> {
+    suspend fun bitcoinCashFeeRate(): BigInteger {
         return feeRateKit.bitcoinCash()
     }
 
-    fun dashFeeRate(): Single<BigInteger> {
+    suspend fun dashFeeRate(): BigInteger {
         return feeRateKit.dash()
     }
 
-    fun safeFeeRate(): Single<BigInteger> {
-        return Single.just(BigInteger("10"))
+    fun safeFeeRate(): BigInteger {
+        return BigInteger("10")
     }
 
 }
@@ -51,48 +54,48 @@ class BitcoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFe
     override val feeRateChangeable = true
 
     override suspend fun getFeeRates(): FeeRates {
-        val bitcoinFeeRate = feeRateProvider.bitcoinFeeRate().await()
+        val bitcoinFeeRate = feeRateProvider.bitcoinFeeRate()
         return FeeRates(bitcoinFeeRate.halfHourFee, bitcoinFeeRate.minimumFee)
     }
 }
 
 class LitecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        val feeRate = feeRateProvider.litecoinFeeRate().await()
+        val feeRate = feeRateProvider.litecoinFeeRate()
         return FeeRates(feeRate.toInt())
     }
 }
 
 class DogecoinFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        val feeRate = feeRateProvider.dogecoinFeeRate().await()
+        val feeRate = feeRateProvider.dogecoinFeeRate()
         return FeeRates(feeRate.toInt())
     }
 }
 
 class BitcoinCashFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        val feeRate = feeRateProvider.bitcoinCashFeeRate().await()
+        val feeRate = feeRateProvider.bitcoinCashFeeRate()
         return FeeRates(feeRate.toInt())
     }
 }
 
 class DashFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        val feeRate = feeRateProvider.dashFeeRate().await()
+        val feeRate = feeRateProvider.dashFeeRate()
         return FeeRates(feeRate.toInt())
     }
 }
 
 class ECashFeeRateProvider : IFeeRateProvider {
     override suspend fun getFeeRates(): FeeRates {
-        return FeeRates(1)
+        return FeeRates(2)
     }
 }
 
 class SafeFeeRateProvider(private val feeRateProvider: FeeRateProvider) : IFeeRateProvider {
     override suspend fun getFeeRates() : FeeRates {
-        val feeRate = feeRateProvider.safeFeeRate().await()
+        val feeRate = feeRateProvider.safeFeeRate()
         return FeeRates(feeRate.toInt())
     }
 }

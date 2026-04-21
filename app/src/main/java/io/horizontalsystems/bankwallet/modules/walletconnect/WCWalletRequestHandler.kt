@@ -9,7 +9,7 @@ import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
 import io.horizontalsystems.ethereumkit.core.hexStringToIntOrNull
 
 class WCWalletRequestHandler(
-        private val evmBlockchainManager: EvmBlockchainManager
+    private val evmBlockchainManager: EvmBlockchainManager
 ) {
     private val gson by lazy { Gson() }
 
@@ -25,33 +25,33 @@ class WCWalletRequestHandler(
                     val blockchain = chain.chainId.hexStringToIntOrNull()?.let { evmBlockchainManager.getBlockchain(it) }
                     if (blockchain != null) {
                         val response = Wallet.Params.SessionRequestResponse(
-                                sessionTopic = sessionRequest.topic,
-                                jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcResult(
-                                        id = request.id,
-                                        result = "null"
-                                )
+                            sessionTopic = sessionRequest.topic,
+                            jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcResult(
+                                id = request.id,
+                                result = "null"
+                            )
                         )
                         Web3Wallet.respondSessionRequest(
-                                params = response,
-                                onSuccess = {},
-                                onError = { error ->
-                                    Log.e("WCWalletHandler", "${request.method} response error: $error")
-                                })
+                            params = response,
+                            onSuccess = {},
+                            onError = { error ->
+                                Log.e("WCWalletHandler", "${request.method} response error: $error")
+                            })
 
                     } else {
                         val result = Wallet.Params.SessionRequestResponse(
-                                sessionTopic = sessionRequest.topic,
-                                jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
-                                        id = request.id,
-                                        code = 4902,
-                                        message = "Unrecognized chain ID"
-                                )
+                            sessionTopic = sessionRequest.topic,
+                            jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
+                                id = request.id,
+                                code = 4902,
+                                message = "Unrecognized chain ID"
+                            )
                         )
                         Web3Wallet.respondSessionRequest(result,
-                                onSuccess = {},
-                                onError = { error ->
-                                    Log.e("WCWalletHandler", "${request.method} response error: $error")
-                                })
+                            onSuccess = {},
+                            onError = { error ->
+                                Log.e("WCWalletHandler", "${request.method} response error: $error")
+                            })
                     }
 
                     true
@@ -65,18 +65,18 @@ class WCWalletRequestHandler(
     }
 
     data class WalletConnectChain(
-            val chainId: String,
-            val chainName: String?,
-            val rpcUrls: List<String>?,
-            val iconUrls: List<String>?,
-            val nativeCurrency: WalletConnectNativeCurrency?,
-            val blockExplorerUrls: List<String>?,
+        val chainId: String,
+        val chainName: String?,
+        val rpcUrls: List<String>?,
+        val iconUrls: List<String>?,
+        val nativeCurrency: WalletConnectNativeCurrency?,
+        val blockExplorerUrls: List<String>?,
     )
 
     data class WalletConnectNativeCurrency(
-            val name: String,
-            val symbol: String,
-            val decimals: Int,
+        val name: String,
+        val symbol: String,
+        val decimals: Int,
     )
 
 }

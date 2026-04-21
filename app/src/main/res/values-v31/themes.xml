@@ -4,7 +4,8 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/tyler</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_safe_start_screen</item>
         <item name="windowSplashScreenAnimationDuration">300</item>
-        <item name="postSplashScreenTheme">@style/Theme.AppTheme</item>
+        <item name="postSplashScreenTheme">@style/Theme.AppTheme.DayNight</item>
     </style>
 </resources>

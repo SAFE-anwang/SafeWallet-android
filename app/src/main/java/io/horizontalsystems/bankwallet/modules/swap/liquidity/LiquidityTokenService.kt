@@ -1,7 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.swap.liquidity
 
 import cash.z.ecc.android.sdk.ext.collectWith
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.CoinValue
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
@@ -19,7 +19,7 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 class LiquidityTokenService(
-    private val switchService: AmountTypeSwitchService,
+    private val switchService: AmountTypeSwitchServiceSendEvm,
     private val fiatService: FiatService,
     private val resetAmountOnCoinSelect: Boolean,
     initialToken: Token?,
@@ -30,7 +30,7 @@ class LiquidityTokenService(
 
     var token: Token? = initialToken
         private set
-    private var primaryPrefix = if (switchService.amountType == AmountTypeSwitchService.AmountType.Currency) fiatService.currency.symbol else null
+    private var primaryPrefix = if (switchService.amountType == AmountTypeSwitchServiceSendEvm.AmountType.Currency) fiatService.currency.symbol else null
 
     private var amount = ""
     private var secondaryInfo: String = ""
@@ -73,8 +73,8 @@ class LiquidityTokenService(
     private val validDecimals: Int
         get() {
             val decimals = when (switchService.amountType) {
-                AmountTypeSwitchService.AmountType.Coin -> token?.decimals ?: maxValidDecimals
-                AmountTypeSwitchService.AmountType.Currency -> fiatService.currency.decimal
+                AmountTypeSwitchServiceSendEvm.AmountType.Coin -> token?.decimals ?: maxValidDecimals
+                AmountTypeSwitchServiceSendEvm.AmountType.Currency -> fiatService.currency.decimal
             }
             return decimals
         }
@@ -131,17 +131,17 @@ class LiquidityTokenService(
     }
 
     private fun updateInputFields() {
-        primaryPrefix = if (switchService.amountType == AmountTypeSwitchService.AmountType.Currency) fiatService.currency.symbol else null
+        primaryPrefix = if (switchService.amountType == AmountTypeSwitchServiceSendEvm.AmountType.Currency) fiatService.currency.symbol else null
         syncState()
     }
 
     private fun secondaryInfoPlaceHolder(): String? = when (switchService.amountType) {
-        AmountTypeSwitchService.AmountType.Coin -> {
+        AmountTypeSwitchServiceSendEvm.AmountType.Coin -> {
             val amountInfo = SendModule.AmountInfo.CurrencyValueInfo(CurrencyValue(fiatService.currency, BigDecimal.ZERO))
             amountInfo.getFormatted()
         }
 
-        AmountTypeSwitchService.AmountType.Currency -> {
+        AmountTypeSwitchServiceSendEvm.AmountType.Currency -> {
             val amountInfo = token?.let {
                 SendModule.AmountInfo.CoinValueInfo(
                     CoinValue(it, BigDecimal.ZERO)

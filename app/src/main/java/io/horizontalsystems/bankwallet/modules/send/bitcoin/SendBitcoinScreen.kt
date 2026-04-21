@@ -2,11 +2,14 @@ package io.horizontalsystems.bankwallet.modules.send.bitcoin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
@@ -14,7 +17,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,34 +31,33 @@ import androidx.navigation.compose.rememberNavController
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.core.composablePopup
+import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
-import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.address.AddressParserModule
 import io.horizontalsystems.bankwallet.modules.address.AddressParserViewModel
-import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
+import io.horizontalsystems.bankwallet.modules.address.HSAddressCell
 import io.horizontalsystems.bankwallet.modules.amount.AmountInputModeViewModel
 import io.horizontalsystems.bankwallet.modules.amount.HSAmountInput
 import io.horizontalsystems.bankwallet.modules.availablebalance.AvailableBalance
 import io.horizontalsystems.bankwallet.modules.fee.HSFeeRaw
 import io.horizontalsystems.bankwallet.modules.memo.HSMemoInput
+import io.horizontalsystems.bankwallet.modules.send.AddressRiskyBottomSheetAlert
 import io.horizontalsystems.bankwallet.modules.send.SendConfirmationFragment
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.advanced.BtcTransactionInputSortInfoScreen
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.advanced.FeeRateCaution
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.advanced.SendBtcAdvancedSettingsScreen
 import io.horizontalsystems.bankwallet.modules.send.bitcoin.utxoexpert.UtxoExpertModeScreen
-import io.horizontalsystems.bankwallet.modules.sendtokenselect.PrefilledData
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
-import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_leah
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import java.math.BigDecimal
 
 
@@ -69,14 +73,15 @@ fun SendBitcoinNavHost(
     viewModel: SendBitcoinViewModel,
     amountInputModeViewModel: AmountInputModeViewModel,
     sendEntryPointDestId: Int,
-    prefilledData: PrefilledData?,
+    amount: BigDecimal?,
+    riskyAddress: Boolean
 ) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = SendBtcPage,
     ) {
-        composable(SendBtcPage) { entry ->
+        composable(SendBtcPage) {
             SendBitcoinScreen(
                 title,
                 fragmentNavController,
@@ -84,7 +89,8 @@ fun SendBitcoinNavHost(
                 viewModel,
                 amountInputModeViewModel,
                 sendEntryPointDestId,
-                prefilledData,
+                amount,
+                riskyAddress
             )
         }
         composablePage(SendBtcAdvancedSettingsPage) {
@@ -96,14 +102,10 @@ fun SendBitcoinNavHost(
             )
         }
         composablePopup(TransactionInputsSortInfoPage) { BtcTransactionInputSortInfoScreen { navController.popBackStack() } }
-        composablePage(UtxoExpertModePage) { entry ->
+        composablePage(UtxoExpertModePage) {
             UtxoExpertModeScreen(
                 adapter = viewModel.adapter,
                 token = viewModel.wallet.token,
-                address = viewModel.uiState.address,
-                memo = viewModel.uiState.memo,
-                value = viewModel.uiState.amount,
-                feeRate = viewModel.uiState.feeRate,
                 customUnspentOutputs = viewModel.customUnspentOutputs,
                 updateUnspentOutputs = {
                     viewModel.updateCustomUnspentOutputs(it)
@@ -124,23 +126,24 @@ fun SendBitcoinScreen(
     viewModel: SendBitcoinViewModel,
     amountInputModeViewModel: AmountInputModeViewModel,
     sendEntryPointDestId: Int,
-    prefilledData: PrefilledData?,
+    amount: BigDecimal?,
+    riskyAddress: Boolean,
 ) {
     val wallet = viewModel.wallet
     val uiState = viewModel.uiState
 
     val availableBalance = uiState.availableBalance
-    val addressError = uiState.addressError
     val amountCaution = uiState.amountCaution
     val fee = uiState.fee
     val proceedEnabled = uiState.canBeSend
     val amountInputType = amountInputModeViewModel.inputType
     val feeRateCaution = uiState.feeRateCaution
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val rate = viewModel.coinRate
 
     val paymentAddressViewModel = viewModel<AddressParserViewModel>(
-        factory = AddressParserModule.Factory(wallet.token, prefilledData?.amount)
+        factory = AddressParserModule.Factory(wallet.token, amount)
     )
     val amountUnique = paymentAddressViewModel.amountUnique
 
@@ -151,34 +154,35 @@ fun SendBitcoinScreen(
             focusRequester.requestFocus()
         }
 
-        Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-            AppBar(
-                title = title,
-                navigationIcon = {
-                    HsBackButton(onClick = { fragmentNavController.popBackStack() })
-                },
-                menuItems = listOf(
-                    MenuItem(
-                        title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
-                        icon = R.drawable.ic_manage_2,
-                        tint = ComposeAppTheme.colors.jacob,
-                        onClick = { composeNavController.navigate(SendBtcAdvancedSettingsPage) }
-                    ),
-                )
-            )
+        HSScaffold(
+            title = title,
+            onBack = { fragmentNavController.popBackStack() },
+            menuItems = listOf(
+                MenuItem(
+                    title = TranslatableString.ResString(R.string.SendEvmSettings_Title),
+                    icon = R.drawable.manage_24,
+                    onClick = { composeNavController.navigate(SendBtcAdvancedSettingsPage) }
+                ),
+            ),
+        ) {
+            Column(
+                modifier = Modifier
+                    .windowInsetsPadding(WindowInsets.ime)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+            ) {
+                VSpacer(16.dp)
+                if (uiState.showAddressInput) {
+                    HSAddressCell(
+                        title = stringResource(R.string.Send_Confirmation_To),
+                        value = uiState.address.hex,
+                        riskyAddress = riskyAddress
+                    ) {
+                        fragmentNavController.popBackStack()
+                    }
+                    VSpacer(16.dp)
+                }
 
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-
-                AvailableBalance(
-                    coinCode = wallet.coin.code,
-                    coinDecimal = viewModel.coinMaxAllowedDecimals,
-                    fiatDecimal = viewModel.fiatMaxAllowedDecimals,
-                    availableBalance = availableBalance,
-                    amountInputType = amountInputType,
-                    rate = rate
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
                 HSAmountInput(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     focusRequester = focusRequester,
@@ -198,75 +202,95 @@ fun SendBitcoinScreen(
                     amountUnique = amountUnique
                 )
 
-                if (uiState.showAddressInput) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HSAddressInput(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        initial = prefilledData?.address?.let { Address(it) },
-                        tokenQuery = wallet.token.tokenQuery,
-                        coinCode = wallet.coin.code,
-                        error = addressError,
-                        textPreprocessor = paymentAddressViewModel,
-                        navController = fragmentNavController
-                    ) {
-                        viewModel.onEnterAddress(it)
-                    }
-                }
+                VSpacer(8.dp)
+                AvailableBalance(
+                    coinCode = wallet.coin.code,
+                    coinDecimal = viewModel.coinMaxAllowedDecimals,
+                    fiatDecimal = viewModel.fiatMaxAllowedDecimals,
+                    availableBalance = availableBalance,
+                    amountInputType = amountInputType,
+                    rate = rate
+                )
 
-                VSpacer(12.dp)
+                VSpacer(16.dp)
                 HSMemoInput(maxLength = 120) {
                     viewModel.onEnterMemo(it)
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-                CellUniversalLawrenceSection(
-                    buildList {
-                        uiState.utxoData?.let { utxoData ->
-                            add {
-                                UtxoCell(
-                                    utxoData = utxoData,
-                                    onClick = {
-                                        composeNavController.navigate(UtxoExpertModePage)
-                                    }
-                                )
+                VSpacer(16.dp)
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(ComposeAppTheme.colors.lawrence)
+                        .padding(vertical = 8.dp)
+                ) {
+                    uiState.utxoData?.let { utxoData ->
+                        UtxoCell(
+                            utxoData = utxoData,
+                            onClick = {
+                                composeNavController.navigate(UtxoExpertModePage)
                             }
-                        }
-                        add {
-                            HSFeeRaw(
-                                coinCode = wallet.coin.code,
-                                coinDecimal = viewModel.coinMaxAllowedDecimals,
-                                fee = fee,
-                                amountInputType = amountInputType,
-                                rate = rate,
-                                navController = fragmentNavController
-                            )
-                        }
+                        )
                     }
-                )
+                    HSFeeRaw(
+                        coinCode = wallet.coin.code,
+                        coinDecimal = viewModel.coinMaxAllowedDecimals,
+                        fee = fee,
+                        amountInputType = amountInputType,
+                        rate = rate,
+                        navController = fragmentNavController
+                    )
+                }
 
                 feeRateCaution?.let {
                     FeeRateCaution(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
                         feeRateCaution = feeRateCaution
                     )
                 }
 
+                VSpacer(16.dp)
+
                 ButtonPrimaryYellow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 24.dp),
-                    title = stringResource(R.string.Send_DialogProceed),
+                        .padding(horizontal = 16.dp),
+                    title = stringResource(R.string.Button_Next),
                     onClick = {
-                        fragmentNavController.slideFromRight(
-                            R.id.sendConfirmation,
-                            SendConfirmationFragment.Input(SendConfirmationFragment.Type.Bitcoin, sendEntryPointDestId)
-                        )
+                        if (riskyAddress) {
+                            keyboardController?.hide()
+                            fragmentNavController.slideFromBottomForResult<AddressRiskyBottomSheetAlert.Result>(
+                                R.id.addressRiskyBottomSheetAlert,
+                                AddressRiskyBottomSheetAlert.Input(
+                                    alertText = Translator.getString(R.string.Send_RiskyAddress_AlertText)
+                                )
+                            ) {
+                                openConfirm(fragmentNavController, sendEntryPointDestId)
+                            }
+                        } else {
+                            openConfirm(fragmentNavController, sendEntryPointDestId)
+                        }
                     },
                     enabled = proceedEnabled
                 )
+                VSpacer(32.dp)
             }
         }
     }
+}
+
+private fun openConfirm(
+    fragmentNavController: NavController,
+    sendEntryPointDestId: Int
+) {
+    fragmentNavController.slideFromRight(
+        R.id.sendConfirmation,
+        SendConfirmationFragment.Input(
+            SendConfirmationFragment.Type.Bitcoin,
+            sendEntryPointDestId
+        )
+    )
 }
 
 @Composable

@@ -1,18 +1,10 @@
 package io.horizontalsystems.bankwallet.modules.swap
 
 import android.os.Parcelable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Warning
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
-import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceService
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapAllowanceViewModel
-import io.horizontalsystems.bankwallet.modules.swap.allowance.SwapPendingAllowanceService
 import io.horizontalsystems.bankwallet.ui.compose.Select
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.WithTranslatableTitle
@@ -40,7 +32,7 @@ object SwapMainModule {
         val selected: Boolean,
     )
 
-    class Factory(private val tokenFrom: Token?) : ViewModelProvider.Factory {
+    /*class Factory(private val tokenFrom: Token?) : ViewModelProvider.Factory {
         private val swapProviders: List<ISwapProvider> = listOf(
             UniswapProvider,
             UniswapV3Provider,
@@ -109,7 +101,7 @@ object SwapMainModule {
             }
         }
 
-    }
+    }*/
 
     interface ISwapTradeService {
         val state: SwapResultState

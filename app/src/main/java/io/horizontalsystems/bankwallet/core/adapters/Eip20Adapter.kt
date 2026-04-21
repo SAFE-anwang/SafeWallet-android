@@ -20,7 +20,9 @@ import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.Flowable
 import io.reactivex.Single
+import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
+import java.math.BigInteger
 
 class Eip20Adapter(
     context: Context,
@@ -32,13 +34,13 @@ class Eip20Adapter(
     evmLabelManager: EvmLabelManager
 ) : BaseEvmAdapter(evmKitWrapper, wallet.decimal, coinManager) {
 
-    private val transactionConverter = EvmTransactionConverter(coinManager, evmKitWrapper, wallet.transactionSource, App.spamManager, baseToken, evmLabelManager)
+    private val transactionConverter = EvmTransactionConverter(coinManager, evmKitWrapper, wallet.transactionSource, baseToken, evmLabelManager)
 
     private val contractAddress: Address = Address(contractAddress)
     val eip20Kit: Erc20Kit = Erc20Kit.getInstance(context, this.evmKit, this.contractAddress)
 
     val pendingTransactions: List<TransactionRecord>
-        get() = eip20Kit.getPendingTransactions().map { transactionConverter.transactionRecord(it) }
+        get() = eip20Kit.getPendingTransactions().map { runBlocking { transactionConverter.transactionRecord(it) } }
 
     // IAdapter
 
@@ -86,6 +88,20 @@ class Eip20Adapter(
                 .map {
                     scaleDown(it.toBigDecimal())
                 }
+    }
+
+    fun buildRevokeTransactionData(spenderAddress: Address): TransactionData {
+        return eip20Kit.buildApproveTransactionData(spenderAddress, BigInteger.ZERO)
+    }
+
+    fun buildApproveTransactionData(spenderAddress: Address, amount: BigDecimal): TransactionData {
+        val amountBigInt = amount.movePointRight(decimal).toBigInteger()
+        return eip20Kit.buildApproveTransactionData(spenderAddress, amountBigInt)
+    }
+
+    fun buildApproveUnlimitedTransactionData(spenderAddress: Address): TransactionData {
+        val max = BigInteger.ONE.shiftLeft(256).subtract(BigInteger.ONE)
+        return eip20Kit.buildApproveTransactionData(spenderAddress, max)
     }
 
     companion object {

@@ -20,6 +20,9 @@ import io.horizontalsystems.bankwallet.databinding.FragmentDappBinding
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.*
+import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabItem
+import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabsTop
+import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabsTopType
 import io.horizontalsystems.core.findNavController
 import java.util.HashMap
 
@@ -148,7 +151,7 @@ private fun FilterTypeTabs(
         TabItem(stringResource(it.item.title), it.selected, it.item)
     }
 
-    Tabs(tabItems) { dAppType ->
+    TabsTop(TabsTopType.Scrolled, tabItems) { dAppType ->
         onDAppTypeClick.invoke(dAppType)
         scrollToTopAfterUpdate.invoke()
     }

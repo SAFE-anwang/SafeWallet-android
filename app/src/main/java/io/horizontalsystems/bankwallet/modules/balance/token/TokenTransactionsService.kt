@@ -2,7 +2,7 @@ package io.horizontalsystems.bankwallet.modules.balance.token
 
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.managers.SpamManager
-import io.horizontalsystems.bankwallet.core.subscribeIO
+import io.horizontalsystems.bankwallet.core.managers.TransactionAdapterManager
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
 import io.horizontalsystems.bankwallet.entities.Wallet
@@ -21,13 +21,13 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionSyncState
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionWallet
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsRateRepository
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 
@@ -39,8 +39,8 @@ class TokenTransactionsService(
     private val contactsRepository: ContactsRepository,
     private val nftMetadataService: NftMetadataService,
     private val spamManager: SpamManager,
+    private val transactionAdapterManager: TransactionAdapterManager,
 ) : Clearable {
-    private val disposables = CompositeDisposable()
     private val transactionItems = CopyOnWriteArrayList<TransactionItem>()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -48,44 +48,32 @@ class TokenTransactionsService(
     val itemsObservable: Observable<List<TransactionItem>> get() = itemsSubject
 
     fun start() {
-        transactionRecordRepository.itemsObservable
-            .subscribeIO {
+        coroutineScope.launch {
+            transactionRecordRepository.itemsObservable.asFlow().collect {
                 handleUpdatedRecords(it)
             }
-            .let {
-                disposables.add(it)
-            }
-
-        rateRepository.dataExpiredObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            rateRepository.dataExpiredObservable.asFlow().collect {
                 handleUpdatedHistoricalRates()
             }
-            .let {
-                disposables.add(it)
-            }
-
-        rateRepository.historicalRateObservable
-            .subscribeIO {
+        }
+        coroutineScope.launch {
+            rateRepository.historicalRateObservable.asFlow().collect {
                 handleUpdatedHistoricalRate(it.first, it.second)
             }
-            .let {
-                disposables.add(it)
-            }
-
-        transactionSyncStateRepository.lastBlockInfoObservable
-            .subscribeIO { (source, lastBlockInfo) ->
-                handleLastBlockInfo(source, lastBlockInfo)
-            }
-            .let {
-                disposables.add(it)
-            }
-
+        }
+        coroutineScope.launch {
+            transactionSyncStateRepository.lastBlockInfoObservable.asFlow()
+                .collect { (source, lastBlockInfo) ->
+                    handleLastBlockInfo(source, lastBlockInfo)
+                }
+        }
         coroutineScope.launch {
             nftMetadataService.assetsBriefMetadataFlow.collect {
                 handle(it)
             }
         }
-
         coroutineScope.launch {
             contactsRepository.contactsFlow.drop(1).collect {
                 handleContactsUpdate()
@@ -102,6 +90,21 @@ class TokenTransactionsService(
             null,
             null
         )
+
+        coroutineScope.launch {
+            transactionAdapterManager.adaptersReadyFlow.drop(1).collect { adaptersMap ->
+                if (!adaptersMap.containsKey(wallet.transactionSource)) return@collect
+
+                transactionRecordRepository.invalidateAdapters()
+                transactionRecordRepository.set(
+                    listOf(transactionWallet),
+                    transactionWallet,
+                    FilterTransactionType.All,
+                    null,
+                    null
+                )
+            }
+        }
     }
 
     @Synchronized
@@ -270,7 +273,6 @@ class TokenTransactionsService(
 
 
     override fun clear() {
-        disposables.clear()
         transactionRecordRepository.clear()
         rateRepository.clear()
         transactionSyncStateRepository.clear()

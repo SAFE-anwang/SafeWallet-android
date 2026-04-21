@@ -57,7 +57,7 @@ import io.horizontalsystems.marketkit.models.FullCoin
 class SendActivity : BaseFragment() {
 
     private val wallet by lazy { requireArguments().getParcelable<Wallet>(WALLET)!! }
-    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet(wallet) as ISendSafeAdapter }
+    val safeAdapter by lazy { App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet) as ISendSafeAdapter }
     val safeInteractor by lazy { SendSafeInteractor(safeAdapter) }
     val safeConvertHandler by lazy { SendSafeHandler(safeInteractor) }
     private val vmFactory by lazy { SendModule.Factory2(safeAdapter, safeConvertHandler, safeInteractor) }

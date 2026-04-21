@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -216,7 +216,7 @@ class WithdrawVoteViewModel(
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
                     val result = service.removeVoteOrApproval(checkedList)
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                     withdrawList = list.filter { !it.checked } as MutableList
                     emitState()
                     LockRecordManager.updateVoteStatus()
@@ -242,7 +242,7 @@ class WithdrawVoteViewModel(
                     service.removeVoteOrApproval(it)
 
                     LockRecordManager.updateVoteStatus()
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                 }
             } catch (e: Exception) {
                 android.util.Log.e("LockedInfoViewModel", "withdraw all record error=$e")

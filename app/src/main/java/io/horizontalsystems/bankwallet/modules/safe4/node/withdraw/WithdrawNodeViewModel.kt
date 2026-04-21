@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.ConnectivityManager
 import io.horizontalsystems.bankwallet.core.subscribeIO
@@ -86,7 +85,7 @@ class WithdrawNodeViewModel(
                             it.height,
                             null,
                             NodeCovertFactory.formatSafe(it.amount),
-                            nodeInfo.addr.hex,
+                            nodeInfo.addr,
                             it.height > (evmKit.lastBlockHeight ?: 0L)
                         )
                     }
@@ -145,7 +144,7 @@ class WithdrawNodeViewModel(
                 val checkedList = list.filter { it.checked }.map { it.id }
                 try {
                     service.withdraw(checkedList)
-                    sendResult = SendResult.Sent
+                    sendResult = SendResult.Sent()
                     withdrawList = withdrawList?.filter { !it.checked } as MutableList<WithdrawModule.WithDrawInfo>?
                     emitState()
                 } catch (e: Exception) {

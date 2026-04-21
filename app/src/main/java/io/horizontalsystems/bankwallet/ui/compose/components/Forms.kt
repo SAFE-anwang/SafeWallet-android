@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -49,13 +50,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.utils.ModuleField
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 
 @Composable
 fun FormsInput(
@@ -66,7 +68,7 @@ fun FormsInput(
     prefix: String? = null,
     textColor: Color = ComposeAppTheme.colors.leah,
     textStyle: TextStyle = ComposeAppTheme.typography.body,
-    hintColor: Color = ComposeAppTheme.colors.grey50,
+    hintColor: Color = ComposeAppTheme.colors.andy,
     hintStyle: TextStyle = ComposeAppTheme.typography.body,
     singleLine: Boolean = false,
     state: DataState<Any>? = null,
@@ -90,7 +92,7 @@ fun FormsInput(
                 ComposeAppTheme.colors.red50
             }
         }
-        else -> ComposeAppTheme.colors.steel20
+        else -> ComposeAppTheme.colors.blade
     }
 
     val cautionColor = if (state?.errorOrNull is FormsInputStateWarning) {
@@ -104,8 +106,8 @@ fun FormsInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 44.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
                 .background(ComposeAppTheme.colors.lawrence),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -148,7 +150,7 @@ fun FormsInput(
                     textStyle = textStyle
                 ),
                 singleLine = singleLine,
-                cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+                cursorBrush = SolidColor(ComposeAppTheme.colors.leah),
                 decorationBox = { innerTextField ->
                     if (textState.text.isEmpty()) {
                         Text(
@@ -223,14 +225,13 @@ fun FormsInput(
                 }
 
                 if (pasteEnabled) {
-                    val clipboardManager = LocalClipboardManager.current
                     ButtonSecondaryDefault(
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .height(28.dp),
                         title = stringResource(id = R.string.Send_Button_Paste),
                         onClick = {
-                            clipboardManager.getText()?.text?.let { textInClipboard ->
+                            TextHelper.getCopiedText()?.let { textInClipboard ->
                                 val textProcessed = textPreprocessor.process(textInClipboard)
                                 textState = textState.copy(text = textProcessed, selection = TextRange(textProcessed.length))
                                 onValueChange.invoke(textProcessed)
@@ -444,13 +445,14 @@ fun FormsInput2(
     }
 }
 
+@SuppressLint("RememberInComposition")
 @Composable
 fun FormsInputPassword(
     modifier: Modifier = Modifier,
     hint: String,
     textColor: Color = ComposeAppTheme.colors.leah,
     textStyle: TextStyle = ComposeAppTheme.typography.body,
-    hintColor: Color = ComposeAppTheme.colors.grey50,
+    hintColor: Color = ComposeAppTheme.colors.andy,
     hintStyle: TextStyle = ComposeAppTheme.typography.body,
     singleLine: Boolean = true,
     state: DataState<Any>? = null,
@@ -469,7 +471,7 @@ fun FormsInputPassword(
                 ComposeAppTheme.colors.red50
             }
         }
-        else -> ComposeAppTheme.colors.steel20
+        else -> ComposeAppTheme.colors.blade
     }
 
     val cautionColor = if (state?.errorOrNull is FormsInputStateWarning) {
@@ -483,8 +485,8 @@ fun FormsInputPassword(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 44.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
                 .background(ComposeAppTheme.colors.lawrence),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -514,7 +516,7 @@ fun FormsInputPassword(
                     textStyle = textStyle
                 ),
                 singleLine = singleLine,
-                cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+                cursorBrush = SolidColor(ComposeAppTheme.colors.leah),
                 decorationBox = { innerTextField ->
                     if (textState.text.isEmpty()) {
                         Text(
@@ -576,7 +578,7 @@ fun FormsInputMultiline(
     hint: String,
     textColor: Color = ComposeAppTheme.colors.leah,
     textStyle: TextStyle = ComposeAppTheme.typography.body,
-    hintColor: Color = ComposeAppTheme.colors.grey50,
+    hintColor: Color = ComposeAppTheme.colors.andy,
     hintStyle: TextStyle = ComposeAppTheme.typography.body,
     state: DataState<Any>? = null,
     pasteEnabled: Boolean = true,
@@ -587,6 +589,9 @@ fun FormsInputMultiline(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChange: (String) -> Unit,
+    onClear: (() -> Unit)? = null,
+    onPaste: (() -> Unit)? = null,
+    onScanQR: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -598,7 +603,7 @@ fun FormsInputMultiline(
                 ComposeAppTheme.colors.red50
             }
         }
-        else -> ComposeAppTheme.colors.steel20
+        else -> ComposeAppTheme.colors.blade
     }
 
     val cautionColor = if (state?.errorOrNull is FormsInputStateWarning) {
@@ -611,12 +616,12 @@ fun FormsInputMultiline(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
                 .background(ComposeAppTheme.colors.lawrence),
         ) {
             var textState by rememberSaveable(initial, stateSaver = TextFieldValue.Saver) {
-                mutableStateOf(TextFieldValue(initial ?: ""))
+                mutableStateOf(TextFieldValue(initial ?: "", selection = TextRange((initial ?: "").length)))
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -648,7 +653,7 @@ fun FormsInputMultiline(
                     color = textColor,
                     textStyle = textStyle
                 ),
-                cursorBrush = SolidColor(ComposeAppTheme.colors.jacob),
+                cursorBrush = SolidColor(ComposeAppTheme.colors.leah),
                 decorationBox = { innerTextField ->
                     if (textState.text.isEmpty()) {
                         Text(
@@ -704,6 +709,8 @@ fun FormsInputMultiline(
                             val text = textPreprocessor.process("")
                             textState = textState.copy(text = text, selection = TextRange(0))
                             onValueChange.invoke(text)
+
+                            onClear?.invoke()
                         }
                     )
                 } else {
@@ -723,23 +730,26 @@ fun FormsInputMultiline(
                             icon = R.drawable.ic_qr_scan_20,
                             onClick = {
                                 qrScannerLauncher.launch(QRScannerActivity.getScanQrIntent(context))
+
+                                onScanQR?.invoke()
                             }
                         )
                     }
 
                     if (pasteEnabled) {
-                        val clipboardManager = LocalClipboardManager.current
                         ButtonSecondaryDefault(
                             modifier = Modifier
                                 .padding(end = 16.dp)
                                 .height(28.dp),
                             title = stringResource(id = R.string.Send_Button_Paste),
                             onClick = {
-                                clipboardManager.getText()?.text?.let { textInClipboard ->
+                                TextHelper.getCopiedText()?.let { textInClipboard ->
                                     val textProcessed = textPreprocessor.process(textInClipboard)
                                     textState = textState.copy(text = textProcessed, selection = TextRange(textProcessed.length))
                                     onValueChange.invoke(textProcessed)
                                 }
+
+                                onPaste?.invoke()
                             },
                         )
                     }

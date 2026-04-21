@@ -10,7 +10,7 @@ import io.horizontalsystems.bankwallet.R
 class SecurityVpnSettingsViewModel(val sp: SharedPreferences, val onConnectCallback:(Boolean) -> Unit): ViewModel() {
 
     private fun vpnChecked(): Boolean {
-        return sp.getBoolean("vpnOpen", true)
+        return sp.getBoolean("vpnOpen", false)
     }
 
     var vpnConnectionStatus by mutableStateOf(getStatus())
@@ -26,7 +26,7 @@ class SecurityVpnSettingsViewModel(val sp: SharedPreferences, val onConnectCallb
         vpnCheckEnabled = connectState
     }
 
-    private fun getStatus() = if (sp.getBoolean("vpnOpen", true)) VpnStatus.Connected else VpnStatus.Closed
+    private fun getStatus() = if (sp.getBoolean("vpnOpen", false)) VpnStatus.Connected else VpnStatus.Closed
 }
 
 

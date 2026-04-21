@@ -112,7 +112,7 @@ class SRC20DeployViewModel(
             )
         }.subscribeIO({
             isDeploying.set(false)
-            sendResult = SendResult.Sent
+            sendResult = SendResult.Sent()
         }, { e ->
             sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
         })

@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.exoplayer2.util.Log
+import android.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -16,7 +16,6 @@ import io.horizontalsystems.bankwallet.modules.address.AddressValidationExceptio
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.core.SingleLiveEvent
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.Token
@@ -112,7 +111,7 @@ class SendWsafeViewModel(
     }
 
     fun validateSafe(wallet: Wallet, address: Address?) {
-        val adapter = when (val adapter = App.adapterManager.getAdapterForWallet(wallet)) {
+        val adapter = when (val adapter = App.adapterManager.getAdapterForWallet<ISendSafeAdapter>(wallet)) {
             is ISendSafeAdapter -> {
                 adapter
             } else -> {

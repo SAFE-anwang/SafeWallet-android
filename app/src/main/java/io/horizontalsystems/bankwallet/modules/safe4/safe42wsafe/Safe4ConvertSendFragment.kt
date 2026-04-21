@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
@@ -24,12 +25,10 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveModule
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
-import io.horizontalsystems.bankwallet.modules.safe4.wsafe2safe.SendWsafeViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.AmountInputViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendAvailableBalanceViewModel
 import io.horizontalsystems.bankwallet.modules.sendevm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevm.confirmation.SendEvmConfirmationModule
-import io.horizontalsystems.bankwallet.modules.swap.settings.Caution
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -145,7 +144,9 @@ class Safe4ConvertSendFragment : BaseFragment() {
                 viewModel.isMatic = isMatic
                 titleRes = R.string.Safe4_Title_safe42wsafe_matic
             }
-            ComposeAppTheme {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 AppBar(
                     title = stringResource(titleRes),
                     navigationIcon = {
@@ -197,7 +198,7 @@ class Safe4ConvertSendFragment : BaseFragment() {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(R.string.Safe4_Wsafe_Receive_Address),
-                        style = ComposeAppTheme.typography.subhead1,
+                        style = ComposeAppTheme.typography.subheadB,
                         color = ComposeAppTheme.colors.leah,
                         maxLines = 1
                     )

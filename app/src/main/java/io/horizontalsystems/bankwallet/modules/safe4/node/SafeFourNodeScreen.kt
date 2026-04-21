@@ -59,7 +59,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromBottom
@@ -79,11 +78,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.SectionUniversalIte
 import io.horizontalsystems.bankwallet.ui.compose.components.TabItem
 import io.horizontalsystems.bankwallet.ui.compose.components.Tabs
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
-import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
 import io.horizontalsystems.bankwallet.ui.compose.components.body_issykBlue
-import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
-import io.horizontalsystems.bankwallet.ui.compose.components.sectionItemBorder
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -211,7 +206,7 @@ fun SafeFourNodeScreen(
 												navController.context.getString(viewModel.getVoteButtonName()),
 												it.id,
 												viewModel.getNodeType(),
-												it.address.hex
+												it.address
 										)
 								)
 							},
@@ -223,7 +218,7 @@ fun SafeFourNodeScreen(
 												navController.context.getString(viewModel.getJoinButtonName()),
 												it.id,
 												viewModel.getNodeType(),
-												it.address.hex,
+												it.address,
 												true
 										)
 								)
@@ -238,7 +233,7 @@ fun SafeFourNodeScreen(
 												it.desc,
 												it.enode,
 												viewModel.getNodeType(),
-												it.address.hex,
+												it.address,
 											it.id,
 											it.incentivePlan
 										)
@@ -268,7 +263,7 @@ private fun onNodeClick(
 		navController: NavController
 ) {
 	navController.slideFromBottom(R.id.nodeInfoFragment,
-			SafeFourNodeInfoFragment.Input(nodeViewModel.wallet, nodeViewItem.id, nodeViewModel.getNodeType(), nodeViewItem.address.hex)
+			SafeFourNodeInfoFragment.Input(nodeViewModel.wallet, nodeViewItem.id, nodeViewModel.getNodeType(), nodeViewItem.address)
 			)
 }
 
@@ -422,7 +417,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 				Spacer(Modifier.height(2.dp))
 				Row {
 					if (item.isMine) {
-						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.shorten(8)))
 						Spacer(Modifier.weight(1f))
 						if (item.isPartner) {
 							Row(
@@ -457,7 +452,7 @@ fun NodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 					} else {
-						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.shorten(8)))
 					}
 				}
 				Spacer(Modifier.height(2.dp))
@@ -611,7 +606,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 
 				Row {
 					if (item.isMine) {
-						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						body_issykBlue(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.shorten(8)))
 						Spacer(Modifier.weight(1f))
 						if (item.isPartner) {
 							Row(
@@ -646,7 +641,7 @@ fun MasterNodeCell(item: NodeViewItem, position: SectionItemPosition,
 							}
 						}
 					} else {
-						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.hex.shorten(8)))
+						body_bran(text = stringResource(id = R.string.Safe_Four_Node_Info_Address_List, item.address.shorten(8)))
 					}
 				}
 				Spacer(Modifier.height(2.dp))

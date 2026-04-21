@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
+import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -76,13 +77,9 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.ui.compose.ColoredTextStyle
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.Grey50
+import io.horizontalsystems.bankwallet.ui.compose.LightGrey50
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputStateWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.HsIconButton
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.body_grey50
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey50
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
 
 @Composable
@@ -111,7 +108,7 @@ fun HintView(
 							.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 					fontSize = 14.sp,
 					text = stringResource(id = textId),
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 					style = ComposeAppTheme.typography.caption)
 		}
 	}
@@ -143,7 +140,7 @@ fun HintView(
 							.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
 					fontSize = 14.sp,
 					text = text,
-					color = ComposeAppTheme.colors.bran,
+					color = ComposeAppTheme.colors.leah,
 					style = ComposeAppTheme.typography.caption)
 		}
 	}
@@ -179,11 +176,11 @@ fun SearchBar(
 				placeholder = {
 					Text(text = searchHintText,
 							maxLines = 1,
-							color = Grey50,
-							style = ComposeAppTheme.typography.subheadItalic,
+							color = LightGrey50,
+							style = ComposeAppTheme.typography.subhead,
 							overflow = TextOverflow.Ellipsis)
 				},
-				textStyle = ComposeAppTheme.typography.subhead1,
+				textStyle = ComposeAppTheme.typography.subheadB,
 				colors = TextFieldDefaults.textFieldColors(
 						focusedIndicatorColor = Color.Transparent,
 						unfocusedIndicatorColor = Color.Transparent,
@@ -374,6 +371,7 @@ fun ScreenMessageWithAction2(
 }
 
 
+@SuppressLint("RememberInComposition")
 @Composable
 fun FormsInputPassword2(
 		modifier: Modifier = Modifier,
@@ -563,12 +561,14 @@ fun Safe3Text(
 }
 
 @Composable
-fun Safe3Badge() {
+fun Safe3Badge(
+	isBlueBg: Boolean = false
+) {
 	Box(
 		modifier = Modifier
 			.padding(start = 6.dp)
 			.clip(RoundedCornerShape(4.dp))
-			.background(ComposeAppTheme.colors.jeremy)
+			.background(if (isBlueBg) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.steel20)
 	) {
 		Text(
 			modifier = Modifier.padding(
@@ -577,7 +577,7 @@ fun Safe3Badge() {
 				bottom = 1.dp
 			),
 			text = "SAFE3",
-			color = ComposeAppTheme.colors.bran,
+			color = if(isBlueBg) ComposeAppTheme.colors.lawrence else ComposeAppTheme.colors.leah,
 			style = ComposeAppTheme.typography.microSB,
 			maxLines = 1,
 		)

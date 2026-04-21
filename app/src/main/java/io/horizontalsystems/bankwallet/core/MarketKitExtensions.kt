@@ -7,12 +7,14 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.BitcoinCashCoinType
 import io.horizontalsystems.bankwallet.entities.FeePriceScale
+import io.horizontalsystems.bankwallet.modules.settings.appearance.PriceChangeInterval
 import io.horizontalsystems.bitcoincash.MainNetBitcoinCash
 import io.horizontalsystems.hdwalletkit.ExtendedKeyCoinType
 import io.horizontalsystems.hdwalletkit.HDWallet
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Coin
+import io.horizontalsystems.marketkit.models.CoinPrice
 import io.horizontalsystems.marketkit.models.FullCoin
 import io.horizontalsystems.marketkit.models.HsPointTimePeriod
 import io.horizontalsystems.marketkit.models.Token
@@ -20,6 +22,7 @@ import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.marketkit.models.TopPlatform
 import io.horizontalsystems.nftkit.models.NftType
+import java.math.BigDecimal
 
 val Token.protocolType: String?
     get() = tokenQuery.protocolType
@@ -36,7 +39,6 @@ val Token.isSupported: Boolean
 val Token.iconPlaceholder: Int
     get() = when (type) {
         is TokenType.Eip20 -> blockchainType.tokenIconPlaceholder
-        is TokenType.Bep2 -> R.drawable.bep2
         else -> R.drawable.coin_placeholder
     }
 
@@ -69,33 +71,21 @@ val Token.protocolInfo: String
             when (this.blockchainType) {
                 BlockchainType.Ethereum -> parts.add("(ERC20)")
                 BlockchainType.BinanceSmartChain -> parts.add("(BEP20)")
-                BlockchainType.BinanceChain -> parts.add("(BEP2)")
                 else -> {}
             }
             parts.joinToString(" ")
         }
         is TokenType.Eip20,
-        is TokenType.Bep2,
-        is TokenType.Spl -> protocolType ?: ""
+        is TokenType.Spl,
+        is TokenType.Jetton -> protocolType ?: ""
         else -> ""
-    }
-
-val Token.typeInfo: String
-    get() = when (val type = type) {
-        is TokenType.Derived,
-        is TokenType.AddressTyped,
-        TokenType.Native -> Translator.getString(R.string.CoinPlatforms_Native)
-        is TokenType.Eip20 -> type.address.shorten()
-        is TokenType.Bep2 -> type.symbol
-        is TokenType.Spl -> type.address.shorten()
-        is TokenType.Unsupported -> ""
     }
 
 val Token.copyableTypeInfo: String?
     get() = when (val type = type) {
         is TokenType.Eip20 -> type.address
-        is TokenType.Bep2 -> type.symbol
         is TokenType.Spl -> type.address
+        is TokenType.Jetton -> type.address
         else -> null
     }
 
@@ -110,7 +100,6 @@ val TokenQuery.protocolType: String?
                 BlockchainType.Tron,
                 BlockchainType.Ton -> null
 
-                BlockchainType.BinanceChain -> "BEP2"
                 else -> blockchainType.title
             }
         }
@@ -130,7 +119,7 @@ val TokenQuery.protocolType: String?
             }
         }
 
-        is TokenType.Bep2 -> "BEP2"
+        is TokenType.Jetton -> "JETTON"
         else -> blockchainType.title
     }
 
@@ -161,14 +150,13 @@ val TokenQuery.isSupported: Boolean
         BlockchainType.BinanceSmartChain,
         BlockchainType.Polygon,
         BlockchainType.Optimism,
+        BlockchainType.Base,
+        BlockchainType.ZkSync,
         BlockchainType.ArbitrumOne,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
         BlockchainType.Avalanche -> {
             tokenType is TokenType.Native || tokenType is TokenType.Eip20
-        }
-        BlockchainType.BinanceChain -> {
-            tokenType is TokenType.Native || tokenType is TokenType.Bep2
         }
         BlockchainType.Solana -> {
             tokenType is TokenType.Native || tokenType is TokenType.Spl
@@ -177,6 +165,12 @@ val TokenQuery.isSupported: Boolean
             tokenType is TokenType.Native || tokenType is TokenType.Eip20
         }
         BlockchainType.Ton -> {
+            tokenType is TokenType.Native || tokenType is TokenType.Jetton
+        }
+        BlockchainType.Stellar -> {
+            tokenType is TokenType.Native || tokenType is TokenType.Asset
+        }
+        BlockchainType.Monero -> {
             tokenType is TokenType.Native
         }
         is BlockchainType.Unsupported -> false
@@ -193,24 +187,28 @@ val Blockchain.description: String
         BlockchainType.Dash -> "DASH"
         BlockchainType.SafeFour -> "SAFE"
         BlockchainType.Safe -> "SAFE"
-        BlockchainType.BinanceChain -> "BNB, BEP2 tokens"
         BlockchainType.Ethereum -> "ETH, ERC20 tokens"
         BlockchainType.BinanceSmartChain -> "BNB, BEP20 tokens"
         BlockchainType.Polygon -> "MATIC, ERC20 tokens"
         BlockchainType.Avalanche -> "AVAX, ERC20 tokens"
         BlockchainType.Optimism -> "L2 chain"
+        BlockchainType.Base -> "L2 chain"
+        BlockchainType.ZkSync -> "L2 chain"
         BlockchainType.ArbitrumOne -> "L2 chain"
         BlockchainType.Solana -> "SOL, SPL tokens"
         BlockchainType.Gnosis -> "xDAI, ERC20 tokens"
         BlockchainType.Fantom -> "FTM, ERC20 tokens"
         BlockchainType.Tron -> "TRX, TRC20 tokens"
         BlockchainType.Ton -> "TON"
+        BlockchainType.Stellar -> "XLM, Stellar assets"
+        BlockchainType.Monero -> "XMR"
         else -> ""
     }
 
 fun Blockchain.eip20TokenUrl(address: String) = eip3091url?.replace("\$ref", address)
 
-fun Blockchain.bep2TokenUrl(symbol: String) = "https://explorer.binance.org/asset/$symbol"
+fun Blockchain.jettonUrl(address: String) = "https://tonviewer.com/$address"
+fun Blockchain.assetUrl(code: String, issuer: String) = "https://stellar.expert/explorer/public/asset/$code-$issuer"
 
 val BlockchainType.imageUrl: String
     get() = if (uid == "dogecoin")
@@ -247,6 +245,7 @@ val BlockchainType.imageUrl: String
 
 val BlockchainType.restoreSettingTypes: List<RestoreSettingType>
     get() = when (this) {
+        BlockchainType.Monero,
         BlockchainType.Zcash -> listOf(RestoreSettingType.BirthdayHeight)
         else -> listOf()
     }
@@ -258,23 +257,27 @@ private val blockchainOrderMap: Map<BlockchainType, Int> by lazy {
         BlockchainType.Safe,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
-        BlockchainType.BinanceSmartChain,
+        BlockchainType.Monero,
         BlockchainType.Tron,
-        BlockchainType.Ton,
-        BlockchainType.Solana,
-        BlockchainType.Polygon,
-        BlockchainType.Avalanche,
         BlockchainType.Zcash,
-        BlockchainType.BitcoinCash,
-        BlockchainType.ECash,
         BlockchainType.Litecoin,
         BlockchainType.Dogecoin,
         BlockchainType.Dash,
-        BlockchainType.BinanceChain,
-        BlockchainType.Gnosis,
-        BlockchainType.Fantom,
+        BlockchainType.Litecoin,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Polygon,
+        BlockchainType.Base,
+        BlockchainType.Solana,
         BlockchainType.ArbitrumOne,
         BlockchainType.Optimism,
+        BlockchainType.Avalanche,
+        BlockchainType.Stellar,
+        BlockchainType.Gnosis,
+        BlockchainType.ZkSync,
+        BlockchainType.Ton,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Fantom,
+        BlockchainType.ECash,
     ).forEachIndexed { index, blockchainType ->
         map[blockchainType] = index
     }
@@ -288,14 +291,17 @@ val BlockchainType.tokenIconPlaceholder: Int
     get() = when (this) {
         BlockchainType.Ethereum -> R.drawable.erc20
         BlockchainType.BinanceSmartChain -> R.drawable.bep20
-        BlockchainType.BinanceChain -> R.drawable.bep2
         BlockchainType.Avalanche -> R.drawable.avalanche_erc20
         BlockchainType.Polygon -> R.drawable.polygon_erc20
         BlockchainType.Optimism -> R.drawable.optimism_erc20
+        BlockchainType.Base -> R.drawable.base_erc20
+        BlockchainType.ZkSync -> R.drawable.zksync_erc20
         BlockchainType.ArbitrumOne -> R.drawable.arbitrum_erc20
         BlockchainType.Gnosis -> R.drawable.gnosis_erc20
         BlockchainType.Fantom -> R.drawable.fantom_erc20
         BlockchainType.Tron -> R.drawable.tron_trc20
+        BlockchainType.Ton -> R.drawable.the_open_network_jetton
+        BlockchainType.Stellar -> R.drawable.stellar_asset
         BlockchainType.SafeFour -> R.drawable.ic_safe_20
         else -> R.drawable.coin_placeholder
     }
@@ -315,14 +321,17 @@ val BlockchainType.title: String
     BlockchainType.BinanceSmartChain -> "BNB Smart Chain"
     BlockchainType.Polygon -> "Polygon"
     BlockchainType.Avalanche -> "Avalanche"
-    BlockchainType.ArbitrumOne -> "ArbitrumOne"
-    BlockchainType.BinanceChain -> "BNB Beacon Coin"
+    BlockchainType.ArbitrumOne -> "Arbitrum"
     BlockchainType.Optimism -> "Optimism"
+    BlockchainType.Base -> "Base"
+    BlockchainType.ZkSync -> "ZKsync"
     BlockchainType.Solana -> "Solana"
     BlockchainType.Gnosis -> "Gnosis"
     BlockchainType.Fantom -> "Fantom"
     BlockchainType.Tron -> "Tron"
     BlockchainType.Ton -> "Ton"
+    BlockchainType.Stellar -> "Stellar"
+    BlockchainType.Monero -> "Monero"
     is BlockchainType.Unsupported -> this.uid
 }
 
@@ -343,6 +352,8 @@ val BlockchainType.brandColor: Color?
         BlockchainType.Polygon -> Color(0xFF8247E5)
         BlockchainType.Avalanche -> Color(0xFFD74F49)
         BlockchainType.Optimism -> Color(0xFFEB3431)
+        BlockchainType.Base -> Color(0xFF2759F6)
+        BlockchainType.ZkSync -> Color(0xFF8D8FF0)
         BlockchainType.ArbitrumOne -> Color(0xFF96BEDC)
         else -> null
     }
@@ -353,9 +364,90 @@ val BlockchainType.feePriceScale: FeePriceScale
         else -> FeePriceScale.Gwei
     }
 
+val Long.blockchainTypeFromChainId: BlockchainType?
+    get() {
+        return chainIdBlockchainTypeMap[this]
+    }
+
+val BlockchainType.chainId: Long?
+    get() = chainIdBlockchainTypeMap.entries.firstOrNull { it.value == this }?.key
+
+private val chainIdBlockchainTypeMap: Map<Long, BlockchainType> = mapOf(
+    1L to BlockchainType.Ethereum,
+    56L to BlockchainType.BinanceSmartChain,
+    137L to BlockchainType.Polygon,
+    43114L to BlockchainType.Avalanche,
+    10L to BlockchainType.Optimism,
+    42161L to BlockchainType.ArbitrumOne,
+    100L to BlockchainType.Gnosis,
+    250L to BlockchainType.Fantom,
+    8453L to BlockchainType.Base,
+    324L to BlockchainType.ZkSync,
+)
+
+val BlockchainType.isEvm: Boolean
+    get() = when (this) {
+        BlockchainType.ArbitrumOne,
+        BlockchainType.Avalanche,
+        BlockchainType.Base,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Ethereum,
+        BlockchainType.Fantom,
+        BlockchainType.Gnosis,
+        BlockchainType.Optimism,
+        BlockchainType.Polygon,
+        BlockchainType.ZkSync,
+        BlockchainType.SafeFour,
+            -> true
+
+        BlockchainType.Bitcoin,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Dash,
+        BlockchainType.ECash,
+        BlockchainType.Litecoin,
+        BlockchainType.Solana,
+        BlockchainType.Stellar,
+        BlockchainType.Ton,
+        BlockchainType.Tron,
+        is BlockchainType.Unsupported,
+        BlockchainType.Zcash,
+        BlockchainType.Monero,
+        BlockchainType.Safe,
+        BlockchainType.Dogecoin,
+            -> false
+    }
+
 fun BlockchainType.supports(accountType: AccountType): Boolean {
     return when (accountType) {
-        is AccountType.Mnemonic -> true
+        is AccountType.Mnemonic -> {
+            when (this) {
+                BlockchainType.Safe,
+                BlockchainType.SafeFour,
+                BlockchainType.Dogecoin,
+                BlockchainType.ArbitrumOne,
+                BlockchainType.Avalanche,
+                BlockchainType.Base,
+                BlockchainType.BinanceSmartChain,
+                BlockchainType.Bitcoin,
+                BlockchainType.BitcoinCash,
+                BlockchainType.Dash,
+                BlockchainType.ECash,
+                BlockchainType.Ethereum,
+                BlockchainType.Fantom,
+                BlockchainType.Gnosis,
+                BlockchainType.Litecoin,
+                BlockchainType.Monero,
+                BlockchainType.Optimism,
+                BlockchainType.Polygon,
+                BlockchainType.Solana,
+                BlockchainType.Stellar,
+                BlockchainType.Ton,
+                BlockchainType.Tron,
+                BlockchainType.Zcash,
+                BlockchainType.ZkSync -> true
+                is BlockchainType.Unsupported -> false
+            }
+        }
         is AccountType.HdExtendedKey -> {
             val coinTypes = accountType.hdExtendedKey.coinTypes
             when (this) {
@@ -380,6 +472,8 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
                     || this == BlockchainType.Polygon
                     || this == BlockchainType.Avalanche
                     || this == BlockchainType.Optimism
+                    || this == BlockchainType.Base
+                    || this == BlockchainType.ZkSync
                     || this == BlockchainType.ArbitrumOne
                     || this == BlockchainType.Gnosis
                     || this == BlockchainType.Fantom
@@ -405,7 +499,14 @@ fun BlockchainType.supports(accountType: AccountType): Boolean {
         is AccountType.TonAddress ->
             this == BlockchainType.Ton
 
-        is AccountType.Cex -> false
+        is AccountType.StellarAddress ->
+            this == BlockchainType.Stellar
+
+        is AccountType.StellarSecretKey ->
+            this == BlockchainType.Stellar
+
+        is AccountType.MoneroWatchAccount ->
+            this == BlockchainType.Monero
     }
 }
 
@@ -436,6 +537,8 @@ fun BlockchainType.supportsSwap(accountType: AccountType): Boolean {
                     || this == BlockchainType.Polygon
                     || this == BlockchainType.Avalanche
                     || this == BlockchainType.Optimism
+                    || this == BlockchainType.Base
+                    || this == BlockchainType.ZkSync
                     || this == BlockchainType.ArbitrumOne
                     || this == BlockchainType.Gnosis
                     || this == BlockchainType.Fantom
@@ -459,7 +562,14 @@ fun BlockchainType.supportsSwap(accountType: AccountType): Boolean {
         is AccountType.TonAddress ->
             this == BlockchainType.Ton
 
-        is AccountType.Cex -> false
+        is AccountType.StellarAddress ->
+            this == BlockchainType.Stellar
+
+        is AccountType.StellarSecretKey ->
+            this == BlockchainType.Stellar
+
+        is AccountType.MoneroWatchAccount ->
+            this == BlockchainType.Monero
     }
 }
 
@@ -491,6 +601,9 @@ val Coin.imageUrl: String
         "https://cdn.blocksdecoded.com/coin-icons/32px/tether@3x.png"
     else
         "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
+
+val Coin.alternativeImageUrl: String?
+    get() = image
 
 val Coin.imagePlaceholder: Int
     get() = R.drawable.coin_placeholder
@@ -596,16 +709,21 @@ val TokenType.AddressType.bitcoinCashCoinType: BitcoinCashCoinType
         TokenType.AddressType.Type145 -> BitcoinCashCoinType.type145
     }
 
+private val noBadgeCoinCodes by lazy {
+    listOf("AVAX", "XLM", "DASH", "ZEC", "XMR", "XEC", "POL", "SOL", "XDAI", "FTM")
+}
+
 val Token.badge: String?
-    get() = when (val tokenType = type) {
-        is TokenType.Derived -> {
+    get() {
+        val tokenType = type
+        return if (tokenType is TokenType.Native && noBadgeCoinCodes.contains(coin.code)) {
+            null
+        } else if (tokenType is TokenType.Derived) {
             tokenType.derivation.accountTypeDerivation.value.uppercase()
-        }
-        is TokenType.AddressTyped -> {
+        } else if (tokenType is TokenType.AddressTyped) {
             tokenType.type.bitcoinCashCoinType.value.uppercase()
-        }
-        else -> {
-            protocolType?.uppercase()
+        } else {
+            protocolType?.replaceFirstChar(Char::uppercase)
         }
     }
 
@@ -672,19 +790,17 @@ val TokenType.isNative: Boolean
     get() = this is TokenType.Native || this is TokenType.Derived || this is TokenType.AddressTyped
 
 val TokenType.isCustom: Boolean
-    get() = this is TokenType.Bep2 || this is TokenType.Eip20 || this is TokenType.Spl
+    get() = this is TokenType.Eip20 || this is TokenType.Spl
 
 val TokenType.meta: String?
     get() = when (this) {
         is TokenType.Derived -> this.derivation.name
         is TokenType.AddressTyped -> this.type.name
-        is TokenType.Bep2 -> this.symbol
         else -> null
     }
 
 val BlockchainType.Companion.supported: List<BlockchainType>
     get() = listOf(
-        BlockchainType.Safe,
         BlockchainType.SafeFour,
         BlockchainType.Bitcoin,
         BlockchainType.Ethereum,
@@ -692,6 +808,8 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Polygon,
         BlockchainType.Avalanche,
         BlockchainType.Optimism,
+        BlockchainType.Base,
+        BlockchainType.ZkSync,
         BlockchainType.ArbitrumOne,
         BlockchainType.Gnosis,
         BlockchainType.Fantom,
@@ -699,10 +817,40 @@ val BlockchainType.Companion.supported: List<BlockchainType>
         BlockchainType.Dash,
         BlockchainType.BitcoinCash,
         BlockchainType.Litecoin,
-        BlockchainType.BinanceChain,
         BlockchainType.Solana,
         BlockchainType.ECash,
         BlockchainType.Tron,
+        BlockchainType.Ton,
+        BlockchainType.Stellar,
+        BlockchainType.Monero,
         BlockchainType.Dogecoin,
-        BlockchainType.Ton
     )
+
+val BlockchainType.Companion.supportedCoinManager: List<BlockchainType>
+    get() = listOf(
+        BlockchainType.SafeFour,
+        BlockchainType.Bitcoin,
+        BlockchainType.Ethereum,
+        BlockchainType.BinanceSmartChain,
+        BlockchainType.Polygon,
+        BlockchainType.Avalanche,
+        BlockchainType.Gnosis,
+        BlockchainType.Fantom,
+        BlockchainType.Zcash,
+        BlockchainType.Dash,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Litecoin,
+        BlockchainType.Solana,
+        BlockchainType.ECash,
+        BlockchainType.Tron,
+        BlockchainType.Ton,
+        BlockchainType.Stellar,
+        BlockchainType.Monero,
+        BlockchainType.Dogecoin,
+    )
+
+val CoinPrice.diff: BigDecimal?
+    get() = when (App.priceManager.priceChangeInterval) {
+        PriceChangeInterval.LAST_24H -> diff24h
+        PriceChangeInterval.FROM_UTC_MIDNIGHT -> diff1d
+    }

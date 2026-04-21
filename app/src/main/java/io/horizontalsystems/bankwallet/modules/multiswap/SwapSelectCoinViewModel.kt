@@ -17,11 +17,9 @@ import io.horizontalsystems.bankwallet.core.supports
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
-import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule.CoinBalanceItem
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
-import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,14 +78,14 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     .thenBy { it.token.coin.code }
                     .thenBy { it.token.blockchainType.order }
                     .thenBy { it.token.badge }
-            ).filter { it.token.blockchainType == otherSelectedToken?.blockchainType }
+            )
                 .let {
                     resultTokens.addAll(it)
                 }
 
             // Suggested Tokens
             otherSelectedToken?.let { otherToken ->
-                val topFullCoins = marketKit.fullCoins("", limit = 200)
+                val topFullCoins = marketKit.fullCoins("", limit = 100)
                 val tokens =
                     topFullCoins.map { fullCoin ->
                         fullCoin.tokens.filter { it.blockchainType == otherToken.blockchainType }
@@ -116,11 +114,7 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                 }
 
                 else -> {
-                    if (otherSelectedToken != null) {
-                        listOf(TokenQuery(otherSelectedToken.blockchainType, TokenType.Native))
-                    } else {
-                        BlockchainType.supported.map { it.defaultTokenQuery }
-                    }
+                    BlockchainType.supported.map { it.defaultTokenQuery }
                 }
             }
 
@@ -137,21 +131,20 @@ class SwapSelectCoinViewModel(private val otherSelectedToken: Token?) : ViewMode
                     resultTokens.addAll(it)
                 }
 
-            coinBalanceItems = resultTokens/*.filter { dexSupportsCoin(it.token) }*/
+            coinBalanceItems = resultTokens
             return@withContext
         }
 
         coinBalanceItems = coinsProvider.getItems()
             .map { it.eligibleTokens(activeAccount.type) }
             .flatten()
-            .map {
-                val balance: BigDecimal? =
-                    activeWallets.firstOrNull { wallet -> wallet.coin.uid == it.coin.uid && wallet.token.blockchainType == it.blockchainType }
-                        ?.let { wallet ->
-                            adapterManager.getBalanceAdapterForWallet(wallet)?.balanceData?.available
-                        }
+            .map { token ->
+                val wallet = activeWallets.firstOrNull { it.token == token }
+                val balance = wallet?.let {
+                    adapterManager.getBalanceAdapterForWallet(it)?.balanceData?.available
+                }
 
-                CoinBalanceItem(it, balance, getFiatValue(it, balance))
+                CoinBalanceItem(token, balance, getFiatValue(token, balance))
             }
             .sortedWith(compareByDescending { it.balance })
     }

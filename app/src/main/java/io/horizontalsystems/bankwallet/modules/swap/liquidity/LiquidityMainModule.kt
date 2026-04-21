@@ -8,12 +8,12 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.Warning
-import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchService
+import io.horizontalsystems.bankwallet.core.fiat.AmountTypeSwitchServiceSendEvm
 import io.horizontalsystems.bankwallet.core.fiat.FiatService
 import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
+import io.horizontalsystems.bankwallet.modules.multiswap.TimerService
 import io.horizontalsystems.bankwallet.modules.swap.*
-import io.horizontalsystems.bankwallet.modules.swap.allowance.*
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceService
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityAllowanceViewModel
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance.LiquidityPendingAllowanceService
@@ -54,7 +54,7 @@ object LiquidityMainModule {
             UniswapLiquidityProvider,
             Safe4LiquidityProvider
         )
-        private val switchService by lazy { AmountTypeSwitchService() }
+        private val switchService by lazy { AmountTypeSwitchServiceSendEvm() }
         private val swapMainXService by lazy { LiquidityMainService(tokenFrom, swapProviders, App.localStorage) }
         private val evmKitWrapper by lazy { App.evmBlockchainManager.getEvmKitManager(swapMainXService.dex.blockchainType).evmKitWrapper }
         private val evmKit: EthereumKit = evmKitWrapper?.evmKit ?: throw Exception("EvmKit is not initialized")
@@ -69,10 +69,11 @@ object LiquidityMainModule {
 
             return when (modelClass) {
                 LiquidityMainViewModel::class.java -> {
-                    val fromFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
-                    switchService.fromListener = fromFiatService
+                    val fromFiatService =
+                        FiatService(switchService, App.currencyManager, App.marketKit)
+//                    switchService.fromListener = fromFiatService
                     val toFiatService = FiatService(switchService, App.currencyManager, App.marketKit)
-                    switchService.toListener = toFiatService
+//                    switchService.toListener = toFiatService
 
                     val fromTokenService = LiquidityTokenService(
                         switchService = switchService,
@@ -99,7 +100,7 @@ object LiquidityMainModule {
                         pendingAllowanceServiceA,
                         pendingAllowanceServiceB,
                         errorShareService,
-                        TimerService(evmKit),
+                        TimerService(),
                         App.currencyManager,
                         App.adapterManager,
                         evmKitWrapper
@@ -331,13 +332,13 @@ object LiquidityMainModule {
         object ForbiddenPriceImpactLevel : SwapError()
     }
 
-    @Parcelize
+    /*@Parcelize
     data class CoinBalanceItem(
         val token: Token,
         val balance: BigDecimal?,
         val fiatBalanceValue: CurrencyValue?,
     ) : Parcelable
-
+*/
 }
 
 fun BigDecimal.scaleUp(scale: Int): BigInteger {

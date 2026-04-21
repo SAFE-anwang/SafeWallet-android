@@ -8,13 +8,18 @@ import com.walletconnect.web3.wallet.client.Wallet.Params.Pair
 import com.walletconnect.web3.wallet.client.Web3Wallet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AdapterState
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
-import io.horizontalsystems.bankwallet.core.factories.uriScheme
+import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
+import io.horizontalsystems.bankwallet.core.managers.PriceManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.core.supported
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.core.stats.statSortType
 import io.horizontalsystems.bankwallet.core.utils.AddressUriParser
-import io.horizontalsystems.bankwallet.core.utils.AddressUriResult
 import io.horizontalsystems.bankwallet.core.utils.ToncoinUriParser
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AddressUri
@@ -37,22 +42,31 @@ class BalanceViewModel(
     private val service: BalanceService,
     private val balanceViewItemFactory: BalanceViewItemFactory,
     private val balanceViewTypeManager: BalanceViewTypeManager,
-    private val totalBalance: TotalBalance,
     private val localStorage: ILocalStorage,
     private val wCManager: WCManager,
     private val addressHandlerFactory: AddressHandlerFactory,
-) : ViewModelUiState<BalanceUiState>(), ITotalBalance by totalBalance {
+    private val priceManager: PriceManager,
+    private val adapterManager: IAdapterManager,
+    val isSwapEnabled: Boolean,
+    private val totalService: TotalService,
+    private val balanceHiddenManager: BalanceHiddenManager
+) : ViewModelUiState<BalanceUiState>() {
 
+    private var balanceItems = service.balanceItemsFlow.value
     private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
     private var viewState: ViewState? = null
     private var balanceViewItems = listOf<BalanceViewItem2>()
     private var isRefreshing = false
     private var openSendTokenSelect: OpenSendTokenSelect? = null
     private var errorMessage: String? = null
+    private var balanceTabButtonsEnabled = localStorage.balanceTabButtonsEnabled
+    private var balanceHidden = balanceHiddenManager.balanceHiddenFlow.value
+    private var amountRoundingEnabled = localStorage.amountRoundingEnabledFlow.value
+    private var totalUiState = createTotalUiState(totalService.stateFlow.value)
 
-    val sortTypes =
+    private val sortTypes =
         listOf(BalanceSortType.Value, BalanceSortType.Name, BalanceSortType.PercentGrowth)
-    var sortType by service::sortType
+    private var sortType = service.sortType
 
     var connectionResult by mutableStateOf<WalletConnectListViewModel.ConnectionResult?>(null)
         private set
@@ -60,24 +74,27 @@ class BalanceViewModel(
     private var refreshViewItemsJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            service.balanceItemsFlow
-                .collect { items ->
-                    totalBalance.setTotalServiceItems(items?.map {
-                        TotalService.BalanceItem(
-                            it.balanceData.total,
-                            it.state !is AdapterState.Synced,
-                            it.coinPrice
-                        )
-                    })
+        viewModelScope.launch(Dispatchers.Default) {
+            service.balanceItemsFlow.collect { items ->
+                totalService.setItems(items?.map {
+                    TotalService.BalanceItem(
+                        it.balanceData.total,
+                        service.networkAvailable && it.state !is AdapterState.Synced,
+                        it.coinPrice
+                    )
+                })
 
-                    refreshViewItems(items)
-                }
+                balanceItems = items
+
+                refreshViewItems()
+            }
         }
 
         viewModelScope.launch {
-            totalBalance.stateFlow.collect {
-                refreshViewItems(service.balanceItemsFlow.value)
+            totalService.stateFlow.collect {
+                totalUiState = createTotalUiState(it)
+
+                emitState()
             }
         }
 
@@ -87,54 +104,119 @@ class BalanceViewModel(
             }
         }
 
-        service.start()
+        viewModelScope.launch {
+            localStorage.balanceTabButtonsEnabledFlow.collect {
+                balanceTabButtonsEnabled = it
+                emitState()
+            }
+        }
 
-        totalBalance.start(viewModelScope)
+        viewModelScope.launch(Dispatchers.Default) {
+            priceManager.priceChangeIntervalFlow.collect {
+                refreshViewItems()
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
+            localStorage.amountRoundingEnabledFlow.collect{
+                amountRoundingEnabled = it
+
+                totalUiState = createTotalUiState(totalService.stateFlow.value)
+                refreshViewItems()
+            }
+        }
+
+        viewModelScope.launch {
+            balanceHiddenManager.balanceHiddenFlow.collect {
+                balanceHidden = it
+
+                emitState()
+            }
+        }
+
+        totalService.start()
+        service.start()
     }
 
-    override fun createState()= BalanceUiState(
-        balanceViewItems = balanceViewItems,
-        viewState = viewState,
-        isRefreshing = isRefreshing,
-        headerNote = headerNote(),
-        errorMessage = errorMessage,
-        openSend = openSendTokenSelect
+    fun toggleBalanceVisibility() {
+        balanceHiddenManager.toggleBalanceHidden()
+    }
+
+    fun toggleTotalType() {
+        totalService.toggleType()
+    }
+
+    private fun createTotalUiState(totalState: TotalService.State) = TotalUIState(
+        primaryAmountStr = getPrimaryAmount(totalState, !amountRoundingEnabled) ?: "---",
+        secondaryAmountStr = getSecondaryAmount(totalState, !amountRoundingEnabled) ?: "---",
+        dimmed = totalState.dimmed
     )
 
-    private suspend fun handleUpdatedBalanceViewType(balanceViewType: BalanceViewType) {
-        this.balanceViewType = balanceViewType
-
-        service.balanceItemsFlow.value?.let {
-            refreshViewItems(it)
+    private fun getPrimaryAmount(
+        totalState: TotalService.State,
+        fullFormat: Boolean
+    ) = totalState.currencyValue?.let {
+        if (fullFormat) {
+            App.numberFormatter.formatFiatFull(it.value, it.currency.symbol)
+        } else {
+            App.numberFormatter.formatFiatShort(it.value, it.currency.symbol, 8)
         }
     }
 
-    private fun headerNote(): HeaderNote {
-        val account = service.account ?: return HeaderNote.None
-        val nonRecommendedDismissed =
-            localStorage.nonRecommendedAccountAlertDismissedAccounts.contains(account.id)
-
-        return account.headerNote(nonRecommendedDismissed)
+    private fun getSecondaryAmount(
+        totalState: TotalService.State,
+        fullFormat: Boolean
+    ) = totalState.coinValue?.let {
+        if (fullFormat) {
+            "≈" + App.numberFormatter.formatCoinFull(it.value, it.coin.code, it.decimal)
+        } else {
+            "≈" + App.numberFormatter.formatCoinShort(it.value, it.coin.code, it.decimal)
+        }
     }
 
-    private fun refreshViewItems(balanceItems: List<BalanceModule.BalanceItem>?) {
+    override fun createState() = BalanceUiState(
+        balanceViewItems = balanceViewItems,
+        viewState = viewState,
+        isRefreshing = isRefreshing,
+        nonStandardAccount = service.account?.nonStandard == true,
+        errorMessage = errorMessage,
+        openSend = openSendTokenSelect,
+        balanceTabButtonsEnabled = balanceTabButtonsEnabled,
+        sortType = sortType,
+        sortTypes = sortTypes,
+        networkAvailable = service.networkAvailable,
+        loading = balanceViewItems.any {
+            it.loading
+        },
+        balanceHidden = balanceHidden,
+        totalUiState = totalUiState
+    )
+
+    private fun handleUpdatedBalanceViewType(balanceViewType: BalanceViewType) {
+        this.balanceViewType = balanceViewType
+
+        refreshViewItems()
+    }
+
+    private fun refreshViewItems() {
         refreshViewItemsJob?.cancel()
-        refreshViewItemsJob = viewModelScope.launch {
-            if (balanceItems != null) {
+        refreshViewItemsJob = viewModelScope.launch(Dispatchers.Default) {
+            val balanceItemsTmp = balanceItems?.toList()
+            // 解决列表key相同闪退bug，过滤相同的记录
+            val tmpBalanceViewItems = balanceItemsTmp?.distinctBy {
+                it.wallet.hashCode()
+            }
+            if (tmpBalanceViewItems != null) {
                 viewState = ViewState.Success
-                // 解决列表key相同闪退bug，过滤相同的记录
-                val tmpBalanceViewItems = balanceItems.distinctBy {
-                    it.wallet.hashCode()
-                }
                 balanceViewItems = tmpBalanceViewItems.map { balanceItem ->
                     ensureActive()
                     balanceViewItemFactory.viewItem2(
                         balanceItem,
                         service.baseCurrency,
-                        balanceHidden,
                         service.isWatchAccount,
                         balanceViewType,
-                        service.networkAvailable
+                        service.networkAvailable,
+                        amountRoundingEnabled
                     )
                 }
             } else {
@@ -152,7 +234,7 @@ class BalanceViewModel(
     }
 
     override fun onCleared() {
-        totalBalance.stop()
+        totalService.stop()
         service.clear()
     }
 
@@ -161,7 +243,9 @@ class BalanceViewModel(
             return
         }
 
-        viewModelScope.launch {
+        stat(page = StatPage.Balance, event = StatEvent.Refresh)
+
+        viewModelScope.launch(Dispatchers.Default) {
             isRefreshing = true
             emitState()
 
@@ -174,21 +258,20 @@ class BalanceViewModel(
         }
     }
 
-    fun onCloseHeaderNote(headerNote: HeaderNote) {
-        when (headerNote) {
-            HeaderNote.NonRecommendedAccount -> {
-                service.account?.let { account ->
-                    localStorage.nonRecommendedAccountAlertDismissedAccounts += account.id
-                    emitState()
-                }
-            }
+    fun setSortType(sortType: BalanceSortType) {
+        this.sortType = sortType
+        emitState()
 
-            else -> Unit
+        viewModelScope.launch(Dispatchers.Default) {
+            service.setSortType(sortType)
+            stat(page = StatPage.Balance, event = StatEvent.SwitchSortType(sortType.statSortType))
         }
     }
 
     fun disable(viewItem: BalanceViewItem2) {
         service.disable(viewItem.wallet)
+
+        stat(page = StatPage.Balance, event = StatEvent.DisableToken(viewItem.wallet.token))
     }
 
     fun getSyncErrorDetails(viewItem: BalanceViewItem2): SyncError = when {
@@ -209,30 +292,21 @@ class BalanceViewModel(
     }
 
     fun handleScannedData(scannedText: String) {
-        val wcUriVersion = WalletConnectListModule.getVersionFromUri(scannedText)
-        if (wcUriVersion == 2) {
-            handleWalletConnectUri(scannedText)
-        } else {
-            handleAddressData(scannedText)
-        }
-    }
-
-    private fun uri(text: String): AddressUri? {
-        if (AddressUriParser.hasUriPrefix(text)) {
-            val abstractUriParse = AddressUriParser(null, null)
-            return when (val result = abstractUriParse.parse(text)) {
-                is AddressUriResult.Uri -> {
-                    if (BlockchainType.supported.map { it.uriScheme }
-                            .contains(result.addressUri.scheme))
-                        result.addressUri
-                    else
-                        null
+        viewModelScope.launch {
+            if (
+                scannedText.startsWith("tc:") ||
+                scannedText.startsWith("https://unstoppable.money/ton-connect")
+            ) {
+                App.tonConnectManager.handle(scannedText)
+            } else {
+                val wcUriVersion = WalletConnectListModule.getVersionFromUri(scannedText)
+                if (wcUriVersion == 2) {
+                    handleWalletConnectUri(scannedText)
+                } else {
+                    handleAddressData(scannedText)
                 }
-
-                else -> null
             }
         }
-        return null
     }
 
     private fun handleAddressData(text: String) {
@@ -249,7 +323,7 @@ class BalanceViewModel(
             return
         }
 
-        val uri = uri(text)
+        val uri = AddressUriParser.addressUri(text)
         if (uri != null) {
             val allowedBlockchainTypes = uri.allowedBlockchainTypes
             var allowedTokenTypes: List<TokenType>? = null
@@ -263,7 +337,8 @@ class BalanceViewModel(
                 blockchainTypes = allowedBlockchainTypes,
                 tokenTypes = allowedTokenTypes,
                 address = uri.address,
-                amount = uri.amount
+                amount = uri.amount,
+                memo = uri.memo,
             )
             emitState()
         } else {
@@ -306,6 +381,10 @@ class BalanceViewModel(
         emitState()
     }
 
+    fun getReceiveAddress(wallet: Wallet): String? {
+        return adapterManager.getReceiveAdapterForWallet(wallet)?.receiveAddress
+    }
+
     sealed class SyncError {
         class NetworkNotAvailable : SyncError()
         class Dialog(val wallet: Wallet, val errorMessage: String?) : SyncError()
@@ -323,9 +402,16 @@ data class BalanceUiState(
     val balanceViewItems: List<BalanceViewItem2>,
     val viewState: ViewState?,
     val isRefreshing: Boolean,
-    val headerNote: HeaderNote,
+    val nonStandardAccount: Boolean,
     val errorMessage: String?,
     val openSend: OpenSendTokenSelect? = null,
+    val balanceTabButtonsEnabled: Boolean,
+    val sortType: BalanceSortType,
+    val sortTypes: List<BalanceSortType>,
+    val networkAvailable: Boolean,
+    val loading: Boolean,
+    val balanceHidden: Boolean,
+    val totalUiState: TotalUIState
 )
 
 data class OpenSendTokenSelect(
@@ -333,18 +419,14 @@ data class OpenSendTokenSelect(
     val tokenTypes: List<TokenType>?,
     val address: String,
     val amount: BigDecimal? = null,
+    val memo: String? = null
 )
 
-sealed class TotalUIState {
-    data class Visible(
-        val primaryAmountStr: String,
-        val secondaryAmountStr: String,
-        val dimmed: Boolean
-    ) : TotalUIState()
-
-    object Hidden : TotalUIState()
-
-}
+data class TotalUIState(
+    val primaryAmountStr: String,
+    val secondaryAmountStr: String,
+    val dimmed: Boolean
+)
 
 enum class HeaderNote {
     None,
@@ -352,8 +434,8 @@ enum class HeaderNote {
     NonRecommendedAccount
 }
 
-fun Account.headerNote(nonRecommendedDismissed: Boolean): HeaderNote = when {
+fun Account.headerNote(): HeaderNote = when {
     nonStandard -> HeaderNote.NonStandardAccount
-    nonRecommended -> if (nonRecommendedDismissed) HeaderNote.None else HeaderNote.NonRecommendedAccount
+    nonRecommended -> HeaderNote.NonRecommendedAccount
     else -> HeaderNote.None
 }

@@ -17,7 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
@@ -29,8 +28,8 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryDefaul
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
 import io.horizontalsystems.core.findNavController
 import kotlinx.coroutines.*
-import org.telegram.messenger.UserConfig
-import org.telegram.ui.LaunchActivity
+//import org.telegram.messenger.UserConfig
+//import org.telegram.ui.LaunchActivity
 
 class JoinTelegramFragment: BaseFragment() {
 
@@ -62,7 +61,7 @@ class JoinTelegramFragment: BaseFragment() {
                             Text(
                                 modifier = Modifier.padding(horizontal = 48.dp),
                                 text = stringResource(id = R.string.Telegram_Join_Group),
-                                style = ComposeAppTheme.typography.subhead2,
+                                style = ComposeAppTheme.typography.subheadB,
                                 color = ComposeAppTheme.colors.grey,
                                 textAlign = TextAlign.Center,
                             )

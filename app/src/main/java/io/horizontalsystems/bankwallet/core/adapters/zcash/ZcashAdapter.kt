@@ -6,17 +6,22 @@ import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.WalletInitMode
 import cash.z.ecc.android.sdk.block.processor.CompactBlockProcessor
-import cash.z.ecc.android.sdk.ext.ZcashSdk
 import cash.z.ecc.android.sdk.ext.collectWith
 import cash.z.ecc.android.sdk.ext.convertZatoshiToZec
 import cash.z.ecc.android.sdk.ext.convertZecToZatoshi
 import cash.z.ecc.android.sdk.ext.fromHex
 import cash.z.ecc.android.sdk.model.Account
+import cash.z.ecc.android.sdk.model.AccountBalance
+import cash.z.ecc.android.sdk.model.AccountCreateSetup
 import cash.z.ecc.android.sdk.model.BlockHeight
+import cash.z.ecc.android.sdk.model.FirstClassByteArray
 import cash.z.ecc.android.sdk.model.PercentDecimal
-import cash.z.ecc.android.sdk.model.WalletBalance
+import cash.z.ecc.android.sdk.model.Proposal
+import cash.z.ecc.android.sdk.model.TransactionSubmitResult
+import cash.z.ecc.android.sdk.model.UnifiedAddressRequest
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.model.ZcashNetwork
+import cash.z.ecc.android.sdk.model.Zip32AccountIndex
 import cash.z.ecc.android.sdk.tool.DerivationTool
 import cash.z.ecc.android.sdk.type.AddressType
 import co.electriccoin.lightwallet.client.model.LightWalletEndpoint
@@ -39,18 +44,27 @@ import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.zcash.ZcashShieldingTransactionRecord
 import io.horizontalsystems.bankwallet.modules.transactions.FilterTransactionType
 import io.horizontalsystems.bitcoincore.extensions.toReversedHex
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Instant
 import java.math.BigDecimal
+import java.util.Base64
+import java.util.Date
 import java.util.regex.Pattern
 import kotlin.math.max
+import io.horizontalsystems.bankwallet.entities.Account as WalletAccount
 
 class ZcashAdapter(
     context: Context,
@@ -59,13 +73,12 @@ class ZcashAdapter(
     private val localStorage: ILocalStorage,
 ) : IAdapter, IBalanceAdapter, IReceiveAdapter, ITransactionsAdapter, ISendZcashAdapter {
 
-    private var accountBirthday = 0L
+    private val accountBirthday: Long?
     private val existingWallet = localStorage.zcashAccountIds.contains(wallet.account.id)
     private val confirmationsThreshold = 10
     private val decimalCount = 8
     private val network: ZcashNetwork = ZcashNetwork.Mainnet
     private val feeChangeHeight: Long = 1_077_550
-    private val lightWalletEndpoint = LightWalletEndpoint(host = "zec.rocks", port = 443, isSecure = true)
 
     private val synchronizer: CloseableSynchronizer
     private val transactionsProvider: ZcashTransactionsProvider
@@ -77,52 +90,15 @@ class ZcashAdapter(
     private val accountType = (wallet.account.type as? AccountType.Mnemonic) ?: throw UnsupportedAccountException()
     private val seed = accountType.seed
 
-    private val zcashAccount = Account.DEFAULT
+    private val zcashAccount: Account
 
     override val receiveAddress: String
 
+    override val receiveAddressTransparent: String
+
     override val isMainNet: Boolean = true
 
-    init {
-        val walletInitMode = if (existingWallet) {
-            WalletInitMode.ExistingWallet
-        } else when (wallet.account.origin) {
-            AccountOrigin.Created -> WalletInitMode.NewWallet
-            AccountOrigin.Restored -> WalletInitMode.RestoreWallet
-        }
-
-        val birthday = when (wallet.account.origin) {
-            AccountOrigin.Created -> runBlocking {
-                BlockHeight.ofLatestCheckpoint(context, network)
-            }
-            AccountOrigin.Restored -> restoreSettings.birthdayHeight
-                ?.let { height ->
-                    max(network.saplingActivationHeight.value, height)
-                }
-                ?.let {
-                    BlockHeight.new(it)
-                }
-        }
-
-        birthday?.value?.let {
-            accountBirthday = it
-        }
-
-        synchronizer = Synchronizer.newBlocking(
-            context = context,
-            zcashNetwork = network,
-            alias = getValidAliasFromAccountId(wallet.account.id),
-            lightWalletEndpoint = lightWalletEndpoint,
-            seed = seed,
-            birthday = birthday,
-            walletInitMode = walletInitMode
-        )
-
-        receiveAddress = runBlocking { synchronizer.getSaplingAddress(zcashAccount) }
-        transactionsProvider = ZcashTransactionsProvider(receiveAddress, synchronizer as SdkSynchronizer)
-        synchronizer.onProcessorErrorHandler = ::onProcessorError
-        synchronizer.onChainErrorHandler = ::onChainError
-    }
+    private var currentSyncProgress: Float = 0f
 
     private var syncState: AdapterState = AdapterState.Syncing()
         set(value) {
@@ -131,20 +107,6 @@ class ZcashAdapter(
                 adapterStateUpdatedSubject.onNext(Unit)
             }
         }
-
-    override fun start() {
-        subscribe(synchronizer as SdkSynchronizer)
-        if (!existingWallet) {
-            localStorage.zcashAccountIds += wallet.account.id
-        }
-    }
-
-    override fun stop() {
-        synchronizer.close()
-    }
-
-    override fun refresh() {
-    }
 
     override val debugInfo: String
         get() = ""
@@ -155,28 +117,15 @@ class ZcashAdapter(
     override val balanceStateUpdatedFlowable: Flowable<Unit>
         get() = adapterStateUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
-    override val balanceData: BalanceData
-        get() = BalanceData(balance, balanceLocked)
+    override var balanceData: BalanceData? = null
 
     val statusInfo: Map<String, Any>
         get() {
             val statusInfo = LinkedHashMap<String, Any>()
             statusInfo["Last Block Info"] = lastBlockInfo ?: ""
             statusInfo["Sync State"] = syncState
-            statusInfo["Birthday Height"] = accountBirthday
+            statusInfo["Birthday Height"] = accountBirthday ?: 0
             return statusInfo
-        }
-
-    private val balance: BigDecimal
-        get() {
-            val walletBalance = synchronizer.saplingBalances.value ?: return BigDecimal.ZERO
-            return walletBalance.available.convertZatoshiToZec(decimalCount)
-        }
-
-    private val balanceLocked: BigDecimal
-        get() {
-            val walletBalance = synchronizer.saplingBalances.value ?: return BigDecimal.ZERO
-            return walletBalance.pending.convertZatoshiToZec(decimalCount)
         }
 
     override val balanceUpdatedFlowable: Flowable<Unit>
@@ -197,35 +146,86 @@ class ZcashAdapter(
     override val lastBlockUpdatedFlowable: Flowable<Unit>
         get() = lastBlockUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
-    override fun sendAllowed(): Boolean {
-        return balanceState is AdapterState.Synced || balanceState is AdapterState.Syncing
+    init {
+        val walletInitMode = if (existingWallet) {
+            WalletInitMode.ExistingWallet
+        } else when (wallet.account.origin) {
+            AccountOrigin.Created -> WalletInitMode.NewWallet
+            AccountOrigin.Restored -> WalletInitMode.RestoreWallet
+        }
+
+        val birthday = when (wallet.account.origin) {
+            AccountOrigin.Created -> runBlocking {
+                BlockHeight.ofLatestCheckpoint(context, network)
+            }
+
+            AccountOrigin.Restored -> restoreSettings.birthdayHeight
+                ?.let { height ->
+                    max(network.saplingActivationHeight.value, height)
+                }
+                ?.let {
+                    BlockHeight.new(it)
+                }
+        }
+
+        accountBirthday = birthday?.value
+
+        synchronizer = Synchronizer.newBlocking(
+            context = context,
+            zcashNetwork = network,
+            alias = getValidAliasFromAccountId(wallet.account.id),
+            lightWalletEndpoint = lightWalletEndpoint,
+            setup = AccountCreateSetup(accountName = wallet.account.name, keySource = null, seed = FirstClassByteArray(seed)),
+            birthday = birthday,
+            walletInitMode = walletInitMode,
+            isTorEnabled = false,
+            isExchangeRateEnabled = false
+        )
+
+        zcashAccount = runBlocking { synchronizer.getAccounts().first() }
+        receiveAddress = runBlocking { synchronizer.getUnifiedAddress(zcashAccount) }
+        receiveAddressTransparent = runBlocking { synchronizer.getTransparentAddress(zcashAccount) }
+        transactionsProvider = ZcashTransactionsProvider(zcashAccount.accountUuid, synchronizer as SdkSynchronizer)
+        synchronizer.onProcessorErrorHandler = ::onProcessorError
+        synchronizer.onChainErrorHandler = ::onChainError
     }
 
-    override fun getTransactionsAsync(
+    override fun start() {
+        subscribe(synchronizer as SdkSynchronizer)
+        if (!existingWallet) {
+            localStorage.zcashAccountIds += wallet.account.id
+        }
+    }
+
+    override fun stop() {
+        synchronizer.close()
+    }
+
+    override fun refresh() {
+    }
+
+    override suspend fun getTransactions(
         from: TransactionRecord?,
         token: Token?,
         limit: Int,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Single<List<TransactionRecord>> {
+    ): List<TransactionRecord> {
         val fromParams = from?.let {
             val transactionHash = it.transactionHash.fromHex().reversedArray()
             Triple(transactionHash, it.timestamp, it.transactionIndex)
         }
         return transactionsProvider.getTransactions(fromParams, transactionType, address, limit)
-            .map { transactions ->
-                transactions.map {
-                    getTransactionRecord(it)
-                }
-            }
+            .map { getTransactionRecord(it) }
     }
 
-    override fun getTransactionRecordsFlowable(
+    override fun getTransactionRecordsFlow(
         token: Token?,
         transactionType: FilterTransactionType,
         address: String?,
-    ): Flowable<List<TransactionRecord>> {
+    ): Flow<List<TransactionRecord>> {
         return transactionsProvider.getNewTransactionsFlowable(transactionType, address)
+            .asFlow()
             .map { transactions ->
                 transactions.map { getTransactionRecord(it) }
             }
@@ -235,20 +235,7 @@ class ZcashAdapter(
         "https://blockchair.com/zcash/transaction/$transactionHash"
 
     override val availableBalance: BigDecimal
-        get() {
-            val available = synchronizer.saplingBalances.value?.available ?: Zatoshi(0)
-            val defaultFee = ZcashSdk.MINERS_FEE
-
-            return if (available <= defaultFee) {
-                BigDecimal.ZERO
-            } else {
-                available.minus(defaultFee)
-                    .convertZatoshiToZec(decimalCount)
-            }
-        }
-
-    override val fee: BigDecimal
-        get() = ZcashSdk.MINERS_FEE.convertZatoshiToZec(decimalCount)
+        get() = balanceData?.available ?: BigDecimal.ZERO
 
     override suspend fun validate(address: String): ZCashAddressType {
         if (address == receiveAddress) throw ZcashError.SendToSelfNotAllowed
@@ -261,14 +248,149 @@ class ZcashAdapter(
         }
     }
 
-    override suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger): Long {
-        val spendingKey = DerivationTool.getInstance().deriveUnifiedSpendingKey(seed, network, zcashAccount)
-        logger.info("call synchronizer.sendToAddress")
-        return synchronizer.sendToAddress(spendingKey, amount.convertZecToZatoshi(), address, memo)
+    /**
+     * Gets a fresh unified address with Orchard and Sapling receivers (shielded only).
+     * Falls back to the standard unified address if custom address generation fails.
+     */
+    override suspend fun getFreshReceiveAddress(): String {
+        return try {
+            synchronizer.getCustomUnifiedAddress(zcashAccount, UnifiedAddressRequest.shielded)
+        } catch (_: Exception) {
+            receiveAddress
+        }
     }
 
+    /**
+     * Generates and returns an ephemeral transparent address for one-time use.
+     * Used for receiving swaps from decentralized exchanges or other single-use scenarios.
+     * Falls back to the standard transparent address if ephemeral address generation fails.
+     */
+    override suspend fun getFreshReceiveAddressTransparent(): String {
+        //TODO transparent address rotation is disabled for now
+        return receiveAddressTransparent
+//        return try {
+//            synchronizer.getSingleUseTransparentAddress(zcashAccount.accountUuid).address
+//        } catch (e: Exception) {
+//            receiveAddressTransparent
+//        }
+    }
+
+    suspend fun sendShieldProposal() {
+        val shieldProposal = shieldProposal() ?: throw IllegalStateException("Couldn't create shield proposal")
+        send(shieldProposal)
+    }
+
+    suspend fun shieldTransactionFee(): BigDecimal? =
+        shieldProposal()?.totalFeeRequired()?.convertZatoshiToZec()
+
+    private suspend fun shieldProposal(): Proposal? = synchronizer.proposeShielding(
+        account = zcashAccount,
+        shieldingThreshold = minimalShieldThreshold.convertZecToZatoshi(),
+        memo = ""
+    )
+
+    override suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger) {
+        logger.info("call sendTransferProposal")
+        val transferProposal = transferProposal(amount, address, memo)
+        send(transferProposal)
+    }
+
+    override suspend fun fee(amount: BigDecimal, address: String, memo: String): BigDecimal {
+        return transferProposal(amount, address, memo).totalFeeRequired().convertZatoshiToZec(decimalCount)
+    }
+
+    private suspend fun transferProposal(
+        amount: BigDecimal,
+        address: String,
+        memo: String
+    ) = synchronizer.proposeTransfer(
+        account = zcashAccount,
+        recipient = address,
+        amount = amount.convertZecToZatoshi(),
+        memo = memo
+    )
+
+    private suspend fun send(proposal: Proposal) {
+        val spendingKey = DerivationTool.getInstance().deriveUnifiedSpendingKey(seed, network, Zip32AccountIndex.new(0))
+
+        try {
+            val results = synchronizer.createProposedTransactions(proposal, spendingKey).toList()
+            results.forEach { result ->
+                when (result) {
+                    is TransactionSubmitResult.Success -> {}
+
+                    is TransactionSubmitResult.Failure -> {
+                        val errorMsg = buildString {
+                            append("Transaction submission failed. ")
+                            append("TxId: ${result.txIdString()}, ")
+                            append("gRPC error: ${result.grpcError}, ")
+                            append("Code: ${result.code}, ")
+                            append("Description: ${result.description ?: "None"}")
+                        }
+                        throw IllegalStateException(errorMsg)
+                    }
+
+                    is TransactionSubmitResult.NotAttempted -> {
+                        throw IllegalStateException("Transaction not attempted. TxId: ${result.txIdString()}")
+                    }
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid proposal: ${e.message}", e)
+        } catch (e: Exception) {
+            throw RuntimeException("Unexpected error while sending Zcash: ${e.message}", e)
+        }
+    }
+
+    suspend fun createProposal(outputs: List<TransferOutput>): Proposal {
+        val paymentUri = createPaymentUri(outputs)
+        return synchronizer.proposeFulfillingPaymentUri(
+            zcashAccount,
+            paymentUri,
+        )
+    }
+
+    suspend fun sendProposal(proposal: Proposal) {
+        send(proposal)
+    }
+
+    private fun createPaymentUri(outputs: List<TransferOutput>): String {
+        val queryParams = mutableListOf<String>()
+
+        outputs.forEachIndexed { index, output ->
+            if (index == 0) {
+                queryParams.add("address=${output.address}")
+                queryParams.add("amount=${output.amount.toPlainString()}")
+                if (output.memo.isNotEmpty()) {
+                    queryParams.add("memo=${encodeBase64Url(output.memo)}")
+                }
+            } else {
+                queryParams.add("address.$index=${output.address}")
+                queryParams.add("amount.$index=${output.amount.toPlainString()}")
+                if (output.memo.isNotEmpty()) {
+                    queryParams.add("memo.$index=${encodeBase64Url(output.memo)}")
+                }
+            }
+        }
+
+        return "zcash:?${queryParams.joinToString("&")}"
+    }
+
+    private fun encodeBase64Url(string: String): String {
+        val encoded = Base64.getEncoder().encodeToString(string.toByteArray(Charsets.UTF_8))
+        return encoded
+            .replace("+", "-")
+            .replace("/", "_")
+            .replace("=", "")
+    }
+
+    data class TransferOutput(
+        val amount: BigDecimal,
+        val address: String,
+        val memo: String = ""
+    )
+
     // Subscribe to a synchronizer on its own scope and begin responding to events
-    @OptIn(FlowPreview::class)
     private fun subscribe(synchronizer: SdkSynchronizer) {
         // Note: If any of these callback functions directly touch the UI, then the scope used here
         //       should not live longer than that UI or else the context and view tree will be
@@ -278,10 +400,10 @@ class ZcashAdapter(
         //       related viewModelScope instead of the synchronizer's scope.
         //       synchronizer.coroutineScope cannot be accessed until the synchronizer is started
         val scope = synchronizer.coroutineScope
-        synchronizer.transactions.collectWith(scope, transactionsProvider::onTransactions)
+        synchronizer.allTransactions.collectWith(scope, transactionsProvider::onTransactions)
         synchronizer.status.collectWith(scope, ::onStatus)
         synchronizer.progress.collectWith(scope, ::onDownloadProgress)
-        synchronizer.saplingBalances.collectWith(scope, ::onBalance)
+        synchronizer.walletBalances.mapNotNull { it?.get(zcashAccount.accountUuid) }.collectWith(scope, ::onBalance)
         synchronizer.processorInfo.collectWith(scope, ::onProcessorInfo)
     }
 
@@ -295,74 +417,127 @@ class ZcashAdapter(
 
     private fun onStatus(status: Synchronizer.Status) {
         syncState = when (status) {
-            Synchronizer.Status.STOPPED -> AdapterState.NotSynced(Exception("stopped"))
-            Synchronizer.Status.DISCONNECTED -> AdapterState.NotSynced(Exception("disconnected"))
+            Synchronizer.Status.STOPPED -> AdapterState.Syncing()
+            Synchronizer.Status.DISCONNECTED -> AdapterState.Syncing()
             Synchronizer.Status.SYNCING -> AdapterState.Syncing()
             Synchronizer.Status.SYNCED -> AdapterState.Synced
-            else -> syncState
+            Synchronizer.Status.INITIALIZING -> AdapterState.Syncing()
         }
     }
 
     private fun onDownloadProgress(progress: PercentDecimal) {
-        syncState = AdapterState.Syncing(progress.toPercentage())
+        currentSyncProgress = progress.decimal
+        val blocksRemaining = calculateBlocksRemaining()
+        val progressPercent = progress.toPercentage().coerceIn(0, 100)
+
+        if (blocksRemaining == null) return
+
+        syncState = AdapterState.Syncing(
+            progress = progressPercent,
+            blocksRemained = blocksRemaining
+        )
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onProcessorInfo(processorInfo: CompactBlockProcessor.ProcessorInfo) {
-        syncState = AdapterState.Syncing()
         lastBlockUpdatedSubject.onNext(Unit)
     }
 
-    private fun onBalance(balance: WalletBalance?) {
+    private fun calculateBlocksRemaining(): Long? {
+        val birthday = accountBirthday ?: return null
+        val latestHeight = synchronizer.latestHeight?.value ?: return null
+        val totalBlocks = latestHeight - birthday
+        if (totalBlocks <= 0 || currentSyncProgress <= 0f) return null
+
+        return max(1L, (totalBlocks * (1 - currentSyncProgress)).toLong())
+    }
+
+    private fun onBalance(balance: AccountBalance) {
+        val balanceAvailable = balance.available.convertZatoshiToZec(decimalCount)
+        val balancePending = balance.pending.convertZatoshiToZec(decimalCount)
+        val balanceUnshielded = balance.unshielded.convertZatoshiToZec(decimalCount)
+
+        balanceData = BalanceData(
+            available = balanceAvailable,
+            pending = balancePending,
+            unshielded = balanceUnshielded
+        )
+
         balanceUpdatedSubject.onNext(Unit)
     }
 
     private fun getTransactionRecord(transaction: ZcashTransaction): TransactionRecord {
         val transactionHashHex = transaction.transactionHash.toReversedHex()
 
-        return if (transaction.isIncoming) {
-            BitcoinIncomingTransactionRecord(
-                token = wallet.token,
-                uid = transactionHashHex,
-                transactionHash = transactionHashHex,
-                transactionIndex = transaction.transactionIndex,
-                blockHeight = transaction.minedHeight?.toInt(),
-                confirmationsThreshold = confirmationsThreshold,
-                timestamp = transaction.timestamp,
-                fee = transaction.feePaid?.let { it.convertZatoshiToZec(decimalCount) },
-                failed = transaction.failed,
-                lockInfo = null,
-                conflictingHash = null,
-                showRawTransaction = false,
-                amount = transaction.value.convertZatoshiToZec(decimalCount),
-                from = null,
-                memo = transaction.memo,
-                source = wallet.transactionSource
-            )
-        } else {
-            BitcoinOutgoingTransactionRecord(
-                token = wallet.token,
-                uid = transactionHashHex,
-                transactionHash = transactionHashHex,
-                transactionIndex = transaction.transactionIndex,
-                blockHeight = transaction.minedHeight?.toInt(),
-                confirmationsThreshold = confirmationsThreshold,
-                timestamp = transaction.timestamp,
-                fee = transaction.feePaid?.let { it.convertZatoshiToZec(decimalCount) },
-                failed = transaction.failed,
-                lockInfo = null,
-                conflictingHash = null,
-                showRawTransaction = false,
-                amount = transaction.value.convertZatoshiToZec(decimalCount).negate(),
-                to = transaction.toAddress,
-                sentToSelf = false,
-                memo = transaction.memo,
-                source = wallet.transactionSource,
-                replaceable = false
-            )
+        return when {
+            transaction.shieldDirection != null -> {
+                ZcashShieldingTransactionRecord(
+                    token = wallet.token,
+                    uid = transactionHashHex,
+                    transactionHash = transactionHashHex,
+                    transactionIndex = transaction.transactionIndex,
+                    blockHeight = transaction.minedHeight?.toInt(),
+                    confirmationsThreshold = confirmationsThreshold,
+                    timestamp = transaction.timestamp,
+                    fee = transaction.feePaid?.convertZatoshiToZec(decimalCount),
+                    failed = transaction.failed,
+                    lockInfo = null,
+                    conflictingHash = null,
+                    showRawTransaction = false,
+                    amount = transaction.value.convertZatoshiToZec(decimalCount),
+                    direction = ZcashShieldingTransactionRecord.Direction.from(transaction.shieldDirection),
+                    memo = transaction.memo,
+                    source = wallet.transactionSource
+                )
+            }
+
+            transaction.isIncoming -> {
+                BitcoinIncomingTransactionRecord(
+                    token = wallet.token,
+                    uid = transactionHashHex,
+                    transactionHash = transactionHashHex,
+                    transactionIndex = transaction.transactionIndex,
+                    blockHeight = transaction.minedHeight?.toInt(),
+                    confirmationsThreshold = confirmationsThreshold,
+                    timestamp = transaction.timestamp,
+                    fee = transaction.feePaid.convertZatoshiToZec(decimalCount),
+                    failed = transaction.failed,
+                    lockInfo = null,
+                    conflictingHash = null,
+                    showRawTransaction = false,
+                    amount = transaction.value.convertZatoshiToZec(decimalCount),
+                    from = null,
+                    memo = transaction.memo,
+                    source = wallet.transactionSource
+                )
+            }
+
+            else -> {
+                BitcoinOutgoingTransactionRecord(
+                    token = wallet.token,
+                    uid = transactionHashHex,
+                    transactionHash = transactionHashHex,
+                    transactionIndex = transaction.transactionIndex,
+                    blockHeight = transaction.minedHeight?.toInt(),
+                    confirmationsThreshold = confirmationsThreshold,
+                    timestamp = transaction.timestamp,
+                    fee = transaction.feePaid.convertZatoshiToZec(decimalCount),
+                    failed = transaction.failed,
+                    lockInfo = null,
+                    conflictingHash = null,
+                    showRawTransaction = false,
+                    amount = transaction.value.convertZatoshiToZec(decimalCount).negate(),
+                    to = transaction.recipients?.firstOrNull()?.addressValue,
+                    sentToSelf = false,
+                    memo = transaction.memo,
+                    source = wallet.transactionSource,
+                    replaceable = false
+                )
+            }
         }
     }
 
-    enum class ZCashAddressType{
+    enum class ZCashAddressType {
         Shielded, Transparent, Unified
     }
 
@@ -372,6 +547,9 @@ class ZcashAdapter(
     }
 
     companion object {
+        val minimalShieldThreshold = BigDecimal("0.0004") // minimal transparent balance to shielding
+        private val lightWalletEndpoint = LightWalletEndpoint(host = "zec.rocks", port = 443, isSecure = true)
+
         private const val ALIAS_PREFIX = "zcash_"
 
         private fun getValidAliasFromAccountId(accountId: String): String {
@@ -381,6 +559,86 @@ class ZcashAdapter(
         fun clear(accountId: String) {
             runBlocking {
                 Synchronizer.erase(App.instance, ZcashNetwork.Mainnet, getValidAliasFromAccountId(accountId))
+            }
+        }
+
+        suspend fun getTransparentAddress(account: WalletAccount): String {
+            val seed = (account.type as? AccountType.Mnemonic)?.seed
+                ?: throw IllegalArgumentException("Unsupported account type for Zcash")
+
+            val alias = getValidAliasFromAccountId(account.id)
+            val network = ZcashNetwork.Mainnet
+            val context = App.instance
+            val existingWallet = App.localStorage.zcashAccountIds.contains(account.id)
+            val restoreSettings = App.restoreSettingsManager.settings(account, BlockchainType.Zcash)
+
+            val walletInitMode = if (existingWallet) {
+                WalletInitMode.ExistingWallet
+            } else when (account.origin) {
+                AccountOrigin.Created -> WalletInitMode.NewWallet
+                AccountOrigin.Restored -> WalletInitMode.RestoreWallet
+            }
+
+            val birthday = when (account.origin) {
+                AccountOrigin.Created -> {
+                    BlockHeight.ofLatestCheckpoint(context, network)
+                }
+
+                AccountOrigin.Restored -> restoreSettings.birthdayHeight
+                    ?.let { height ->
+                        max(network.saplingActivationHeight.value, height)
+                    }
+                    ?.let {
+                        BlockHeight.new(it)
+                    }
+            }
+
+            val synchronizer = Synchronizer.newBlocking(
+                context = context,
+                zcashNetwork = network,
+                alias = alias,
+                lightWalletEndpoint = lightWalletEndpoint,
+                setup = AccountCreateSetup(
+                    accountName = account.name,
+                    keySource = null,
+                    seed = FirstClassByteArray(seed)
+                ),
+                birthday = birthday,
+                walletInitMode = walletInitMode,
+                isTorEnabled = false,
+                isExchangeRateEnabled = false
+            )
+
+            val account = synchronizer.getAccounts().first()
+            val transparentAddress = synchronizer.getTransparentAddress(account)
+
+            synchronizer.close()
+
+            return transparentAddress
+        }
+
+        suspend fun estimateBirthdayHeight(context: Context, date: Date): Long {
+            val blockHeight = SdkSynchronizer.estimateBirthdayHeight(
+                context = context,
+                date = Instant.fromEpochMilliseconds(date.time),
+                network = ZcashNetwork.Mainnet
+            )
+            return blockHeight.value
+        }
+
+        suspend fun estimateBirthdayDate(context: Context, height: Long): Date? {
+            try {
+                val instant = SdkSynchronizer.estimateBirthdayDate(
+                    context = context,
+                    blockHeight = BlockHeight.new(height),
+                    network = ZcashNetwork.Mainnet
+                )
+                if (instant == null) {
+                    return null
+                }
+                return Date(instant.toEpochMilliseconds())
+            } catch (_: Throwable) {
+                return null
             }
         }
     }
@@ -405,3 +663,9 @@ object ZcashAddressValidator {
         return isValidTransparentAddress(address) || isValidShieldedAddress(address)
     }
 }
+
+val AccountBalance.available: Zatoshi
+    get() = this.sapling.available + this.orchard.available
+
+val AccountBalance.pending: Zatoshi
+    get() = this.sapling.pending + this.orchard.pending

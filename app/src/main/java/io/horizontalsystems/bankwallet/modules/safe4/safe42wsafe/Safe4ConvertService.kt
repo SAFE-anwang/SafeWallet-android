@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.safe4.safe42wsafe
 
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.Clearable
 import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter

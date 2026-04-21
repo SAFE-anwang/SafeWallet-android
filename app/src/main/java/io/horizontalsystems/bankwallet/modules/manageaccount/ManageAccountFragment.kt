@@ -2,20 +2,24 @@ package io.horizontalsystems.bankwallet.modules.manageaccount
 
 import android.os.Parcelable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -23,25 +27,24 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.authorizedAction
 import io.horizontalsystems.bankwallet.core.managers.FaqManager
-import io.horizontalsystems.bankwallet.core.requireInput
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.core.stats.StatEntity
+import io.horizontalsystems.bankwallet.core.stats.StatEvent
+import io.horizontalsystems.bankwallet.core.stats.StatPage
+import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.balance.HeaderNote
-import io.horizontalsystems.bankwallet.modules.balance.ui.NoteError
-import io.horizontalsystems.bankwallet.modules.balance.ui.NoteWarning
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.BackupItem
 import io.horizontalsystems.bankwallet.modules.manageaccount.ManageAccountModule.KeyAction
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonSecondaryDefault
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
-import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
-import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
+import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
@@ -49,6 +52,11 @@ import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_jacob
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.body_lucian
+import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
+import io.horizontalsystems.bankwallet.uiv3.components.AlertCard
+import io.horizontalsystems.bankwallet.uiv3.components.AlertFormat
+import io.horizontalsystems.bankwallet.uiv3.components.AlertType
+import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.parcelize.Parcelize
 
@@ -56,11 +64,9 @@ class ManageAccountFragment : BaseComposeFragment() {
 
     @Composable
     override fun GetContent(navController: NavController) {
-        val input = navController.requireInput<Input>()
-        ManageAccountScreen(
-            navController,
-            input.accountId
-        )
+        withInput<Input>(navController) { input ->
+            ManageAccountScreen(navController, input.accountId)
+        }
     }
 
     @Parcelize
@@ -76,51 +82,66 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
         navController.popBackStack()
         viewModel.onClose()
     }
-
-    Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
-        AppBar(
-            title = viewModel.viewState.title,
-            navigationIcon = {
-                HsBackButton(onClick = { navController.popBackStack() })
-            },
-            menuItems = listOf(
-                MenuItem(
-                    title = TranslatableString.ResString(R.string.ManageAccount_Save),
-                    onClick = { viewModel.onSave() },
-                    enabled = viewModel.viewState.canSave
-                )
+    HSScaffold(
+        title = viewModel.viewState.title,
+        onBack = { navController.popBackStack() },
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.ManageAccount_Save),
+                onClick = { viewModel.onSave() },
+                enabled = viewModel.viewState.canSave,
+                tint = ComposeAppTheme.colors.jacob
             )
         )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                HeaderText(stringResource(id = R.string.ManageAccount_Name))
 
-        Column {
-            HeaderText(stringResource(id = R.string.ManageAccount_Name))
+                FormsInput(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    initial = viewModel.viewState.title,
+                    hint = "",
+                    onValueChange = {
+                        viewModel.onChange(it)
 
-            FormsInput(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                initial = viewModel.viewState.title,
-                hint = "",
-                onValueChange = {
-                    viewModel.onChange(it)
-                }
-            )
+                        stat(
+                            page = StatPage.ManageWallet,
+                            event = StatEvent.Edit(StatEntity.WalletName)
+                        )
+                    }
+                )
 
-            when (viewModel.viewState.headerNote) {
-                HeaderNote.NonStandardAccount -> {
-                    NoteError(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
-                        text = stringResource(R.string.AccountRecovery_MigrationRequired),
-                        onClick = {
-                            FaqManager.showFaqPage(
-                                navController,
-                                FaqManager.faqPathMigrationRequired
-                            )
-                        }
-                    )
-                }
+                when (viewModel.viewState.headerNote) {
+                    HeaderNote.NonStandardAccount -> {
+                        AlertCard(
+                            modifier = Modifier
+                                .background(ComposeAppTheme.colors.tyler)
+                                .padding(start = 16.dp, end = 16.dp, top = 32.dp)
+                                .fillMaxWidth(),
+                            format = AlertFormat.Structured,
+                            type = AlertType.Critical,
+                            text = stringResource(R.string.AccountRecovery_MigrationRequired),
+                            onClick = {
+                                FaqManager.showFaqPage(
+                                    navController,
+                                    FaqManager.faqPathMigrationRequired
+                                )
+                            }
+                        )
+                    }
 
                     HeaderNote.NonRecommendedAccount -> {
-                        /*NoteWarning(
+                        /*AlertCard(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                            format = AlertFormat.Structured,
+                            type = AlertType.Caution,
                             text = stringResource(R.string.AccountRecovery_MigrationRecommended),
                             onClick = {
                                 FaqManager.showFaqPage(
@@ -128,37 +149,42 @@ fun ManageAccountScreen(navController: NavController, accountId: String) {
                                     FaqManager.faqPathMigrationRecommended
                                 )
                             },
-                            onClose = null
                         )*/
                     }
 
-                HeaderNote.None -> Unit
+                    HeaderNote.None -> Unit
+                }
+
+                KeyActions(viewModel, navController)
+
+                if (viewModel.viewState.backupActions.isNotEmpty()) {
+                    BackupActions(
+                        viewModel.viewState.backupActions,
+                        viewModel.account,
+                        navController
+                    )
+                }
+
+                VSpacer(32.dp)
+                CellUniversalLawrenceSection(
+                    listOf {
+                        RedActionItem(
+                            title = stringResource(id = R.string.ManageAccount_Unlink),
+                            icon = painterResource(id = R.drawable.ic_delete_20)
+                        ) {
+                            navController.slideFromBottom(
+                                R.id.unlinkConfirmationDialog,
+                                viewModel.account
+                            )
+
+                            stat(
+                                page = StatPage.ManageWallet,
+                                event = StatEvent.Open(StatPage.UnlinkWallet)
+                            )
+                        }
+                    })
+                VSpacer(32.dp)
             }
-
-            KeyActions(viewModel, navController)
-
-            if (viewModel.viewState.backupActions.isNotEmpty()) {
-                BackupActions(
-                    viewModel.viewState.backupActions,
-                    viewModel.account,
-                    navController
-                )
-            }
-
-            VSpacer(32.dp)
-            CellUniversalLawrenceSection(
-                listOf {
-                    RedActionItem(
-                        title = stringResource(id = R.string.ManageAccount_Unlink),
-                        icon = painterResource(id = R.drawable.ic_delete_20)
-                    ) {
-                        navController.slideFromBottom(
-                            R.id.unlinkConfirmationDialog,
-                            viewModel.account
-                        )
-                    }
-                })
-            VSpacer(32.dp)
         }
     }
 }
@@ -187,6 +213,11 @@ private fun BackupActions(
                                 R.id.backupKeyFragment,
                                 account
                             )
+
+                            stat(
+                                page = StatPage.ManageWallet,
+                                event = StatEvent.Open(StatPage.ManualBackup)
+                            )
                         }
                     }
                 }
@@ -201,6 +232,11 @@ private fun BackupActions(
                     ) {
                         navController.authorizedAction {
                             navController.slideFromBottom(R.id.backupLocalFragment, account)
+
+                            stat(
+                                page = StatPage.ManageWallet,
+                                event = StatEvent.Open(StatPage.FileBackup)
+                            )
                         }
                     }
                 }
@@ -243,6 +279,11 @@ private fun KeyActions(
                                 R.id.recoveryPhraseFragment,
                                 viewModel.account
                             )
+
+                            stat(
+                                page = StatPage.ManageWallet,
+                                event = StatEvent.Open(StatPage.RecoveryPhrase)
+                            )
                         }
                     }
                 }
@@ -258,6 +299,11 @@ private fun KeyActions(
                             R.id.privateKeysFragment,
                             viewModel.account
                         )
+
+                        stat(
+                            page = StatPage.ManageWallet,
+                            event = StatEvent.Open(StatPage.PrivateKeys)
+                        )
                     }
                 }
             }
@@ -271,6 +317,11 @@ private fun KeyActions(
                         navController.slideFromRight(
                             R.id.publicKeysFragment,
                             viewModel.account
+                        )
+
+                        stat(
+                            page = StatPage.ManageWallet,
+                            event = StatEvent.Open(StatPage.PublicKeys)
                         )
                     }
                 }
@@ -310,11 +361,11 @@ private fun AccountActionItem(
         }
 
         if (coinIconUrl != null) {
-            CoinImage(
+            HsImage(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .size(20.dp),
-                iconUrl = coinIconUrl,
+                url = coinIconUrl,
                 placeholder = coinIconPlaceholder
             )
         }
@@ -336,13 +387,12 @@ private fun AccountActionItem(
 
         badge?.let {
             val view = LocalView.current
-            val clipboardManager = LocalClipboardManager.current
 
             ButtonSecondaryDefault(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 title = it,
                 onClick = {
-                    clipboardManager.setText(AnnotatedString(it))
+                    TextHelper.copyText(it)
                     HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
                 }
             )

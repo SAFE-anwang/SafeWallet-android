@@ -28,7 +28,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
-import com.google.android.exoplayer2.util.Log
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.entities.ViewState
@@ -207,8 +206,8 @@ fun CellItems(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CoinImage(
-                iconUrl = dappItem.icon,
+            HsImage(
+                url = dappItem.icon,
                 placeholder = dappItem.iconPlaceholder,
                 modifier = Modifier
                     .size(24.dp)
