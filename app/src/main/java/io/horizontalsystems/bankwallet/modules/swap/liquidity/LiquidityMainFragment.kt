@@ -43,6 +43,7 @@ import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.eip20approve.Eip20ApproveConfirmFragment
 import io.horizontalsystems.bankwallet.modules.evmfee.FeeSettingsInfoDialog
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmModule
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionService
@@ -324,14 +325,20 @@ fun SwapCards(
                 },
                 onTapApprove1 = {
                     viewModel.approveData?.let { data ->
-                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
+                        navController.slideFromBottomForResult<Eip20ApproveConfirmFragment.Result>(
+                            R.id.eip20ApproveFragment,
+                            data
+                        ) {
+                            viewModel.didApprove()
+                        }
+                        /*navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                                 R.id.swapApproveFragment,
                                 data
                         ) {
                             if (it.approved) {
                                 viewModel.didApprove()
                             }
-                        }
+                        }*/
                     }
                 },
                 onTapRevoke2 = {
@@ -348,14 +355,20 @@ fun SwapCards(
                 },
                 onTapApprove2 = {
                     viewModel.approveDataB?.let { data ->
-                        navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
+                        navController.slideFromBottomForResult<Eip20ApproveConfirmFragment.Result>(
+                            R.id.eip20ApproveFragment,
+                            data
+                        ) {
+                            viewModel.didApproveB()
+                        }
+                        /*navController.slideFromBottomForResult<SwapApproveConfirmationFragment.Result>(
                                 R.id.swapApproveFragment,
                                 data
                         ) {
                             if (it.approved) {
                                 viewModel.didApproveB()
                             }
-                        }
+                        }*/
                     }
                 },
                 onTapProceed = {

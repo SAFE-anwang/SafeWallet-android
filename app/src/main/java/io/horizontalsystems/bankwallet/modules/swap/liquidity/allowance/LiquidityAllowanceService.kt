@@ -47,6 +47,8 @@ class LiquidityAllowanceService(
         sync()
     }
 
+    fun getSpenderAddress() = spenderAddress?.eip55
+
     fun set(token: Token?) {
         this.token = token
         state = State.Loading

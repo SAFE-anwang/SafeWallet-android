@@ -22,6 +22,7 @@ import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.core.toHexString
 import io.horizontalsystems.bankwallet.entities.Address
+import io.horizontalsystems.bankwallet.modules.eip20approve.Eip20ApproveFragment
 import io.horizontalsystems.bankwallet.modules.evmfee.GasDataError
 import io.horizontalsystems.bankwallet.modules.multiswap.EvmBlockchainHelper
 import io.horizontalsystems.bankwallet.modules.multiswap.TimerService
@@ -48,6 +49,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.uniswapkit.Extensions
+import io.horizontalsystems.uniswapkit.TradeManager
 import io.horizontalsystems.uniswapkit.liquidity.PancakeSwapKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
@@ -164,16 +166,37 @@ class LiquidityMainViewModel(
     )
         private set
 
-    val approveData: SwapMainModule.ApproveData?
-        get() = balanceFrom?.let { amount ->
+    val approveData: Eip20ApproveFragment.Input?
+        get() = getFromToken?.let { token ->
+            allowanceServiceA.getSpenderAddress()?.let {
+                Eip20ApproveFragment.Input(
+                    token,
+                    amountFrom ?: BigDecimal.ZERO,
+                    it
+                )
+            }
+
+        }
+        /*get() = balanceFrom?.let { amount ->
             allowanceServiceA.approveData(dex, amount)
+        }*/
+
+    val approveDataB: Eip20ApproveFragment.Input?
+        get() = getToToken()?.let { token ->
+            allowanceServiceB.getSpenderAddress()?.let {
+                Eip20ApproveFragment.Input(
+                    token,
+                    amountTo ?: BigDecimal.ZERO,
+                    it
+                )
+            }
+
         }
 
-    val approveDataB: SwapMainModule.ApproveData?
+
+    /*val approveDataB: SwapMainModule.ApproveData?
         get() = balanceFromB?.let { amount ->
-            allowanceServiceB.approveData(dex, amount)
-        }
-
+            allowanceServiceB.approveData(dex, amount)*/
     val proceedParams: SwapData?
         get() = swapData
 
@@ -765,14 +788,14 @@ class LiquidityMainViewModel(
 
     private fun revokeRequired(): Boolean {
         val tokenFrom = fromTokenService.token ?: return false
-        val allowance = approveData?.allowance ?: return false
+        val allowance = approveData?.requiredAllowance ?: return false
 
         return allowance.compareTo(BigDecimal.ZERO) != 0 && isUsdt(tokenFrom)
     }
 
     private fun revokeRequiredB(): Boolean {
         val tokenFrom = toTokenService.token ?: return false
-        val allowance = approveDataB?.allowance ?: return false
+        val allowance = approveDataB?.requiredAllowance ?: return false
         return allowance.compareTo(BigDecimal.ZERO) != 0 && isUsdt(tokenFrom)
     }
 

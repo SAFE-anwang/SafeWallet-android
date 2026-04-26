@@ -40,7 +40,7 @@ class Eip20ApproveViewModel(
     private val contactsRepository: ContactsRepository,
 ) : ViewModelUiState<Eip20ApproveUiState>() {
     private val currency = currencyManager.baseCurrency
-    private var allowanceMode = OnlyRequired
+    private var allowanceMode = Unlimited
     private var initialLoading = true
     private var sendTransactionState = sendTransactionService.stateFlow.value
     private var fiatAmount: BigDecimal? = null
