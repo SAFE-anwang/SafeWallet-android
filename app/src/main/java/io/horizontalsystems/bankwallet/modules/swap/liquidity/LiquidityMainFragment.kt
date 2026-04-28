@@ -97,7 +97,6 @@ class LiquidityMainFragment : BaseFragment() {
                     }
                 }
             } catch (t: Throwable) {
-                Log.e("longwen", "error=$t, ${Exception().stackTraceToString()}")
                 Toast.makeText(
                     App.instance, t.message ?: t.javaClass.simpleName, Toast.LENGTH_SHORT
                 ).show()

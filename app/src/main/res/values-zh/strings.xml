@@ -2258,4 +2258,8 @@
     <string name="Privacy_BulletedText2">钱包没有收集任何有关用户的数据。</string>
     <string name="Privacy_BulletedText3">钱包没有分享任何有关用户的数据。</string>
     <string name="Privacy_BulletedText4">没有用户帐户或数据库存放其他地方的用户数据。</string>
+
+    <string name="TransactionSourceSettings_Title">EVM 浏览器设置</string>
+    <string name="TransactionSource_Etherscan">EtherScan直连</string>
+    <string name="TransactionSource_Proxy">代理</string>
 </resources>

@@ -2611,4 +2611,9 @@
     <string name="Privacy_BulletedText4">There are no user accounts or databases keeping user data elsewhere.</string>
 
     <string name="FooterText2" translatable="false">© Horizontal Systems &amp; SAFE Foundation 2021</string>
+
+
+    <string name="TransactionSourceSettings_Title">EVM Browser Settings</string>
+    <string name="TransactionSource_Etherscan">EtherScan Direct Connection</string>
+    <string name="TransactionSource_Proxy">Proxy</string>
 </resources>

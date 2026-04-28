@@ -192,6 +192,14 @@ private fun SettingSections(
             )
         }, {
             HsSettingCell(
+                R.string.TransactionSourceSettings_Title,
+                R.drawable.ic_blocks_20,
+                onClick = {
+                    navController.slideFromRight(R.id.transactionSourceSettingFragment)
+                }
+            )
+        }, {
+            HsSettingCell(
                 R.string.Revoke_Manager,
                 R.drawable.ic_blocks_20,
                 onClick = {
