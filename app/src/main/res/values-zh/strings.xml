@@ -765,7 +765,7 @@
     <!--Swap Unlock Access-->
     <string name="Swap_Approve_PageTitle">批准</string>
     <string name="Swap_Approve_Info">授权智能合约代表您进行代币交易，并指定允许的金额。这不会影响您的余额，但需要支付少量费用以进行批准。\n\n预先批准较高金额用于未来交易比按需批准更具成本效益。</string>
-    <string name="Swap_Approve_Unlimited">无限</string>
+    <string name="Swap_Approve_Unlimited">全部</string>
     <!--Uniswap Info -->
     <string name="SwapInfo_AllowanceTitle">补贴</string>
     <string name="SwapInfo_AllowanceDescription">当执行令牌交换时，交易所可以代表用户花费的金额。 在进行实际互换交易之前，需要先确定足够的备抵。</string>

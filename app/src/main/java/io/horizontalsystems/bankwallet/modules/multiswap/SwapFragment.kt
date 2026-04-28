@@ -108,6 +108,7 @@ import io.horizontalsystems.bankwallet.uiv3.components.cell.CellSecondary
 import io.horizontalsystems.bankwallet.uiv3.components.cell.ImageType
 import io.horizontalsystems.bankwallet.uiv3.components.cell.hs
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
+import io.horizontalsystems.marketkit.SafeExtend.isSafeFour
 import io.horizontalsystems.marketkit.models.Token
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
@@ -232,11 +233,8 @@ private fun SwapScreenInner(
     }
 
     val quote = uiState.quote
-
-    HSScaffold(
-        title = stringResource(R.string.Swap),
-        onBack = onClickClose,
-        menuItems = buildList {
+    val menus = buildList {
+        if (uiState.tokenIn?.coin?.isSafeFour() == true || uiState.tokenOut?.coin?.isSafeFour() == true) {
             add(
                 MenuItem(
                     title = TranslatableString.ResString(R.string.KChart),
@@ -246,6 +244,12 @@ private fun SwapScreenInner(
                 )
             )
         }
+    }
+
+    HSScaffold(
+        title = stringResource(R.string.Swap),
+        onBack = onClickClose,
+        menuItems = menus
     ) {
         val focusManager = LocalFocusManager.current
         val keyboardState by observeKeyboardState()
