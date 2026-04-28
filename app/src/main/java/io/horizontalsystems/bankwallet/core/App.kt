@@ -118,6 +118,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
+import io.horizontalsystems.bankwallet.modules.txsource.EvmTransactionViewModel.Companion.TRANSACTION_SOURCE
 import io.horizontalsystems.bitcoincore.managers.ConnectionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
@@ -134,6 +135,7 @@ import io.horizontalsystems.core.ICoreApp
 import io.horizontalsystems.core.security.EncryptionManager
 import io.horizontalsystems.core.security.KeyStoreManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
+import io.horizontalsystems.ethereumkit.network.EtherscanService
 import io.horizontalsystems.hdwalletkit.Mnemonic
 import io.horizontalsystems.subscriptions.core.UserSubscriptionManager
 import io.horizontalsystems.marketkit.MarketKit
@@ -538,6 +540,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         SafeInfoManager.startNet()
 
         startTasks()
+        if (MMKV.defaultMMKV()?.decodeInt(TRANSACTION_SOURCE, -1) == 1) {
+            EtherscanService.isUserProxy = true
+        }
     }
 
     override fun newImageLoader(): ImageLoader {
