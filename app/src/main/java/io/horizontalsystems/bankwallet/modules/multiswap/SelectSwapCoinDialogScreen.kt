@@ -14,8 +14,11 @@ import androidx.compose.ui.unit.dp
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.badge
+import io.horizontalsystems.bankwallet.core.iconPlaceholder
+import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.CoinImageSafe
 import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.SearchBar
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
@@ -52,9 +55,10 @@ fun SelectSwapCoinDialogScreen(
                 ) {
                     CellPrimary(
                         left = {
-                            CoinImage(
-                                coin = coinItem.token.coin,
-                                modifier = Modifier.size(32.dp)
+                            CoinImageSafe(
+                                uid = coinItem.token.coin.uid,
+                                iconUrl = coinItem.token.coin.imageUrl,
+                                placeholder = coinItem.token.iconPlaceholder,
                             )
                         },
                         middle = {
