@@ -80,7 +80,7 @@ class MainViewModel(
                 MainNavigation.Balance,
 //                MainNavigation.Transactions,
                 MainNavigation.Safe4,
-                MainNavigation.Tg,
+//                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         } else {
@@ -88,7 +88,7 @@ class MainViewModel(
                 MainNavigation.Balance,
                 MainNavigation.Safe4,
 //                MainNavigation.Transactions,
-                MainNavigation.Tg,
+//                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
         }

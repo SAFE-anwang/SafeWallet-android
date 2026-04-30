@@ -457,7 +457,7 @@ dependencies {
     // VPN
     implementation(project(":vpn"))
 
-    implementation(project(":telegram:TMessagesProj"))
+//    implementation(project(":telegram:TMessagesProj"))
 
 
     implementation("androidx.multidex:multidex:2.0.1")

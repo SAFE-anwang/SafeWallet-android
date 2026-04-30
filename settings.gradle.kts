@@ -64,4 +64,4 @@ include(":solana-kit-android:solanakit")
 
 include(":vpn")
 
-include("telegram:TMessagesProj")
+//include("telegram:TMessagesProj")
