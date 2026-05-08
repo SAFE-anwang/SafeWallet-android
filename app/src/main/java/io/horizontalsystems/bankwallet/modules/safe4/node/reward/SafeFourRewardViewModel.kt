@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.reward
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -100,13 +101,20 @@ class SafeFourRewardViewModel(
     fun withdraw() {
         sendResult = SendResult.Sending
         viewModelScope.launch(Dispatchers.IO) {
-            val result = service.withdraw(listOf(0))
-            if (result != null) {
-                sendResult = SendResult.Sent()
-                MMKV.defaultMMKV()?.encode(address, System.currentTimeMillis())
-                emitState()
-            } else {
-                sendResult = SendResult.Failed(HSCaution(TranslatableString.ResString(R.string.SAFE4_Withdraw_Send_Fail)))
+            try {
+                val result = service.withdraw(listOf(0))
+                if (result != null) {
+                    sendResult = SendResult.Sent()
+                    MMKV.defaultMMKV()?.encode(address, System.currentTimeMillis())
+                    emitState()
+                } else {
+                    sendResult =
+                        SendResult.Failed(HSCaution(TranslatableString.ResString(R.string.SAFE4_Withdraw_Send_Fail)))
+                }
+            } catch (e: Exception) {
+                Log.d("Reward withdraw", "withdraw error=$e")
+                sendResult =
+                    SendResult.Failed(HSCaution(TranslatableString.PlainString(e.message ?: "Withdraw fail")))
             }
         }
     }
