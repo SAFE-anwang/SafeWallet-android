@@ -39,6 +39,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.walletconnect.web3.wallet.client.Wallet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.util.Utils
 import com.xuexiang.xupdate.XUpdate
@@ -238,7 +239,7 @@ class MainActivity : BaseActivity() {
         )*/
         viewModel.viewModelScope.launch {
             LockRecordManager.newProposalRecordState.collectLatest {
-                if (it) {
+                if (it && MMKV.defaultMMKV()?.decodeBool("not_hint_new_proposal", false) == false) {
                     withContext(Dispatchers.Main) {
                         val dialog = AlertDialog.Builder(this@MainActivity)
                             .setTitle("提案")
@@ -250,6 +251,7 @@ class MainActivity : BaseActivity() {
                                 Safe4Module.handlerNode(Safe4Module.SafeFourType.Proposal, navController)
                             }
                             .setNegativeButton("不在提醒") { p0, p1 ->
+                                MMKV.defaultMMKV()?.encode("not_hint_new_proposal", true)
                                 LockRecordManager.updateProposalStatus()
                                 p0.dismiss()
                             }.create()

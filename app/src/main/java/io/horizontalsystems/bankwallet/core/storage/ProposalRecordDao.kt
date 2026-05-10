@@ -36,7 +36,7 @@ interface ProposalRecordDao {
     @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE creator = :creator")
     fun getMineRecordNum(creator: String): Int
 
-    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE newProposal = 1")
+    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE newProposal = 1 AND state != 2")
     fun getNewProposalRecordNum(): Int
 
     @Query("UPDATE ProposalRecordInfo SET newProposal = 0")
