@@ -31,7 +31,7 @@ class SafeAdapter(
     syncMode: BitcoinCore.SyncMode,
     backgroundManager: BackgroundManager,
     wallet: Wallet
-) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet, confirmationsThreshold), SafeKit.Listener, ISendBitcoinAdapter, ISendSafeAdapter {
+) : BitcoinBaseAdapter(kit, syncMode, backgroundManager, wallet), SafeKit.Listener, ISendBitcoinAdapter, ISendSafeAdapter {
 
     constructor(wallet: Wallet, syncMode: BitcoinCore.SyncMode, backgroundManager: BackgroundManager) :
             this(createKit(wallet, syncMode), syncMode, backgroundManager, wallet)
