@@ -79,8 +79,8 @@ interface LockRecordDao {
 
 
     @Query("SELECT * FROM LockRecordInfo WHERE type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight " +
-            " AND unlockHeight > 0 " +
-            "ORDER BY id ASC " +
+            /*" AND unlockHeight > 0 " +*/
+            " ORDER BY id ASC " +
             "LIMIT :limit OFFSET :offset")
     fun getVotedRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo>
 
