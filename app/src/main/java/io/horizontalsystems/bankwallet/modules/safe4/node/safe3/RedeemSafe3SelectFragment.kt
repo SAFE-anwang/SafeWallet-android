@@ -53,6 +53,7 @@ fun RedeemSafe3SelectScreen(
 
 	Column(modifier = Modifier
 			.background(color = ComposeAppTheme.colors.tyler)) {
+		Spacer(modifier = Modifier.height(16.dp))
 		AppBar(
 				title = stringResource(id = R.string.Redeem_Safe3_Title),
 				showSpinner = viewModelSelect.uiState.syncing,
