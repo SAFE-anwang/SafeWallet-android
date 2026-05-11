@@ -847,6 +847,7 @@ val BlockchainType.Companion.supportedCoinManager: List<BlockchainType>
         BlockchainType.Stellar,
         BlockchainType.Monero,
         BlockchainType.Dogecoin,
+        BlockchainType.Safe,
     )
 
 val CoinPrice.diff: BigDecimal?
