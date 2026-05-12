@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.util.concurrent.CopyOnWriteArrayList
 
 class BalanceViewModel(
     private val service: BalanceService,
@@ -55,7 +56,7 @@ class BalanceViewModel(
     private var balanceItems = service.balanceItemsFlow.value
     private var balanceViewType = balanceViewTypeManager.balanceViewTypeFlow.value
     private var viewState: ViewState? = null
-    private var balanceViewItems = listOf<BalanceViewItem2>()
+    private var balanceViewItems = CopyOnWriteArrayList<BalanceViewItem2>()
     private var isRefreshing = false
     private var openSendTokenSelect: OpenSendTokenSelect? = null
     private var errorMessage: String? = null
@@ -208,7 +209,7 @@ class BalanceViewModel(
             }
             if (tmpBalanceViewItems != null) {
                 viewState = ViewState.Success
-                balanceViewItems = tmpBalanceViewItems.map { balanceItem ->
+                balanceViewItems = CopyOnWriteArrayList(tmpBalanceViewItems.map { balanceItem ->
                     ensureActive()
                     balanceViewItemFactory.viewItem2(
                         balanceItem,
@@ -218,10 +219,10 @@ class BalanceViewModel(
                         service.networkAvailable,
                         amountRoundingEnabled
                     )
-                }
+                })
             } else {
                 viewState = null
-                balanceViewItems = listOf()
+                balanceViewItems = CopyOnWriteArrayList()
             }
 
             ensureActive()
