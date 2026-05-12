@@ -80,16 +80,14 @@ interface LockRecordDao {
 
     @Query("SELECT * FROM LockRecordInfo WHERE type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight " +
             /*" AND unlockHeight > 0 " +*/
-            " ORDER BY id ASC " +
+            "ORDER BY id ASC " +
             "LIMIT :limit OFFSET :offset")
     fun getVotedRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo>
 
-    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE  type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight" +
-            " AND unlockHeight > 0 ")
+    @Query("SELECT COUNT(*) as total_count FROM LockRecordInfo WHERE  type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight")
     fun getEnableReleaseVoteTotal(creator: String, currentHeight: Long): Int
 
-    @Query("SELECT id FROM LockRecordInfo WHERE type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight " +
-            " AND unlockHeight > 0 ")
+    @Query("SELECT id FROM LockRecordInfo WHERE type = 0 AND creator=:creator AND releaseHeight != 0 AND releaseHeight <= :currentHeight ")
     fun getEnableReleaseVoteLockedIds(creator: String, currentHeight: Long): List<Long>
 
 }
