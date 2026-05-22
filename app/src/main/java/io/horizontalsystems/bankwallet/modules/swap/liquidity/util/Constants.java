@@ -47,6 +47,14 @@ public class Constants {
 
         public static final String UNISWAP_V2_ROUTER_ADDRESS = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";
 
+        public static final String PANCAKE_V3_POSITION_MANAGER_ADDRESS  = "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364";
+        public static final String SAFESWAP_V3_POSITION_MANAGER_ADDRESS  = "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364";
+
+        public static final String UNISWAP_V3_POSITION_MANAGER_ADDRESS = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+        public static final String PANCAKE_V3_ROUTER_ADDRESS = "0x1b81D678ffb9C0263b24A97847620C99d213eB14";
+
+        public static final String UNISWAP_V3_ROUTER_ADDRESS = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+
         public static final String UNISWAP_V2_FACTORY_ADDRESS = "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f";
 
 

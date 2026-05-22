@@ -82,7 +82,8 @@ class LiquidityConfirmationFragment(
             val dex: SwapMainModule.Dex,
             val transactionDataParcelable: SendEvmModule.TransactionDataParcelable,
             val additionalInfo: SendEvmData.AdditionalInfo?,
-            val token: Token? = null
+            val token: Token? = null,
+            val isV3: Boolean = false
     ) : Parcelable {
         val transactionData: TransactionData
             get() = TransactionData(
@@ -90,15 +91,17 @@ class LiquidityConfirmationFragment(
                     transactionDataParcelable.value,
                     transactionDataParcelable.input,
                     transactionDataParcelable.lockTime,
-                    transactionDataParcelable.isBothErc
+                    transactionDataParcelable.isBothErc,
+                    isV3 = transactionDataParcelable.isV3
             )
 
-        constructor(sendEvmData: SendEvmData, dex: SwapMainModule.Dex, token: Token) :
+        constructor(sendEvmData: SendEvmData, dex: SwapMainModule.Dex, token: Token, isV3: Boolean = false) :
                 this(
                         dex,
                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                         sendEvmData.additionalInfo,
-                        token
+                        token,
+                    isV3 = isV3
                 )
     }
 }

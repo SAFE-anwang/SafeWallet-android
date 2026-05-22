@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.core.adapters.EvmAdapter
@@ -94,6 +95,7 @@ class LiquidityAllowanceService(
         allowanceDisposable = null
 
         val address = spenderAddress
+        Log.d("addLiquidity", "allowance address=$address")
         val token = token
         val adapter = token?.let { adapterManager.getAdapterForToken<Eip20Adapter>(it) } as? Eip20Adapter
 
@@ -111,8 +113,10 @@ class LiquidityAllowanceService(
         allowanceDisposable = adapter.allowance(address, DefaultBlockParameter.Latest)
             .subscribeOn(Schedulers.io())
             .subscribe({ allowance ->
+                Log.d("addLiquidity", "allowance=$allowance")
                 state = State.Ready(CoinValue(token, allowance))
             }, { error ->
+                Log.d("addLiquidity", "allowance error=$error")
                 state = State.NotReady(error)
             })
     }

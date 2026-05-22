@@ -51,7 +51,9 @@ object LiquidityMainModule {
         private val tokenFrom: Token? = input?.getParcelable(tokenFromKey)
         private val swapProviders: List<SwapMainModule.ISwapProvider> = listOf(
             PancakeLiquidityProvider,
+            PancakeV3LiquidityProvider,
             UniswapLiquidityProvider,
+            UniswapV3LiquidityProvider,
             Safe4LiquidityProvider
         )
         private val switchService by lazy { AmountTypeSwitchServiceSendEvm() }
@@ -271,9 +273,35 @@ object LiquidityMainModule {
     }
 
     @Parcelize
+    object PancakeV3LiquidityProvider : SwapMainModule.ISwapProvider {
+        override val id get() = "pancake_v3_liquidity"
+        override val title get() = "PancakeSwap V3"
+        override val url get() = "https://pancakeswap.finance/"
+        override val supportsExactOut get() = true
+
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.BinanceSmartChain -> true
+            else -> false
+        }
+    }
+
+    @Parcelize
     object UniswapLiquidityProvider : SwapMainModule.ISwapProvider {
         override val id get() = "uniswap_liquidity"
         override val title get() = "Uniswap V2"
+        override val url get() = "https://uniswap.org/"
+        override val supportsExactOut get() = true
+
+        override fun supports(blockchainType: BlockchainType) = when (blockchainType) {
+            BlockchainType.Ethereum -> true
+            else -> false
+        }
+    }
+
+    @Parcelize
+    object UniswapV3LiquidityProvider : SwapMainModule.ISwapProvider {
+        override val id get() = "uniswap_v3_liquidity"
+        override val title get() = "Uniswap V3"
         override val url get() = "https://uniswap.org/"
         override val supportsExactOut get() = true
 
