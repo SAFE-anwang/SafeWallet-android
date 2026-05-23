@@ -457,6 +457,402 @@ fun RemoveLiquidityCard(
 }
 
 @Composable
+fun RemoveLiquidityV3Card(
+    viewItem: LiquidityViewItem
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(ComposeAppTheme.colors.lawrence)
+    ) {
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                WalletIcon(viewItem.walletA)
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            body_leah(
+                                text = viewItem.walletA.coin.code,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!viewItem.walletA.badge.isNullOrBlank()) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(ComposeAppTheme.colors.grey)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 1.dp),
+                                        text = viewItem.walletA.badge!!,
+                                        color = ComposeAppTheme.colors.lawrence,
+                                        style = ComposeAppTheme.typography.microSB,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(Modifier.width(24.dp))
+                    }
+                    Text(
+                        text = viewItem.amountA,
+                        color = ComposeAppTheme.colors.leah,
+                        style = ComposeAppTheme.typography.headline2,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+        Divider(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+            thickness = 1.dp,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
+        )
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                WalletIcon(viewItem.walletB)
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            body_leah(
+                                text = viewItem.walletB.coin.code,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!viewItem.walletB.badge.isNullOrBlank()) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(ComposeAppTheme.colors.grey)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 1.dp),
+                                        text = viewItem.walletB.badge!!,
+                                        color = ComposeAppTheme.colors.lawrence,
+                                        style = ComposeAppTheme.typography.microSB,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(Modifier.width(24.dp))
+                    }
+                    Text(
+                        text = viewItem.amountB,
+                        color = ComposeAppTheme.colors.leah,
+                        style = ComposeAppTheme.typography.headline2,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+
+        Divider(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+            thickness = 1.dp,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
+        )
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.weight(weight = 1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.Liquidity_Num),
+                            color = ComposeAppTheme.colors.leah,
+                            style = ComposeAppTheme.typography.headline2,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = viewItem.liquidity,
+                            color = ComposeAppTheme.colors.leah,
+                            style = ComposeAppTheme.typography.headline2,
+                            maxLines = 1,
+                        )
+                    }
+                    viewItem.feeTier?.let { fee ->
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Fee: ",
+                                color = ComposeAppTheme.colors.leah,
+                                style = ComposeAppTheme.typography.headline2,
+                                maxLines = 1,
+                            )
+                            Text(
+                                text = fee,
+                                color = ComposeAppTheme.colors.leah,
+                                style = ComposeAppTheme.typography.headline2,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun LiquidityV3Card(
+    index: Int,
+    viewItem: LiquidityViewItem,
+    viewModel: LiquidityListViewModel,
+    navController: NavController,
+    removeCallback: (Int, LiquidityViewItem) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(ComposeAppTheme.colors.lawrence)
+    ) {
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                WalletIcon(viewItem.walletA)
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            body_leah(
+                                text = viewItem.walletA.coin.code,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!viewItem.walletA.badge.isNullOrBlank()) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(ComposeAppTheme.colors.grey)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 1.dp),
+                                        text = viewItem.walletA.badge!!,
+                                        color = ComposeAppTheme.colors.lawrence,
+                                        style = ComposeAppTheme.typography.microSB,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+                        viewItem.feeTier?.let { fee ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(ComposeAppTheme.colors.yellowD)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = fee,
+                                    color = ComposeAppTheme.colors.dark,
+                                    style = ComposeAppTheme.typography.microSB,
+                                    maxLines = 1,
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(24.dp))
+                    }
+                    Text(
+                        text = viewItem.amountA,
+                        color = ComposeAppTheme.colors.leah,
+                        style = ComposeAppTheme.typography.headline2,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+        Divider(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+            thickness = 1.dp,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
+        )
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                WalletIcon(viewItem.walletB)
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            body_leah(
+                                text = viewItem.walletB.coin.code,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (!viewItem.walletB.badge.isNullOrBlank()) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 8.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(ComposeAppTheme.colors.grey)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 1.dp),
+                                        text = viewItem.walletB.badge!!,
+                                        color = ComposeAppTheme.colors.lawrence,
+                                        style = ComposeAppTheme.typography.microSB,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(Modifier.width(24.dp))
+                    }
+                    Text(
+                        text = viewItem.amountB,
+                        color = ComposeAppTheme.colors.leah,
+                        style = ComposeAppTheme.typography.headline2,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+
+        Divider(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+            thickness = 1.dp,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
+        )
+        CellMultilineClear(height = 44.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier.weight(weight = 1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "Liquidity: ",
+                            color = ComposeAppTheme.colors.leah,
+                            style = ComposeAppTheme.typography.headline2,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = viewItem.liquidity,
+                            color = ComposeAppTheme.colors.leah,
+                            style = ComposeAppTheme.typography.headline2,
+                            maxLines = 1,
+                        )
+                    }
+                    viewItem.tickRange?.let { range ->
+                        Row(
+                            modifier = Modifier.weight(weight = 1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Range: ",
+                                color = ComposeAppTheme.colors.leah,
+                                style = ComposeAppTheme.typography.headline2,
+                                maxLines = 1,
+                            )
+                            Text(
+                                text = range,
+                                color = ComposeAppTheme.colors.leah,
+                                style = ComposeAppTheme.typography.headline2,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+        }
+
+        Divider(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 5.dp, bottom = 6.dp),
+            thickness = 1.dp,
+            color = if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.dividerLine else ComposeAppTheme.colors.steel10
+        )
+        Row(
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ButtonPrimaryYellow(
+                modifier = Modifier.weight(1f),
+                title = stringResource(R.string.liquidity_remove_title),
+                onClick = {
+                    removeCallback.invoke(index, viewItem)
+                },
+                enabled = true
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+    }
+}
+
+@Composable
 private fun ExpandableContent(
     index: Int,
     viewItem: LiquidityViewItem,

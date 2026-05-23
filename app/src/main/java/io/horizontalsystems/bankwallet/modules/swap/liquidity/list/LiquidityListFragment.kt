@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -152,6 +154,15 @@ fun LiquidityForAccount(
                 )
             )
 
+            // V2/V3 Version Toggle
+            val versions = viewModel.liquidityVersions
+            val selectedVersion = viewModel.selectedVersion
+            VersionToggle(
+                versions = versions,
+                selectedVersion = selectedVersion,
+                onSelect = { viewModel.onSelectVersion(it) }
+            )
+
             val uiState = viewModel.uiState
             val tabs = viewModel.tabs
             val selectedTab = viewModel.selectedTab
@@ -186,6 +197,38 @@ fun LiquidityForAccount(
                     is ViewState.Error -> {
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun VersionToggle(
+    versions: Array<LiquidityListModule.LiquidityVersion>,
+    selectedVersion: LiquidityListModule.LiquidityVersion,
+    onSelect: (LiquidityListModule.LiquidityVersion) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        versions.forEach { version ->
+            val isSelected = version == selectedVersion
+            Surface(
+                modifier = Modifier.clickable { onSelect(version) },
+                shape = RoundedCornerShape(8.dp),
+                color = if (isSelected) ComposeAppTheme.colors.yellowD
+                    else ComposeAppTheme.colors.lawrence
+            ) {
+                Text(
+                    text = version.title,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = if (isSelected) ComposeAppTheme.colors.dark
+                        else ComposeAppTheme.colors.grey,
+                    style = ComposeAppTheme.typography.subheadB
+                )
             }
         }
     }

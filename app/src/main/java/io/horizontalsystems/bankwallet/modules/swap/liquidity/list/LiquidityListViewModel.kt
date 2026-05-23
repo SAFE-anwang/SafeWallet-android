@@ -44,6 +44,7 @@ import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.Bool
 import org.web3j.abi.datatypes.Type
 import org.web3j.abi.datatypes.generated.Bytes32
+import org.web3j.abi.datatypes.generated.Uint128
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.abi.datatypes.generated.Uint8
 import org.web3j.crypto.Credentials
@@ -76,6 +77,15 @@ class LiquidityListViewModel(
     private var liquidityViewItemsBSC = listOf<LiquidityViewItem>()
     private var liquidityViewItemsEth = listOf<LiquidityViewItem>()
     private var liquidityViewItemsSafe4 = listOf<LiquidityViewItem>()
+
+    // V3 position storage
+    private var v3PositionItemsBSC = mutableListOf<LiquidityListModule.V3PositionItem>()
+    private var v3PositionItemsEth = mutableListOf<LiquidityListModule.V3PositionItem>()
+    private var v3PositionItemsSafe4 = mutableListOf<LiquidityListModule.V3PositionItem>()
+    private var v3ViewItemsBSC = listOf<LiquidityViewItem>()
+    private var v3ViewItemsEth = listOf<LiquidityViewItem>()
+    private var v3ViewItemsSafe4 = listOf<LiquidityViewItem>()
+
     private var viewState: ViewState = ViewState.Loading
     private var isRefreshing = false
 
@@ -101,6 +111,16 @@ class LiquidityListViewModel(
     val tabs = LiquidityListModule.Tab.values()
     var selectedTab by mutableStateOf(LiquidityListModule.Tab.SAFE4)
         private set
+
+    val liquidityVersions = LiquidityListModule.LiquidityVersion.values()
+    var selectedVersion by mutableStateOf(LiquidityListModule.LiquidityVersion.V2)
+        private set
+
+    fun onSelectVersion(version: LiquidityListModule.LiquidityVersion) {
+        getLiquidityJob?.cancel()
+        selectedVersion = version
+        emitState()
+    }
 
     private var web3jBsc = Connect.connect(Chain.BinanceSmartChain)
     private var web3jEth = Connect.connect(Chain.Ethereum)
@@ -143,6 +163,7 @@ class LiquidityListViewModel(
 
     init {
         getAllLiquidity()
+        getAllV3Liquidity()
     }
 
     fun onEnterAmount(amount: BigDecimal?, availableBalance: BigDecimal) {
@@ -169,6 +190,7 @@ class LiquidityListViewModel(
 
     fun refresh() {
         getAllLiquidity()
+        getAllV3Liquidity()
     }
 
     private fun getTokenEntity(uids: List<String>, type: String):List<TokenEntity> {
@@ -219,6 +241,9 @@ class LiquidityListViewModel(
         liquidityItemsBSC.clear()
         liquidityItemsEth.clear()
         liquidityItemsSafe4.clear()
+        v3PositionItemsBSC.clear()
+        v3PositionItemsEth.clear()
+        v3PositionItemsSafe4.clear()
         /*getLiquidityJob = */viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
@@ -422,43 +447,328 @@ class LiquidityListViewModel(
     }
 
     private fun viewItems(): List<LiquidityViewItem> {
-        return when(selectedTab) {
-            LiquidityListModule.Tab.BSC -> liquidityViewItemsBSC
-            LiquidityListModule.Tab.ETH -> liquidityViewItemsEth
-            LiquidityListModule.Tab.SAFE4 -> liquidityViewItemsSafe4
+        return when (selectedVersion) {
+            LiquidityListModule.LiquidityVersion.V2 -> when (selectedTab) {
+                LiquidityListModule.Tab.BSC -> liquidityViewItemsBSC
+                LiquidityListModule.Tab.ETH -> liquidityViewItemsEth
+                LiquidityListModule.Tab.SAFE4 -> liquidityViewItemsSafe4
+            }
+            LiquidityListModule.LiquidityVersion.V3 -> when (selectedTab) {
+                LiquidityListModule.Tab.BSC -> v3ViewItemsBSC
+                LiquidityListModule.Tab.ETH -> v3ViewItemsEth
+                LiquidityListModule.Tab.SAFE4 -> v3ViewItemsSafe4
+            }
         }
     }
 
     private fun removeItem(removeIndex: Int) {
         val list = mutableListOf<LiquidityViewItem>()
 
-        when(selectedTab) {
-            LiquidityListModule.Tab.BSC -> {
-                liquidityViewItemsBSC.forEachIndexed{ index, liquidityViewItem ->
-                    if (removeIndex != index) {
-                        list.add(liquidityViewItem)
+        if (selectedVersion == LiquidityListModule.LiquidityVersion.V2) {
+            when (selectedTab) {
+                LiquidityListModule.Tab.BSC -> {
+                    liquidityViewItemsBSC.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
                     }
+                    liquidityViewItemsBSC = list
                 }
-                liquidityViewItemsBSC = list
+                LiquidityListModule.Tab.ETH -> {
+                    liquidityViewItemsEth.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
+                    }
+                    liquidityViewItemsEth = list
+                }
+                LiquidityListModule.Tab.SAFE4 -> {
+                    liquidityViewItemsSafe4.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
+                    }
+                    liquidityViewItemsSafe4 = list
+                }
             }
-            LiquidityListModule.Tab.ETH -> {
-                liquidityViewItemsEth.forEachIndexed{ index, liquidityViewItem ->
-                    if (removeIndex != index) {
-                        list.add(liquidityViewItem)
+        } else {
+            // V3
+            when (selectedTab) {
+                LiquidityListModule.Tab.BSC -> {
+                    v3ViewItemsBSC.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
                     }
+                    v3ViewItemsBSC = list
                 }
-                liquidityViewItemsEth = list
-            }
-            LiquidityListModule.Tab.SAFE4 -> {
-                liquidityViewItemsSafe4.forEachIndexed{ index, liquidityViewItem ->
-                    if (removeIndex != index) {
-                        list.add(liquidityViewItem)
+                LiquidityListModule.Tab.ETH -> {
+                    v3ViewItemsEth.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
                     }
+                    v3ViewItemsEth = list
                 }
-                liquidityViewItemsSafe4 = list
+                LiquidityListModule.Tab.SAFE4 -> {
+                    v3ViewItemsSafe4.forEachIndexed { index, liquidityViewItem ->
+                        if (removeIndex != index) list.add(liquidityViewItem)
+                    }
+                    v3ViewItemsSafe4 = list
+                }
             }
         }
         emitState()
+    }
+
+    private fun getAllV3Liquidity() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Query V3 positions for each chain
+                val activeBSCWallets = getActiveWallets(BlockchainType.BinanceSmartChain)
+                val activeETHWallets = getActiveWallets(BlockchainType.Ethereum)
+                val activeSafe4Wallets = getActiveWallets(BlockchainType.SafeFour)
+
+                val allBSCWallets = mapWalletsByAddress(activeBSCWallets)
+                val allETHWallets = mapWalletsByAddress(activeETHWallets)
+                val allSafe4Wallets = mapWalletsByAddress(activeSafe4Wallets)
+
+                // BSC V3 positions
+                try {
+                    val bscPositions = queryV3Positions(web3jBsc, LiquidityListModule.Tab.BSC)
+                    v3PositionItemsBSC.clear()
+                    bscPositions.forEach { pos ->
+                        val walletA = allBSCWallets[pos.token0Address.lowercase()]
+                        val walletB = allBSCWallets[pos.token1Address.lowercase()]
+                        if (walletA != null && walletB != null) {
+                            v3PositionItemsBSC.add(
+                                LiquidityListModule.V3PositionItem(
+                                    tokenId = pos.tokenId,
+                                    walletA = walletA,
+                                    walletB = walletB,
+                                    addressA = pos.token0Address,
+                                    addressB = pos.token1Address,
+                                    fee = pos.fee,
+                                    tickLower = pos.tickLower,
+                                    tickUpper = pos.tickUpper,
+                                    liquidity = pos.liquidity,
+                                    token0Amount = BigDecimal.ZERO,  // populated below
+                                    token1Amount = BigDecimal.ZERO,
+                                    tokensOwed0 = pos.tokensOwed0,
+                                    tokensOwed1 = pos.tokensOwed1,
+                                    token0Decimals = walletA.decimal,
+                                    token1Decimals = walletB.decimal
+                                )
+                            )
+                        }
+                    }
+                    v3ViewItemsBSC = v3PositionItemsBSC.map { liquidityViewItemFactory.viewItemV3(it) }
+                } catch (e: Exception) {
+                    Log.e("LiquidityListVM", "Error querying BSC V3: ${e.message}")
+                }
+
+                // ETH V3 positions
+                try {
+                    val ethPositions = queryV3Positions(web3jEth, LiquidityListModule.Tab.ETH)
+                    v3PositionItemsEth.clear()
+                    ethPositions.forEach { pos ->
+                        val walletA = allETHWallets[pos.token0Address.lowercase()]
+                        val walletB = allETHWallets[pos.token1Address.lowercase()]
+                        if (walletA != null && walletB != null) {
+                            v3PositionItemsEth.add(
+                                LiquidityListModule.V3PositionItem(
+                                    tokenId = pos.tokenId,
+                                    walletA = walletA,
+                                    walletB = walletB,
+                                    addressA = pos.token0Address,
+                                    addressB = pos.token1Address,
+                                    fee = pos.fee,
+                                    tickLower = pos.tickLower,
+                                    tickUpper = pos.tickUpper,
+                                    liquidity = pos.liquidity,
+                                    token0Amount = BigDecimal.ZERO,
+                                    token1Amount = BigDecimal.ZERO,
+                                    tokensOwed0 = pos.tokensOwed0,
+                                    tokensOwed1 = pos.tokensOwed1,
+                                    token0Decimals = walletA.decimal,
+                                    token1Decimals = walletB.decimal
+                                )
+                            )
+                        }
+                    }
+                    v3ViewItemsEth = v3PositionItemsEth.map { liquidityViewItemFactory.viewItemV3(it) }
+                } catch (e: Exception) {
+                    Log.e("LiquidityListVM", "Error querying ETH V3: ${e.message}")
+                }
+
+                // Safe4 V3 positions
+                try {
+                    val safe4Positions = queryV3Positions(web3jSafe4, LiquidityListModule.Tab.SAFE4)
+                    v3PositionItemsSafe4.clear()
+                    safe4Positions.forEach { pos ->
+                        val walletA = allSafe4Wallets[pos.token0Address.lowercase()]
+                        val walletB = allSafe4Wallets[pos.token1Address.lowercase()]
+                        if (walletA != null && walletB != null) {
+                            v3PositionItemsSafe4.add(
+                                LiquidityListModule.V3PositionItem(
+                                    tokenId = pos.tokenId,
+                                    walletA = walletA,
+                                    walletB = walletB,
+                                    addressA = pos.token0Address,
+                                    addressB = pos.token1Address,
+                                    fee = pos.fee,
+                                    tickLower = pos.tickLower,
+                                    tickUpper = pos.tickUpper,
+                                    liquidity = pos.liquidity,
+                                    token0Amount = BigDecimal.ZERO,
+                                    token1Amount = BigDecimal.ZERO,
+                                    tokensOwed0 = pos.tokensOwed0,
+                                    tokensOwed1 = pos.tokensOwed1,
+                                    token0Decimals = walletA.decimal,
+                                    token1Decimals = walletB.decimal
+                                )
+                            )
+                        }
+                    }
+                    v3ViewItemsSafe4 = v3PositionItemsSafe4.map { liquidityViewItemFactory.viewItemV3(it) }
+                } catch (e: Exception) {
+                    Log.e("LiquidityListVM", "Error querying Safe4 V3: ${e.message}")
+                }
+
+            } catch (e: Exception) {
+                Log.e("LiquidityListVM", "Error in getAllV3Liquidity: ${e.message}")
+            }
+        }
+    }
+
+    private fun getActiveWallets(blockchainType: BlockchainType): List<Wallet> {
+        return accountManager.activeAccount?.let {
+            storage.wallets(it).filter { w ->
+                w.token.blockchainType == blockchainType &&
+                        w.token.coin.code != "Cake-LP" &&
+                        w.token.coin.code != "UNI-V2"
+            }
+        } ?: listOf()
+    }
+
+    private fun mapWalletsByAddress(wallets: List<Wallet>): Map<String, Wallet> {
+        val map = mutableMapOf<String, Wallet>()
+        wallets.forEach { wallet ->
+            val entity = marketKit.getTokenEntity(listOf(wallet.coin.uid), wallet.token.type.id.split(":")[0]).firstOrNull()
+            val address = entity?.reference ?: getWethAddress(wallet.token.blockchain.type)
+            map[address.lowercase()] = wallet
+            // Also map the weth address
+            val weth = getWethAddress(wallet.token.blockchain.type)
+            if (address.lowercase() == weth.lowercase()) {
+                map[weth.lowercase()] = wallet
+            }
+        }
+        return map
+    }
+
+    private fun queryV3Positions(web3j: Web3j, tab: LiquidityListModule.Tab): List<V3PositionData> {
+        val chain = getChain(tab)
+        val activeWallets = getActiveWallets(
+            when (tab) {
+                LiquidityListModule.Tab.BSC -> BlockchainType.BinanceSmartChain
+                LiquidityListModule.Tab.ETH -> BlockchainType.Ethereum
+                LiquidityListModule.Tab.SAFE4 -> BlockchainType.SafeFour
+            }
+        )
+        if (activeWallets.isEmpty()) return emptyList()
+
+        val adapter = adapterManager.getReceiveAdapterForWallet(activeWallets.first()) ?: return emptyList()
+        val ownerAddress = adapter.receiveAddress
+
+        val balance = LiquidityV3Utils.balanceOf(web3j, ownerAddress, chain)
+        if (balance == BigInteger.ZERO) return emptyList()
+
+        val positions = mutableListOf<V3PositionData>()
+        val count = balance.toInt()
+        for (i in 0 until count) {
+            try {
+                val tokenId = LiquidityV3Utils.tokenOfOwnerByIndex(web3j, ownerAddress, BigInteger.valueOf(i.toLong()), chain)
+                if (tokenId != BigInteger.ZERO) {
+                    LiquidityV3Utils.positions(web3j, tokenId, chain)?.let { positions.add(it) }
+                }
+            } catch (e: Exception) {
+                Log.e("LiquidityListVM", "Error querying position index $i: ${e.message}")
+            }
+        }
+        return positions
+    }
+
+    fun removeV3Liquidity(index: Int, item: LiquidityViewItem) {
+        if (amountCaution != null) return
+        if (!item.isV3 || item.tokenId == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val evmKitWrapper = App.evmBlockchainManager.getEvmKitManager(
+                    item.walletA.token.blockchainType
+                ).evmKitWrapper ?: return@launch
+
+                val chain = getChain(selectedTab)
+                val positionManager = LiquidityV3Utils.getPositionManager(chain)
+                val web3j = getWeb3j(selectedTab)
+                val recipient = evmKitWrapper.evmKit.receiveAddress.hex
+
+                // Get position details again to ensure latest state
+                val positionData = LiquidityV3Utils.positions(web3j, item.tokenId, chain)
+                    ?: return@launch
+
+                val removePercentDecimal = BigDecimal(removePercent).divide(BigDecimal("100"), 4, RoundingMode.DOWN)
+                val liquidityToRemove = BigDecimal(positionData.liquidity).multiply(removePercentDecimal).toBigInteger()
+
+                if (liquidityToRemove == BigInteger.ZERO) return@launch
+
+                val deadline = Constants.getDeadLine()
+
+                // Build decreaseLiquidity function call
+                // function decreaseLiquidity(DecreaseLiquidityParams calldata params) 
+                // struct DecreaseLiquidityParams { uint256 tokenId; uint128 liquidity; uint256 amount0Min; uint256 amount1Min; uint256 deadline; }
+                val inputParameters: MutableList<org.web3j.abi.datatypes.Type<*>> = mutableListOf()
+                inputParameters.add(Uint256(item.tokenId))
+                inputParameters.add(Uint128(liquidityToRemove))
+                inputParameters.add(Uint256(BigInteger.ZERO))  // amount0Min
+                inputParameters.add(Uint256(BigInteger.ZERO))  // amount1Min
+                inputParameters.add(Uint256(deadline))
+
+                val decreaseEncode = FunctionEncoder.encode(
+                    MethodID.generate("decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))"),
+                    inputParameters
+                )
+
+                // Send decreaseLiquidity transaction first
+                val nonce = web3j.ethGetTransactionCount(recipient, DefaultBlockParameterName.LATEST)
+                    .send().transactionCount
+                val gasPrice = web3j.ethGasPrice().send().gasPrice
+
+                val hash = TransactionContractSend.send(
+                    web3j,
+                    Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                    positionManager,
+                    decreaseEncode,
+                    BigInteger.ZERO,
+                    nonce,
+                    gasPrice,
+                    BigInteger("500000")
+                )
+
+                Log.i("Execute V3 decreaseLiquidity Hash", "= $hash")
+                withContext(Dispatchers.Main) {
+                    if (hash != null) {
+                        removeItem(index)
+                        removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "V3移除成功"
+                        } else {
+                            "V3 Remove Success"
+                        }
+                    } else {
+                        removeErrorMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                            "V3移除失败"
+                        } else {
+                            "V3 Remove Fail"
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.e("removeV3Liquidity", "error=$e")
+                withContext(Dispatchers.Main) {
+                    removeErrorMessage.value = e.message
+                }
+            }
+        }
     }
 
     fun removeLiquidity(index: Int, walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String) {

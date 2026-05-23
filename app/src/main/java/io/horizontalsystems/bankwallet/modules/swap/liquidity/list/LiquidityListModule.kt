@@ -62,6 +62,29 @@ object LiquidityListModule {
         val poolTokenTotalSupply: BigInteger
     )
 
+    data class V3PositionItem(
+        val tokenId: BigInteger,
+        val walletA: Wallet,
+        val walletB: Wallet,
+        val addressA: String,
+        val addressB: String,
+        val fee: BigInteger,
+        val tickLower: BigInteger,
+        val tickUpper: BigInteger,
+        val liquidity: BigInteger,
+        val token0Amount: BigDecimal,
+        val token1Amount: BigDecimal,
+        val tokensOwed0: BigInteger,
+        val tokensOwed1: BigInteger,
+        val token0Decimals: Int,
+        val token1Decimals: Int
+    )
+
+    enum class LiquidityVersion(val title: String) {
+        V2("V2"),
+        V3("V3")
+    }
+
     @Parcelize
     data class PriceImpactViewItem(val level: PriceImpactLevel, val value: String) : Parcelable
 

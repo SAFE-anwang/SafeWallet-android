@@ -33,6 +33,7 @@ import io.horizontalsystems.bankwallet.modules.coin.overview.ui.Loading
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityCardSwipable
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.LiquidityItems
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.RemoveLiquidityCard
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.list.ui.RemoveLiquidityV3Card
 import io.horizontalsystems.bankwallet.modules.swap.ui.SuggestionsBar
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.Keyboard
@@ -107,7 +108,11 @@ class RemoveLiquidityFragment : BaseFragment() {
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
-                    mainViewModel.removeLiquidity(index, item.walletA, item.addressA, item.walletB, item.addressB)
+                    if (item.isV3) {
+                        mainViewModel.removeV3Liquidity(index, item)
+                    } else {
+                        mainViewModel.removeLiquidity(index, item.walletA, item.addressA, item.walletB, item.addressB)
+                    }
                 }
 
                 override fun onTransparentButtonClick() {
@@ -149,10 +154,17 @@ fun RemoveLiquidityForAccount(
 
             val uiState = viewModel.uiState
             val amountCaution = uiState.amountCaution
+            val tempItem = viewModel.tempItem!!
 
-            RemoveLiquidityCard(
-                viewItem = viewModel.tempItem!!
-            )
+            if (tempItem.isV3) {
+                RemoveLiquidityV3Card(
+                    viewItem = tempItem
+                )
+            } else {
+                RemoveLiquidityCard(
+                    viewItem = tempItem
+                )
+            }
 
             Spacer(modifier = Modifier.padding(top = 8.dp))
 
@@ -182,7 +194,7 @@ fun RemoveLiquidityForAccount(
                         modifier = Modifier.weight(1f),
                         title = stringResource(R.string.liquidity_remove_title),
                         onClick = {
-                            removeCallback.invoke(viewModel.tempIndex!!, viewModel.tempItem!!)
+                            removeCallback.invoke(viewModel.tempIndex!!, tempItem)
                         },
                         enabled = true
                 )
