@@ -35,13 +35,12 @@ class SwapQuoteService {
         MayaProvider,
         AllBridgeProvider,
         USwapProvider(UProvider.Near),
-        USwapProvider(UProvider.QuickEx),
-        USwapProvider(UProvider.LetsExchange),
-        USwapProvider(UProvider.StealthEx),
-        USwapProvider(UProvider.Swapuz),
+//        USwapProvider(UProvider.QuickEx),
+//        USwapProvider(UProvider.LetsExchange),
+//        USwapProvider(UProvider.StealthEx),
+//        USwapProvider(UProvider.Swapuz),
         PancakeSwapV3Provider,
         UniswapV3Provider,
-        USwapProvider(UProvider.Swapuz),
         SafeSwapProvider,
     )
 
