@@ -37,6 +37,26 @@ object WCDelegate : Web3Wallet.WalletDelegate, CoreClient.CoreDelegate {
     var sessionProposalEvent: Pair<Wallet.Model.SessionProposal, Wallet.Model.VerifyContext>? = null
     var sessionRequestEvent: Wallet.Model.SessionRequest? = null
 
+    /**
+     * DApp bridge request that mimics a WC SessionRequest for in-app DApp browser.
+     * Set by DAppBrowseFragment when a JS bridge method needs user confirmation.
+     */
+    data class DAppRequest(
+        val id: Long,
+        val method: String,
+        val params: String,          // JSON array string, e.g. "[{\"from\":\"0x...\",...}]"
+        val chainId: String,         // WC format, e.g. "eip155:1"
+        val peerName: String,
+        val peerUrl: String,
+        val peerIcon: String,
+        val blockchainType: io.horizontalsystems.marketkit.models.BlockchainType,
+        val chainName: String?,
+        val onRespond: (Long, String) -> Unit,
+        val onReject: (Long) -> Unit,
+    )
+
+    var dappRequestEvent: DAppRequest? = null
+
     init {
         CoreClient.setDelegate(this)
         Web3Wallet.setWalletDelegate(this)
@@ -209,6 +229,19 @@ object WCDelegate : Web3Wallet.WalletDelegate, CoreClient.CoreDelegate {
         onSuccessResult: () -> Unit = {},
         onErrorResult: (Throwable) -> Unit = {},
     ) {
+        // Route through DApp bridge if this is an in-app DApp request
+        dappRequestEvent?.let { dapp ->
+            if (dapp.id == requestId) {
+                dapp.onRespond(requestId, data)
+                dappRequestEvent = null
+                scope.launch {
+                    _pendingRequestEvents.emit(Unit)
+                }
+                onSuccessResult.invoke()
+                return
+            }
+        }
+
         val jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcResult(requestId, data)
 
         respondSessionRequest(topic, jsonRpcResponse, onSuccessResult, onErrorResult)
@@ -220,6 +253,19 @@ object WCDelegate : Web3Wallet.WalletDelegate, CoreClient.CoreDelegate {
         onSuccessResult: () -> Unit = {},
         onErrorResult: (Throwable) -> Unit = {},
     ) {
+        // Route through DApp bridge if this is an in-app DApp request
+        dappRequestEvent?.let { dapp ->
+            if (dapp.id == requestId) {
+                dapp.onReject(requestId)
+                dappRequestEvent = null
+                scope.launch {
+                    _pendingRequestEvents.emit(Unit)
+                }
+                onSuccessResult.invoke()
+                return
+            }
+        }
+
         val jsonRpcResponse = Wallet.Model.JsonRpcResponse.JsonRpcError(
             id = requestId,
             code = 500,

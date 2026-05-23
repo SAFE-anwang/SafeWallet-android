@@ -34,12 +34,16 @@ class WCRequestEvmViewModel(
 ) : ViewModel() {
 
     private val sessionRequestEvent = WCDelegate.sessionRequestEvent
+    private val dappRequestEvent = WCDelegate.dappRequestEvent
 
-    val blockchainType = wcManager.getBlockchainType(sessionRequestEvent?.chainId)
+    val blockchainType: io.horizontalsystems.marketkit.models.BlockchainType? =
+        dappRequestEvent?.blockchainType
+            ?: wcManager.getBlockchainType(sessionRequestEvent?.chainId)
+
     private val chainData = sessionRequestEvent?.let {
         wcManager.getChainData(it.chainId)
     }
-    private val chainName = chainData?.name
+    private val chainName = dappRequestEvent?.chainName ?: chainData?.name
     private val chainAddress = chainData?.address
 
     private val evmKitWrapper: EvmKitWrapper? = getEthereumKitWrapper()
@@ -50,6 +54,30 @@ class WCRequestEvmViewModel(
     }
 
     private fun generateSessionRequestUI(): SessionRequestUI {
+        // Handle DApp bridge request
+        dappRequestEvent?.let { dapp ->
+            if (evmKitWrapper == null) {
+                clearSessionRequest()
+                return SessionRequestUI.Initial
+            }
+            return SessionRequestUI.Content(
+                peerUI = PeerUI(
+                    peerName = dapp.peerName,
+                    peerIcon = dapp.peerIcon,
+                    peerUri = dapp.peerUrl,
+                    peerDescription = "",
+                ),
+                topic = "dapp-bridge",
+                requestId = dapp.id,
+                param = getParam(dapp.method, dapp.params),
+                method = dapp.method,
+                chainName = chainName,
+                chainAddress = chainAddress,
+                walletName = accountManager.activeAccount?.name ?: ""
+            )
+        }
+
+        // Handle WC session request
         return sessionRequestEvent?.let { sessionRequest ->
             if (evmKitWrapper == null) {
                 clearSessionRequest()
@@ -72,6 +100,21 @@ class WCRequestEvmViewModel(
                 walletName = accountManager.activeAccount?.name ?: ""
             )
         } ?: SessionRequestUI.Initial
+    }
+
+    /** Extract param from DApp request params JSON array string */
+    private fun getParam(method: String, paramsJson: String): String = when (method) {
+        PERSONAL_SIGN_METHOD -> extractMessageParamFromPersonalSign(paramsJson)
+        ETH_SIGN_METHOD -> {
+            val arr = JsonParser.parseString(paramsJson).asJsonArray
+            if (arr.size() >= 2) arr.get(1).asString else throw Exception("Invalid Data")
+        }
+        TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD -> {
+            val arr = JsonParser.parseString(paramsJson).asJsonArray
+            arr.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
+                ?: throw Exception("Invalid Data")
+        }
+        else -> paramsJson
     }
 
     private fun getParam(sessionRequest: Wallet.Model.SessionRequest) =
