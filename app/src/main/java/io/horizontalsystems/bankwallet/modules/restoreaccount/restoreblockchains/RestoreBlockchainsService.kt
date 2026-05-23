@@ -225,9 +225,10 @@ class RestoreBlockchainsService(
             restoreSettingsService.save(settings, account, token.blockchainType)
         }
 
-        items.filter { it.enabled }.forEach { item ->
-            tokenAutoEnableManager.markAutoEnable(account, item.blockchain.type)
-        }
+//        items.filter { it.enabled }.forEach { item ->
+//            tokenAutoEnableManager.markAutoEnable(account, item.blockchain.type)
+//        }
+        tokenAutoEnableManager.clear()
         initDefaultToken()
         if (enabledTokens.isEmpty()) return
 

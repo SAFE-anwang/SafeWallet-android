@@ -15,4 +15,8 @@ class TokenAutoEnableManager(
     fun isAutoEnabled(account: Account, blockchainType: BlockchainType): Boolean {
         return tokenAutoEnabledBlockchainDao.get(account.id, blockchainType) != null
     }
+
+    fun clear() {
+        tokenAutoEnabledBlockchainDao.delete()
+    }
 }
