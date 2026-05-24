@@ -21,7 +21,13 @@ class BtcBlockchainManager(
     val transactionSortModeUpdatedObservable: Observable<BlockchainType> =
         transactionSortModeUpdatedSubject
 
-    private val blockchairSyncEnabledBlockchains = listOf(BlockchainType.Bitcoin, BlockchainType.BitcoinCash, BlockchainType.Litecoin)
+    private val blockchairSyncEnabledBlockchains = listOf(
+        BlockchainType.Bitcoin,
+        BlockchainType.BitcoinCash,
+        BlockchainType.Litecoin,
+        BlockchainType.Dash,
+        BlockchainType.Dogecoin
+    )
 
     val blockchainTypes by lazy {
         listOf(
@@ -61,7 +67,12 @@ class BtcBlockchainManager(
         if (accountOrigin == AccountOrigin.Created && blockchainType in blockchairSyncEnabledBlockchains) {
             return SyncMode.Blockchair()
         }
-
+        if (blockchainType == BlockchainType.Dogecoin) {
+            return when (restoreMode(blockchainType)) {
+                BtcRestoreMode.Blockchair, BtcRestoreMode.Hybrid -> SyncMode.Blockchair()
+                BtcRestoreMode.Blockchain -> SyncMode.Full()
+            }
+        }
         return when (restoreMode(blockchainType)) {
             BtcRestoreMode.Blockchair -> SyncMode.Blockchair()
             BtcRestoreMode.Hybrid -> SyncMode.Api()

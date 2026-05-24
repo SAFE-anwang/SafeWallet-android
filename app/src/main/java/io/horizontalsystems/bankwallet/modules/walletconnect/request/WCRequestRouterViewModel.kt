@@ -13,6 +13,13 @@ class WCRequestRouterViewModel : ViewModelUiState<WCRequestRouterUiState>() {
     private val blockchainType = determineBlockchainType()
 
     private fun determineBlockchainType(): BlockchainType? {
+        // Check DApp bridge request first
+        WCDelegate.dappRequestEvent?.let { dapp ->
+            Log.e("AAA", "dappRequest: chainId=${dapp.chainId}, method=${dapp.method}")
+            return dapp.blockchainType
+        }
+
+        val sessionRequest = WCDelegate.sessionRequestEvent
         Log.e("AAA", "sessionRequest: $sessionRequest")
         val chainParts = sessionRequest?.chainId?.split(":") ?: return null
         val first = chainParts[0]

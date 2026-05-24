@@ -31,7 +31,11 @@ data class LiquidityViewItem(
     val amountB: String,
     val liquidity: String,
     val shareRate: String,
-    val poolTokenTotalSupply: BigInteger
+    val poolTokenTotalSupply: BigInteger,
+    val feeTier: String? = null,       // V3 only: fee tier display like "0.05%"
+    val tickRange: String? = null,     // V3 only: tick range display
+    val tokenId: BigInteger? = null,   // V3 only: NFT token ID
+    val isV3: Boolean = false          // true if this is a V3 position
 )
 
 data class DeemedValue<T>(val value: T)
@@ -71,5 +75,45 @@ class LiquidityViewItemFactory {
             df.format(item.shareRate),
             item.poolTokenTotalSupply
         )
+    }
+
+    fun viewItemV3(
+        item: LiquidityListModule.V3PositionItem,
+    ): LiquidityViewItem {
+        val df = DecimalFormat("##.########")
+        val feeTier = formatFeeTier(item.fee)
+        val tickRange = formatTickRange(item.tickLower, item.tickUpper)
+
+        return LiquidityViewItem(
+            walletA = item.walletA,
+            walletB = item.walletB,
+            addressA = item.addressA,
+            addressB = item.addressB,
+            amountA = df.format(item.token0Amount),
+            amountB = df.format(item.token1Amount),
+            liquidity = App.numberFormatter.formatCoinFull(
+                BigDecimal(item.liquidity), null, 0
+            ),
+            shareRate = feeTier,
+            poolTokenTotalSupply = item.tokenId,
+            feeTier = feeTier,
+            tickRange = tickRange,
+            tokenId = item.tokenId,
+            isV3 = true
+        )
+    }
+
+    private fun formatFeeTier(fee: BigInteger): String {
+        // fee is in hundredths of a basis point: 500 = 0.05%, 3000 = 0.3%, 10000 = 1%
+        val feePercent = BigDecimal(fee).divide(BigDecimal("10000"), 4, RoundingMode.HALF_UP)
+        return "${feePercent.stripTrailingZeros().toPlainString()}%"
+    }
+
+    private fun formatTickRange(tickLower: BigInteger, tickUpper: BigInteger): String {
+        // Tick range is display-only for now
+        val lowerPrice = BigDecimal("1.0001").pow(tickLower.toInt())
+        val upperPrice = BigDecimal("1.0001").pow(tickUpper.toInt())
+        val df = DecimalFormat("#.#####")
+        return "${df.format(lowerPrice)} - ${df.format(upperPrice)}"
     }
 }

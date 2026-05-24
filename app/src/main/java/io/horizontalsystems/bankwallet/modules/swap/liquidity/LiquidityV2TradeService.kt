@@ -104,7 +104,9 @@ class LiquidityV2TradeService(
         tokenOut: Token,
         recipient: io.horizontalsystems.ethereumkit.models.Address?,
         tokenInAmount: BigInteger,
-        tokenOutAmount: BigInteger
+        tokenOutAmount: BigInteger,
+        minPrice: BigDecimal?,
+        maxPrice: BigDecimal?,
     ): TransactionData {
         return pancakeKit.transactionLiquidityData(evmKit.receiveAddress, evmKit.chain,
             uniswapToken(tokenIn), uniswapToken(tokenOut), recipient, tokenInAmount, tokenOutAmount)

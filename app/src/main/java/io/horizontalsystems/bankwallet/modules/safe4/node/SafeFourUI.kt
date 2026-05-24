@@ -568,7 +568,7 @@ fun Safe3Badge(
 		modifier = Modifier
 			.padding(start = 6.dp)
 			.clip(RoundedCornerShape(4.dp))
-			.background(if (isBlueBg) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.steel20)
+			.background(ComposeAppTheme.colors.leah)
 	) {
 		Text(
 			modifier = Modifier.padding(
@@ -577,7 +577,7 @@ fun Safe3Badge(
 				bottom = 1.dp
 			),
 			text = "SAFE3",
-			color = if(isBlueBg) ComposeAppTheme.colors.lawrence else ComposeAppTheme.colors.leah,
+			color = ComposeAppTheme.colors.lawrence,
 			style = ComposeAppTheme.typography.microSB,
 			maxLines = 1,
 		)

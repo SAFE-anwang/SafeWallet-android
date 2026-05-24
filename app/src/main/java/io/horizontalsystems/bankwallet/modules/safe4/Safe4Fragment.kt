@@ -32,6 +32,7 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.main.WebViewActivity
 import io.horizontalsystems.bankwallet.modules.safe4.node.Safe3Badge
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
+import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
@@ -1028,7 +1029,7 @@ fun HsSettingCellForEth(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.blade)
+                .background(if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.leah)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1084,7 +1085,7 @@ fun HsSettingCellForUsdt(
                 modifier = Modifier
                     .padding(start = 6.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(ComposeAppTheme.colors.blade)
+                    .background(if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.leah)
                 ) {
             Text(
                 modifier = Modifier.padding(
@@ -1116,7 +1117,7 @@ fun HsSettingCellForUsdt(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.blade)
+                .background(if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.leah)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1172,7 +1173,7 @@ fun HsSettingCellForSafe(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.blade)
+                .background(if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.leah)
         ) {
             Text(
                 modifier = Modifier.padding(
@@ -1272,7 +1273,7 @@ fun HsSettingCellForSRC(
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(ComposeAppTheme.colors.blade)
+                .background(if (App.localStorage.currentTheme == ThemeType.Blue) ComposeAppTheme.colors.blade else ComposeAppTheme.colors.leah)
         ) {
             Text(
                 modifier = Modifier.padding(

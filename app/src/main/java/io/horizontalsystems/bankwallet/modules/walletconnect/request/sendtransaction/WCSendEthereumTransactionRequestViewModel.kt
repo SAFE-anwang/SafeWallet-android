@@ -100,11 +100,17 @@ class WCSendEthereumTransactionRequestViewModel(
         WCDelegate.sessionRequestEvent?.let { sessionRequest ->
             WCDelegate.respondPendingRequest(sessionRequest.request.id, sessionRequest.topic, transactionHash.toHexString())
         }
+        WCDelegate.dappRequestEvent?.let { dapp ->
+            WCDelegate.respondPendingRequest(dapp.id, "dapp-bridge", transactionHash.toHexString())
+        }
     }
 
     fun reject() {
         WCDelegate.sessionRequestEvent?.let { sessionRequest ->
             WCDelegate.rejectRequest(sessionRequest.topic, sessionRequest.request.id)
+        }
+        WCDelegate.dappRequestEvent?.let { dapp ->
+            WCDelegate.rejectRequest("dapp-bridge", dapp.id)
         }
     }
 

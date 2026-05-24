@@ -287,6 +287,8 @@ class LiquidityMainViewModel(
     }
 
     private fun getTradeService(provider: SwapMainModule.ISwapProvider): LiquidityMainModule.ISwapTradeService = when (provider) {
+        LiquidityMainModule.PancakeV3LiquidityProvider -> LiquidityV3TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
+        LiquidityMainModule.UniswapV3LiquidityProvider -> LiquidityV3TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
         LiquidityMainModule.PancakeLiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
         LiquidityMainModule.Safe4LiquidityProvider -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
         else -> LiquidityV2TradeService(uniswapKit, evmKit, EvmBlockchainHelper(dex.blockchainType).getRpcSourceHttp())
@@ -296,6 +298,8 @@ class LiquidityMainViewModel(
 //        SwapMainModule.OneInchProvider -> oneIncKitHelper.smartContractAddress
         LiquidityMainModule.PancakeLiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
         LiquidityMainModule.Safe4LiquidityProvider -> uniswapKit.routerAddress(evmKit.chain)
+        LiquidityMainModule.PancakeV3LiquidityProvider -> uniswapKit.routerAddress(evmKit.chain, true)
+        LiquidityMainModule.UniswapV3LiquidityProvider -> uniswapKit.routerAddress(evmKit.chain, true)
         else -> uniswapKit.routerAddress(evmKit.chain)
     }
 
@@ -365,7 +369,7 @@ class LiquidityMainViewModel(
             }
 
             is SwapResultState.NotReady -> {
-                Log.d("LiquidityMainViewModel", "state=SwapResultState.NotReady")
+                Log.d("LiquidityMainViewModel", "state=SwapResultState.NotReady， ${state.errors}")
                 isNoTrade = true
                 /*tradeView = null
                 errors.addAll(state.errors)*/
@@ -608,10 +612,6 @@ class LiquidityMainViewModel(
     }
 
     private fun getRevokeActionState() = when {
-        pendingAllowanceServiceA.state == SwapPendingAllowanceState.Revoking -> {
-            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Revoking))
-        }
-
         allErrors.isNotEmpty() && allErrors.all { it == SwapError.RevokeAllowanceRequired } -> {
             SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Swap_Revoke))
         }
@@ -622,10 +622,6 @@ class LiquidityMainViewModel(
     }
 
     private fun getRevokeActionState2() = when {
-        pendingAllowanceServiceB.state == SwapPendingAllowanceState.Revoking -> {
-            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Revoking))
-        }
-
         allErrorsB.isNotEmpty() && allErrorsB.all { it == SwapError.RevokeAllowanceRequired } -> {
             SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Swap_Revoke))
         }
@@ -971,12 +967,19 @@ class LiquidityMainViewModel(
         val tokenB = toTokenService.token ?: return null
         val tokenAAmount = amountFrom?.movePointRight(tokenA.decimals)?.toBigInteger() ?: return null
         val tokenBAmount = amountTo?.movePointRight(tokenB.decimals)?.toBigInteger() ?: return null
-        android.util.Log.d("LiquidityAllowanceService", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount, ${tokenB.decimals}")
+        android.util.Log.d("LiquidityMainViewModel", "tokenAAmount=$tokenAAmount, tokenBAmount=$tokenBAmount, ${tokenB.decimals}")
         val uniswapTradeService = tradeService as? ILiquidityTradeService ?: return null
 //        val tradeOptions = uniswapTradeService.tradeOptions
         val transactionData = try {
-            uniswapTradeService.transactionData(tokenA, tokenB, evmKit.receiveAddress, tokenAAmount, tokenBAmount)
+            uniswapTradeService.transactionData(
+                tokenA,
+                tokenB,
+                evmKit.receiveAddress,
+                tokenAAmount,
+                tokenBAmount
+            )
         } catch (e: Exception) {
+            Log.e("LiquidityMainViewModel", "getSendEvmData error=$e")
             return null
         }
 

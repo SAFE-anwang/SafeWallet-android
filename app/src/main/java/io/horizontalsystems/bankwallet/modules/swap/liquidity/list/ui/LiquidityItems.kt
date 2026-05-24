@@ -160,23 +160,39 @@ fun Wallets(
             contentPadding = PaddingValues(top = 8.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            itemsIndexed(liquidityViewItems, key = { _, item -> item.walletA.hashCode().or(item.walletB.hashCode()) }) { index, item ->
-                LiquidityCardSwipable(
-                    index,
-                    viewItem = item,
-                    viewModel = viewModel,
-                    navController = navController,
-                    revealed = revealedCardId == item.walletA.hashCode().or(item.walletB.hashCode()),
-                    onReveal = { walletHashCode ->
-                        if (revealedCardId != walletHashCode) {
-                            revealedCardId = walletHashCode
-                        }
-                    },
-                    onConceal = {
-                        revealedCardId = null
-                    },
-                    removeCallback = removeCallback
-                )
+            itemsIndexed(liquidityViewItems, key = { _, item ->
+                if (item.isV3 && item.tokenId != null) {
+                    item.tokenId.hashCode()
+                } else {
+                    item.walletA.hashCode().or(item.walletB.hashCode())
+                }
+            }) { index, item ->
+                if (item.isV3) {
+                    LiquidityV3Card(
+                        index,
+                        viewItem = item,
+                        viewModel = viewModel,
+                        navController = navController,
+                        removeCallback = removeCallback
+                    )
+                } else {
+                    LiquidityCardSwipable(
+                        index,
+                        viewItem = item,
+                        viewModel = viewModel,
+                        navController = navController,
+                        revealed = revealedCardId == item.walletA.hashCode().or(item.walletB.hashCode()),
+                        onReveal = { walletHashCode ->
+                            if (revealedCardId != walletHashCode) {
+                                revealedCardId = walletHashCode
+                            }
+                        },
+                        onConceal = {
+                            revealedCardId = null
+                        },
+                        removeCallback = removeCallback
+                    )
+                }
             }
         }
     }

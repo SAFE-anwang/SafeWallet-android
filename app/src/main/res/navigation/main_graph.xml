@@ -794,4 +794,9 @@
         android:id="@+id/transactionSourceSettingFragment"
         android:name="io.horizontalsystems.bankwallet.modules.txsource.TransactionSourceSettingsFragment"
         />
+
+    <fragment
+        android:id="@+id/addLiquidityFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.add.AddLiquidityFragment"
+        />
 </navigation>

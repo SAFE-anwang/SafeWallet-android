@@ -16,4 +16,6 @@ interface TokenAutoEnabledBlockchainDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(tokenAutoEnabledBlockchain: TokenAutoEnabledBlockchain)
 
+    @Query("DELETE FROM TokenAutoEnabledBlockchain")
+    fun delete()
 }

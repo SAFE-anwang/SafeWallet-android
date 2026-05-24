@@ -184,10 +184,10 @@ fun WCSessionScreen(
                     activated = uiState.hasSubscription,
                     whiteListState = whiteListState,
                     onActivateClick = {
-                        navController.slideFromBottom(
+                        /*navController.slideFromBottom(
                             R.id.defenseSystemFeatureDialog,
                             DefenseSystemFeatureDialog.Input(PremiumFeature.ScamProtectionFeature)
-                        )
+                        )*/
                     }
                 )
             }

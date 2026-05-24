@@ -77,12 +77,21 @@ class LiquidityConfirmationFragment(
     override val isCreatePool: Boolean
         get() = input.additionalInfo?.liquidityInfo?.isCreatePoll ?: false
 
+    /**
+     * V3 交易成功后将 back stack pop 到 addLiquidityFragment（含），
+     * 即关闭 confirmationFragment + addLiquidityFragment 回到前一个页面。
+     * V2 使用父类默认值 liquidityFragment。
+     */
+    override val popTargetFragmentId: Int
+        get() = if (input.transactionDataParcelable.isV3) R.id.addLiquidityFragment else R.id.liquidityFragment
+
     @Parcelize
     data class Input(
             val dex: SwapMainModule.Dex,
             val transactionDataParcelable: SendEvmModule.TransactionDataParcelable,
             val additionalInfo: SendEvmData.AdditionalInfo?,
-            val token: Token? = null
+            val token: Token? = null,
+            val isV3: Boolean = false
     ) : Parcelable {
         val transactionData: TransactionData
             get() = TransactionData(
@@ -90,15 +99,17 @@ class LiquidityConfirmationFragment(
                     transactionDataParcelable.value,
                     transactionDataParcelable.input,
                     transactionDataParcelable.lockTime,
-                    transactionDataParcelable.isBothErc
+                    transactionDataParcelable.isBothErc,
+                    isV3 = transactionDataParcelable.isV3
             )
 
-        constructor(sendEvmData: SendEvmData, dex: SwapMainModule.Dex, token: Token) :
+        constructor(sendEvmData: SendEvmData, dex: SwapMainModule.Dex, token: Token, isV3: Boolean = false) :
                 this(
                         dex,
                         SendEvmModule.TransactionDataParcelable(sendEvmData.transactionData),
                         sendEvmData.additionalInfo,
-                        token
+                        token,
+                    isV3 = isV3
                 )
     }
 }

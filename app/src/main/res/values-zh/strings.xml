@@ -1889,6 +1889,10 @@
     <string name="Liquidity_Remove_Confirm_Cancel">取消</string>
     <string name="Liquidity_Add">添加</string>
     <string name="Liquidity_Add_Success">添加成功</string>
+    <string name="Liquidity_PriceRange">价格范围</string>
+    <string name="Liquidity_FeeTier">费率等级</string>
+    <string name="Liquidity_MinPrice">最低价格</string>
+    <string name="Liquidity_MaxPrice">最高价格</string>
     <string name="qutoe_expire_hint">报价即将过期</string>
     <string name="Send_Safe_Four_Hodler_Description">时间锁（TimeLock）只适用于发送到SAFE（从1开始)</string>
 

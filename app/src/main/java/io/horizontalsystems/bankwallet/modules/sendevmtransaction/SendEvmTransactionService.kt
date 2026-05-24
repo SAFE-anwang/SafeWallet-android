@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.modules.sendevmtransaction
 
 import android.util.Log
 import com.anwang.utils.ContractUtil
+import com.example.pancakeswap.contract.v3.NonfungiblePositionManagerV3
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
@@ -15,6 +16,7 @@ import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.decorations.TransactionDecoration
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.ethereumkit.models.GasPrice
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.wsafekit.Web3jUtils
 import io.reactivex.BackpressureStrategy
@@ -27,8 +29,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.request.Transaction
+import org.web3j.tx.gas.StaticGasProvider
 import java.math.BigInteger
+import kotlin.collections.toString
 
 interface ISendEvmTransactionService {
     val state: SendEvmTransactionService.State
@@ -219,6 +224,7 @@ class SendEvmTransactionService(
                     Log.e("sendSafeToUsdtTransaction", "error=${ethEstimateGas.error.data}, ${ethEstimateGas.error.message}")
 //                    throw java.lang.Exception(ethEstimateGas.error.message)
                 }
+                evmKitWrapper.evmKit.estimateGas(sendEvmData.transactionData)
                 val gasLimit = ethEstimateGas.amountUsed.multiply(BigInteger.valueOf(6))
                     .divide(BigInteger.valueOf(5))
 
@@ -258,55 +264,126 @@ class SendEvmTransactionService(
         GlobalScope.launch {
             try {
                 val web3j: Web3j = Connect.connect(evmKitWrapper.evmKit.chain)
-                val routerAddress = when (evmKitWrapper.evmKit.chain) {
-                    Chain.Ethereum -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
-                    Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
-                    Chain.SafeFour -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
-                    else -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
-                }
-                val gasPrice: BigInteger = web3j.ethGasPrice()
-                        .send()
-                        .getGasPrice()
-                val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
-                    sendEvmData.transactionData.value
-                } else {
-                    BigInteger.ZERO
-                }
-                val estimateGas = web3j.ethEstimateGas(
-                    org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
-                        evmKitWrapper.evmKit.receiveAddress.hex,
-                        null,
-                        gasPrice,
-                        java.math.BigInteger.ZERO,
-                        routerAddress,
-                        value,
-                        sendEvmData.transactionData.input.toHexString()
-                    )
-                ).send()
-                if (estimateGas.hasError()) {
-                    Log.e("addLiquidity", "value=$value, error=${estimateGas.error.data}, ${estimateGas.error.message}")
-                    sendState = SendState.Failed(Exception(estimateGas.error.message))
-                    return@launch
-                }
-                val gasLimit =
-                    estimateGas.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))
-                Log.d("addLiquidity", "gasLimit=$gasLimit")
-                val hash = TransactionContractSend.send(
-                    web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
-                        routerAddress,
-                    sendEvmData.transactionData.input.toHexString(),
-                    value,
-                    nonce.toBigInteger(),
-                        gasPrice,
-                    gasLimit
-                )
-                withContext(Dispatchers.Main) {
-                    if (hash != null) {
-                        sendState = SendState.Sent(hash.toByteArray())
-                        logger.info("success")
-                    } else {
-                        sendState = SendState.Failed(Exception("Failed"))
+                if (sendEvmData.transactionData.isV3) {
+                    val positionManagerAddress = when (evmKitWrapper.evmKit.chain) {
+                        Chain.Ethereum -> Constants.DEX.UNISWAP_V3_POSITION_MANAGER_ADDRESS
+                        Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V3_POSITION_MANAGER_ADDRESS
+                        Chain.SafeFour -> Constants.DEX.SAFESWAP_V3_POSITION_MANAGER_ADDRESS
+                        else -> Constants.DEX.PANCAKE_V3_POSITION_MANAGER_ADDRESS
                     }
+                    // 获取当前 Gas 价格
+                    val gasPrice = web3j.ethGasPrice().send().gasPrice
+
+                    // 获取建议的 Gas 价格（使用较低的值）
+                    val suggestedPrice = gasPrice.multiply(BigInteger.valueOf(80))
+                        .divide(BigInteger.valueOf(100))  // 使用 80% 的价格
+
+
+                    // 设置最低 Gas 价格（1 Gwei）
+                    val minGasPrice = BigInteger.valueOf(5_000_000_0)
+                    val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                        sendEvmData.transactionData.value
+                    } else {
+                        BigInteger.ZERO
+                    }
+                    Log.d("addLiquidity", "$suggestedPrice, $minGasPrice, $gasPrice, value=$value")
+                    Log.e("addLiquidity", "data=${sendEvmData.transactionData.input.toHexString()}")
+
+                    // 使用 ethCall 预检交易是否会 revert
+                    val checkResult = web3j.ethEstimateGas(
+                        org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
+                            evmKitWrapper.evmKit.receiveAddress.hex,
+                            null,
+                            gasPrice,
+                            null,
+                            positionManagerAddress,
+                            BigInteger.ZERO,
+                            sendEvmData.transactionData.input.toHexString()
+                        )
+                    ).send()
+                    if (checkResult.hasError()) {
+                        Log.e("addLiquidity", "ethCall error=${checkResult.error.data}, ${checkResult.error.message}")
+                        sendState = SendState.Failed(Exception(checkResult.error.message))
+                        return@launch
+                    }
+                    val gasLimit =
+                        checkResult.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))
+//                    val gasLimit = BigInteger.valueOf(5_000_000)
+                    Log.d("addLiquidity", "gasLimit=$gasLimit")
+
+                    val gasProvider = StaticGasProvider(
+                        gasPrice,  // 5 Gwei
+                        gasLimit       // 3,000,000 gas limit
+                    )
+                    val positionManager = NonfungiblePositionManagerV3(
+                        positionManagerAddress = positionManagerAddress,
+                        web3j = web3j,
+                        credentials = Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                        gasProvider = gasProvider
+                    )
+                    val result = positionManager.mint(sendEvmData.transactionData.input.toHexString())
+                    Log.e("addLiquidity", "result=$result")
+                    withContext(Dispatchers.Main) {
+                        if (result.success && result.transactionHash != null) {
+                            sendState = SendState.Sent(result.transactionHash.toByteArray())
+                            logger.info("success")
+                        } else {
+                            sendState = SendState.Failed(Exception("Failed"))
+                        }
+                    }
+                } else {
+                    val routerAddress = when (evmKitWrapper.evmKit.chain) {
+                        Chain.Ethereum -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
+                        Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                        Chain.SafeFour -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
+                        else -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                    }
+                    val gasPrice: BigInteger = web3j.ethGasPrice()
+                            .send()
+                            .getGasPrice()
+                    val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                        sendEvmData.transactionData.value
+                    } else {
+                        BigInteger.ZERO
+                    }
+                    val estimateGas = web3j.ethEstimateGas(
+                        org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction(
+                            evmKitWrapper.evmKit.receiveAddress.hex,
+                            null,
+                            gasPrice,
+                            java.math.BigInteger.ZERO,
+                            routerAddress,
+                            value,
+                            sendEvmData.transactionData.input.toHexString()
+                        )
+                    ).send()
+                    if (estimateGas.hasError()) {
+                        Log.e("addLiquidity", "value=$value, error=${estimateGas.error.data}, ${estimateGas.error.message}")
+                        sendState = SendState.Failed(Exception(estimateGas.error.message))
+                        return@launch
+                    }
+                    val gasLimit =
+                        estimateGas.amountUsed.multiply(java.math.BigInteger.valueOf(6)).divide(java.math.BigInteger.valueOf(5))
+                    Log.d("addLiquidity", "gasLimit=$gasLimit")
+                    val hash = TransactionContractSend.send(
+                        web3j, Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                            routerAddress,
+                        sendEvmData.transactionData.input.toHexString(),
+                        value,
+                        nonce.toBigInteger(),
+                            gasPrice,
+                        gasLimit
+                    )
+
+                    withContext(Dispatchers.Main) {
+                        if (hash != null) {
+                            sendState = SendState.Sent(hash.toByteArray())
+                            logger.info("success")
+                        } else {
+                            sendState = SendState.Failed(Exception("Failed"))
+                        }
+                    }
+
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
