@@ -178,17 +178,14 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
 
 
     val polygonscanApiKey by lazy {
-        if (cachePolygonscanApiKey != null) {
-            cachePolygonscanApiKey!!
+        if (cacheEtherscanApiKey != null) {
+            cacheEtherscanApiKey!!
         } else {
-            val index = Random().nextInt(4)
-            val key = when (index) {
-                0 -> Translator.getString(R.string.polygonscanKey)
-                1 -> Translator.getString(R.string.polygonscanKey2)
-                2 -> Translator.getString(R.string.polygonscanKey3)
-                else -> Translator.getString(R.string.polygonscanKey4)
+            val index = Random().nextInt(2)
+            when (index) {
+                0 -> Translator.getString(R.string.etherscanKey)
+                else -> Translator.getString(R.string.etherscanKey1)
             }
-            key
         }
     }
     val snowtraceApiKey by lazy {
