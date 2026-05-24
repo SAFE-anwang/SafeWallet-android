@@ -514,42 +514,47 @@ class LiquidityListViewModel(
     private fun getAllV3Liquidity() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Query V3 positions for each chain
-                val activeBSCWallets = getActiveWallets(BlockchainType.BinanceSmartChain)
-                val activeETHWallets = getActiveWallets(BlockchainType.Ethereum)
-                val activeSafe4Wallets = getActiveWallets(BlockchainType.SafeFour)
+                val account = accountManager.activeAccount ?: return@launch
 
-                val allBSCWallets = mapWalletsByAddress(activeBSCWallets)
-                val allETHWallets = mapWalletsByAddress(activeETHWallets)
-                val allSafe4Wallets = mapWalletsByAddress(activeSafe4Wallets)
+                // Get wallets per chain (same filter as V2)
+                val activeBSCWallets = storage.wallets(account).filter {
+                    it.token.blockchainType is BlockchainType.BinanceSmartChain &&
+                            it.token.coin.code != "Cake-LP"
+                }
+                val activeETHWallets = storage.wallets(account).filter {
+                    it.token.blockchainType is BlockchainType.Ethereum &&
+                            it.token.coin.code != "UNI-V2"
+                }
+                val activeSafe4Wallets = storage.wallets(account).filter {
+                    it.token.blockchainType is BlockchainType.SafeFour &&
+                            it.token.coin.code != "UNI-V2"
+                }
+
+                // Build TokenEntity lists (same pattern as V2)
+                val uidsBSC = activeBSCWallets.map { it.coin.uid }
+                val uidsETH = activeETHWallets.map { it.coin.uid }
+                val uidsSafe4 = activeSafe4Wallets.map { it.coin.uid }
+                val bscTokenEntities = getTokenEntity(uidsBSC, "binance-smart-chain")
+                val ethTokenEntities = getTokenEntity(uidsETH, "ethereum")
+                val customSafe4Entity = activeSafe4Wallets.filter { it.coin.uid.startsWith("custom-safe4-coin") }
+                    .map {
+                        TokenEntity(it.coin.uid, "safe4-coin", it.token.type.id.split(":")[0], it.decimal, it.coin.uid.substring(it.coin.uid.indexOf(":") + 1))
+                    }
+                val safe4TokenEntities = getTokenEntity(uidsSafe4, "safe4-coin") + customSafe4Entity
+
+                val bscWalletsByAddress = buildAddressWalletMap(bscTokenEntities, activeBSCWallets)
+                val ethWalletsByAddress = buildAddressWalletMap(ethTokenEntities, activeETHWallets)
+                val safe4WalletsByAddress = buildAddressWalletMap(safe4TokenEntities, activeSafe4Wallets)
 
                 // BSC V3 positions
                 try {
                     val bscPositions = queryV3Positions(web3jBsc, LiquidityListModule.Tab.BSC)
                     v3PositionItemsBSC.clear()
                     bscPositions.forEach { pos ->
-                        val walletA = allBSCWallets[pos.token0Address.lowercase()]
-                        val walletB = allBSCWallets[pos.token1Address.lowercase()]
+                        val walletA = bscWalletsByAddress[pos.token0Address.lowercase()]
+                        val walletB = bscWalletsByAddress[pos.token1Address.lowercase()]
                         if (walletA != null && walletB != null) {
-                            v3PositionItemsBSC.add(
-                                LiquidityListModule.V3PositionItem(
-                                    tokenId = pos.tokenId,
-                                    walletA = walletA,
-                                    walletB = walletB,
-                                    addressA = pos.token0Address,
-                                    addressB = pos.token1Address,
-                                    fee = pos.fee,
-                                    tickLower = pos.tickLower,
-                                    tickUpper = pos.tickUpper,
-                                    liquidity = pos.liquidity,
-                                    token0Amount = BigDecimal.ZERO,  // populated below
-                                    token1Amount = BigDecimal.ZERO,
-                                    tokensOwed0 = pos.tokensOwed0,
-                                    tokensOwed1 = pos.tokensOwed1,
-                                    token0Decimals = walletA.decimal,
-                                    token1Decimals = walletB.decimal
-                                )
-                            )
+                            v3PositionItemsBSC.add(buildV3PositionItem(pos, walletA, walletB))
                         }
                     }
                     v3ViewItemsBSC = v3PositionItemsBSC.map { liquidityViewItemFactory.viewItemV3(it) }
@@ -562,28 +567,10 @@ class LiquidityListViewModel(
                     val ethPositions = queryV3Positions(web3jEth, LiquidityListModule.Tab.ETH)
                     v3PositionItemsEth.clear()
                     ethPositions.forEach { pos ->
-                        val walletA = allETHWallets[pos.token0Address.lowercase()]
-                        val walletB = allETHWallets[pos.token1Address.lowercase()]
+                        val walletA = ethWalletsByAddress[pos.token0Address.lowercase()]
+                        val walletB = ethWalletsByAddress[pos.token1Address.lowercase()]
                         if (walletA != null && walletB != null) {
-                            v3PositionItemsEth.add(
-                                LiquidityListModule.V3PositionItem(
-                                    tokenId = pos.tokenId,
-                                    walletA = walletA,
-                                    walletB = walletB,
-                                    addressA = pos.token0Address,
-                                    addressB = pos.token1Address,
-                                    fee = pos.fee,
-                                    tickLower = pos.tickLower,
-                                    tickUpper = pos.tickUpper,
-                                    liquidity = pos.liquidity,
-                                    token0Amount = BigDecimal.ZERO,
-                                    token1Amount = BigDecimal.ZERO,
-                                    tokensOwed0 = pos.tokensOwed0,
-                                    tokensOwed1 = pos.tokensOwed1,
-                                    token0Decimals = walletA.decimal,
-                                    token1Decimals = walletB.decimal
-                                )
-                            )
+                            v3PositionItemsEth.add(buildV3PositionItem(pos, walletA, walletB))
                         }
                     }
                     v3ViewItemsEth = v3PositionItemsEth.map { liquidityViewItemFactory.viewItemV3(it) }
@@ -592,43 +579,83 @@ class LiquidityListViewModel(
                 }
 
                 // Safe4 V3 positions
-                try {
+                /*try {
                     val safe4Positions = queryV3Positions(web3jSafe4, LiquidityListModule.Tab.SAFE4)
                     v3PositionItemsSafe4.clear()
                     safe4Positions.forEach { pos ->
-                        val walletA = allSafe4Wallets[pos.token0Address.lowercase()]
-                        val walletB = allSafe4Wallets[pos.token1Address.lowercase()]
+                        val walletA = safe4WalletsByAddress[pos.token0Address.lowercase()]
+                        val walletB = safe4WalletsByAddress[pos.token1Address.lowercase()]
                         if (walletA != null && walletB != null) {
-                            v3PositionItemsSafe4.add(
-                                LiquidityListModule.V3PositionItem(
-                                    tokenId = pos.tokenId,
-                                    walletA = walletA,
-                                    walletB = walletB,
-                                    addressA = pos.token0Address,
-                                    addressB = pos.token1Address,
-                                    fee = pos.fee,
-                                    tickLower = pos.tickLower,
-                                    tickUpper = pos.tickUpper,
-                                    liquidity = pos.liquidity,
-                                    token0Amount = BigDecimal.ZERO,
-                                    token1Amount = BigDecimal.ZERO,
-                                    tokensOwed0 = pos.tokensOwed0,
-                                    tokensOwed1 = pos.tokensOwed1,
-                                    token0Decimals = walletA.decimal,
-                                    token1Decimals = walletB.decimal
-                                )
-                            )
+                            v3PositionItemsSafe4.add(buildV3PositionItem(pos, walletA, walletB))
                         }
                     }
                     v3ViewItemsSafe4 = v3PositionItemsSafe4.map { liquidityViewItemFactory.viewItemV3(it) }
                 } catch (e: Exception) {
                     Log.e("LiquidityListVM", "Error querying Safe4 V3: ${e.message}")
-                }
+                }*/
 
+                // Notify UI after V3 query completes
+                emitState()
             } catch (e: Exception) {
                 Log.e("LiquidityListVM", "Error in getAllV3Liquidity: ${e.message}")
             }
         }
+    }
+
+    /**
+     * Build a lowercase-address → Wallet map from TokenEntity list + original wallet list.
+     * Matches by coinUid: TokenEntity.coinUid → Wallet.coin.uid,
+     * then maps TokenEntity.reference (hex address) → Wallet.
+     */
+    private fun buildAddressWalletMap(
+        tokenEntities: List<TokenEntity>,
+        wallets: List<Wallet>
+    ): Map<String, Wallet> {
+        val map = mutableMapOf<String, Wallet>()
+        tokenEntities.forEach { entity ->
+            val wallet = wallets.firstOrNull { it.coin.uid == entity.coinUid }
+            if (wallet != null) {
+                val reference = entity.reference
+                if (!reference.isNullOrBlank()) {
+                    map[reference.lowercase()] = wallet
+                }
+                // Also map WETH address (same wallet for native token)
+                val weth = getWethAddress(wallet.token.blockchain.type)
+                map[weth.lowercase()] = wallet
+            }
+        }
+        // Also add any custom tokens that might not have a TokenEntity
+        wallets.filter { it.coin.uid.startsWith("custom-") }.forEach { wallet ->
+            val address = wallet.token.type.id.split(":")[0]
+            if (address.isNotBlank()) {
+                map[address.lowercase()] = wallet
+            }
+        }
+        return map
+    }
+
+    private fun buildV3PositionItem(
+        pos: V3PositionData,
+        walletA: Wallet,
+        walletB: Wallet
+    ): LiquidityListModule.V3PositionItem {
+        return LiquidityListModule.V3PositionItem(
+            tokenId = pos.tokenId,
+            walletA = walletA,
+            walletB = walletB,
+            addressA = pos.token0Address,
+            addressB = pos.token1Address,
+            fee = pos.fee,
+            tickLower = pos.tickLower,
+            tickUpper = pos.tickUpper,
+            liquidity = pos.liquidity,
+            token0Amount = BigDecimal(pos.tokensOwed0).divide(BigDecimal.TEN.pow(walletA.decimal), walletA.decimal, RoundingMode.DOWN),
+            token1Amount = BigDecimal(pos.tokensOwed1).divide(BigDecimal.TEN.pow(walletB.decimal), walletB.decimal, RoundingMode.DOWN),
+            tokensOwed0 = pos.tokensOwed0,
+            tokensOwed1 = pos.tokensOwed1,
+            token0Decimals = walletA.decimal,
+            token1Decimals = walletB.decimal
+        )
     }
 
     private fun getActiveWallets(blockchainType: BlockchainType): List<Wallet> {
@@ -639,21 +666,6 @@ class LiquidityListViewModel(
                         w.token.coin.code != "UNI-V2"
             }
         } ?: listOf()
-    }
-
-    private fun mapWalletsByAddress(wallets: List<Wallet>): Map<String, Wallet> {
-        val map = mutableMapOf<String, Wallet>()
-        wallets.forEach { wallet ->
-            val entity = marketKit.getTokenEntity(listOf(wallet.coin.uid), wallet.token.type.id.split(":")[0]).firstOrNull()
-            val address = entity?.reference ?: getWethAddress(wallet.token.blockchain.type)
-            map[address.lowercase()] = wallet
-            // Also map the weth address
-            val weth = getWethAddress(wallet.token.blockchain.type)
-            if (address.lowercase() == weth.lowercase()) {
-                map[weth.lowercase()] = wallet
-            }
-        }
-        return map
     }
 
     private fun queryV3Positions(web3j: Web3j, tab: LiquidityListModule.Tab): List<V3PositionData> {

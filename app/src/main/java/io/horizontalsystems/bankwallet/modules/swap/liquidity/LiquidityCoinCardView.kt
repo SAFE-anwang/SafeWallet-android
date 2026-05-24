@@ -23,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -160,14 +161,14 @@ private fun SwapAmountInput(
         mutableStateOf(TextFieldValue(""))
     }
 
-//    LaunchedEffect(amountData?.first) {
-    if (!amountsEqual(state.amount.toBigDecimalOrNull(), textState.text.toBigDecimalOrNull())) {
-        if (!state.dimAmount || state.amount.isNotEmpty()) {
-            val amount = SwapMainModule.format(state.amount)
-            textState = textState.copy(text = amount, selection = TextRange(amount.length))
+    LaunchedEffect(state.amount) {
+        if (!amountsEqual(state.amount.toBigDecimalOrNull(), textState.text.toBigDecimalOrNull())) {
+            if (!state.dimAmount || state.amount.isNotEmpty()) {
+                val amount = SwapMainModule.format(state.amount)
+                textState = textState.copy(text = amount, selection = TextRange(amount.length))
+            }
         }
     }
-//    }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
         BasicTextField(

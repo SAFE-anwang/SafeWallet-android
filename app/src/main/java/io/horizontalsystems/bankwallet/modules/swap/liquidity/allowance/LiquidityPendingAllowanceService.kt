@@ -15,9 +15,9 @@ import java.math.BigDecimal
 import java.util.concurrent.Executors
 
 enum class SwapPendingAllowanceState {
-    NA, Revoking, Revoked, Approving, Approved;
+    NA, Revoked, Approving, Approved;
 
-    fun loading() = this == Revoking || this == Approving
+    fun loading() = this == Approving
 }
 
 class LiquidityPendingAllowanceService(
@@ -84,10 +84,7 @@ class LiquidityPendingAllowanceService(
         Log.d("addLiquidity", "pendingAllowanceConfirmed=$pendingAllowanceConfirmed, pendingAllowance=$pendingAllowance")
 
         state = if (pendingAllowance.compareTo(BigDecimal.ZERO) == 0) {
-            when {
-                pendingAllowanceConfirmed -> SwapPendingAllowanceState.Revoked
-                else -> SwapPendingAllowanceState.Revoking
-            }
+            SwapPendingAllowanceState.Revoked
         } else {
             when {
                 pendingAllowanceConfirmed -> SwapPendingAllowanceState.Approved

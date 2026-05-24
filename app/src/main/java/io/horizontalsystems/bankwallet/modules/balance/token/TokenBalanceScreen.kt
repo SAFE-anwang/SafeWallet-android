@@ -64,6 +64,7 @@ import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequi
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityMainModule
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.add.AddLiquidityModule
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveFragment
 import io.horizontalsystems.bankwallet.modules.receive.ZcashAddressTypeSelectFragment
 import io.horizontalsystems.bankwallet.modules.send.address.EnterAddressFragment
@@ -905,8 +906,8 @@ private fun ButtonsRow(
                 title = stringResource(R.string.liquidity_title),
                 onClick = {
                     navController.slideFromRight(
-                        R.id.liquidityFragment,
-                        LiquidityMainModule.prepareParams(viewItem.wallet.token)
+                        R.id.addLiquidityFragment,
+                        AddLiquidityModule.prepareParams(viewItem.wallet.token)
                     )
                 },
             )

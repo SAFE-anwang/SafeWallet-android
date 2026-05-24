@@ -94,7 +94,7 @@ class LiquidityViewItemFactory {
             liquidity = App.numberFormatter.formatCoinFull(
                 BigDecimal(item.liquidity), null, 0
             ),
-            shareRate = feeTier,  // reuse shareRate to display fee tier
+            shareRate = feeTier,
             poolTokenTotalSupply = item.tokenId,
             feeTier = feeTier,
             tickRange = tickRange,

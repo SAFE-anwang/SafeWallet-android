@@ -77,6 +77,14 @@ class LiquidityConfirmationFragment(
     override val isCreatePool: Boolean
         get() = input.additionalInfo?.liquidityInfo?.isCreatePoll ?: false
 
+    /**
+     * V3 交易成功后将 back stack pop 到 addLiquidityFragment（含），
+     * 即关闭 confirmationFragment + addLiquidityFragment 回到前一个页面。
+     * V2 使用父类默认值 liquidityFragment。
+     */
+    override val popTargetFragmentId: Int
+        get() = if (input.transactionDataParcelable.isV3) R.id.addLiquidityFragment else R.id.liquidityFragment
+
     @Parcelize
     data class Input(
             val dex: SwapMainModule.Dex,

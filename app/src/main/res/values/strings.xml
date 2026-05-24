@@ -2229,6 +2229,10 @@
     <string name="Liquidity_Remove_Confirm_Cancel">Cancel</string>
     <string name="Liquidity_Add">Add</string>
     <string name="Liquidity_Add_Success">Add success</string>
+    <string name="Liquidity_PriceRange">Price Range</string>
+    <string name="Liquidity_FeeTier">Fee Tier</string>
+    <string name="Liquidity_MinPrice">Min Price</string>
+    <string name="Liquidity_MaxPrice">Max Price</string>
     <string name="Liquidity_Tab_SAFE4">SAFE</string>
     <string name="Liquidity_Tab_BSC">BSC</string>
     <string name="Liquidity_Tab_ETH">ETH</string>

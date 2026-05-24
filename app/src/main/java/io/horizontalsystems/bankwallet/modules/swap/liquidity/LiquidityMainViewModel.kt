@@ -612,10 +612,6 @@ class LiquidityMainViewModel(
     }
 
     private fun getRevokeActionState() = when {
-        pendingAllowanceServiceA.state == SwapPendingAllowanceState.Revoking -> {
-            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Revoking))
-        }
-
         allErrors.isNotEmpty() && allErrors.all { it == SwapError.RevokeAllowanceRequired } -> {
             SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Swap_Revoke))
         }
@@ -626,10 +622,6 @@ class LiquidityMainViewModel(
     }
 
     private fun getRevokeActionState2() = when {
-        pendingAllowanceServiceB.state == SwapPendingAllowanceState.Revoking -> {
-            SwapMainModule.SwapActionState.Disabled(Translator.getString(R.string.Swap_Revoking))
-        }
-
         allErrorsB.isNotEmpty() && allErrorsB.all { it == SwapError.RevokeAllowanceRequired } -> {
             SwapMainModule.SwapActionState.Enabled(Translator.getString(R.string.Swap_Revoke))
         }

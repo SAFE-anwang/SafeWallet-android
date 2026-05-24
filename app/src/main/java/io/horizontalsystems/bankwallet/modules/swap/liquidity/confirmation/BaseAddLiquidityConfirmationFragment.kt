@@ -44,6 +44,12 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
     protected abstract val navGraphId: Int
     protected abstract val isCreatePool: Boolean
 
+    /**
+     * 交易成功后的 pop 目标 fragment ID。
+     * V2 默认 pop 到 liquidityFragment，V3 覆盖为 addLiquidityFragment。
+     */
+    protected open val popTargetFragmentId: Int = R.id.liquidityFragment
+
     private var snackbarInProcess: CustomSnackbar? = null
 
     override fun onCreateView(
@@ -91,12 +97,9 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
                 if (isCreatePool) {
                     findNavController().popBackStack()
                 } else {
-                    findNavController().popBackStack(R.id.liquidityFragment, true)
+                    findNavController().popBackStack(popTargetFragmentId, true)
                 }
             }
-            /*Handler(Looper.getMainLooper()).postDelayed({
-                findNavController().popBackStack(R.id.swapFragment, true)
-            }, 1200)*/
         }
 
         sendEvmTransactionViewModel.sendFailedLiveData.observe(viewLifecycleOwner) {

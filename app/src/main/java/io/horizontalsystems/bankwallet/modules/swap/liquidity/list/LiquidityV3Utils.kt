@@ -157,8 +157,8 @@ object LiquidityV3Utils {
                 token0Address = (result[2] as Address).value,
                 token1Address = (result[3] as Address).value,
                 fee = (result[4] as Uint24).value,
-                tickLower = BigInteger.valueOf(((result[5] as Int24).value as Long)),
-                tickUpper = BigInteger.valueOf(((result[6] as Int24).value as Long)),
+                tickLower = (result[5] as Int24).value,
+                tickUpper = (result[6] as Int24).value,
                 liquidity = liquidity,
                 tokensOwed0 = (result[10] as Uint128).value,
                 tokensOwed1 = (result[11] as Uint128).value
@@ -200,7 +200,7 @@ object LiquidityV3Utils {
             if (result.size < 2) return null
             return V3Slot0Data(
                 sqrtPriceX96 = (result[0] as Uint160).value,
-                tick = BigInteger.valueOf((result[1] as Int24).value as Long)
+                tick = (result[1] as Int24).value
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error querying slot0 for pool $poolAddress: ${e.message}")

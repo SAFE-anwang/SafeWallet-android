@@ -41,12 +41,17 @@ class LiquidityMainService(
     }
 
     private fun getSwapProvider(blockchainType: BlockchainType): SwapMainModule.ISwapProvider? {
-        val providerId = if (blockchainType is BlockchainType.SafeFour)
-                LiquidityMainModule.Safe4LiquidityProvider.id
-            else if (blockchainType is BlockchainType.Ethereum)
-                LiquidityMainModule.UniswapLiquidityProvider.id
-            else
-                LiquidityMainModule.PancakeLiquidityProvider.id
+        // Check saved preference first
+        val savedProviderId = localStorage.getLiquidityProviderId(blockchainType)
+        val savedProvider = savedProviderId?.let { id -> providers.firstOrNull { it.id == id } }
+        if (savedProvider != null) return savedProvider
+
+        // Default: ETH → Uniswap V3, BSC → Pancake V3, SafeFour → Safe4
+        val providerId = when (blockchainType) {
+            is BlockchainType.SafeFour -> LiquidityMainModule.Safe4LiquidityProvider.id
+            is BlockchainType.Ethereum -> LiquidityMainModule.UniswapV3LiquidityProvider.id
+            else -> LiquidityMainModule.PancakeV3LiquidityProvider.id
+        }
 
         return providers.firstOrNull { it.id == providerId }
     }
