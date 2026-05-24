@@ -117,6 +117,7 @@ import io.horizontalsystems.bankwallet.modules.settings.appearance.LaunchScreenS
 import io.horizontalsystems.bankwallet.modules.theme.ThemeService
 import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
+import io.horizontalsystems.bankwallet.modules.safe4.node.SuperNodeCacheManager
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.txsource.EvmTransactionViewModel.Companion.TRANSACTION_SOURCE
 import io.horizontalsystems.bitcoincore.managers.ConnectionManager
@@ -148,6 +149,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.security.MessageDigest
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.reactive.asFlow
 //import org.telegram.messenger.ApplicationLoader
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -698,6 +700,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             delay(3000)
             val migrationManager = MigrationManager(localStorage, termsManager)
             migrationManager.runMigrations()
+        }
+
+        // 等待适配器初始化完成后，预加载超级节点信息到本地缓存数据库
+        coroutineScope.launch {
+            (adapterManager as AdapterManager).adaptersReadyObservable.asFlow().collect { adapters ->
+                if (adapters.isNotEmpty()) {
+                    SuperNodeCacheManager.cacheAllSuperNodes()
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.swap.liquidity.allowance
 
+import android.util.Log
 import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.adapters.Eip20Adapter
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ApproveTransactionRecord
@@ -80,6 +81,7 @@ class LiquidityPendingAllowanceService(
         }
 
         val pendingAllowanceConfirmed = allowanceState.allowance.value.compareTo(pendingAllowance) == 0
+        Log.d("addLiquidity", "pendingAllowanceConfirmed=$pendingAllowanceConfirmed, pendingAllowance=$pendingAllowance")
 
         state = if (pendingAllowance.compareTo(BigDecimal.ZERO) == 0) {
             when {
