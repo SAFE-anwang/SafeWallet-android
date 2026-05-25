@@ -38,7 +38,10 @@ class Safe4KChartService(
             .setLenient()
             .create()
 
-        service = RetrofitUtils.build(url).create(SafeNetServiceApi::class.java)
+        service = RetrofitUtils.build(
+            baseUrl = url,
+            headers = mapOf("x-auth" to "KLFD&*jk42klO)dskdak#@")
+        ).create(SafeNetServiceApi::class.java)
     }
 
 
@@ -122,10 +125,10 @@ class Safe4KChartService(
     }
 
     private interface SafeNetServiceApi {
-        @GET("/v1/evm/rpc/services")
+        @GET("/v1/evm/rpc/endpoints")
         fun getRpcEndpoint(): Single<JsonElement>
 
-        @GET("/v1/apiKeys")
+        @GET("/v1/api_keys")
         fun getApiKey(): Single<JsonElement>
 
         @GET("/list/market/klines")
