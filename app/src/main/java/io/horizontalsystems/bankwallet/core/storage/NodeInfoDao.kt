@@ -25,7 +25,12 @@ interface NodeInfoDao {
     fun delete(id: Long)
 
 
-    @Query("SELECT * FROM NodeInfo WHERE type=:type ORDER BY id ASC ")
+
+    @Query("DELETE FROM NodeInfo WHERE type=:type")
+    fun deleteNodeInfoList(type: Int)
+
+
+    @Query("SELECT * FROM NodeInfo WHERE type=:type ORDER BY sortOrder ASC")
     fun getNodeInfoList(type: Int): List<NodeInfo>
 
 }

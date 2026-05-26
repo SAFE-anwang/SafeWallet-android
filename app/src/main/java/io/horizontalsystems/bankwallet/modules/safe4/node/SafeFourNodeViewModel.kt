@@ -280,7 +280,8 @@ data class NodeInfo(
         var totalAmount: BigInteger = BigInteger.ZERO,
         var allVoteNum: BigInteger = BigInteger.ZERO,
         var availableLimit: BigInteger = BigInteger.ZERO,
-    var type: Int = 0
+    var type: Int = 0,
+    var sortOrder: Int = 0
 ) {
     override fun toString(): String {
         return "NodeItem(id=$id, addr=$addr, creator=$creator, enode='$enode', description='$description', isOfficial=$isOfficial, state=$state, founders=$founders, incentivePlan=$incentivePlan, lastRewardHeight=$lastRewardHeight, createHeight=$createHeight, updateHeight=$updateHeight, name='$name')"
