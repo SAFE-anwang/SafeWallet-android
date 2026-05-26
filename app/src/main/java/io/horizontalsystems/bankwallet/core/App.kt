@@ -150,7 +150,7 @@ import timber.log.Timber
 import java.security.MessageDigest
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.reactive.asFlow
-//import org.telegram.messenger.ApplicationLoader
+import org.telegram.messenger.ApplicationLoader
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -535,8 +535,8 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         vpnServerStorage = VpnServerStorage(appDatabase)
         redeemStorage = RedeemStorage(appDatabase)
 
-//        ApplicationLoader.applicationLoaderInstance.init(this)
-//        ApplicationLoader.setLanguage(languageManager.currentLanguage)
+        ApplicationLoader.applicationLoaderInstance.init(this)
+        ApplicationLoader.setLanguage(languageManager.currentLanguage)
 
         safeProvider = SafeProvider("https://safewallet.anwang.com/")
         SafeInfoManager.startNet()
