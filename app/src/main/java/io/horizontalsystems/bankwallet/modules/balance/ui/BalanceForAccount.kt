@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,7 +72,8 @@ fun BalanceForAccount(
     navController: NavController,
     accountViewItem: AccountViewItem,
 ) {
-    val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
+    key(accountViewItem.id) {
+        val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
 
     val context = LocalContext.current
     val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
@@ -198,6 +200,7 @@ fun BalanceForAccount(
                 }
             }
         )
+    }
     }
 }
 
