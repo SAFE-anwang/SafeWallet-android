@@ -148,11 +148,15 @@ class SafeFourNodeService(
 							}
 
 							info?.allVoteNum = allVoteNum
+							if (isSuperNode) {
+								info?.sortOrder = nodeList.size
+							}
 							info?.let {
 								nodeList.add(it)
 							}
 						}
 						if (nodeList.isNotEmpty()) {
+							App.appDatabase.nodeInfoDao().deleteNodeInfoList(0)
 							App.appDatabase.nodeInfoDao().insert(nodeList)
 						}
 						nodeList

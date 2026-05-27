@@ -67,7 +67,7 @@ object SuperNodeCacheManager {
 
 						for (address in addresses) {
 							try {
-								val nodeInfo = fetchSuperNodeDetail(rpc.blockchain, address, walletAddress)
+								val nodeInfo = fetchSuperNodeDetail(rpc.blockchain, address, walletAddress,allNodes.size)
 								if (nodeInfo != null) {
 									allNodes.add(nodeInfo)
 								}
@@ -87,6 +87,7 @@ object SuperNodeCacheManager {
 
 				// 批量写入数据库
 				if (allNodes.isNotEmpty()) {
+					App.appDatabase.nodeInfoDao().deleteNodeInfoList(0)
 					App.appDatabase.nodeInfoDao().insert(allNodes)
 					Log.i(TAG, "Cached ${allNodes.size} super nodes to database")
 				}
@@ -213,7 +214,8 @@ object SuperNodeCacheManager {
 	private fun fetchSuperNodeDetail(
 		rpc: RpcBlockchainSafe4,
 		address: String,
-		walletAddress: Address
+		walletAddress: Address,
+		index: Int
 	): NodeInfo? {
 		return try {
 			val info = rpc.superNodeInfo(address)
@@ -237,7 +239,8 @@ object SuperNodeCacheManager {
 				name = info.name,
 				isEdit = walletAddress.hex.equals(info.creator.value, true),
 				availableLimit = NodeCovertFactory.scaleConvert(NodeCovertFactory.Super_Node_Create_Amount) - info.founders.sumOf { it.amount },
-				type = 0
+				type = 0,
+				sortOrder = index
 			)
 
 			// 补充投票和金额信息
