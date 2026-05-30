@@ -17,7 +17,7 @@ class LockRecordInfoRepository(
     }
 
     fun getEnableReleaseVotedRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
-        return lockRecordDao.getVotedRecordsPaged(creator, currentHeight, limit, offset)
+        return lockRecordDao.getVotedRecordsPaged(creator, limit, offset)
     }
 
     fun queryNeedUpdateRecords(creator: String): List<LockRecordInfo> {
@@ -39,7 +39,7 @@ class LockRecordInfoRepository(
     }
 
     fun getEnableReleaseVoteTotal(creator: String, currentHeight: Long): Int {
-        return lockRecordDao.getEnableReleaseVoteTotal(creator, currentHeight)
+        return lockRecordDao.getEnableReleaseVoteTotal(creator)
     }
 
     fun getWithdrawEnableCount(creator: String, currentHeight: Long): Long {
