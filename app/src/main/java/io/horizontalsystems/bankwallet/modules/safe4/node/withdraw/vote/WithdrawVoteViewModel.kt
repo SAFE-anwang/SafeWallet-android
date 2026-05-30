@@ -60,7 +60,7 @@ class WithdrawVoteViewModel(
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList,
+            withdrawList?.sortedBy { !it.enable },
             withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog,
             canWithdrawAll
