@@ -56,14 +56,7 @@ class LockedInfoViewModel(
 
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
         Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, ${withdrawAvailable?.size}")
-        val list = mutableListOf<WithdrawModule.WithDrawLockedInfo>()
-        withdrawAvailable?.let {
-            list.addAll(it)
-        }
-        withdrawList?.let {
-            val filterList = it.filter { isContain(it.id, it.type) == false }
-            list.addAll(filterList)
-        }
+        val list = withdrawList?.sortedWith(compareBy<WithdrawModule.WithDrawLockedInfo> { !it.withdrawEnable }.thenBy { it.id })
         return WithdrawModule.WithDrawLockInfoUiState(
             list,
             showConfirmationDialog,
@@ -97,14 +90,14 @@ class LockedInfoViewModel(
         if (page == 0) {
             getData()
         }
-        getWithdrawEnableRecord()
+//        getWithdrawEnableRecord()
     }
 
     fun start() {
         viewModelScope.launch(Dispatchers.IO) {
             getTotal()
             getData()
-            getWithdrawEnableRecord()
+//            getWithdrawEnableRecord()
             service.updateLockedInfo()
         }
         checkWithdrawAllState()
@@ -131,7 +124,7 @@ class LockedInfoViewModel(
                         it.address,
                         it.address2,
                         it.frozenAddr,
-                        (it.releaseHeight == 0L && (it.unlockHeight ?: 0)< (evmKit.lastBlockHeight ?: 0))
+                        ((it.unlockHeight ?: 0L) > 0L && (it.unlockHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
                                 || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address2 == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact,
@@ -149,7 +142,7 @@ class LockedInfoViewModel(
     private fun getData() {
         if (loading.get())  return
         loading.set(true)
-        Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}, ${ (withdrawAvailable?.size ?: 0)}")
+        Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}, ${ (withdrawAvailable?.size ?: 0)}, ${evmKit.lastBlockHeight}")
         if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0) + (withdrawAvailable?.size ?: 0))   return
         try {
             offset = page * limit
@@ -166,9 +159,8 @@ class LockedInfoViewModel(
                         it.address,
                         it.address2,
                         it.frozenAddr,
-                        ((it.unlockHeight ?: 0L) > 0L && (it.unlockHeight
-                            ?: 0) < (evmKit.lastBlockHeight ?: 0)) || ((it.releaseHeight
-                            ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                        ((it.unlockHeight ?: 0L) > 0L && (it.unlockHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
+                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact,
                         it.type
