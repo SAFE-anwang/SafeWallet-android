@@ -72,8 +72,7 @@ fun BalanceForAccount(
     navController: NavController,
     accountViewItem: AccountViewItem,
 ) {
-    key(accountViewItem.id) {
-        val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
+    val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
 
     val context = LocalContext.current
     val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
@@ -200,7 +199,6 @@ fun BalanceForAccount(
                 }
             }
         )
-    }
     }
 }
 

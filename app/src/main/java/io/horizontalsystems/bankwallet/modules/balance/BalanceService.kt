@@ -155,11 +155,6 @@ class BalanceService(
     }
 
     private suspend fun handleWalletsUpdate(wallets: List<Wallet>) = mutex.withLock {
-        // 过滤切换钱包时的旧数据：收到的钱包不属于当前 active account，跳过等待下一次正确发射
-        val currentAccountId = accountManager.activeAccount?.id
-        if (currentAccountId != null && wallets.isNotEmpty() && wallets.first().account.id != currentAccountId) {
-            return
-        }
 
         isWatchAccount = accountManager.activeAccount?.isWatchAccount == true
         hideZeroBalances = accountManager.activeAccount?.type?.hideZeroBalances == true

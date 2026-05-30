@@ -37,6 +37,7 @@ import io.horizontalsystems.marketkit.models.TokenEntity
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
@@ -96,8 +97,6 @@ class LiquidityListViewModel(
     var tempIndex: Int? = null
 
     private var removePercent = 25
-    private var requestCount = 1
-    private val Max_Request_Count = 5
     var uiState by mutableStateOf(
         LiquidityUiState(
             liquidityViewItems = liquidityViewItemsBSC,
@@ -241,9 +240,6 @@ class LiquidityListViewModel(
         liquidityItemsBSC.clear()
         liquidityItemsEth.clear()
         liquidityItemsSafe4.clear()
-        v3PositionItemsBSC.clear()
-        v3PositionItemsEth.clear()
-        v3PositionItemsSafe4.clear()
         /*getLiquidityJob = */viewModelScope.launch(Dispatchers.IO) {
             isRefreshing = true
             emitState()
@@ -252,50 +248,40 @@ class LiquidityListViewModel(
             val listEth = mutableListOf<LiquidityViewItem>()
             val listSafe4 = mutableListOf<LiquidityViewItem>()
             getAllPair(activeWallets).forEach { pair ->
-                requestCount = 1
-                requestError = false
                 val tokenEntityA = tokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
                 val tokenEntityB = tokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.BSC)?.let {
+                        retryIO(maxRetries = 3, baseDelayMs = 2000, tag = "V2-BSC-${pair.first.coin.code}/${pair.second.coin.code}") {
+                            getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.BSC)
+                        }?.let {
                             liquidityItemsBSC.add(it)
                             list.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
-                        if (requestCount == Max_Request_Count) {
-                            viewState = ViewState.Error(e)
-                        } else {
-                            requestCount ++
-                        }
                         requestError = true
+                        Log.e("LiquidityListVM", "V2 BSC ${pair.first.coin.code}/${pair.second.coin.code} failed: ${e.message}")
                     }
                 }
             }
             getAllPair(activeETHWallets).forEach { pair ->
-                requestCount = 1
-                requestError = false
                 val tokenEntityA = ethTokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference ?: getWethAddress(pair.first.token.blockchain.type)
                 val tokenEntityB = ethTokenEntityList.find { it.coinUid == pair.second.coin.uid }?.reference ?: getWethAddress(pair.second.token.blockchain.type)
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.ETH)?.let {
+                        retryIO(maxRetries = 3, baseDelayMs = 2000, tag = "V2-ETH-${pair.first.coin.code}/${pair.second.coin.code}") {
+                            getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.ETH)
+                        }?.let {
                             liquidityItemsEth.add(it)
                             listEth.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
-                        if (requestCount == Max_Request_Count) {
-                            viewState = ViewState.Error(e)
-                        } else {
-                            requestCount ++
-                        }
                         requestError = true
+                        Log.e("LiquidityListVM", "V2 ETH ${pair.first.coin.code}/${pair.second.coin.code} failed: ${e.message}")
                     }
                 }
             }
             getAllPair(activeSafe4Wallets).forEach { pair ->
-                requestCount = 1
-                requestError = false
                 var tokenEntityA = safe4TokenEntityList.find { it.coinUid == pair.first.coin.uid }?.reference
                 if (tokenEntityA.isNullOrEmpty()) {
                     tokenEntityA = getWethAddress(pair.first.token.blockchain.type)
@@ -306,22 +292,20 @@ class LiquidityListViewModel(
                 }
                 if (tokenEntityA != null && tokenEntityB != null) {
                     try {
-                        getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.SAFE4)?.let {
+                        retryIO(maxRetries = 3, baseDelayMs = 2000, tag = "V2-Safe4-${pair.first.coin.code}/${pair.second.coin.code}") {
+                            getLiquidity(pair.first, tokenEntityA, pair.second, tokenEntityB, LiquidityListModule.Tab.SAFE4)
+                        }?.let {
                             liquidityItemsSafe4.add(it)
                             listSafe4.add(liquidityViewItemFactory.viewItem(it))
                         }
                     } catch (e: Exception) {
-                        if (requestCount == Max_Request_Count) {
-                            viewState = ViewState.Error(e)
-                        } else {
-                            requestCount ++
-                        }
                         requestError = true
+                        Log.e("LiquidityListVM", "V2 Safe4 ${pair.first.coin.code}/${pair.second.coin.code} failed: ${e.message}")
                     }
                 }
             }
-            if (requestError && requestCount == Max_Request_Count) {
-                refresh()
+            if (requestError) {
+                Log.w("LiquidityListVM", "Some V2 liquidity pairs failed after all retries")
             }
             viewState = ViewState.Success
             liquidityViewItemsBSC = list.map { it }
@@ -548,13 +532,18 @@ class LiquidityListViewModel(
 
                 // BSC V3 positions
                 try {
-                    val bscPositions = queryV3Positions(web3jBsc, LiquidityListModule.Tab.BSC)
+                    val bscPositions = retryIO(maxRetries = 3, tag = "BSC-V3-query") {
+                        queryV3Positions(web3jBsc, LiquidityListModule.Tab.BSC)
+                    }
                     v3PositionItemsBSC.clear()
                     bscPositions.forEach { pos ->
                         val walletA = bscWalletsByAddress[pos.token0Address.lowercase()]
                         val walletB = bscWalletsByAddress[pos.token1Address.lowercase()]
                         if (walletA != null && walletB != null) {
-                            v3PositionItemsBSC.add(buildV3PositionItem(pos, walletA, walletB))
+                            val tokenAmounts = retryIO(maxRetries = 2, baseDelayMs = 1000, tag = "BSC-V3-amounts") {
+                                computeV3Amounts(web3jBsc, pos, walletA.decimal, walletB.decimal, Chain.BinanceSmartChain)
+                            }
+                            v3PositionItemsBSC.add(buildV3PositionItem(pos, walletA, walletB, tokenAmounts.first, tokenAmounts.second))
                         }
                     }
                     v3ViewItemsBSC = v3PositionItemsBSC.map { liquidityViewItemFactory.viewItemV3(it) }
@@ -564,13 +553,18 @@ class LiquidityListViewModel(
 
                 // ETH V3 positions
                 try {
-                    val ethPositions = queryV3Positions(web3jEth, LiquidityListModule.Tab.ETH)
+                    val ethPositions = retryIO(maxRetries = 3, tag = "ETH-V3-query") {
+                        queryV3Positions(web3jEth, LiquidityListModule.Tab.ETH)
+                    }
                     v3PositionItemsEth.clear()
                     ethPositions.forEach { pos ->
                         val walletA = ethWalletsByAddress[pos.token0Address.lowercase()]
                         val walletB = ethWalletsByAddress[pos.token1Address.lowercase()]
                         if (walletA != null && walletB != null) {
-                            v3PositionItemsEth.add(buildV3PositionItem(pos, walletA, walletB))
+                            val tokenAmounts = retryIO(maxRetries = 2, baseDelayMs = 1000, tag = "ETH-V3-amounts") {
+                                computeV3Amounts(web3jEth, pos, walletA.decimal, walletB.decimal, Chain.Ethereum)
+                            }
+                            v3PositionItemsEth.add(buildV3PositionItem(pos, walletA, walletB, tokenAmounts.first, tokenAmounts.second))
                         }
                     }
                     v3ViewItemsEth = v3PositionItemsEth.map { liquidityViewItemFactory.viewItemV3(it) }
@@ -612,16 +606,20 @@ class LiquidityListViewModel(
         wallets: List<Wallet>
     ): Map<String, Wallet> {
         val map = mutableMapOf<String, Wallet>()
+        val wethAddress = wallets.firstOrNull()?.let { getWethAddress(it.token.blockchain.type)?.lowercase() }
+
         tokenEntities.forEach { entity ->
             val wallet = wallets.firstOrNull { it.coin.uid == entity.coinUid }
             if (wallet != null) {
                 val reference = entity.reference
                 if (!reference.isNullOrBlank()) {
-                    map[reference.lowercase()] = wallet
+                    val refLower = reference.lowercase()
+                    map[refLower] = wallet
+                    // Only map WETH address when this wallet's token IS the native wrapped token
+                    if (refLower == wethAddress) {
+                        map[wethAddress!!] = wallet
+                    }
                 }
-                // Also map WETH address (same wallet for native token)
-                val weth = getWethAddress(wallet.token.blockchain.type)
-                map[weth.lowercase()] = wallet
             }
         }
         // Also add any custom tokens that might not have a TokenEntity
@@ -634,10 +632,66 @@ class LiquidityListViewModel(
         return map
     }
 
+    /**
+     * Retry an IO operation with exponential backoff.
+     */
+    private suspend fun <T> retryIO(
+        maxRetries: Int = 3,
+        baseDelayMs: Long = 2000,
+        tag: String = "retryIO",
+        block: () -> T
+    ): T {
+        var lastException: Exception? = null
+        for (attempt in 1..maxRetries) {
+            try {
+                return block()
+            } catch (e: Exception) {
+                lastException = e
+                if (attempt < maxRetries) {
+                    val waitMs = baseDelayMs * attempt
+                    Log.w(tag, "Attempt $attempt/$maxRetries failed: ${e.message}, retrying in ${waitMs}ms")
+                    delay(waitMs)
+                }
+            }
+        }
+        throw lastException!!
+    }
+
+    /**
+     * Compute actual token amounts for a V3 position by querying the pool's slot0.
+     */
+    private fun computeV3Amounts(
+        web3j: Web3j,
+        pos: V3PositionData,
+        decimals0: Int,
+        decimals1: Int,
+        chain: Chain
+    ): Pair<BigDecimal, BigDecimal> {
+        return try {
+            val poolAddress = LiquidityV3Utils.getPool(web3j, pos.token0Address, pos.token1Address, pos.fee, chain)
+                ?: return Pair(BigDecimal.ZERO, BigDecimal.ZERO)
+            val slot0 = LiquidityV3Utils.slot0(web3j, poolAddress)
+                ?: return Pair(BigDecimal.ZERO, BigDecimal.ZERO)
+            LiquidityV3Utils.calculateTokenAmountsFromLiquidity(
+                liquidity = pos.liquidity,
+                tickLower = pos.tickLower,
+                tickUpper = pos.tickUpper,
+                sqrtPriceX96 = slot0.sqrtPriceX96,
+                token0Decimals = decimals0,
+                token1Decimals = decimals1
+            )
+        } catch (e: Exception) {
+            Log.e("LiquidityListVM", "Error computing V3 amounts for ${pos.tokenId}: ${e.message}")
+            Pair(BigDecimal.ZERO, BigDecimal.ZERO)
+        }
+    }
+
     private fun buildV3PositionItem(
         pos: V3PositionData,
         walletA: Wallet,
-        walletB: Wallet
+        walletB: Wallet,
+        token0Amount: BigDecimal,
+        token1Amount: BigDecimal
     ): LiquidityListModule.V3PositionItem {
         return LiquidityListModule.V3PositionItem(
             tokenId = pos.tokenId,
@@ -649,8 +703,8 @@ class LiquidityListViewModel(
             tickLower = pos.tickLower,
             tickUpper = pos.tickUpper,
             liquidity = pos.liquidity,
-            token0Amount = BigDecimal(pos.tokensOwed0).divide(BigDecimal.TEN.pow(walletA.decimal), walletA.decimal, RoundingMode.DOWN),
-            token1Amount = BigDecimal(pos.tokensOwed1).divide(BigDecimal.TEN.pow(walletB.decimal), walletB.decimal, RoundingMode.DOWN),
+            token0Amount = token0Amount,
+            token1Amount = token1Amount,
             tokensOwed0 = pos.tokensOwed0,
             tokensOwed1 = pos.tokensOwed1,
             token0Decimals = walletA.decimal,
@@ -687,6 +741,7 @@ class LiquidityListViewModel(
 
         val positions = mutableListOf<V3PositionData>()
         val count = balance.toInt()
+        Log.d("LiquidityListVM", "Querying $count V3 positions for $ownerAddress, balance=$balance")
         for (i in 0 until count) {
             try {
                 val tokenId = LiquidityV3Utils.tokenOfOwnerByIndex(web3j, ownerAddress, BigInteger.valueOf(i.toLong()), chain)

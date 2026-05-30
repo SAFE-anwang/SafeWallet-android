@@ -170,6 +170,34 @@ object LiquidityV3Utils {
     }
 
     /**
+     * Get the V3 pool address for a token pair + fee tier by calling factory.getPool()
+     */
+    fun getPool(web3j: Web3j, token0: String, token1: String, fee: BigInteger, chain: Chain): String? {
+        val factory = getV3Factory(chain)
+        val function = Function(
+            "getPool",
+            listOf(Address(token0), Address(token1), Uint24(fee)),
+            listOf(object : TypeReference<Address>() {})
+        )
+        return try {
+            val encodedFunction = FunctionEncoder.encode(function)
+            val response = web3j.ethCall(
+                Transaction.createEthCallTransaction(
+                    "0x0000000000000000000000000000000000000000",
+                    factory,
+                    encodedFunction
+                ),
+                DefaultBlockParameterName.LATEST
+            ).send()
+            val result = FunctionReturnDecoder.decode(response.value, function.outputParameters)
+            if (result.isNotEmpty()) (result[0] as Address).value else null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting pool for $token0/$token1 fee=$fee: ${e.message}")
+            null
+        }
+    }
+
+    /**
      * Query pool's slot0 for sqrtPrice and current tick
      */
     fun slot0(web3j: Web3j, poolAddress: String): V3Slot0Data? {
@@ -218,7 +246,13 @@ object LiquidityV3Utils {
     }
 
     /**
-     * Calculate token amounts from liquidity and price range (simplified V3 math)
+     * Calculate token amounts from liquidity and price range using Uniswap V3 math.
+     *
+     * Formula (all sqrt prices in Q64.96 format):
+     *   amount0 = L * 2^96 * (sb - sp) / (sp * sb)   when sp is within [sa, sb]
+     *   amount1 = L * (sp - sa) / 2^96
+     *
+     * Returns raw amounts (before dividing by token decimals).
      */
     fun calculateTokenAmountsFromLiquidity(
         liquidity: BigInteger,
@@ -228,77 +262,70 @@ object LiquidityV3Utils {
         token0Decimals: Int,
         token1Decimals: Int
     ): Pair<BigDecimal, BigDecimal> {
-        // Calculate sqrt prices at boundaries
         val sqrtPLower = tickToSqrtPrice(tickLower)
         val sqrtPUpper = tickToSqrtPrice(tickUpper)
         val sqrtP = sqrtPriceX96
 
-        // Clamp sqrtP to the range
+        // Clamp current price to the position's range
         val sqrtPrice = when {
             sqrtP < sqrtPLower -> sqrtPLower
             sqrtP > sqrtPUpper -> sqrtPUpper
             else -> sqrtP
         }
 
-        // amount0 = L * (sqrtPUpper - sqrtPrice) / (sqrtPrice * sqrtPUpper) * 10^dec0 / 2^96
-        // amount1 = L * (sqrtPrice - sqrtPLower) / 2^96 * 10^dec1
+        val Q96 = BigInteger.ONE.shiftLeft(96)
 
-        val Q96 = BigInteger.valueOf(2).pow(96)
-
-        // amount0 calculation with higher precision
+        // --- amount0 = L * Q96 * (sb - sp) / (sp * sb) ---
         val sqrtDiff0 = sqrtPUpper.subtract(sqrtPrice)
-        val numerator0 = liquidity.multiply(sqrtDiff0)
+        val numerator0 = liquidity.multiply(Q96).multiply(sqrtDiff0)
         val denominator0 = sqrtPrice.multiply(sqrtPUpper)
-        
-        val amount0Scaled = numerator0.multiply(BigInteger.TEN.pow(token0Decimals))
-        val amount0WithQ96 = amount0Scaled.divide(denominator0)
 
-        val amount0 = BigDecimal(amount0WithQ96).divide(BigDecimal(Q96), token0Decimals + 2, RoundingMode.DOWN)
-            .setScale(token0Decimals, RoundingMode.DOWN)
+        val amount0Raw = if (denominator0 > BigInteger.ZERO) numerator0.divide(denominator0) else BigInteger.ZERO
+        val amount0 = BigDecimal(amount0Raw).divide(BigDecimal.TEN.pow(token0Decimals), token0Decimals, RoundingMode.DOWN)
 
-        // amount1 calculation
+        // --- amount1 = L * (sp - sa) / Q96 ---
         val sqrtDiff1 = sqrtPrice.subtract(sqrtPLower)
-        val amount1Raw = liquidity.multiply(sqrtDiff1).multiply(BigInteger.TEN.pow(token1Decimals))
-        val amount1 = BigDecimal(amount1Raw).divide(BigDecimal(Q96), token1Decimals + 2, RoundingMode.DOWN)
-            .setScale(token1Decimals, RoundingMode.DOWN)
+        val numerator1 = liquidity.multiply(sqrtDiff1)
+        val amount1Raw = numerator1.divide(Q96)
+        val amount1 = BigDecimal(amount1Raw).divide(BigDecimal.TEN.pow(token1Decimals), token1Decimals, RoundingMode.DOWN)
 
         return Pair(amount0, amount1)
     }
 
     /**
-     * Convert tick to sqrt price (Q64.96 format)
+     * Convert tick to sqrt price (Q64.96 format) using the Uniswap V3 formula:
+     * sqrtPriceX96 = 1.0001^(tick/2) * 2^96
      */
     private fun tickToSqrtPrice(tick: BigInteger): BigInteger {
         val tickVal = tick.toLong()
         val absTick = abs(tickVal)
-        
-        var sqrtPrice = BigInteger("0")
-        
-        // Use precomputed values for common tick ranges
-        if (absTick and 0x1 != 0L) sqrtPrice = BigInteger("FFFCB933BD6FAD37AA2D162D1A594001", 16)
-        // Simplified - for production, use full tick math library
-        // For now approximate using 1.0001^tick formula
-        val pow1_0001 = powBase1_0001(tickVal)
-        sqrtPrice = multiplyShift(pow1_0001, 96)
+
+        // 1.0001^(|tick|/2) using BigDecimal for precision
+        val halfTick = absTick / 2
+        val isOdd = absTick % 2 != 0L
+
+        // Compute 1.0001^halfTick using BigDecimal with sufficient precision
+        val ONE = BigDecimal("1.0001")
+        val Q96 = BigDecimal.valueOf(2).pow(96)
+        val powerScale = 30 // extra precision to avoid rounding errors
+
+        val halfPrice = ONE.pow(halfTick.toInt())
+        // If absTick is odd, multiply by sqrt(1.0001)
+        val basePrice = if (isOdd) {
+            halfPrice.multiply(BigDecimal("1.00004999875006249609400374031529"), java.math.MathContext(40))
+        } else {
+            halfPrice
+        }
+
+        // Multiply by 2^96
+        val sqrtPriceX96 = basePrice.multiply(Q96).setScale(0, RoundingMode.DOWN).toBigInteger()
 
         return if (tickVal < 0) {
-            BigInteger("2").pow(192).divide(sqrtPrice)
+            val Q192 = BigInteger.ONE.shiftLeft(192)
+            Q192.divide(sqrtPriceX96)
         } else {
-            sqrtPrice
+            sqrtPriceX96
         }
-    }
-
-    private fun powBase1_0001(tickVal: Long): BigInteger {
-        // Very simplified: use BigDecimal for now
-        val base = BigDecimal("1.0001")
-        val result = base.pow(abs(tickVal).toInt())
-        // Convert to Q192 format (shift left by 192 binary = scale by 2^192)
-        val resultScaled = result.multiply(BigDecimal.valueOf(2).pow(192))
-        return resultScaled.toBigInteger()
-    }
-
-    private fun multiplyShift(value: BigInteger, shift: Int): BigInteger {
-        return value.divide(BigInteger.valueOf(2).pow(192 - shift))
     }
 
     /**
