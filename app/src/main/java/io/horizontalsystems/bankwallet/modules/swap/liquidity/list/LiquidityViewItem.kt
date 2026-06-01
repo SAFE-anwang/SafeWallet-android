@@ -82,7 +82,11 @@ class LiquidityViewItemFactory {
     ): LiquidityViewItem {
         val df = DecimalFormat("##.########")
         val feeTier = formatFeeTier(item.fee)
-        val tickRange = formatTickRange(item.tickLower, item.tickUpper)
+        val tickRange = try {
+            formatTickRange(item.tickLower, item.tickUpper)
+        } catch (e: Exception) {
+            "N/A"
+        }
 
         return LiquidityViewItem(
             walletA = item.walletA,
@@ -110,9 +114,10 @@ class LiquidityViewItemFactory {
     }
 
     private fun formatTickRange(tickLower: BigInteger, tickUpper: BigInteger): String {
-        // Tick range is display-only for now
-        val lowerPrice = BigDecimal("1.0001").pow(tickLower.toInt())
-        val upperPrice = BigDecimal("1.0001").pow(tickUpper.toInt())
+        // Tick range is display-only. Use Double to avoid BigDecimal.pow() ArithmeticException
+        // when tick values are large (Uniswap V3 tick range: -887272 ~ 887272)
+        val lowerPrice = Math.pow(1.0001, tickLower.toDouble())
+        val upperPrice = Math.pow(1.0001, tickUpper.toDouble())
         val df = DecimalFormat("#.#####")
         return "${df.format(lowerPrice)} - ${df.format(upperPrice)}"
     }

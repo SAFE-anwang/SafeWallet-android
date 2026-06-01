@@ -131,6 +131,7 @@ class EvmLabelManager(
             "0x4b86c225" -> Translator.getString(R.string.Method_SRC20_Lock)
             "0x49530e18" -> Translator.getString(R.string.Method_USDT_Cross)
             "0xedad400c" -> Translator.getString(R.string.Swap)
+            "0x0c49ccbe" -> Translator.getString(R.string.liquidity_remove_title)
             else -> methodLabelDao.get(methodId.lowercase())?.label
         }
     }
