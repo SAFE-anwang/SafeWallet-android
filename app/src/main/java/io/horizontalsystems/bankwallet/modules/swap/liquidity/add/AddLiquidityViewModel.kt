@@ -280,8 +280,8 @@ class AddLiquidityViewModel(
             version = version,
             dex = dex,
             providerViewItems = providerViewItems,
-            tokenAState = tokenAState,
-            tokenBState = tokenBState,
+            tokenAState = wrapNativeForDisplay(tokenAState),
+            tokenBState = wrapNativeForDisplay(tokenBState),
             availableBalance = availableBalance,
             availableBalanceB = availableBalanceB,
             amountTypeSelect = amountTypeSelect,
@@ -297,6 +297,30 @@ class AddLiquidityViewModel(
             else null,
             showPriceRange = version == AddLiquidityModule.Version.V3,
         )
+    }
+
+    /**
+     * 如果选中的是原生币(BSC的BNB、Ethereum的ETH), 自动显示为对应的包装代币(WBNB/WETH)
+     */
+    private fun wrapNativeForDisplay(coinState: LiquidityMainModule.SwapCoinCardViewState): LiquidityMainModule.SwapCoinCardViewState {
+        val token = coinState.token ?: return coinState
+        if (token.type !is TokenType.Native) return coinState
+
+        val wrappedAddress = getWrappedNativeAddress(token.blockchainType)
+        if (wrappedAddress.isEmpty()) return coinState
+
+        val wrappedToken = App.evmBlockchainManager.getBaseToken(token.blockchainType, wrappedAddress)
+        return wrappedToken?.let { coinState.copy(token = it) } ?: coinState
+    }
+
+    private fun getWrappedNativeAddress(blockchainType: BlockchainType): String = when (blockchainType) {
+        BlockchainType.Ethereum -> "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        BlockchainType.BinanceSmartChain -> "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+        BlockchainType.SafeFour -> "0x0000000000000000000000000000000000001101"
+        BlockchainType.Polygon -> "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"
+        BlockchainType.Optimism -> "0x4200000000000000000000000000000000000006"
+        BlockchainType.ArbitrumOne -> "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+        else -> ""
     }
 
     private fun subscribeToTradeService() {
