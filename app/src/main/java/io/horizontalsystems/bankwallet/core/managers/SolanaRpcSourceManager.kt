@@ -20,9 +20,9 @@ class SolanaRpcSourceManager(
         get() = rpcSourceSubjectUpdate
 
     val allRpcSources = listOf(
-        RpcSource.TritonOne,
-        RpcSource.Serum,
         RpcSource.Alchemy(App.appConfigProvider.solanaAlchemyApiKey),
+//        RpcSource.TritonOne,
+//        RpcSource.Serum,
     )
 
     val rpcSource: RpcSource
