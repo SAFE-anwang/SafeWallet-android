@@ -46,9 +46,9 @@ abstract class BaseAddLiquidityConfirmationFragment : BaseFragment() {
 
     /**
      * 交易成功后的 pop 目标 fragment ID。
-     * V2 默认 pop 到 liquidityFragment，V3 覆盖为 addLiquidityFragment。
+     * 默认 pop 到 addLiquidityFragment（含），即关闭 confirmationFragment + addLiquidityFragment 回到前一个页面。
      */
-    protected open val popTargetFragmentId: Int = R.id.liquidityFragment
+    protected open val popTargetFragmentId: Int = R.id.addLiquidityFragment
 
     private var snackbarInProcess: CustomSnackbar? = null
 
