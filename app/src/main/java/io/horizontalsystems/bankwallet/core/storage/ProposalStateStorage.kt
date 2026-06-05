@@ -1,11 +1,7 @@
 package io.horizontalsystems.bankwallet.core.storage
 
-import io.horizontalsystems.bankwallet.core.IAccountsStorage
-import io.horizontalsystems.bankwallet.core.hexToByteArray
-import io.horizontalsystems.bankwallet.core.toRawHexString
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.ProposalState
-import io.reactivex.Flowable
 
 class ProposalStateStorage(appDatabase: AppDatabase) {
 
@@ -14,15 +10,18 @@ class ProposalStateStorage(appDatabase: AppDatabase) {
     }
 
     fun get(address: String, proposalId: Int): ProposalState? {
-        return dao.get(address, proposalId)
+        val chainType = getChainType()
+        return dao.get(address, proposalId, chainType)
     }
 
      fun save(proposalState: ProposalState) {
-        dao.insert(proposalState)
+        val chainType = getChainType()
+        dao.insert(proposalState.copy(chainType = chainType))
     }
 
     fun update(proposalState: ProposalState) {
         dao.update(proposalState)
     }
 
+    private fun getChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
 }

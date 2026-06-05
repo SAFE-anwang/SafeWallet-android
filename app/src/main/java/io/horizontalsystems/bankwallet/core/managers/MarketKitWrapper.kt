@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
 import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.App.Companion.appConfigProvider
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
@@ -45,7 +46,7 @@ class MarketKitWrapper(
             hsApiKey = hsApiKey,
             appVersion = appConfigProvider.appVersion,
             appId = appConfigProvider.appId,
-            isSafe4TestNet = Chain.SafeFour.isSafeFourTestNet
+            isSafe4TestNet = App.localStorage.isSafe4TestNet
         )
     }
 

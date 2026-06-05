@@ -268,6 +268,7 @@ class SendEvmTransactionService(
                     val positionManagerAddress = when (evmKitWrapper.evmKit.chain) {
                         Chain.Ethereum -> Constants.DEX.UNISWAP_V3_POSITION_MANAGER_ADDRESS
                         Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V3_POSITION_MANAGER_ADDRESS
+                        Chain.SafeFourTestNet,
                         Chain.SafeFour -> Constants.DEX.SAFESWAP_V3_POSITION_MANAGER_ADDRESS
                         else -> Constants.DEX.PANCAKE_V3_POSITION_MANAGER_ADDRESS
                     }
@@ -281,7 +282,7 @@ class SendEvmTransactionService(
 
                     // 设置最低 Gas 价格（1 Gwei）
                     val minGasPrice = BigInteger.valueOf(5_000_000_0)
-                    val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                    val value = if ((evmKit.chain == Chain.SafeFour || evmKit.chain == Chain.SafeFourTestNet) && !sendEvmData.transactionData.isBothErc) {
                         sendEvmData.transactionData.value
                     } else {
                         BigInteger.ZERO
@@ -335,13 +336,14 @@ class SendEvmTransactionService(
                     val routerAddress = when (evmKitWrapper.evmKit.chain) {
                         Chain.Ethereum -> Constants.DEX.UNISWAP_V2_ROUTER_ADDRESS
                         Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
+                        Chain.SafeFourTestNet,
                         Chain.SafeFour -> Constants.DEX.SAFESWAP_SAFE4_V2_ROUTER_ADDRESS
                         else -> Constants.DEX.PANCAKE_V2_ROUTER_ADDRESS
                     }
                     val gasPrice: BigInteger = web3j.ethGasPrice()
                             .send()
                             .getGasPrice()
-                    val value = if (evmKit.chain == Chain.SafeFour && !sendEvmData.transactionData.isBothErc) {
+                    val value = if ((evmKit.chain == Chain.SafeFour || evmKit.chain == Chain.SafeFourTestNet) && !sendEvmData.transactionData.isBothErc) {
                         sendEvmData.transactionData.value
                     } else {
                         BigInteger.ZERO

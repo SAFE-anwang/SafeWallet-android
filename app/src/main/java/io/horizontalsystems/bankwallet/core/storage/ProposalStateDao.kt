@@ -16,7 +16,7 @@ interface ProposalStateDao {
     fun update(proposalState: ProposalState)
 
     //"SELECT `value` FROM SyncerState WHERE `key` = :key"
-    @Query("SELECT * FROM ProposalState WHERE `address` = :address AND `proposalId` = :proposalId")
-    fun get(address: String, proposalId: Int): ProposalState?
+    @Query("SELECT * FROM ProposalState WHERE `address` = :address AND `proposalId` = :proposalId AND `chainType` = :chainType")
+    fun get(address: String, proposalId: Int, chainType: Int): ProposalState?
 
 }

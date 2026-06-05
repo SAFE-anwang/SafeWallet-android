@@ -15,6 +15,7 @@ object LiquidityPair {
         val pairAddress = when(chain) {
             Chain.Ethereum -> PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
             Chain.BinanceSmartChain -> PairAddress.getPairAddressForPancakeSwap(tokenA.address, tokenB.address)
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> PairAddress.getPairAddressForSafe4Swap(tokenA.address, tokenB.address)
             else -> PairAddress.getPairAddressForUniswap(tokenA.address, tokenB.address)
         }

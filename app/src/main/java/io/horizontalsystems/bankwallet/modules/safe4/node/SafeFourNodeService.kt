@@ -156,8 +156,9 @@ class SafeFourNodeService(
 							}
 						}
 						if (nodeList.isNotEmpty()) {
-							App.appDatabase.nodeInfoDao().deleteNodeInfoList(0)
-							App.appDatabase.nodeInfoDao().insert(nodeList)
+							val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
+							App.appDatabase.nodeInfoDao().deleteNodeInfoList(0, chainType)
+							App.appDatabase.nodeInfoDao().insert(nodeList.map { it.copy(chainType = chainType) })
 						}
 						nodeList
 					}

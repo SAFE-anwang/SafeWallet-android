@@ -51,8 +51,14 @@ class EvmBlockchainManager(
         BlockchainType.ArbitrumOne -> Chain.ArbitrumOne
         BlockchainType.Gnosis -> Chain.Gnosis
         BlockchainType.Fantom -> Chain.Fantom
-        BlockchainType.SafeFour -> Chain.SafeFour
+        BlockchainType.SafeFour -> if (Chain.isSafe4TestMode) Chain.SafeFourTestNet else Chain.SafeFour
         else -> throw IllegalArgumentException("Unsupported blockchain type $blockchainType")
+    }
+
+    fun resyncSafeFour() {
+        val blockchainType = BlockchainType.SafeFour
+        evmKitManagersMap.remove(blockchainType)
+        syncSourceManager.resync(blockchainType)
     }
 
     fun getBlockchain(chainId: Int): Blockchain? =

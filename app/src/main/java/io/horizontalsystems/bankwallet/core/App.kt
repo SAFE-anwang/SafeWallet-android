@@ -22,6 +22,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.core.factories.AccountFactory
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
@@ -275,6 +276,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             thirdKeyboardStorage = this
             marketStorage = this
         }
+
+        // Initialize Safe4 testnet mode from saved setting
+        Chain.isSafe4TestMode = localStorage.isSafe4TestNet
 
         paidActionSettingsManager = PaidActionSettingsManager(localStorage)
 

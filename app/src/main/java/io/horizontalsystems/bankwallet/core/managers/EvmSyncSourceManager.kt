@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
 import android.net.Uri
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
@@ -243,7 +244,7 @@ class EvmSyncSourceManager(
                     evmSyncSource(
                             blockchainType,
                             "SAFE4",
-                            RpcSource.safeFourHttp(),
+                            RpcSource.safeFourHttp(App.localStorage.isSafe4TestNet),
                             defaultTransactionSource(blockchainType)
                     )
             )
@@ -347,6 +348,10 @@ class EvmSyncSourceManager(
         }
 
         _syncSourcesUpdatedFlow.tryEmit(blockchainType)
+    }
+
+    fun resync(blockchainType: BlockchainType) {
+        syncSourceSubject.onNext(blockchainType)
     }
 
 }

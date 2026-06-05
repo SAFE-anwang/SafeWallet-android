@@ -58,6 +58,7 @@ object LiquidityV3Utils {
         return when (chain) {
             Chain.BinanceSmartChain -> Constants.DEX.PANCAKE_V3_POSITION_MANAGER_ADDRESS
             Chain.Ethereum -> Constants.DEX.UNISWAP_V3_POSITION_MANAGER_ADDRESS
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> Constants.DEX.SAFESWAP_V3_POSITION_MANAGER_ADDRESS
             else -> Constants.DEX.UNISWAP_V3_POSITION_MANAGER_ADDRESS
         }
@@ -70,6 +71,7 @@ object LiquidityV3Utils {
         return when (chain) {
             Chain.BinanceSmartChain -> "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
             Chain.Ethereum -> "0x1F98431c8aD98523631AE4a59f267346ea31F984"
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865" // use same as BSC for now
             else -> "0x1F98431c8aD98523631AE4a59f267346ea31F984"
         }

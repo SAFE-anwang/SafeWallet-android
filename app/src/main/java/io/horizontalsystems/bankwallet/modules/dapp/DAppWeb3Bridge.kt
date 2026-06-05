@@ -41,7 +41,7 @@ class DAppWeb3Bridge(
             urlLower.contains("pancakeswap") || urlLower.contains("pancake") -> Chain.BinanceSmartChain
             urlLower.contains("bsc") || urlLower.contains("binance") -> Chain.BinanceSmartChain
             urlLower.contains("uniswap") -> Chain.Ethereum
-            urlLower.contains("safe4") -> Chain.SafeFour
+            urlLower.contains("safe4") -> if (App.localStorage.isSafe4TestNet) Chain.SafeFourTestNet else Chain.SafeFour
             else -> Chain.Ethereum
         }
     }
@@ -50,6 +50,7 @@ class DAppWeb3Bridge(
         when (defaultChain) {
             Chain.Ethereum -> BlockchainType.Ethereum
             Chain.BinanceSmartChain -> BlockchainType.BinanceSmartChain
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> BlockchainType.SafeFour
             Chain.Polygon -> BlockchainType.Polygon
             else -> BlockchainType.Ethereum

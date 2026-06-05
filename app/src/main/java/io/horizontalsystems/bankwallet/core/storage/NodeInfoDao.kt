@@ -21,16 +21,16 @@ interface NodeInfoDao {
     @Update
     fun update(token: NodeInfo)
 
-    @Query("DELETE FROM NodeInfo WHERE id = :id")
-    fun delete(id: Long)
+    @Query("DELETE FROM NodeInfo WHERE id = :id AND chainType = :chainType")
+    fun delete(id: Long, chainType: Int)
 
 
 
-    @Query("DELETE FROM NodeInfo WHERE type=:type")
-    fun deleteNodeInfoList(type: Int)
+    @Query("DELETE FROM NodeInfo WHERE type=:type AND chainType = :chainType")
+    fun deleteNodeInfoList(type: Int, chainType: Int)
 
 
-    @Query("SELECT * FROM NodeInfo WHERE type=:type ORDER BY sortOrder ASC")
-    fun getNodeInfoList(type: Int): List<NodeInfo>
+    @Query("SELECT * FROM NodeInfo WHERE type=:type AND chainType = :chainType ORDER BY sortOrder ASC")
+    fun getNodeInfoList(type: Int, chainType: Int): List<NodeInfo>
 
 }

@@ -80,6 +80,7 @@ class EvmAdapter(evmKitWrapper: EvmKitWrapper, coinManager: ICoinManager) :
                 Chain.ArbitrumOne,
                 Chain.Gnosis,
                 Chain.SafeFour,
+                Chain.SafeFourTestNet,
             )
             networkTypes.forEach {
                 EthereumKit.clear(App.instance, it, walletId)

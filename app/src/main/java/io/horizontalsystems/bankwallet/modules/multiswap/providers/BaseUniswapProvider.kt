@@ -116,7 +116,7 @@ abstract class BaseUniswapProvider : IMultiSwapProvider {
         val blockchainType = tokenIn.blockchainType
         val evmBlockchainHelper = EvmBlockchainHelper(blockchainType)
         val chain = evmBlockchainHelper.chain
-        Extensions.isSafeSwap = chain == Chain.SafeFour
+        Extensions.isSafeSwap = chain == Chain.SafeFour || chain == Chain.SafeFourTestNet
         val rpcSourceHttp = evmBlockchainHelper.getRpcSourceHttp()
 
         val tradeOptions = TradeOptions(

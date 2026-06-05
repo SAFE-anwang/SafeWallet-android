@@ -39,7 +39,8 @@ object SRCLockManager {
 
     fun getLockAmount(contract: String, address: String): BigInteger {
         Log.d("SRC20LockedInfoService", "$contract,$address")
-        val lockAmount = App.appDatabase.src20RecordDao().getLockValue(address.lowercase(), contract.lowercase())
+        val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
+        val lockAmount = App.appDatabase.src20RecordDao().getLockValue(address.lowercase(), contract.lowercase(), chainType)
         return lockAmount.sumOf { it }
     }
 

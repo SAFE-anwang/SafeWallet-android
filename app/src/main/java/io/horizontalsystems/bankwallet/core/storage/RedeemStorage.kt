@@ -1,11 +1,7 @@
 package io.horizontalsystems.bankwallet.core.storage
 
-import io.horizontalsystems.bankwallet.core.IAccountsStorage
-import io.horizontalsystems.bankwallet.core.hexToByteArray
-import io.horizontalsystems.bankwallet.core.toRawHexString
-import io.horizontalsystems.bankwallet.entities.*
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.Redeem
-import io.reactivex.Flowable
 
 class RedeemStorage(appDatabase: AppDatabase) {
 
@@ -14,11 +10,13 @@ class RedeemStorage(appDatabase: AppDatabase) {
     }
 
     fun allRedeem(): List<Redeem> {
-        return dao.getAll()
+        val chainType = getChainType()
+        return dao.getAll(chainType)
     }
 
      fun save(redeem: Redeem) {
-        dao.insert(redeem)
+        val chainType = getChainType()
+        dao.insert(redeem.copy(chainType = chainType))
     }
 
     fun update(redeem: Redeem) {
@@ -26,6 +24,9 @@ class RedeemStorage(appDatabase: AppDatabase) {
     }
 
     fun clearAll() {
-        dao.clear()
+        val chainType = getChainType()
+        dao.clear(chainType)
     }
+
+    private fun getChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
 }

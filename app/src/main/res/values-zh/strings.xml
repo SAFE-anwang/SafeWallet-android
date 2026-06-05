@@ -1060,6 +1060,7 @@
     <string name="SettingsAboutApp_AppVersion">应用程序版本</string>
     <!-- Blockchain Settings  -->
     <string name="BlockchainSettings_Title">区块链设置</string>
+    <string name="Safe4_TestNet_Title">SAFE 测试网络</string>
     <!-- Backup Manager -->
     <string name="BackupManager_Title">备份管理器</string>
     <string name="BackupManager_RestoreBackup">还原备份</string>

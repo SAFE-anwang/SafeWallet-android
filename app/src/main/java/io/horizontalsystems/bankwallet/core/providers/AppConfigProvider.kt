@@ -6,12 +6,12 @@ import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.net.ApiKeyUtil
-import io.horizontalsystems.ethereumkit.models.Chain
 import java.util.*
 import io.horizontalsystems.marketkit.models.BlockchainType
 import java.math.BigDecimal
 
-class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
+class AppConfigProvider(val index: Int, val localStorage: ILocalStorage) {
+
 
     val appId by lazy { localStorage.appId }
     val appVersion by lazy { BuildConfig.VERSION_NAME }
@@ -68,7 +68,7 @@ class AppConfigProvider(val index: Int, localStorage: ILocalStorage) {
     private val mainSafe4Api = "https://safe4.anwang.com/api/"
 
     val safe4Api by lazy {
-        if (Chain.SafeFour.isSafe4TestNetId) {
+        if (localStorage.isSafe4TestNet) {
             testSafe4Api
         } else {
             mainSafe4Api

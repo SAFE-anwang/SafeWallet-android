@@ -45,13 +45,8 @@ public class Connect {
         switch (chain) {
             case Ethereum -> url = eth_endpoint;
             case BinanceSmartChain -> url = endpoint;
-            case SafeFour -> {
-                if (Chain.SafeFour.isSafe4TestNetId()) {
-                    url = "https://safe4testnet.anwang.com/rpc";
-                } else {
-                    url = "https://safe4.anwang.com/rpc";
-                }
-            }
+            case SafeFour -> url = "https://safe4.anwang.com/rpc";
+            case SafeFourTestNet -> url = "https://safe4testnet.anwang.com/rpc";
         }
         /*if (isETH) {
             url = eth_endpoint;

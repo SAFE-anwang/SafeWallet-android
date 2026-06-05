@@ -20,5 +20,6 @@ data class ProposalRecordInfo(
     val state: Int,
     val createHeight: Long?,
     val updateHeight: Long?,
-    val newProposal: Int = 0
+    val newProposal: Int = 0,
+    val chainType: Int = 0
 )

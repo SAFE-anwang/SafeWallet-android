@@ -7,5 +7,6 @@ data class ProposalState(
 		val proposalId: Int,
 		val address: String,
 		val state: Int,
+		val chainType: Int = 0
 ) {
 }

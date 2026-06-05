@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.amount.AmountValidator
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module.getSafeChain
 import io.horizontalsystems.bankwallet.modules.swap.SwapMainModule
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.LiquidityPair
 import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.BalanceOf
@@ -123,7 +124,7 @@ class LiquidityListViewModel(
 
     private var web3jBsc = Connect.connect(Chain.BinanceSmartChain)
     private var web3jEth = Connect.connect(Chain.Ethereum)
-    private var web3jSafe4 = Connect.connect(Chain.SafeFour)
+    private var web3jSafe4 = Connect.connect(getSafeChain())
 
     val removeErrorMessage = SingleLiveEvent<String?>()
     val removeSuccessMessage = SingleLiveEvent<String>()
