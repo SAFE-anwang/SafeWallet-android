@@ -29,9 +29,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 class MoneroAdapter(
@@ -47,6 +50,12 @@ class MoneroAdapter(
     private val balanceStateUpdatedSubject: PublishSubject<Unit> = PublishSubject.create()
 
     private var balance = Balance(0, 0)
+
+    // Mutex to protect concurrent kit operations (saveState, stop, start)
+    private val kitMutex = Mutex()
+
+    // Flag to prevent entering background saveState from racing with manual stop()
+    private val isStopping = AtomicBoolean(false)
 
     override var balanceState: AdapterState = kit.syncStateFlow.value.toAdapterState()
 
@@ -81,22 +90,30 @@ class MoneroAdapter(
         kit.allTransactionsFlow.collectWith(coroutineScope, transactionsProvider::onTransactions)
 
         coroutineScope.launch {
-            kit.start()
+            kitMutex.withLock {
+                kit.start()
+            }
         }
 
         coroutineScope.launch {
             backgroundManager.stateFlow.collect {
-                if (it == BackgroundManagerState.EnterBackground) {
-                    kit.saveState()
+                if (it == BackgroundManagerState.EnterBackground && !isStopping.get()) {
+                    kitMutex.withLock {
+                        kit.saveState()
+                    }
                 }
             }
         }
     }
 
     override fun stop() {
+        isStopping.set(true)
+
         val job = coroutineScope.launch {
-            kit.saveState()
-            kit.stop()
+            kitMutex.withLock {
+                kit.saveState()
+                kit.stop()
+            }
         }
 
         job.invokeOnCompletion {
@@ -107,8 +124,10 @@ class MoneroAdapter(
     override fun refresh() {
         if (kit.syncStateFlow.value is SyncState.NotSynced) {
             coroutineScope.launch {
-                kit.stop()
-                kit.start()
+                kitMutex.withLock {
+                    kit.stop()
+                    kit.start()
+                }
             }
         }
     }
