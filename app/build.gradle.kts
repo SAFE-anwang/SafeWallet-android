@@ -24,7 +24,7 @@ android {
         applicationId = "com.anwang.safewallet"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
-        versionCode = 163
+        versionCode = 165
         versionName = "0.47.5.2606"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
