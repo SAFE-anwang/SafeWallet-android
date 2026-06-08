@@ -57,7 +57,14 @@ class SendEvmConfirmationFragment : BaseComposeFragment() {
             get() = TransactionData(
                 Address(transactionDataParcelable.toAddress),
                 transactionDataParcelable.value,
-                transactionDataParcelable.input
+                transactionDataParcelable.input,
+                lockTime = transactionDataParcelable.lockTime,
+                isBothErc = transactionDataParcelable.isBothErc,
+                isSRC20Lock = transactionDataParcelable.isSRC20Lock,
+                safe4Swap = transactionDataParcelable.safe4Swap,
+                times = transactionDataParcelable.times,
+                spaceDay = transactionDataParcelable.spaceDay,
+                startDay = transactionDataParcelable.startDay
             )
 
         constructor(

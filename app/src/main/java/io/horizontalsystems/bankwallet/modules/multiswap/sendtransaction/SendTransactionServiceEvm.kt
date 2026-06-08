@@ -255,7 +255,7 @@ class SendTransactionServiceEvm(
         val nonce = transaction.nonce
 
         val fullTransaction = evmKitWrapper
-            .sendSingle(transactionData, gasPrice, gasLimit, nonce, mevProtectionEnabled).await()
+            .sendSingle(transactionData, gasPrice, gasLimit, nonce, mevProtectionEnabled, transactionData.lockTime).await()
         return SendTransactionResult.Evm(fullTransaction)
     }
 
