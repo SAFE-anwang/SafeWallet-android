@@ -153,12 +153,7 @@ object SafeInfoManager {
             ChainBscInfoPO("", "","0.25", safe2bsc = true, bsc2safe = true),
             MaticChainInfo("", "","0.25", safe2matic = true, matic2safe = true)
         )
-        val safeInfoPO = when (chain) {
-            Chain.Ethereum -> mainNet
-            Chain.EthereumRopsten -> testNet
-            else -> throw WSafeManager.UnsupportedChainError.NoSafeNetType
-        }
-        return safeInfoPO
+        return if (chain.isSafe4TestNetId) testNet else mainNet
     }
 
     private fun defaultSafeUsdtInfo(chain: Chain): SafeUsdtInfoPO {

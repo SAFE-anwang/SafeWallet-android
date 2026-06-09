@@ -67,13 +67,8 @@ class AppConfigProvider(val index: Int, val localStorage: ILocalStorage) {
     private val testSafe4Api = "https://safe4testnet.anwang.com/api/"
     private val mainSafe4Api = "https://safe4.anwang.com/api/"
 
-    val safe4Api by lazy {
-        if (localStorage.isSafe4TestNet) {
-            testSafe4Api
-        } else {
-            mainSafe4Api
-        }
-    }
+    val safe4Api: String
+        get() = if (localStorage.isSafe4TestNet) testSafe4Api else mainSafe4Api
 
     val blocksDecodedEthereumRpc by lazy {
         ApiKeyUtil.getEthRpcEndpoint() ?: Translator.getString(R.string.blocksDecodedEthereumRpc)

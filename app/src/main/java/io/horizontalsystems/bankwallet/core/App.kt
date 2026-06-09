@@ -23,6 +23,7 @@ import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.core.factories.AccountFactory
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
@@ -279,6 +280,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         // Initialize Safe4 testnet mode from saved setting
         Chain.isSafe4TestMode = localStorage.isSafe4TestNet
+        SafeExtend.isSafe4TestNet = localStorage.isSafe4TestNet
 
         paidActionSettingsManager = PaidActionSettingsManager(localStorage)
 
