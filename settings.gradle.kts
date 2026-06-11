@@ -62,6 +62,6 @@ include(":ethereum-kit-android:wsafekit")
 includeFlat("solana-kit-android")
 include(":solana-kit-android:solanakit")
 
-include(":vpn")
+//include(":vpn")
 
 //include("telegram:TMessagesProj")

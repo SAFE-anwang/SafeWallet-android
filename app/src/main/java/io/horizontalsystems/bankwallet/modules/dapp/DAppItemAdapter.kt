@@ -64,7 +64,7 @@ class DAppItemAdapter(
                 .build()
             binding.appIconView.context.imageLoader.enqueue(request)*/
             binding.appIconView.load(item.icon) {
-                placeholder(R.drawable.ic_image_photo)
+                placeholder(R.drawable.ic_placeholder)
                 transformations(CircleCropTransformation())
                 listener(
                     object : ImageRequest.Listener {
