@@ -230,16 +230,18 @@ class TokenBalanceViewModel(
 
     @Throws(BackupRequiredError::class)
     fun getWalletForReceive(): Wallet {
+        val hasAnyBackup = App.accountManager.activeAccount?.hasAnyBackup ?: wallet.account.hasAnyBackup
         when {
-            wallet.account.hasAnyBackup -> return wallet
+            hasAnyBackup -> return wallet
             else -> throw BackupRequiredError(wallet.account, wallet.coin.name)
         }
     }
 
     @Throws(BackupRequiredError::class, IllegalStateException::class)
     fun getWalletForTronReceive(): Wallet {
+        val hasAnyBackup = App.accountManager.activeAccount?.hasAnyBackup ?: wallet.account.hasAnyBackup
         when {
-            wallet.account.hasAnyBackup -> {
+            hasAnyBackup -> {
                 val tronToken =
                     coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: throw IllegalStateException("Tron token not found")
                 val tronWallet = wallet.copy(token = tronToken)
