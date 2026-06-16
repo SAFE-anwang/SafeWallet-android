@@ -51,7 +51,7 @@ class TweetsProvider(private val bearerToken: String?) {
 
     class UserNotFound : Exception()
 
-    private val baseUrl = "https://api.twitter.com/2/"
+    private val baseUrl = "https://api.x.com/2/"
     private val service = APIClient.retrofit(baseUrl, 60, true).create(TwitterAPI::class.java)
 
     companion object {
