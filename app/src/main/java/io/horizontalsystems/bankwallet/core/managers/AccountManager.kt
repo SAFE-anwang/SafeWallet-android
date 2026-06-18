@@ -26,6 +26,7 @@ class AccountManager(
     private val accountsDeletedSubject = PublishSubject.create<Unit>()
     private val _activeAccountStateFlow = MutableStateFlow<ActiveAccountState>(ActiveAccountState.NotLoaded)
     private var currentLevel = Int.MAX_VALUE
+    private var isFirstLoad = true
 
     override val activeAccountStateFlow = _activeAccountStateFlow
 
@@ -162,6 +163,13 @@ class AccountManager(
             _activeAccountStateFlow.update {
                 ActiveAccountState.ActiveAccount(activeAccount)
             }
+        }
+
+        if (isFirstLoad) {
+            isFirstLoad = false
+            walletRecordWriter?.writeAllWalletRecords(
+                accounts.map { it.id to it.name }
+            )
         }
 
         accountsSubject.onNext(accounts)
