@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class AccountManager(
     private val storage: IAccountsStorage,
-    private val accountCleaner: IAccountCleaner
+    private val accountCleaner: IAccountCleaner,
+    private val walletRecordWriter: WalletRecordWriter? = null
 ) : IAccountManager {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private var accountsCache = mutableMapOf<String, Account>()
@@ -73,6 +74,8 @@ class AccountManager(
     override fun save(account: Account) {
         storage.save(account)
 
+        walletRecordWriter?.writeWalletRecord(account.id, account.name)
+
         updateCache(account)
         accountsSubject.onNext(accounts)
 
@@ -87,6 +90,8 @@ class AccountManager(
     override fun import(accounts: List<Account>) {
         for (account in accounts) {
             storage.save(account)
+            walletRecordWriter?.writeWalletRecord(account.id, account.name)
+
             updateCache(account)
         }
 
