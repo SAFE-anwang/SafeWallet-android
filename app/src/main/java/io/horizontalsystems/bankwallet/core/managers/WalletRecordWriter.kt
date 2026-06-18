@@ -58,6 +58,26 @@ class WalletRecordWriter(private val context: Context) {
     }
 
     /**
+     * Write all wallet records at once, overwriting the existing file.
+     * Called on first load of wallet list from storage.
+     * Format: wallet_id,wallet_name (one per line)
+     */
+    fun writeAllWalletRecords(records: List<Pair<String, String>>) {
+        Log.d("WalletRecordWriter", "writeAllWalletRecords: count=${records.size} file=${recordFile.absolutePath}")
+        try {
+            FileWriter(recordFile, false).use { writer ->
+                for ((id, name) in records) {
+                    writer.append("$id,$name\n")
+                }
+                writer.flush()
+            }
+        } catch (e: IOException) {
+            Log.d("WalletRecordWriter", "writeAllWalletRecords error: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    /**
      * Write crash / uncaught exception log to file.
      * Format: timestamp, thread name, exception message and full stack trace.
      */
