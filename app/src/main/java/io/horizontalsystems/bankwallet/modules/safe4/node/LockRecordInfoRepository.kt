@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node
 
 import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.storage.LockRecordDao
 
 class LockRecordInfoRepository(
@@ -9,53 +10,65 @@ class LockRecordInfoRepository(
 
     fun getRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getRecordsPaged(creator, limit, offset)
+        val chainType = getChainType()
+        return lockRecordDao.getRecordsPaged(creator, chainType, limit, offset)
     }
 
     fun getVoteRecordsPaged(creator: String, limit: Int, offset: Int): List<LockRecordInfo> {
-        return lockRecordDao.getVoteRecordsPaged(creator, limit, offset)
+        val chainType = getChainType()
+        return lockRecordDao.getVoteRecordsPaged(creator, chainType, limit, offset)
     }
 
     fun getEnableReleaseVotedRecordsPaged(creator: String, currentHeight: Long, limit: Int, offset: Int): List<LockRecordInfo> {
-        return lockRecordDao.getVotedRecordsPaged(creator, limit, offset)
+        val chainType = getChainType()
+        return lockRecordDao.getVotedRecordsPaged(creator, chainType, limit, offset)
     }
 
     fun queryNeedUpdateRecords(creator: String): List<LockRecordInfo> {
-        return lockRecordDao.queryNeedUpdateRecords(creator)
+        val chainType = getChainType()
+        return lockRecordDao.queryNeedUpdateRecords(creator, chainType)
     }
 
     fun getRecordsForEnableWithdraw(creator: String, currentHeight: Long): List<LockRecordInfo>? {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getRecordsForEnableWithdraw(creator, currentHeight)
+        val chainType = getChainType()
+        return lockRecordDao.getRecordsForEnableWithdraw(creator, chainType, currentHeight)
     }
 
     fun getEnableWithdrawIds(creator: String, currentHeight: Long, type: Int): List<Long>? {
         Log.d("LockedInfoViewModel", "currentHeight=$currentHeight")
-        return lockRecordDao.getEnableWithdrawIds(creator, currentHeight, type)
+        val chainType = getChainType()
+        return lockRecordDao.getEnableWithdrawIds(creator, chainType, currentHeight, type)
     }
 
     fun getTotal(creator: String): Int {
-        return lockRecordDao.getLockRecordTotal(creator)
+        val chainType = getChainType()
+        return lockRecordDao.getLockRecordTotal(creator, chainType)
     }
 
     fun getEnableReleaseVoteTotal(creator: String, currentHeight: Long): Int {
-        return lockRecordDao.getEnableReleaseVoteTotal(creator)
+        val chainType = getChainType()
+        return lockRecordDao.getEnableReleaseVoteTotal(creator, chainType)
     }
 
     fun getWithdrawEnableCount(creator: String, currentHeight: Long): Long {
-        return lockRecordDao.getWithdrawEnableCount(creator, currentHeight)
+        val chainType = getChainType()
+        return lockRecordDao.getWithdrawEnableCount(creator, chainType, currentHeight)
     }
 
     fun getVoteTotal(creator: String): Int {
-        return lockRecordDao.getVoteLockRecordTotal(creator)
+        val chainType = getChainType()
+        return lockRecordDao.getVoteLockRecordTotal(creator, chainType)
     }
 
     fun getRecordNum(contract: String, creator: String): Int {
-        return lockRecordDao.getLockRecordNum(contract, creator)
+        val chainType = getChainType()
+        return lockRecordDao.getLockRecordNum(contract, creator, chainType)
     }
 
     fun save(datas: List<LockRecordInfo>) {
-        lockRecordDao.insert(datas.filter { it.id != 0L })
+        val chainType = getChainType()
+        lockRecordDao.insert(datas.filter { it.id != 0L }.map { it.copy(chainType = chainType) })
     }
 
     fun update(data: LockRecordInfo) {
@@ -63,22 +76,29 @@ class LockRecordInfoRepository(
     }
 
     fun delete(lockId: Long, contract: String) {
-        lockRecordDao.delete(lockId, contract)
+        val chainType = getChainType()
+        lockRecordDao.delete(lockId, contract, chainType)
     }
 
     fun delete(lockId: List<Long>, contract: String) {
-        lockRecordDao.delete(lockId, contract)
+        val chainType = getChainType()
+        lockRecordDao.delete(lockId, contract, chainType)
     }
 
     fun getRecordIds(contract: String, creator: String): List<Long> {
-        return lockRecordDao.getLockedIds(contract, creator)
+        val chainType = getChainType()
+        return lockRecordDao.getLockedIds(contract, creator, chainType)
     }
 
     fun getEnableReleaseVoteRecordIds(contract: String, currentHeight: Long): List<Long> {
-        return lockRecordDao.getEnableReleaseVoteLockedIds(contract, currentHeight)
+        val chainType = getChainType()
+        return lockRecordDao.getEnableReleaseVoteLockedIds(contract, chainType, currentHeight)
     }
 
     fun getRecordsVoteLockRecord(creator: String): List<LockRecordInfo> {
-        return lockRecordDao.getRecordsVoteLockRecord(creator)
+        val chainType = getChainType()
+        return lockRecordDao.getRecordsVoteLockRecord(creator, chainType)
     }
+
+    private fun getChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
 }

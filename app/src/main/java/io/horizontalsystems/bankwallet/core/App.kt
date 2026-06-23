@@ -22,6 +22,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
+import io.horizontalsystems.ethereumkit.models.Chain
+import io.horizontalsystems.marketkit.SafeExtend
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.core.factories.AccountFactory
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
@@ -81,6 +83,7 @@ import io.horizontalsystems.bankwallet.core.managers.TronKitManager
 import io.horizontalsystems.bankwallet.core.managers.UserManager
 import io.horizontalsystems.bankwallet.core.managers.WalletActivator
 import io.horizontalsystems.bankwallet.core.managers.WalletManager
+import io.horizontalsystems.bankwallet.core.managers.WalletRecordWriter
 import io.horizontalsystems.bankwallet.core.managers.WalletStorage
 import io.horizontalsystems.bankwallet.core.managers.WordsManager
 import io.horizontalsystems.bankwallet.core.managers.ZcashBirthdayProvider
@@ -276,6 +279,10 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             marketStorage = this
         }
 
+        // Initialize Safe4 testnet mode from saved setting
+        Chain.isSafe4TestMode = localStorage.isSafe4TestNet
+        SafeExtend.isSafe4TestNet = localStorage.isSafe4TestNet
+
         paidActionSettingsManager = PaidActionSettingsManager(localStorage)
 
         val appConfig = AppConfigProvider(Random().nextInt(2), localStorage)
@@ -315,8 +322,16 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         AppLog.logsDao = appDatabase.logsDao()
 
         accountCleaner = AccountCleaner()
-        accountManager = AccountManager(accountsStorage, accountCleaner)
+        val walletRecordWriter = WalletRecordWriter(this)
+        accountManager = AccountManager(accountsStorage, accountCleaner, walletRecordWriter)
         userManager = UserManager(accountManager)
+
+        // Register crash handler to write uncaught exceptions to file
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            walletRecordWriter.writeCrashLog(thread, throwable)
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
 
         val proFeaturesStorage = ProFeaturesStorage(appDatabase)
         proFeatureAuthorizationManager = ProFeaturesAuthorizationManager(proFeaturesStorage, accountManager, appConfigProvider)

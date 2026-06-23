@@ -4,6 +4,7 @@ import android.util.Log
 import com.anwang.src20.SRC20
 import com.anwang.src20.SRC20Burnable
 import com.anwang.src20.SRC20Mintable
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module.getSafeChain
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.reactivex.Single
 import org.web3j.abi.datatypes.Address
@@ -16,9 +17,9 @@ class SRC20Service(
     val contract: String = "",
 ) {
 
-    private val src20 = SRC20(web3j, Chain.SafeFour.id.toLong(), contract)
-    private val src20Burnable = SRC20Burnable(web3j, Chain.SafeFour.id.toLong(), contract)
-    private val src20Mintble = SRC20Mintable(web3j, Chain.SafeFour.id.toLong(), contract)
+    private val src20 = SRC20(web3j, getSafeChain().id.toLong(), contract)
+    private val src20Burnable = SRC20Burnable(web3j, getSafeChain().id.toLong(), contract)
+    private val src20Mintble = SRC20Mintable(web3j, getSafeChain().id.toLong(), contract)
 
 
     fun src20Deploy(

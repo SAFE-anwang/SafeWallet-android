@@ -1238,6 +1238,7 @@
     <!-- Blockchain Settings  -->
 
     <string name="BlockchainSettings_Title">Blockchain Settings</string>
+    <string name="Safe4_TestNet_Title">SAFE Test Network</string>
 
     <!-- Backup Manager -->
 

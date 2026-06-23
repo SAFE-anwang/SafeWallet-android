@@ -20,7 +20,7 @@ class SRC20InfoService {
     private val itemsSubject = PublishSubject.create<List<MarketPrice>>()
     val itemsObservable: Observable<List<MarketPrice>> get() = itemsSubject
 
-    val safeApiKeyService by lazy { SafeApiKeyService(Chain.SafeFour.isSafe4TestNetId) }
+    val safeApiKeyService by lazy { SafeApiKeyService(Chain.isSafe4TestMode) }
 
     fun getPrice() {
         safeApiKeyService.getPrice()

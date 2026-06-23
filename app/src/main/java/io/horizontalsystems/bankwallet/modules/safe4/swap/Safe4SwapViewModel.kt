@@ -148,6 +148,8 @@ class Safe4SwapViewModel(
                 ),
                 Caution.Type.Warning
             )
+        } else {
+            caution = null
         }
 
     }

@@ -12,9 +12,9 @@ interface RedeemDao {
     @Update
     fun update(redeemInfo: Redeem)
 
-    @Query("SELECT * FROM Redeem")
-    fun getAll(): List<Redeem>
+    @Query("SELECT * FROM Redeem WHERE chainType = :chainType")
+    fun getAll(chainType: Int): List<Redeem>
 
-    @Query("DELETE FROM Redeem")
-    fun clear()
+    @Query("DELETE FROM Redeem WHERE chainType = :chainType")
+    fun clear(chainType: Int)
 }

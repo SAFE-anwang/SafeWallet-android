@@ -84,7 +84,7 @@ class DAppBrowseFragment: BaseFragment(){
     private val binding get() = _binding!!
 
     private lateinit var webView: WebView
-    private lateinit var urlString: String
+    private var urlString: String = ""
 
 
     private val disposables = CompositeDisposable()
@@ -139,6 +139,10 @@ class DAppBrowseFragment: BaseFragment(){
                         }
 
                         is SignEvent.Disconnect -> {
+                            isConnecting = false
+                            isProviderInjected = false
+                            autoConnect = true
+                            web3Bridge?.setAccounts(emptyList())
                             viewModel?.disconnect()
                         }
 
@@ -197,13 +201,13 @@ class DAppBrowseFragment: BaseFragment(){
         binding.progressBar.progress = 0
 
         // Initialize Web3 bridge for JS wallet injection
-        if (url != null) {
+        if (url.isNotEmpty()) {
             initWeb3Bridge(url)
         }
 
         addWebView()
-        url?.let {
-            urlString = it
+        if (url.isNotEmpty()) {
+            urlString = url
             webView.loadUrl(url)
         }
 
@@ -256,6 +260,9 @@ class DAppBrowseFragment: BaseFragment(){
             fragmentManager = childFragmentManager,
             listener = object : ConfirmationDialog.Listener {
                 override fun onActionButtonClick() {
+                    if (url.isNotEmpty()) {
+                        initWeb3Bridge(url)
+                    }
                     webView.loadUrl(checkUrl(url))
                     saveHistory(checkUrl(url))
                     hideHistory()
@@ -400,6 +407,13 @@ class DAppBrowseFragment: BaseFragment(){
         isProviderInjected = true  // set immediately to prevent duplicate injection from multiple onPageFinished calls
         val bridge = web3Bridge ?: return
 
+        // Re-register the JS bridge interface on every page load.
+        // On some devices (especially Huawei with custom WebView), addJavascriptInterface
+        // called before loadUrl may not persist into the loaded page's JS context.
+        webView.removeJavascriptInterface("_safeWalletBridge")
+        webView.addJavascriptInterface(bridge, "_safeWalletBridge")
+        Log.d("Web3Bridge", "addJavascriptInterface re-registered for _safeWalletBridge")
+
         // Set up response callback - pushes results back to JS
         bridge.setResponseCallback { jsonResponse ->
             Log.d("Web3Bridge", "sendResponse: $jsonResponse")
@@ -466,17 +480,20 @@ class DAppBrowseFragment: BaseFragment(){
                     val connectLink = url.substring(url.indexOf("wc?uri=") + 7)
                     val decode = URLDecoder.decode(connectLink)
                     Log.d("connectWallet", "shouldOverrideUrlLoading: ${decode}")
-                    connectWallet(decode)
+                    try { connectWallet(decode) } catch (e: Exception) { Log.e("connectWallet", "connectWallet error: ${e.message}", e) }
                     return true
                 }
                 if (url?.startsWith("wc:") == true) {
-                    connectWallet(url)
+                    try { connectWallet(url) } catch (e: Exception) { Log.e("connectWallet", "connectWallet error: ${e.message}", e) }
                     return true
                 }
                 url?.let {
                     view?.loadUrl(url)
-                    // Re-inject on navigation
+                    // Re-inject on navigation and keep urlString in sync
+                    urlString = url
                     isProviderInjected = false
+                    // Re-enable auto-connect for the new page
+                    autoConnect = true
                 }
                 return false
             }
@@ -599,11 +616,22 @@ class DAppBrowseFragment: BaseFragment(){
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // 页面加载成功，重置重试计数
+                // 页面加载成功，重置重试计数和连接状态
                 retryCount = 0
                 lastFailedUrl = null
+                isConnecting = false
+                // Update urlString to keep it in sync (handles redirects, user input navigation)
+                if (url != null && url.isNotEmpty() && url != "about:blank") {
+                    urlString = url
+                }
                 // Inject Web3 provider JS
                 injectWeb3Provider()
+                // Fallback auto-connect: onProgressChanged(100) may fire before urlString is set,
+                // so retry getSession() here now that urlString should be available.
+                if (autoConnect && urlString.isNotEmpty()) {
+                    autoConnect = false
+                    getSession()
+                }
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
@@ -611,10 +639,28 @@ class DAppBrowseFragment: BaseFragment(){
                 Log.e("connectWallet", "progress: $newProgress")
                 binding.progressBar.progress = newProgress
                 super.onProgressChanged(view, newProgress)
-                if (newProgress == 100 && autoConnect) {
+                if (newProgress == 100 && autoConnect && urlString.isNotEmpty()) {
                     autoConnect = false
                     getSession()
                 }
+            }
+
+            override fun onJsPrompt(
+                view: WebView?,
+                url: String?,
+                message: String?,
+                defaultValue: String?,
+                result: JsPromptResult?
+            ): Boolean {
+                // Intercept _bridge: prefixed prompts as a JS-to-native communication channel.
+                // This is a fallback for when addJavascriptInterface does not work (e.g. Huawei devices).
+                if (message != null && message.startsWith("_bridge:")) {
+                    val jsonMessage = message.substring(8)
+                    val response = web3Bridge?.postMessage(jsonMessage) ?: ""
+                    result?.confirm(response)
+                    return true
+                }
+                return super.onJsPrompt(view, url, message, defaultValue, result)
             }
 
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
@@ -723,17 +769,37 @@ class DAppBrowseFragment: BaseFragment(){
     }
 
     private fun getSession() {
-        val accountId = App.accountManager.activeAccount?.id ?: return
-        val cacheConnectLink = App.preferences.getString(getKey(urlString), null) ?: return
-        Log.e("connectWallet", "auto connect $cacheConnectLink")
+        Log.e("connectWallet", "getSession() called, urlString='$urlString', autoConnect=$autoConnect")
+        if (urlString.isEmpty()) {
+            Log.e("connectWallet", "getSession: urlString is empty, skipping")
+            return
+        }
+        val account = App.accountManager.activeAccount
+        if (account == null) {
+            Log.e("connectWallet", "getSession: no active account, skipping")
+            return
+        }
+        val accountId = account.id
+        Log.e("connectWallet", "auto connect for $urlString")
 
-        /*App.wc2SessionManager.sessions.forEach {
-            Log.e("connectWallet", "auto connect v2 ${it.topic}, ${it.metaData?.url}, $cacheConnectLink")
-            if (cacheConnectLink == it.metaData?.url) {
-                Log.e("connectWallet", "auto connect v2")
-                connectSession(it.topic, false)
+        // Find existing WC v2 sessions that match this dapp URL.
+        // WCSessionManager maintains active sessions connected via the relay server.
+        // If a matching session exists, the dapp can immediately use it for requests.
+        val sessions = App.wcSessionManager.sessions
+        for (session in sessions) {
+            val peerUrl = session.metaData?.url ?: continue
+            Log.e("connectWallet", "checking session: topic=${session.topic}, peerUrl=$peerUrl")
+
+            // Match by comparing the dapp URL with the session's peer URL.
+            // Use contains to handle URL scheme differences (http vs https).
+            if (peerUrl.contains(urlString, ignoreCase = true) ||
+                urlString.contains(peerUrl, ignoreCase = true)) {
+                Log.e("connectWallet", "auto connect success: matched session topic=${session.topic}, peer=${session.metaData?.name}")
+                return
             }
-        }*/
+        }
+
+        Log.e("connectWallet", "auto connect: no matching WC session found for $urlString")
     }
 
     private fun getKey(linkString: String): String {

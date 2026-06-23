@@ -162,6 +162,8 @@ interface ILocalStorage {
     var hideWithdrawTransactions: Boolean
     var hideUploadTransactions: Boolean
 
+    var isSafe4TestNet: Boolean
+
     fun getLiquidityProviderId(blockchainType: BlockchainType): String?
     fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String)
 

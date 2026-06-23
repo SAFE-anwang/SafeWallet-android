@@ -18,6 +18,7 @@ object MainSettingsModule {
                 App.wcManager,
                 App.accountManager,
                 App.appConfigProvider,
+                App.localStorage,
             )
 
             return viewModel as T

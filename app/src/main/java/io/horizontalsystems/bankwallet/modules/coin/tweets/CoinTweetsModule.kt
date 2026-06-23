@@ -47,6 +47,18 @@ data class TweetViewItem(
     val referencedTweet: ReferencedTweetViewItem?,
     val entities: List<Extractor.Entity>,
     val url: String,
+    val publicMetrics: TweetPublicMetricsViewItem? = null,
+    val source: String? = null,
+    val lang: String? = null,
+)
+
+data class TweetPublicMetricsViewItem(
+    val retweetCount: Int,
+    val replyCount: Int,
+    val likeCount: Int,
+    val quoteCount: Int,
+    val bookmarkCount: Int,
+    val impressionCount: Int,
 )
 
 data class ReferencedTweetViewItem(val title: TranslatableString, val text: String)

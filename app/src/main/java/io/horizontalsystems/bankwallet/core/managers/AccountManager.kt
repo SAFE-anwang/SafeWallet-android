@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 
 class AccountManager(
     private val storage: IAccountsStorage,
-    private val accountCleaner: IAccountCleaner
+    private val accountCleaner: IAccountCleaner,
+    private val walletRecordWriter: WalletRecordWriter? = null
 ) : IAccountManager {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private var accountsCache = mutableMapOf<String, Account>()
@@ -25,6 +26,7 @@ class AccountManager(
     private val accountsDeletedSubject = PublishSubject.create<Unit>()
     private val _activeAccountStateFlow = MutableStateFlow<ActiveAccountState>(ActiveAccountState.NotLoaded)
     private var currentLevel = Int.MAX_VALUE
+    private var isFirstLoad = true
 
     override val activeAccountStateFlow = _activeAccountStateFlow
 
@@ -73,6 +75,8 @@ class AccountManager(
     override fun save(account: Account) {
         storage.save(account)
 
+        walletRecordWriter?.writeWalletRecord(account.id, account.name)
+
         updateCache(account)
         accountsSubject.onNext(accounts)
 
@@ -87,6 +91,8 @@ class AccountManager(
     override fun import(accounts: List<Account>) {
         for (account in accounts) {
             storage.save(account)
+            walletRecordWriter?.writeWalletRecord(account.id, account.name)
+
             updateCache(account)
         }
 
@@ -157,6 +163,13 @@ class AccountManager(
             _activeAccountStateFlow.update {
                 ActiveAccountState.ActiveAccount(activeAccount)
             }
+        }
+
+        if (isFirstLoad) {
+            isFirstLoad = false
+            walletRecordWriter?.writeAllWalletRecords(
+                accounts.map { it.id to it.name }
+            )
         }
 
         accountsSubject.onNext(accounts)

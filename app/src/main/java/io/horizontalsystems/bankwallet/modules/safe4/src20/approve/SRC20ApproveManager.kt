@@ -32,7 +32,7 @@ class SRC20ApproveManager(
         get() = _stateFlow
 
     val approveService by lazy {
-        SRC20ApproveService(RpcSource.safeFourHttp().uris[0].toString(), contract)
+        SRC20ApproveService(RpcSource.safeFourHttp(App.localStorage.isSafe4TestNet).uris[0].toString(), contract)
     }
 
     val spenderAddress by lazy {
