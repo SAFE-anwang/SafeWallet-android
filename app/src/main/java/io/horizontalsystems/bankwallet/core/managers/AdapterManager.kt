@@ -7,6 +7,7 @@ import io.horizontalsystems.bankwallet.core.IReceiveAdapter
 import io.horizontalsystems.bankwallet.core.adapters.SafeAdapter
 import io.horizontalsystems.bankwallet.core.factories.AdapterFactory
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -120,6 +121,13 @@ class AdapterManager(
     override fun refreshSafeAdapter() {
         coroutineScope.launch {
             adaptersMap.values.forEach { if (it is SafeAdapter) it.refresh() }
+        }
+    }
+
+    override fun clearAdaptersForBlockchain(blockchainType: BlockchainType) {
+        adaptersMap.entries.removeIf { it.key.token.blockchainType == blockchainType }
+        coroutineScope.launch {
+            initAdapters(walletManager.activeWallets)
         }
     }
 }

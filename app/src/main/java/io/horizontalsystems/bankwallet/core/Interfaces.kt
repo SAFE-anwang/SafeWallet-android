@@ -83,6 +83,7 @@ interface IAdapterManager {
     fun refreshByWallet(wallet: Wallet)
 
     fun refreshSafeAdapter()
+    fun clearAdaptersForBlockchain(blockchainType: BlockchainType)
 }
 
 interface ILocalStorage {

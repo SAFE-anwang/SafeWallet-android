@@ -491,7 +491,7 @@ class BalanceViewItemFactory {
         return if (wallet.token.blockchainType == BlockchainType.Safe) {
             "SAFE3"
         } else if (coin.isSafeFour() && App.localStorage.isSafe4TestNet) {
-            "SAFE4 TestNet"
+            if(wallet.badge?.isNotEmpty()==true) "${wallet.badge}(SAFE4 TestNet)" else "SAFE4 TestNet"
         } else {
             wallet.badge
         }

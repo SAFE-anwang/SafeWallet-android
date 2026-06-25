@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.factories.EvmAccountManagerFactory
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -59,6 +60,7 @@ class EvmBlockchainManager(
         val blockchainType = BlockchainType.SafeFour
         evmKitManagersMap.remove(blockchainType)
         syncSourceManager.resync(blockchainType)
+        App.adapterManager.clearAdaptersForBlockchain(blockchainType)
     }
 
     fun getBlockchain(chainId: Int): Blockchain? =
