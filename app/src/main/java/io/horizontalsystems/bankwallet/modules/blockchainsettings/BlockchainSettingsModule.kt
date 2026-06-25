@@ -23,7 +23,7 @@ object BlockchainSettingsModule {
                     App.solanaRpcSourceManager,
                     App.moneroNodeManager
                 )
-            return BlockchainSettingsViewModel(service) as T
+            return BlockchainSettingsViewModel(service, App.localStorage) as T
         }
     }
 

@@ -2,15 +2,12 @@ package io.horizontalsystems.bankwallet.modules.settings.main
 
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IBackupManager
-import io.horizontalsystems.bankwallet.core.ILocalStorage
 import io.horizontalsystems.bankwallet.core.ITermsManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.providers.AppConfigProvider
 import io.horizontalsystems.bankwallet.core.providers.Translator
-import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
 import io.horizontalsystems.bankwallet.modules.settings.main.MainSettingsModule.CounterType
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
@@ -18,7 +15,6 @@ import io.horizontalsystems.core.IPinComponent
 import io.horizontalsystems.core.ISystemInfoManager
 import io.horizontalsystems.subscriptions.core.AdvancedSearch
 import io.horizontalsystems.subscriptions.core.UserSubscriptionManager
-import io.horizontalsystems.marketkit.SafeExtend
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 
@@ -31,7 +27,6 @@ class MainSettingsViewModel(
     private val wcManager: WCManager,
     private val accountManager: IAccountManager,
     private val appConfigProvider: AppConfigProvider,
-    private val localStorage: ILocalStorage,
 ) : ViewModelUiState<MainSettingUiState>() {
 
     val fdroidSupportLink by lazy {
@@ -75,18 +70,6 @@ class MainSettingsViewModel(
     private var wcPendingRequestCount = 0
     private var showPremiumBanner = !UserSubscriptionManager.isActionAllowed(AdvancedSearch)
     private var hasSubscription = false
-
-    var isSafe4TestNet: Boolean
-        get() = localStorage.isSafe4TestNet
-        set(value) {
-            if (localStorage.isSafe4TestNet != value) {
-                localStorage.isSafe4TestNet = value
-                SafeExtend.isSafe4TestNet = value
-                App.evmBlockchainManager.resyncSafeFour()
-                SafeInfoManager.startNet()
-                emitState()
-            }
-        }
 
     init {
         viewModelScope.launch {
@@ -142,7 +125,7 @@ class MainSettingsViewModel(
             wcCounterType = wcCounterType,
             showPremiumBanner = showPremiumBanner,
             hasSubscription = hasSubscription,
-            isSafe4TestNet = isSafe4TestNet,
+
         )
     }
 
@@ -170,5 +153,4 @@ data class MainSettingUiState(
     val wcCounterType: CounterType?,
     val showPremiumBanner: Boolean,
     val hasSubscription: Boolean,
-    val isSafe4TestNet: Boolean,
 )

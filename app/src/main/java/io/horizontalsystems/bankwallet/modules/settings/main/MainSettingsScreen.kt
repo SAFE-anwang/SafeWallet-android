@@ -23,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -190,13 +189,6 @@ private fun SettingSections(
                         event = StatEvent.Open(StatPage.BlockchainSettings)
                     )
                 }
-            )
-        }, {
-            HsSettingToggleCell(
-                title = R.string.Safe4_TestNet_Title,
-                icon = R.drawable.ic_blocks_20,
-                checked = viewModel.isSafe4TestNet,
-                onCheckedChange = { viewModel.isSafe4TestNet = it }
             )
         }, {
             HsSettingCell(
@@ -575,37 +567,6 @@ fun HsSettingCell(
             modifier = Modifier.size(20.dp),
             painter = painterResource(id = R.drawable.ic_arrow_right),
             contentDescription = null,
-        )
-    }
-}
-
-@Composable
-fun HsSettingToggleCell(
-    @StringRes title: Int,
-    @DrawableRes icon: Int,
-    iconTint: Color? = null,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    RowUniversal(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        onClick = { onCheckedChange(!checked) }
-    ) {
-        Icon(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = iconTint ?: ComposeAppTheme.colors.grey
-        )
-        body_leah(
-            text = stringResource(title),
-            maxLines = 1,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(Modifier.weight(1f))
-        Switch(
-            checked = checked,
-            onCheckedChange = null
         )
     }
 }
