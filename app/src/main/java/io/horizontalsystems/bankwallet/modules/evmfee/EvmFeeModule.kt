@@ -129,7 +129,8 @@ data class Transaction(
     val errors: List<Throwable> = listOf()
 ) {
     val totalAmount: BigInteger
-        get() = transactionData.value + gasData.fee
+        get() = if (transactionData.safe4Swap == 2) gasData.fee
+                else transactionData.value + gasData.fee
 }
 
 sealed class Bound {

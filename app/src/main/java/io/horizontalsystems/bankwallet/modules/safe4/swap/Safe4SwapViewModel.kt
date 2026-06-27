@@ -3,7 +3,6 @@ package io.horizontalsystems.bankwallet.modules.safe4.swap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.util.fastCbrt
 import androidx.lifecycle.ViewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
@@ -184,7 +183,10 @@ class Safe4SwapViewModel(
         else
             Web3jUtils.getSrcSwapSafe4TransactionInput(evmAmount)
         val additionalInfo = SendEvmData.AdditionalInfo.Send(SendEvmData.SendInfo())
-        val transactionData = TransactionData(to = Address( safe4SwapContractAddress), value = evmAmount!!,
+        // safe -> SRC20: value = evmAmount (need native SAFE to wrap)
+        // SRC20 -> safe: value = 0 (SRC20 tokens are handled via contract call, no native SAFE transfer)
+        val value = if (fromToken == token1) evmAmount!! else BigInteger.ZERO
+        val transactionData = TransactionData(to = Address( safe4SwapContractAddress), value = value,
             input.hexStringToByteArray(),
             safe4Swap = if (fromToken == token1) 1 else 2
         )

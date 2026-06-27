@@ -453,7 +453,7 @@
     <string name="Send_Confirmation_Title">确认</string>
     <string name="Send_Confirmation_YouSend">您发送</string>
     <string name="Send_Confirmation_YouReceive">您收到</string>
-    <string name="Send_Confirmation_Mint">薄荷绿</string>
+    <string name="Send_Confirmation_Mint">已收到</string>
     <string name="Send_Confirmation_Burn">燃烧</string>
     <string name="Send_Confirmation_To">接收人</string>
     <string name="Send_Confirmation_Own">自有</string>
@@ -849,7 +849,7 @@
     <string name="TransactionInfo_YouGot">您已获得</string>
     <string name="TransactionInfo_YouSent">您已支出</string>
     <string name="TransactionInfo_Received">已收到</string>
-    <string name="TransactionInfo_Minted">薄荷绿</string>
+    <string name="TransactionInfo_Minted">已收到</string>
     <string name="TransactionInfo_Sent">已发送</string>
     <string name="TransactionInfo_Approved">批准</string>
     <string name="TransactionInfo_SpeedUp">加速</string>
