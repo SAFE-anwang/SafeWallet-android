@@ -11,5 +11,6 @@ data class SRC20LockedInfo(
     val lockDay: Int,
     val startHeight: Long,
     val unlockHeight: Long,
-    val contract: String
+    val contract: String,
+    val chainType: Int = 0
 )

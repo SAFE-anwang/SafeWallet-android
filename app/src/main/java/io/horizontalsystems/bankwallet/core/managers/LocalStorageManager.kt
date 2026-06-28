@@ -26,6 +26,7 @@ import io.horizontalsystems.bankwallet.modules.theme.ThemeType
 import io.horizontalsystems.core.ILockoutStorage
 import io.horizontalsystems.core.IPinSettingsStorage
 import io.horizontalsystems.core.IThirdKeyboard
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.HsTimePeriod
 import kotlinx.coroutines.CoroutineScope
@@ -103,6 +104,7 @@ class LocalStorageManager(
     private val DISABLED_PAID_ACTIONS = "disabled_paid_actions"
     private val HIDE_WITHDRAW_TX = "hide_withdraw_tx"
     private val HIDE_UPLOAD_TX = "hide_upload_tx"
+    private val SAFE4_TEST_NET = "safe4_test_net"
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val _utxoExpertModeEnabledFlow = MutableStateFlow(false)
@@ -663,6 +665,17 @@ class LocalStorageManager(
         get() = preferences.getBoolean(HIDE_UPLOAD_TX, true)
         set(value) {
             preferences.edit().putBoolean(HIDE_UPLOAD_TX, value).apply()
+        }
+
+    override var isSafe4TestNet: Boolean
+        get() {
+            val isTestNet = preferences.getBoolean(SAFE4_TEST_NET, false)
+            Chain.isSafe4TestMode = isTestNet
+            return isTestNet
+        }
+        set(value) {
+            Chain.isSafe4TestMode = value
+            preferences.edit().putBoolean(SAFE4_TEST_NET, value).commit()
         }
 
     override var donateUsLastShownDate: Long?

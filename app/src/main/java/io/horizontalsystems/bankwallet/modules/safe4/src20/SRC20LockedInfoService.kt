@@ -48,16 +48,20 @@ class SRC20LockedInfoService(
         }
     }
 
+    private fun getChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
+
     private fun getCacheRecordNum(): Long {
-        return lockRecordDao.getLockNum(contractAddress, rpcBlockchainSafe4.address.hex)
+        val chainType = getChainType()
+        return lockRecordDao.getLockNum(rpcBlockchainSafe4.address.hex, contractAddress, chainType)
     }
 
     fun updateLockInfo() {
-        val ids = lockRecordDao.getLockId(rpcBlockchainSafe4.address.hex, contractAddress.lowercase())
+        val chainType = getChainType()
+        val ids = lockRecordDao.getLockId(rpcBlockchainSafe4.address.hex, contractAddress.lowercase(), chainType)
         ids.forEach {
             val record = getRecordInfo(it.toLong())
             if (record != null && record.id == "0") {
-                lockRecordDao.delete(record.id.toLong(), contractAddress)
+                lockRecordDao.delete(record.id.toLong(), contractAddress, chainType)
             }
         }
     }
@@ -91,12 +95,13 @@ class SRC20LockedInfoService(
                     itemsCount.toBigInteger(),
                     itemsPerPage.toBigInteger()
                 )
+            val chainType = getChainType()
             ids.map { id ->
                 getRecordInfo(id.toLong())
             }.forEach {
                 if (it != null) {
                     Log.d(TAG, "lock info=$it")
-                    lockRecordDao.insert(it)
+                    lockRecordDao.insert(it.copy(chainType = chainType))
                 }
             }
         } catch (e: Exception) {

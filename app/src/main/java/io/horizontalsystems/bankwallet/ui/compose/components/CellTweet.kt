@@ -26,6 +26,7 @@ import com.twitter.twittertext.Extractor
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.modules.coin.tweets.ReferencedTweetViewItem
 import io.horizontalsystems.bankwallet.modules.coin.tweets.Tweet
+import io.horizontalsystems.bankwallet.modules.coin.tweets.TweetPublicMetricsViewItem
 import io.horizontalsystems.bankwallet.modules.coin.tweets.TweetViewItem
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 
@@ -42,7 +43,7 @@ fun CellTweetPreview() {
             date = "Nov 12, 12:39",
             referencedTweet = null,
             entities = listOf(),
-            url = ""
+            url = "",
         )) {
 
         }
@@ -80,8 +81,74 @@ fun CellTweet(tweet: TweetViewItem, onClick: (TweetViewItem) -> Unit) {
             TweetReferencedTweet(referencedTweet)
         }
 
+        tweet.publicMetrics?.let { metrics ->
+            Spacer(modifier = Modifier.height(12.dp))
+            TweetMetricsRow(metrics)
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
         TweetDate(tweet)
+    }
+}
+
+@Composable
+private fun TweetMetricsRow(metrics: TweetPublicMetricsViewItem) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        MetricItem(
+            iconRes = R.drawable.ic_heart_20,
+            count = metrics.likeCount,
+            contentDescription = "likes",
+        )
+        MetricItem(
+            iconRes = R.drawable.ic_share_24,
+            count = metrics.retweetCount,
+            contentDescription = "retweets",
+        )
+        MetricItem(
+            iconRes = R.drawable.ic_share_24,
+            count = metrics.replyCount,
+            contentDescription = "replies",
+        )
+        MetricItem(
+            iconRes = R.drawable.ic_balance_chart_24,
+            count = metrics.impressionCount,
+            contentDescription = "impressions",
+        )
+    }
+}
+
+@Composable
+private fun MetricItem(
+    iconRes: Int,
+    count: Int,
+    contentDescription: String,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Icon(
+            modifier = Modifier.size(14.dp),
+            painter = painterResource(id = iconRes),
+            contentDescription = contentDescription,
+            tint = ComposeAppTheme.colors.grey,
+        )
+        Text(
+            text = formatCount(count),
+            color = ComposeAppTheme.colors.grey,
+            style = ComposeAppTheme.typography.micro,
+        )
+    }
+}
+
+private fun formatCount(count: Int): String {
+    return when {
+        count >= 1_000_000 -> "${count / 1_000_000}.${(count % 1_000_000) / 100_000}M"
+        count >= 1_000 -> "${count / 1_000}.${(count % 1_000) / 100}K"
+        else -> count.toString()
     }
 }
 

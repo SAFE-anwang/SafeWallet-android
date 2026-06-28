@@ -196,6 +196,7 @@ class WithdrawService(
         val idList = repository?.getRecordIds(getContract(type), evmKitManager.evmKit.receiveAddress.hex)
         idList?.let {ids ->
             ids.forEach {
+                if (cancel) return
                 try {
                     val record = getRecordInfo(it)
                     if (record.lockedId == BigInteger.ZERO) {

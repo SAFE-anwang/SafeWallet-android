@@ -24,8 +24,8 @@ android {
         applicationId = "com.anwang.safewallet"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
-        versionCode = 165
-        versionName = "0.47.5.2606"
+        versionCode = 166
+        versionName = "0.47.5.260612"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         resourceConfigurations += listOf("de", "es", "en", "fa", "fr", "ko", "pt", "pt-rBR", "ru", "tr", "zh")
@@ -103,7 +103,7 @@ android {
             isDebuggable = true
             isMinifyEnabled = false
             applicationIdSuffix = ".dev"
-            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC")
+            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA4CGDcoRHAaZvoc3B4Yib%2FdTYobc%3Ds9JR94JpMz4GNjucPrqteBiQ0IJAajm41locTKcX3GW5zZuzS2")
             resValue("string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
             resValue("string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea")
             resValue("string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg")
@@ -163,7 +163,7 @@ android {
             isDebuggable = false
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA0k1frLV%2Beg4lQabb66N3jDvU%2Fwg%3Df6iMoWQQ8SAydyScGBExU3vHpwkzp466zvJPpII93v2k3sTfPC")
+            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA4CGDcoRHAaZvoc3B4Yib%2FdTYobc%3Ds9JR94JpMz4GNjucPrqteBiQ0IJAajm41locTKcX3GW5zZuzS2")
             resValue("string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
             resValue("string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea")
             resValue("string", "infuraSecretKey", "g2a75Cb5qI8NKXSonkHjv1sjj2QGL9l8iMu0iGcw06+/hEKGeXPydg")
@@ -455,7 +455,7 @@ dependencies {
     testRuntimeOnly(libs.kotlin.reflect)
 
     // VPN
-    implementation(project(":vpn"))
+//    implementation(project(":vpn"))
 
     implementation(project(":telegram:TMessagesProj"))
 
@@ -478,6 +478,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:1.5.4")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("commons-codec:commons-codec:1.15")
+
+    api(files("libs/mmkv-static-1.2.7.aar"))
 }
 
 // Flavor-specific dependencies must be added after evaluation

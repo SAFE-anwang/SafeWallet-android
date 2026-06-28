@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import android.content.Context
 import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.App.Companion.appConfigProvider
 import io.horizontalsystems.bankwallet.core.InvalidAuthTokenException
 import io.horizontalsystems.bankwallet.core.NoAuthTokenException
@@ -39,13 +40,13 @@ class MarketKitWrapper(
     val userSubscriptionManager = UserSubscriptionManager
 
     private val marketKit: MarketKit by lazy {
+        SafeExtend.isSafe4TestNet = App.localStorage.isSafe4TestNet
         MarketKit.getInstance(
             context = context,
             hsApiBaseUrl = hsApiBaseUrl,
             hsApiKey = hsApiKey,
             appVersion = appConfigProvider.appVersion,
             appId = appConfigProvider.appId,
-            isSafe4TestNet = Chain.SafeFour.isSafeFourTestNet
         )
     }
 

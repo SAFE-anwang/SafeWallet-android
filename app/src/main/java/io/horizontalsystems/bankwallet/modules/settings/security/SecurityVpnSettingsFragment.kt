@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import com.v2ray.ang.util.Utils
+//import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule
@@ -80,7 +80,7 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
     @SuppressLint("ViewModelConstructorInComposable")
     @Composable
     override fun GetContent(navController: NavController) {
-        val vpnViewModel = SecurityVpnSettingsViewModel(requireContext().getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)) { connectState ->
+        /*val vpnViewModel = SecurityVpnSettingsViewModel(requireContext().getSharedPreferences("vpnSetting", Context.MODE_PRIVATE)) { connectState ->
             context?.let {
                 if (connectState) {
                     VpnConnectService.startVpn(requireActivity())
@@ -88,12 +88,12 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
                     Utils.stopVService(it)
                 }
             }
-        }
+        }*/
         ComposeAppTheme {
             SecurityCenterScreen(
                 securitySettingsViewModel = securitySettingsViewModel,
                 torViewModel = torViewModel,
-                vpnViewModel = vpnViewModel,
+//                vpnViewModel = vpnViewModel,
                 fallbackBlockViewModel = fallbackBlockViewModel,
                 navController = findNavController(),
                 showAppRestartAlert = { showAppRestartAlert() },
@@ -199,7 +199,7 @@ class SecurityVpnSettingsFragment : BaseComposeFragment() {
 private fun SecurityCenterScreen(
     securitySettingsViewModel: SecuritySettingsViewModel,
     torViewModel: SecurityTorSettingsViewModel,
-    vpnViewModel: SecurityVpnSettingsViewModel,
+//    vpnViewModel: SecurityVpnSettingsViewModel,
     fallbackBlockViewModel: FallbackBlockViewModel,
     navController: NavController,
     showAppRestartAlert: () -> Unit,
@@ -277,11 +277,11 @@ private fun SecurityCenterScreen(
 //            item {
 //                VSpacer(height = 24.dp)
                 HeaderText(stringResource(R.string.SecurityCenter_Internet))
-                VpnBlock(
+                /*VpnBlock(
                         vpnViewModel,
                         showAppRestartAlert,
                 )
-                VSpacer(height = 5.dp)
+                VSpacer(height = 5.dp)*/
                 TorBlock(
                         torViewModel,
                         showAppRestartAlert,

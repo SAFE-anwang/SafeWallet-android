@@ -7,6 +7,7 @@ import com.anwang.safewallet.safekit.model.SafeUsdtInfo
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module.getSafeChain
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.wsafekit.UsdtSafeManager
@@ -63,7 +64,7 @@ object SafeInfoManager {
             .let {
                 disposables.add(it)
             }
-        val safe4UsdtNetType = UsdtSafeManager(Chain.SafeFour).getSafeNetType()
+        val safe4UsdtNetType = UsdtSafeManager(Safe4Module.getSafeChain()).getSafeNetType()
         App.safeProvider.getSafeUsdtInfo(safe4UsdtNetType)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -127,10 +128,10 @@ object SafeInfoManager {
                 if (App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit != null) {
                     chain = App.evmBlockchainManager.getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper?.evmKit!!.chain
                 } else {
-                    chain = Chain.SafeFour
+                    chain = getSafeChain()
                 }
             } else {
-                chain = Chain.SafeFour
+                chain = getSafeChain()
             }
             safeInfoPO = defaultSafeUsdtInfo(chain)
         }
@@ -152,12 +153,7 @@ object SafeInfoManager {
             ChainBscInfoPO("", "","0.25", safe2bsc = true, bsc2safe = true),
             MaticChainInfo("", "","0.25", safe2matic = true, matic2safe = true)
         )
-        val safeInfoPO = when (chain) {
-            Chain.Ethereum -> mainNet
-            Chain.EthereumRopsten -> testNet
-            else -> throw WSafeManager.UnsupportedChainError.NoSafeNetType
-        }
-        return safeInfoPO
+        return if (chain.isSafe4TestNetId) testNet else mainNet
     }
 
     private fun defaultSafeUsdtInfo(chain: Chain): SafeUsdtInfoPO {

@@ -115,6 +115,7 @@ class Eip20Adapter(
                 Chain.ArbitrumOne,
                 Chain.Gnosis,
                 Chain.SafeFour,
+                Chain.SafeFourTestNet,
             )
 
             networkTypes.forEach {

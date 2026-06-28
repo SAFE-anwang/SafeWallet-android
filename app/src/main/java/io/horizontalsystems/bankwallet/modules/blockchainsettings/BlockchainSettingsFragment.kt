@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
+import androidx.compose.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -67,6 +68,8 @@ private fun BlockchainSettingsScreen(
                 otherChains = viewModel.otherChains,
                 navController = navController
             )
+            VSpacer(32.dp)
+            Safe4TestNetToggle(viewModel)
             VSpacer(44.dp)
         }
     }
@@ -135,6 +138,36 @@ private fun onClick(
             )
         }
     }
+}
+
+@Composable
+private fun Safe4TestNetToggle(viewModel: BlockchainSettingsViewModel) {
+    val checked = viewModel.isSafe4TestNet
+    CellUniversalLawrenceSection(
+        listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onClick = { viewModel.isSafe4TestNet = !checked }
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(id = R.drawable.ic_blocks_20),
+                    contentDescription = null,
+                    tint = ComposeAppTheme.colors.grey
+                )
+                body_leah(
+                    text = stringResource(R.string.Safe4_TestNet_Title),
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.weight(1f))
+                Switch(
+                    checked = checked,
+                    onCheckedChange = null
+                )
+            }
+        }
+    )
 }
 
 @Composable

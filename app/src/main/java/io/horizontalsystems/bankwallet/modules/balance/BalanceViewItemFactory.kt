@@ -490,8 +490,8 @@ class BalanceViewItemFactory {
     private fun getBadge(wallet: Wallet, coin: Coin): String? {
         return if (wallet.token.blockchainType == BlockchainType.Safe) {
             "SAFE3"
-        } else if (coin.isSafeFour() && Chain.SafeFour.isSafeFourTestNet) {
-            "SAFE4 TestNet"
+        } else if (coin.isSafeFour() && App.localStorage.isSafe4TestNet) {
+            if(wallet.badge?.isNotEmpty()==true) "${wallet.badge}(SAFE4 TestNet)" else "SAFE4 TestNet"
         } else {
             wallet.badge
         }

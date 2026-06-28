@@ -9,13 +9,16 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.proposal.SafeFourPropo
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawService
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.BlockchainType
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 object LockRecordManager {
@@ -33,8 +36,10 @@ object LockRecordManager {
 
     var job: Job? = null
 
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     fun getAllLockRecord() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             getAdapter()?.let { adapter ->
                     try {
                         Log.d("WithdrawService", "address=${adapter.evmKit.receiveAddress.hex}")
@@ -49,13 +54,13 @@ object LockRecordManager {
                         service?.start()
                         service1?.start()
                         service2?.start()
-                        GlobalScope.launch {
+                        scope.launch {
                             service?.updateLockedInfo()
                         }
-                        GlobalScope.launch {
+                        scope.launch {
                             service1?.updateLockedInfo()
                         }
-                        GlobalScope.launch {
+                        scope.launch {
                             service2?.updateLockedInfo()
                         }
                     } catch (e: Exception) {
@@ -94,18 +99,49 @@ object LockRecordManager {
     }
 
     suspend fun switchWallet() {
-        service?.cancel()
-        service1?.cancel()
-        service2?.cancel()
+        cancelAllSyncTasks()
         delay(2000)
         getAllLockRecord()
         getAllProposalRecord()
-        job?.cancel()
         updateVoteStatus()
     }
 
+    fun switchNetwork() {
+        cancelAllSyncTasks()
+        scope.launch {
+            delay(1000)
+            getAllLockRecord()
+            getAllProposalRecord()
+            updateVoteStatus()
+        }
+    }
+
+    fun cancelAllSyncTasks() {
+        Log.d("LockRecordManager", "cancelAllSyncTasks: cancelling all sync tasks")
+
+        // 取消投票状态更新任务
+        job?.cancel()
+        job = null
+
+        // 取消并清理 WithdrawService 实例
+        service?.cancel()
+        service?.clear()
+        service1?.cancel()
+        service1?.clear()
+        service2?.cancel()
+        service2?.clear()
+
+        service = null
+        service1 = null
+        service2 = null
+
+        // 取消整个协程作用域并创建新的
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
+
     fun updateVoteStatus() {
-        job = GlobalScope.launch (Dispatchers.IO){
+        job = scope.launch (Dispatchers.IO){
             delay(10000)
             try {
                 getAdapter()?.let { adapter ->
@@ -142,7 +178,7 @@ object LockRecordManager {
 
 
     fun getAllProposalRecord() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             var safeWallet: Wallet? = null
             while (safeWallet == null) {
                 try {
@@ -182,13 +218,13 @@ object LockRecordManager {
     }
 
     fun updateProposalStatus() {
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
 
             proposalRecordRepository?.updateStatus()
         }
     }
 
     fun exit() {
-        job?.cancel()
+        cancelAllSyncTasks()
     }
 }

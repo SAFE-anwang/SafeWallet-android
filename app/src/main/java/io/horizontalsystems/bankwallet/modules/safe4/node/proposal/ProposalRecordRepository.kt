@@ -1,41 +1,51 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.proposal
 
-import io.horizontalsystems.bankwallet.core.storage.LockRecordDao
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.storage.ProposalRecordDao
 
 class ProposalRecordRepository(
     private val proposalRecordDao: ProposalRecordDao
 ) {
 
+    private fun getChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
+
     fun getRecordsPaged(limit: Int, offset: Int): List<ProposalRecordInfo> {
-        return proposalRecordDao.getRecordsPaged(limit, offset)
+        val chainType = getChainType()
+        return proposalRecordDao.getRecordsPaged(chainType, limit, offset)
     }
 
     fun getMineRecordsPaged(creator: String): List<ProposalRecordInfo> {
-        return proposalRecordDao.getMineRecordsPaged(creator)
+        val chainType = getChainType()
+        return proposalRecordDao.getMineRecordsPaged(creator, chainType)
     }
 
     fun getTotal(): Int {
-        return proposalRecordDao.getProposalRecordTotal()
+        val chainType = getChainType()
+        return proposalRecordDao.getProposalRecordTotal(chainType)
     }
 
     fun getMineNum(creator: String): Int {
-        return proposalRecordDao.getMineRecordNum(creator)
+        val chainType = getChainType()
+        return proposalRecordDao.getMineRecordNum(creator, chainType)
     }
 
     fun getNewProposalRecordNum(): Int {
-        return proposalRecordDao.getNewProposalRecordNum()
+        val chainType = getChainType()
+        return proposalRecordDao.getNewProposalRecordNum(chainType)
     }
 
     fun save(datas: List<ProposalRecordInfo>) {
-        proposalRecordDao.insert(datas)
+        val chainType = getChainType()
+        proposalRecordDao.insert(datas.map { it.copy(chainType = chainType) })
     }
 
     fun updateStatus() {
-        proposalRecordDao.updateStatus()
+        val chainType = getChainType()
+        proposalRecordDao.updateStatus(chainType)
     }
 
     fun getLocalLastCreateTime(): Long {
-        return proposalRecordDao.getLocalLastCreateTime()
+        val chainType = getChainType()
+        return proposalRecordDao.getLocalLastCreateTime(chainType)
     }
 }

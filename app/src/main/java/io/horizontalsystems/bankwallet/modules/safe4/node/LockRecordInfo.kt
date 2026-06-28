@@ -19,5 +19,6 @@ data class LockRecordInfo(
     val contact: String,
     val creator: String,
     val type : Int,
-    val withEnable: Boolean = false
+    val withEnable: Boolean = false,
+    val chainType: Int = 0
 )

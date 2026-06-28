@@ -63,7 +63,19 @@ class CoinTweetsViewModel(
             )
         },
         entities = extractor.extractEntitiesWithIndices(tweet.text),
-        url = "https://twitter.com/${tweet.user.username}/status/${tweet.id}"
+        url = "https://twitter.com/${tweet.user.username}/status/${tweet.id}",
+        publicMetrics = tweet.publicMetrics?.let {
+            TweetPublicMetricsViewItem(
+                retweetCount = it.retweetCount,
+                replyCount = it.replyCount,
+                likeCount = it.likeCount,
+                quoteCount = it.quoteCount,
+                bookmarkCount = it.bookmarkCount,
+                impressionCount = it.impressionCount,
+            )
+        },
+        source = tweet.source,
+        lang = tweet.lang,
     )
 
     fun refresh() {

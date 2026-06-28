@@ -43,6 +43,7 @@ object SendEvmConfirmationModule {
             Chain.ArbitrumOne -> BlockchainType.ArbitrumOne
             Chain.Gnosis -> BlockchainType.Gnosis
             Chain.Fantom -> BlockchainType.Fantom
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> BlockchainType.SafeFour
             else -> BlockchainType.Ethereum
         }

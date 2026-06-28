@@ -17,32 +17,32 @@ interface ProposalRecordDao {
     @Update
     fun update(token: ProposalRecordInfo)
 
-    @Query("DELETE FROM ProposalRecordInfo WHERE id = :id")
-    fun delete(id: Long)
+    @Query("DELETE FROM ProposalRecordInfo WHERE id = :id AND chainType = :chainType")
+    fun delete(id: Long, chainType: Int)
 
 
-    @Query("SELECT * FROM ProposalRecordInfo ORDER BY id DESC " +
+    @Query("SELECT * FROM ProposalRecordInfo WHERE chainType = :chainType ORDER BY id DESC " +
             "LIMIT :limit OFFSET :offset")
-    fun getRecordsPaged(limit: Int, offset: Int): List<ProposalRecordInfo>
+    fun getRecordsPaged(chainType: Int, limit: Int, offset: Int): List<ProposalRecordInfo>
 
-    @Query("SELECT * FROM ProposalRecordInfo WHERE creator = :creator ORDER BY " +
+    @Query("SELECT * FROM ProposalRecordInfo WHERE creator = :creator AND chainType = :chainType ORDER BY " +
             "id DESC ")
-    fun getMineRecordsPaged(creator: String): List<ProposalRecordInfo>
+    fun getMineRecordsPaged(creator: String, chainType: Int): List<ProposalRecordInfo>
 
 
-    @Query("SELECT COUNT(*) as total_count FROM ProposalRecordInfo")
-    fun getProposalRecordTotal(): Int
+    @Query("SELECT COUNT(*) as total_count FROM ProposalRecordInfo WHERE chainType = :chainType")
+    fun getProposalRecordTotal(chainType: Int): Int
 
-    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE creator = :creator")
-    fun getMineRecordNum(creator: String): Int
+    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE creator = :creator AND chainType = :chainType")
+    fun getMineRecordNum(creator: String, chainType: Int): Int
 
-    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE newProposal = 1 AND state != 2")
-    fun getNewProposalRecordNum(): Int
+    @Query("SELECT COUNT(*) FROM ProposalRecordInfo  WHERE newProposal = 1 AND state != 2 AND chainType = :chainType")
+    fun getNewProposalRecordNum(chainType: Int): Int
 
-    @Query("UPDATE ProposalRecordInfo SET newProposal = 0")
-    fun updateStatus()
+    @Query("UPDATE ProposalRecordInfo SET newProposal = 0 WHERE chainType = :chainType")
+    fun updateStatus(chainType: Int)
 
-    @Query("SELECT startPayTime FROM ProposalRecordInfo ORDER BY startPayTime DESC LIMIT 1")
-    fun getLocalLastCreateTime(): Long
+    @Query("SELECT startPayTime FROM ProposalRecordInfo WHERE chainType = :chainType ORDER BY startPayTime DESC LIMIT 1")
+    fun getLocalLastCreateTime(chainType: Int): Long
 
 }

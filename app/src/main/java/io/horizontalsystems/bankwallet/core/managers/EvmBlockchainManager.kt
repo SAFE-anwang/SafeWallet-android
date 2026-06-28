@@ -2,6 +2,7 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.factories.EvmAccountManagerFactory
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.Blockchain
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -51,8 +52,15 @@ class EvmBlockchainManager(
         BlockchainType.ArbitrumOne -> Chain.ArbitrumOne
         BlockchainType.Gnosis -> Chain.Gnosis
         BlockchainType.Fantom -> Chain.Fantom
-        BlockchainType.SafeFour -> Chain.SafeFour
+        BlockchainType.SafeFour -> if (Chain.isSafe4TestMode) Chain.SafeFourTestNet else Chain.SafeFour
         else -> throw IllegalArgumentException("Unsupported blockchain type $blockchainType")
+    }
+
+    fun resyncSafeFour() {
+        val blockchainType = BlockchainType.SafeFour
+        evmKitManagersMap.remove(blockchainType)
+        syncSourceManager.resync(blockchainType)
+        App.adapterManager.clearAdaptersForBlockchain(blockchainType)
     }
 
     fun getBlockchain(chainId: Int): Blockchain? =

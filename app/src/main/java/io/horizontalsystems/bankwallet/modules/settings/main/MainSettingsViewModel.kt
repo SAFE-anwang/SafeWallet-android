@@ -125,6 +125,7 @@ class MainSettingsViewModel(
             wcCounterType = wcCounterType,
             showPremiumBanner = showPremiumBanner,
             hasSubscription = hasSubscription,
+
         )
     }
 

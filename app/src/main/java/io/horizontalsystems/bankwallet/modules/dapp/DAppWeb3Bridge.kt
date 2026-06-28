@@ -41,7 +41,7 @@ class DAppWeb3Bridge(
             urlLower.contains("pancakeswap") || urlLower.contains("pancake") -> Chain.BinanceSmartChain
             urlLower.contains("bsc") || urlLower.contains("binance") -> Chain.BinanceSmartChain
             urlLower.contains("uniswap") -> Chain.Ethereum
-            urlLower.contains("safe4") -> Chain.SafeFour
+            urlLower.contains("safe4") || urlLower.contains("opensky.vip") -> if (App.localStorage.isSafe4TestNet) Chain.SafeFourTestNet else Chain.SafeFour
             else -> Chain.Ethereum
         }
     }
@@ -50,6 +50,7 @@ class DAppWeb3Bridge(
         when (defaultChain) {
             Chain.Ethereum -> BlockchainType.Ethereum
             Chain.BinanceSmartChain -> BlockchainType.BinanceSmartChain
+            Chain.SafeFourTestNet,
             Chain.SafeFour -> BlockchainType.SafeFour
             Chain.Polygon -> BlockchainType.Polygon
             else -> BlockchainType.Ethereum
@@ -459,36 +460,70 @@ class DAppWeb3Bridge(
 (function() {
     if (window.ethereum && window.ethereum._safeWalletInjected) return;
 
-    const bridge = window._safeWalletBridge || {};
-
     var requestId = 0;
     const pendingRequests = {};
     const eventListeners = {};
 
-    function sendRequest(method, params) {
+    // Get the native bridge or use prompt() fallback.
+    // On some devices (Huawei) addJavascriptInterface does not work,
+    // so we use prompt('_bridge:...') as a synchronous fallback channel.
+    // The native WebChromeClient.onJsPrompt intercepts _bridge: messages.
+    var _nativeChannel = null; // 'jsi' or 'prompt'
+    var _bridgeDebugLogged = false;
+    function getBridge() {
+        var b = window._safeWalletBridge;
+        if (b && typeof b.postMessage === 'function') { return b; }
+        return null;
+    }
+
+    function nativePostMessage(msg) {
+        // Route 1: addJavascriptInterface bridge (works on most devices)
+        var b = getBridge();
+        if (b) {
+            if (_nativeChannel !== 'jsi') {
+                _nativeChannel = 'jsi';
+                console.log('SafeWallet: using addJavascriptInterface channel');
+            }
+            return b.postMessage(msg);
+        }
+        // Route 2: prompt() bridge (fallback for Huawei etc.)
+        if (_nativeChannel !== 'prompt') {
+            _nativeChannel = 'prompt';
+            console.log('SafeWallet: using prompt() fallback channel');
+        }
+        var result = prompt('_bridge:' + msg);
+        // Debug: verify prompt() response is received correctly
+        if (!result || result.length === 0) {
+            console.log('SafeWallet: prompt() returned empty for method=' + (msg.method || '?'));
+        }
+        return (result == null) ? '' : result;
+    }
+
+    function sendRequest(method, params, retryCount) {
+        // prompt() channel is always available immediately – no retries needed
         return new Promise(function(resolve, reject) {
             const id = ++requestId;
             const msg = JSON.stringify({ id: id, method: method, params: params || [] });
-            if (bridge.postMessage) {
-                var syncResult = bridge.postMessage(msg);
-                if (syncResult) {
-                    // Synchronous response from native (no delay)
-                    try {
-                        var resp = JSON.parse(syncResult);
-                        if (resp.error) {
-                            reject(new Error(resp.error.message || 'RPC Error'));
-                        } else {
-                            resolve(resp.result);
-                        }
-                    } catch(e) {
-                        reject(e);
+            var syncResult = nativePostMessage(msg);
+            if (syncResult) {
+                // Synchronous response from native (no delay)
+                try {
+                    var resp = JSON.parse(syncResult);
+                    if (resp.error) {
+                        console.log('SafeWallet: RPC error id=' + id + ' method=' + method + ' error=' + resp.error.message);
+                        reject(new Error(resp.error.message || 'RPC Error'));
+                    } else {
+                        var resultPreview = (typeof resp.result === 'object') ? JSON.stringify(resp.result) : resp.result;
+                        console.log('SafeWallet: RPC resolved id=' + id + ' method=' + method + ' result=' + resultPreview);
+                        resolve(resp.result);
                     }
-                } else {
-                    // Async request - wait for _safeWalletOnResponse callback
-                    pendingRequests[id] = { resolve: resolve, reject: reject, _method: method };
+                } catch(e) {
+                    console.log('SafeWallet: RPC parse error id=' + id + ' method=' + method + ' raw=' + syncResult.substring(0, 200));
+                    reject(e);
                 }
             } else {
-                reject(new Error('Bridge not available'));
+                // Async request - wait for _safeWalletOnResponse callback
+                pendingRequests[id] = { resolve: resolve, reject: reject, _method: method };
             }
         });
     }
@@ -608,49 +643,118 @@ class DAppWeb3Bridge(
 
     console.log('SafeWallet: window.ethereum injected (chainId=' + syncedChainId + ', address=' + syncedAddress + ')');
 
+    // EIP-6963 provider announcement info (static UUID for deduplication on re-dispatch)
+    var _eip6963Info = {
+        uuid: 'safeWallet_' + Math.floor(Date.now() / 1000) + '_' + Math.random().toString(36).slice(2, 6),
+        name: 'SafeWallet',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+        rdns: 'io.horizontalsystems.bankwallet'
+    };
+    var _eip6963Detail = {
+        info: _eip6963Info,
+        provider: window.ethereum
+    };
+
     // Dispatch EIP-6963 discovery events synchronously
     window.dispatchEvent(new CustomEvent('ethereum#initialized', { detail: { provider: window.ethereum } }));
-    window.dispatchEvent(new CustomEvent('eip6963:announceProvider', {
-        detail: {
-            info: {
-                uuid: 'safeWallet_' + Date.now(),
-                name: 'SafeWallet',
-                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
-                rdns: 'io.horizontalsystems.bankwallet'
-            },
-            provider: window.ethereum
+    window.dispatchEvent(new CustomEvent('eip6963:announceProvider', { detail: _eip6963Detail }));
+
+    // Track whether connect/accountsChanged events have been successfully delivered
+    var _connectDelivered = false;
+    var _accountsChangedDelivered = false;
+
+    // Override emit to track successful delivery
+    var _originalEmit = emit;
+    emit = function(eventName, data) {
+        var listeners = eventListeners[eventName] || [];
+        if (eventName === 'connect' && listeners.length > 0) {
+            _connectDelivered = true;
         }
-    }));
-
-    // Dispatch EIP-1193 connection events after a short delay to let wagmi register listeners.
-    // Also dispatch immediately for libraries that register listeners synchronously.
-    function dispatchEip1193Events() {
-        emit('connect', { chainId: syncedChainId });
-
-        if (${if (hasAccount) "true" else "false"}) {
-            emit('accountsChanged', [syncedAddress]);
+        if (eventName === 'accountsChanged' && listeners.length > 0) {
+            _accountsChangedDelivered = true;
         }
+        _originalEmit(eventName, data);
+    };
+    window.ethereum.emit = emit;
+    window.ethereum._emit = emit;
 
-        console.log('SafeWallet: EIP-1193 events dispatched');
-    }
-
-    // First attempt: immediate (for frameworks that already registered listeners)
-    dispatchEip1193Events();
-
-    // Second attempt: delayed (for frameworks that register listeners after provider detection)
-    setTimeout(function() {
-        var listeners = eventListeners['connect'] || [];
-        var acctsListeners = eventListeners['accountsChanged'] || [];
-        console.log('SafeWallet: re-emitting events, connect listeners=' + listeners.length + ', accountsChanged listeners=' + acctsListeners.length);
-
-        // Re-emit with a slight offset so listeners registered during/after init get these events
-        if (listeners.length >= 0) {
+    // Lazy delivery: hijack window.ethereum.on() so that the moment the dapp
+    // registers a 'connect'/'accountsChanged' listener, we immediately deliver
+    // the event synchronously. This works regardless of how long the dapp's
+    // framework (wagmi/web3-react/viem) takes to initialize after page load.
+    var _originalOn = window.ethereum.on;
+    window.ethereum.on = function(event, listener) {
+        _originalOn.call(this, event, listener);
+        if (event === 'connect' && !_connectDelivered) {
+            console.log('SafeWallet: lazy-deliver connect (dapp registered listener)');
             emit('connect', { chainId: syncedChainId });
         }
-        if (${if (hasAccount) "true" else "false"}) {
+        if (event === 'accountsChanged' && ${if (hasAccount) "true" else "false"} && !_accountsChangedDelivered) {
+            console.log('SafeWallet: lazy-deliver accountsChanged (dapp registered listener)');
             emit('accountsChanged', [syncedAddress]);
         }
-    }, 300);
+    };
+
+    // Fallback: emit connect/accountsChanged when dapp calls eth_requestAccounts.
+    var _originalRequest = window.ethereum.request;
+    window.ethereum.request = function(args) {
+        if (args.method === 'eth_requestAccounts') {
+            if (!_connectDelivered) {
+                console.log('SafeWallet: emitting connect on eth_requestAccounts');
+                emit('connect', { chainId: syncedChainId });
+            }
+            if (${if (hasAccount) "true" else "false"} && !_accountsChangedDelivered) {
+                console.log('SafeWallet: emitting accountsChanged on eth_requestAccounts');
+                emit('accountsChanged', [syncedAddress]);
+            }
+        }
+        return _originalRequest.call(this, args);
+    };
+
+    // Proactive delivery: after staggered delays, re-dispatch EIP-6963 announcement
+    // AND emit connect/accountsChanged events. This handles dapp frameworks (like Reown
+    // AppKit/wagmi) that initialize asynchronously AFTER our synchronous injection.
+    // – EIP-6963 `eip6963:announceProvider` on `window` – for Reown AppKit, wagmi v2+
+    // – `ethereum#initialized` on `window` – for older EIP-6963 listeners
+    // – `connect` + `accountsChanged` on `window.ethereum` – for MetaMask-style listeners
+    var _eip6963Announced = false;
+    function proactiveEmit(attempt) {
+        console.log('SafeWallet: proactive emit attempt ' + (attempt || 1) + ', connectDelivered=' + _connectDelivered + ', accountsChangedDelivered=' + _accountsChangedDelivered + ', eip6963Announced=' + _eip6963Announced);
+        if (!_connectDelivered) {
+            emit('connect', { chainId: syncedChainId });
+        }
+        if (${if (hasAccount) "true" else "false"} && !_accountsChangedDelivered) {
+            emit('accountsChanged', [syncedAddress]);
+        }
+        // Re-dispatch EIP-6963 for frameworks that initialized after our injection.
+        // Use static UUID so the dapp deduplicates correctly.
+        if (!_eip6963Announced) {
+            try {
+                window.dispatchEvent(new CustomEvent('eip6963:announceProvider', { detail: _eip6963Detail }));
+                window.dispatchEvent(new CustomEvent('ethereum#initialized', { detail: { provider: window.ethereum } }));
+            } catch(e) { console.warn('SafeWallet: eip6963 re-announce error', e); }
+        }
+        // Mark EIP-6963 as announced once we detect the dapp framework
+        // has initialized and registered listeners (connect/accountsChanged or EIP-6963).
+        var hasListeners = (eventListeners['connect'] || []).length > 0 || (eventListeners['accountsChanged'] || []).length > 0;
+        if (hasListeners) {
+            _eip6963Announced = true;
+        }
+    }
+    setTimeout(function() { proactiveEmit(1); }, 300);
+    setTimeout(function() { proactiveEmit(2); }, 800);
+    setTimeout(function() { proactiveEmit(3); }, 2000);
+    setTimeout(function() { proactiveEmit(4); }, 4000);
+    setTimeout(function() {
+        // Diagnostic: check final state after all proactive emits
+        console.log('SafeWallet: DIAGNOSTIC _state=' + JSON.stringify(window.ethereum._state) +
+            ' chainId=' + window.ethereum.chainId +
+            ' selectedAddress=' + window.ethereum.selectedAddress +
+            ' isConnected=' + window.ethereum.isConnected() +
+            ' _connectDelivered=' + _connectDelivered +
+            ' _accountsChangedDelivered=' + _accountsChangedDelivered +
+            ' _eip6963Announced=' + _eip6963Announced);
+    }, 5000);
 
 })();
         """.trimIndent()

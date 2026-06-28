@@ -709,4 +709,8 @@ object Safe4Module {
     enum class WithdrawType {
         SuperNode, MasterNode, Proposal, Profit, Vote
     }
+
+    fun getSafeChain(): Chain {
+        return if (App.localStorage.isSafe4TestNet) Chain.SafeFourTestNet else Chain.SafeFour
+    }
 }

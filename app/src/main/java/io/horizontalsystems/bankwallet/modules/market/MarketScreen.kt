@@ -176,7 +176,7 @@ fun TabsSection(
             Tab.Coins -> TopCoins(onCoinClick = { onCoinClick(it, navController) })
             Tab.Watchlist -> MarketFavoritesScreen(navController)
             Tab.Earn -> MarketEarnScreen(navController)
-            Tab.Posts -> MarketPostsScreen()
+//            Tab.Posts -> MarketPostsScreen()
             Tab.Platform -> TopPlatforms(navController)
             Tab.Pairs -> TopPairsScreen()
             Tab.Sectors -> TopSectorsScreen(navController)

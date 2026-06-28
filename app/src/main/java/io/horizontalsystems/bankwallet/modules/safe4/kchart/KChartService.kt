@@ -20,7 +20,7 @@ class KChartService {
     private val itemsSubject = PublishSubject.create<List<KChartData>>()
     val itemsObservable: Observable<List<KChartData>> get() = itemsSubject
 
-    val safeApiKeyService by lazy { Safe4KChartService(Chain.SafeFour.isSafe4TestNetId) }
+    val safeApiKeyService by lazy { Safe4KChartService(Chain.isSafe4TestMode) }
 
     fun getKChartData(token0: String, token1: String, interval: String) {
         safeApiKeyService.getKChart(token0.lowercase(), token1.lowercase(), interval)

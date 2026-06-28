@@ -50,7 +50,7 @@ class CoinTweetsService(
                 if (username.isNullOrBlank()) {
                     Single.error(TweetsProvider.UserNotFound())
                 } else {
-                    twitterProvider.userRequestSingle(username)
+                    twitterProvider.userByUsernameSingle(username)
                         .doOnSuccess {
                             user = it
                         }
@@ -65,7 +65,7 @@ class CoinTweetsService(
                         if (username.isNullOrBlank()) {
                             Single.error(TweetsProvider.UserNotFound())
                         } else {
-                            twitterProvider.userRequestSingle(username)
+                            twitterProvider.userByUsernameSingle(username)
                         }
                     }
                     .doOnSuccess {

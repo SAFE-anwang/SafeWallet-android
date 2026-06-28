@@ -83,6 +83,7 @@ interface IAdapterManager {
     fun refreshByWallet(wallet: Wallet)
 
     fun refreshSafeAdapter()
+    fun clearAdaptersForBlockchain(blockchainType: BlockchainType)
 }
 
 interface ILocalStorage {
@@ -161,6 +162,8 @@ interface ILocalStorage {
     val disabledPaidActionsFlow: StateFlow<Set<String>>
     var hideWithdrawTransactions: Boolean
     var hideUploadTransactions: Boolean
+
+    var isSafe4TestNet: Boolean
 
     fun getLiquidityProviderId(blockchainType: BlockchainType): String?
     fun setLiquidityProviderId(blockchainType: BlockchainType, providerId: String)

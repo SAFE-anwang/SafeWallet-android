@@ -9,5 +9,6 @@ data class Redeem(
 		val existAvailable: Boolean,
 		val existLocked: Boolean,
 		val existMasterNode: Boolean,
-		val success: Boolean
+		val success: Boolean,
+		val chainType: Int = 0
 )
