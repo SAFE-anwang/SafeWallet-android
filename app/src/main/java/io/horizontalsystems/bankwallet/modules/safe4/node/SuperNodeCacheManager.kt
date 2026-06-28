@@ -163,6 +163,7 @@ object SuperNodeCacheManager {
 				// 批量写入数据库
 				if (allNodes.isNotEmpty()) {
 					val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
+					App.appDatabase.nodeInfoDao().deleteNodeInfoList(1, chainType)
 					App.appDatabase.nodeInfoDao().insert(allNodes.map { it.copy(chainType = chainType) })
 					Log.i(TAG, "Cached ${allNodes.size} master nodes to database")
 				}

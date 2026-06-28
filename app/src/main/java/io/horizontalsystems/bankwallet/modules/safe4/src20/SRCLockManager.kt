@@ -8,12 +8,16 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 
 object SRCLockManager {
+
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun syncLockInfo() {
         val customToken = App.appDatabase.customTokenDao().getAll()
@@ -27,7 +31,7 @@ object SRCLockManager {
         if (safeWallet == null) return
         val adapter = (App.adapterManager.getAdapterForWallet(safeWallet) as? ISendEthereumAdapter)  ?: return
         val rpcBlockchainSafe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             customToken.forEach {
                 Log.d("SRC20LockedInfoService", "logo=${it.logoURI}, ${it.address}")
                 val src20LockedService = SRC20LockedInfoService(rpcBlockchainSafe4, it.address)
@@ -35,6 +39,12 @@ object SRCLockManager {
                 src20LockedService.loadLocked(0)
             }
         }
+    }
+
+    fun cancelSync() {
+        Log.d("SRCLockManager", "cancelSync: cancelling SRC20 lock sync")
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
     fun getLockAmount(contract: String, address: String): BigInteger {

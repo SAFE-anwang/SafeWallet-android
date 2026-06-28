@@ -72,7 +72,8 @@ class LockRecordInfoRepository(
     }
 
     fun update(data: LockRecordInfo) {
-        lockRecordDao.update(data)
+        val chainType = getChainType()
+        lockRecordDao.update(data.copy(chainType = chainType))
     }
 
     fun delete(lockId: Long, contract: String) {
