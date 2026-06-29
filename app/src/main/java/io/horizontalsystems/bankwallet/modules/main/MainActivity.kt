@@ -40,8 +40,8 @@ import com.walletconnect.web3.wallet.client.Wallet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-//import com.v2ray.ang.AppConfig
-//import com.v2ray.ang.util.Utils
+import com.v2ray.ang.AppConfig
+import com.v2ray.ang.util.Utils
 import com.xuexiang.xupdate.XUpdate
 import com.xuexiang.xupdate.entity.UpdateEntity
 import com.xuexiang.xupdate.entity.UpdateError.ERROR.CHECK_NO_NEW_VERSION
@@ -85,11 +85,11 @@ class MainActivity : BaseActivity() {
         MainActivityViewModel.Factory()
     }
 
-    /*private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    private val requestVpnPermission = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 VpnConnectService.startVpn(this)
             }
-        }*/
+        }
 
     private var showPinLockScreen by mutableStateOf(false)
 
@@ -206,7 +206,7 @@ class MainActivity : BaseActivity() {
 
         observeLockState()
 
-       /* val filter = IntentFilter()
+        val filter = IntentFilter()
         filter.addAction(AppConfig.BROADCAST_ACTION_ACTIVITY)
         filter.addAction("com.anwang.safe.connect")
         filter.addAction("com.anwang.safe.reconnect")
@@ -216,7 +216,7 @@ class MainActivity : BaseActivity() {
             registerReceiver(mMsgReceiver, filter)
         }
 
-        startVpn()*/
+        startVpn()
         startUpgradeVersion()
         App.accountManager.activeAccount
         Thread(
@@ -315,7 +315,7 @@ class MainActivity : BaseActivity() {
     })*/
     }
 
-    /*private fun startVpn() {
+    private fun startVpn() {
         if (!getSharedPreferences("vpnSetting", Context.MODE_PRIVATE).getBoolean(
                 "vpnOpen",
                 false
@@ -370,14 +370,14 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-    }*/
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
-//        unregisterReceiver(mMsgReceiver)
-//        Utils.stopVService(this)
-//        VpnConnectService.startLoopCheckConnection = false
+        unregisterReceiver(mMsgReceiver)
+        Utils.stopVService(this)
+        VpnConnectService.startLoopCheckConnection = false
         LockRecordManager.exit()
     }
 

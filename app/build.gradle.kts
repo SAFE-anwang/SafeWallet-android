@@ -455,7 +455,7 @@ dependencies {
     testRuntimeOnly(libs.kotlin.reflect)
 
     // VPN
-//    implementation(project(":vpn"))
+    implementation(project(":vpn"))
 
     implementation(project(":telegram:TMessagesProj"))
 
@@ -479,7 +479,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("commons-codec:commons-codec:1.15")
 
-    api(files("libs/mmkv-static-1.2.7.aar"))
 }
 
 // Flavor-specific dependencies must be added after evaluation

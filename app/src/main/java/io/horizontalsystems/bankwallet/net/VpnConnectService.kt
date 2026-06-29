@@ -6,12 +6,12 @@ import android.content.Intent
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-//import com.v2ray.ang.dto.EConfigType
-//import com.v2ray.ang.dto.ServerConfig
-//import com.v2ray.ang.dto.V2rayConfig
-//import com.v2ray.ang.service.V2RayServiceManager
-//import com.v2ray.ang.util.MmkvManager
-//import com.v2ray.ang.util.Utils
+import com.v2ray.ang.dto.EConfigType
+import com.v2ray.ang.dto.ServerConfig
+import com.v2ray.ang.dto.V2rayConfig
+import com.v2ray.ang.service.V2RayServiceManager
+import com.v2ray.ang.util.MmkvManager
+import com.v2ray.ang.util.Utils
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.AdapterManager
 import io.horizontalsystems.bankwallet.entities.VpnServerInfo
@@ -64,9 +64,9 @@ object VpnConnectService {
                 if (it.isNotEmpty()) SafeNetWork.vpnNodes =  it
                 connectVpn(activity)
             },
-            {
-                connectVpn(activity)
-            }).let {
+                {
+                    connectVpn(activity)
+                }).let {
             }
     }
 
@@ -86,24 +86,24 @@ object VpnConnectService {
         if (connecting) return
         if (setServerConfig()) {
             connecting = true
-//            V2RayServiceManager.startV2Ray(activity)
+            V2RayServiceManager.startV2Ray(activity)
         }
     }
 
     fun stopConnect(activity: Activity) {
-//        V2RayServiceManager.stopV2Ray(activity)
+        V2RayServiceManager.stopV2Ray(activity)
     }
 
     private fun setServerConfig(): Boolean {
         // 设置走代理的APP
-        /*setProxyApps()
+        setProxyApps()
         val serverInfo = getConnectServerNode() ?: return false
         Log.e("VpnConnectService", "connect ip: ${serverInfo.address}")
         // 移除上次配置的服务器
         MmkvManager.removeServer()
         connectNode.add(serverInfo.address)
         val config = ServerConfig.create(serverInfo.type)
-        initOutbound(serverInfo, config)*/
+        initOutbound(serverInfo, config)
         return true
     }
 
@@ -116,13 +116,13 @@ object VpnConnectService {
         apps.add("com.anwang.safewallet.appcenter")
         apps.add("org.telegram.messenger.web")
         apps.add("org.telegram.messenger")
-//        MmkvManager.setProxyApps(apps)
+        MmkvManager.setProxyApps(apps)
 
 //        MmkvManager.setRoutingDirect("120.78.227.96,114.215.31.37,47.96.254.235,106.14.66.206,47.52.9.168,47.75.17.223,47.88.247.232,47.89.208.160,47.74.13.245")
 //        MmkvManager.setRoutingDirect("")
     }
 
-    /*private fun initOutbound(serverInfo: VpnServerInfo, config: ServerConfig) {
+    private fun initOutbound(serverInfo: VpnServerInfo, config: ServerConfig) {
         config.outboundBean?.settings?.vnext?.get(0)?.let {
             it.address = serverInfo.address
             it.port = serverInfo.port
@@ -131,12 +131,12 @@ object VpnConnectService {
                 it.users[0].security = serverInfo.securitys
                 it.users[0].encryption = "auto"
             } else if (config.configType == EConfigType.VLESS) {
-                *//*it.users[0].encryption = et_security.text.toString().trim()
+                /*it.users[0].encryption = et_security.text.toString().trim()
                 if (streamSecuritys[sp_stream_security.selectedItemPosition] == V2rayConfig.XTLS) {
 //                vnext.users[0].flow = flows[sp_flow.selectedItemPosition].ifBlank { V2rayConfig.DEFAULT_FLOW }
                 } else {
                     it.users[0].flow = ""
-                }*//*
+                }*/
             }
         }
 
@@ -149,10 +149,10 @@ object VpnConnectService {
                 server.method = "auto"
             } else if (config.configType == EConfigType.SOCKS) {
                 server.users = null
-                *//*val socksUsersBean = V2rayConfig.OutboundBean.OutSettingsBean.ServersBean.SocksUsersBean()
+                /*val socksUsersBean = V2rayConfig.OutboundBean.OutSettingsBean.ServersBean.SocksUsersBean()
                 socksUsersBean.user = ""
                 socksUsersBean.pass = ""
-                server.users = listOf(socksUsersBean)*//*
+                server.users = listOf(socksUsersBean)*/
             } else if (config.configType == EConfigType.TROJAN) {
                 server.password = serverInfo.clientId
             }
@@ -183,7 +183,7 @@ object VpnConnectService {
         }
 
         MmkvManager.encodeServerConfig("", config)
-    }*/
+    }
 
     private fun getConnectServerNode(): VpnServerInfo? {
         val noteList = SafeNetWork.getVpnServerInfo()
