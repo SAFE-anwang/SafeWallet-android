@@ -43,10 +43,10 @@ class WithdrawNodeViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
-
+        val list = withdrawList?.toList()
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList,
-            withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
+            list,
+            list?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog
         )
 
