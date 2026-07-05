@@ -26,6 +26,9 @@ object LockRecordManager {
     private val _recordState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val recordState = _recordState.asStateFlow()
 
+    private val _refreshTrigger: MutableStateFlow<Long> = MutableStateFlow(0L)
+    val refreshTrigger = _refreshTrigger.asStateFlow()
+
     private val _newProposalRecordState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val newProposalRecordState = _newProposalRecordState.asStateFlow()
     private var proposalRecordRepository: ProposalRecordRepository? = null
@@ -64,8 +67,13 @@ object LockRecordManager {
                             service2?.updateLockedInfo()
                         }
                     } catch (e: Exception) {
-
+                        Log.e("LockRecordManager", "getAllLockRecord error", e)
+                        // 即使同步失败，也通知 ViewModel 刷新（使用 DB 已有数据）
+                        _recordState.update { true }
                     }
+                } ?: run {
+                    // getAdapter 返回 null，没有钱包可用，也通知 ViewModel
+                    _recordState.update { true }
                 }
 
 //            }
@@ -100,6 +108,7 @@ object LockRecordManager {
 
     suspend fun switchWallet() {
         cancelAllSyncTasks()
+        _refreshTrigger.update { it + 1 }
         delay(2000)
         getAllLockRecord()
         getAllProposalRecord()
@@ -108,6 +117,7 @@ object LockRecordManager {
 
     fun switchNetwork() {
         cancelAllSyncTasks()
+        _refreshTrigger.update { it + 1 }
         scope.launch {
             delay(1000)
             getAllLockRecord()

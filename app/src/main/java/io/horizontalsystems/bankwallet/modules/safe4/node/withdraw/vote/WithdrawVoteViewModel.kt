@@ -22,6 +22,7 @@ import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.models.Address
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -59,9 +60,10 @@ class WithdrawVoteViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawNodeUiState {
+        val list = withdrawList?.toList()
         return WithdrawModule.WithDrawNodeUiState(
-            withdrawList?.sortedBy { !it.enable },
-            withdrawList?.filter { it.checked }?.isNotEmpty() ?: false,
+            list?.sortedBy { !it.enable },
+            list?.filter { it.checked }?.isNotEmpty() ?: false,
             showConfirmationDialog,
             canWithdrawAll
         )
@@ -82,7 +84,16 @@ class WithdrawVoteViewModel(
             }*/
 
         viewModelScope.launch(Dispatchers.IO) {
-            LockRecordManager.recordState.collect {
+            LockRecordManager.refreshTrigger.collect {
+                // 网络或钱包切换时，清空缓存强制全量刷新
+                withdrawList = null
+                page = 0
+                lockRecordTotal = 0
+                getTotal()
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            LockRecordManager.recordState.drop(1).collect {
                 getTotal()
             }
         }
@@ -107,7 +118,6 @@ class WithdrawVoteViewModel(
 
     fun start() {
         viewModelScope.launch(Dispatchers.IO) {
-            getData()
             service.updateLockedInfo()
         }
         checkWithdrawAllState()
@@ -115,9 +125,11 @@ class WithdrawVoteViewModel(
 
     private fun getData() {
         if (loading.get())  return
+        if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0)) {
+            android.util.Log.d("LockedInfoViewModel", "getData skip: lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}")
+            return
+        }
         loading.set(true)
-        android.util.Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}")
-        if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0))   return
         try {
             offset = page * limit
             val records = repository.getEnableReleaseVotedRecordsPaged(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L, limit, offset)

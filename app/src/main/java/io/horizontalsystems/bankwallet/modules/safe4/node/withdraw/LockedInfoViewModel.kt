@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.modules.send.SendResult
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -55,10 +56,11 @@ class LockedInfoViewModel(
     }
 
     private fun getUiState(): WithdrawModule.WithDrawLockInfoUiState {
-        Log.d("LockedInfoViewModel", "withdrawList= ${withdrawList?.size}, ${withdrawAvailable?.size}")
-        val list = withdrawList?.sortedWith(compareBy<WithdrawModule.WithDrawLockedInfo> { !it.withdrawEnable }.thenBy { it.id })
+        val snapshot = withdrawList?.toList()
+        Log.d("LockedInfoViewModel", "withdrawList= ${snapshot?.size}, ${withdrawAvailable?.size}")
+        val sorted = snapshot?.sortedWith(compareBy<WithdrawModule.WithDrawLockedInfo> { !it.withdrawEnable }.thenBy { it.id })
         return WithdrawModule.WithDrawLockInfoUiState(
-            list,
+            sorted,
             showConfirmationDialog,
             canWithdrawAll
         )
@@ -75,7 +77,17 @@ class LockedInfoViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            LockRecordManager.recordState.collect {
+            LockRecordManager.refreshTrigger.collect {
+                // 网络或钱包切换时，清空缓存强制全量刷新
+                withdrawList = null
+                withdrawAvailable = null
+                page = 0
+                lockRecordTotal = 0
+                getTotal()
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            LockRecordManager.recordState.drop(1).collect {
                 getTotal()
             }
         }
@@ -141,9 +153,9 @@ class LockedInfoViewModel(
 
     private fun getData() {
         if (loading.get())  return
-        loading.set(true)
         Log.d("LockedInfoViewModel", "lockRecordTotal=$lockRecordTotal, size=${(withdrawList?.size ?: 0)}, ${ (withdrawAvailable?.size ?: 0)}, ${evmKit.lastBlockHeight}")
         if (lockRecordTotal == 0 || lockRecordTotal == (withdrawList?.size ?: 0) + (withdrawAvailable?.size ?: 0))   return
+        loading.set(true)
         try {
             offset = page * limit
             val records = repository.getRecordsPaged(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L, limit, offset)
@@ -159,8 +171,9 @@ class LockedInfoViewModel(
                         it.address,
                         it.address2,
                         it.frozenAddr,
-                        ((it.unlockHeight ?: 0L) > 0L && (it.unlockHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
-                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
+                        ((it.unlockHeight ?: 0L) > 0L && ( (it.unlockHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)))
+                                || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
+                                || ((it.unlockHeight ?: 0L) == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
                         it.contact,
                         it.type

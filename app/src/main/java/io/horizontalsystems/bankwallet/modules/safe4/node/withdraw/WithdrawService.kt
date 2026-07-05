@@ -93,12 +93,14 @@ class WithdrawService(
         if (maxNum <= 0) {
             loading.set(false)
             itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
+            LockRecordManager.emit()
             return
         }
         var itemsCount = page * itemsPerPage
         if (maxNum < itemsCount)  itemsCount = maxNum
         if (allLoaded.get()) {
             loading.set(false)
+            LockRecordManager.emit()
             return
         }
         // already vote
@@ -154,14 +156,15 @@ class WithdrawService(
                             )
                         }
                     )
-                    LockRecordManager.emit()
                     loadNext()
                 }
                 lockedIdsItemsLocked.addAll(infos)
                 itemsSubjectAvailable.onNext(lockedIdsItemsLocked)
+                LockRecordManager.emit()
 
                 loadedPageNumberLocked = page
             }, {
+                LockRecordManager.emit()
             }).let {
                 disposables.add(it)
             }
