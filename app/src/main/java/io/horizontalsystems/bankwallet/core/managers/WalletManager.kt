@@ -87,9 +87,12 @@ class WalletManager(
     fun start(
         restoreSettingsManager: RestoreSettingsManager,
         moneroNodeManager: MoneroNodeManager,
+        zanoNodeManager: ZanoNodeManager,
+        zcashEndpointManager: ZcashLightWalletEndpointManager,
         btcBlockchainManager: BtcBlockchainManager,
         evmBlockchainManager: EvmBlockchainManager,
         solanaKitManager: SolanaKitManager,
+        tronKitManager: TronKitManager,
     ) {
         coroutineScope.launch {
             restoreSettingsManager.settingsUpdatedFlow.collect { blockchainType ->
@@ -99,6 +102,16 @@ class WalletManager(
         coroutineScope.launch {
             moneroNodeManager.currentNodeUpdatedFlow.collect {
                 reloadWallets(BlockchainType.Monero)
+            }
+        }
+        coroutineScope.launch {
+            zanoNodeManager.currentNodeUpdatedFlow.collect {
+                reloadWallets(BlockchainType.Zano)
+            }
+        }
+        coroutineScope.launch {
+            zcashEndpointManager.currentEndpointUpdatedFlow.collect {
+                reloadWallets(BlockchainType.Zcash)
             }
         }
         coroutineScope.launch {
@@ -117,6 +130,11 @@ class WalletManager(
         coroutineScope.launch {
             solanaKitManager.kitStoppedObservable.asFlow().collect {
                 reloadWallets(BlockchainType.Solana)
+            }
+        }
+        coroutineScope.launch {
+            tronKitManager.kitStoppedObservable.asFlow().collect {
+                reloadWallets(BlockchainType.Tron)
             }
         }
     }

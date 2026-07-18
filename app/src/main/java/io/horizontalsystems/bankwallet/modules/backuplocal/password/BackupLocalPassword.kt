@@ -26,9 +26,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
-import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
+import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
+import io.horizontalsystems.bankwallet.modules.safe4.node.FormsInputPassword2
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellowWithSpinner
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputPassword
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
@@ -36,6 +36,9 @@ import io.horizontalsystems.bankwallet.ui.compose.components.InfoText
 import io.horizontalsystems.bankwallet.ui.compose.components.TextImportantWarning
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.controls.HSButton
+import io.horizontalsystems.bankwallet.uiv3.components.info.TextBlock
+import io.horizontalsystems.bankwallet.uiv3.components.section.SectionHeaderColored
 import io.horizontalsystems.core.SnackbarDuration
 import io.horizontalsystems.core.helpers.HudHelper
 
@@ -103,7 +106,7 @@ fun LocalBackupPasswordScreen(
     val focusRequester2 = remember { FocusRequester() }
 
     HSScaffold(
-        title = stringResource(R.string.LocalBackup_SetPassword),
+        title = stringResource(R.string.LocalBackup_ProtectBackup),
         onBack = onBackClick,
     ) {
         Column {
@@ -112,11 +115,29 @@ fun LocalBackupPasswordScreen(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                InfoText(text = stringResource(R.string.LocalBackup_ProtextBackupWithPasswordInfo))
-                VSpacer(24.dp)
+                TextBlock(text = stringResource(R.string.LocalBackup_ProtectBackupDescription))
+
+                SectionHeaderColored(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = ComposeAppTheme.colors.grey,
+                    title = stringResource(R.string.LocalBackup_BackupName)
+                )
+                FormsInput(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    initial = uiState.backupName,
+                    hint = stringResource(R.string.LocalBackup_BackupName),
+                    singleLine = true,
+                    onValueChange = viewModel::onChangeBackupName
+                )
+
+                SectionHeaderColored(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = ComposeAppTheme.colors.grey,
+                    title = stringResource(R.string.Password)
+                )
                 FormsInputPassword2(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    hint = stringResource(R.string.Password),
+                    hint = stringResource(R.string.LocalBackup_AddPassword),
                     state = uiState.passphraseState,
                     onValueChange = viewModel::onChangePassphrase,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -129,7 +150,7 @@ fun LocalBackupPasswordScreen(
                 VSpacer(16.dp)
                 FormsInputPassword2(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    hint = stringResource(R.string.ConfirmPassphrase),
+                    hint = stringResource(R.string.LocalBackup_ConfirmPassword),
                     state = uiState.passphraseConfirmState,
                     onValueChange = viewModel::onChangePassphraseConfirmation,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -140,24 +161,16 @@ fun LocalBackupPasswordScreen(
                         focusRequester = focusRequester2
                 )
                 VSpacer(32.dp)
-                TextImportantWarning(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = stringResource(R.string.LocalBackup_DontForgetPasswordWarning)
-                )
-                VSpacer(32.dp)
-
             }
             ButtonsGroupWithShade {
-                ButtonPrimaryYellowWithSpinner(
+                HSButton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                    title = stringResource(R.string.LocalBackup_SaveAndBackup),
-                    showSpinner = uiState.showButtonSpinner,
-                    enabled = uiState.showButtonSpinner.not(),
-                    onClick = {
-                        viewModel.onSaveClick()
-                    },
+                        .padding(horizontal = 16.dp),
+                    title = stringResource(R.string.Button_Save),
+                    loadingIndicator = uiState.showButtonSpinner,
+                    enabled = !uiState.showButtonSpinner,
+                    onClick = { viewModel.onSaveClick() }
                 )
             }
         }

@@ -7,6 +7,8 @@ import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
@@ -52,7 +56,6 @@ import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.AttentionIconType
-import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem
 import io.horizontalsystems.bankwallet.modules.balance.DeemedValue
 import io.horizontalsystems.bankwallet.modules.balance.LockedValue
@@ -60,6 +63,7 @@ import io.horizontalsystems.bankwallet.modules.balance.StellarLockedValue
 import io.horizontalsystems.bankwallet.modules.balance.ZcashLockedValue
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceActionButton
 import io.horizontalsystems.bankwallet.modules.coin.CoinFragment
+import io.horizontalsystems.bankwallet.modules.multiswap.SwapFragment
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.safe4.safesend.SafeSendFragment
 import io.horizontalsystems.bankwallet.modules.send.SendFragment
@@ -91,7 +95,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItemLoading
 import io.horizontalsystems.bankwallet.ui.compose.components.TextAttention
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.uiv3.components.BalanceButtonsGroup
@@ -179,34 +182,6 @@ fun TokenBalanceScreen(
         title = uiState.title,
         onBack = navController::popBackStack,
         menuItems = buildList {
-            when {
-                loading -> {
-                    add(MenuItemLoading)
-                }
-
-                uiState.attentionIcon != null -> {
-                    val color = if (uiState.attentionIcon.caution.type == Caution.Type.Error) {
-                        ComposeAppTheme.colors.lucian
-                    } else {
-                        ComposeAppTheme.colors.jacob
-                    }
-                    add(
-                        MenuItem(
-                            icon = R.drawable.ic_warning_filled_24,
-                            title = TranslatableString.PlainString(uiState.attentionIcon.caution.text),
-                            tint = color,
-                            onClick = {
-                                if (uiState.attentionIcon.type == AttentionIconType.SyncError) {
-                                    openSyncErrorDialog(uiState, navController)
-                                } else if (uiState.attentionIcon.type == AttentionIconType.TronNotActive) {
-                                    isTronAlertVisible = true
-                                }
-                            }
-                        )
-                    )
-                }
-            }
-
             if (uiState.balanceViewItem?.isWatchAccount == true) {
                 add(
                     MenuItem(
@@ -229,34 +204,20 @@ fun TokenBalanceScreen(
         }
     ) {
         val onClickReceive = {
-            try {
-                val wallet = viewModel.getWalletForReceive()
-                if (wallet.token.blockchainType == BlockchainType.Zcash) {
-                    navController.slideFromRight(
-                        R.id.receiveSelectZcashAddressTypeFragment,
-                        ZcashAddressTypeSelectFragment.Input(wallet)
-                    )
-                } else {
-                    navController.slideFromRight(
-                        R.id.receiveFragment,
-                        ReceiveFragment.Input(wallet)
-                    )
-                }
-
-                stat(page = StatPage.TokenPage, event = StatEvent.OpenReceive(wallet.token))
-            } catch (e: BackupRequiredError) {
-                val text = Translator.getString(
-                    R.string.ManageAccount_BackupRequired_Description,
-                    e.account.name,
-                    e.coinTitle
+            val wallet = viewModel.wallet
+            if (wallet.token.blockchainType == BlockchainType.Zcash) {
+                navController.slideFromRight(
+                    R.id.receiveSelectZcashAddressTypeFragment,
+                    ZcashAddressTypeSelectFragment.Input(wallet)
                 )
-                navController.slideFromBottom(
-                    R.id.backupRequiredDialog,
-                    BackupRequiredDialog.Input(e.account, text)
+            } else {
+                navController.slideFromRight(
+                    R.id.receiveFragment,
+                    ReceiveFragment.Input(wallet)
                 )
-
-                stat(page = StatPage.TokenPage, event = StatEvent.Open(StatPage.BackupRequired))
             }
+
+            stat(page = StatPage.TokenPage, event = StatEvent.OpenReceive(wallet.token))
         }
 
         val transactionItems = uiState.transactions
@@ -267,6 +228,28 @@ fun TokenBalanceScreen(
         ) {
             item {
                 uiState.balanceViewItem?.let { balanceViewItem ->
+                    val attentionIcon = uiState.attentionIcon
+                    val trailingContent: (@Composable () -> Unit)? = if (loading) {
+                        { SyncingSpinner() }
+                    } else if (attentionIcon != null) {
+                        {
+                            AttentionIconButton(
+                                caution = attentionIcon.caution,
+                                onClick = {
+                                    when (attentionIcon.type) {
+                                        AttentionIconType.SyncError ->
+                                            openSyncErrorDialog(uiState, navController)
+
+                                        AttentionIconType.TronNotActive ->
+                                            isTronAlertVisible = true
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        null
+                    }
+
                     TokenBalanceHeader(
                         balanceViewItem = balanceViewItem,
                         navController = navController,
@@ -274,7 +257,7 @@ fun TokenBalanceScreen(
                         receiveAddress = uiState.receiveAddress,
                         warning = uiState.warningMessage,
                         onClickReceive = onClickReceive,
-                        loading = loading
+                        trailingContent = trailingContent,
                     )
 
                     balanceViewItem.birthdayHeight?.let { birthdayHeight ->
@@ -409,18 +392,6 @@ fun TokenBalanceScreen(
                             R.id.receiveFragment,
                             ReceiveFragment.Input(wallet)
                         )
-                    } catch (e: BackupRequiredError) {
-                        val text = Translator.getString(
-                            R.string.ManageAccount_BackupRequired_Description,
-                            e.account.name,
-                            e.coinTitle
-                        )
-                        navController.slideFromBottom(
-                            R.id.backupRequiredDialog,
-                            BackupRequiredDialog.Input(e.account, text)
-                        )
-
-                        stat(page = StatPage.TokenPage, event = StatEvent.Open(StatPage.BackupRequired))
                     } catch (e: IllegalStateException) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }
@@ -430,6 +401,37 @@ fun TokenBalanceScreen(
         )
     }
 
+}
+
+@Composable
+private fun SyncingSpinner() {
+    CircularProgressIndicator(
+        modifier = Modifier.size(20.dp),
+        color = ComposeAppTheme.colors.leah,
+        backgroundColor = ComposeAppTheme.colors.andy,
+        strokeWidth = 2.dp
+    )
+}
+
+@Composable
+private fun AttentionIconButton(caution: Caution, onClick: () -> Unit) {
+    val tint = if (caution.type == Caution.Type.Error) {
+        ComposeAppTheme.colors.lucian
+    } else {
+        ComposeAppTheme.colors.jacob
+    }
+    Icon(
+        modifier = Modifier
+            .size(20.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        painter = painterResource(R.drawable.ic_warning_filled_24),
+        contentDescription = caution.text,
+        tint = tint,
+    )
 }
 
 private fun openSyncErrorDialog(
@@ -471,7 +473,7 @@ private fun TokenBalanceHeader(
     receiveAddress: String?,
     warning: String?,
     onClickReceive: () -> Unit,
-    loading: Boolean
+    trailingContent: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
 
@@ -487,22 +489,14 @@ private fun TokenBalanceHeader(
             title = "* * *".hs
             body = "".hs
         } else {
-            val color = if (loading) {
+            val color = if (balanceViewItem.attentionIcon?.type == AttentionIconType.TronNotActive) {
                 ComposeAppTheme.colors.andy
-            } else if (balanceViewItem.attentionIcon?.type == AttentionIconType.TronNotActive) {
-                ComposeAppTheme.colors.andy
-            } else if (balanceViewItem.primaryValue.dimmed) {
-                ComposeAppTheme.colors.grey
             } else {
                 null
             }
 
-            val bodyColor = if (loading) {
-                ComposeAppTheme.colors.andy
-            } else if (balanceViewItem.attentionIcon?.type == AttentionIconType.TronNotActive) {
+            val bodyColor = if (balanceViewItem.attentionIcon?.type == AttentionIconType.TronNotActive) {
                 ComposeAppTheme.colors.jacob
-            } else if (balanceViewItem.primaryValue.dimmed) {
-                ComposeAppTheme.colors.grey
             } else {
                 null
             }
@@ -533,6 +527,7 @@ private fun TokenBalanceHeader(
 
                 stat(page = StatPage.TokenPage, event = StatEvent.ToggleBalanceHidden)
             },
+            trailingContent = trailingContent,
         )
         if (balanceViewItem.isWatchAccount) {
             receiveAddress?.let { receiveAddress ->
@@ -794,7 +789,7 @@ private fun LockedBalanceCell(
             },
             right = {
                 CellRightInfoTextIcon(
-                    text = if (!balanceHidden) lockedAmount.value.hs(dimmed = lockedAmount.dimmed) else "*****".hs,
+                    text = if (!balanceHidden) lockedAmount.value.hs else "*****".hs,
                 )
             },
             backgroundColor = ComposeAppTheme.colors.lawrence
@@ -819,15 +814,14 @@ private fun LockedBalanceZcashCell(
             right = {
                 CellRightInfoTextIcon(
                     text = if (!balanceHidden) lockedAmount.value.hs(
-                        color = ComposeAppTheme.colors.jacob,
-                        dimmed = lockedAmount.dimmed
+                        color = ComposeAppTheme.colors.jacob
                     ) else "*****".hs,
                     icon = painterResource(R.drawable.warning_filled_24),
                     iconTint = ComposeAppTheme.colors.jacob,
-                    onIconClick = onClickInfo
                 )
             },
             backgroundColor = ComposeAppTheme.colors.lawrence,
+            onClick = onClickInfo
         )
     }
 }
@@ -945,7 +939,7 @@ private fun ButtonsRow(
                 icon = R.drawable.ic_swap_circle_24,
                 title = stringResource(R.string.Swap),
                 onClick = {
-                    navController.slideFromRight(R.id.multiswap, viewItem.wallet.token)
+                    navController.slideFromRight(R.id.multiswap, SwapFragment.Input(tokenIn = viewItem.wallet.token))
 
                     stat(page = StatPage.TokenPage, event = StatEvent.Open(StatPage.Swap))
                 },

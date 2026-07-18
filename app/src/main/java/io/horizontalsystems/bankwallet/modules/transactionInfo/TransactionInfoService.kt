@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.transactionInfo
 
 import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
+import io.horizontalsystems.bankwallet.core.storage.OcpPaymentDao
 import io.horizontalsystems.bankwallet.core.adapters.StellarTransactionRecord
 import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
@@ -13,6 +14,8 @@ import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.Bitco
 import io.horizontalsystems.bankwallet.entities.transactionrecords.bitcoin.BitcoinOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.monero.MoneroIncomingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.monero.MoneroOutgoingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.zano.ZanoIncomingTransactionRecord
+import io.horizontalsystems.bankwallet.entities.transactionrecords.zano.ZanoOutgoingTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ApproveTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.ContractCallTransactionRecord
 import io.horizontalsystems.bankwallet.entities.transactionrecords.evm.EvmIncomingTransactionRecord
@@ -53,6 +56,7 @@ class TransactionInfoService(
     private val marketKit: MarketKitWrapper,
     private val currencyManager: CurrencyManager,
     private val nftMetadataService: NftMetadataService,
+    private val ocpPaymentDao: OcpPaymentDao,
     balanceHidden: Boolean,
 ) {
 
@@ -171,6 +175,12 @@ class TransactionInfoService(
                 is MoneroOutgoingTransactionRecord -> {
                     listOf(tx.fee?.coinUid, tx.value.coinUid)
                 }
+                is ZanoIncomingTransactionRecord -> {
+                    listOf(tx.value.coinUid)
+                }
+                is ZanoOutgoingTransactionRecord -> {
+                    listOf(tx.fee?.coinUid, tx.value.coinUid)
+                }
                 else -> emptyList()
             }
 
@@ -192,6 +202,9 @@ class TransactionInfoService(
         }
 
     suspend fun start() = withContext(Dispatchers.IO) {
+        ocpPaymentDao.getByTxHash(transactionHash)?.let { ocpPayment ->
+            transactionInfoItem = transactionInfoItem.copy(ocpPayment = ocpPayment)
+        }
         _transactionInfoItemFlow.update { transactionInfoItem }
 
         launch {

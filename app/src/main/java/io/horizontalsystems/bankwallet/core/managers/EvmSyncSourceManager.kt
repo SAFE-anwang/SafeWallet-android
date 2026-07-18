@@ -41,6 +41,7 @@ class EvmSyncSourceManager(
             BlockchainType.Gnosis -> TransactionSource.gnosis(listOf(appConfigProvider.gnosisscanApiKey))
             BlockchainType.Fantom -> TransactionSource.fantom(listOf(appConfigProvider.ftmscanApiKey))
             BlockchainType.ZkSync -> TransactionSource.zkSync(appConfigProvider.otherScanApiKey)
+            BlockchainType.Tron -> TransactionSource.ethereum(emptyList()) // unused for Tron; TronKitManager handles its own TransactionSource
             BlockchainType.SafeFour -> TransactionSource.safeFourscan(appConfigProvider.bscscanApiKey)
             else -> throw Exception("Non-supported EVM blockchain")
         }
@@ -156,28 +157,22 @@ class EvmSyncSourceManager(
             BlockchainType.Base -> listOf(
                 evmSyncSource(
                     blockchainType,
-                    "Base",
-                    RpcSource.baseRpcHttp(),
+                    "PublicNode",
+                    RpcSource.Http(listOf(URI("https://base-rpc.publicnode.com")), null),
                     defaultTransactionSource(blockchainType)
                 ),
                 evmSyncSource(
                     blockchainType,
                     "dRPC",
-                    RpcSource.Http(
-                        listOf(URI("https://base.drpc.org")),
-                        null
-                    ),
+                    RpcSource.Http(listOf(URI("https://base.drpc.org")), null),
                     defaultTransactionSource(blockchainType)
                 ),
                 evmSyncSource(
                     blockchainType,
-                    "PublicNode",
-                    RpcSource.Http(
-                        listOf(URI("https://base-rpc.publicnode.com")),
-                        null
-                    ),
+                    "Base",
+                    RpcSource.baseRpcHttp(),
                     defaultTransactionSource(blockchainType)
-                )
+                ),
             )
 
             BlockchainType.ZkSync -> listOf(
@@ -236,6 +231,21 @@ class EvmSyncSourceManager(
                     blockchainType,
                     "Ankr",
                     RpcSource.Http(listOf(URI("https://rpc.ankr.com/fantom")), null),
+                    defaultTransactionSource(blockchainType)
+                )
+            )
+
+            BlockchainType.Tron -> listOf(
+                evmSyncSource(
+                    blockchainType,
+                    "TronGrid",
+                    RpcSource.Http(listOf(URI("https://api.trongrid.io/")), null),
+                    defaultTransactionSource(blockchainType)
+                ),
+                evmSyncSource(
+                    blockchainType,
+                    "Pocket Network",
+                    RpcSource.Http(listOf(URI("https://tron.api.pocket.network")), null),
                     defaultTransactionSource(blockchainType)
                 )
             )

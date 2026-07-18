@@ -102,8 +102,8 @@ class ERC20Contract(
         
         val rawTransaction = RawTransaction.createTransaction(
             nonce,
-            gasProvider.getGasPrice(function.name),
-            gasProvider.getGasLimit(function.name),
+            gasProvider.getGasPrice(),
+            gasProvider.getGasLimit(),
             contractAddress,
             encodedFunction
         )

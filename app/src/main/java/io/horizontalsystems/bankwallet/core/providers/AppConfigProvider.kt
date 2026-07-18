@@ -295,6 +295,10 @@ class AppConfigProvider(val index: Int, val localStorage: ILocalStorage) {
         Translator.getString(R.string.safeswapv2safe4router)
     }
 
+    val appLinksHost by lazy {
+        Translator.getString(R.string.appLinksHost)
+    }
+
     val fiatDecimal: Int = 2
     val feeRateAdjustForCurrencies: List<String> = listOf("USD", "EUR")
     val maxDecimal: Int = 8
@@ -386,6 +390,7 @@ class AppConfigProvider(val index: Int, val localStorage: ILocalStorage) {
         "ETH" to BigDecimal("0.0005"),
         "POL" to BigDecimal("1"),
         "BNB" to BigDecimal("0.0002"),
+        "SOL" to BigDecimal("0.000001"),
     )
 
     val chainalysisBaseUrl by lazy {
@@ -410,6 +415,10 @@ class AppConfigProvider(val index: Int, val localStorage: ILocalStorage) {
 
     val uswapApiKey by lazy {
         Translator.getString(R.string.uswapApiKey)
+    }
+
+    val oneInchPartnerFeeAddress by lazy {
+        Translator.getString(R.string.oneInchPartnerFeeAddress)
     }
 
     val safeTwitterUser = "safeanwang"

@@ -5,7 +5,6 @@
     <string name="LargeNumberFormat">%1$s%2$s</string>
     <string name="Alert_Cancel">Cancelar</string>
     <string name="Alert_Copy">Copiar</string>
-    <string name="Alert_Loading">Carregando...</string>
     <string name="Button_Show">Show</string>
     <string name="Button_Hide">Hide</string>
     <string name="Button_Cancel">Cancelar</string>
@@ -106,14 +105,8 @@
     <string name="Restore_NonStandard_Description">Esta página fornece um mecanismo especial de restauração de carteira para usuários do Unstoppable que possuem uma carteira fora do padrão. Essas carteiras podem ter sido criadas na versão Unstoppable 0.27 - 0.28 usando uma frase de recuperação diferente do inglês e/ou um caractere especial na senha da carteira (ou seja, símbolo diacrítico).\n\nSe você for um usuário afetado, o saldo da sua carteira será ser mostrado 0 após restaurar tal carteira na versão 0.29 ou superior. Esta página permitirá que você restaure o acesso à sua carteira não padrão. Uma vez restaurado, é recomendável criar uma nova carteira (que será compatível com o padrão) e mover fundos para lá.</string>
     <string name="Restore_PrivateKey_InvalidKey">Chave Inválida</string>
     <string name="Restore_BirthdayHeight">Altura de aniversário</string>
-    <string name="Restore_ZCash_BirthdayHeight_Hint">Insira a data da criação da carteira para uma sincronização mais rápida.</string>
     <string name="Restore_ZCash_Birthday_Hint">000000000 (opcional)</string>
     <string name="Restore_ZCash_RestoreAsNew">Restaurar como novo</string>
-    <string name="Restore_ZCash_NewWallet">Nova Carteira</string>
-    <string name="Restore_ZCash_NewWallet_Description">Não tem nenhuma transação</string>
-    <string name="Restore_ZCash_OldWallet">Carteira existente</string>
-    <string name="Restore_ZCash_OldWallet_Description">Tem transações</string>
-    <string name="Restore_ZCash_SlowSyncWarningText">A sincronização inicial com o blockchain pode consumir muito tráfego na internet.</string>
 
     <!--Market-->
     <string name="Market_Field_MarketCap">Cap. de mercado</string>
@@ -209,7 +202,6 @@
     <string name="Balance_Syncing">Sincronizando...</string>
     <string name="Balance_SearchingTransactions">Procurando transações...</string>
     <string name="Balance_FoundTx">%s tx</string>
-    <string name="Balance_Syncing_WithProgress">Sincronizando… %s%%</string>
     <string name="Balance_Sort_Balance">Saldo</string>
     <string name="Balance_Sort_PopupTitle">Organizar por</string>
     <string name="Balance_Sort_Az">Nome</string>
@@ -326,7 +318,6 @@
     <string name="WalletConnect_Error_NoSuitableEvmKit">Nenhum kit evm adequado</string>
     <string name="WalletConnect_Error_RequestNotFoundError">Pedido não encontrado erro</string>
     <string name="WalletConnect_NoConnection">Você não tem nenhum Dapps conectado</string>
-    <string name="WalletConnect_PendingRequests">Solicitações Pendentes</string>
     <string name="WalletConnect_ActiveWallet">Carteira ativa</string>
     <string name="WalletConnect_NotSupportedDescription">Seu tipo de carteira atual %s não suporta WalletConnect</string>
     <string name="WalletConnect_Unnamed">Sem nome</string>
@@ -546,10 +537,6 @@
     <string name="SettingsSecurity_EnablePin">Enable Passcode</string>
     <string name="SettingsSecurity_DisablePin">Disable Passcode</string>
     <string name="SettingsSecurity_EditPin">Editar senha</string>
-    <string name="SettingsSecurity_SetDuressPin">Set Duress Mode</string>
-    <string name="SettingsSecurity_EditDuressPin">Edit Duress Passcode</string>
-    <string name="SettingsSecurity_DisableDuressPin">Disable Duress Passcode</string>
-    <string name="SettingsSecurity_DuressPinDescription">A specialized mode designed to keep selected wallets safe under coercion.</string>
     <string name="SettingsSecurity_ManageKeys">Gerenciar carteiras</string>
     <string name="SettingsSecurity_AppRestartWarning">Esta ação reiniciará Carteira Unstoppable.</string>
     <string name="SettingsSecurity_TorConnectionDescription">Anonimize sua internet completamente enquanto estiver usando este aplicativo. Nota: em alguns casos, o recurso WalletConnect para apps DeFi pode ser muito lento ou nem funcionar.</string>
@@ -665,6 +652,110 @@
     <string name="ManageAccount_Wallets">Carteiras</string>
     <string name="ManageAccount_WatchAddresses">Observar endereços</string>
     <string name="ManageAccount_DeleteWarning">Você quer parar de acompanhar este endereço da carteira?</string>
+
+    <string-array name="wallet_names">
+        <item>😰 Cofre Suado</item>
+        <item>🧂 Livro Razão Salgado</item>
+        <item>💧 Definitivamente Líquido</item>
+        <item>⏳ Transação Pendente</item>
+        <item>🌈 Lucros Imaginários</item>
+        <item>🤡 Âncora Instável</item>
+        <item>😤 Cope Máximo</item>
+        <item>☠️ Rekted Certificado</item>
+        <item>👑 Coroa Insolvente</item>
+        <item>📉 Retornos Mediocres</item>
+        <item>🕸️ Carteira Empoeirada</item>
+        <item>🧳 Bolsa Vintage</item>
+        <item>👻 Ganhos Fantasma</item>
+        <item>🐂 Touro Ilusório</item>
+        <item>🛒 Comprador Compulsivo</item>
+        <item>💼 Bagholder Premium</item>
+        <item>🤨 Rendimento Suspeito</item>
+        <item>♾️ Queda Eterna</item>
+        <item>💭 Convicção Emprestada</item>
+        <item>🦍 Macaco Quântico</item>
+        <item>🔍 Nó Paranoico</item>
+        <item>🛋️ Staker Preguiçoso</item>
+        <item>☕ Validador Cafeínado</item>
+        <item>🔮 Oráculo à Míngua</item>
+        <item>😴 Validador Sonolento</item>
+        <item>🎲 Génio Acidental</item>
+        <item>🔐 Hodler Relutante</item>
+        <item>🤑 Oráculo Ganancioso</item>
+        <item>😵 Arbitragem Confusa</item>
+        <item>🏃 Exchange Frenética</item>
+        <item>🪢 Fundação Enganada</item>
+        <item>🌉 Ponte Suspeita</item>
+        <item>⛽ Taxas Absurdas</item>
+        <item>🌶️ Colateral Picante</item>
+        <item>🚌 Mempool Sobrecarregado</item>
+        <item>💨 Génesis Fumegante</item>
+        <item>🕯️ Carteira Assombrada</item>
+        <item>⌛ Paciência Infinita</item>
+        <item>🥶 Cope Congelado</item>
+        <item>💊 Coragem Sintética</item>
+        <item>🎖️ Camponês Nobre</item>
+        <item>⚡ Milionário Temporário</item>
+        <item>🗺️ Pobreza Estratégica</item>
+        <item>😊 Rekted Alegre</item>
+        <item>🏰 Cidadela Imprudente</item>
+        <item>🎰 Paraíso Degen</item>
+        <item>🙏 Ruína Humilde</item>
+        <item>💎 Mãos de Diamante</item>
+        <item>🃏 Mãos de Papel</item>
+        <item>🌙 Ilusão Lunar</item>
+        <item>🚿 Trader Lavado</item>
+        <item>🤏 Alocação Mínima</item>
+        <item>🎯 Chute Sortudo</item>
+        <item>🌊 Posição Submersa</item>
+        <item>💤 Gigante Adormecido</item>
+        <item>🎪 Circo Ambulante</item>
+        <item>🧸 Cobertura Emocional</item>
+        <item>🐯 Tigre de Papel</item>
+        <item>🔁 Ganhos Recursivos</item>
+        <item>🥴 Retornos Tonteantes</item>
+        <item>🏚️ Quinta Hipotecada</item>
+        <item>🤫 Baleia Silenciosa</item>
+        <item>🌅 Falso Amanhecer</item>
+        <item>📊 Passeio Aleatório</item>
+        <item>🌋 Montanha Volátil</item>
+        <item>🎁 Liquidação Surpresa</item>
+        <item>🏄 Passeio Arriscado</item>
+        <item>🧲 Perda Magnética</item>
+        <item>🏋️ Saco Pesado</item>
+        <item>🎈 Retornos Inflacionados</item>
+        <item>🧪 Fundo Experimental</item>
+        <item>🌸 Posição Frágil</item>
+        <item>🧋 Token Borbulhante</item>
+        <item>🏆 Troféu de Participação</item>
+        <item>🌝 Fundo Lua Cheia</item>
+        <item>🐸 Pepe Raro</item>
+        <item>🧟 Token Zombie</item>
+        <item>🦄 Ganhos Míticos</item>
+        <item>🥊 Hipótese de Luta</item>
+        <item>🌟 Ignorância Feliz</item>
+        <item>🦆 Pato de Borracha</item>
+        <item>🎋 Protocolo Bambu</item>
+        <item>🏴‍☠️ Tesouro Pirata</item>
+        <item>🪄 Liquidez Mágica</item>
+        <item>🏊 Cofre Submerso</item>
+        <item>🎊 Liquidação Sortuda</item>
+        <item>🦋 Efeito Borboleta</item>
+        <item>🎸 Cofre Desligado</item>
+        <item>💥 Retornos Explosivos</item>
+        <item>🧠 Cérebro Liso</item>
+        <item>🪦 Pool Morto</item>
+        <item>🎡 Economia Circular</item>
+        <item>🧘 Liquidação Zen</item>
+        <item>📌 Fundo Perdido</item>
+        <item>🏴 Floresta Escura</item>
+        <item>😎 Perdedor Confiante</item>
+        <item>🌪️ Rendimento Caótico</item>
+        <item>🧬 Protocolo Mutante</item>
+        <item>🍕 Carteira Faminta</item>
+        <item>🎭 Lua Emprestada</item>
+    </string-array>
+
     <string name="Balance_Receive_BackupRequired_Description">You need to backup %1$s</string>
     <!--Network Settings-->
     <!-- Show Key -->

@@ -237,6 +237,16 @@ sealed class AccountType : Parcelable {
             return key.hashCode()
         }
     }
+    @Parcelize
+    data class TronPrivateKey(val key: BigInteger) : AccountType() {
+        override fun equals(other: Any?): Boolean {
+            return other is TronPrivateKey && key == other.key
+        }
+
+        override fun hashCode(): Int {
+            return key.hashCode()
+        }
+    }
 
     @Parcelize
     data class HdExtendedKey(val keySerialized: String) : AccountType() {
@@ -346,6 +356,7 @@ sealed class AccountType : Parcelable {
             is TonAddress -> "Ton Address"
             is StellarAddress -> "Stellar Address"
             is EvmPrivateKey -> "EVM Private Key"
+            is TronPrivateKey -> "TRON Private Key"
             is StellarSecretKey -> "Stellar Secret Key"
             is MoneroWatchAccount -> "Monero Watch Wallet"
             is HdExtendedKey -> {

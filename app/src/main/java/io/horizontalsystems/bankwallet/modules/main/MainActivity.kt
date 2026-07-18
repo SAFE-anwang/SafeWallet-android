@@ -36,7 +36,6 @@ import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
-import com.walletconnect.web3.wallet.client.Wallet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
@@ -59,12 +58,14 @@ import io.horizontalsystems.bankwallet.modules.tonconnect.TonConnectNewFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.core.hideKeyboard
+import io.horizontalsystems.dapp.core.HSDAppEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import io.horizontalsystems.bankwallet.entities.UpgradeVersion
+import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
@@ -96,7 +97,6 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         validate()
-        viewModel.onResume()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -137,23 +137,23 @@ class MainActivity : BaseActivity() {
         viewModel.wcEvent.observe(this) { wcEvent ->
             if (wcEvent != null) {
                 when (wcEvent) {
-                    is Wallet.Model.SessionRequest -> {
+                    is HSDAppEvent.SessionRequest -> {
                         navController.slideFromBottom(R.id.wcRequestFragment)
                     }
 
-                    is Wallet.Model.SessionProposal -> {
+                    is HSDAppEvent.SessionProposal -> {
                         if (!MainModule.isOpenDapp) {
                             navController.slideFromBottom(R.id.wcSessionBottomSheetDialog)
                         }
                     }
 
-                    is Wallet.Model.Error -> {
+                    is HSDAppEvent.Error -> {
                         navHost.view?.let {
                             HudHelper.showErrorMessage(it, wcEvent.throwable.message ?: "Error")
                         }
                     }
 
-                    is Wallet.Model.SettledSessionResponse.Result -> {
+                    is HSDAppEvent.SessionSettled -> {
                         navHost.view?.let {
                             HudHelper.showSuccessMessage(it, getString(R.string.Hud_Text_Connected))
                         }
@@ -278,6 +278,12 @@ class MainActivity : BaseActivity() {
             App.pinComponent.isLockedFlow.collect { isLocked ->
                 showPinLockScreen = isLocked
                 pinLockComposeView.visibility = if (isLocked) { VISIBLE } else { GONE }
+
+                if (isLocked) {
+                    // Hide the keyboard so it doesn't end up on top of / behind the pin-unlock
+                    // screen when a screen underneath requests focus while the app is locked.
+                    currentFocus?.hideKeyboard(this@MainActivity)
+                }
             }
         }
     }

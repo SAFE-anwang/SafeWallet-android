@@ -30,8 +30,6 @@ import android.webkit.WebViewClient.ERROR_HOST_LOOKUP
 import android.webkit.WebViewClient.ERROR_PROXY_AUTHENTICATION
 import android.webkit.WebViewClient.ERROR_TIMEOUT
 import com.tencent.mmkv.MMKV
-import com.walletconnect.web3.wallet.client.Wallet
-import com.walletconnect.web3.wallet.client.Web3Wallet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.*
 import io.horizontalsystems.bankwallet.core.slideFromBottom

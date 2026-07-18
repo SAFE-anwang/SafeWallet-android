@@ -134,7 +134,25 @@ private fun onClick(
 
             stat(
                 page = StatPage.BlockchainSettings,
-                event = StatEvent.OpenBlockchainSettingsEvm(item.blockchainItem.blockchain.uid)
+                event = StatEvent.OpenBlockchainSettingsCryptoNote(item.blockchainItem.blockchain.uid)
+            )
+        }
+
+        is BlockchainSettingsModule.BlockchainItem.Zano -> {
+            navController.slideFromBottom(R.id.zanoNetworkFragment)
+
+            stat(
+                page = StatPage.BlockchainSettings,
+                event = StatEvent.OpenBlockchainSettingsCryptoNote(item.blockchainItem.blockchain.uid)
+            )
+        }
+
+        is BlockchainSettingsModule.BlockchainItem.Zcash -> {
+            navController.slideFromBottom(R.id.zcashNetworkFragment)
+
+            stat(
+                page = StatPage.BlockchainSettings,
+                event = StatEvent.OpenBlockchainSettingsCryptoNote(item.blockchainItem.blockchain.uid)
             )
         }
     }

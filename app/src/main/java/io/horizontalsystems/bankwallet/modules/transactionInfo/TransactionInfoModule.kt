@@ -8,6 +8,7 @@ import io.horizontalsystems.bankwallet.core.ITransactionsAdapter
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.LastBlockInfo
+import io.horizontalsystems.bankwallet.entities.OcpPaymentRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAssetBriefMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
 import io.horizontalsystems.bankwallet.entities.transactionrecords.TransactionRecord
@@ -30,6 +31,7 @@ object TransactionInfoModule {
                 App.marketKit,
                 App.currencyManager,
                 NftMetadataService(App.nftMetadataManager),
+                App.appDatabase.ocpPaymentDao(),
                 App.balanceHiddenManager.balanceHidden,
             )
             val factory = TransactionInfoViewItemFactory(
@@ -66,6 +68,7 @@ data class TransactionInfoItem(
     val rates: Map<String, CurrencyValue>,
     val nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
     val hideAmount: Boolean,
+    val ocpPayment: OcpPaymentRecord? = null,
 )
 
 val BlockchainType.resendable: Boolean

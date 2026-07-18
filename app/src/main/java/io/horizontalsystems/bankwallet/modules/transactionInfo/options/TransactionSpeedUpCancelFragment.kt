@@ -4,11 +4,7 @@ import android.os.Parcelable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -24,10 +20,10 @@ import io.horizontalsystems.bankwallet.modules.confirm.ConfirmTransactionScreen
 import io.horizontalsystems.bankwallet.modules.confirm.ErrorBottomSheet
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SendEvmTransactionView
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.rememberAsyncAction
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class TransactionSpeedUpCancelFragment : BaseComposeFragment() {
@@ -90,20 +86,15 @@ private fun TransactionSpeedUpCancelScreen(
             navController.slideFromBottom(R.id.transactionSpeedUpCancelTransactionSettings)
         },
         buttonsSlot = {
-            val coroutineScope = rememberCoroutineScope()
-            var buttonEnabled by remember { mutableStateOf(true) }
-            var isSending by remember { mutableStateOf(false) }
+            val sendAction = rememberAsyncAction()
 
             ButtonPrimaryYellow(
                 modifier = Modifier.fillMaxWidth(),
-                title = if (isSending) stringResource(R.string.Send_Sending) else viewModel.buttonTitle,
+                title = if (sendAction.inProgress) stringResource(R.string.Send_Sending) else viewModel.buttonTitle,
                 onClick = {
                     logger.info("click ${viewModel.buttonTitle} button")
 
-                    coroutineScope.launch {
-                        buttonEnabled = false
-                        isSending = true
-
+                    sendAction.run {
                         try {
                             logger.info("sending tx")
                             viewModel.send()
@@ -117,13 +108,9 @@ private fun TransactionSpeedUpCancelScreen(
                             logger.warning("failed", t)
                             navController.slideFromBottom(R.id.errorBottomSheet, ErrorBottomSheet.Input(t.message ?: t.javaClass.simpleName))
                         }
-
-                        isSending = false
-                        buttonEnabled = true
                     }
-
                 },
-                enabled = uiState.sendEnabled && buttonEnabled
+                enabled = !sendAction.inProgress && uiState.sendEnabled
             )
         }
     ) {

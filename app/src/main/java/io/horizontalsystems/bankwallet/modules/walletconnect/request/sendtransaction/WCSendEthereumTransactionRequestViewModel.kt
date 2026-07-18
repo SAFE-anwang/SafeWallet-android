@@ -98,7 +98,7 @@ class WCSendEthereumTransactionRequestViewModel(
         val transactionHash = sendResult.fullTransaction.transaction.hash
 
         WCDelegate.sessionRequestEvent?.let { sessionRequest ->
-            WCDelegate.respondPendingRequest(sessionRequest.request.id, sessionRequest.topic, transactionHash.toHexString())
+            WCDelegate.respondPendingRequest(sessionRequest.requestId, sessionRequest.topic, transactionHash.toHexString())
         }
         WCDelegate.dappRequestEvent?.let { dapp ->
             WCDelegate.respondPendingRequest(dapp.id, "dapp-bridge", transactionHash.toHexString())
@@ -107,7 +107,7 @@ class WCSendEthereumTransactionRequestViewModel(
 
     fun reject() {
         WCDelegate.sessionRequestEvent?.let { sessionRequest ->
-            WCDelegate.rejectRequest(sessionRequest.topic, sessionRequest.request.id)
+            WCDelegate.rejectRequest(sessionRequest.topic, sessionRequest.requestId)
         }
         WCDelegate.dappRequestEvent?.let { dapp ->
             WCDelegate.rejectRequest("dapp-bridge", dapp.id)

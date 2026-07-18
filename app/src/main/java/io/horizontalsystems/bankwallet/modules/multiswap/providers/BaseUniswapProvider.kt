@@ -22,9 +22,11 @@ import java.math.BigDecimal
 
 abstract class BaseUniswapProvider : IMultiSwapProvider {
     override val type = SwapProviderType.DEX
-    override val aml = true
+    override val isEvm = true
     override val requireTerms = false
     private val uniswapKit by lazy { UniswapKit.getInstance() }
+
+    override fun isSingleTransactionSwap(tokenInBlockchainTypeUid: String, tokenOutBlockchainTypeUid: String) = true
 
     final override suspend fun fetchQuote(
         tokenIn: Token,
@@ -41,7 +43,8 @@ abstract class BaseUniswapProvider : IMultiSwapProvider {
             tokenIn = tokenIn,
             tokenOut = tokenOut,
             amountIn = amountIn,
-            actionRequired = EvmSwapHelper.actionApprove(allowance, amountIn, routerAddress, tokenIn)
+            actionRequired = EvmSwapHelper.actionApprove(allowance, amountIn, routerAddress, tokenIn),
+            estimationTime = tokenIn.blockchainType.blockTime
         )
     }
 

@@ -26,6 +26,7 @@ import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenQuery
 import io.horizontalsystems.marketkit.models.TokenType
+import io.reactivex.Flowable
 
 object SendEvmConfirmationModule {
 
@@ -65,7 +66,7 @@ object SendEvmConfirmationModule {
             val evmKit = evmKitWrapper.evmKit
             if (evmKit.chain.isEIP1559Supported) {
                 val gasPriceProvider = Eip1559GasPriceProvider(evmKit)
-                Eip1559GasPriceService(gasPriceProvider, evmKit)
+                Eip1559GasPriceService(gasPriceProvider, Flowable.empty(), )
             } else {
                 val gasPriceProvider = LegacyGasPriceProvider(evmKit)
                 LegacyGasPriceService(gasPriceProvider)

@@ -5,6 +5,6 @@
     <string name="Duration_instant">instantâneo</string>
     <string name="Duration_Within">dentro de %s</string>
     <string name="Duration_Hours">%d h.</string>
-    <string name="Duration_Minutes">%d min.</string>
     <string name="Duration_Seconds">%d seg.</string>
+    <string name="Duration_Minutes">%d min.</string>
 </resources>

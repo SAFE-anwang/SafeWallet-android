@@ -36,7 +36,7 @@ class MoneroNodeManager(
         get() {
             val nodeRecordsMap = moneroNodeStorage.getAll().associateBy { it.url }
             return defaultNodesInitial.map {
-                it.copy(trusted = nodeRecordsMap[it.host]?.trusted ?: false)
+                it.copy(trusted = nodeRecordsMap[it.host]?.trusted ?: it.trusted)
             }
         }
 

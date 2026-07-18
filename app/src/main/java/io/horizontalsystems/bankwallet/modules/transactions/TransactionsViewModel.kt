@@ -69,6 +69,8 @@ class TransactionsViewModel(
 
 
     init {
+        transactionFilterService.observeSpamSetting(viewModelScope)
+
         viewModelScope.launch(Dispatchers.Default) {
             service.start()
         }

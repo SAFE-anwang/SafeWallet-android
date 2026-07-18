@@ -19,6 +19,7 @@ import io.horizontalsystems.monerokit.MoneroKit
 import io.horizontalsystems.stellarkit.StellarKit
 import io.horizontalsystems.tonkit.core.TonKit
 import io.horizontalsystems.tronkit.account.AddressHandler
+import io.horizontalsystems.zanokit.ZanoKit
 import org.web3j.ens.EnsResolver
 
 interface IAddressHandler {
@@ -64,6 +65,7 @@ class AddressHandlerUdn(
     override val blockchainType = tokenQuery.blockchainType
 
     override fun isSupported(value: String): Boolean {
+        if (!value.contains(".")) return false
         return try {
             cache[value] = Address(resolveAddress(value), value, blockchainType)
             true
@@ -135,6 +137,7 @@ class AddressHandlerUdn(
             BlockchainType.Ton -> "TON"
             BlockchainType.Stellar -> "XLM"
             BlockchainType.Monero -> "XMR"
+            BlockchainType.Zano -> "ZANO"
             is BlockchainType.Unsupported -> blockchainType.uid
         }
 
@@ -344,6 +347,20 @@ class AddressHandlerMonero : IAddressHandler {
         } else {
             Address(hex = value, blockchainType = blockchainType)
         }
+    }
+}
+
+class AddressHandlerZano : IAddressHandler {
+    override val blockchainType = BlockchainType.Zano
+
+    override fun isSupported(value: String) = try {
+        ZanoKit.isValidAddress(value)
+    } catch (_: Exception) {
+        false
+    }
+
+    override fun parseAddress(value: String): Address {
+        return Address(value, blockchainType = blockchainType)
     }
 }
 

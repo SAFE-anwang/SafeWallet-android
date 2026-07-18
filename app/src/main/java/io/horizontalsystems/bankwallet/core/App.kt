@@ -13,13 +13,6 @@ import coil.ImageLoaderFactory
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
-import com.walletconnect.android.Core
-import com.walletconnect.android.CoreClient
-import com.walletconnect.android.relay.ConnectionType
-import com.walletconnect.web3.wallet.client.Wallet
-import com.walletconnect.web3.wallet.client.Web3Wallet
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.anwang.safewallet.safekit.netwok.SafeProvider
 import com.tencent.mmkv.MMKV
 import io.horizontalsystems.ethereumkit.models.Chain
@@ -53,11 +46,15 @@ import io.horizontalsystems.bankwallet.core.managers.MigrationManager
 import io.horizontalsystems.bankwallet.core.managers.MoneroBirthdayProvider
 import io.horizontalsystems.bankwallet.core.managers.MoneroNodeManager
 import io.horizontalsystems.bankwallet.core.managers.NetworkManager
+import io.horizontalsystems.bankwallet.core.managers.ZanoKitManager
+import io.horizontalsystems.bankwallet.core.managers.ZanoNodeManager
+import io.horizontalsystems.bankwallet.core.managers.ZcashLightWalletEndpointManager
 import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
 import io.horizontalsystems.bankwallet.core.managers.NumberFormatter
 import io.horizontalsystems.bankwallet.core.managers.PaidActionSettingsManager
+import io.horizontalsystems.bankwallet.core.managers.PasskeyManager
 import io.horizontalsystems.bankwallet.core.managers.PriceManager
 import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.managers.RecentAddressManager
@@ -98,6 +95,8 @@ import io.horizontalsystems.bankwallet.core.storage.BlockchainSettingsStorage
 import io.horizontalsystems.bankwallet.core.storage.EnabledWalletsStorage
 import io.horizontalsystems.bankwallet.core.storage.EvmSyncSourceStorage
 import io.horizontalsystems.bankwallet.core.storage.MoneroNodeStorage
+import io.horizontalsystems.bankwallet.core.storage.ZanoNodeStorage
+import io.horizontalsystems.bankwallet.core.storage.ZcashEndpointStorage
 import io.horizontalsystems.bankwallet.core.storage.NftStorage
 import io.horizontalsystems.bankwallet.core.storage.RedeemStorage
 import io.horizontalsystems.bankwallet.core.storage.RestoreSettingsStorage
@@ -110,6 +109,9 @@ import io.horizontalsystems.bankwallet.modules.chart.ChartIndicatorManager
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsRepository
 import io.horizontalsystems.bankwallet.modules.market.favorites.MarketFavoritesMenuService
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.TopPlatformsRepository
+import io.horizontalsystems.bankwallet.modules.multiswap.history.SwapRecordManager
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.SwapProviderInfoManager
+import io.horizontalsystems.bankwallet.modules.multiswap.history.SwapSyncService
 import io.horizontalsystems.bankwallet.modules.pin.PinComponent
 import io.horizontalsystems.bankwallet.modules.pin.core.PinDbStorage
 import io.horizontalsystems.bankwallet.modules.profeatures.ProFeaturesAuthorizationManager
@@ -124,6 +126,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.SuperNodeCacheManager
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionItem
 import io.horizontalsystems.bankwallet.modules.txsource.EvmTransactionViewModel.Companion.TRANSACTION_SOURCE
 import io.horizontalsystems.bitcoincore.managers.ConnectionManager
+import io.horizontalsystems.bankwallet.modules.walletconnect.WCDelegate
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCWalletRequestHandler
@@ -133,11 +136,14 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.storage.WCSessionSt
 import io.horizontalsystems.bankwallet.net.ApiKeyUtil
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetManager
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetRepository
+import io.horizontalsystems.bankwallet.modules.opencryptopay.OcpProofSubmissionWorker
 import io.horizontalsystems.bankwallet.widgets.MarketWidgetWorker
 import io.horizontalsystems.core.CoreApp
 import io.horizontalsystems.core.ICoreApp
 import io.horizontalsystems.core.security.EncryptionManager
 import io.horizontalsystems.core.security.KeyStoreManager
+import io.horizontalsystems.dapp.core.DAppInitParams
+import io.horizontalsystems.dapp.core.DAppManager
 import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.network.EtherscanService
 import io.horizontalsystems.hdwalletkit.Mnemonic
@@ -187,6 +193,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var transactionAdapterManager: TransactionAdapterManager
         lateinit var walletManager: WalletManager
         lateinit var walletActivator: WalletActivator
+        lateinit var passkeyManager: PasskeyManager
         lateinit var tokenAutoEnableManager: TokenAutoEnableManager
         lateinit var walletStorage: IWalletStorage
         lateinit var accountManager: IAccountManager
@@ -226,6 +233,11 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var solanaRpcSourceManager: SolanaRpcSourceManager
         lateinit var moneroNodeManager: MoneroNodeManager
         lateinit var moneroNodeStorage: MoneroNodeStorage
+        lateinit var zanoNodeStorage: ZanoNodeStorage
+        lateinit var zanoNodeManager: ZanoNodeManager
+        lateinit var zanoKitManager: ZanoKitManager
+        lateinit var zcashEndpointStorage: ZcashEndpointStorage
+        lateinit var zcashEndpointManager: ZcashLightWalletEndpointManager
         lateinit var nftMetadataManager: NftMetadataManager
         lateinit var nftAdapterManager: NftAdapterManager
         lateinit var nftMetadataSyncer: NftMetadataSyncer
@@ -246,6 +258,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var roiManager: RoiManager
         lateinit var appIconService: AppIconService
         lateinit var paidActionSettingsManager: PaidActionSettingsManager
+        lateinit var swapRecordManager: SwapRecordManager
+        lateinit var swapSyncService: SwapSyncService
+        lateinit var swapProviderInfoManager: SwapProviderInfoManager
         var trialExpired: Boolean = false
 
         lateinit var safeProvider: SafeProvider
@@ -297,6 +312,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             context = this,
             hsApiBaseUrl = appConfig.marketApiBaseUrl,
             hsApiKey = appConfig.marketApiKey,
+            newsApiKey = "",
         )
 
         priceManager = PriceManager(localStorage)
@@ -343,13 +359,18 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         moneroNodeStorage = MoneroNodeStorage(appDatabase)
         moneroNodeManager = MoneroNodeManager(blockchainSettingsStorage, moneroNodeStorage, marketKit)
+        zanoNodeStorage = ZanoNodeStorage(appDatabase)
+        zanoNodeManager = ZanoNodeManager(blockchainSettingsStorage, zanoNodeStorage, marketKit)
+        zanoKitManager = ZanoKitManager(zanoNodeManager, backgroundManager)
+        zcashEndpointStorage = ZcashEndpointStorage(appDatabase)
+        zcashEndpointManager = ZcashLightWalletEndpointManager(blockchainSettingsStorage, zcashEndpointStorage, marketKit)
         coinManager = CoinManager(marketKit, walletManager)
 
         solanaRpcSourceManager = SolanaRpcSourceManager(blockchainSettingsStorage, marketKit)
         val solanaWalletManager = SolanaWalletManager(walletManager, accountManager, marketKit)
         solanaKitManager = SolanaKitManager(appConfigProvider, solanaRpcSourceManager, solanaWalletManager, backgroundManager)
 
-        tronKitManager = TronKitManager(appConfigProvider, backgroundManager)
+        tronKitManager = TronKitManager(evmSyncSourceManager, backgroundManager)
         tonKitManager = TonKitManager(backgroundManager)
         stellarKitManager = StellarKitManager(backgroundManager)
 
@@ -373,11 +394,15 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         encryptionManager = EncryptionManager(keyProvider)
 
         walletActivator = WalletActivator(walletManager, marketKit)
+        passkeyManager = PasskeyManager()
         tokenAutoEnableManager = TokenAutoEnableManager(appDatabase.tokenAutoEnabledBlockchainDao())
 
         scannedTransactionStorage = ScannedTransactionStorage(appDatabase.scannedTransactionDao())
         contactsRepository = ContactsRepository(marketKit)
         recentAddressManager = RecentAddressManager(accountManager, appDatabase.recentAddressDao(), ActionCompletedDelegate)
+        swapRecordManager = SwapRecordManager(accountManager, appDatabase.swapRecordDao())
+        swapSyncService = SwapSyncService(swapRecordManager, appConfigProvider)
+        swapProviderInfoManager = SwapProviderInfoManager(appConfigProvider)
         val evmAccountManagerFactory = EvmAccountManagerFactory(
             accountManager,
             walletManager,
@@ -435,7 +460,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             coinManager = coinManager,
             evmLabelManager = evmLabelManager,
             localStorage = localStorage,
-            moneroNodeManager = moneroNodeManager
+            moneroNodeManager = moneroNodeManager,
+            zanoKitManager = zanoKitManager,
+            zcashEndpointManager = zcashEndpointManager,
         )
         adapterManager = AdapterManager(
             walletManager,
@@ -493,7 +520,17 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         nftAdapterManager = NftAdapterManager(walletManager, evmBlockchainManager)
         nftMetadataSyncer = NftMetadataSyncer(nftAdapterManager, nftMetadataManager, nftStorage)
 
-        initializeWalletConnectV2(appConfig)
+        DAppManager.initialize(
+            params = DAppInitParams(
+                application = this,
+                projectId = appConfig.walletConnectProjectId,
+                relayServerUrl = "wss://${appConfig.walletConnectUrl}?projectId=${appConfig.walletConnectProjectId}",
+                appName = appConfig.walletConnectAppMetaDataName,
+                appUrl = appConfig.walletConnectAppMetaDataUrl,
+                appIcon = appConfig.walletConnectAppMetaDataIcon,
+            ),
+            callback = WCDelegate,
+        )
 
         wcSessionManager = WCSessionManager(accountManager, WCSessionStorage(appDatabase))
 
@@ -528,10 +565,13 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             currencyManager = currencyManager,
             btcBlockchainManager = btcBlockchainManager,
             evmSyncSourceManager = evmSyncSourceManager,
-            evmSyncSourceStorage = evmSyncSourceStorage,
             solanaRpcSourceManager = solanaRpcSourceManager,
             moneroNodeManager = moneroNodeManager,
             moneroNodeStorage = moneroNodeStorage,
+            zanoNodeManager = zanoNodeManager,
+            zanoNodeStorage = zanoNodeStorage,
+            zcashEndpointManager = zcashEndpointManager,
+            zcashEndpointStorage = zcashEndpointStorage,
             contactsRepository = contactsRepository
         )
 
@@ -545,7 +585,9 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
 
         roiManager = RoiManager(localStorage)
 
-        Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         vpnServerStorage = VpnServerStorage(appDatabase)
         redeemStorage = RedeemStorage(appDatabase)
@@ -582,32 +624,6 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
                 }
             }
             .build()
-    }
-
-    private fun initializeWalletConnectV2(appConfig: AppConfigProvider) {
-        val projectId = appConfig.walletConnectProjectId
-        val serverUrl = "wss://${appConfig.walletConnectUrl}?projectId=$projectId"
-        val connectionType = ConnectionType.AUTOMATIC
-        val appMetaData = Core.Model.AppMetaData(
-            name = appConfig.walletConnectAppMetaDataName,
-            description = "",
-            url = appConfig.walletConnectAppMetaDataUrl,
-            icons = listOf(appConfig.walletConnectAppMetaDataIcon),
-            redirect = null,
-        )
-
-        CoreClient.initialize(
-            metaData = appMetaData,
-            relayServerUrl = serverUrl,
-            connectionType = connectionType,
-            application = this,
-            onError = { error ->
-                Log.w("AAA", "error", error.throwable)
-            },
-        )
-        Web3Wallet.initialize(Wallet.Params.Init(core = CoreClient)) { error ->
-            Log.e("AAA", "error", error.throwable)
-        }
     }
 
     private fun setAppTheme() {
@@ -679,7 +695,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         coroutineScope.launch {
             ApiKeyUtil.initApiKey()
             EthereumKit.init()
-            walletManager.start(restoreSettingsManager, moneroNodeManager, btcBlockchainManager, evmBlockchainManager, solanaKitManager)
+            walletManager.start(restoreSettingsManager, moneroNodeManager, zanoNodeManager, zcashEndpointManager, btcBlockchainManager, evmBlockchainManager, solanaKitManager, tronKitManager)
             adapterManager.startAdapterManager()
             marketKit.sync()
             rateAppManager.onAppLaunch()
@@ -687,6 +703,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             pinComponent.initDefaultPinLevel()
             accountManager.clearAccounts()
             wcSessionManager.start()
+            swapSyncService.start()
 
             AppVersionManager(systemInfoManager, localStorage).apply { storeAppVersion() }
 
@@ -694,6 +711,10 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
                 MarketWidgetWorker.enqueueWork(instance)
             } else {
                 MarketWidgetWorker.cancel(instance)
+            }
+
+            appDatabase.ocpPaymentDao().getPending().forEach { record ->
+                OcpProofSubmissionWorker.enqueue(instance, record.txHash)
             }
 
             evmLabelManager.sync()

@@ -3,9 +3,8 @@
     <!--Common-->
     <string name="Alert_Cancel">انصراف</string>
     <string name="Alert_Copy">رونوشت</string>
-    <string name="Alert_Loading">درحال بارگذاری...</string>
     <string name="Button_Show">نمایش</string>
-    <string name="Button_Cancel">کنسل</string>
+    <string name="Button_Cancel">انصراف</string>
     <string name="Button_Next">بعدي</string>
     <string name="Button_Enable">فعال کردن</string>
     <string name="Button_Disable">غیرفعال</string>
@@ -21,7 +20,7 @@
     <string name="Button_Reject">رد کردن</string>
     <string name="Button_Disconnect">قطع ارتباط</string>
     <string name="Button_Create">به وجود آوردن</string>
-    <string name="Button_Restore">بازگرداني</string>
+    <string name="Button_Restore">بازیابی</string>
     <string name="Button_Reset">تنظیم مجدد</string>
     <string name="Button_Understand">می فهمم</string>
     <string name="Button_Switch">تغییر</string>
@@ -73,11 +72,10 @@
     <string name="Restore_InvalidChecksum">Checksum نامعتبر است</string>
     <string name="Restore_Title">انتخاب زنجیره های بلوکی</string>
     <string name="Restore_By">By</string>
-    <string name="Restore_RestoreBy">Restore By</string>
+    <string name="Restore_RestoreBy">By</string>
     <string name="Restore_PhraseHint">Enter 12, 15, 18, 21 or 24 words</string>
     <string name="Restore_NonStandardRestore">Non-Standard Restore</string>
     <string name="Restore_BirthdayHeight">قد تولد</string>
-    <string name="Restore_ZCash_NewWallet">کیف پول جدید</string>
     <!--Backup-->
     <!--Market-->
     <string name="Market_Field_PriceDiff">قیمت</string>
@@ -108,11 +106,9 @@
     <string name="Balance_SyncedUntil">تا %s</string>
     <string name="Balance_Syncing">همزمانی…</string>
     <string name="Balance_SearchingTransactions">در جستجوی تراکنش ها…</string>
-    <string name="Balance_Syncing_WithProgress">همزمانی... %%%s</string>
-    <string name="Balance_Sort_Balance">مانده حساب</string>
+    <string name="Balance_Sort_Balance">بالانس</string>
     <string name="Balance_Sort_PopupTitle">مرتب‌ کردن بر اساس</string>
     <string name="Balance_Sort_Az">نام</string>
-    <string name="Balance_Sort_24hPriceChange">تغییر قیمت</string>
     <!--Send NFT-->
     <string name="SendNft_Title">ارسال</string>
     <!--Send-->
@@ -182,7 +178,7 @@
     <string name="WalletConnect_Error_NoSuitableEvmKit">بدون کیت evm مناسب</string>
     <string name="WalletConnect_Error_RequestNotFoundError">خطای درخواست یافت نشد</string>
     <string name="WalletConnect_NoConnection">شما هیچ برنامه متصل ندارید</string>
-    <string name="WalletConnect_PendingRequests">درخواست های معلق</string>
+    <string name="WalletConnect_DAppCheck_Risky">پرمخاطره</string>
     <!-- dApp Connection-->
     <!--EthereumTransaction-->
     <string name="EthereumTransaction_Warning_Title">هشدار</string>
@@ -204,12 +200,13 @@
     <string name="Swap_Price">قیمت</string>
     <string name="Swap_AvailableBalance">موجودی در دسترس</string>
     <string name="Swap_PriceImpact">تأثیر قیمت</string>
+    <string name="Swap_ProviderRisk_Risky">پرمخاطره</string>
+    <string name="Swap_AmlError_Button">دوباره امتحان کنید</string>
     <string name="Swap_MinimumReceived">مقدار تضمین شده</string>
     <string name="Swap_Recipient">گیرنده</string>
     <string name="Swap_ErrorInsufficientBalance">موجودی ناکافی</string>
     <string name="Swap_Proceed">بعدي</string>
     <string name="Swap_Revoke">ابطال</string>
-    <string name="Swap_Approve">تایید</string>
     <string name="Swap_Swapping">در حال جابجایی</string>
     <string name="Swap_AmountMin">(دقیقه)</string>
     <string name="Swap_AmountMax">(حداکثر)</string>
@@ -227,10 +224,13 @@
     <string name="SwapSettings_Warning_UnusualSlippage">معامله شما می تواند پیشرو باشد</string>
     <!-- Swap Confirmation -->
     <string name="Activate_InsufficientBalance_Title">موجودی ناکافی</string>
+    <!-- Swap History -->
+    <!-- Swap Info -->
+    <string name="SwapInfo_StatusSwapping">جایگزینی</string>
+    <string name="SwapInfo_StatusSending">ارسال</string>
     <!--Approve-->
     <string name="Approve_Spender">خرج کننده</string>
     <!--Swap Unlock Access-->
-    <string name="Swap_Approve_PageTitle">تایید</string>
     <!--Uniswap Info -->
     <string name="SwapInfo_PriceImpactTitle">تأثیر قیمت</string>
     <!--Deposit-->
@@ -240,16 +240,13 @@
     <string name="Transactions_WaitForSync">لطفا منتظر بمانید تا همگام سازی تمام شود.</string>
     <string name="Transactions_Pending">در حالت معلق</string>
     <string name="Transactions_Receive">دريافت شد</string>
-    <string name="Transactions_Completed">انجام شد</string>
     <string name="Transactions_Processing">پردازش</string>
     <string name="Transactions_Send">ارسال شد</string>
-    <string name="Transactions_Failed">ناموفق</string>
     <string name="Transactions_Transfer">انتقال</string>
     <string name="Transactions_ContractCall">تماس قرارداد</string>
     <string name="Transactions_ContractCreation">ایجاد قرارداد</string>
     <string name="Transactions_To">به %s</string>
     <string name="Transactions_From">از %s</string>
-    <string name="Transactions_All">همه</string>
     <string name="Transactions_Filter_ChooseCoin">سکه را انتخاب کنید</string>
     <string name="Transactions_Filter_ChooseBlockchain">انتخاب زنجیره بلوکی</string>
     <string name="Transactions_Incoming">دريافت شد</string>
@@ -272,7 +269,7 @@
     <string name="TransactionInfo_UnlockedAt">باز شده در %s</string>
     <string name="TransactionInfo_RecipientHash">گیرنده</string>
     <string name="TransactionInfo_HistoricalRate">نرخ تاريخي</string>
-    <string name="TransactionInfo_Fee">قیمت</string>
+    <string name="TransactionInfo_Fee">هزينه</string>
     <string name="TransactionInfo_FeeEstimated">قیمت (تخمینی)</string>
     <string name="TransactionInfo_SentToSelfNote">تراکنش ارسال شده به آدرس خود</string>
     <string name="TransactionInfo_DoubleSpendNote">خطر دو برابر هزینه کردن!</string>
@@ -282,10 +279,8 @@
     <string name="TransactionInfo_Received">دريافت شد</string>
     <string name="TransactionInfo_Sent">ارسال شد</string>
     <string name="TransactionInfo_SpeedUp">افزایش سرعت</string>
-    <string name="StatusInfo_Pending">در حالت انتظار</string>
+    <string name="StatusInfo_Pending">در حالت معلق</string>
     <string name="StatusInfo_Processing">پردازش</string>
-    <string name="StatusInfo_Confirmed">انجام شد</string>
-    <string name="StatusInfo_Failed">ناموفق</string>
     <string name="StatusInfo_PendingDescription">این تراکنش هنوز در بلاک چین تایید نشده است. تراکنش هایی که با تنظیم کارمزد توصیه شده یا بالاتر ارسال می شوند، معمولاً ظرف چند دقیقه پردازش می شوند. تراکنش هایی که با کارمزد پایین ارسال می شوند ممکن است به مدت چند ساعت یا حتی چند روز معلق بمانند و حتی رد شوند. به خاطر داشته باشید که وضعیت تراکنش فردی در رابطه با کیف پول غیرقابل توقف معمولاً با تاخیر کوتاهی به روز رسانی می شود.</string>
     <string name="StatusInfo_ProcessingDescription">این تراکنش قبلاً در بلاک چین گنجانده شده است اما نهایی نشده است. در این مرحله، برای پرداخت‌های کوچک‌تر می‌توان تراکنش را کامل‌تر در نظر گرفت. برای پرداخت‌های بزرگ‌تر، توصیه می‌شود منتظر بمانید تا وضعیت تراکنش تکمیل شود.</string>
     <string name="StatusInfo_ConfirmedDescription">تراکنش تکمیل شده و دائمی و غیرقابل برگشت تلقی می شود.</string>
@@ -335,8 +330,8 @@
     <string name="SettingsAboutApp_Site">وب سایت پروژه</string>
     <!-- Blockchain Settings  -->
     <!-- Backup Manager -->
-    <string name="BackupManager_Other">غیره</string>
-    <string name="BackupManager_MergeTitle">هشدار</string>
+    <string name="BackupManager_Other">داده‌ها</string>
+    <string name="BackupManager_MergeTitle">توجه!</string>
     <!-- Privacy  -->
     <!-- Security Center -->
     <!--Evm Network-->
@@ -359,14 +354,11 @@
     <string name="DuressPin_Notes_Biometrics_Title">احراز هویت بیومتریک</string>
     <!--Setting_Terms-->
     <!--Setting_Tell Friends-->
-    <string name="SettingsShare_Title">به اشتراك گذاشتن</string>
     <!--Setting_Contact-->
     <!--Setting_Notifications-->
     <!-- Settings Launch Screen -->
-    <string name="SettingsLaunchScreen_Auto">خودکار</string>
     <string name="SettingsLaunchScreen_Balance">بالانس</string>
     <string name="SettingsLaunchScreen_MarketOverview">بررسی اجمالی بازار</string>
-    <string name="SettingsLaunchScreen_Watchlist">فهرست تماشا</string>
     <!--Settings-->
     <string name="SettingsTheme_Dark">تیره</string>
     <string name="SettingsTheme_Light">روشن</string>
@@ -408,7 +400,6 @@
     <string name="ManageAccount_NWordsWithPassphrase">%s کلمه با عبارت عبور</string>
     <string name="ManageAccount_SwitchWallet_Title">کیف پول را تغییر دهید</string>
     <string name="ManageAccount_Wallets">کیف پول ها</string>
-    <string name="ManageAccount_WatchAddresses">مشاهده آدرس</string>
     <!--Network Settings-->
     <!-- Show Key -->
     <string name="ShowKey_Passphrase">عبارت عبور</string>
@@ -418,7 +409,6 @@
     <string name="BackupRecoveryPhrase_Later">بعداً</string>
     <!-- Local Backup -->
     <!-- Recovery Phrase -->
-    <string name="RecoveryPhrase_Title">عبارت بازیابی</string>
     <string name="RecoveryPhrase_Verify">تایید</string>
     <!-- Evm Private Key -->
     <!-- Stellar Secret Key -->
@@ -478,7 +468,7 @@
     <string name="Market_MinutesAgo">%d؜دقيقه پيش</string>
     <!-- Balance Sync Error -->
     <string name="BalanceSyncError_Title">خطا ی همگام سازی</string>
-    <string name="BalanceSyncError_ButtonRetry">دوباره تلاش کنید</string>
+    <string name="BalanceSyncError_ButtonRetry">دوباره امتحان کنید</string>
     <string name="BalanceSyncError_ButtonChangeSource">تغییر منبع</string>
     <!--Release notes-->
     <string name="ProUsersInfo_UnstoppablePass">غیرقابل توقف %s</string>
@@ -513,4 +503,205 @@
     <string name="Contacts_NameHint">نام</string>
     <string name="Contacts_AddressHint">آدرس یا دامنه</string>
     <string name="Hud_Text_Connected">ارتباط برقرار شد</string>
+
+    <string-array name="wallet_names">
+        <item>😰 گاوصندوق عرق‌آور</item>
+        <item>🧂 دفتر کل نمکین</item>
+        <item>💧 قطعاً نقد</item>
+        <item>⏳ تراکنش معلق</item>
+        <item>🌈 سود خیالی</item>
+        <item>🤡 لنگر لرزان</item>
+        <item>😤 حداکثر تحمل</item>
+        <item>☠️ رسماً ورشکسته</item>
+        <item>👑 تاج معسر</item>
+        <item>📉 بازده متوسط</item>
+        <item>🕸️ پورتفولیوی گرد گرفته</item>
+        <item>🧳 کیف قدیمی</item>
+        <item>👻 سود شبح‌وار</item>
+        <item>🐂 گاو توهم‌زده</item>
+        <item>🛒 خریدار متسلسل کف</item>
+        <item>💼 کیف‌بر ممتاز</item>
+        <item>🤨 بازده مشکوک</item>
+        <item>♾️ ریزش ابدی</item>
+        <item>💭 اعتقاد قرضی</item>
+        <item>🦍 میمون کوانتومی</item>
+        <item>🔍 گره پارانوئید</item>
+        <item>🛋️ استیکر تنبل</item>
+        <item>☕ اعتبارسنج کافئینی</item>
+        <item>🔮 اوراکل ورشکسته</item>
+        <item>😴 اعتبارسنج خواب‌آلود</item>
+        <item>🎲 نابغه اتفاقی</item>
+        <item>🔐 هودلر اکراه‌آمیز</item>
+        <item>🤑 اوراکل طماع</item>
+        <item>😵 آربیتراژ گیج</item>
+        <item>🏃 صرافی هراسان</item>
+        <item>🪢 بنیاد فریب‌خورده</item>
+        <item>🌉 پل مشکوک</item>
+        <item>⛽ کارمزد گزاف</item>
+        <item>🌶️ وثیقه تند</item>
+        <item>🚌 ممپول شلوغ</item>
+        <item>💨 آغاز دودآلود</item>
+        <item>🕯️ پورتفولیوی جن‌زده</item>
+        <item>⌛ صبر بی‌نهایت</item>
+        <item>🥶 تحمل یخ‌زده</item>
+        <item>💊 شجاعت مصنوعی</item>
+        <item>🎖️ دهقان اشرافی</item>
+        <item>⚡ میلیونر موقت</item>
+        <item>🗺️ فقر استراتژیک</item>
+        <item>😊 ورشکستگی شاد</item>
+        <item>🏰 دژ بی‌پروا</item>
+        <item>🎰 بهشت دژن</item>
+        <item>🙏 ویرانه فروتن</item>
+        <item>💎 دست‌های الماسی</item>
+        <item>🃏 دست‌های کاغذی</item>
+        <item>🌙 توهم ماهتاب</item>
+        <item>🚿 تریدر شسته‌شده</item>
+        <item>🤏 تخصیص ناچیز</item>
+        <item>🎯 حدس خوش‌شانس</item>
+        <item>🌊 پوزیشن زیر آب</item>
+        <item>💤 غول خفته</item>
+        <item>🎪 سیرک دوره‌گرد</item>
+        <item>🧸 پوشش احساسی</item>
+        <item>🐯 ببر کاغذی</item>
+        <item>🔁 سود بازگشتی</item>
+        <item>🥴 بازده سرگیجه‌آور</item>
+        <item>🏚️ مزرعه توقیف‌شده</item>
+        <item>🤫 نهنگ ساکت</item>
+        <item>🌅 سپیده‌دم دروغین</item>
+        <item>📊 گردش تصادفی</item>
+        <item>🌋 کوه پرنوسان</item>
+        <item>🎁 انحلال غافلگیرکننده</item>
+        <item>🏄 سفر پرریسک</item>
+        <item>🧲 ضرر مغناطیسی</item>
+        <item>🏋️ کیف سنگین</item>
+        <item>🎈 بازده متورم</item>
+        <item>🧪 صندوق آزمایشی</item>
+        <item>🌸 پوزیشن شکننده</item>
+        <item>🧋 توکن حبابی</item>
+        <item>🏆 جایزه شرکت</item>
+        <item>🌝 صندوق ماه کامل</item>
+        <item>🐸 پپه نادر</item>
+        <item>🧟 توکن زامبی</item>
+        <item>🦄 سود افسانه‌ای</item>
+        <item>🥊 شانس مبارزه</item>
+        <item>🌟 جهل مبارک</item>
+        <item>🦆 اردک لاستیکی</item>
+        <item>🎋 پروتکل بامبو</item>
+        <item>🏴‍☠️ خزانه دزدان دریایی</item>
+        <item>🪄 نقدینگی جادویی</item>
+        <item>🏊 گاوصندوق زیر آب</item>
+        <item>🎊 انحلال خوش‌شانس</item>
+        <item>🦋 اثر پروانه</item>
+        <item>🎸 گاوصندوق قطع‌شده</item>
+        <item>💥 بازده انفجاری</item>
+        <item>🧠 مغز صاف</item>
+        <item>🪦 استخر مرده</item>
+        <item>🎡 اقتصاد چرخشی</item>
+        <item>🧘 انحلال ذن</item>
+        <item>📌 کف از دست رفته</item>
+        <item>🏴 جنگل تاریک</item>
+        <item>😎 بازنده مطمئن</item>
+        <item>🌪️ بازده آشوبناک</item>
+        <item>🧬 پروتکل جهش‌یافته</item>
+        <item>🍕 کیف پول گرسنه</item>
+        <item>🎭 ماه قرضی</item>
+    </string-array>
+    <string name="BackupManager_RestoreBackupDescription">کیف پول و داده‌های برنامه خود را از یک فایل پشتیبان بازیابی کنید.</string>
+    <string name="BackupManager_CreateBackup">ایجاد پشتیبان</string>
+    <string name="BackupManager_CreateBackupDescription">یک فایل پشتیبان از کیف پول‌ها و داده‌های برنامه خود ایجاد کنید.</string>
+    <string name="BackupManager_SelectItemsDescription">انتخاب کنید چه چیزی را در پشتیبان خود گنجانید. می‌توانید تمام یا موارد انتخاب شده را پشتیبان بگیرید.</string>
+    <string name="BackupManager_Wallets">کیف پول‌ها</string>
+    <string name="BackupManager_RestoreItemsDescription">انتخاب کنید چه چیزی را بازیابی کنید. می‌توانید همه یا فقط موارد انتخاب شده را بازیابی کنید.</string>
+    <string name="BackupManager_CountSavedAddresses">%d آدرس ذخیره شده</string>
+    <string name="BackupManager_CountAssets">%d دارایی</string>
+    <string name="BackupManager_CountNetworks">%d شبکه</string>
+    <string name="BackupManager_CountWallets">%d کیف پول</string>
+    <string name="BackupManager_MergeDescription">مخاطبین ذخیره شده با داده‌های پشتیبان جایگزین خواهند شد.</string>
+    <string name="AddZanoNode_AddNode">افزودن گره</string>
+    <string name="AddZanoNode_NodeUrl">URL گره</string>
+    <string name="ZanoNodeSettings_Description">گره‌ای را انتخاب کنید که برنامه Unstoppable برای همگام‌سازی کیف پول(ها) استفاده کند.</string>
+    <string name="LocalBackup_ProtectBackup">حفاظت پشتیبان</string>
+    <string name="LocalBackup_ProtectBackupDescription">یک رمز عبور برای حفاظت از فایل پشتیبان خود ایجاد کنید.</string>
+    <string name="LocalBackup_BackupName">نام پشتیبان</string>
+    <string name="LocalBackup_AddPassword">افزودن رمز عبور</string>
+    <string name="LocalBackup_ConfirmPassword">تأیید رمز عبور</string>
+    <string name="AddZanoNode_Warning_UrlExists">گره با این URL قبلاً وجود دارد</string>
+    <string name="AddZanoNode_Error_InvalidUrl">URL وارد شده نامعتبر است. URL های معتبر باید یکی از طرح های زیر را داشته باشند: http, https</string>
+    <string name="Balance_Zcash_ShieldedDescription">برای انتقالات شخصی و خصوصی بین کیف پولها استفاده کنید.</string>
+    <string name="Balance_Zcash_TransparentDescription">برای دریافت از صرافی‌ها یا سرویس‌هایی که آدرس‌های محافظت شده را پشتیبانی نمی‌کنند استفاده کنید.</string>
+    <string name="RiskLevel_ProviderRiskLevel">امتیاز مسیر</string>
+    <string name="RiskLevel_ProviderRiskLevel_Description">این سطوح نشان می‌دهند که مسیرها چگونه swapها و بررسی‌های معامله را انجام می‌دهند.</string>
+    <string name="RiskLevel_Excellent_Description">اجرای مستقیم on-chain. بدون بررسی یا انجماد مسیر. بازپرداخت خودکار در صورت ناموفقیت swap.</string>
+    <string name="RiskLevel_Good_Description">مسیر معاملات را به طور خودکار قبل از تکمیل بررسی می‌کند. اگر مشاکلی شناسایی شود، swap رد می‌شود و وجوه بازپرداخت می‌شوند.</string>
+    <string name="RiskLevel_Fair_Description">تایید اضافی ممکن است برای برخی تراکنش‌ها لازم باشد. اگر مشکلی شناسایی شود، وجوه معمولاً به‌طور خودکار بازپرداخت می‌شود.</string>
+    <string name="SwapInfo_RequestRefund">درخواست بازپرداخت</string>
+    <string name="SwapInfo_RequestRefundDescription">ارائه‌دهنده برای پردازش بازپرداخت به جزئیات معامله تبدیل شما نیاز دارد. هنگام تماس با ارائه‌دهنده شامل خواهند شد.</string>
+    <string name="SwapInfo_SwapId">شناسه تبدیل</string>
+    <string name="SwapInfo_Amount">مقدار</string>
+    <string name="SwapInfo_RefundAddress">آدرس بازپرداخت</string>
+    <string name="SwapInfo_CopyDetails">کپی جزئیات</string>
+    <string name="SwapInfo_SwapStoppedByProvider">تبدیل توسط ارائه‌دهنده متوقف شد</string>
+    <string name="SwapInfo_SwapStoppedByProviderDescription">سپرده شما دریافت شد، اما ارائه‌دهنده نتوانست تبدیل را تکمیل کند. برای بازگرداندن صندوق خود، در زیر درخواست بازپرداخت کنید.</string>
+    <string name="BackupRequired_Title">کیف پول خود را پشتیبان گیری کنید</string>
+    <string name="BackupRequired_Description">بدون پشتیبان گیری، از دست دادن گوشی شما به معنای از دست دادن دائمی وجوه شما است. هیچ راهی برای بازیابی آنها وجود ندارد.</string>
+    <string name="BackupRequired_ManualBackupDescription">عبارت بازیابی خود را یادداشت کنید</string>
+    <string name="BackupRequired_LocalBackupDescription">فایل رمزگذاری شده را در دستگاه خود ذخیره کنید</string>
+    <string name="BackupRequired_RemindLater">بعداً یادآوری کن</string>
+    <string name="OpenCryptoPay_Title">پرداخت</string>
+    <string name="OpenCryptoPay_Expired">منقضی شده</string>
+    <string name="OpenCryptoPay_Merchant">پذیرنده</string>
+    <string name="OpenCryptoPay_Amount">مقدار</string>
+    <string name="OpenCryptoPay_ChooseAsset">انتخاب دارایی</string>
+    <string name="OpenCryptoPay_ChooseTokenDescription">توکنی را انتخاب کنید که می‌خواهید برای پرداخت استفاده کنید</string>
+    <string name="OpenCryptoPay_NoSupportedMethods">هیچ روش پرداختی پشتیبانی‌شده برای این کیف پول در دسترس نیست</string>
+    <string name="OpenCryptoPay_URL">URL</string>
+    <string name="OpenCryptoPay_ExpiresIn">انقضا در</string>
+    <string name="OpenCryptoPay_PaymentId">شناسه پرداخت</string>
+    <string name="OpenCryptoPay_QuoteId">شناسه پیشنهاد</string>
+    <string name="OpenCryptoPay_ProofStatus">وضعیت اثبات</string>
+    <string name="OpenCryptoPay_ProofStatus_Submitted">ارسال شده</string>
+    <string name="OpenCryptoPay_ProofStatus_Pending">در انتظار</string>
+    <string name="OpenCryptoPay_ProofStatus_Reconciliation">نیاز به تطبیق دارد</string>
+    <string name="OpenCryptoPay_RetryNow">امروز مجدد تلاش کنید</string>
+    <string name="OpenCryptoPay_Error_NoActivePayment">هیچ پرداخت فعالی در این پایانه وجود ندارد</string>
+    <string name="OpenCryptoPay_Error_FetchFailed">بازیابی جزئیات پرداخت ناموفق بود</string>
+    <string name="OpenCryptoPay_Error_LoadFailed">بارگیری جزئیات پرداخت ناموفق بود</string>
+    <string name="OpenCryptoPay_Error_SubmitFailed">نتوانست پرداخت را به پذیرنده ارسال کند. لطفا دوباره تلاش کنید.</string>
+    <string name="Swap_SwapTime">زمان تبدیل</string>
+    <string name="Swap_PopularTokens">توکن های محبوب</string>
+    <string name="Swap_YourTokens">توکن های شما</string>
+    <string name="Swap_TopTokens">بهترین توکن ها</string>
+    <string name="Swap_RecentSearch">جستجوی اخیر</string>
+    <string name="SwapTerms_TopText">برای ادامه، لطفاً موافقت خود را با هر مورد تأیید کنید.</string>
+    <string name="SwapTerms_RiskRestrictions_Info">برخی مسیرها ممکن است swapها را رد کنند یا دسترسی به وجوه را محدود کنند. هنگام انتخاب یک مسیر به امتیازات مسیر توجه کنید.</string>
+    <string name="SwapTerms_RiskRestrictions_Highlight">امتیازات مسیر</string>
+    <string name="SwapTerms_UserResponsibility_Info">من خطرات احتمالی را بررسی کرده‌ام و مسئولیت انتخاب مسیر خود را می‌پذیرم.</string>
+    <string name="ZcashEndpointSettings_Description">سرور lightwallet را انتخاب کنید که برنامه Unstoppable باید برای همگام‌سازی کیف پول Zcash استفاده کند.</string>
+    <string name="AddZcashEndpoint_AddEndpoint">افزودن نقطه پایانی</string>
+    <string name="AddZcashEndpoint_EndpointUrl">URL نقطه پایانی</string>
+    <string name="AddZcashEndpoint_Warning_UrlExists">نقطه پایانی با این URL از قبل وجود دارد</string>
+    <string name="AddZcashEndpoint_Error_InvalidUrl">URL وارد شده نامعتبر است. یک URL معتبر باید از طرح https استفاده کند</string>
+    <string name="Restore_BlockchainsDescription">بلاک چین های مورد نظر خود را برای بازیابی انتخاب کنید.</string>
+    <string name="Swap_ErrorNoProviders">مسیری موجود نیست</string>
+    <string name="Swap_Providers">مسیرها</string>
+    <string name="Swap_ProviderRisk">ریسک مسیر</string>
+    <string name="Swap_AmlRisk_Description">ریسک های احتمالی برای این معامله شناسایی شد. در حین پردازش، ممکن است وجوه شما رد یا محدود شود. لطفاً مسیر دیگری را انتخاب کنید.</string>
+    <string name="Swap_AmlRisk_Button">انتخاب مسیر دیگر</string>
+    <string name="Swap_EstimatedTimeDescription">زمان تقریبی برای دریافت وجوه. پردازش swap و تأیید معاملات بسته به شبکه و مسیر می‌تواند مدتی طول بکشد.</string>
+    <string name="SwapTerms_BottomText">همیشه مسیر swap را انتخاب کنید که با نیازهای شما مطابقت داشته باشد.</string>
+    <string name="SwapInfo_Provider">مسیر</string>
+    <string name="Balance_NoCoinsAlert">هیچ توکنی در اینجا نیست. یکی اضافه کنید تا شروع کنید.</string>
+    <string name="SwapHistory_EmptyList">شما هنوز هیچ تبدیل معلق یا قبلی ندارید.</string>
+    <string name="ManageAccounts_ViewOnlyWallet">کیف پول فقط مشاهده</string>
+    <string name="CreateNewWallet_Button_CreateStandardWallet">ساخت کیف‌پول استاندارد</string>
+    <string name="CreateNewWallet_CreatePasskeyNotSupported_Description">این دستگاه از کیف‌پول‌های Passkey پشتیبانی نمی‌کند. در عوض می‌توانید یک کیف‌پول استاندارد بسازید.</string>
+    <string name="CreateNewWallet_CreatePasskeyNotSupported_Title">ساخت Passkey ممکن نشد</string>
+    <string name="CreateNewWallet_Passkey_Description">کیف‌پولی با عبارت بازیابی که توسط دستگاه شما به‌صورت امن ذخیره می‌شود.</string>
+    <string name="ImportWallet_Passkey_Description">کیف‌پول خود را با استفاده از دستگاهتان بازیابی کنید.</string>
+    <string name="ImportWallet_RestorePasskeyNotSupported_Description">این دستگاه از بازیابی با Passkey پشتیبانی نمی‌کند. از روش بازیابی دیگری استفاده کنید.</string>
+    <string name="ImportWallet_RestorePasskeyNotSupported_Title">بازیابی با Passkey پشتیبانی نمی‌شود</string>
+    <string name="PasskeyTerms_DeviceDependency">وابستگی به دستگاه</string>
+    <string name="PasskeyTerms_DeviceDependency_Description">دسترسی به دستگاه شما نیاز دارد. از دست دادن دسترسی ممکن است به از دست رفتن دارایی‌ها منجر شود.</string>
+    <string name="PasskeyTerms_LimitedAccess_Description">ممکن است روی همه دستگاه‌ها یا پلتفرم‌ها کار نکند.</string>
+    <string name="PasskeyTerms_Responsibility_Description">مسئولیت دسترسی به دستگاهتان بر عهده شماست. در صورت از دست رفتن دسترسی، Unstoppable نمی‌تواند این کیف‌پول را بازیابی کند.</string>
 </resources>

@@ -36,6 +36,7 @@ class MarketKitWrapper(
     context: Context,
     hsApiBaseUrl: String,
     hsApiKey: String,
+    newsApiKey: String,
 ) {
     val userSubscriptionManager = UserSubscriptionManager
 
@@ -45,8 +46,8 @@ class MarketKitWrapper(
             context = context,
             hsApiBaseUrl = hsApiBaseUrl,
             hsApiKey = hsApiKey,
-            appVersion = appConfigProvider.appVersion,
-            appId = appConfigProvider.appId,
+            newsApiKey = newsApiKey,
+            appVersion = App.appConfigProvider.appVersion
         )
     }
 

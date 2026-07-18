@@ -4,6 +4,7 @@ import io.horizontalsystems.bankwallet.entities.Address
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -12,11 +13,12 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class Trc20AddressValidator {
 
-    private val logger = HttpLoggingInterceptor().apply {
+    private val logger = HttpLoggingInterceptor { Timber.d(it) }.apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
@@ -60,7 +62,7 @@ class Trc20AddressValidator {
     private fun isValidTronAddress(tronAddressHex: String): Boolean {
         try {
             tronAddress(tronAddressHex)
-        } catch (e: Exception) {
+        } catch (_: Throwable) {
             return false
         }
         return true
@@ -114,11 +116,12 @@ class Trc20AddressValidator {
 
             // If we can't determine the status, assume it's not clear (blacklisted)
             return@withContext false
-        } catch (e: Exception) {
-            when (e) {
-                is TokenError -> throw e
-                else -> throw TokenError.NetworkError
-            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: TokenError) {
+            throw e
+        } catch (_: Throwable) {
+            throw TokenError.NetworkError
         }
     }
 

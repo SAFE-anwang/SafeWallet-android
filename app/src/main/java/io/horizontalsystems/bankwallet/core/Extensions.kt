@@ -17,6 +17,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import coil.load
 import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.sorting.FullCoinSortContext
+import io.horizontalsystems.bankwallet.core.sorting.SortCriterion
+import io.horizontalsystems.bankwallet.core.sorting.sortedByCriteria
 import io.horizontalsystems.bankwallet.modules.market.ImageSource
 import io.horizontalsystems.bankwallet.modules.market.topplatforms.Platform
 import io.horizontalsystems.ethereumkit.core.toRawHexString
@@ -62,25 +65,9 @@ val CoinTreasury.logoUrl: String
     get() = "https://cdn.blocksdecoded.com/treasury-icons/$fundUid@3x.png"
 
 fun List<FullCoin>.sortedByFilter(filter: String): List<FullCoin> {
-    val baseComparator = compareBy<FullCoin> {
-        it.coin.marketCapRank ?: Int.MAX_VALUE
-    }.thenBy {
-        it.coin.name.lowercase(Locale.ENGLISH)
-    }
-    val comparator = if (filter.isNotBlank()) {
-        val lowercasedFilter = filter.lowercase()
-        compareByDescending<FullCoin> {
-            it.coin.code.lowercase() == lowercasedFilter
-        }.thenByDescending {
-            it.coin.code.lowercase().startsWith(lowercasedFilter)
-        }.thenByDescending {
-            it.coin.name.lowercase().startsWith(lowercasedFilter)
-        }.thenComparing(baseComparator)
-    } else {
-        baseComparator
-    }
-
-    return sortedWith(comparator)
+    val base = listOf(SortCriterion.MarketCapRank, SortCriterion.NameAscending)
+    val criteria = if (filter.isNotBlank()) listOf(SortCriterion.FilterRelevance) + base else base
+    return sortedByCriteria(criteria, FullCoinSortContext(filter = filter))
 }
 
 val Language.displayNameStringRes: Int
@@ -296,7 +283,7 @@ fun Context.findActivity(): Activity? = when (this) {
 
 val BlockchainType.blockTime : Long?
     get() = when (this) {
-        BlockchainType.Ethereum -> 15
+        BlockchainType.Ethereum -> 12
         BlockchainType.SafeFour,
         BlockchainType.BinanceSmartChain,
         BlockchainType.Tron,
@@ -313,7 +300,25 @@ val BlockchainType.blockTime : Long?
 
         BlockchainType.Gnosis,
         BlockchainType.Stellar,
+        BlockchainType.Ton,
             -> 5
+
+        BlockchainType.Bitcoin,
+        BlockchainType.BitcoinCash,
+        BlockchainType.ECash,
+            -> 600
+
+        BlockchainType.Dash,
+        BlockchainType.Litecoin,
+            -> 150
+
+        BlockchainType.Zcash -> 75
+
+        BlockchainType.Monero -> 120
+
+        BlockchainType.Zano -> 60
+
+        BlockchainType.ArbitrumOne -> 1
 
         else -> null
     }

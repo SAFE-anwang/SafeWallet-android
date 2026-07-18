@@ -30,6 +30,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -77,7 +78,6 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
 import io.horizontalsystems.bankwallet.ui.compose.components.HsImage
 import io.horizontalsystems.bankwallet.ui.compose.components.ListEmptyView
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItemLoading
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.SelectorDialogCompose
 import io.horizontalsystems.bankwallet.ui.compose.components.SelectorItem
@@ -89,8 +89,12 @@ import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabItem
 import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabsTop
 import io.horizontalsystems.bankwallet.uiv3.components.tabs.TabsTopType
+import kotlinx.coroutines.delay
+
 import io.horizontalsystems.core.findNavController
 
+
+private const val SlideDurationMillis = 300L
 
 class TransactionsFragment : BaseFragment() {
 
@@ -129,6 +133,12 @@ fun TransactionsScreen(
     val syncing = uiState.syncing
     val transactions = uiState.transactions
 
+    var listVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(SlideDurationMillis)
+        listVisible = true
+    }
+
     val filterBlockchains by viewModel.filterBlockchainsLiveData.observeAsState()
     val filterZeroTransactions by viewModel.filterZeroTransactionLiveData.observeAsState()
 
@@ -136,9 +146,6 @@ fun TransactionsScreen(
         title = stringResource(R.string.Transactions_Title),
         onBack = navController::popBackStack,
         menuItems = buildList {
-            if (syncing) {
-                add(MenuItemLoading)
-            }
             add(
                 MenuItem(
                     title = TranslatableString.ResString(R.string.Transactions_Filter),
@@ -230,9 +237,14 @@ fun TransactionsScreen(
                 }
             }
 
-
-            Crossfade(uiState.viewState, label = "") { viewState ->
-                if (viewState == ViewState.Success) {
+            Crossfade(
+                uiState.viewState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(ComposeAppTheme.colors.lawrence),
+                label = ""
+            ) { viewState ->
+                if (listVisible && viewState == ViewState.Success) {
                     transactions?.let { transactionItems ->
                         if (transactionItems.isEmpty()) {
                             if (syncing) {

@@ -94,6 +94,9 @@ object AddressInputModule {
                 BlockchainType.Monero -> {
                     addressParserChain.addHandler(AddressHandlerMonero())
                 }
+                BlockchainType.Zano -> {
+                    addressParserChain.addHandler(AddressHandlerZano())
+                }
                 is BlockchainType.Unsupported -> Unit
             }
 

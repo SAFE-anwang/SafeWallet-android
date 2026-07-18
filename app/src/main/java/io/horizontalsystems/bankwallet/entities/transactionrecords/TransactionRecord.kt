@@ -36,7 +36,7 @@ abstract class TransactionRecord(
         return when {
             timestamp != other.timestamp -> timestamp.compareTo(other.timestamp)
             transactionIndex != other.transactionIndex -> transactionIndex.compareTo(other.transactionIndex)
-            else -> uid.compareTo(uid)
+            else -> uid.compareTo(other.uid)
         }
     }
 

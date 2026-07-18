@@ -65,3 +65,8 @@ include(":solana-kit-android:solanakit")
 //include(":vpn")
 
 //include("telegram:TMessagesProj")
+
+include(":dapp-core")
+if (file("dapp-wallet-connect").exists()) {
+    include(":dapp-wallet-connect")
+}

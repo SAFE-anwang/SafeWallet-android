@@ -1,14 +1,15 @@
 package io.horizontalsystems.bankwallet.modules.multiswap
 
 import io.horizontalsystems.bankwallet.core.ServiceState
+import io.horizontalsystems.bankwallet.core.defaultTokenQuery
 import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
-import io.horizontalsystems.marketkit.models.TokenQuery
-import io.horizontalsystems.marketkit.models.TokenType
 
 class SwapDefaultTokenService(
-    private val marketKit: MarketKitWrapper
+    private val marketKit: MarketKitWrapper,
+    private val walletManager: WalletManager
 ) : ServiceState<SwapDefaultTokenState>() {
     private var tokenOut: Token? = null
 
@@ -23,22 +24,16 @@ class SwapDefaultTokenService(
     }
 
     private fun determineTokenOut(token: Token) {
-        val blockchainType = token.blockchainType
-
-        if (token.type == TokenType.Native) {
-            val coinUid = when (blockchainType) {
-                BlockchainType.BinanceSmartChain -> "binance-bridged-usdt-bnb-smart-chain"
-                else -> "tether"
-            }
-
-            tokenOut = marketKit.fullCoins(listOf(coinUid))
-                .firstOrNull()
-                ?.let { fullCoin ->
-                    fullCoin.tokens.firstOrNull { it.blockchainType == blockchainType }
-                }
-        } else {
-            tokenOut = marketKit.token(TokenQuery(blockchainType, TokenType.Native))
-        }
+        // The default counterpart is the first entry of the context-aware Popular Tokens list,
+        // built with the just-selected token as context — so the auto-pick always matches the
+        // top bubble the user would see in the token picker for that token. This holds for every
+        // token type: native context → its USDT (fallback USDT-ETH), non-native context → the
+        // chain's native coin. See token_picker spec (Popular Tokens, Cases А/Б).
+        tokenOut = SwapPopularTokens.build(marketKit, token).firstOrNull()
+            ?: walletManager.activeWallets
+                .firstOrNull { it.token.blockchainType == BlockchainType.Bitcoin }
+                ?.token
+            ?: marketKit.token(BlockchainType.Bitcoin.defaultTokenQuery)
     }
 }
 

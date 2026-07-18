@@ -7,8 +7,11 @@ object SafeSwapProvider : BaseUniswapProvider() {
     // TODO::
     override val id = "safe"
     override val title = "SafeSwap"
-//    override val url = "https://safecoreswap.com/"
-    override val icon = R.drawable.ic_safe_20
+    override val riskLevel: RiskLevel
+        get() = RiskLevel.EXCELLENT
+
+    //    override val url = "https://safecoreswap.com/"
+//    override val icon = R.drawable.ic_safe_20
 
     override fun supports(blockchainType: BlockchainType): Boolean {
         return blockchainType == BlockchainType.Ethereum || blockchainType == BlockchainType.BinanceSmartChain || blockchainType == BlockchainType.SafeFour

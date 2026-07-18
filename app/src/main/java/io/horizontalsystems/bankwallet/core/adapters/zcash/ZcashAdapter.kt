@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.adapters.zcash
 
 import android.content.Context
+import android.util.Log
 import cash.z.ecc.android.sdk.CloseableSynchronizer
 import cash.z.ecc.android.sdk.SdkSynchronizer
 import cash.z.ecc.android.sdk.Synchronizer
@@ -27,7 +28,6 @@ import cash.z.ecc.android.sdk.type.AddressType
 import co.electriccoin.lightwallet.client.model.LightWalletEndpoint
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
-import io.horizontalsystems.bankwallet.core.AppLogger
 import io.horizontalsystems.bankwallet.core.BalanceData
 import io.horizontalsystems.bankwallet.core.IAdapter
 import io.horizontalsystems.bankwallet.core.IBalanceAdapter
@@ -63,6 +63,7 @@ import java.math.BigDecimal
 import java.util.Base64
 import java.util.Date
 import java.util.regex.Pattern
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 import io.horizontalsystems.bankwallet.entities.Account as WalletAccount
 
@@ -71,6 +72,7 @@ class ZcashAdapter(
     private val wallet: Wallet,
     restoreSettings: RestoreSettings,
     private val localStorage: ILocalStorage,
+    lightWalletEndpoint: LightWalletEndpoint,
 ) : IAdapter, IBalanceAdapter, IReceiveAdapter, ITransactionsAdapter, ISendZcashAdapter {
 
     private val accountBirthday: Long?
@@ -99,6 +101,7 @@ class ZcashAdapter(
     override val isMainNet: Boolean = true
 
     private var currentSyncProgress: Float = 0f
+    private var lastProcessorError: Throwable? = null
 
     private var syncState: AdapterState = AdapterState.Syncing()
         set(value) {
@@ -186,8 +189,23 @@ class ZcashAdapter(
         receiveAddress = runBlocking { synchronizer.getUnifiedAddress(zcashAccount) }
         receiveAddressTransparent = runBlocking { synchronizer.getTransparentAddress(zcashAccount) }
         transactionsProvider = ZcashTransactionsProvider(zcashAccount.accountUuid, synchronizer as SdkSynchronizer)
+        synchronizer.onCriticalErrorHandler = { error ->
+            Log.e("ZcashAdapter", "Critical error", error)
+            true
+        }
+        synchronizer.onSetupErrorHandler = { error ->
+            Log.e("ZcashAdapter", "Setup error", error)
+            true
+        }
+
+
         synchronizer.onProcessorErrorHandler = ::onProcessorError
+        synchronizer.onProcessorErrorResolved = {
+            lastProcessorError = null
+            Log.e("ZcashAdapter", "Processor error resolved")
+        }
         synchronizer.onChainErrorHandler = ::onChainError
+
     }
 
     override fun start() {
@@ -289,10 +307,8 @@ class ZcashAdapter(
         memo = ""
     )
 
-    override suspend fun send(amount: BigDecimal, address: String, memo: String, logger: AppLogger) {
-        logger.info("call sendTransferProposal")
-        val transferProposal = transferProposal(amount, address, memo)
-        send(transferProposal)
+    override suspend fun proposeTransfer(amount: BigDecimal, address: String, memo: String): Proposal {
+        return transferProposal(amount, address, memo)
     }
 
     override suspend fun fee(amount: BigDecimal, address: String, memo: String): BigDecimal {
@@ -310,14 +326,17 @@ class ZcashAdapter(
         memo = memo
     )
 
-    private suspend fun send(proposal: Proposal) {
+    private suspend fun send(proposal: Proposal): String? {
         val spendingKey = DerivationTool.getInstance().deriveUnifiedSpendingKey(seed, network, Zip32AccountIndex.new(0))
 
         try {
             val results = synchronizer.createProposedTransactions(proposal, spendingKey).toList()
+            var firstTxHash: String? = null
             results.forEach { result ->
                 when (result) {
-                    is TransactionSubmitResult.Success -> {}
+                    is TransactionSubmitResult.Success -> {
+                        if (firstTxHash == null) firstTxHash = result.txIdString()
+                    }
 
                     is TransactionSubmitResult.Failure -> {
                         val errorMsg = buildString {
@@ -335,6 +354,7 @@ class ZcashAdapter(
                     }
                 }
             }
+            return firstTxHash
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid proposal: ${e.message}", e)
         } catch (e: Exception) {
@@ -350,8 +370,8 @@ class ZcashAdapter(
         )
     }
 
-    suspend fun sendProposal(proposal: Proposal) {
-        send(proposal)
+    override suspend fun sendProposal(proposal: Proposal): String? {
+        return send(proposal)
     }
 
     private fun createPaymentUri(outputs: List<TransferOutput>): String {
@@ -408,19 +428,25 @@ class ZcashAdapter(
     }
 
     private fun onProcessorError(error: Throwable?): Boolean {
-        error?.printStackTrace()
+        Log.e("ZcashAdapter", "Processor error", error)
+        lastProcessorError = error
         return true
     }
 
     private fun onChainError(errorHeight: BlockHeight, rewindHeight: BlockHeight) {
+
+        Log.e("ZcashAdapter", "Chain error errorHeight = $errorHeight, rewindHeight = $rewindHeight")
     }
 
     private fun onStatus(status: Synchronizer.Status) {
         syncState = when (status) {
             Synchronizer.Status.STOPPED -> AdapterState.Syncing()
-            Synchronizer.Status.DISCONNECTED -> AdapterState.Syncing()
+            Synchronizer.Status.DISCONNECTED -> AdapterState.NotSynced(lastProcessorError ?: Exception("Disconnected"))
             Synchronizer.Status.SYNCING -> AdapterState.Syncing()
-            Synchronizer.Status.SYNCED -> AdapterState.Synced
+            Synchronizer.Status.SYNCED -> {
+                lastProcessorError = null
+                AdapterState.Synced
+            }
             Synchronizer.Status.INITIALIZING -> AdapterState.Syncing()
         }
     }
@@ -548,7 +574,6 @@ class ZcashAdapter(
 
     companion object {
         val minimalShieldThreshold = BigDecimal("0.0004") // minimal transparent balance to shielding
-        private val lightWalletEndpoint = LightWalletEndpoint(host = "zec.rocks", port = 443, isSecure = true)
 
         private const val ALIAS_PREFIX = "zcash_"
 
@@ -562,7 +587,21 @@ class ZcashAdapter(
             }
         }
 
-        suspend fun getTransparentAddress(account: WalletAccount): String {
+        suspend fun getTransparentAddress(account: WalletAccount, lightWalletEndpoint: LightWalletEndpoint): String =
+            withTemporarySynchronizer(account, lightWalletEndpoint) { synchronizer ->
+                synchronizer.getTransparentAddress(synchronizer.getAccounts().first())
+            }
+
+        suspend fun getUnifiedAddress(account: WalletAccount, lightWalletEndpoint: LightWalletEndpoint): String =
+            withTemporarySynchronizer(account, lightWalletEndpoint) { synchronizer ->
+                synchronizer.getUnifiedAddress(synchronizer.getAccounts().first())
+            }
+
+        private suspend fun <T> withTemporarySynchronizer(
+            account: WalletAccount,
+            lightWalletEndpoint: LightWalletEndpoint,
+            block: suspend (Synchronizer) -> T,
+        ): T {
             val seed = (account.type as? AccountType.Mnemonic)?.seed
                 ?: throw IllegalArgumentException("Unsupported account type for Zcash")
 
@@ -609,12 +648,9 @@ class ZcashAdapter(
                 isExchangeRateEnabled = false
             )
 
-            val account = synchronizer.getAccounts().first()
-            val transparentAddress = synchronizer.getTransparentAddress(account)
-
-            synchronizer.close()
-
-            return transparentAddress
+            return synchronizer.use { synchronizer ->
+                block(synchronizer)
+            }
         }
 
         suspend fun estimateBirthdayHeight(context: Context, date: Date): Long {
@@ -626,20 +662,18 @@ class ZcashAdapter(
             return blockHeight.value
         }
 
-        suspend fun estimateBirthdayDate(context: Context, height: Long): Date? {
-            try {
-                val instant = SdkSynchronizer.estimateBirthdayDate(
-                    context = context,
-                    blockHeight = BlockHeight.new(height),
-                    network = ZcashNetwork.Mainnet
-                )
-                if (instant == null) {
-                    return null
-                }
-                return Date(instant.toEpochMilliseconds())
-            } catch (_: Throwable) {
-                return null
-            }
+        suspend fun estimateBirthdayDate(context: Context, height: Long) = try {
+            val instant = SdkSynchronizer.estimateBirthdayDate(
+                context = context,
+                height = BlockHeight.new(height),
+                network = ZcashNetwork.Mainnet
+            )
+
+            Date(instant.toEpochMilliseconds())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
         }
     }
 }

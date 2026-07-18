@@ -26,6 +26,7 @@ import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.BlockchainType
+import io.reactivex.Flowable
 import kotlinx.parcelize.Parcelize
 
 object SendEvmConfirmationModule {
@@ -55,7 +56,7 @@ object SendEvmConfirmationModule {
             val evmKit = evmKitWrapper.evmKit
             if (evmKit.chain.isEIP1559Supported) {
                 val gasPriceProvider = Eip1559GasPriceProvider(evmKit)
-                Eip1559GasPriceService(gasPriceProvider, evmKit)
+                Eip1559GasPriceService(gasPriceProvider, Flowable.empty())
             } else {
                 val gasPriceProvider = LegacyGasPriceProvider(evmKit)
                 LegacyGasPriceService(gasPriceProvider)

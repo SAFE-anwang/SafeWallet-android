@@ -10,4 +10,8 @@ data class SwapQuote(
     val tokenOut: Token,
     val amountIn: BigDecimal,
     val actionRequired: ISwapProviderAction?,
-)
+    val estimationTime: Long?,
+    val extraData: ExtraData? = null
+) {
+    interface ExtraData
+}

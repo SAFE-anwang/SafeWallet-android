@@ -1,6 +1,5 @@
 package io.horizontalsystems.bankwallet.modules.multiswap.providers
 
-import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.zcash.ZcashAdapter
 import io.horizontalsystems.bankwallet.modules.multiswap.sendtransaction.SendTransactionData
@@ -11,11 +10,21 @@ import java.math.BigDecimal
 object MayaProvider : BaseThorChainProvider(
     baseUrl = "https://mayanode.mayachain.info/mayachain/",
     affiliate = "hrz_android",
-    affiliateBps = 50,
+    affiliateBps = 100,
 ) {
     override val id = "mayachain"
     override val title = "Maya Protocol"
-    override val icon = R.drawable.swap_provider_maya
+    override val riskLevel = RiskLevel.EXCELLENT
+
+    override suspend fun resolveDestinationAddress(tokenOut: Token): String {
+        // Maya delivers ZEC directly to unified/sapling/orchard receivers via its transparent
+        // vault, so for ZEC out we resolve the wallet's unified address. Every other tokenOut
+        // goes through the generic destination resolver.
+        if (tokenOut.blockchainType == BlockchainType.Zcash) {
+            return SwapHelper.getReceiveAddressUnifiedForZcash(tokenOut)
+        }
+        return super.resolveDestinationAddress(tokenOut)
+    }
 
     override fun getRefundAddress(tokenIn: Token): String? {
         return if (tokenIn.blockchainType == BlockchainType.Zcash) {

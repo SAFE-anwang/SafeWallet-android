@@ -16,6 +16,9 @@ import io.horizontalsystems.bankwallet.modules.transactions.TransactionSource
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicReference
 
@@ -69,8 +72,11 @@ class SpamManager(
         return trustedAddressesCache.get().contains(key)
     }
 
-    var hideSuspiciousTx = localStorage.hideSuspiciousTransactions
-        private set
+    private val _hideSuspiciousTxStateFlow = MutableStateFlow(localStorage.hideSuspiciousTransactions)
+    val hideSuspiciousTxStateFlow: StateFlow<Boolean> = _hideSuspiciousTxStateFlow.asStateFlow()
+
+    val hideSuspiciousTx: Boolean
+        get() = _hideSuspiciousTxStateFlow.value
 
     var hideWithdrawTx = localStorage.hideWithdrawTransactions
         private set
@@ -87,7 +93,7 @@ class SpamManager(
 
     fun updateFilterHideSuspiciousTx(hide: Boolean) {
         localStorage.hideSuspiciousTransactions = hide
-        hideSuspiciousTx = hide
+        _hideSuspiciousTxStateFlow.value = hide
     }
 
     fun findSpamByAddress(address: String): ScannedTransaction? {

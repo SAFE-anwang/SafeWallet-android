@@ -8,7 +8,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +23,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +51,7 @@ import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.StatPremiumTrigger
 import io.horizontalsystems.bankwallet.core.stats.stat
+import io.horizontalsystems.bankwallet.entities.SimulateFailSwapMode
 import io.horizontalsystems.bankwallet.modules.contacts.ContactsFragment
 import io.horizontalsystems.bankwallet.modules.contacts.Mode
 import io.horizontalsystems.bankwallet.modules.main.MainFragment
@@ -76,6 +80,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.cell.SectionPremiumUniversalLawrence
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
+import io.horizontalsystems.dapp.core.DAppManager
 import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.subscriptions.core.PrioritySupport
@@ -160,13 +165,11 @@ private fun SettingSections(
 
 //    BannerCarousel(banners = banners)
 
-    VSpacer(12.dp)
-
     CellUniversalLawrenceSection(
-        listOf({
+        listOfNotNull({
             HsSettingCell(
                 R.string.SettingsSecurity_ManageKeys,
-                R.drawable.ic_wallet_20,
+                R.drawable.wallet_24,
                 showAlert = uiState.manageWalletShowAlert,
                 onClick = {
                     navController.slideFromRight(
@@ -180,7 +183,7 @@ private fun SettingSections(
         }, {
             HsSettingCell(
                 R.string.BlockchainSettings_Title,
-                R.drawable.ic_blocks_20,
+                R.drawable.box_24,
                 onClick = {
                     navController.slideFromRight(R.id.blockchainSettingsFragment)
 
@@ -220,7 +223,7 @@ private fun SettingSections(
         },{
             HsSettingCell(
                 R.string.Settings_SecurityCenter,
-                R.drawable.ic_security,
+                R.drawable.shield_24,
                 showAlert = uiState.securityCenterShowAlert,
                 onClick = {
                     navController.slideFromRight(R.id.securitySettingsFragment)
@@ -231,57 +234,46 @@ private fun SettingSections(
         }, /*{
             HsSettingCell(
                 R.string.Settings_Privacy,
-                R.drawable.ic_eye_20,
+                R.drawable.lock_24,
                 onClick = {
                     navController.slideFromRight(R.id.privacySettingsFragment)
 
                     stat(page = StatPage.AboutApp, event = StatEvent.Open(StatPage.Privacy))
                 }
             )
-        },*/ {
-            HsSettingCell(
-                R.string.DAppConnection_Title,
-                R.drawable.ic_wallet_connect_20,
-                value = (uiState.wcCounterType as? MainSettingsModule.CounterType.SessionCounter)?.number?.toString(),
-                counterBadge = (uiState.wcCounterType as? MainSettingsModule.CounterType.PendingRequestCounter)?.number?.toString(),
-                onClick = {
-                    when (val state = viewModel.walletConnectSupportState) {
-                        WCManager.SupportState.Supported -> {
-                            navController.slideFromRight(R.id.wcListFragment)
+        }, */ if (DAppManager.isAvailable) { {
+                HsSettingCell(
+                    R.string.DAppConnection_Title,
+                    R.drawable.link_24,
+                    value = (uiState.wcCounterType as? MainSettingsModule.CounterType.SessionCounter)?.number?.toString(),
+                    counterBadge = (uiState.wcCounterType as? MainSettingsModule.CounterType.PendingRequestCounter)?.number?.toString(),
+                    onClick = {
+                        when (val state = viewModel.walletConnectSupportState) {
+                            WCManager.SupportState.Supported -> {
+                                navController.slideFromRight(R.id.wcListFragment)
 
-                            stat(
-                                page = StatPage.Settings,
-                                event = StatEvent.Open(StatPage.WalletConnect)
-                            )
-                        }
+                                stat(
+                                    page = StatPage.Settings,
+                                    event = StatEvent.Open(StatPage.WalletConnect)
+                                )
+                            }
 
-                        WCManager.SupportState.NotSupportedDueToNoActiveAccount -> {
-                            navController.slideFromBottom(R.id.wcErrorNoAccountFragment)
-                        }
+                            WCManager.SupportState.NotSupportedDueToNoActiveAccount -> {
+                                navController.slideFromBottom(R.id.wcErrorNoAccountFragment)
+                            }
 
-                        is WCManager.SupportState.NotSupportedDueToNonBackedUpAccount -> {
-                            val text = Translator.getString(R.string.WalletConnect_Error_NeedBackup)
-                            navController.slideFromBottom(
-                                R.id.backupRequiredDialog,
-                                BackupRequiredDialog.Input(state.account, text)
-                            )
-
-                            stat(
-                                page = StatPage.Settings,
-                                event = StatEvent.Open(StatPage.BackupRequired)
-                            )
-                        }
-
-                        is WCManager.SupportState.NotSupported -> {
-                            navController.slideFromBottom(
-                                R.id.wcAccountTypeNotSupportedDialog,
-                                WCAccountTypeNotSupportedDialog.Input(state.accountTypeDescription)
-                            )
+                            is WCManager.SupportState.NotSupported -> {
+                                navController.slideFromBottom(
+                                    R.id.wcAccountTypeNotSupportedDialog,
+                                    WCAccountTypeNotSupportedDialog.Input(state.accountTypeDescription)
+                                )
+                            }
                         }
                     }
-                }
-            )
-        },
+                )
+            } } else {
+                null
+            },
 //            {
 //            HsSettingCell(
 //                title = R.string.Settings_TonConnect,
@@ -301,14 +293,35 @@ private fun SettingSections(
         )
     )
 
-    VSpacer(32.dp)
+    VSpacer(24.dp)
+
+    CellUniversalLawrenceSection(
+        buildList {
+            add {
+                HsSettingCell(
+                    R.string.Contacts,
+                    R.drawable.user_24,
+                    onClick = {
+                        navController.slideFromRight(
+                            R.id.contactsFragment,
+                            ContactsFragment.Input(Mode.Full)
+                        )
+
+                        stat(page = StatPage.Settings, event = StatEvent.Open(StatPage.Contacts))
+                    }
+                )
+            }
+        }
+    )
+
+    VSpacer(24.dp)
 
     CellUniversalLawrenceSection(
         buildList {
             add {
                 HsSettingCell(
                     R.string.Settings_AppSettings,
-                    R.drawable.ic_unstoppable_icon_20,
+                    R.drawable.uw_logo_24,
                     onClick = {
                         navController.slideFromRight(R.id.appearanceFragment)
 
@@ -320,7 +333,7 @@ private fun SettingSections(
                 add {
                     HsSettingCell(
                         R.string.Settings_Subscription,
-                        R.drawable.ic_star_24,
+                        R.drawable.premium_24,
                         value = if (uiState.hasSubscription) stringResource(R.string.SettingsSubscription_Active) else null,
                         onClick = {
                             navController.slideFromRight(R.id.subscriptionFragment)
@@ -328,24 +341,11 @@ private fun SettingSections(
                     )
                 }
             }*/
-            add {
-                HsSettingCell(
-                    R.string.Contacts,
-                    R.drawable.ic_user_20,
-                    onClick = {
-                        navController.slideFromRight(
-                            R.id.contactsFragment,
-                            ContactsFragment.Input(Mode.Full)
-                        )
 
-                        stat(page = StatPage.Settings, event = StatEvent.Open(StatPage.Contacts))
-                    }
-                )
-            }
             /*add {
                 HsSettingCell(
                     R.string.BackupManager_Title,
-                    R.drawable.ic_file_24,
+                    R.drawable.file_24,
                     onClick = {
                         navController.slideFromRight(R.id.backupManagerFragment)
 
@@ -359,7 +359,7 @@ private fun SettingSections(
         }
     )
 
-    VSpacer(24.dp)
+    VSpacer(4.dp)
 
     if (isFDroidBuild) {
         PremiumHeader(R.string.Premium_TitleForDroid)
@@ -405,7 +405,7 @@ private fun SettingSections(
     }
 
 
-    VSpacer(32.dp)
+    VSpacer(24.dp)
 
     CellUniversalLawrenceSection(
         listOf({
@@ -422,7 +422,7 @@ private fun SettingSections(
         }, {
             HsSettingCell(
                 R.string.Settings_RateUs,
-                R.drawable.ic_rateus_24,
+                R.drawable.star_24,
                 onClick = {
                     RateAppManager.openPlayMarket(context)
 
@@ -442,7 +442,7 @@ private fun SettingSections(
         }, /*{
             HsSettingCell(
                 R.string.Settings_Faq,
-                R.drawable.ic_faq_20,
+                R.drawable.message_24,
                 onClick = {
                     navController.slideFromRight(R.id.faqListFragment)
                 }
@@ -450,7 +450,7 @@ private fun SettingSections(
         }, {
             HsSettingCell(
                 R.string.Guides_Title,
-                R.drawable.ic_academy_20,
+                R.drawable.book_24,
                 onClick = {
                     navController.slideFromRight(R.id.academyFragment)
                 }
@@ -460,15 +460,6 @@ private fun SettingSections(
 
     /*VSpacer(24.dp)
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp)
-            .height(32.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        subhead1_grey(text = stringResource(id = R.string.Settings_JoinUnstoppables).uppercase())
-    }
     CellUniversalLawrenceSection(
         listOf({
             HsSettingCell(
@@ -486,7 +477,7 @@ private fun SettingSections(
         }, {
             HsSettingCell(
                 R.string.Settings_Twitter,
-                R.drawable.ic_twitter_24,
+                R.drawable.x_logo_24,
                 onClick = {
                     LinkHelper.openLinkInAppBrowser(context, App.appConfigProvider.appTwitterLink)
 
@@ -496,7 +487,7 @@ private fun SettingSections(
         })
     )*/
 
-    /*VSpacer(32.dp)
+    /*VSpacer(24.dp)
 
     CellUniversalLawrenceSection(
         listOf {
@@ -512,7 +503,44 @@ private fun SettingSections(
         }
     )*/
 
+    if (BuildConfig.DEBUG) {
+        VSpacer(24.dp)
+
+        DebugSettingsSection()
+    }
+
     VSpacer(32.dp)
+}
+
+@Composable
+private fun DebugSettingsSection() {
+    var simulateFailSwap by remember { mutableStateOf(App.localStorage.simulateFailSwap) }
+
+    CellUniversalLawrenceSection(
+        listOf {
+            RowUniversal(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onClick = {
+                    // Cycle None -> Server -> Local -> None
+                    val modes = SimulateFailSwapMode.entries
+                    val next = modes[(simulateFailSwap.ordinal + 1) % modes.size]
+                    simulateFailSwap = next
+                    App.localStorage.simulateFailSwap = next
+                }
+            ) {
+                body_leah(
+                    text = "Simulate Fail Swap",
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+                subhead1_grey(
+                    text = simulateFailSwap.name.lowercase(),
+                    maxLines = 1,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+    )
 }
 
 @Composable

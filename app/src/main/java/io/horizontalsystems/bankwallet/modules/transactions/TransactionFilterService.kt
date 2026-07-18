@@ -6,9 +6,11 @@ import io.horizontalsystems.bankwallet.core.managers.TransactionAdapterManager
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.contacts.model.Contact
 import io.horizontalsystems.marketkit.models.Blockchain
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class TransactionFilterService(
@@ -20,7 +22,11 @@ class TransactionFilterService(
     private var selectedBlockchain: Blockchain? = null
     private var filterTokenList: List<FilterToken?> = listOf(null)
     private var selectedToken: FilterToken? = null
-    val transactionTypes = FilterTransactionType.values().toList()
+    private val transactionTypes = listOf(
+        FilterTransactionType.All,
+        FilterTransactionType.Incoming,
+        FilterTransactionType.Outgoing,
+    )
     private var selectedTransactionType: FilterTransactionType = FilterTransactionType.All
     private var contact: Contact? = null
     private var uniqueId = UUID.randomUUID().toString()
@@ -177,6 +183,17 @@ class TransactionFilterService(
         hideSuspiciousTx = checked
         spamManager.updateFilterHideSuspiciousTx(checked)
         emitState()
+    }
+
+   fun observeSpamSetting(scope: CoroutineScope) {
+        scope.launch {
+            spamManager.hideSuspiciousTxStateFlow.collect { hide ->
+                if (hideSuspiciousTx != hide) {
+                    hideSuspiciousTx = hide
+                    emitState()
+                }
+            }
+        }
     }
 
     fun updateFilterHideWithdrawTx(checked: Boolean) {

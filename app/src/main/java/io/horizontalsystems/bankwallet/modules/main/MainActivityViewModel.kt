@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.walletconnect.web3.wallet.client.Wallet
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
@@ -16,23 +15,18 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.safeprice.SRC20InfoService
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCDelegate
 import io.horizontalsystems.core.IKeyStoreManager
-import io.horizontalsystems.core.IPinComponent
 import io.horizontalsystems.core.ISystemInfoManager
 import io.horizontalsystems.core.security.KeyStoreValidationError
+import io.horizontalsystems.dapp.core.HSDAppEvent
 import io.horizontalsystems.marketkit.models.CoinPrice
 import kotlinx.coroutines.Dispatchers
 import io.horizontalsystems.tonkit.models.SignTransaction
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.collect
 
 class MainActivityViewModel(
     private val userManager: UserManager,
     private val accountManager: IAccountManager,
-    private val pinComponent: IPinComponent,
     private val systemInfoManager: ISystemInfoManager,
     private val keyStoreManager: IKeyStoreManager,
     private val localStorage: ILocalStorage,
@@ -40,13 +34,10 @@ class MainActivityViewModel(
 ) : ViewModel() {
 
     val navigateToMainLiveData = MutableLiveData(false)
-    val wcEvent = MutableLiveData<Wallet.Model?>()
+    val wcEvent = MutableLiveData<HSDAppEvent?>()
     val tcSendRequest = MutableLiveData<SignTransaction?>()
     val tcDappRequest = MutableLiveData<DAppRequestEntityWrapper?>()
     val intentLiveData = MutableLiveData<Intent?>()
-
-    private val _contentHidden = MutableStateFlow(false)
-    val contentHidden: StateFlow<Boolean> = _contentHidden.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -69,11 +60,6 @@ class MainActivityViewModel(
                 tcDappRequest.postValue(it)
             }
         }
-        viewModelScope.launch {
-            pinComponent.isLockedFlow.collect { locked ->
-                _contentHidden.update { locked }
-            }
-        }
 
         viewModelScope.launch {
             accountManager.activeAccountStateFlow.collect {
@@ -85,6 +71,12 @@ class MainActivityViewModel(
 
     fun onWcEventHandled() {
         wcEvent.postValue(null)
+    }
+
+    fun reEmitPendingWcProposalIfNeeded() {
+        if (wcEvent.value == null && WCDelegate.sessionProposalEvent != null) {
+            wcEvent.postValue(HSDAppEvent.SessionProposal(WCDelegate.sessionProposalEvent!!))
+        }
     }
 
     fun onTcSendRequestHandled() {
@@ -127,10 +119,6 @@ class MainActivityViewModel(
         intentLiveData.postValue(null)
     }
 
-    fun onResume() {
-        _contentHidden.update { pinComponent.isLocked }
-    }
-
     private fun updateSRC20Price() {
         viewModelScope.launch(Dispatchers.IO) {
             val service = SRC20InfoService()
@@ -152,7 +140,6 @@ class MainActivityViewModel(
             return MainActivityViewModel(
                 App.userManager,
                 App.accountManager,
-                App.pinComponent,
                 App.systemInfoManager,
                 App.keyStoreManager,
                 App.localStorage,

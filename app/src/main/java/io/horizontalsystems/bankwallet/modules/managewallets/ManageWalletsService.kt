@@ -9,11 +9,15 @@ import io.horizontalsystems.bankwallet.core.eligibleTokens
 import io.horizontalsystems.bankwallet.core.isDefault
 import io.horizontalsystems.bankwallet.core.isNative
 import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
-import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.core.restoreSettingTypes
+import io.horizontalsystems.bankwallet.core.sorting.SortCriterion
+
+import io.horizontalsystems.bankwallet.core.sorting.TokenSortContext
+import io.horizontalsystems.bankwallet.core.sorting.sortedByCriteria
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.balance.BalanceService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.ethereumkit.core.AddressValidator
 import io.horizontalsystems.marketkit.models.*
@@ -37,7 +41,8 @@ class ManageWalletsService(
     private val walletManager: WalletManager,
     private val restoreSettingsService: RestoreSettingsService,
     private val fullCoinsProvider: FullCoinsProvider?,
-    private val account: Account?
+    private val account: Account?,
+    private val balanceService: BalanceService,
 ) : Clearable {
 
     private val _itemsFlow = MutableStateFlow<List<Item>>(listOf())
@@ -84,6 +89,8 @@ class ManageWalletsService(
             }
         }
 
+        balanceService.start()
+
         sync(walletManager.activeWallets)
         syncFullCoins()
         sortItems()
@@ -107,20 +114,31 @@ class ManageWalletsService(
     }
 
     private fun sortItems() {
-        var comparator = compareByDescending<Item> {
-            it.enabled || it.token.coin.uid.isSafeFourCustomCoin() || it.token.coin.uid == "safe-coin" || it.token.coin.uid == "bitcoin"
+        val allItems = fullCoins.map { getItemsForFullCoin(it) }.flatten()
+        val criteria = buildList {
+            add(SortCriterion.Enabled)
+            if (filter.isNotBlank()) add(SortCriterion.FilterRelevance)
+            add(SortCriterion.BalanceTabOrder)
+            add(SortCriterion.CodeNativeFirst)
+            add(SortCriterion.BlockchainOrder)
+            add(SortCriterion.Badge)
         }
-
-        if (filter.isBlank()) {
-            comparator = comparator.thenBy {
-                it.token.blockchain.type.order
-            }
-        }
-
-        items = fullCoins
-            .map { getItemsForFullCoin(it) }
-            .flatten()
-            .sortedWith(comparator)
+        val enabledTokens = allItems.filter { it.enabled }.map { it.token }.toSet()
+        val balanceOrder: Map<Token, Int> = balanceService.balanceItemsFlow.value
+            .orEmpty()
+            .mapIndexed { index, item -> item.wallet.token to index }
+            .toMap()
+        val sortedTokens = allItems.map { it.token }
+            .sortedByCriteria(
+                criteria,
+                TokenSortContext(
+                    enabledTokens = enabledTokens,
+                    filter = filter,
+                    balanceOrder = balanceOrder,
+                )
+            )
+        val itemsByToken = allItems.associateBy { it.token }
+        items = sortedTokens.mapNotNull { itemsByToken[it] }
     }
 
     private fun getItemsForFullCoin(fullCoin: FullCoin): List<Item> {
@@ -154,13 +172,14 @@ class ManageWalletsService(
     }
 
     private fun hasInfo(token: Token, enabled: Boolean) = when (token.type) {
-        is TokenType.Native -> token.blockchainType in listOf(BlockchainType.Zcash, BlockchainType.Monero) && enabled
+        is TokenType.Native -> token.blockchainType in listOf(BlockchainType.Zcash, BlockchainType.Monero, BlockchainType.Zano) && enabled
         is TokenType.Derived,
         is TokenType.AddressTyped,
         is TokenType.Eip20,
         is TokenType.Spl,
         is TokenType.Jetton,
-        is TokenType.Asset -> true
+        is TokenType.Asset,
+        is TokenType.ZanoAsset -> true
         else -> false
     }
 
@@ -172,13 +191,11 @@ class ManageWalletsService(
 
     private fun handleUpdated(wallets: List<Wallet>) {
         sync(wallets)
-
-        val newFullCons = fetchFullCoins()
-        if (newFullCons.size > fullCoins.size) {
-            fullCoins = newFullCons
-            sortItems()
+        fullCoins = fetchFullCoins()
+        items = items.map { item ->
+            val enabled = isEnabled(item.token)
+            item.copy(enabled = enabled, hasInfo = hasInfo(item.token, enabled))
         }
-
         syncState()
     }
 
@@ -199,7 +216,10 @@ class ManageWalletsService(
         val account = this.account ?: return
 
         if (restoreSettings.isNotEmpty()) {
-            restoreSettingsService.save(restoreSettings, account, token.blockchainType)
+            // reload = false: the wallet is saved right below, which creates the
+            // adapter with these settings. Triggering a reload here would churn
+            // the just-created Monero adapter (two MoneroKit instances racing).
+            restoreSettingsService.save(restoreSettings, account, token.blockchainType, reload = false)
         }
 
         walletManager.save(listOf(Wallet(token, account)))
@@ -278,6 +298,7 @@ class ManageWalletsService(
     }
 
     override fun clear() {
+        balanceService.clear()
         coroutineScope.cancel()
     }
 

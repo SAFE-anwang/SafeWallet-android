@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.watchaddress
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,8 +15,10 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,15 +40,17 @@ import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.restoreconfig.BirthdayHeightConfig
+import io.horizontalsystems.bankwallet.modules.evmfee.ButtonsGroupWithShade
 import io.horizontalsystems.bankwallet.modules.watchaddress.selectblockchains.SelectBlockchainsFragment
-import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
-import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInputMultiline
 import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonSize
+import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonVariant
+import io.horizontalsystems.bankwallet.uiv3.components.controls.HSButton
+import io.horizontalsystems.bankwallet.uiv3.components.controls.HSIconButton
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.delay
@@ -118,30 +123,6 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
     HSScaffold(
         title = stringResource(R.string.ManageAccounts_WatchAddress),
         onBack = navController::popBackStack,
-        menuItems = buildList {
-            when (submitType) {
-                is SubmitButtonType.Watch -> {
-                    add(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Done),
-                            onClick = viewModel::onClickWatch,
-                            enabled = submitType.enabled,
-                            tint = ComposeAppTheme.colors.jacob
-                        )
-                    )
-                }
-
-                is SubmitButtonType.Next -> {
-                    add(
-                        MenuItem(
-                            title = TranslatableString.ResString(R.string.Button_Next),
-                            onClick = viewModel::onClickNext,
-                            enabled = submitType.enabled
-                        )
-                    )
-                }
-            }
-        }
     ) {
         Column(
             modifier = Modifier
@@ -156,7 +137,17 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
                 initial = viewModel.accountName,
                 pasteEnabled = false,
                 hint = viewModel.defaultAccountName,
-                onValueChange = viewModel::onEnterAccountName
+                onValueChange = viewModel::onEnterAccountName,
+                trailingContent = {
+                    Box(modifier = Modifier.padding(end = 16.dp)) {
+                        HSIconButton(
+                            variant = ButtonVariant.Secondary,
+                            size = ButtonSize.Small,
+                            icon = painterResource(R.drawable.ic_swap_circle_24),
+                            onClick = viewModel::generateRandomAccountName
+                        )
+                    }
+                }
             )
             VSpacer(32.dp)
             FormsInputMultiline(
@@ -190,7 +181,32 @@ fun WatchAddressScreen(navController: NavController, popUpToInclusiveId: Int, in
                 )
             }
 
-            VSpacer(32.dp)
+            VSpacer(72.dp)
+        }
+
+        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+            ButtonsGroupWithShade {
+                when (submitType) {
+                    is SubmitButtonType.Watch -> HSButton(
+                        title = stringResource(R.string.Button_Done),
+                        variant = ButtonVariant.Primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        enabled = submitType.enabled,
+                        onClick = viewModel::onClickWatch,
+                    )
+                    is SubmitButtonType.Next -> HSButton(
+                        title = stringResource(R.string.Button_Next),
+                        variant = ButtonVariant.Primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        enabled = submitType.enabled,
+                        onClick = viewModel::onClickNext,
+                    )
+                }
+            }
         }
     }
 }

@@ -52,7 +52,8 @@ import io.horizontalsystems.bankwallet.modules.walletconnect.request.sendtransac
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signtransaction.WCSignEthereumTransactionRequestScreen
 import io.horizontalsystems.bankwallet.modules.walletconnect.session.TitleValueCell
 import io.horizontalsystems.bankwallet.modules.walletconnect.request.signtransaction.WCSignEthereumTransactionRequestScreen
-import io.horizontalsystems.bankwallet.modules.walletconnect.session.ui.BlockchainCell
+// import io.horizontalsystems.bankwallet.modules.walletconnect.session.ui.BlockchainCell // TODO: BlockchainCell removed, find replacement
+
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.MessageToSign
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer

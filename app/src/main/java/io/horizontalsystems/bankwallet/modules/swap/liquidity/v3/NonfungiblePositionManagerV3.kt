@@ -160,8 +160,8 @@ class NonfungiblePositionManagerV3(
         
         val rawTransaction = RawTransaction.createTransaction(
             nonce,
-            gasProvider.getGasPrice(FUNC_MINT),
-            gasProvider.getGasLimit(FUNC_MINT),
+            gasProvider.getGasPrice(),
+            gasProvider.getGasLimit(),
             to,
             data
         )

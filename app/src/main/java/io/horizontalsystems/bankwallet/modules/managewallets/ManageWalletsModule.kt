@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.entities.AccountType
+import io.horizontalsystems.bankwallet.modules.balance.BalanceService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsService
 import io.horizontalsystems.bankwallet.modules.enablecoin.restoresettings.RestoreSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.receive.FullCoinsProvider
@@ -26,7 +27,8 @@ object ManageWalletsModule {
                 App.accountManager.activeAccount?.let { account ->
                     FullCoinsProvider(App.marketKit, account)
                 },
-                activeAccount
+                activeAccount,
+                BalanceService.getInstance("wallet"),
             )
         }
 

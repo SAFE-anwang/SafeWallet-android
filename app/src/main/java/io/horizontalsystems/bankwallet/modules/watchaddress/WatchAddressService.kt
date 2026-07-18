@@ -27,12 +27,15 @@ class WatchAddressService(
 
     fun nextWatchAccountName() = accountFactory.getNextWatchAccountName()
 
+    fun generateRandomWatchAccountName(): String = accountManager.getRandomWalletName()
+
     fun tokens(accountType: AccountType): List<Token> {
         val tokenQueries = buildList {
             when (accountType) {
                 is AccountType.Mnemonic,
                 is AccountType.PrivateKey,
                 is AccountType.EvmPrivateKey,
+                is AccountType.TronPrivateKey,
                 is AccountType.StellarSecretKey -> Unit // N/A
                 is AccountType.SolanaAddress -> {
                     if (BlockchainType.Solana.supports(accountType)) {

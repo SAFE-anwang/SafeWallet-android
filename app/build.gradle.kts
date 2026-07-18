@@ -24,8 +24,8 @@ android {
         applicationId = "com.anwang.safewallet"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
-        versionCode = 166
-        versionName = "0.47.5.202607"
+        versionCode = 170
+        versionName = "0.49.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         resourceConfigurations += listOf("de", "es", "en", "fa", "fr", "ko", "pt", "pt-rBR", "ru", "tr", "zh")
@@ -62,7 +62,7 @@ android {
     }
 
     signingConfigs {
-        create("appCenter") {
+        create("test") {
             storeFile = file("./test.keystore")
             storePassword = "testKeystore123"
             keyAlias = "testKeystore"
@@ -71,38 +71,54 @@ android {
     }
 
     flavorDimensions += "distribution"
+
+    val uswapApiKeyAndroid = "a32d6d05ef80c878c49eb7692aa6e2b36c4c0c7777b89e2c3c4d8e512a7cea61"
+    val uswapApiKeyFdroid = "6e928d1db31e481ae57d42f34a9b7d58a64d7e2380f7ea696e652bd9a0ee516e"
+    val oneInchFeeAddressAndroid = "0xe42BBeE8389548fAe35C09072065b7fEc582b590"
+    val oneInchFeeAddressFdroid = "0x8009267B9929196f74720F2f1496bbD7B79945F1"
+
     productFlavors {
         create("base") {
             dimension = "distribution"
-            signingConfig = signingConfigs.getByName("debug")
+            resValue("string", "uswapApiKey", uswapApiKeyAndroid)
+            resValue("string", "oneInchPartnerFeeAddress", oneInchFeeAddressAndroid)
         }
 
         create("fdroid") {
             dimension = "distribution"
             buildConfigField("boolean", "FDROID_BUILD", "true")
+            resValue("string", "uswapApiKey", uswapApiKeyFdroid)
+            resValue("string", "oneInchPartnerFeeAddress", oneInchFeeAddressFdroid)
         }
 
         create("fdroidCi") {
             dimension = "distribution"
             applicationIdSuffix = ".fdroidci"
             buildConfigField("boolean", "FDROID_BUILD", "true")
-            signingConfig = signingConfigs.getByName("appCenter")
+            signingConfig = signingConfigs.getByName("test")
+            resValue("string", "uswapApiKey", uswapApiKeyFdroid)
+            resValue("string", "oneInchPartnerFeeAddress", oneInchFeeAddressFdroid)
         }
 
         create("ci") {
             dimension = "distribution"
             applicationIdSuffix = ".appcenter"
             versionCode = System.getenv("BUILD_NUMBER")?.toIntOrNull() ?: defaultConfig.versionCode
-            signingConfig = signingConfigs.getByName("appCenter")
+            signingConfig = signingConfigs.getByName("test")
+            resValue("string", "appLinksHost", "dev.unstoppable.money")
+            resValue("string", "uswapApiKey", uswapApiKeyAndroid)
+            resValue("string", "oneInchPartnerFeeAddress", oneInchFeeAddressAndroid)
         }
     }
 
     buildTypes {
         debug {
-            signingConfig = null
+            signingConfig = signingConfigs.getByName("test")
             isDebuggable = true
             isMinifyEnabled = false
             applicationIdSuffix = ".dev"
+            resValue("string", "appLinksHost", "dev.unstoppable.money")
+            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAJgeNwEAAAAA6xVpR6xLKTrxIA3kkSyRA92LDpA%3Da6auybDwcymUyh2BcS6zZwicUdxGtrzJC0qvOSdRwKLeqBGhwB")
             resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA4CGDcoRHAaZvoc3B4Yib%2FdTYobc%3Ds9JR94JpMz4GNjucPrqteBiQ0IJAajm41locTKcX3GW5zZuzS2")
             resValue("string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
             resValue("string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea")
@@ -152,17 +168,21 @@ android {
             resValue("string", "safeswapv2safe4router", "0x6476008C612dF9F8Db166844fFE39D24aEa12271")
             resValue("string", "chainalysisBaseUrl", "https://public.chainalysis.com/api/v1/")
             resValue("string", "chainalysisApiKey", "928bb256db73f1cb93e1b3366a145d9fbe06e28581c8b665b82ad70bbfef1db4")
-            resValue("string", "hashDitBaseUrl", "https://api.diting.pro/v2/hashdit/")
-            resValue("string", "hashDitApiKey", "KuyxZfvJXFrpAcztshhYqeWaRusxyGRDDhFYkeIw")
-            resValue("string", "uswapApiBaseUrl", "https://swap-dev.unstoppable.money/api/v1/")
-            resValue("string", "uswapApiKey", "44fc76602e17e0c8259b6ce3bae3ca90804c6fd8f42ca00e6943a6b1ba7fe242")
+            resValue("string", "hashDitBaseUrl", "https://service.hashdit.io/v2/hashdit/")
+            resValue("string", "hashDitApiKey", "aGMkgODYiUFtTYrSRcEZsIfPHeASOlGYXClJZNWF")
+            resValue("string", "uswapApiBaseUrl", "https://swap-dev.unstoppable.money/api/v2/")
         }
 
 
         release {
             isDebuggable = false
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            resValue("string", "appLinksHost", "unstoppable.money")
+            resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAJgeNwEAAAAA6xVpR6xLKTrxIA3kkSyRA92LDpA%3Da6auybDwcymUyh2BcS6zZwicUdxGtrzJC0qvOSdRwKLeqBGhwB")
+            resValue("string", "etherscanKey", "IEXTB9RE7MUV2UQ9X238RP146IEJB1J5HS,27S4V3GYJGMCPWQZ2T4SF9355QBQYQ3FI7,YK4KEA3TANM8KZ5J6E2Q1ZIM6YDM8TEABM,FU7CYEXQEUSMXJJF8MZR6BNRMP9XT8S9CP")
+            resValue("string", "bscscanKey", "FQ2HSNNEHVG71U96P1TF3WF9RTF6AF5MRA,G6K8VZDWYSJHTCRURRITFZ2ZWV48GRGTZQ,R396MSJNCKX2YK4EIMP3EWYAW21NSVMXRN,8QW2JNMPHPUPAACFGXZ3A5PVQY6PBCJPEG")
             resValue("string", "twitterBearerToken", "AAAAAAAAAAAAAAAAAAAAAP78uAEAAAAA4CGDcoRHAaZvoc3B4Yib%2FdTYobc%3Ds9JR94JpMz4GNjucPrqteBiQ0IJAajm41locTKcX3GW5zZuzS2")
             resValue("string", "uniswapGraphUrl", "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
             resValue("string", "infuraProjectId", "fc344bd5cc7e4bd3bb356a68a831d1ea")
@@ -199,9 +219,9 @@ android {
             resValue("string", "walletConnectV2Key", "d98d5186f513a943fbbff4a755957fbf")
             resValue("string", "walletConnectV2Key1", "45b825481aab1907c73ff9499f199070")
             resValue("string", "solscanApiKey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkQXQiOjE3Mzc0NDMwMjMzMTIsImVtYWlsIjoiMTgxMzgyNDgxNjlAMTYzLmNvbSIsImFjdGlvbiI6InRva2VuLWFwaSIsImFwaVZlcnNpb24iOiJ2MiIsImlhdCI6MTczNzQ0MzAyM30.FyLCMRfZJ0AiYzXFFPTmbUtYdu29u7PPCPV-txXbToM")
-            resValue("string", "solanaAlchemyApiKey", "PKgWxOMarrHgyMESGjIkJ,BOlzgqJUeGYe5E7K613Fm")
+            resValue("string", "solanaAlchemyApiKey", "BOlzgqJUeGYe5E7K613Fm,Vmt7ucAGIMEux_c43Qqqf,uCordWq3EOD800awDx1kb,1uAryzn6DOEVs5PIugeoR,PKgWxOMarrHgyMESGjIkJ")
             resValue("string", "solanaJupiterApiKey", "ec901a97-0375-45b1-8b7d-da1ea9934cb0")
-            resValue("string", "trongridApiKeys", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29,578aa64f-a79f-4ee8-86e9-e9860e2d050a,1e92f1fc-41f8-401f-a7f6-5b719b6f1280,d1511874-1547-48df-9536-a32cc85949ac,cec10562-8f2f-44a8-a0f6-245842bc6758,33374494-8060-447e-8367-90c5efd4ed95")
+            resValue("string", "trongridApiKeys", "8f5ae2c8-8012-42a8-b0ca-ffc2741f6a29,578aa64f-a79f-4ee8-86e9-e9860e2d050a,1e92f1fc-41f8-401f-a7f6-5b719b6f1280,d1511874-1547-48df-9536-a32cc85949ac")
             resValue("string", "udnApiKey", "r2phzgatt_zt9-hd_wyvdjrdsrimnxgokm7knyag1malzgcz")
             resValue("string", "blocksDecodedEthereumRpc", "https://ethereum-mainnet.core.chainstack.com/a1911ee247f4f8de22c1f4e55865f616")
             resValue("string", "oneInchApiKey", "ElyK7s22HR0JD78CEXVPnpZA8UyuUwIl")
@@ -214,8 +234,7 @@ android {
             resValue("string", "chainalysisApiKey", "928bb256db73f1cb93e1b3366a145d9fbe06e28581c8b665b82ad70bbfef1db4")
             resValue("string", "hashDitBaseUrl", "https://service.hashdit.io/v2/hashdit/")
             resValue("string", "hashDitApiKey", "aGMkgODYiUFtTYrSRcEZsIfPHeASOlGYXClJZNWF")
-            resValue("string", "uswapApiBaseUrl", "https://swap-api.unstoppable.money/v1/")
-            resValue("string", "uswapApiKey", "44fc76602e17e0c8259b6ce3bae3ca90804c6fd8f42ca00e6943a6b1ba7fe242")
+            resValue("string", "uswapApiBaseUrl", "https://swap-api.unstoppable.money/v2/")
         }
     }
 
@@ -244,6 +263,9 @@ android {
         jniLibs {
             useLegacyPackaging = true
         }
+        dex {
+            useLegacyPackaging = true
+        }
     }
 
     lint {
@@ -253,20 +275,28 @@ android {
 
     configurations.all {
         resolutionStrategy.dependencySubstitution {
-            substitute(module("org.bouncycastle:bcprov-jdk15to18:1.68")).using(module("org.bouncycastle:bcprov-jdk15on:1.65"))
+            substitute(module("org.bouncycastle:bcprov-jdk15to18:1.68")).using(module("org.bouncycastle:bcprov-jdk15on:1.70"))
             substitute(module("com.google.protobuf:protobuf-java:3.6.1")).using(module("com.google.protobuf:protobuf-javalite:3.21.1"))
             substitute(module("net.jcip:jcip-annotations:1.0")).using(module("com.github.stephenc.jcip:jcip-annotations:1.0-1"))
 
-            substitute(module("com.tinder.scarlet:scarlet:0.1.12")).using(module("com.github.WalletConnect.Scarlet:scarlet:1.0.0"))
-            substitute(module("com.tinder.scarlet:websocket-okhttp:0.1.12")).using(module("com.github.WalletConnect.Scarlet:websocket-okhttp:1.0.0"))
-            substitute(module("com.tinder.scarlet:stream-adapter-rxjava2:0.1.12")).using(module("com.github.WalletConnect.Scarlet:stream-adapter-rxjava2:1.0.0"))
-            substitute(module("com.tinder.scarlet:message-adapter-gson:0.1.12")).using(module("com.github.WalletConnect.Scarlet:message-adapter-gson:1.0.0"))
-            substitute(module("com.tinder.scarlet:lifecycle-android:0.1.12")).using(module("com.github.WalletConnect.Scarlet:lifecycle-android:1.0.0"))
+            substitute(module("com.tinder.scarlet:scarlet:0.1.12")).using(module("com.walletconnect.Scarlet:scarlet:1.0.2"))
+            substitute(module("com.tinder.scarlet:websocket-okhttp:0.1.12")).using(module("com.walletconnect.Scarlet:websocket-okhttp:1.0.2"))
+            substitute(module("com.tinder.scarlet:stream-adapter-rxjava2:0.1.12")).using(module("com.walletconnect.Scarlet:stream-adapter-rxjava2:1.0.2"))
+            substitute(module("com.tinder.scarlet:message-adapter-gson:0.1.12")).using(module("com.walletconnect.Scarlet:message-adapter-gson:1.0.2"))
+            substitute(module("com.tinder.scarlet:lifecycle-android:0.1.12")).using(module("com.walletconnect.Scarlet:lifecycle-android:1.0.2"))
+            substitute(module("com.github.WalletConnect.Scarlet:scarlet:1.0.0")).using(module("com.walletconnect.Scarlet:scarlet:1.0.2"))
+            substitute(module("com.github.WalletConnect.Scarlet:websocket-okhttp:1.0.0")).using(module("com.walletconnect.Scarlet:websocket-okhttp:1.0.2"))
+            substitute(module("com.github.WalletConnect.Scarlet:stream-adapter-rxjava2:1.0.0")).using(module("com.walletconnect.Scarlet:stream-adapter-rxjava2:1.0.2"))
+            substitute(module("com.github.WalletConnect.Scarlet:message-adapter-gson:1.0.0")).using(module("com.walletconnect.Scarlet:message-adapter-gson:1.0.2"))
+            substitute(module("com.github.WalletConnect.Scarlet:lifecycle-android:1.0.0")).using(module("com.walletconnect.Scarlet:lifecycle-android:1.0.2"))
         }
 
         resolutionStrategy.eachDependency {
             if (requested.group == "com.squareup.okhttp3") {
                 useVersion("4.10.0")
+            }
+            if (requested.group == "org.web3j") {
+                useVersion("4.9.8")
             }
         }
     }
@@ -287,6 +317,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.biometric)
+    implementation(libs.androidx.credentials)
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.extensions)
@@ -363,11 +394,6 @@ dependencies {
     api(libs.zxing)
     implementation(libs.qrose)
 
-    // WalletConnect
-    implementation(platform(libs.walletconnect.bom))
-    implementation(libs.walletconnect.web3wallet)
-    implementation(libs.walletconnect.android.core)
-
     // Web3
     implementation(libs.web3j)
     implementation(libs.unstoppable.domains)
@@ -395,10 +421,14 @@ dependencies {
 
     implementation(libs.kit.ton)
     implementation(libs.kit.monero)
+    implementation(libs.kit.zano)
     implementation(libs.kit.stellar)
     implementation(libs.kit.fee.rate)
     implementation(libs.kit.tron)
-    implementation(libs.kit.zcash)
+    implementation(libs.zcash.android.sdk)
+
+    // BouncyCastle
+    implementation(libs.bouncycastle)
 
 
     implementation(project(":market-kit-android:marketkit"))
@@ -437,6 +467,7 @@ dependencies {
     implementation(project(":components:seekbar"))
 
     implementation(project(":subscriptions-core"))
+    implementation(project(":dapp-core"))
 
     // UI Tests
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -493,12 +524,24 @@ afterEvaluate {
         "fdroidImplementation"(project(":subscriptions-fdroid"))
         "fdroidCiImplementation"(project(":subscriptions-fdroid"))
         "ciImplementation"(project(":subscriptions-dev"))
+
+        findProject(":dapp-wallet-connect")?.let {
+            "baseDebugImplementation"(it)
+            "baseReleaseImplementation"(it)
+            "ciImplementation"(it)
+        }
+
+        "baseDebugImplementation"(libs.androidx.credentials.play.services.auth)
+        "baseReleaseImplementation"(libs.androidx.credentials.play.services.auth)
+        "ciImplementation"(libs.androidx.credentials.play.services.auth)
     }
 }
 
 configurations.all {
     resolutionStrategy {
         cacheChangingModulesFor(0, TimeUnit.SECONDS)
+        // PowerMock forces junit:4.12 which conflicts with androidTest deps requiring 4.13.2
+        force("junit:junit:4.13.2")
 
         force("org.bitcoinj:bitcoinj-core:0.15.10")
 

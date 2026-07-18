@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonParser
-import com.walletconnect.web3.wallet.client.Wallet
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
@@ -15,6 +14,7 @@ import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.modules.sendevmtransaction.SectionViewItem
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCDelegate
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
+import io.horizontalsystems.dapp.core.HSDAppRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCSessionManager
@@ -29,7 +29,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class WCRequestViewModel(
-    private val sessionRequest: Wallet.Model.SessionRequest,
+    private val sessionRequest: HSDAppRequest,
     private val wcAction: AbstractWCAction,
     private val accountManager: IAccountManager
 ) : ViewModelUiState<WCRequestUiState>() {
@@ -69,7 +69,7 @@ class WCRequestViewModel(
         val actionResult = wcAction.performAction()
 
         WCDelegate.respondPendingRequest(
-            sessionRequest.request.id,
+            sessionRequest.requestId,
             sessionRequest.topic,
             actionResult,
             onSuccessResult = {
@@ -90,7 +90,7 @@ class WCRequestViewModel(
 
         WCDelegate.rejectRequest(
             sessionRequest.topic,
-            sessionRequest.request.id,
+            sessionRequest.requestId,
             onSuccessResult = {
                 finish = true
                 emitState()
@@ -105,7 +105,7 @@ class WCRequestViewModel(
     }
 
     class Factory(
-        private val sessionRequest: Wallet.Model.SessionRequest,
+        private val sessionRequest: HSDAppRequest,
         private val wcAction: AbstractWCAction,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

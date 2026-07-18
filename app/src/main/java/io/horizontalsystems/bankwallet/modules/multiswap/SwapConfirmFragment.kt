@@ -5,21 +5,20 @@ import android.icu.util.Measure
 import android.icu.util.MeasureUnit
 import android.os.Parcelable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,9 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.R.drawable.close_e_filled_24
-import io.horizontalsystems.bankwallet.R.drawable.shield_check_filled_24
-import io.horizontalsystems.bankwallet.R.drawable.warning_filled_24
 import io.horizontalsystems.bankwallet.R.id.defenseSystemFeatureDialog
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.alternativeImageUrl
@@ -68,24 +64,30 @@ import io.horizontalsystems.bankwallet.ui.compose.components.HFillSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
+import io.horizontalsystems.bankwallet.ui.compose.components.rememberAsyncAction
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_leah
 import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
+import io.horizontalsystems.bankwallet.uiv3.components.AlertCard
+import io.horizontalsystems.bankwallet.uiv3.components.AlertFormat
+import io.horizontalsystems.bankwallet.uiv3.components.AlertType
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.bankwallet.uiv3.components.cards.CardsErrorMessageDefault
 import io.horizontalsystems.bankwallet.uiv3.components.cell.CellMiddleInfo
 import io.horizontalsystems.bankwallet.uiv3.components.cell.CellPrimary
+import io.horizontalsystems.bankwallet.uiv3.components.cell.CellRightControlsSwitcher
 import io.horizontalsystems.bankwallet.uiv3.components.cell.CellRightInfo
 import io.horizontalsystems.bankwallet.uiv3.components.cell.hs
 import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonConfig
 import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonSize
 import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonStyle
 import io.horizontalsystems.bankwallet.uiv3.components.controls.ButtonVariant
-import io.horizontalsystems.bankwallet.uiv3.components.message.DefenseAlertLevel
-import io.horizontalsystems.bankwallet.uiv3.components.message.DefenseSystemMessage
+import io.horizontalsystems.bankwallet.uiv3.components.info.TextBlock
+import io.horizontalsystems.bankwallet.uiv3.components.section.SectionHeader
 import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.SafeExtend.isSafeCoin
 import io.horizontalsystems.marketkit.models.Token
+import io.horizontalsystems.subscriptions.core.SwapProtection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -105,8 +107,12 @@ class SwapConfirmFragment : BaseComposeFragment() {
 @Composable
 fun SwapConfirmScreen(navController: NavController) {
     val previousBackStackEntry = remember { navController.previousBackStackEntry }
+    if (previousBackStackEntry == null) {
+        navController.popBackStack()
+        return
+    }
     val swapViewModel = viewModel<SwapViewModel>(
-        viewModelStoreOwner = previousBackStackEntry!!,
+        viewModelStoreOwner = previousBackStackEntry,
     )
 
     val currentQuote = remember { swapViewModel.getCurrentQuote() } ?: return
@@ -181,9 +187,8 @@ private fun SwapConfirmError(
 private fun SwapConfirmInternal(
     navController: NavController,
     viewModel: SwapConfirmViewModel,
-    uiState: SwapConfirmUiState
+    uiState: SwapConfirmUiState,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val view = LocalView.current
 
     val onClickSettings = if (uiState.hasSettings) {
@@ -226,36 +231,8 @@ private fun SwapConfirmInternal(
                 viewModel.setRecipient(it.address)
             }
         },
-        defenseSlot = {
-            uiState.swapDefenseSystemMessage?.let { message ->
-                val icon = when (message.level) {
-                    DefenseAlertLevel.WARNING -> warning_filled_24
-                    DefenseAlertLevel.DANGER -> warning_filled_24
-                    DefenseAlertLevel.SAFE -> shield_check_filled_24
-                    DefenseAlertLevel.IDLE -> close_e_filled_24
-                }
-
-                val onClick = message.requiredPaidAction?.let {
-                    {
-                        navController.slideFromBottom(
-                            defenseSystemFeatureDialog,
-                            Input(PremiumFeature.getFeature(paidAction = message.requiredPaidAction))
-                        )
-                    }
-                }
-
-                DefenseSystemMessage(
-                    level = message.level,
-                    title = message.title.getString(),
-                    content = message.body.getString(),
-                    icon = icon,
-                    actionText = message.actionText?.getString(),
-                    onClick = onClick
-                )
-            }
-        },
         buttonsSlot = {
-            if (!uiState.validQuote) {
+            if (!uiState.validQuote || uiState.expired) {
                 ButtonPrimaryDefault(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.Button_Refresh),
@@ -264,17 +241,13 @@ private fun SwapConfirmInternal(
                     },
                 )
             } else {
-                var buttonEnabled by remember { mutableStateOf(true) }
-                var swapButtonTitle by remember { mutableIntStateOf(R.string.Swap) }
+                val swapAction = rememberAsyncAction()
                 ButtonPrimaryYellow(
                     modifier = Modifier.fillMaxWidth(),
-                    title = stringResource(swapButtonTitle),
-                    enabled = buttonEnabled && !uiState.loading,
+                    title = stringResource(if (swapAction.inProgress) R.string.Swap_Swapping else R.string.Swap),
+                    enabled = !swapAction.inProgress && !uiState.loading,
                     onClick = {
-                        coroutineScope.launch {
-                            buttonEnabled = false
-                            swapButtonTitle = R.string.Swap_Swapping
-
+                        swapAction.run {
                             try {
                                 viewModel.swap()
 
@@ -285,9 +258,6 @@ private fun SwapConfirmInternal(
                             } catch (t: Throwable) {
                                 navController.slideFromBottom(R.id.errorBottomSheet, ErrorBottomSheet.Input(t.message ?: t.javaClass.simpleName))
                             }
-
-                            swapButtonTitle = R.string.Swap
-                            buttonEnabled = true
                         }
                     },
                 )
@@ -384,6 +354,71 @@ private fun SwapConfirmInternal(
                 navController,
                 uiState.networkFee?.primary?.getFormattedPlain() ?: "---",
                 uiState.networkFee?.secondary?.getFormattedPlain() ?: "---"
+            )
+        }
+
+        val defenseMessage = uiState.swapDefenseSystemMessage
+        if (defenseMessage != null &&
+            (defenseMessage.level == DefenseAlertLevel.WARNING || defenseMessage.level == DefenseAlertLevel.DANGER)
+        ) {
+            val alertType = if (defenseMessage.level == DefenseAlertLevel.DANGER) AlertType.Critical else AlertType.Caution
+            VSpacer(16.dp)
+            AlertCard(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                format = AlertFormat.Structured,
+                type = alertType,
+                titleCustom = defenseMessage.title.getString(),
+                text = defenseMessage.body.getString(),
+            )
+        }
+
+        if (uiState.supportsMevProtection) {
+            VSpacer(16.dp)
+            SectionHeader(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = stringResource(R.string.SwapConfirm_SwapProtection),
+                icon = R.drawable.ic_defense_shield_20
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ComposeAppTheme.colors.lawrence)
+                    .border(0.5.dp, ComposeAppTheme.colors.blade, RoundedCornerShape(16.dp))
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    CellMiddleInfo(title = stringResource(R.string.SwapConfirm_Mev).hs)
+                }
+                Box(
+                    modifier = Modifier.widthIn(max = 200.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    CellRightControlsSwitcher(
+                        checked = uiState.mevProtectionEnabled,
+                        confirmChange = {
+                            if (!uiState.mevProtectionActionAllowed) {
+                                navController.slideFromBottom(
+                                    defenseSystemFeatureDialog,
+                                    Input(PremiumFeature.getFeature(paidAction = SwapProtection))
+                                )
+                                false
+                            } else {
+                                true
+                            }
+                        },
+                        onCheckedChange = { enabled ->
+                            viewModel.setMevProtectionEnabled(enabled)
+                        }
+                    )
+                }
+            }
+
+            TextBlock(
+                text = stringResource(R.string.SwapConfirm_MevDescription),
             )
         }
 

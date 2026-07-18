@@ -70,6 +70,7 @@ val BitcoinAddress.tokenType: TokenType
         BlockchainType.Stellar,
         BlockchainType.Monero,
         BlockchainType.SafeFour,
+        BlockchainType.Zano,
         is BlockchainType.Unsupported,
         null -> TokenType.Unsupported("", "")
     }

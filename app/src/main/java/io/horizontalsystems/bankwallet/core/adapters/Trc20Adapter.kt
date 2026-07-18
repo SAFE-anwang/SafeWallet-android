@@ -32,6 +32,10 @@ class Trc20Adapter(
     private val contractAddress: Address = Address.fromBase58(contractAddress)
     private val transactionConverter = TronTransactionConverter(coinManager, tronKitWrapper, wallet.transactionSource, baseToken, evmLabelManager)
 
+    init {
+        tronKit.watchTrc20(this.contractAddress)
+    }
+
     // IAdapter
 
     override fun start() {
@@ -71,12 +75,12 @@ class Trc20Adapter(
         tronKit.estimateFee(contract)
     }
 
-    override suspend fun send(amount: BigDecimal, to: Address, feeLimit: Long?) {
+    override suspend fun send(amount: BigDecimal, to: Address, feeLimit: Long?): String {
         if (signer == null) throw Exception()
         val amountBigInt = amount.movePointRight(decimal).toBigInteger()
         val contract = tronKit.transferTrc20TriggerSmartContract(contractAddress, to, amountBigInt)
 
-        tronKit.send(contract, signer, feeLimit)
+        return tronKit.send(contract, signer, feeLimit)
     }
 
     private fun convertToAdapterState(syncState: SyncState): AdapterState = when (syncState) {

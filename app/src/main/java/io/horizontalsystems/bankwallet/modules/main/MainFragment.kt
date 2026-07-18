@@ -56,8 +56,8 @@ import io.horizontalsystems.bankwallet.core.stats.statTab
 import io.horizontalsystems.bankwallet.modules.balance.ui.BalanceScreen
 import io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
-import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.market.MarketScreen
+import io.horizontalsystems.bankwallet.modules.multiswap.SwapScreen
 import io.horizontalsystems.bankwallet.modules.rateapp.RateApp
 import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceModule
@@ -70,7 +70,6 @@ import io.horizontalsystems.bankwallet.modules.sendtokenselect.SendTokenSelectFr
 import io.horizontalsystems.bankwallet.modules.settings.main.SettingsScreen
 import io.horizontalsystems.bankwallet.modules.tor.TorStatusView
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsModule
-import io.horizontalsystems.bankwallet.modules.transactions.TransactionsScreen
 import io.horizontalsystems.bankwallet.modules.transactions.TransactionsViewModel
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.tg.StartTelegramsService
@@ -80,6 +79,7 @@ import io.horizontalsystems.bankwallet.ui.compose.components.BadgeText
 import io.horizontalsystems.bankwallet.uiv3.components.bottombars.HsNavigationBarItem
 import io.horizontalsystems.bankwallet.uiv3.components.bottombars.HsNavigationBarItemDefaults
 import kotlinx.coroutines.delay
+import kotlin.system.exitProcess
 
 class MainFragment : BaseComposeFragment() {
     private val mainActivityViewModel by activityViewModels<MainActivityViewModel>()
@@ -109,9 +109,8 @@ class MainFragment : BaseComposeFragment() {
                 }
             )
         } ?: run {
-            // Back stack entry doesn't exist, restart activity
-            val intent = Intent(context, MainActivity::class.java)
-            requireActivity().startActivity(intent)
+            requireActivity().finishAndRemoveTask()
+            exitProcess(0)
         }
     }
 
@@ -198,12 +197,14 @@ private fun MainScreen(
     val activityIntent by mainActivityViewModel.intentLiveData.observeAsState()
     LaunchedEffect(activityIntent) {
         activityIntent?.data?.let {
-            mainActivityViewModel.intentHandled()
+            delay(1000)
             viewModel.handleDeepLink(it)
+            mainActivityViewModel.intentHandled()
         }
     }
 
     val uiState = viewModel.uiState
+    val navigationBarHeight = 56.dp
 
     Scaffold(
         containerColor = ComposeAppTheme.colors.tyler,
@@ -217,7 +218,7 @@ private fun MainScreen(
                     TorStatusView()
                 }
                 NavigationBar(
-                    modifier = Modifier.height(56.dp),
+                    modifier = Modifier.height(navigationBarHeight),
                     containerColor = ComposeAppTheme.colors.blade,
                 ) {
                     uiState.mainNavItems.forEach { destination ->
@@ -270,15 +271,22 @@ private fun MainScreen(
                 when (navItem) {
                     MainNavigation.Market -> MarketScreen(fragmentNavController)
                     MainNavigation.Balance -> BalanceScreen(fragmentNavController)
-                    /*MainNavigation.Transactions -> TransactionsScreen(
+                    MainNavigation.Swap -> SwapScreen(
                         fragmentNavController,
-                        transactionsViewModel
-                    )*/
+                        onClickClose = null,
+                        bottomPadding = navigationBarHeight,
+                        closeAfterSwap = false,
+                        autofocus = false
+                    )
+
+//                    MainNavigation.Transactions -> TransactionsScreen(
+//                        fragmentNavController,
+//                        transactionsViewModel
+//                    )
                     MainNavigation.Safe4 -> Safe4Screen(safe4ViewModel, fragmentNavController, openLink)
                     MainNavigation.Tg -> {
                         null
                     }
-
                     MainNavigation.Settings -> SettingsScreen(fragmentNavController, mainViewModel = viewModel)
                 }
             }
@@ -317,16 +325,6 @@ private fun MainScreen(
         when (val wcSupportState = uiState.wcSupportState) {
             SupportState.NotSupportedDueToNoActiveAccount -> {
                 fragmentNavController.slideFromBottom(R.id.wcErrorNoAccountFragment)
-            }
-
-            is SupportState.NotSupportedDueToNonBackedUpAccount -> {
-                val text = stringResource(R.string.WalletConnect_Error_NeedBackup)
-                fragmentNavController.slideFromBottom(
-                    R.id.backupRequiredDialog,
-                    BackupRequiredDialog.Input(wcSupportState.account, text)
-                )
-
-                stat(page = StatPage.Main, event = StatEvent.Open(StatPage.BackupRequired))
             }
 
             is SupportState.NotSupported -> {
@@ -368,6 +366,7 @@ private fun MainScreen(
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
         viewModel.onResume()
+        mainActivityViewModel.reEmitPendingWcProposalIfNeeded()
     }
 }
 

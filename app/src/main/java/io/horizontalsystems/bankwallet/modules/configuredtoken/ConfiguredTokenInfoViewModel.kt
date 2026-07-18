@@ -56,10 +56,14 @@ class ConfiguredTokenInfoViewModel(
             }
             TokenType.Native -> when (token.blockchainType) {
                 BlockchainType.Monero,
-                BlockchainType.Zcash -> {
+                BlockchainType.Zcash,
+                BlockchainType.Zano -> {
                     ConfiguredTokenInfoType.BirthdayHeight(getBirthdayHeight(token))
                 }
                 else -> null
+            }
+            is TokenType.ZanoAsset -> {
+                ConfiguredTokenInfoType.Contract(token.coin.uid, type.reference, token.blockchain.type.imageUrl, null)
             }
             is TokenType.Unsupported -> null
         }

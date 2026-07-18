@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.core.managers
 
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountCleaner
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.IAccountsStorage
@@ -11,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -47,9 +48,6 @@ class AccountManager(
     override val accountsDeletedFlowable: Flowable<Unit>
         get() = accountsDeletedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
-    private val _newAccountBackupRequiredFlow = MutableStateFlow<Account?>(null)
-    override val newAccountBackupRequiredFlow = _newAccountBackupRequiredFlow.asStateFlow()
-
     private fun updateCache(account: Account) {
         accountsCache[account.id] = account
     }
@@ -68,10 +66,6 @@ class AccountManager(
         return accounts.find { account -> account.id == id }
     }
 
-    override fun onHandledBackupRequiredNewAccount() {
-        _newAccountBackupRequiredFlow.update { null }
-    }
-
     override fun save(account: Account) {
         storage.save(account)
 
@@ -81,11 +75,6 @@ class AccountManager(
         accountsSubject.onNext(accounts)
 
         setActiveAccountId(account.id)
-        if (!account.isBackedUp && !account.isFileBackedUp) {
-            _newAccountBackupRequiredFlow.update {
-                account
-            }
-        }
     }
 
     override fun import(accounts: List<Account>) {
@@ -101,11 +90,6 @@ class AccountManager(
         if (activeAccount == null) {
             accounts.minByOrNull { it.name.lowercase() }?.let { account ->
                 setActiveAccountId(account.id)
-                if (!account.isBackedUp && !account.isFileBackedUp) {
-                    _newAccountBackupRequiredFlow.update {
-                        account
-                    }
-                }
             }
         }
     }
@@ -181,6 +165,12 @@ class AccountManager(
             accountCleaner.clearAccounts(storage.getDeletedAccountIds())
             storage.clearDeleted()
         }
+    }
+
+    override fun getRandomWalletName(): String {
+        val existingNames = accounts.map { it.name }.toSet()
+        val all = App.instance.localizedContext().resources.getStringArray(R.array.wallet_names)
+        return all.filter { it !in existingNames }.randomOrNull() ?: all.random()
     }
 
 }

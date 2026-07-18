@@ -15,14 +15,18 @@ class SyncErrorService(
 ) {
 
     val blockchainWrapper by lazy {
-        if (wallet.token.blockchainType == BlockchainType.Monero) {
-            SyncErrorModule.BlockchainWrapper.Monero
-        } else {
-            btcBlockchainManager.blockchain(wallet.token.blockchainType)?.let {
-                SyncErrorModule.BlockchainWrapper.Bitcoin(it)
-            } ?: run {
-                evmBlockchainManager.getBlockchain(wallet.token)?.let {
-                    SyncErrorModule.BlockchainWrapper.Evm(it)
+        when (wallet.token.blockchainType) {
+            BlockchainType.Monero -> SyncErrorModule.BlockchainWrapper.Monero
+            BlockchainType.Zano -> SyncErrorModule.BlockchainWrapper.Zano
+            BlockchainType.Zcash -> SyncErrorModule.BlockchainWrapper.Zcash
+            BlockchainType.Tron -> SyncErrorModule.BlockchainWrapper.Evm(wallet.token.blockchain)
+            else -> {
+                btcBlockchainManager.blockchain(wallet.token.blockchainType)?.let {
+                    SyncErrorModule.BlockchainWrapper.Bitcoin(it)
+                } ?: run {
+                    evmBlockchainManager.getBlockchain(wallet.token)?.let {
+                        SyncErrorModule.BlockchainWrapper.Evm(it)
+                    }
                 }
             }
         }

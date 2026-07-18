@@ -4,8 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.walletconnect.web3.wallet.client.Wallet.Params.Pair
-import com.walletconnect.web3.wallet.client.Web3Wallet
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.AdapterState
 import io.horizontalsystems.bankwallet.core.App
@@ -29,6 +27,7 @@ import io.horizontalsystems.bankwallet.modules.address.AddressHandlerFactory
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListModule
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListViewModel
+import io.horizontalsystems.dapp.core.DAppManager
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.TokenType
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import androidx.core.net.toUri
 import java.util.concurrent.CopyOnWriteArrayList
 
 class BalanceViewModel(
@@ -59,6 +59,7 @@ class BalanceViewModel(
     private var balanceViewItems = CopyOnWriteArrayList<BalanceViewItem2>()
     private var isRefreshing = false
     private var openSendTokenSelect: OpenSendTokenSelect? = null
+    private var openOcpPayment: String? = null
     private var errorMessage: String? = null
     private var balanceTabButtonsEnabled = localStorage.balanceTabButtonsEnabled
     private var balanceHidden = balanceHiddenManager.balanceHiddenFlow.value
@@ -70,6 +71,9 @@ class BalanceViewModel(
     private var sortType = service.sortType
 
     var connectionResult by mutableStateOf<WalletConnectListViewModel.ConnectionResult?>(null)
+        private set
+
+    var walletConnectRequest by mutableStateOf<String?>(null)
         private set
 
     private var refreshViewItemsJob: Job? = null
@@ -182,6 +186,7 @@ class BalanceViewModel(
         nonStandardAccount = service.account?.nonStandard == true,
         errorMessage = errorMessage,
         openSend = openSendTokenSelect,
+        openOcpPayment = openOcpPayment,
         balanceTabButtonsEnabled = balanceTabButtonsEnabled,
         sortType = sortType,
         sortTypes = sortTypes,
@@ -280,20 +285,27 @@ class BalanceViewModel(
         else -> SyncError.NetworkNotAvailable()
     }
 
-    fun getReceiveAllowedState(): ReceiveAllowedState? {
-        val tmpAccount = service.account ?: return null
-        return when {
-            tmpAccount.hasAnyBackup -> ReceiveAllowedState.Allowed
-            else -> ReceiveAllowedState.BackupRequired(tmpAccount)
-        }
-    }
-
     fun getWalletConnectSupportState(): WCManager.SupportState {
         return wCManager.getWalletConnectSupportState()
     }
 
     fun handleScannedData(scannedText: String) {
         viewModelScope.launch {
+            val lnurl: String? = when {
+                scannedText.uppercase().startsWith("LNURL") -> scannedText
+                scannedText.lowercase().startsWith("lightning:lnurl") ->
+                    scannedText.drop("lightning:".length)
+                else -> try {
+                    scannedText.toUri().getQueryParameter("lightning")
+                        ?.takeIf { it.uppercase().startsWith("LNURL") }
+                } catch (_: Exception) { null }
+            }
+            if (lnurl != null) {
+                openOcpPayment = lnurl
+                emitState()
+                return@launch
+            }
+
             if (
                 scannedText.startsWith("tc:") ||
                 scannedText.startsWith("https://unstoppable.money/ton-connect")
@@ -302,7 +314,12 @@ class BalanceViewModel(
             } else {
                 val wcUriVersion = WalletConnectListModule.getVersionFromUri(scannedText)
                 if (wcUriVersion == 2) {
-                    handleWalletConnectUri(scannedText)
+                    if (DAppManager.isAvailable) {
+                        handleWalletConnectRequest(scannedText)
+                    } else {
+                        errorMessage = Translator.getString(R.string.Balance_Error_InvalidQrCode)
+                        emitState()
+                    }
                 } else {
                     handleAddressData(scannedText)
                 }
@@ -313,7 +330,11 @@ class BalanceViewModel(
     private fun handleAddressData(text: String) {
         if (text.contains("//")) {
             //handle this type of uri ton://transfer/<address>
-            val toncoinAddress = ToncoinUriParser.getAddress(text) ?: return
+            val toncoinAddress = ToncoinUriParser.getAddress(text) ?: run {
+                errorMessage = Translator.getString(R.string.Balance_Error_InvalidQrCode)
+                return
+            }
+
             openSendTokenSelect = OpenSendTokenSelect(
                 blockchainTypes = listOf(BlockchainType.Ton),
                 tokenTypes = null,
@@ -361,19 +382,29 @@ class BalanceViewModel(
         }
     }
 
-    private fun handleWalletConnectUri(scannedText: String) {
-        Web3Wallet.pair(Pair(scannedText.trim()),
-            onSuccess = {
-                connectionResult = null
-            },
-            onError = {
-                connectionResult = WalletConnectListViewModel.ConnectionResult.Error
-            }
+    private fun handleWalletConnectRequest(scannedText: String) {
+        walletConnectRequest = scannedText
+    }
+
+    fun onWalletConnectRequestHandled() {
+        walletConnectRequest = null
+    }
+
+    fun connectWC(uri: String) {
+        DAppManager.pair(
+            uri = uri.trim(),
+            onSuccess = { connectionResult = null },
+            onError = { connectionResult = WalletConnectListViewModel.ConnectionResult.Error }
         )
     }
 
     fun onSendOpened() {
         openSendTokenSelect = null
+        emitState()
+    }
+
+    fun onOcpPaymentOpened() {
+        openOcpPayment = null
         emitState()
     }
 
@@ -392,13 +423,6 @@ class BalanceViewModel(
     }
 }
 
-sealed class ReceiveAllowedState {
-    object Allowed : ReceiveAllowedState()
-    data class BackupRequired(val account: Account) : ReceiveAllowedState()
-}
-
-class BackupRequiredError(val account: Account, val coinTitle: String) : Error("Backup Required")
-
 data class BalanceUiState(
     val balanceViewItems: List<BalanceViewItem2>,
     val viewState: ViewState?,
@@ -406,6 +430,7 @@ data class BalanceUiState(
     val nonStandardAccount: Boolean,
     val errorMessage: String?,
     val openSend: OpenSendTokenSelect? = null,
+    val openOcpPayment: String? = null,
     val balanceTabButtonsEnabled: Boolean,
     val sortType: BalanceSortType,
     val sortTypes: List<BalanceSortType>,

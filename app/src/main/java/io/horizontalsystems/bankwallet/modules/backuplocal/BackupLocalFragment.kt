@@ -10,10 +10,10 @@ import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePage
 import io.horizontalsystems.bankwallet.core.getInput
 import io.horizontalsystems.bankwallet.entities.Account
+import io.horizontalsystems.bankwallet.modules.backuplocal.fullbackup.BackupSection
 import io.horizontalsystems.bankwallet.modules.backuplocal.fullbackup.SelectBackupItemsScreen
 import io.horizontalsystems.bankwallet.modules.backuplocal.password.BackupType
 import io.horizontalsystems.bankwallet.modules.backuplocal.password.LocalBackupPasswordScreen
-import io.horizontalsystems.bankwallet.modules.backuplocal.terms.LocalBackupTermsScreen
 
 class BackupLocalFragment : BaseComposeFragment() {
 
@@ -37,9 +37,10 @@ private fun FullBackupNavHost(fragmentNavController: NavController) {
     ) {
         composable("select_backup_items") {
             SelectBackupItemsScreen(
-                onNextClick = { accountIdsList ->
-                    val accountIds = if (accountIdsList.isNotEmpty()) "?accountIds=" + accountIdsList.joinToString(separator = ",") else ""
-                    navController.navigate("terms_page$accountIds")
+                onNextClick = { accountIdsList, sections ->
+                    val accountIds = accountIdsList.joinToString(",")
+                    val sectionsStr = sections.joinToString(",") { it.name }
+                    navController.navigate("password_page?accountIds=$accountIds&sections=$sectionsStr")
                 },
                 onBackClick = {
                     fragmentNavController.popBackStack()
@@ -48,27 +49,20 @@ private fun FullBackupNavHost(fragmentNavController: NavController) {
         }
 
         composablePage(
-            route = "terms_page?accountIds={accountIds}",
-            arguments = listOf(navArgument("accountIds") { nullable = true })
+            route = "password_page?accountIds={accountIds}&sections={sections}",
+            arguments = listOf(
+                navArgument("accountIds") { nullable = true },
+                navArgument("sections") { nullable = true }
+            )
         ) { backStackEntry ->
             val accountIds = backStackEntry.arguments?.getString("accountIds")
-            LocalBackupTermsScreen(
-                onTermsAccepted = {
-                    navController.navigate("password_page${if (accountIds != null) "?accountIds=$accountIds" else ""}")
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composablePage(
-            route = "password_page?accountIds={accountIds}",
-            arguments = listOf(navArgument("accountIds") { nullable = true })
-        ) { backStackEntry ->
-            val accountIds = backStackEntry.arguments?.getString("accountIds")?.split(",") ?: listOf()
+                ?.split(",")?.filter { it.isNotEmpty() } ?: listOf()
+            val sections = backStackEntry.arguments?.getString("sections")
+                ?.split(",")
+                ?.mapNotNull { name -> BackupSection.entries.firstOrNull { it.name == name } }
+                ?.toSet() ?: BackupSection.entries.toSet()
             LocalBackupPasswordScreen(
-                backupType = BackupType.FullBackup(accountIds),
+                backupType = BackupType.FullBackup(accountIds, sections),
                 onBackClick = {
                     navController.popBackStack()
                 },
@@ -85,18 +79,8 @@ private fun SingleWalletBackupNavHost(fragmentNavController: NavController, acco
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "terms_page",
+        startDestination = "password_page",
     ) {
-        composable("terms_page") {
-            LocalBackupTermsScreen(
-                onTermsAccepted = {
-                    navController.navigate("password_page")
-                },
-                onBackClick = {
-                    fragmentNavController.popBackStack()
-                }
-            )
-        }
         composablePage("password_page") {
             LocalBackupPasswordScreen(
                 backupType = BackupType.SingleWalletBackup(accountId),

@@ -20,6 +20,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
         // account type codes stored in db
         private const val MNEMONIC = "mnemonic"
         private const val PRIVATE_KEY = "private_key"
+        private const val TRON_PRIVATE_KEY = "tron_private_key"
         private const val SECRET_KEY = "secret_key"
         private const val EVM_PRIVATE_KEY = "evm_private_key"
         private const val ADDRESS = "address"
@@ -54,6 +55,7 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
                         val accountType = when (record.type) {
                             MNEMONIC -> AccountType.Mnemonic(record.words!!.list, record.passphrase?.value ?: "")
                             PRIVATE_KEY -> AccountType.EvmPrivateKey(record.key!!.value.toBigInteger())
+                            TRON_PRIVATE_KEY -> AccountType.TronPrivateKey(record.key!!.value.toBigInteger())
                             SECRET_KEY -> AccountType.StellarSecretKey(record.key!!.value)
                             ADDRESS -> AccountType.EvmAddress(record.key!!.value)
                             SOLANA_ADDRESS -> AccountType.SolanaAddress(record.key!!.value)
@@ -142,6 +144,10 @@ class AccountsStorage(appDatabase: AppDatabase) : IAccountsStorage {
             is AccountType.PrivateKey -> {
                 key = SecretString(account.type.key.toRawHexString())
                 accountType = PRIVATE_KEY
+            }
+            is AccountType.TronPrivateKey -> {
+                key = SecretString(account.type.key.toString())
+                accountType = TRON_PRIVATE_KEY
             }
             is AccountType.StellarSecretKey -> {
                 key = SecretString(account.type.key)

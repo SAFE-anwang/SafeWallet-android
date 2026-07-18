@@ -1,8 +1,8 @@
 package io.horizontalsystems.bankwallet.modules.multiswap
 
 import android.util.Log
-import io.horizontalsystems.bankwallet.modules.multiswap.providers.AllBridgeProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.MultiSwapProviderRegistry
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.MayaProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.OneInchProvider
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.ThorChainProvider
@@ -29,20 +29,9 @@ import kotlinx.coroutines.withTimeout
 import java.math.BigDecimal
 
 class SwapQuoteService {
-    private val allProviders = listOf(
-        OneInchProvider,
-        ThorChainProvider,
-        MayaProvider,
-        AllBridgeProvider,
-        USwapProvider(UProvider.Near),
-//        USwapProvider(UProvider.QuickEx),
-//        USwapProvider(UProvider.LetsExchange),
-//        USwapProvider(UProvider.StealthEx),
-//        USwapProvider(UProvider.Swapuz),
-        PancakeSwapV3Provider,
-        UniswapV3Provider,
-        SafeSwapProvider,
-    )
+    private val tag = "SwapQuoteService"
+
+    private val allProviders = MultiSwapProviderRegistry.allProviders
 
     private var amountIn: BigDecimal? = null
     private var tokenIn: Token? = null
@@ -69,27 +58,33 @@ class SwapQuoteService {
 
     private var coroutineScope = CoroutineScope(Dispatchers.Default)
     private var quotingJob: Job? = null
+    private var startProvidersJob: Job? = null
 
     fun start() {
         coroutineScope.launch {
             startProviders()
-
-            runQuotation(silent = true)
+            runQuotation()
         }
     }
 
-    private suspend fun startProviders() = coroutineScope {
-        allProviders
-            .map {
-                async {
-                    try {
-                        it.start()
-                    } catch (e: Throwable) {
-                        Log.d("AAA", "error on starting ${it.id}, $e", e)
-                    }
+    fun restart(onRestart: () -> Unit) {
+        startProvidersJob?.cancel()
+        startProvidersJob = coroutineScope.launch {
+            startProviders()
+            onRestart()
+        }
+    }
+
+    private suspend fun CoroutineScope.startProviders() {
+        allProviders.map { provider ->
+            async {
+                try {
+                    provider.start()
+                } catch (e: Throwable) {
+                    Log.e(tag, "error on starting ${provider.id}", e)
                 }
             }
-            .awaitAll()
+        }.awaitAll()
     }
 
     private fun emitState() {
@@ -171,7 +166,7 @@ class SwapQuoteService {
                             SwapProviderQuote(provider = provider, swapQuote = quote)
                         }
                     } catch (e: Throwable) {
-                        Log.d("AAA", "fetchQuoteError: ${provider.id}", e)
+                        Log.e(tag, "fetchQuoteError: ${provider.id}", e)
                         null
                     }
                 }
@@ -193,11 +188,12 @@ class SwapQuoteService {
     fun setTokenIn(token: Token) {
         if (tokenIn == token) return
 
-        tokenIn = token
         preferredProvider = null
         if (tokenOut == token) {
-            tokenOut = null
+            // selected token is already on the other side, swap places instead of clearing it
+            tokenOut = tokenIn
         }
+        tokenIn = token
 
         runQuotation()
     }
@@ -205,11 +201,12 @@ class SwapQuoteService {
     fun setTokenOut(token: Token) {
         if (tokenOut == token) return
 
-        tokenOut = token
         preferredProvider = null
         if (tokenIn == token) {
-            tokenIn = null
+            // selected token is already on the other side, swap places instead of clearing it
+            tokenIn = tokenOut
         }
+        tokenOut = token
 
         runQuotation()
     }
@@ -236,7 +233,7 @@ class SwapQuoteService {
         runQuotation(silent = true)
     }
 
-    fun onActionStarted() {
+    fun onActionStarted(quote: SwapProviderQuote?) {
         preferredProvider = quote?.provider
     }
 

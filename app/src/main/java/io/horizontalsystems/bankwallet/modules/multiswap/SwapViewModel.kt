@@ -4,20 +4,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.IAdapterManager
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.CurrencyManager
+import io.horizontalsystems.bankwallet.core.managers.MarketKitWrapper
 import io.horizontalsystems.bankwallet.core.managers.SwapTermsManager
+import io.horizontalsystems.bankwallet.core.managers.WalletManager
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Currency
 import io.horizontalsystems.bankwallet.modules.multiswap.action.ISwapProviderAction
+import io.horizontalsystems.bankwallet.modules.multiswap.history.SwapRecordManager
 import io.horizontalsystems.bankwallet.modules.multiswap.providers.IMultiSwapProvider
 import io.horizontalsystems.bankwallet.modules.safe4.kchart.KChartService
 import io.horizontalsystems.bankwallet.modules.safe4.kchart.KChartToken
+import io.horizontalsystems.bankwallet.modules.multiswap.providers.SwapHelper
+import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenType
+import io.horizontalsystems.marketkit.models.TokenQuery
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -32,10 +42,17 @@ class SwapViewModel(
     private val networkAvailabilityService: NetworkAvailabilityService,
     private val defaultTokenService: SwapDefaultTokenService,
     private val swapTermsManager: SwapTermsManager,
-    tokenIn: Token?
+    private val swapRecordManager: SwapRecordManager,
+    private val marketKit: MarketKitWrapper,
+    private val walletManager: WalletManager,
+    private val adapterManager: IAdapterManager,
+    tokenIn: Token?,
+    tokenOut: Token? = null,
 ) : ViewModelUiState<SwapUiState>() {
 
     private val quoteLifetime = 20
+    private val hasExplicitTokens = tokenIn != null || tokenOut != null
+    private var tokensManuallySet = false
 
     private var networkState = networkAvailabilityService.stateFlow.value
     private var quoteState = quoteService.stateFlow.value
@@ -45,9 +62,13 @@ class SwapViewModel(
     private var fiatAmountIn: BigDecimal? = null
     private var fiatAmountOut: BigDecimal? = null
     private var fiatAmountInputEnabled = false
-    private val currency = currencyManager.baseCurrency
+    private var currency = currencyManager.baseCurrency
     private var requoteOnTimeout = true
     private var swapTermsAccepted = swapTermsManager.swapTermsAcceptedStateFlow.value
+    private var amlChecking = false
+    private var initialShowRegularPrice = true
+
+    val amlCheckEventFlow = MutableSharedFlow<AmlCheckEvent>(extraBufferCapacity = 1)
 
     init {
         quoteService.start()
@@ -100,7 +121,15 @@ class SwapViewModel(
         }
         viewModelScope.launch {
             defaultTokenService.stateFlow.collect {
-                it.tokenOut?.let { quoteService.setTokenOut(it) }
+                if (tokenOut == null) {
+                    it.tokenOut?.let { quoteService.setTokenOut(it) }
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            adapterManager.adaptersReadyObservable.asFlow().collect {
+                balanceService.refresh()
             }
         }
 
@@ -113,12 +142,70 @@ class SwapViewModel(
 
         fiatServiceIn.setCurrency(currency)
         fiatServiceOut.setCurrency(currency)
+
+        viewModelScope.launch {
+            currencyManager.baseCurrencyUpdatedFlow.collect {
+                currency = currencyManager.baseCurrency
+                fiatServiceIn.setCurrency(currency)
+                fiatServiceOut.setCurrency(currency)
+                emitState()
+            }
+        }
+
         networkAvailabilityService.start(viewModelScope)
-        tokenIn?.let {
-            quoteService.setTokenIn(it)
-            defaultTokenService.setTokenIn(it)
+
+
+        if (!hasExplicitTokens) {
+            refreshDefaultTokens()
+        } else {
+            applyTokens(tokenIn, tokenOut)
         }
     }
+
+    fun refreshDefaultTokens() {
+        if (hasExplicitTokens || tokensManuallySet) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val (resolvedIn, resolvedOut) = resolveDefaultTokens()
+            applyTokens(resolvedIn, resolvedOut)
+        }
+    }
+
+    private fun applyTokens(tokenIn: Token?, tokenOut: Token?) {
+        tokenIn?.let {
+            quoteService.setTokenIn(it)
+            if (tokenOut == null) {
+                defaultTokenService.setTokenIn(it)
+            }
+        }
+        tokenOut?.let { quoteService.setTokenOut(it) }
+    }
+
+    private fun resolveDefaultTokens(): Pair<Token?, Token?> {
+        val lastRecord = swapRecordManager.getAll().firstOrNull()
+        return if (lastRecord != null) {
+            val lastIn = TokenQuery.fromId(lastRecord.tokenInUid)?.let { marketKit.token(it) }
+            val lastOut = TokenQuery.fromId(lastRecord.tokenOutUid)?.let { marketKit.token(it) }
+            Pair(lastIn, lastOut)
+        } else {
+            // Default tokenIn — first token of the Swap "Popular Tokens" list (Bitcoin), so the
+            // default stays in sync with whatever the token selector promotes to the top.
+            val tokenIn = SwapPopularTokens.build(marketKit, null).firstOrNull()
+                ?.let { activeWalletTokenFor(it) }
+                ?: marketKit.token(TokenQuery(BlockchainType.Bitcoin, TokenType.Derived(TokenType.Derivation.Bip84)))
+            val xmrToken = walletManager.activeWallets
+                .firstOrNull { it.token.blockchainType == BlockchainType.Monero }
+                ?.token
+                ?: marketKit.token(TokenQuery(BlockchainType.Monero, TokenType.Native))
+            Pair(tokenIn, xmrToken)
+        }
+    }
+
+    // Prefer the user's active wallet for the same coin (keeps their chosen derivation),
+    // falling back to the canonical token from the popular list.
+    private fun activeWalletTokenFor(token: Token): Token =
+        walletManager.activeWallets.firstOrNull {
+            it.token.coin.uid == token.coin.uid && it.token.blockchainType == token.blockchainType
+        }?.token ?: token
 
     private fun requoteIfTimeout() {
         if (requoteOnTimeout && timerState.timeout) {
@@ -142,7 +229,13 @@ class SwapViewModel(
         fiatAmountOut = fiatAmountOut,
         currency = currency,
         fiatAmountInputEnabled = fiatAmountInputEnabled,
-        needToAcceptTerms = !swapTermsAccepted && quoteState.quote?.provider?.requireTerms == true
+        needToAcceptTerms = !swapTermsAccepted && quoteState.quote?.provider?.requireTerms == true,
+        amlChecking = amlChecking,
+        initialShowRegularPrice = initialShowRegularPrice,
+        swapTimeStatus = swapTimeStatus(
+            quoteState.quote?.estimationTime,
+            quoteState.quotes.map { it.estimationTime }
+        ),
     )
 
     private fun handleUpdatedNetworkState(networkState: NetworkAvailabilityService.State) {
@@ -173,6 +266,10 @@ class SwapViewModel(
         fiatServiceIn.setAmount(quoteState.amountIn)
         fiatServiceOut.setToken(quoteState.tokenOut)
         fiatServiceOut.setAmount(quoteState.quote?.amountOut)
+
+        quoteState.quote?.let {
+            initialShowRegularPrice = it.amountIn <= it.amountOut
+        }
 
         emitState()
 
@@ -207,16 +304,21 @@ class SwapViewModel(
 
         quoteService.setAmount(amount)
     }
-    fun onSelectTokenIn(token: Token)  {
+
+    fun onSelectTokenIn(token: Token) {
+        tokensManuallySet = true
         quoteService.setTokenIn(token)
 
         stat(page = StatPage.Swap, event = StatEvent.SwapSelectTokenIn(token))
     }
+
     fun onSelectTokenOut(token: Token) {
+        tokensManuallySet = true
         quoteService.setTokenOut(token)
 
         stat(page = StatPage.Swap, event = StatEvent.SwapSelectTokenOut(token))
     }
+
     fun onSwitchPairs() {
         quoteService.switchPairs()
 
@@ -225,20 +327,54 @@ class SwapViewModel(
 
     fun onEnterFiatAmount(v: BigDecimal?) = fiatServiceIn.setFiatAmount(v)
     private fun reQuote() = quoteService.reQuote()
-    fun onActionStarted() = quoteService.onActionStarted()
+    fun onActionStarted(quote: SwapProviderQuote?) = quoteService.onActionStarted(quote)
     fun onActionCompleted() = quoteService.onActionCompleted()
 
-    fun getCurrentQuote() = quoteState.quote
-    fun enableRequoteOnTimeout() {
-        requoteOnTimeout = true
-        requoteIfTimeout()
+    fun startProceed() {
+        val provider = quoteState.quote?.provider ?: return
+        val tokenIn = quoteState.tokenIn ?: return
+        val amountIn = quoteState.amountIn ?: return
+
+        if (!provider.amlPrecheck) {
+            viewModelScope.launch { amlCheckEventFlow.emit(AmlCheckEvent.Proceed) }
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            amlChecking = true
+            emitState()
+            try {
+                val addresses = SwapHelper.getSourceAddressesForAmlCheck(tokenIn, amountIn)
+                val passedAmlCheck = if (addresses.isNotEmpty()) {
+                    provider.checkAmlAddresses(addresses)
+                } else {
+                    throw IllegalStateException("No addresses found")
+                }
+                when (passedAmlCheck) {
+                    true -> amlCheckEventFlow.emit(AmlCheckEvent.Proceed)
+                    false -> amlCheckEventFlow.emit(AmlCheckEvent.RiskDetected)
+                    null -> amlCheckEventFlow.emit(AmlCheckEvent.RiskUnknown)
+                }
+            } catch (e: Throwable) {
+                amlCheckEventFlow.emit(AmlCheckEvent.Error(e))
+            } finally {
+                amlChecking = false
+                emitState()
+            }
+        }
     }
 
-    fun disableRequoteOnTimeout() {
+    fun getCurrentQuote() = quoteState.quote
+    fun onResume() {
+        requoteOnTimeout = true
+        quoteService.restart(::requoteIfTimeout)
+    }
+
+    fun onPause() {
         requoteOnTimeout = false
     }
 
-    class Factory(private val tokenIn: Token?) : ViewModelProvider.Factory {
+    class Factory(private val tokenIn: Token?, private val tokenOut: Token? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             val swapQuoteService = SwapQuoteService()
@@ -254,9 +390,14 @@ class SwapViewModel(
                 FiatService(App.marketKit),
                 TimerService(),
                 NetworkAvailabilityService(App.connectivityManager),
-                SwapDefaultTokenService(App.marketKit),
+                SwapDefaultTokenService(App.marketKit, App.walletManager),
                 App.swapTermsManager,
-                tokenIn
+                App.swapRecordManager,
+                App.marketKit,
+                App.walletManager,
+                App.adapterManager,
+                tokenIn,
+                tokenOut,
             ) as T
         }
     }
@@ -287,7 +428,10 @@ data class SwapUiState(
     val currency: Currency,
     val fiatAmountInputEnabled: Boolean,
     val fiatPriceImpactLevel: PriceImpactLevel?,
-    val needToAcceptTerms: Boolean
+    val needToAcceptTerms: Boolean,
+    val amlChecking: Boolean,
+    val initialShowRegularPrice: Boolean,
+    val swapTimeStatus: SwapTimeStatus,
 ) {
     val currentStep: SwapStep = when {
         quoting -> SwapStep.Quoting
@@ -295,6 +439,7 @@ data class SwapUiState(
         tokenIn == null -> SwapStep.InputRequired(InputType.TokenIn)
         tokenOut == null -> SwapStep.InputRequired(InputType.TokenOut)
         amountIn == null -> SwapStep.InputRequired(InputType.Amount)
+        amlChecking -> SwapStep.AmlChecking
         quote?.actionRequired != null -> SwapStep.ActionRequired(quote.actionRequired!!)
         else -> SwapStep.Proceed
     }
@@ -303,9 +448,17 @@ data class SwapUiState(
 sealed class SwapStep {
     data class InputRequired(val inputType: InputType) : SwapStep()
     object Quoting : SwapStep()
+    object AmlChecking : SwapStep()
     data class Error(val error: Throwable) : SwapStep()
     object Proceed : SwapStep()
     data class ActionRequired(val action: ISwapProviderAction) : SwapStep()
+}
+
+sealed class AmlCheckEvent {
+    object Proceed : AmlCheckEvent()
+    object RiskDetected : AmlCheckEvent()
+    object RiskUnknown : AmlCheckEvent()
+    data class Error(val error: Throwable) : AmlCheckEvent()
 }
 
 enum class InputType {

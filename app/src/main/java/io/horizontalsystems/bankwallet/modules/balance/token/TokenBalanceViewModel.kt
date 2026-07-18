@@ -19,7 +19,6 @@ import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.modules.balance.AttentionIcon
 import io.horizontalsystems.bankwallet.modules.balance.AttentionIconType
-import io.horizontalsystems.bankwallet.modules.balance.BackupRequiredError
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewItemFactory
@@ -228,28 +227,12 @@ class TokenBalanceViewModel(
         }
     }
 
-    @Throws(BackupRequiredError::class)
-    fun getWalletForReceive(): Wallet {
-        val hasAnyBackup = App.accountManager.activeAccount?.hasAnyBackup ?: wallet.account.hasAnyBackup
-        when {
-            hasAnyBackup -> return wallet
-            else -> throw BackupRequiredError(wallet.account, wallet.coin.name)
-        }
-    }
-
-    @Throws(BackupRequiredError::class, IllegalStateException::class)
+    @Throws(IllegalStateException::class)
     fun getWalletForTronReceive(): Wallet {
-        val hasAnyBackup = App.accountManager.activeAccount?.hasAnyBackup ?: wallet.account.hasAnyBackup
-        when {
-            hasAnyBackup -> {
-                val tronToken =
-                    coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: throw IllegalStateException("Tron token not found")
-                val tronWallet = wallet.copy(token = tronToken)
-                return tronWallet
-            }
-
-            else -> throw BackupRequiredError(wallet.account, wallet.coin.name)
-        }
+        val tronToken =
+            coinManager.getToken(TokenQuery(BlockchainType.Tron, TokenType.Native)) ?: throw IllegalStateException("Tron token not found")
+        val tronWallet = wallet.copy(token = tronToken)
+        return tronWallet
     }
 
     fun onBottomReached() {
@@ -281,9 +264,6 @@ class TokenBalanceViewModel(
 
     private fun getBirthdayHeight(): Long? {
         val blockchainType = wallet.token.blockchainType
-        if (blockchainType != BlockchainType.Zcash && blockchainType != BlockchainType.Monero) {
-            return null
-        }
         return restoreSettingsManager.settings(wallet.account, blockchainType).birthdayHeight
     }
 

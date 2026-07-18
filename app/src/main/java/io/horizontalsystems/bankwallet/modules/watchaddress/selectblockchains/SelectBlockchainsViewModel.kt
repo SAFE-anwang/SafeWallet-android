@@ -45,6 +45,7 @@ class SelectBlockchainsViewModel(
             is AccountType.StellarAddress,
             is AccountType.Mnemonic,
             is AccountType.EvmPrivateKey,
+            is AccountType.TronPrivateKey,
             is AccountType.PrivateKey,
             is AccountType.StellarSecretKey -> Unit // N/A
             is AccountType.EvmAddress -> {

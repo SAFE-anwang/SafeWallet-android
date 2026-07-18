@@ -23,6 +23,7 @@ import io.horizontalsystems.ethereumkit.core.LegacyGasPriceProvider
 import io.horizontalsystems.ethereumkit.core.eip1559.Eip1559GasPriceProvider
 import io.horizontalsystems.ethereumkit.models.TransactionData
 import io.horizontalsystems.marketkit.models.Token
+import io.reactivex.Flowable
 
 object UniswapConfirmationModule {
 
@@ -39,7 +40,7 @@ object UniswapConfirmationModule {
             val evmKit = evmKitWrapper.evmKit
             if (evmKit.chain.isEIP1559Supported) {
                 val gasPriceProvider = Eip1559GasPriceProvider(evmKit)
-                Eip1559GasPriceService(gasPriceProvider, evmKit)
+                Eip1559GasPriceService(gasPriceProvider, Flowable.empty())
             } else {
                 val gasPriceProvider = LegacyGasPriceProvider(evmKit)
                 LegacyGasPriceService(gasPriceProvider)

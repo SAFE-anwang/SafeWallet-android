@@ -78,16 +78,18 @@ class MainViewModel(
             listOf(
                 MainNavigation.Market,
                 MainNavigation.Balance,
-//                MainNavigation.Transactions,
                 MainNavigation.Safe4,
 //                MainNavigation.Tg,
+                MainNavigation.Swap,
+//                MainNavigation.Transactions,
                 MainNavigation.Settings,
             )
         } else {
             listOf(
                 MainNavigation.Balance,
-                MainNavigation.Safe4,
+                MainNavigation.Swap,
 //                MainNavigation.Transactions,
+                MainNavigation.Safe4,
 //                MainNavigation.Tg,
                 MainNavigation.Settings,
             )
@@ -295,6 +297,14 @@ class MainViewModel(
                 enabled = true,
             )
         }
+
+        MainNavigation.Swap -> {
+            MainModule.NavigationViewItem(
+                mainNavItem = item,
+                selected = selected,
+                enabled = true,
+            )
+        }
     }
 
     private fun getTabIndexToOpen(): Int {
@@ -462,6 +472,11 @@ class MainViewModel(
             deeplinkString.startsWith("bitcoin:")
             || deeplinkString.startsWith("ethereum:")
             || deeplinkString.startsWith("toncoin:")
+            || deeplinkString.startsWith("monero:")
+            || deeplinkString.startsWith("tron:")
+            || deeplinkString.startsWith("solana:")
+            || deeplinkString.startsWith("zcash:")
+            || deeplinkString.startsWith("litecoin:")
         ) {
             AddressUriParser.addressUri(deeplinkString)?.let { addressUri ->
                 val allowedBlockchainTypes = addressUri.allowedBlockchainTypes
@@ -486,8 +501,11 @@ class MainViewModel(
         val (tab, deeplinkPageData) = getNavigationDataForDeeplink(uri)
         deeplinkPage = deeplinkPageData
         currentMainTab = tab
-        selectedTabIndex = items.indexOf(tab)
+        val newTabIndex = items.indexOf(tab)
+        updateSelectedTab(selectedTabIndex, newTabIndex)
+        selectedTabIndex = newTabIndex
         syncNavigation()
+        emitState()
     }
 
     fun onSendOpened() {

@@ -24,6 +24,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +39,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
@@ -50,17 +50,16 @@ import io.horizontalsystems.bankwallet.modules.balance.AccountViewItem
 import io.horizontalsystems.bankwallet.modules.balance.BalanceModule
 import io.horizontalsystems.bankwallet.modules.balance.BalanceViewModel
 import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredAlert
-import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
 import io.horizontalsystems.bankwallet.modules.qrscanner.QRScannerActivity
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCAccountTypeNotSupportedDialog
 import io.horizontalsystems.bankwallet.modules.walletconnect.WCManager
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.WalletConnectListViewModel
+import io.horizontalsystems.bankwallet.modules.opencryptopay.OpenCryptoPayFragment
 import io.horizontalsystems.bankwallet.modules.walletconnect.list.ui.WCInvalidUrlBottomSheet
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
-import io.horizontalsystems.bankwallet.ui.compose.components.MenuItemLoading
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
 import io.horizontalsystems.core.helpers.HudHelper
 import kotlinx.coroutines.delay
@@ -75,7 +74,7 @@ fun BalanceForAccount(
     val viewModel = viewModel<BalanceViewModel>(factory = BalanceModule.Factory())
 
     val context = LocalContext.current
-    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(
+    val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     var isWCInvalidUrlBottomSheetVisible by remember { mutableStateOf(false) }
@@ -110,32 +109,70 @@ fun BalanceForAccount(
         else -> Unit
     }
 
-    BackupRequiredAlert(navController)
+    LaunchedEffect(viewModel.walletConnectRequest) {
+        viewModel.walletConnectRequest?.let { request ->
+            when (val state = viewModel.getWalletConnectSupportState()) {
+                WCManager.SupportState.Supported -> {
+                    viewModel.connectWC(request)
+                }
+
+                WCManager.SupportState.NotSupportedDueToNoActiveAccount -> {
+                    navController.slideFromBottom(R.id.wcErrorNoAccountFragment)
+                }
+
+                is WCManager.SupportState.NotSupported -> {
+                    navController.slideFromBottom(
+                        R.id.wcAccountTypeNotSupportedDialog,
+                        WCAccountTypeNotSupportedDialog.Input(state.accountTypeDescription)
+                    )
+                }
+            }
+        }
+        viewModel.onWalletConnectRequestHandled()
+    }
+
     val uiState = viewModel.uiState
+
+    LaunchedEffect(uiState.openOcpPayment) {
+        uiState.openOcpPayment?.let { lnurl ->
+            navController.slideFromRight(
+                R.id.openCryptoPayFragment,
+                OpenCryptoPayFragment.Input(lnurl)
+            )
+            viewModel.onOcpPaymentOpened()
+        }
+    }
+
+    BackupRequiredAlert(navController)
     Surface(color = ComposeAppTheme.colors.tyler) {
         HSScaffold(
             title = accountViewItem.name,
             menuItems = buildList {
-                if (uiState.loading) {
-                    add(MenuItemLoading)
-                }
-
                 if (!viewModel.uiState.balanceTabButtonsEnabled && !accountViewItem.isWatchAccount) {
                     add(
                         MenuItem(
                             title = TranslatableString.ResString(R.string.WalletConnect_NewConnect),
                             icon = R.drawable.ic_scan_24,
                             onClick = {
-                                onScanClick(
-                                    viewModel,
-                                    qrScannerLauncher,
-                                    context,
-                                    navController
-                                )
+                                onScanClick(qrScannerLauncher, context)
                             }
                         )
                     )
                 }
+                add(
+                    MenuItem(
+                        title = TranslatableString.ResString(R.string.Transactions_Title),
+                        icon = R.drawable.ic_circle_clock_24,
+                        onClick = {
+                            navController.slideFromRight(R.id.transactionsFragment)
+
+                            stat(
+                                page = StatPage.Balance,
+                                event = StatEvent.Open(StatPage.Transactions)
+                            )
+                        }
+                    )
+                )
                 add(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.ManageAccounts_Title),
@@ -170,7 +207,7 @@ fun BalanceForAccount(
                             navController,
                             uiState,
                         ) {
-                            onScanClick(viewModel, qrScannerLauncher, context, navController)
+                            onScanClick(qrScannerLauncher, context)
                         }
                     }
 
@@ -181,6 +218,7 @@ fun BalanceForAccount(
                 }
             }
         }
+
     }
     if (isWCInvalidUrlBottomSheetVisible) {
         WCInvalidUrlBottomSheet(
@@ -203,47 +241,15 @@ fun BalanceForAccount(
 }
 
 private fun onScanClick(
-    viewModel: BalanceViewModel,
     qrScannerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    context: Context,
-    navController: NavController
+    context: Context
 ) {
-    when (val state =
-        viewModel.getWalletConnectSupportState()) {
-        WCManager.SupportState.Supported -> {
-            qrScannerLauncher.launch(
-                QRScannerActivity.getScanQrIntent(context, true)
-            )
+    qrScannerLauncher.launch(
+        QRScannerActivity.getScanQrIntent(context, true)
+    )
 
-            stat(
-                page = StatPage.Balance,
-                event = StatEvent.Open(StatPage.ScanQrCode)
-            )
-        }
-
-        WCManager.SupportState.NotSupportedDueToNoActiveAccount -> {
-            navController.slideFromBottom(R.id.wcErrorNoAccountFragment)
-        }
-
-        is WCManager.SupportState.NotSupportedDueToNonBackedUpAccount -> {
-            val text =
-                Translator.getString(R.string.WalletConnect_Error_NeedBackup)
-            navController.slideFromBottom(
-                R.id.backupRequiredDialog,
-                BackupRequiredDialog.Input(state.account, text)
-            )
-
-            stat(
-                page = StatPage.Balance,
-                event = StatEvent.Open(StatPage.BackupRequired)
-            )
-        }
-
-        is WCManager.SupportState.NotSupported -> {
-            navController.slideFromBottom(
-                R.id.wcAccountTypeNotSupportedDialog,
-                WCAccountTypeNotSupportedDialog.Input(state.accountTypeDescription)
-            )
-        }
-    }
+    stat(
+        page = StatPage.Balance,
+        event = StatEvent.Open(StatPage.ScanQrCode)
+    )
 }

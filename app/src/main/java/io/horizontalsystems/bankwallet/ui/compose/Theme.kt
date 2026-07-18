@@ -27,6 +27,7 @@ val lightPalette = Colors(
     raina = White50,
     andy = Steel,
     blade = Light,
+    ocean = BlueL,
 )
 
 val darkPalette = Colors(
@@ -40,6 +41,7 @@ val darkPalette = Colors(
     raina = Color(0x1a6E7899),
     andy = Smoke,
     blade = Carbon,
+    ocean = BlueD,
 )
 
 val bluePalette = Colors(
@@ -53,6 +55,7 @@ val bluePalette = Colors(
     raina = White50,
     andy = Black50,
     blade = Blue,
+    ocean = Blue,
 )
 
 @Composable

@@ -280,7 +280,7 @@ class TransactionsService(
     fun setFilterZeroIncoming() {
         val f = transactionFilterService.getSelectedTransactionType()
         executorService.submit {
-            typesSubject.onNext(Pair(transactionFilterService.transactionTypes, f))
+            typesSubject.onNext(Pair(transactionFilterService.stateFlow.value.transactionTypes, f))
             transactionFilterService.setSelectedTransactionType(f)
 //            transactionRecordRepository.reload()
         }

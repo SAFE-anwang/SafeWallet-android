@@ -150,7 +150,8 @@ class BalanceViewItemFactory {
         BlockchainType.Litecoin,
         BlockchainType.Dash,
         BlockchainType.Zcash,
-        BlockchainType.Monero -> true
+        BlockchainType.Monero,
+        BlockchainType.Zano -> true
 
         else -> false
     }
@@ -164,7 +165,8 @@ class BalanceViewItemFactory {
         BlockchainType.Dash,
         BlockchainType.Safe,
         BlockchainType.Zcash,
-        BlockchainType.Monero -> 10
+        BlockchainType.Monero,
+        BlockchainType.Zano -> 10
 
         BlockchainType.SafeFour,
         BlockchainType.Ethereum,
@@ -323,21 +325,6 @@ class BalanceViewItemFactory {
                         )
                     )
                 }
-            }
-
-            lockedCoinValue(
-                state,
-                item.balanceData.notRelayed,
-                wallet.decimal,
-                wallet.token
-            )?.let {
-                add(
-                    LockedValue(
-                        title = TranslatableString.ResString(R.string.Info_NotRelayed_Title),
-                        info = TranslatableString.ResString(R.string.Info_NotRelayed_Description),
-                        coinValue = it
-                    )
-                )
             }
 
             lockedCoinValue(
