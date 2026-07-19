@@ -864,4 +864,14 @@
         android:id="@+id/addLiquidityFragment"
         android:name="io.horizontalsystems.bankwallet.modules.swap.liquidity.add.AddLiquidityFragment"
         />
+
+    <fragment
+        android:id="@+id/safe4DAppManageFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppManageFragment"
+        />
+
+    <fragment
+        android:id="@+id/safe4DAppRegisterFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppRegisterFragment"
+        />
 </navigation>

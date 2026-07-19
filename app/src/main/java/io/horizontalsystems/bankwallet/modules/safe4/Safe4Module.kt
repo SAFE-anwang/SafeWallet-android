@@ -25,6 +25,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.reward.SafeFourRewardM
 import io.horizontalsystems.bankwallet.modules.safe4.node.safe3.RedeemSafe3Module
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawFragment
 import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModule
+import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppManageFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20Module
@@ -696,6 +697,16 @@ object Safe4Module {
                 RedeemSafe3Module.GetTestCoinInput(safeWallet)
         )
 
+    }
+
+    fun handlerDAppManage(navController: NavController) {
+        navController.context.let { context ->
+            try {
+                Safe4DAppManageFragment.handler(navController)
+            } catch (e: Exception) {
+                Log.e("Safe4Module", "Failed to navigate to DApp manage: ${e.message}")
+            }
+        }
     }
 
     enum class SafeFourType {

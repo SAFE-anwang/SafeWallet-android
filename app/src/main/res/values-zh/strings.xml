@@ -1864,6 +1864,49 @@
     <string name="Safe4_Safe4_BSC_Pancakeswap">SAFE@pancakeswap</string>
     <string name="Safe4_Safe4_Matic_Pancakeswap">SAFE@quickswap</string>
 
+    <!-- SAFE DApp 管理 -->
+    <string name="Safe4_DApp_Section_Title">SAFE DApp管理</string>
+    <string name="Safe4_DApp_Manage_Title">DApp 管理</string>
+    <string name="Safe4_DApp_Register">注册 DApp</string>
+    <string name="Safe4_DApp_Update">更新 DApp</string>
+    <string name="Safe4_DApp_Submit">提交</string>
+    <string name="Safe4_DApp_Empty_List">暂无已注册的DApp，点击右上角注册</string>
+    <string name="Safe4_DApp_Status_Active">已激活</string>
+    <string name="Safe4_DApp_Name_Label">DApp 名称</string>
+    <string name="Safe4_DApp_Name_Placeholder">请输入DApp名称</string>
+    <string name="Safe4_DApp_URL_Label">DApp URL</string>
+    <string name="Safe4_DApp_URL_Placeholder">请输入DApp链接地址</string>
+    <string name="Safe4_DApp_Desc_Label">DApp 描述</string>
+    <string name="Safe4_DApp_Desc_Placeholder">请输入DApp描述信息</string>
+    <string name="Safe4_DApp_Category_Label">分类</string>
+    <string name="Safe4_DApp_Category_Placeholder">如: DeFi, NFT, Game</string>
+    <string name="Safe4_DApp_IconURL_Label">GIT URL</string>
+    <string name="Safe4_DApp_IconURL_Placeholder">请输入图标链接地址</string>
+    <string name="Safe4_DApp_ContractAddr_Label">合约地址</string>
+    <string name="Safe4_DApp_ContractAddr_Placeholder">请输入合约地址</string>
+    <string name="Safe4_DApp_Register_Sending">正在注册 DApp</string>
+    <string name="Safe4_DApp_Register_Success">DApp 注册成功</string>
+    <string name="Safe4_DApp_Update_Sending">正在更新 DApp</string>
+    <string name="Safe4_DApp_Update_Success">DApp 更新成功</string>
+    <string name="Safe4_DApp_OfficialUrl_Label">官方网站</string>
+    <string name="Safe4_DApp_OfficialUrl_Placeholder">请输入官方网站链接</string>
+    <string name="Safe4_DApp_OfficialEmail_Label">官方邮箱</string>
+    <string name="Safe4_DApp_OfficialEmail_Placeholder">请输入官方邮箱</string>
+    <string name="Safe4_DApp_OfficialAccount_Label">注册账户地址</string>
+    <string name="Safe4_DApp_Keyword_Label">关键字</string>
+    <string name="Safe4_DApp_Keyword_Placeholder">关键字1 | 关键字2 | 关键字3</string>
+    <string name="Safe4_DApp_Logo_Label">DApp Logo</string>
+    <string name="Safe4_DApp_Logo_Fee">Logo设置费用: %s</string>
+    <string name="Safe4_DApp_Logo_Pick">选择图片</string>
+    <string name="Safe4_DApp_Logo_Upload">上传 Logo</string>
+    <string name="Safe4_DApp_Logo_Uploading">正在上传 Logo</string>
+    <string name="Safe4_DApp_Logo_Success">Logo 更新成功</string>
+    <string name="Safe4_DApp_Logo_Oversize">Logo 大小超过128KB限制</string>
+    <string name="Safe4_DApp_Delete_Confirm_Title">删除 DApp</string>
+    <string name="Safe4_DApp_Delete_Confirm_Message">确定要删除 \"%s\" 吗？此操作无法撤销。</string>
+    <string name="Safe4_DApp_Name_TooShort">名称至少需要8个字符</string>
+    <string name="Safe4_DApp_Desc_TooShort">描述至少需要12个字符</string>
+
 
     <string name="Restore_Select_Wallet">请选择钱包</string>
     <string name="Restore_Enter_Key_Title_HD">输入密钥</string>

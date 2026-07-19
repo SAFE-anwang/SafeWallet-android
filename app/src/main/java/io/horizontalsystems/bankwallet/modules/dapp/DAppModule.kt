@@ -5,19 +5,21 @@ import androidx.lifecycle.ViewModelProvider
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppApiService
 import io.horizontalsystems.bankwallet.modules.dapp.service.DAppService
+import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppService
 import java.math.BigDecimal
-import java.util.*
+import java.util.Date
 
 object DAppModule {
     class Factory : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-            return DAppViewModel(
-                DAppService(
-                    DAppApiService()
-                )
-            ) as T
+            val dAppService = DAppService(
+                DAppApiService(),
+                Safe4DAppService()
+            )
+
+            return DAppViewModel(dAppService) as T
         }
     }
 
@@ -25,11 +27,12 @@ object DAppModule {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
-            return DAppSearchViewModel(
-                DAppService(
-                    DAppApiService()
-                )
-            ) as T
+            val dAppService = DAppService(
+                DAppApiService(),
+                Safe4DAppService()
+            )
+
+            return DAppSearchViewModel(dAppService) as T
         }
     }
 }

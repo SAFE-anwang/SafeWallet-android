@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -248,6 +249,30 @@ fun CellItems(
                         style = ComposeAppTheme.typography.caption,
                         color = ComposeAppTheme.colors.grey
                     )
+                }
+
+                if (!dappItem.keywords.isNullOrBlank()) {
+                    val chips = dappItem.keywords.split("|").filter { it.isNotBlank() }
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 12.dp, bottom = 12.dp, end = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        chips.forEach { keyword ->
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = ComposeAppTheme.colors.lawrence,
+                                border = BorderStroke(1.dp, ComposeAppTheme.colors.steel20)
+                            ) {
+                                Text(
+                                    text = keyword.trim(),
+                                    style = ComposeAppTheme.typography.micro,
+                                    color = ComposeAppTheme.colors.grey,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

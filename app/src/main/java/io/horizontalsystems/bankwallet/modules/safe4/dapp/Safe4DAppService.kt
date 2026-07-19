@@ -1,0 +1,458 @@
+package io.horizontalsystems.bankwallet.modules.safe4.dapp
+
+import android.content.Context
+import android.util.Log
+import androidx.core.content.edit
+import com.anwang.contracts.additions.DAppManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import io.horizontalsystems.bankwallet.core.App
+import io.horizontalsystems.bankwallet.core.Clearable
+import io.horizontalsystems.bankwallet.core.ISendEthereumAdapter
+import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.safe4.Safe4Module
+import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
+import io.horizontalsystems.marketkit.models.BlockchainType
+import io.reactivex.subjects.PublishSubject
+import org.web3j.abi.datatypes.Address
+import java.math.BigInteger
+
+class Safe4DAppService : Clearable {
+
+    companion object {
+        private const val TAG = "Safe4DAppService"
+    }
+
+    private val gson = Gson()
+    private val prefs by lazy {
+        App.instance.getSharedPreferences("safe4_dapp_prefs", Context.MODE_PRIVATE)
+    }
+
+    private val web3j by lazy {
+        Connect.connect(Safe4Module.getSafeChain())
+    }
+
+    private val dAppManager by lazy {
+        DAppManager(web3j, Safe4Module.getSafeChain().id.toLong())
+    }
+
+    private val dAppsSubject = PublishSubject.create<List<ManagedDAppItem>>()
+    private var cachedDApps = mutableListOf<ManagedDAppItem>()
+
+    init {
+        // 1. Load local cache immediately on main thread (fast, no network)
+        val wallet = getActiveSafe4Wallet()
+        if (wallet != null) {
+            cachedDApps.addAll(getStoredDApps(wallet))
+        }
+        dAppsSubject.onNext(cachedDApps.toList())
+
+        // 2. Then sync chain data in background (may be slow)
+        if (wallet != null) {
+            Thread {
+                try {
+                    syncChainDApps()
+                } catch (e: Exception) {
+                    Log.e(TAG, "init chain sync error", e)
+                }
+            }.start()
+        }
+    }
+
+    /**
+     * Sync DApps from chain into local cache. Must be called on background thread.
+     * Only fetches DApps owned by the current wallet (management page).
+     */
+    private fun syncChainDApps() {
+        val currentWallet = getActiveSafe4Wallet() ?: return
+
+        try {
+            val chainDApps = fetchMineChainDApps()
+            val localDApps = getStoredDApps(currentWallet)
+            val merged = mergeChainAndLocal(chainDApps, localDApps, currentWallet)
+
+            cachedDApps.clear()
+            cachedDApps.addAll(merged)
+            saveDApps(currentWallet, cachedDApps)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to sync chain DApps", e)
+        }
+
+        dAppsSubject.onNext(cachedDApps.toList())
+    }
+
+    /**
+     * Get the current wallet's EVM hex address.
+     */
+    private fun getWalletAddress(): String {
+        val wallet = getActiveSafe4Wallet()
+            ?: throw IllegalStateException("No active SAFE4 wallet")
+        val adapter = App.adapterManager.getAdapterForWallet(wallet) as? ISendEthereumAdapter
+            ?: throw IllegalStateException("No SAFE4 adapter")
+        return adapter.evmKitWrapper.evmKit.receiveAddress.hex
+    }
+
+    /**
+     * Fetch only DApps owned by the current wallet using getMineNum + getMineIDs + getInfo.
+     */
+    private fun fetchMineChainDApps(): List<com.anwang.types.dapp.DAppInfo> {
+        val address = getWalletAddress()
+        val total = dAppManager.getMineNum(Address(address))
+        if (total == BigInteger.ZERO) return emptyList()
+
+        val pageSize = BigInteger.valueOf(50)
+        val allIds = mutableListOf<BigInteger>()
+        var start = BigInteger.ZERO
+
+        while (start < total) {
+            val ids = dAppManager.getMineIDs(Address(address), start, pageSize)
+            if (ids.isEmpty()) break
+            allIds.addAll(ids)
+            start += BigInteger.valueOf(ids.size.toLong())
+        }
+
+        return allIds.mapNotNull { id ->
+            try {
+                dAppManager.getInfo(id)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get DApp info for id=$id", e)
+                null
+            }
+        }
+    }
+
+    /**
+     * Fetch all DApps from chain using getNum + getIDs + getInfo.
+     * Used by market page to show all DApps.
+     */
+    fun fetchAllChainDApps(): List<com.anwang.types.dapp.DAppInfo> {
+        val total = dAppManager.getNum()
+        if (total == BigInteger.ZERO) return emptyList()
+
+        val pageSize = BigInteger.valueOf(50)
+        val allIds = mutableListOf<BigInteger>()
+        var start = BigInteger.ZERO
+
+        while (start < total) {
+            val ids = dAppManager.getIDs(start, pageSize)
+            if (ids.isEmpty()) break
+            allIds.addAll(ids)
+            start += BigInteger.valueOf(ids.size.toLong())
+        }
+
+        return allIds.mapNotNull { id ->
+            try {
+                dAppManager.getInfo(id)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get DApp info for id=$id", e)
+                null
+            }
+        }
+    }
+
+    /**
+     * Merge chain DAppInfo list with local ManagedDAppItem list.
+     * Chain data provides: id, name, contractAddr, runUrl(=url), officialUrl, officialEmail, description, gitUrl(=iconUrl), isFrozen(=status), keyword, fraudNum
+     * Local data provides: category (extra UI fields)
+     */
+    private fun mergeChainAndLocal(
+        chainDApps: List<com.anwang.types.dapp.DAppInfo>,
+        localDApps: List<ManagedDAppItem>,
+        wallet: Wallet
+    ): List<ManagedDAppItem> {
+        val localMap = localDApps.associateBy { it.id }
+
+        return chainDApps.mapNotNull { info ->
+            try {
+                val id = info.id.toString()
+                val local = localMap[id]
+
+                ManagedDAppItem(
+                    id = id,
+                    name = info.name ?: "",
+                    url = info.runUrl ?: "",
+                    description = info.description ?: "",
+                    category = local?.category ?: "",
+                    iconUrl = info.gitUrl ?: local?.iconUrl ?: "",
+                    contractAddr = info.contractAddr?.toString() ?: "",
+                    officialUrl = info.officialUrl ?: "",
+                    officialEmail = info.officialEmail ?: "",
+                    officialAccount = info.officialAccount?.toString() ?: "",
+                    keyword = info.keyword ?: "",
+                    status = if (info.isFrozen == true) "frozen" else "active",
+                    fraudNum = (info.fraudNum ?: BigInteger.ZERO).toLong(),
+                    createdAt = local?.createdAt ?: System.currentTimeMillis(),
+                    updatedAt = local?.updatedAt ?: System.currentTimeMillis(),
+                    walletAddress = wallet.account.name
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to merge DApp: ${info.id}", e)
+                null
+            }
+        }
+    }
+
+    /**
+     * Get private key for signing transactions from evmKitWrapper.
+     */
+    private fun getPrivateKey(): String {
+        val evmKitWrapper = App.evmBlockchainManager
+            .getEvmKitManager(BlockchainType.SafeFour).evmKitWrapper
+            ?: throw IllegalStateException("No evmKitWrapper for SafeFour")
+
+        return evmKitWrapper.signer?.privateKey?.toString(16)
+            ?: throw IllegalStateException("No signer available")
+    }
+
+    fun getActiveSafe4Wallet(): Wallet? {
+        return App.walletManager.activeWallets.firstOrNull { wallet ->
+            wallet.token.blockchain.type is BlockchainType.SafeFour
+        }
+    }
+
+    private fun getDAppsKey(wallet: Wallet): String {
+        return "safe4_dapps_${wallet.account.id}"
+    }
+
+    private fun getStoredDApps(wallet: Wallet): List<ManagedDAppItem> {
+        return try {
+            val key = getDAppsKey(wallet)
+            val json = prefs.getString(key, null)
+            if (json.isNullOrEmpty()) return emptyList()
+
+            val listType = object : TypeToken<List<ManagedDAppItem>>() {}.type
+            gson.fromJson(json, listType) ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun saveDApps(wallet: Wallet, dApps: List<ManagedDAppItem>) {
+        try {
+            val key = getDAppsKey(wallet)
+            val json = gson.toJson(dApps)
+            prefs.edit { putString(key, json) }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save DApps", e)
+        }
+    }
+
+    /**
+     * Register DApp on chain via smart contract.
+     * Fields mapping:
+     *   name → name, contractAddr → contractAddr, url → runUrl, description → description,
+     *   iconUrl → gitUrl (stored as metadata on chain), officialUrl → officialUrl, officialEmail → officialEmail
+     */
+    fun registerDApp(
+        name: String,
+        url: String,
+        description: String,
+        iconUrl: String,
+        contractAddr: String,
+        officialUrl: String,
+        officialEmail: String
+    ): ManagedDAppItem {
+        val wallet = getActiveSafe4Wallet()
+            ?: throw IllegalStateException("No active SAFE4 wallet")
+
+        val privateKey = getPrivateKey()
+
+        // Register on chain
+        val addrObj = if (contractAddr.isNotBlank()) Address(contractAddr) else Address.DEFAULT
+        val txHash = dAppManager.register(
+            privateKey,
+            name,
+            addrObj,
+            url,                    // runUrl
+            description,
+            iconUrl,                // gitUrl - store iconUrl metadata here
+            officialUrl,
+            officialEmail
+        )
+
+        Log.i(TAG, "DApp registered on chain, txHash=$txHash")
+
+        // Return a temporary item (with txHash as id, will be corrected by subsequent refresh)
+        val tempItem = ManagedDAppItem(
+            id = txHash,
+            name = name,
+            url = url,
+            description = description,
+            category = "",
+            iconUrl = iconUrl,
+            contractAddr = contractAddr,
+            officialUrl = officialUrl,
+            officialEmail = officialEmail,
+            officialAccount = "",
+            keyword = "",
+            status = "active",
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis(),
+            walletAddress = wallet.account.name
+        )
+
+        // Immediately add to cache and notify, so manage page shows the new item right away
+        cachedDApps.add(0, tempItem)
+        saveDApps(wallet, cachedDApps)
+        dAppsSubject.onNext(cachedDApps.toList())
+
+        // After chain tx, reload from chain in background to get the assigned id
+        refresh()
+
+        return tempItem
+    }
+
+    /**
+     * Update DApp on chain via individual field setters.
+     * Only calls chain APIs for fields that actually changed from the original values.
+     */
+    fun updateDApp(
+        id: String,
+        name: String,
+        url: String,
+        description: String,
+        iconUrl: String,
+        contractAddr: String,
+        officialUrl: String,
+        officialEmail: String,
+        officialAccount: String,
+        keyword: String,
+        existing: ManagedDAppItem
+    ): ManagedDAppItem {
+        val wallet = getActiveSafe4Wallet()
+            ?: throw IllegalStateException("No active SAFE4 wallet")
+
+        val privateKey = getPrivateKey()
+
+        // Convert id to BigInteger for chain calls
+        val bigIntId = try {
+            BigInteger(id)
+        } catch (e: NumberFormatException) {
+            throw IllegalArgumentException("Invalid DApp id for chain update: $id")
+        }
+
+        // Only update fields that actually changed
+        if (name != existing.name) {
+            dAppManager.setName(privateKey, bigIntId, name)
+            Log.i(TAG, "DApp name updated, id=$id")
+        }
+        if (url != existing.url) {
+            dAppManager.setRunUrl(privateKey, bigIntId, url)
+            Log.i(TAG, "DApp runUrl updated, id=$id")
+        }
+        if (description != existing.description) {
+            dAppManager.setDescription(privateKey, bigIntId, description)
+            Log.i(TAG, "DApp description updated, id=$id")
+        }
+        if (iconUrl != existing.iconUrl) {
+            dAppManager.setGitUrl(privateKey, bigIntId, iconUrl)
+            Log.i(TAG, "DApp gitUrl updated, id=$id")
+        }
+        if (contractAddr != existing.contractAddr && contractAddr.isNotBlank()) {
+            dAppManager.setContractAddr(privateKey, bigIntId, Address(contractAddr))
+            Log.i(TAG, "DApp contractAddr updated, id=$id")
+        }
+        if (officialUrl != existing.officialUrl) {
+            dAppManager.setOfficialUrl(privateKey, bigIntId, officialUrl)
+            Log.i(TAG, "DApp officialUrl updated, id=$id")
+        }
+        if (officialEmail != existing.officialEmail) {
+            dAppManager.setOfficialEmail(privateKey, bigIntId, officialEmail)
+            Log.i(TAG, "DApp officialEmail updated, id=$id")
+        }
+        if (officialAccount != existing.officialAccount && officialAccount.isNotBlank()) {
+            dAppManager.setOfficialAccount(privateKey, bigIntId, Address(officialAccount))
+            Log.i(TAG, "DApp officialAccount updated, id=$id")
+        }
+        if (keyword != existing.keyword) {
+            dAppManager.setKeyword(privateKey, bigIntId, keyword)
+            Log.i(TAG, "DApp keyword updated, id=$id")
+        }
+        Log.i(TAG, "DApp updated on chain, id=$id")
+
+        // Update local cache
+        val index = cachedDApps.indexOfFirst { it.id == id }
+        if (index >= 0) {
+            val updated = cachedDApps[index].copy(
+                name = name,
+                url = url,
+                description = description,
+                iconUrl = iconUrl,
+                contractAddr = contractAddr,
+                officialUrl = officialUrl,
+                officialEmail = officialEmail,
+                officialAccount = officialAccount,
+                keyword = keyword,
+                updatedAt = System.currentTimeMillis()
+            )
+            cachedDApps[index] = updated
+            saveDApps(wallet, cachedDApps)
+            dAppsSubject.onNext(cachedDApps.toList())
+            return updated
+        }
+
+        // If not found locally, refresh from chain
+        refresh()
+        val refreshed = cachedDApps.find { it.id == id }
+            ?: throw IllegalArgumentException("DApp not found after chain update")
+        return refreshed
+    }
+
+    fun removeDApp(id: String) {
+        val wallet = getActiveSafe4Wallet()
+            ?: throw IllegalStateException("No active SAFE4 wallet")
+
+        val privateKey = getPrivateKey()
+        val bigIntId = try {
+            BigInteger(id)
+        } catch (e: NumberFormatException) {
+            throw IllegalArgumentException("Invalid DApp id for chain removal: $id")
+        }
+
+        // Remove from chain
+        dAppManager.remove(privateKey, bigIntId)
+        Log.i(TAG, "DApp removed from chain, id=$id")
+
+        cachedDApps.removeAll { it.id == id }
+        saveDApps(wallet, cachedDApps)
+        dAppsSubject.onNext(cachedDApps.toList())
+    }
+
+    /**
+     * Get the payment amount required for setting a DApp logo.
+     */
+    fun getLogoPayAmount(): BigInteger {
+        return dAppManager.getLogoPayAmount()
+    }
+
+    /**
+     * Update DApp logo on chain. Logo must be <= 128KB.
+     */
+    fun setLogo(id: String, logoBytes: ByteArray): String {
+        val privateKey = getPrivateKey()
+        val bigIntId = try {
+            BigInteger(id)
+        } catch (e: NumberFormatException) {
+            throw IllegalArgumentException("Invalid DApp id for setLogo: $id")
+        }
+        return dAppManager.setLogo(privateKey, bigIntId, logoBytes)
+    }
+
+    fun getDApps(): List<ManagedDAppItem> = cachedDApps
+
+    fun getDAppsObservable() = dAppsSubject
+
+    fun refresh() {
+        Thread {
+            try {
+                syncChainDApps()
+            } catch (e: Exception) {
+                Log.e(TAG, "refresh error", e)
+            }
+        }.start()
+    }
+
+    override fun clear() {
+        // cleanup
+    }
+}

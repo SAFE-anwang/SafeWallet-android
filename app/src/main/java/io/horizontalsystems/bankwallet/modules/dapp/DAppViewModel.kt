@@ -129,6 +129,7 @@ data class DAppItem(
     val icon: String,
     val dlink: String,
     val md5Code: String?,
+    val keywords: String? = null,
     var iconPlaceholder: Int? = null
 ) {
 

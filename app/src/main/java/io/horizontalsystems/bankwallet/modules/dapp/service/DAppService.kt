@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.dapp.service
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.horizontalsystems.bankwallet.core.App
@@ -8,14 +9,20 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.dapp.DAppItem
 import io.horizontalsystems.bankwallet.modules.dapp.FilterDAppType
+import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppService
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class DAppService(
-    val service: DAppApiService
+    val service: DAppApiService,
+    private val safe4DAppService: Safe4DAppService? = null
 ): Clearable {
+
+    companion object {
+        private const val TAG = "DAppService"
+    }
 
     val allDAppList: ArrayList<DAppItem> = ArrayList()
     val dAppItemsObservable: BehaviorSubject<DataState<List<DAppItem>>> =
@@ -41,9 +48,14 @@ class DAppService(
             .subscribeIO({
                 allDAppList.clear()
                 allDAppList.addAll(it)
+                mergeChainDApps()
                 setFilterType(filterDAppType)
             }, {
-                dAppItemsObservable.onNext(DataState.Success(getDefaultRecommends()))
+                // Fallback to default data, then try chain DApps
+                allDAppList.clear()
+                allDAppList.addAll(getDefaultRecommends())
+                mergeChainDApps()
+                dAppItemsObservable.onNext(DataState.Success(allDAppList))
             })
             .let {
                 dAppDataDisposable = it
@@ -59,6 +71,36 @@ class DAppService(
             .let {
                 recommendsDisposable = it
             }*/
+    }
+
+    private fun mergeChainDApps() {
+        val safe4Service = safe4DAppService ?: return
+        try {
+            val chainDApps = safe4Service.fetchAllChainDApps()
+            // Use name+url as dedup key to avoid duplicates with API data
+            val existingKeys = allDAppList.map { "${it.name}|${it.dlink}" }.toSet()
+            val chainItems = chainDApps.mapNotNull { info ->
+                val key = "${info.name}|${info.runUrl}"
+                if (key in existingKeys) return@mapNotNull null
+                DAppItem(
+                    type = "SAFE",
+                    subType = "SAFE DApp",
+                    name = info.name ?: "",
+                    desc = info.description ?: "",
+                    descEN = info.description ?: "",
+                    icon = info.gitUrl ?: "",
+                    dlink = info.runUrl ?: "",
+                    md5Code = null,
+                    keywords = info.keyword
+                )
+            }
+            if (chainItems.isNotEmpty()) {
+                allDAppList.addAll(chainItems)
+                Log.d(TAG, "Merged ${chainItems.size} chain DApps into list")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch chain DApps", e)
+        }
     }
 
     fun getDefaultRecommends(): List<DAppItem> {

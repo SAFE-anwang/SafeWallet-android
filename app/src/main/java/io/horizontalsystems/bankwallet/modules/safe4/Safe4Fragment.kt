@@ -284,6 +284,31 @@ private fun Safe4Sections(
 
     Spacer(Modifier.height(25.dp))
 
+    Text(
+        text = stringResource(R.string.Safe4_DApp_Section_Title),
+        style = ComposeAppTheme.typography.subheadB,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf({
+            HsSettingCell(
+                R.string.Safe4_DApp_Manage_Title,
+                R.mipmap.ic_app_color,
+                showAlert = false,
+                onClick = {
+                    Safe4Module.handlerDAppManage(navController)
+                }
+            )
+        })
+    )
+
+    Spacer(Modifier.height(25.dp))
+
 
     Text(
         text = stringResource(R.string.Safe4_Cross_Chain_erc20),
