@@ -11,5 +11,7 @@ object Migration_80_81 : Migration(80, 81) {
                 PRIMARY KEY(`url`)
             )
         """.trimIndent())
+
+        db.execSQL("ALTER TABLE `SwapRecord` ADD COLUMN `customRecipientAddress` INTEGER NOT NULL DEFAULT 0")
     }
 }

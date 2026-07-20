@@ -41,7 +41,5 @@ object Migration_75_76 : Migration(75, 76) {
         db.execSQL("ALTER TABLE `SwapRecord` ADD COLUMN `accountId` TEXT NOT NULL DEFAULT ''")
 
         db.execSQL("ALTER TABLE `SwapRecord` ADD COLUMN `outboundTransactionHash` TEXT")
-
-        db.execSQL("ALTER TABLE `SwapRecord` ADD COLUMN `customRecipientAddress` INTEGER NOT NULL DEFAULT 0")
     }
 }
