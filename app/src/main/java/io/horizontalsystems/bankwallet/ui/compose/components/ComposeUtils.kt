@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.ui.compose.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
@@ -154,6 +155,7 @@ fun CoinImageSafe(
     size: Dp = 32.dp,
     modifier: Modifier = Modifier
 ) {
+    Log.d("CoinImageSafe", "iconUrl: $iconUrl")
     if (uid.isSafeCoin()) {
         val logo = SyncSafe4Tokens.getLogo(uid)
         if (!logo.isNullOrEmpty()) {

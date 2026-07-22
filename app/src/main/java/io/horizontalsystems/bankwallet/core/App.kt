@@ -698,7 +698,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             walletManager.start(restoreSettingsManager, moneroNodeManager, zanoNodeManager, zcashEndpointManager, btcBlockchainManager, evmBlockchainManager, solanaKitManager, tronKitManager)
             adapterManager.startAdapterManager()
             marketKit.sync()
-            rateAppManager.onAppLaunch()
+
             nftMetadataSyncer.start()
             pinComponent.initDefaultPinLevel()
             accountManager.clearAccounts()

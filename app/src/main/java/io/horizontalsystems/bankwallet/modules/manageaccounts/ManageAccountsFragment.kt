@@ -101,7 +101,7 @@ fun ManageAccountsScreen(navController: NavController, mode: ManageAccountsModul
                         title = TranslatableString.ResString(R.string.ManageAccounts_ExistingWallet),
                         onClick = {
                             navController.navigateWithTermsAccepted {
-                                navController.slideFromRight(R.id.manageAccountsFragment_to_restoreSelectWalletFragment, args)
+                                navController.slideFromRight(R.id.importWalletFragment, args)
                                 stat(page = StatPage.ManageWallets, event = StatEvent.Open(StatPage.ImportWallet))
                             }
                         }

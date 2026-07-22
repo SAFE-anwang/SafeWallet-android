@@ -159,7 +159,7 @@ fun BalanceForAccount(
                         )
                     )
                 }
-                add(
+                /*add(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.Transactions_Title),
                         icon = R.drawable.ic_circle_clock_24,
@@ -172,7 +172,7 @@ fun BalanceForAccount(
                             )
                         }
                     )
-                )
+                )*/
                 add(
                     MenuItem(
                         title = TranslatableString.ResString(R.string.ManageAccounts_Title),

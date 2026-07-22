@@ -150,7 +150,7 @@ private fun ImportWalletScreen(
                 ) {
                     navController.navigateWithTermsAccepted {
                         navController.slideFromRight(
-                            R.id.restoreAccountFragment,
+                            R.id.restoreSelectWalletFragment,
                             ManageAccountsModule.Input(popUpToInclusiveId, inclusive)
                         )
 

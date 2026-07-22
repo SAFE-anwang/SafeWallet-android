@@ -39,8 +39,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.BuildConfig
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.managers.RateAppManager
-import io.horizontalsystems.bankwallet.core.paidAction
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseFragment
 import io.horizontalsystems.bankwallet.core.providers.Translator
@@ -72,19 +70,18 @@ import io.horizontalsystems.bankwallet.ui.compose.components.BadgeText
 import io.horizontalsystems.bankwallet.ui.compose.components.CellSingleLineLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.CellUniversalLawrenceSection
 import io.horizontalsystems.bankwallet.ui.compose.components.HsDivider
-import io.horizontalsystems.bankwallet.ui.compose.components.PremiumHeader
+
 import io.horizontalsystems.bankwallet.ui.compose.components.RowUniversal
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
-import io.horizontalsystems.bankwallet.ui.compose.components.cell.SectionPremiumUniversalLawrence
+
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead1_grey
 import io.horizontalsystems.bankwallet.ui.helpers.LinkHelper
 import io.horizontalsystems.dapp.core.DAppManager
 import io.horizontalsystems.core.getNavigationResult
 import io.horizontalsystems.marketkit.models.BlockchainType
-import io.horizontalsystems.subscriptions.core.PrioritySupport
-import io.horizontalsystems.subscriptions.core.SecureSend
+
 
 @Composable
 fun SettingsScreen(
@@ -359,51 +356,20 @@ private fun SettingSections(
         }
     )
 
-    VSpacer(4.dp)
+    VSpacer(24.dp)
 
-    if (isFDroidBuild) {
-        PremiumHeader(R.string.Premium_TitleForDroid)
-    } else {
-        PremiumHeader()
-    }
-
-    SectionPremiumUniversalLawrence {
-        /*HsSettingCell(
-            title = if(isFDroidBuild) R.string.Settings_Support else R.string.Settings_VipSupport,
-            icon = R.drawable.ic_support_yellow_24,
-            iconTint = ComposeAppTheme.colors.jacob,
-            onClick = {
-                if (isFDroidBuild) {
-                    LinkHelper.openLinkInAppBrowser(context, viewModel.fdroidSupportLink)
-                } else {
-                    navController.paidAction(PrioritySupport) {
-                        LinkHelper.openLinkInAppBrowser(context, viewModel.vipSupportLink)
-                    }
-                }
-
-                stat(
-                    page = StatPage.Settings,
-                    event = StatEvent.OpenPremium(StatPremiumTrigger.VipSupport)
-                )
-            }
-        )
-        HsDivider()*/
-        HsSettingCell(
-            title = R.string.SettingsAddressChecker_Title,
-            icon = R.drawable.ic_radar_24,
-            iconTint = ComposeAppTheme.colors.jacob,
-            onClick = {
-                navController.paidAction(SecureSend) {
+    CellUniversalLawrenceSection(
+        listOf({
+            HsSettingCell(
+                title = R.string.SettingsAddressChecker_Title,
+                icon = R.drawable.ic_radar_24,
+                iconTint = ComposeAppTheme.colors.jacob,
+                onClick = {
                     navController.slideFromRight(R.id.addressCheckFragment)
                 }
-                stat(
-                    page = StatPage.Settings,
-                    event = StatEvent.OpenPremium(StatPremiumTrigger.AddressChecker)
-                )
-            }
-        )
-    }
-
+            )
+        })
+    )
 
     VSpacer(24.dp)
 
@@ -417,16 +383,6 @@ private fun SettingSections(
                     navController.slideFromRight(R.id.aboutAppFragment)
 
                     stat(page = StatPage.Settings, event = StatEvent.Open(StatPage.AboutApp))
-                }
-            )
-        }, {
-            HsSettingCell(
-                R.string.Settings_RateUs,
-                R.drawable.star_24,
-                onClick = {
-                    RateAppManager.openPlayMarket(context)
-
-                    stat(page = StatPage.Settings, event = StatEvent.Open(StatPage.RateUs))
                 }
             )
         }, {

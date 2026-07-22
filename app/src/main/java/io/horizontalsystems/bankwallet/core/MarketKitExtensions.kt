@@ -616,6 +616,8 @@ val TokenType.bitcoinCashCoinType: TokenType.AddressType?
 val Coin.imageUrl: String
     get() = if (uid == "binance-bridged-usdt-bnb-smart-chain")
         "https://cdn.blocksdecoded.com/coin-icons/32px/tether@3x.png"
+    else if (uid == "zano")
+        "https://cdn.blocksdecoded.com/blockchain-icons/32px/zano@3x.png"
     else
         "https://cdn.blocksdecoded.com/coin-icons/32px/$uid@3x.png"
 

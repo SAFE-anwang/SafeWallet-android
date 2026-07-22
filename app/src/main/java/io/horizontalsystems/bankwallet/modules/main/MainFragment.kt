@@ -46,7 +46,6 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.findActivity
-import io.horizontalsystems.bankwallet.core.managers.RateAppManager
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
@@ -58,7 +57,6 @@ import io.horizontalsystems.bankwallet.modules.dapp.DAppBrowseFragment
 import io.horizontalsystems.bankwallet.modules.main.MainModule.MainNavigation
 import io.horizontalsystems.bankwallet.modules.market.MarketScreen
 import io.horizontalsystems.bankwallet.modules.multiswap.SwapScreen
-import io.horizontalsystems.bankwallet.modules.rateapp.RateApp
 import io.horizontalsystems.bankwallet.modules.releasenotes.ReleaseNotesFragment
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceModule
 import io.horizontalsystems.bankwallet.modules.rooteddevice.RootedDeviceScreen
@@ -271,13 +269,13 @@ private fun MainScreen(
                 when (navItem) {
                     MainNavigation.Market -> MarketScreen(fragmentNavController)
                     MainNavigation.Balance -> BalanceScreen(fragmentNavController)
-                    MainNavigation.Swap -> SwapScreen(
+                    /*MainNavigation.Swap -> SwapScreen(
                         fragmentNavController,
                         onClickClose = null,
                         bottomPadding = navigationBarHeight,
                         closeAfterSwap = false,
                         autofocus = false
-                    )
+                    )*/
 
 //                    MainNavigation.Transactions -> TransactionsScreen(
 //                        fragmentNavController,
@@ -310,16 +308,7 @@ private fun MainScreen(
         }
     }
 
-    if (uiState.showRateAppDialog) {
-        val context = LocalContext.current
-        RateApp(
-            onRateClick = {
-                RateAppManager.openPlayMarket(context)
-                viewModel.closeRateDialog()
-            },
-            onCancelClick = { viewModel.closeRateDialog() }
-        )
-    }
+
 
     if (uiState.wcSupportState != null) {
         when (val wcSupportState = uiState.wcSupportState) {

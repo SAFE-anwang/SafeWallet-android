@@ -21,7 +21,7 @@ class ZanoNodeManager(
     val nodesUpdatedFlow = _nodesUpdatedFlow.asSharedFlow()
 
     val defaultNodesInitial = listOf(
-        ZanoNode("https://zano.unstoppable.money:443", "zano.unstoppable.money"),
+//        ZanoNode("https://zano.unstoppable.money:443", "zano.unstoppable.money"),
         ZanoNode("https://node.zano.org:443", "node.zano.org"),
     )
 

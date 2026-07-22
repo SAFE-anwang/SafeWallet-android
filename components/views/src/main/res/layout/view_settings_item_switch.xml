@@ -21,7 +21,6 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_attention_24"
         app:layout_constraintBottom_toBottomOf="@+id/frame"
         app:layout_constraintStart_toStartOf="@+id/frame"
         app:layout_constraintTop_toTopOf="@+id/frame" />
@@ -43,7 +42,7 @@
         app:layout_constraintStart_toEndOf="@+id/settingsIcon"
         app:layout_constraintTop_toTopOf="@+id/frame"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Label" />
+        />
 
     <TextView
         android:id="@+id/settingsSubtitle"
@@ -55,7 +54,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/frame"
         app:layout_constraintStart_toStartOf="@+id/settingsTitle"
         app:layout_constraintTop_toBottomOf="@+id/settingsTitle"
-        tools:text="Subtitle" />
+        />
 
     <!-- Cell Right -->
 
@@ -64,7 +63,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
-        android:src="@drawable/ic_attention_20"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/frame"
         app:layout_constraintEnd_toStartOf="@+id/switchSettings"

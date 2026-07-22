@@ -287,7 +287,7 @@ val MainModule.MainNavigation.statTab: StatTab
     get() = when (this) {
         MainModule.MainNavigation.Market -> StatTab.Markets
         MainModule.MainNavigation.Balance -> StatTab.Balance
-        MainModule.MainNavigation.Swap -> StatTab.Swap
+//        MainModule.MainNavigation.Swap -> StatTab.Swap
 //        MainModule.MainNavigation.Transactions -> StatTab.Transactions
         MainModule.MainNavigation.Settings -> StatTab.Settings
         MainModule.MainNavigation.Safe4 -> StatTab.Safe4

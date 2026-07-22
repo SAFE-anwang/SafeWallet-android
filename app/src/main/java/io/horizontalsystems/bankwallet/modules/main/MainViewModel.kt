@@ -80,14 +80,14 @@ class MainViewModel(
                 MainNavigation.Balance,
                 MainNavigation.Safe4,
 //                MainNavigation.Tg,
-                MainNavigation.Swap,
+//                MainNavigation.Swap,
 //                MainNavigation.Transactions,
                 MainNavigation.Settings,
             )
         } else {
             listOf(
                 MainNavigation.Balance,
-                MainNavigation.Swap,
+//                MainNavigation.Swap,
 //                MainNavigation.Transactions,
                 MainNavigation.Safe4,
 //                MainNavigation.Tg,
@@ -123,10 +123,7 @@ class MainViewModel(
             updateSettingsBadge()
         }
 
-        rateAppManager.showRateAppFlow.collectWith(viewModelScope) {
-            showRateAppDialog = it
-            emitState()
-        }
+
 
         viewModelScope.launch {
             backupManager.allBackedUpFlowable.asFlow().collect {
@@ -298,13 +295,13 @@ class MainViewModel(
             )
         }
 
-        MainNavigation.Swap -> {
+        /*MainNavigation.Swap -> {
             MainModule.NavigationViewItem(
                 mainNavItem = item,
                 selected = selected,
                 enabled = true,
             )
-        }
+        }*/
     }
 
     private fun getTabIndexToOpen(): Int {

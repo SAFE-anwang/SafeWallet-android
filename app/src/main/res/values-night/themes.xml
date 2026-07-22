@@ -7,6 +7,16 @@
 
     <style name="Theme.AppTheme.DarkModeAppTheme" parent="Theme.AppTheme">
         <item name="colorAccent">@color/yellow_d</item>
+        <item name="colorPrimary">@color/yellow_d</item>
+        <item name="colorPrimaryVariant">@color/yellow_l</item>
+        <item name="colorOnPrimary">@color/dark</item>
+        <item name="colorSecondary">@color/yellow_d</item>
+        <item name="colorSecondaryVariant">@color/yellow_l</item>
+        <item name="colorOnSecondary">@color/dark</item>
+        <item name="colorSurface">@color/dark</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorError">@color/lucian</item>
+        <item name="colorOnError">@color/white</item>
         <item name="android:windowBackground">@color/dark</item>
         <item name="actionMenuTextAppearance">@style/Headline2</item>
         <item name="colorControlNormal">@color/grey</item>
@@ -17,6 +27,8 @@
 
         <item name="TitleColor">@color/white</item>
         <item name="RoundRippleColor">@color/white_50</item>
+        <item name="TextColorBarsToDark">@color/dark</item>
+        <item name="TextColorGreyLightToDark">@color/white</item>
     </style>
 
 
