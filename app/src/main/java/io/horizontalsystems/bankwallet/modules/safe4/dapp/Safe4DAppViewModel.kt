@@ -131,6 +131,19 @@ class Safe4DAppRegisterViewModel(
                 keyword = dapp.keyword,
                 isEditing = true
             )
+        } ?: run {
+            // Load draft for new registration
+            val draft = service.loadDraftDApp()
+            if (draft != null) {
+                _registerState.value = draft
+            }
+        }
+    }
+
+    private fun saveDraft() {
+        val state = _registerState.value
+        if (!state.isEditing) {
+            service.saveDraftDApp(state)
         }
     }
 
@@ -143,10 +156,12 @@ class Safe4DAppRegisterViewModel(
                 else -> null
             }
         )
+        saveDraft()
     }
 
     fun updateUrl(url: String) {
         _registerState.value = _registerState.value.copy(url = url)
+        saveDraft()
     }
 
     fun updateDescription(desc: String) {
@@ -158,38 +173,47 @@ class Safe4DAppRegisterViewModel(
                 else -> null
             }
         )
+        saveDraft()
     }
 
     fun updateIconUrl(iconUrl: String) {
         _registerState.value = _registerState.value.copy(iconUrl = iconUrl)
+        saveDraft()
     }
 
     fun updateContractAddr(contractAddr: String) {
         _registerState.value = _registerState.value.copy(contractAddr = contractAddr)
+        saveDraft()
     }
 
     fun updateContractAddr(address: Address?) {
         _registerState.value = _registerState.value.copy(contractAddr = address?.hex ?: "")
+        saveDraft()
     }
 
     fun updateOfficialUrl(officialUrl: String) {
         _registerState.value = _registerState.value.copy(officialUrl = officialUrl)
+        saveDraft()
     }
 
     fun updateOfficialEmail(officialEmail: String) {
         _registerState.value = _registerState.value.copy(officialEmail = officialEmail)
+        saveDraft()
     }
 
     fun updateOfficialAccount(officialAccount: String) {
         _registerState.value = _registerState.value.copy(officialAccount = officialAccount)
+        saveDraft()
     }
 
     fun updateOfficialAccount(address: Address?) {
         _registerState.value = _registerState.value.copy(officialAccount = address?.hex ?: "")
+        saveDraft()
     }
 
     fun updateKeyword(keyword: String) {
         _registerState.value = _registerState.value.copy(keyword = keyword)
+        saveDraft()
     }
 
     // Logo related state
@@ -284,6 +308,7 @@ class Safe4DAppRegisterViewModel(
                         officialUrl = state.officialUrl,
                         officialEmail = state.officialEmail
                     )
+                    service.clearDraftDApp()
                 }
                 sendResult = SendResult.Sent()
             } catch (e: Exception) {

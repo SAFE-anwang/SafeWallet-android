@@ -114,6 +114,7 @@ fun Safe4DAppRegisterScreen(
                         initial = state.contractAddr.ifBlank { null }?.let { Address(it) },
                         tokenQuery = wallet.token.tokenQuery,
                         coinCode = wallet.coin.code,
+                        hint = stringResource(R.string.Safe4_DApp_ContractAddr_Hint),
                     ) {
                         viewModel.updateContractAddr(it)
                     }

@@ -21,6 +21,7 @@ class Safe4DAppService : Clearable {
 
     companion object {
         private const val TAG = "Safe4DAppService"
+        private const val DRAFT_KEY = "safe4_dapp_draft"
     }
 
     private val gson = Gson()
@@ -67,12 +68,26 @@ class Safe4DAppService : Clearable {
         val currentWallet = getActiveSafe4Wallet() ?: return
 
         try {
-            val chainDApps = fetchMineChainDApps()
+            val result = fetchMineChainDAppsWithIds()
+            val chainDApps = result.dApps
+            val allChainIds = result.allIds
             val localDApps = getStoredDApps(currentWallet)
             val merged = mergeChainAndLocal(chainDApps, localDApps, currentWallet)
 
+            // Preserve local entries not found in merged chain results:
+            // - Temp items from just-registered DApps (id = txHash, not numeric)
+            // - Chain IDs that exist but getInfo failed (e.g. after logo update)
+            val mergedIds = merged.map { it.id }.toSet()
+            val preservedLocal = localDApps.filter { local ->
+                local.id !in mergedIds && (
+                    local.id.toBigIntegerOrNull() == null ||  // temp item (txHash as id)
+                    local.id in allChainIds                   // chain ID with failed getInfo
+                )
+            }
+
             cachedDApps.clear()
             cachedDApps.addAll(merged)
+            cachedDApps.addAll(preservedLocal)
             saveDApps(currentWallet, cachedDApps)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to sync chain DApps", e)
@@ -96,9 +111,24 @@ class Safe4DAppService : Clearable {
      * Fetch only DApps owned by the current wallet using getMineNum + getMineIDs + getInfo.
      */
     private fun fetchMineChainDApps(): List<com.anwang.types.dapp.DAppInfo> {
+        return fetchMineChainDAppsWithIds().dApps
+    }
+
+    /**
+     * Result containing both successfully fetched DApps and all chain IDs (including failed).
+     */
+    private data class FetchResult(
+        val dApps: List<com.anwang.types.dapp.DAppInfo>,
+        val allIds: Set<String>
+    )
+
+    /**
+     * Fetch DApps and track all IDs even if getInfo fails for some.
+     */
+    private fun fetchMineChainDAppsWithIds(): FetchResult {
         val address = getWalletAddress()
         val total = dAppManager.getMineNum(Address(address))
-        if (total == BigInteger.ZERO) return emptyList()
+        if (total == BigInteger.ZERO) return FetchResult(emptyList(), emptySet())
 
         val pageSize = BigInteger.valueOf(50)
         val allIds = mutableListOf<BigInteger>()
@@ -111,7 +141,7 @@ class Safe4DAppService : Clearable {
             start += BigInteger.valueOf(ids.size.toLong())
         }
 
-        return allIds.mapNotNull { id ->
+        val dApps = allIds.mapNotNull { id ->
             try {
                 dAppManager.getInfo(id)
             } catch (e: Exception) {
@@ -119,6 +149,11 @@ class Safe4DAppService : Clearable {
                 null
             }
         }
+
+        return FetchResult(
+            dApps = dApps,
+            allIds = allIds.map { it.toString() }.toSet()
+        )
     }
 
     /**
@@ -452,7 +487,74 @@ class Safe4DAppService : Clearable {
         }.start()
     }
 
+    // region Draft save/load for registration form
+
+    fun saveDraftDApp(state: Safe4DAppModule.RegisterUiState) {
+        try {
+            val json = gson.toJson(DraftDApp.fromRegisterState(state))
+            prefs.edit { putString(DRAFT_KEY, json) }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save DApp draft", e)
+        }
+    }
+
+    fun loadDraftDApp(): Safe4DAppModule.RegisterUiState? {
+        return try {
+            val json = prefs.getString(DRAFT_KEY, null)
+            if (json.isNullOrEmpty()) return null
+            val draft = gson.fromJson(json, DraftDApp::class.java)
+            draft?.toRegisterState()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun clearDraftDApp() {
+        prefs.edit { remove(DRAFT_KEY) }
+    }
+
+    // endregion
+
     override fun clear() {
         // cleanup
+    }
+}
+
+private data class DraftDApp(
+    val name: String = "",
+    val url: String = "",
+    val description: String = "",
+    val iconUrl: String = "",
+    val contractAddr: String = "",
+    val officialUrl: String = "",
+    val officialEmail: String = "",
+    val keyword: String = ""
+) {
+    companion object {
+        fun fromRegisterState(state: Safe4DAppModule.RegisterUiState): DraftDApp {
+            return DraftDApp(
+                name = state.name,
+                url = state.url,
+                description = state.description,
+                iconUrl = state.iconUrl,
+                contractAddr = state.contractAddr,
+                officialUrl = state.officialUrl,
+                officialEmail = state.officialEmail,
+                keyword = state.keyword
+            )
+        }
+    }
+
+    fun toRegisterState(): Safe4DAppModule.RegisterUiState {
+        return Safe4DAppModule.RegisterUiState(
+            name = name,
+            url = url,
+            description = description,
+            iconUrl = iconUrl,
+            contractAddr = contractAddr,
+            officialUrl = officialUrl,
+            officialEmail = officialEmail,
+            keyword = keyword
+        )
     }
 }

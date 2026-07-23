@@ -19,6 +19,7 @@ fun HSAddressInput(
     initial: Address? = null,
     tokenQuery: TokenQuery,
     coinCode: String,
+    hint: String? = null,
     error: Throwable? = null,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
     navController: NavController? = null,
@@ -33,6 +34,7 @@ fun HSAddressInput(
     HSAddressInput(
         modifier = modifier,
         viewModel = viewModel,
+        hint = hint,
         error = error,
         textPreprocessor = textPreprocessor,
         navController = navController,
@@ -45,6 +47,7 @@ fun HSAddressInput(
 fun HSAddressInput(
     modifier: Modifier = Modifier,
     viewModel: AddressViewModel,
+    hint: String? = null,
     error: Throwable? = null,
     textPreprocessor: TextPreprocessor = TextPreprocessorImpl,
     navController: NavController? = null,
@@ -66,7 +69,7 @@ fun HSAddressInput(
     FormsInputAddress(
         modifier = modifier,
         value = viewModel.value,
-        hint = stringResource(id = R.string.Send_Hint_Address),
+        hint = hint ?: stringResource(id = R.string.Send_Hint_Address),
         state = viewModel.inputState,
         textPreprocessor = textPreprocessor,
         navController = navController,

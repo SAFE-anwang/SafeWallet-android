@@ -1883,7 +1883,7 @@
     <string name="Safe4_DApp_IconURL_Label">GIT URL</string>
     <string name="Safe4_DApp_IconURL_Placeholder">请输入图标链接地址</string>
     <string name="Safe4_DApp_ContractAddr_Label">合约地址</string>
-    <string name="Safe4_DApp_ContractAddr_Placeholder">请输入合约地址</string>
+    <string name="Safe4_DApp_ContractAddr_Hint">请正确填写合约地址</string>
     <string name="Safe4_DApp_Register_Sending">正在注册 DApp</string>
     <string name="Safe4_DApp_Register_Success">DApp 注册成功</string>
     <string name="Safe4_DApp_Update_Sending">正在更新 DApp</string>

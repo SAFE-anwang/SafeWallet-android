@@ -2420,7 +2420,7 @@
     <string name="Safe4_DApp_IconURL_Label">GIT URL</string>
     <string name="Safe4_DApp_IconURL_Placeholder">Enter icon URL</string>
     <string name="Safe4_DApp_ContractAddr_Label">Contract Address</string>
-    <string name="Safe4_DApp_ContractAddr_Placeholder">Enter contract address</string>
+    <string name="Safe4_DApp_ContractAddr_Hint">Please enter a valid contract address</string>
     <string name="Safe4_DApp_Register_Sending">Registering DApp</string>
     <string name="Safe4_DApp_Register_Success">DApp registered successfully</string>
     <string name="Safe4_DApp_Update_Sending">Updating DApp</string>
