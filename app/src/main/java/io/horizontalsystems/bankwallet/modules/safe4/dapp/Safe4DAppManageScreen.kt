@@ -1,19 +1,27 @@
 package io.horizontalsystems.bankwallet.modules.safe4.dapp
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +34,8 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.*
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun Safe4DAppManageScreen(
@@ -81,6 +91,7 @@ fun Safe4DAppManageScreen(
                     items(uiState.dApps, key = { it.id }) { dapp ->
                         ManagedDAppCell(
                             dapp = dapp,
+                            service = viewModel.getService(),
                             onClick = {
                                 /*val bundle = android.os.Bundle()
                                 bundle.putString("url", dapp.url)
@@ -151,6 +162,7 @@ fun Safe4DAppManageScreen(
 @Composable
 private fun ManagedDAppCell(
     dapp: ManagedDAppItem,
+    service: Safe4DAppService,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onRemove: () -> Unit
@@ -170,27 +182,8 @@ private fun ManagedDAppCell(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Icon
-                if (dapp.iconUrl.isNotEmpty()) {
-                    HsImage(
-                        url = dapp.iconUrl,
-                        modifier = Modifier.size(40.dp)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(ComposeAppTheme.colors.elenaD),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = dapp.name.take(1).uppercase(),
-                            style = ComposeAppTheme.typography.headline2,
-                            color = ComposeAppTheme.colors.grey
-                        )
-                    }
-                }
+                // Icon - use cached logo from chain, fallback to first letter
+                DAppLogoImage(dappId = dapp.id, dappName = dapp.name, service = service)
 
                 Spacer(Modifier.width(12.dp))
 
@@ -252,6 +245,63 @@ private fun ManagedDAppCell(
                     .padding(top = 12.dp, end = 12.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun DAppLogoImage(
+    dappId: String,
+    dappName: String,
+    service: Safe4DAppService
+) {
+    var cachedPath by remember(dappId) { mutableStateOf<String?>(null) }
+    var isLoading by remember(dappId) { mutableStateOf(false) }
+
+    LaunchedEffect(dappId) {
+        if (cachedPath == null && !isLoading) {
+            isLoading = true
+            withContext(Dispatchers.IO) {
+                cachedPath = service.fetchAndCacheLogo(dappId)
+            }
+            isLoading = false
+        }
+    }
+
+    if (cachedPath != null) {
+        val bitmap = remember(cachedPath) {
+            android.graphics.BitmapFactory.decodeFile(cachedPath)
+        }
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "$dappName logo",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            DAppLogoFallback(dappName)
+        }
+    } else {
+        DAppLogoFallback(dappName)
+    }
+}
+
+@Composable
+private fun DAppLogoFallback(name: String) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(ComposeAppTheme.colors.elenaD),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = name.take(1).uppercase(),
+            style = ComposeAppTheme.typography.headline2,
+            color = ComposeAppTheme.colors.grey
+        )
     }
 }
 

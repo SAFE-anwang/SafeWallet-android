@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.subjects.PublishSubject
 import org.web3j.abi.datatypes.Address
+import java.io.File
 import java.math.BigInteger
 
 class Safe4DAppService : Clearable {
@@ -94,6 +95,9 @@ class Safe4DAppService : Clearable {
         }
 
         dAppsSubject.onNext(cachedDApps.toList())
+
+        // Background fetch logos for all DApps (gitUrl is GitHub URL, actual logo is on-chain)
+        cacheAllLogos(cachedDApps.toList())
     }
 
     /**
@@ -472,6 +476,80 @@ class Safe4DAppService : Clearable {
         }
         return dAppManager.setLogo(privateKey, bigIntId, logoBytes)
     }
+
+    // region Logo cache
+
+    private val logoCacheDir: File by lazy {
+        File(App.instance.cacheDir, "dapp_logos").also { dir ->
+            if (!dir.exists()) dir.mkdirs()
+        }
+    }
+
+    private fun getLogoFile(id: String): File = File(logoCacheDir, "${id}.png")
+
+    /**
+     * Get DApp logo bytes from chain.
+     */
+    fun getLogo(id: String): ByteArray? {
+        val bigIntId = try {
+            BigInteger(id)
+        } catch (e: NumberFormatException) {
+            return null
+        }
+        return try {
+            dAppManager.getLogo(bigIntId)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get logo for id=$id", e)
+            null
+        }
+    }
+
+    /**
+     * Get cached logo file path for a DApp. Returns file absolute path if cached, null otherwise.
+     */
+    fun getCachedLogoPath(id: String): String? {
+        val file = getLogoFile(id)
+        return if (file.exists() && file.length() > 0) file.absolutePath else null
+    }
+
+    /**
+     * Fetch logo from chain and cache to local file. Returns cached file path or null.
+     */
+    fun fetchAndCacheLogo(id: String): String? {
+        // Check cache first
+        val cached = getCachedLogoPath(id)
+        if (cached != null) return cached
+
+        val bytes = getLogo(id)
+        if (bytes != null && bytes.isNotEmpty()) {
+            try {
+                getLogoFile(id).writeBytes(bytes)
+                return getLogoFile(id).absolutePath
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to write logo cache for id=$id", e)
+            }
+        }
+        return null
+    }
+
+    /**
+     * Background fetch and cache logos for all DApps that don't have cached logos.
+     */
+    fun cacheAllLogos(dApps: List<ManagedDAppItem>) {
+        Thread {
+            dApps.forEach { dapp ->
+                if (dapp.id.toBigIntegerOrNull() != null) {
+                    try {
+                        fetchAndCacheLogo(dapp.id)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to cache logo for DApp ${dapp.id}", e)
+                    }
+                }
+            }
+        }.start()
+    }
+
+    // endregion
 
     fun getDApps(): List<ManagedDAppItem> = cachedDApps
 
