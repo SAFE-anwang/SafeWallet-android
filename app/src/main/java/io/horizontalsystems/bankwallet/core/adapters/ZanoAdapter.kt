@@ -86,7 +86,12 @@ class ZanoAdapter(
     }
 
     override fun refresh() {
-        kit.refresh()
+        try {
+            kit.refresh()
+        } catch (e: UninitializedPropertyAccessException) {
+            // ZanoCore.syncManager may not be initialized if kit.start() hasn't completed,
+            // or if the kit was stopped in the background. Safe to ignore.
+        }
     }
 
     override val debugInfo: String
