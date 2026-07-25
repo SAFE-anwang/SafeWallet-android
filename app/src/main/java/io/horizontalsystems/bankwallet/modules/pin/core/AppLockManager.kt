@@ -18,6 +18,8 @@ class AppLockManager(
         private const val KEY_LAST_BACKGROUND_TIME = "last_background_time"
         private const val KEY_KEEP_UNLOCKED = "keep_unlocked"
         private const val IMMEDIATE_LOCK_GRACE_PERIOD = 60_000L
+        // Grace period after unlock to prevent immediate re-lock from lifecycle events
+        private const val UNLOCK_GRACE_PERIOD = 2_000L
     }
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -26,6 +28,9 @@ class AppLockManager(
 
     val isLocked: Boolean
         get() = _isLockedFlow.value && pinManager.isPinSet
+
+    // Timestamp of last successful unlock to prevent immediate re-lock
+    private var lastUnlockTime: Long = 0L
 
     var keepUnlocked: Boolean
         get() = prefs.getBoolean(KEY_KEEP_UNLOCKED, false)
@@ -44,6 +49,14 @@ class AppLockManager(
 
     fun onAppForeground() {
         if (_isLockedFlow.value || !pinManager.isPinSet) {
+            return
+        }
+
+        // Prevent immediate re-lock right after a successful unlock.
+        // Lifecycle events (e.g. fragment navigation after setUserLevel) can
+        // trigger onAppForeground() which would otherwise re-lock the app.
+        val timeSinceUnlock = System.currentTimeMillis() - lastUnlockTime
+        if (timeSinceUnlock < UNLOCK_GRACE_PERIOD) {
             return
         }
 
@@ -84,6 +97,7 @@ class AppLockManager(
 
     fun unlock() {
         _isLockedFlow.value = false
+        lastUnlockTime = System.currentTimeMillis()
     }
 
     fun setKeepUnlocked() {

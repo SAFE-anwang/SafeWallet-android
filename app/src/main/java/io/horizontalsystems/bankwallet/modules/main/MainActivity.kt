@@ -276,6 +276,9 @@ class MainActivity : BaseActivity() {
     private fun observeLockState() {
         scope.launch {
             App.pinComponent.isLockedFlow.collect { isLocked ->
+                // Skip if already in the desired state to avoid redundant recomposition
+                if (showPinLockScreen == isLocked) return@collect
+
                 showPinLockScreen = isLocked
                 pinLockComposeView.visibility = if (isLocked) { VISIBLE } else { GONE }
 

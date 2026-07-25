@@ -134,7 +134,7 @@ class Safe4DAppService : Clearable {
         val total = dAppManager.getMineNum(Address(address))
         if (total == BigInteger.ZERO) return FetchResult(emptyList(), emptySet())
 
-        val pageSize = BigInteger.valueOf(50)
+        val pageSize = BigInteger.valueOf(10)
         val allIds = mutableListOf<BigInteger>()
         var start = BigInteger.ZERO
 

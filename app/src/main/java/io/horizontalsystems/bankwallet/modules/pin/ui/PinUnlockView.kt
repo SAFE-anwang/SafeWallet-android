@@ -51,9 +51,11 @@ fun PinUnlock(
         }
     }
 
-    if (uiState.unlocked) {
-        onSuccess.invoke()
-        viewModel.unlocked()
+    LaunchedEffect(uiState.unlocked) {
+        if (uiState.unlocked) {
+            onSuccess.invoke()
+            viewModel.unlocked()
+        }
     }
 
     if (showBiometricPrompt) {

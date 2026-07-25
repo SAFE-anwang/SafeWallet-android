@@ -126,7 +126,7 @@
     <string name="Restore_RestoreBy">由</string>
     <string name="Restore_RecoveryPhrase">助记词</string>
     <string name="Restore_PrivateKey">私钥</string>
-    <string name="Restore_PrivateKeyHint">輸入 EVM 私鑰、BIP32 Root Key 或  Account Extended Private Key</string>
+    <string name="Restore_PrivateKeyHint">输入 EVM 私钥、Tron 私钥、BIP32 Root Key 或  Account Extended Private Key</string>
     <string name="Restore_PhraseHint">输入12、15、18、21或24个单词</string>
     <string name="Restore_NonStandardRestore">非标准还原</string>
     <string name="Restore_NonStandard_Description">此页面为拥有非标准钱包的 SafeWallet 用户提供了一种特殊的钱包恢复机制。 通常，此类钱包可以在 SafeWallet 版本 0.27 - 0.28 中使用非英语助记词列表和/或钱包密码短语中的特殊字符（即变音符号）创建。\n\n如果您是受影响的用户，那么在 0.29 或更高版本中恢复此类钱包后，您的钱包余额将显示为 0。 此页面将使您能够恢复对非标准钱包的访问。 恢复后，建议您创建一个新钱包（符合标准）并将资金转移到那里。</string>
@@ -1434,8 +1434,8 @@
     <string name="PrivateKeys_Title">私钥</string>
     <string name="PrivateKeys_EvmPrivateKey">EVM 私钥</string>
     <string name="PrivateKeys_EvmPrivateKeyDescription">授予此钱包内EVM网络上资产的全部控制权（如Etherum、BNB Smart Chain、Polygon、Avalanche）。</string>
-    <string name="PrivateKeys_TronPrivateKey">私钥</string>
-    <string name="PrivateKeys_TronPrivateKeyDescription">在这个钱包内赋予对TRAN网络上的资产的全部控制权。</string>
+    <string name="PrivateKeys_TronPrivateKey">Tron 私钥</string>
+    <string name="PrivateKeys_TronPrivateKeyDescription">在这个钱包内赋予对Tron网络上的资产的全部控制权。</string>
     <string name="PrivateKeys_StellarSecretKey">恒星秘密密钥</string>
     <string name="PrivateKeys_StellarSecretKeyDescription">在这个钱包内完全控制着Satellar网络上的资产。</string>
     <string name="PrivateKeys_Bip32RootKeyDescription">钱包的主密钥对所有衍生账户和资产都具有完全控制权。</string>
@@ -1870,7 +1870,7 @@
     <string name="Safe4_DApp_Register">注册 DApp</string>
     <string name="Safe4_DApp_Update">更新 DApp</string>
     <string name="Safe4_DApp_Submit">提交</string>
-    <string name="Safe4_DApp_Empty_List">暂无已注册的DApp，点击右上角注册</string>
+    <string name="Safe4_DApp_Empty_List">暂无数据</string>
     <string name="Safe4_DApp_Status_Active">已激活</string>
     <string name="Safe4_DApp_Name_Label">DApp 名称</string>
     <string name="Safe4_DApp_Name_Placeholder">请输入DApp名称</string>

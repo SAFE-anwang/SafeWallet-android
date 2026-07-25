@@ -54,10 +54,10 @@ class MoneroAdapter(
         get() = balance.toBalanceData()
 
     override val balanceStateUpdatedFlowable: Flowable<Unit>
-        get() = balanceUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
+        get() = balanceStateUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
     override val balanceUpdatedFlowable: Flowable<Unit>
-        get() = balanceStateUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
+        get() = balanceUpdatedSubject.toFlowable(BackpressureStrategy.BUFFER)
 
     override val receiveAddress: String
         get() = kit.receiveAddress
