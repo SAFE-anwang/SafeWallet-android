@@ -75,15 +75,11 @@ class Safe4DAppService : Clearable {
             val localDApps = getStoredDApps(currentWallet)
             val merged = mergeChainAndLocal(chainDApps, localDApps, currentWallet)
 
-            // Preserve local entries not found in merged chain results:
-            // - Temp items from just-registered DApps (id = txHash, not numeric)
-            // - Chain IDs that exist but getInfo failed (e.g. after logo update)
+            // Preserve only chain IDs that exist but getInfo failed (e.g. after logo update).
+            // Temp items (non-numeric id = txHash) are NOT preserved — they are replaced by real chain data.
             val mergedIds = merged.map { it.id }.toSet()
             val preservedLocal = localDApps.filter { local ->
-                local.id !in mergedIds && (
-                    local.id.toBigIntegerOrNull() == null ||  // temp item (txHash as id)
-                    local.id in allChainIds                   // chain ID with failed getInfo
-                )
+                local.id !in mergedIds && local.id in allChainIds  // chain ID with failed getInfo
             }
 
             cachedDApps.clear()
@@ -132,6 +128,7 @@ class Safe4DAppService : Clearable {
     private fun fetchMineChainDAppsWithIds(): FetchResult {
         val address = getWalletAddress()
         val total = dAppManager.getMineNum(Address(address))
+        Log.d(TAG, "fetchMineChainDAppsWithIds: total=$total")
         if (total == BigInteger.ZERO) return FetchResult(emptyList(), emptySet())
 
         val pageSize = BigInteger.valueOf(10)
@@ -153,6 +150,7 @@ class Safe4DAppService : Clearable {
                 null
             }
         }
+        Log.d(TAG, "fetchMineChainDAppsWithIds: $dApps")
 
         return FetchResult(
             dApps = dApps,
@@ -330,15 +328,41 @@ class Safe4DAppService : Clearable {
             walletAddress = wallet.account.name
         )
 
-        // Immediately add to cache and notify, so manage page shows the new item right away
+        // Immediately add to in-memory cache and notify UI, so manage page shows the new item right away.
+        // Do NOT persist temp item (id=txHash) — chain sync will replace it with the real numeric id.
         cachedDApps.add(0, tempItem)
-        saveDApps(wallet, cachedDApps)
         dAppsSubject.onNext(cachedDApps.toList())
 
-        // After chain tx, reload from chain in background to get the assigned id
-        refresh()
+        // After chain tx, delay 5s then reload from chain with retry (up to 3 times)
+        // to ensure the new DApp is indexed and assigned a real numeric id.
+        Thread {
+            syncChainDAppsWithRetry()
+        }.start()
 
         return tempItem
+    }
+
+    /**
+     * Sync chain DApps with retry. Waits 5s initially, then retries up to 3 times
+     * if the result is empty, with 5s between each attempt.
+     */
+    private fun syncChainDAppsWithRetry(maxRetries: Int = 3, delayMs: Long = 5000) {
+        // Initial delay to let chain index the new transaction
+        Thread.sleep(delayMs)
+
+        for (attempt in 1..maxRetries) {
+            syncChainDApps()
+            val count = cachedDApps.size
+            if (count > 0) {
+                Log.i(TAG, "Chain sync succeeded after register, dApps count=$count, attempt=$attempt")
+                return
+            }
+            if (attempt < maxRetries) {
+                Log.w(TAG, "Chain sync returned empty after register, retry $attempt/$maxRetries after ${delayMs}ms")
+                Thread.sleep(delayMs)
+            }
+        }
+        Log.e(TAG, "Chain sync still empty after $maxRetries retries")
     }
 
     /**
@@ -465,6 +489,18 @@ class Safe4DAppService : Clearable {
     }
 
     /**
+     * Check if a runUrl is already registered on chain.
+     */
+    fun isRunUrlExists(url: String): Boolean {
+        return try {
+            dAppManager.existRunUrl(url)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to check existRunUrl: $url", e)
+            false
+        }
+    }
+
+    /**
      * Update DApp logo on chain. Logo must be <= 128KB.
      */
     fun setLogo(id: String, logoBytes: ByteArray): String {
@@ -510,6 +546,25 @@ class Safe4DAppService : Clearable {
     fun getCachedLogoPath(id: String): String? {
         val file = getLogoFile(id)
         return if (file.exists() && file.length() > 0) file.absolutePath else null
+    }
+
+    /**
+     * Get cached logo bytes for a DApp. Returns bytes if cached, null otherwise.
+     */
+    fun getCachedLogoBytes(id: String): ByteArray? {
+        val file = getLogoFile(id)
+        return if (file.exists() && file.length() > 0) file.readBytes() else null
+    }
+
+    /**
+     * Cache logo bytes to local file immediately (e.g. after successful upload).
+     */
+    fun cacheLogoForId(id: String, bytes: ByteArray) {
+        try {
+            getLogoFile(id).writeBytes(bytes)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to cache logo for id=$id", e)
+        }
     }
 
     /**

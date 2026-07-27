@@ -48,7 +48,8 @@ object Safe4DAppModule {
         val keyword: String = "",
         val isEditing: Boolean = false,
         val nameError: Int? = null,
-        val descError: Int? = null
+        val descError: Int? = null,
+        val urlError: Int? = null
     )
 }
 

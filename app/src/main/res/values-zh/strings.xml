@@ -1876,6 +1876,7 @@
     <string name="Safe4_DApp_Name_Placeholder">请输入DApp名称</string>
     <string name="Safe4_DApp_URL_Label">DApp URL</string>
     <string name="Safe4_DApp_URL_Placeholder">请输入DApp链接地址</string>
+    <string name="Safe4_DApp_URL_Exists">该URL已被注册，请使用其他URL</string>
     <string name="Safe4_DApp_Desc_Label">DApp 描述</string>
     <string name="Safe4_DApp_Desc_Placeholder">请输入DApp描述信息</string>
     <string name="Safe4_DApp_Category_Label">分类</string>
@@ -1900,7 +1901,7 @@
     <string name="Safe4_DApp_Logo_Pick">选择图片</string>
     <string name="Safe4_DApp_Logo_Upload">上传 Logo</string>
     <string name="Safe4_DApp_Logo_Uploading">正在上传 Logo</string>
-    <string name="Safe4_DApp_Logo_Success">Logo 更新成功</string>
+    <string name="Safe4_DApp_Logo_Success">图标更新成功，请两分钟后查看更新后效果</string>
     <string name="Safe4_DApp_Logo_Oversize">Logo 大小超过128KB限制</string>
     <string name="Safe4_DApp_Delete_Confirm_Title">删除 DApp</string>
     <string name="Safe4_DApp_Delete_Confirm_Message">确定要删除 \"%s\" 吗？此操作无法撤销。</string>
@@ -1964,6 +1965,8 @@
     <!--Alert-->
     <string name="Alert_KeysInvalidatedTitle">Android密钥库错误</string>
     <string name="Alert_KeysInvalidatedDescription">因为您的Android锁定屏幕已被更改，所以保存您钱包的加密数据目前已失效。</string>
+    <string name="Alert_KeystoreAuthFailedTitle">认证失败</string>
+    <string name="Alert_KeystoreAuthFailedDescription">多次尝试后无法解锁安全存储，可能是设备特定安全问题导致。请尝试重启应用或设备。如果问题持续，您可能需要恢复您的钱包。</string>
     <string name="Alert_TitleWarning">警告</string>
     <string name="Alert_CustomKeyboardIsUsed">您的设备似乎使用了非默认键盘。SafeWallet建议选择设备上的默认键盘，因为第三方键盘可能会收集和暴露用户输入的数据。\n\n如果您要继续使用您的首选键盘，请单击“跳过”（Skip）按钮。</string>
     <string name="Alert_DeviceIsRootedWarning">SafeWallet团队建议仅在未获取根权限（未越狱）的手机上使用应用。\n\n请注意，使用已获取根权限的设备，应用将难以保证您的加密货币免受来自恶意软件的安全威胁。</string>

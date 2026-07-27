@@ -95,6 +95,8 @@ class Safe4DAppRegisterViewModel(
     val canSubmit: Boolean
         get() {
             val state = _registerState.value
+            // URL must not have an existence error
+            if (state.urlError != null) return false
             if (state.isEditing) {
                 val original = input.existingDApp ?: return false
                 // Must have name (>=8 chars) and url, and at least one field changed
@@ -131,6 +133,8 @@ class Safe4DAppRegisterViewModel(
                 keyword = dapp.keyword,
                 isEditing = true
             )
+            // Load existing logo from cache/chain for edit mode
+            loadLogo(dapp.id)
         } ?: run {
             // Load draft for new registration
             val draft = service.loadDraftDApp()
@@ -160,8 +164,32 @@ class Safe4DAppRegisterViewModel(
     }
 
     fun updateUrl(url: String) {
-        _registerState.value = _registerState.value.copy(url = url)
+        _registerState.value = _registerState.value.copy(url = url, urlError = null)
         saveDraft()
+        // Check URL uniqueness in background (skip if editing and URL unchanged from original)
+        checkUrlUniqueness(url)
+    }
+
+    private var urlCheckJob: kotlinx.coroutines.Job? = null
+
+    private fun checkUrlUniqueness(url: String) {
+        urlCheckJob?.cancel()
+        // Skip if editing and URL matches the original DApp's URL
+        val originalUrl = input.existingDApp?.url.orEmpty()
+        if (url.isBlank() || url == originalUrl) return
+
+        urlCheckJob = viewModelScope.launch(Dispatchers.IO) {
+            // Debounce: only check after 500ms of no input
+            kotlinx.coroutines.delay(500)
+            try {
+                val exists = service.isRunUrlExists(url)
+                _registerState.value = _registerState.value.copy(
+                    urlError = if (exists) R.string.Safe4_DApp_URL_Exists else null
+                )
+            } catch (e: Exception) {
+                Log.d("Safe4DAppRegisterViewModel", "URL existence check failed: ${e.message}")
+            }
+        }
     }
 
     fun updateDescription(desc: String) {
@@ -234,6 +262,23 @@ class Safe4DAppRegisterViewModel(
         }
     }
 
+    private fun loadLogo(dappId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Try cache first, then chain
+                val bytes = service.getCachedLogoBytes(dappId)
+                    ?: service.getLogo(dappId)
+                if (bytes != null && bytes.isNotEmpty()) {
+                    logoBytes = bytes
+                }
+                // Also load logo pay amount for display
+                loadLogoPayAmount()
+            } catch (e: Exception) {
+                Log.d("Safe4DAppRegisterViewModel", "Failed to load logo: ${e.message}")
+            }
+        }
+    }
+
     fun submitLogo() {
         val dappId = input.existingDApp?.id ?: run {
             logoResult = SendResult.Failed(HSCaution(TranslatableString.PlainString("No DApp to set logo for")))
@@ -248,7 +293,9 @@ class Safe4DAppRegisterViewModel(
             logoResult = SendResult.Sending
             try {
                 service.setLogo(dappId, bytes)
-                logoBytes = null
+                // Cache logo locally so it can be loaded immediately next time
+                service.cacheLogoForId(dappId, bytes)
+                // Keep showing the uploaded logo (don't clear bytes)
                 logoResult = SendResult.Sent()
             } catch (e: Exception) {
                 Log.d("Safe4DAppRegisterViewModel", "setLogo failed: ${e.message}")

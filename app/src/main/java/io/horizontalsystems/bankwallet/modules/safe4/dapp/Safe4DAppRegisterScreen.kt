@@ -139,7 +139,8 @@ fun Safe4DAppRegisterScreen(
                 value = state.url,
                 label = stringResource(R.string.Safe4_DApp_URL_Label),
                 placeholder = stringResource(R.string.Safe4_DApp_URL_Placeholder),
-                onValueChange = { viewModel.updateUrl(it) }
+                onValueChange = { viewModel.updateUrl(it) },
+                error = state.urlError
             )
 
             Spacer(Modifier.height(16.dp))
@@ -184,28 +185,6 @@ fun Safe4DAppRegisterScreen(
             )
 
             Spacer(Modifier.height(16.dp))
-
-            // Official Account (Register Address) - only in edit mode
-            if (state.isEditing && wallet != null) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.Safe4_DApp_OfficialAccount_Label),
-                        style = ComposeAppTheme.typography.subheadB,
-                        color = ComposeAppTheme.colors.leah,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    HSAddressInput(
-                        modifier = Modifier.fillMaxWidth(),
-                        initial = state.officialAccount.ifBlank { null }?.let { Address(it) },
-                        tokenQuery = wallet.token.tokenQuery,
-                        coinCode = wallet.coin.code,
-                    ) {
-                        viewModel.updateOfficialAccount(it)
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-            }
 
             // Keywords
             FormField(

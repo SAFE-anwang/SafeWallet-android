@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.safe4.dapp
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
@@ -16,6 +17,7 @@ class Safe4DAppRegisterFragment : BaseComposeFragment() {
             existingDApp = existingDApp,
             walletAddress = ""
         )
+        Log.d("Safe4DAppRegisterFragment", "input: $input")
 
         Safe4DAppRegisterScreen(
             navController = navController,

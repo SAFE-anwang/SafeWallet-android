@@ -2224,6 +2224,8 @@
 
     <string name="Alert_KeysInvalidatedTitle">Android Keystore Error</string>
     <string name="Alert_KeysInvalidatedDescription">The encrypted data holding your wallet was recently invalidated because your Android lock screen was changed</string>
+    <string name="Alert_KeystoreAuthFailedTitle">Authentication Failed</string>
+    <string name="Alert_KeystoreAuthFailedDescription">Unable to unlock the secure storage after multiple attempts. This may be caused by a device-specific security issue. Please try restarting the app or your device. If the problem persists, you may need to restore your wallet.</string>
     <string name="Alert_TitleWarning">Warning</string>
     <string name="Alert_CustomKeyboardIsUsed">It looks like your device uses a non-default keyboard. SafeWallet recommends selecting default keyboard on your device as third party keyboards can potentially collect and expose users\' input data. \n\nClick \'Skip\' button if you would like to keep using your preferred keyboard.</string>
     <string name="Alert_DeviceIsRootedWarning">The SafeWallet team recommends running app only on non-rooted (not jailbroken) phones.\n\nPlease note when you use a rooted device the app can no longer guarantee the safety of your cryptocurrency from malicious software.</string>
@@ -2413,6 +2415,7 @@
     <string name="Safe4_DApp_Name_Placeholder">Enter DApp name</string>
     <string name="Safe4_DApp_URL_Label">DApp URL</string>
     <string name="Safe4_DApp_URL_Placeholder">Enter DApp URL</string>
+    <string name="Safe4_DApp_URL_Exists">This URL has already been registered, please use a different URL</string>
     <string name="Safe4_DApp_Desc_Label">Description</string>
     <string name="Safe4_DApp_Desc_Placeholder">Enter DApp description</string>
     <string name="Safe4_DApp_Category_Label">Category</string>
@@ -2437,7 +2440,7 @@
     <string name="Safe4_DApp_Logo_Pick">Pick Image</string>
     <string name="Safe4_DApp_Logo_Upload">Upload Logo</string>
     <string name="Safe4_DApp_Logo_Uploading">Uploading Logo</string>
-    <string name="Safe4_DApp_Logo_Success">Logo updated successfully</string>
+    <string name="Safe4_DApp_Logo_Success">Icon updated successfully, please check the updated effect after two minutes</string>
     <string name="Safe4_DApp_Logo_Oversize">Logo size exceeds 128KB limit</string>
     <string name="Safe4_DApp_Delete_Confirm_Title">Delete DApp</string>
     <string name="Safe4_DApp_Delete_Confirm_Message">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>
