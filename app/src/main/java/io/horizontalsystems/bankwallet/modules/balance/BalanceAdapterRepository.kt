@@ -125,4 +125,8 @@ class BalanceAdapterRepository(
         adapterManager.refresh()
     }
 
+    fun refreshByWallet(wallet: Wallet) {
+        adapterManager.refreshByWallet(wallet)
+    }
+
 }
