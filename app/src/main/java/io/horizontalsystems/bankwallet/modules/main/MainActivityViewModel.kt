@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.IAccountManager
 import io.horizontalsystems.bankwallet.core.ILocalStorage
+import io.horizontalsystems.bankwallet.core.KeystoreAuthLogger
 import io.horizontalsystems.bankwallet.core.managers.DAppRequestEntityWrapper
 import io.horizontalsystems.bankwallet.core.managers.TonConnectManager
 import io.horizontalsystems.bankwallet.core.managers.UserManager
@@ -88,23 +89,46 @@ class MainActivityViewModel(
     }
 
     fun validate() {
+        KeystoreAuthLogger.info("MainVM", "validate() called | systemLockOff=${systemInfoManager.isSystemLockOff}")
+
         if (systemInfoManager.isSystemLockOff) {
+            KeystoreAuthLogger.warning("MainVM", "No system lock set")
             throw MainScreenValidationError.NoSystemLock()
         }
 
         try {
+            KeystoreAuthLogger.info("MainVM", "Calling keyStoreManager.validateKeyStore()...")
             keyStoreManager.validateKeyStore()
+            // Reset retry counter on successful validation
+            KeystoreAuthLogger.info("MainVM", "validateKeyStore() PASSED | resetting retryCount from $keyStoreAuthRetryCount to 0")
+            keyStoreAuthRetryCount = 0
         } catch (e: KeyStoreValidationError.UserNotAuthenticated) {
+            keyStoreAuthRetryCount++
+            KeystoreAuthLogger.warning("MainVM", "validateKeyStore() → UserNotAuthenticated | retryCount=$keyStoreAuthRetryCount/$MAX_KEYSTORE_AUTH_RETRY", e)
+            if (keyStoreAuthRetryCount > MAX_KEYSTORE_AUTH_RETRY) {
+                KeystoreAuthLogger.error("MainVM", "Retry count EXCEEDED max ($MAX_KEYSTORE_AUTH_RETRY) | throwing KeystoreRuntimeException")
+                throw MainScreenValidationError.KeystoreRuntimeException()
+            }
             throw MainScreenValidationError.UserAuthentication()
         } catch (e: KeyStoreValidationError.KeyIsInvalid) {
+            KeystoreAuthLogger.warning("MainVM", "validateKeyStore() → KeyIsInvalid", e)
             throw MainScreenValidationError.KeyInvalidated()
         } catch (e: RuntimeException) {
+            KeystoreAuthLogger.error("MainVM", "validateKeyStore() → RuntimeException", e)
             throw MainScreenValidationError.KeystoreRuntimeException()
         }
 
         if (accountManager.isAccountsEmpty && !localStorage.mainShowedOnce) {
+            KeystoreAuthLogger.info("MainVM", "accounts empty & first launch → Welcome")
             throw MainScreenValidationError.Welcome()
         }
+
+        KeystoreAuthLogger.info("MainVM", "validate() ALL CHECKS PASSED")
+    }
+
+    companion object {
+        private const val MAX_KEYSTORE_AUTH_RETRY = 3
+        private var keyStoreAuthRetryCount = 0
     }
 
     fun onNavigatedToMain() {

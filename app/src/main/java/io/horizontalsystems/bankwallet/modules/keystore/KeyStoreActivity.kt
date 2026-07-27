@@ -33,6 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseActivity
+import io.horizontalsystems.bankwallet.core.KeystoreAuthLogger
 import io.horizontalsystems.bankwallet.modules.main.MainModule
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.BottomSheetsElementsButtons
@@ -52,6 +53,7 @@ class KeyStoreActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        KeystoreAuthLogger.init(applicationContext)
 
         setContent {
             KeyStoreScreen(
@@ -63,6 +65,8 @@ class KeyStoreActivity : BaseActivity() {
     }
 
     private fun showBiometricPrompt() {
+        KeystoreAuthLogger.info("KeyStoreAct", "showBiometricPrompt | SDK_INT=${Build.VERSION.SDK_INT}")
+
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(getString(R.string.OSPin_Confirm_Title))
             .setDescription(getString(R.string.OSPin_Prompt_Desciption))
@@ -82,11 +86,13 @@ class KeyStoreActivity : BaseActivity() {
             BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    KeystoreAuthLogger.info("KeyStoreAct", "BiometricPrompt → onAuthenticationSucceeded | cryptoObject=${result.cryptoObject}")
                     viewModel.onAuthenticationSuccess()
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
+                    KeystoreAuthLogger.warning("KeyStoreAct", "BiometricPrompt → onAuthenticationError | errorCode=$errorCode | errString=$errString")
 
                     if (errorCode == BiometricPrompt.ERROR_USER_CANCELED
                         || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
@@ -97,6 +103,7 @@ class KeyStoreActivity : BaseActivity() {
                 }
             })
 
+        KeystoreAuthLogger.info("KeyStoreAct", "Calling biometricPrompt.authenticate()...")
         biometricPrompt.authenticate(promptInfo.build())
     }
 
@@ -163,6 +170,10 @@ private fun KeyStoreScreen(
         if (viewModel.showInvalidKeyWarning) {
             KeysInvalidatedDialog { viewModel.onCloseInvalidKeyWarning() }
         }
+
+        if (viewModel.showAuthRetryExceeded) {
+            AuthRetryExceededDialog { viewModel.onDismissAuthRetryExceeded() }
+        }
     }
 }
 
@@ -211,11 +222,45 @@ private fun KeysInvalidatedDialog(onClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun AuthRetryExceededDialog(onClick: () -> Unit) {
+    Dialog(onDismissRequest = onClick) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(ComposeAppTheme.colors.lawrence)
+        ) {
+            BottomSheetsElementsHeader(
+                icon = painterResource(R.drawable.ic_attention_24),
+                title = stringResource(R.string.Alert_KeystoreAuthFailedTitle),
+                subtitle = stringResource(R.string.Error),
+                onClickClose = onClick
+            )
+            BottomSheetsElementsText(
+                text = stringResource(R.string.Alert_KeystoreAuthFailedDescription)
+            )
+            BottomSheetsElementsButtons(
+                buttonPrimaryText = stringResource(R.string.Button_Ok),
+                onClickPrimary = onClick
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun Preview_KeysInvalidatedDialog() {
     ComposeAppTheme {
         KeysInvalidatedDialog {}
+    }
+}
+
+@Preview
+@Composable
+private fun Preview_AuthRetryExceededDialog() {
+    ComposeAppTheme {
+        AuthRetryExceededDialog {}
     }
 }
 

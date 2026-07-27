@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import io.horizontalsystems.bankwallet.core.KeystoreAuthLogger
 import io.horizontalsystems.core.IKeyStoreManager
+import io.horizontalsystems.core.security.KeyStoreValidationError
 
 class KeyStoreViewModel(
     private val keyStoreManager: IKeyStoreManager,
@@ -20,6 +22,9 @@ class KeyStoreViewModel(
     var showInvalidKeyWarning by mutableStateOf(false)
         private set
 
+    var showAuthRetryExceeded by mutableStateOf(false)
+        private set
+
     var openMainModule by mutableStateOf(false)
         private set
 
@@ -27,6 +32,7 @@ class KeyStoreViewModel(
         private set
 
     init {
+        KeystoreAuthLogger.info("KeyStoreVM", "init | mode=$mode")
         when (mode) {
             KeyStoreModule.ModeType.NoSystemLock -> {
                 showSystemLockWarning = true
@@ -49,13 +55,35 @@ class KeyStoreViewModel(
     }
 
     fun onAuthenticationCanceled() {
+        KeystoreAuthLogger.info("KeyStoreVM", "onAuthenticationCanceled → closeApp")
         showBiometricPrompt = false
         closeApp = true
     }
 
     fun onAuthenticationSuccess() {
+        KeystoreAuthLogger.info("KeyStoreVM", "onAuthenticationSuccess | BiometricPrompt reported SUCCESS")
         showBiometricPrompt = false
-        openMainModule = true
+
+        // Immediately validate KeyStore after authentication to break potential loop
+        try {
+            KeystoreAuthLogger.info("KeyStoreVM", "Calling keyStoreManager.validateKeyStore() after auth success...")
+            keyStoreManager.validateKeyStore()
+            KeystoreAuthLogger.info("KeyStoreVM", "validateKeyStore() PASSED after auth success → openMainModule")
+            openMainModule = true
+        } catch (e: KeyStoreValidationError.UserNotAuthenticated) {
+            // Still not authenticated despite BiometricPrompt success → show error
+            KeystoreAuthLogger.error("KeyStoreVM", "validateKeyStore() STILL UserNotAuthenticated after BiometricPrompt success! → showAuthRetryExceeded", e)
+            showAuthRetryExceeded = true
+        } catch (e: Exception) {
+            KeystoreAuthLogger.error("KeyStoreVM", "validateKeyStore() failed after BiometricPrompt success | ${e.javaClass.simpleName}", e)
+            showAuthRetryExceeded = true
+        }
+    }
+
+    fun onDismissAuthRetryExceeded() {
+        KeystoreAuthLogger.info("KeyStoreVM", "onDismissAuthRetryExceeded → closeApp")
+        showAuthRetryExceeded = false
+        closeApp = true
     }
 
     fun openMainModuleCalled() {

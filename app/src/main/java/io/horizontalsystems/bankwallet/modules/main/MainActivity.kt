@@ -49,6 +49,7 @@ import com.xuexiang.xupdate.proxy.IUpdateParser
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseActivity
+import io.horizontalsystems.bankwallet.core.KeystoreAuthLogger
 import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromBottomForResult
 import io.horizontalsystems.bankwallet.modules.intro.IntroActivity
@@ -96,6 +97,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        KeystoreAuthLogger.info("MainAct", "onResume → triggering validate()")
         validate()
     }
 
@@ -109,6 +111,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        KeystoreAuthLogger.init(applicationContext)
+        KeystoreAuthLogger.info("MainAct", "onCreate | logFile=${KeystoreAuthLogger.getLogFile()?.absolutePath}")
 
         if (App.localStorage.currentTheme == ThemeType.Blue) {
             setTheme(R.style.Theme_AppTheme_DayNightBlue)
@@ -299,21 +303,28 @@ class MainActivity : BaseActivity() {
     }
 
     private fun validate() = try {
+        KeystoreAuthLogger.info("MainAct", "validate() → calling viewModel.validate()...")
         viewModel.validate()
+        KeystoreAuthLogger.info("MainAct", "validate() → ALL CHECKS PASSED")
     } catch (e: MainScreenValidationError.NoSystemLock) {
+        KeystoreAuthLogger.warning("MainAct", "validate() → NoSystemLock | redirect to KeyStoreActivity")
         KeyStoreActivity.startForNoSystemLock(this)
         finish()
     } catch (e: MainScreenValidationError.KeyInvalidated) {
+        KeystoreAuthLogger.warning("MainAct", "validate() → KeyInvalidated | redirect to KeyStoreActivity")
         KeyStoreActivity.startForInvalidKey(this)
         finish()
     } catch (e: MainScreenValidationError.UserAuthentication) {
+        KeystoreAuthLogger.warning("MainAct", "validate() → UserAuthentication | redirect to KeyStoreActivity")
         KeyStoreActivity.startForUserAuthentication(this)
         finish()
     } catch (e: MainScreenValidationError.Welcome) {
+        KeystoreAuthLogger.info("MainAct", "validate() → Welcome | redirect to IntroActivity")
         IntroActivity.start(this)
         finish()
     } catch (e: MainScreenValidationError.KeystoreRuntimeException) {
-        Toast.makeText(App.instance, "Issue with Keystore", Toast.LENGTH_SHORT).show()
+        KeystoreAuthLogger.error("MainAct", "validate() → KeystoreRuntimeException | showing Toast & finishing")
+        Toast.makeText(this, R.string.Alert_KeystoreAuthFailedDescription, Toast.LENGTH_LONG).show()
         finish()
     }
 
