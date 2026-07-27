@@ -291,7 +291,7 @@ private fun MainScreen(
         }
     }
 
-    if (uiState.showWhatsNew) {
+    /*if (uiState.showWhatsNew) {
         LaunchedEffect(Unit) {
             fragmentNavController.slideFromBottom(
                 R.id.releaseNotesFragment,
@@ -299,7 +299,7 @@ private fun MainScreen(
             )
             viewModel.whatsNewShown()
         }
-    }
+    }*/
 
     if (uiState.showDonationPage) {
         LaunchedEffect(Unit) {

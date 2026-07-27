@@ -73,9 +73,9 @@ private fun AboutNavHost(fragmentNavController: NavController) {
                 { fragmentNavController.popBackStack() }
             )
         }
-        composablePage(ReleaseNotesPage) {
+        /*composablePage(ReleaseNotesPage) {
             ReleaseNotesScreen(false, { navController.popBackStack() })
-        }
+        }*/
         composablePage(AppStatusPage) { AppStatusScreen(navController) }
         composablePage(PrivacyPage) { PrivacyScreen(navController) }
         composablePopup(TermsPage) { TermsScreen(navController) }
