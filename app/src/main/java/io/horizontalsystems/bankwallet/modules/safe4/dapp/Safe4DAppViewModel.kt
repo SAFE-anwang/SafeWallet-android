@@ -90,7 +90,11 @@ class Safe4DAppRegisterViewModel(
     private val _registerState = MutableStateFlow(Safe4DAppModule.RegisterUiState())
     val registerState: StateFlow<Safe4DAppModule.RegisterUiState> = _registerState.asStateFlow()
 
-    var sendResult by mutableStateOf<SendResult?>(null)
+    private val _sendResult = MutableStateFlow<SendResult?>(null)
+    val sendResultFlow = _sendResult.asStateFlow()
+    var sendResult: SendResult?
+        get() = _sendResult.value
+        set(value) { _sendResult.value = value }
 
     val canSubmit: Boolean
         get() {
@@ -247,7 +251,12 @@ class Safe4DAppRegisterViewModel(
     // Logo related state
     var logoBytes by mutableStateOf<ByteArray?>(null)
     var logoPayAmount by mutableStateOf<String?>(null)
-    var logoResult by mutableStateOf<SendResult?>(null)
+    var hasNewLogo by mutableStateOf(false)
+    private val _logoResult = MutableStateFlow<SendResult?>(null)
+    val logoResultFlow = _logoResult.asStateFlow()
+    var logoResult: SendResult?
+        get() = _logoResult.value
+        set(value) { _logoResult.value = value }
 
     fun loadLogoPayAmount() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -297,6 +306,7 @@ class Safe4DAppRegisterViewModel(
                 service.cacheLogoForId(dappId, bytes)
                 // Keep showing the uploaded logo (don't clear bytes)
                 logoResult = SendResult.Sent()
+                hasNewLogo = false
             } catch (e: Exception) {
                 Log.d("Safe4DAppRegisterViewModel", "setLogo failed: ${e.message}")
                 logoResult = SendResult.Failed(HSCaution(TranslatableString.PlainString(e.message ?: "Failed to set logo")))

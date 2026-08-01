@@ -48,10 +48,10 @@ fun Safe4DAppRegisterScreen(
 ) {
     val state by viewModel.registerState.collectAsState()
     val wallet = viewModel.wallet
-    val sendResult = viewModel.sendResult
+    val sendResult by viewModel.sendResultFlow.collectAsState()
     val view = LocalView.current
 
-    when (sendResult) {
+    when (val sResult = sendResult) {
         SendResult.Sending -> {
             HudHelper.showInProcessMessage(
                 view,
@@ -70,7 +70,7 @@ fun Safe4DAppRegisterScreen(
         }
 
         is SendResult.Failed -> {
-            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            HudHelper.showErrorMessage(view, sResult.caution.getString())
             viewModel.sendResult = null
         }
 
@@ -225,7 +225,7 @@ fun Safe4DAppRegisterScreen(
 
             // Logo section - only in edit mode
             if (state.isEditing) {
-                LogoSections(viewModel)
+                LogoSections(navController, viewModel)
                 Spacer(Modifier.height(16.dp))
             }
 
@@ -327,17 +327,27 @@ private fun FormField(
 
 @Composable
 private fun LogoSections(
+    navController: NavController,
     viewModel: Safe4DAppRegisterViewModel
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val logoBytes = viewModel.logoBytes
     val logoPayAmount = viewModel.logoPayAmount
-    val logoResult = viewModel.logoResult
+    val logoResult by viewModel.logoResultFlow.collectAsState()
     val oversizeMsg = stringResource(R.string.Safe4_DApp_Logo_Oversize)
 
     LaunchedEffect(Unit) {
         viewModel.loadLogoPayAmount()
+    }
+
+    // Auto-close page on logo upload success (use flow collect to avoid LaunchedEffect key race)
+    LaunchedEffect(Unit) {
+        viewModel.logoResultFlow.collect { result ->
+            if (result is SendResult.Sent) {
+                navController.popBackStack()
+            }
+        }
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -354,6 +364,7 @@ private fun LogoSections(
                     HudHelper.showErrorMessage(view, oversizeMsg)
                 } else if (bytes != null) {
                     viewModel.logoBytes = bytes
+                    viewModel.hasNewLogo = true
                 }
             } catch (e: Exception) {
                 HudHelper.showErrorMessage(view, e.message ?: "Failed to read image")
@@ -361,7 +372,7 @@ private fun LogoSections(
         }
     }
 
-    when (logoResult) {
+    when (val lResult = logoResult) {
         SendResult.Sending -> {
             HudHelper.showInProcessMessage(view, R.string.Safe4_DApp_Logo_Uploading, SnackbarDuration.INDEFINITE)
         }
@@ -370,7 +381,7 @@ private fun LogoSections(
             viewModel.logoResult = null
         }
         is SendResult.Failed -> {
-            HudHelper.showErrorMessage(view, logoResult.caution.getString())
+            HudHelper.showErrorMessage(view, lResult.caution.getString())
             viewModel.logoResult = null
         }
         null -> Unit
@@ -439,8 +450,8 @@ private fun LogoSections(
                 )
             }
 
-            // Upload button
-            if (logoBytes != null) {
+            // Upload button (only when new logo is selected)
+            if (logoBytes != null && viewModel.hasNewLogo) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
