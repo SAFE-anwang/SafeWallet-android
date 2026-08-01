@@ -17,6 +17,7 @@ import io.horizontalsystems.bankwallet.core.managers.RestoreSettings
 import io.horizontalsystems.bankwallet.entities.AccountOrigin
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.bankwallet.entities.Wallet
+import android.util.Log
 import io.horizontalsystems.monerokit.Balance
 import io.horizontalsystems.monerokit.MoneroKit
 import io.horizontalsystems.monerokit.Seed
@@ -27,11 +28,14 @@ import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class MoneroAdapter(
@@ -47,6 +51,9 @@ class MoneroAdapter(
     private val balanceStateUpdatedSubject: PublishSubject<Unit> = PublishSubject.create()
 
     private var balance = Balance(0, 0)
+
+    private var retryJob: Job? = null
+    private var retryCount = 0
 
     override var balanceState: AdapterState = kit.syncStateFlow.value.toAdapterState()
 
@@ -76,6 +83,8 @@ class MoneroAdapter(
             balanceState = it.toAdapterState()
 
             balanceStateUpdatedSubject.onNext(Unit)
+
+            handleSyncRetry(it)
         }
 
         kit.allTransactionsFlow.collectWith(coroutineScope, transactionsProvider::onTransactions)
@@ -92,16 +101,57 @@ class MoneroAdapter(
     }
 
     override fun stop() {
+        cancelRetry()
         kit.saveState()
         kit.stop()
         coroutineScope.cancel()
     }
 
     override fun refresh() {
+        cancelRetry()
+        retryCount = 0
         if (kit.syncStateFlow.value is SyncState.NotSynced) {
             kit.stop()
             kit.start()
         }
+    }
+
+    private fun handleSyncRetry(state: SyncState) {
+        when (state) {
+            is SyncState.Synced -> {
+                cancelRetry()
+                retryCount = 0
+            }
+            is SyncState.NotSynced -> {
+                if (state.error is MoneroKit.SyncError.NotStarted) {
+                    return
+                }
+                if (retryCount >= MAX_RETRY_COUNT) {
+                    Log.e(TAG, "Max retry count ($MAX_RETRY_COUNT) reached, giving up", state.error)
+                    return
+                }
+                val delayMs = (RETRY_DELAY_MS * 2.0.pow(retryCount)).toLong()
+                Log.w(TAG, "Sync failed (attempt ${retryCount + 1}/$MAX_RETRY_COUNT), retrying in ${delayMs}ms", state.error)
+                retryJob?.cancel()
+                retryJob = coroutineScope.launch {
+                    delay(delayMs)
+                    retryCount++
+                    if (kit.syncStateFlow.value is SyncState.NotSynced) {
+                        Log.d(TAG, "Retrying Monero sync (attempt ${retryCount})")
+                        kit.stop()
+                        kit.start()
+                    }
+                }
+            }
+            else -> {
+                cancelRetry()
+            }
+        }
+    }
+
+    private fun cancelRetry() {
+        retryJob?.cancel()
+        retryJob = null
     }
 
     override val debugInfo: String
@@ -129,7 +179,10 @@ class MoneroAdapter(
         get() = kit.statusInfo()
 
     companion object {
+        private const val TAG = "MoneroAdapter"
         const val DECIMALS = 12
+        private const val MAX_RETRY_COUNT = 5
+        private const val RETRY_DELAY_MS = 10_000L
 
         fun create(
             context: Context,
