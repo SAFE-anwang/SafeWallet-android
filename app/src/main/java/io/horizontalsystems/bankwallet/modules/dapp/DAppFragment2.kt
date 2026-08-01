@@ -120,7 +120,8 @@ fun DAppFragment2(
 
                                 items(viewItem[s]!!) { postItem ->
                                     CellItems(
-                                        dappItem = postItem
+                                        dappItem = postItem,
+                                        viewModel = viewModel
                                     ) {
                                         navController.slideFromRight(R.id.dappBrowseFragment,
                                                 DAppBrowseFragment.Input(postItem.dlink, postItem.name)
@@ -186,6 +187,7 @@ private fun FilterTypeTabs(
 @Composable
 fun CellItems(
     dappItem: DAppItem,
+    viewModel: DAppViewModel? = null,
     onClick: () -> Unit
 ) {
     val clickableModifier = when (onClick) {
@@ -193,6 +195,12 @@ fun CellItems(
         else -> Modifier.clickable {
             onClick.invoke()
         }
+    }
+    // For Safe4 chain DApps, prefer cached logo from contract over gitUrl
+    val iconUrl = if (dappItem.type == "SAFE" && !dappItem.chainId.isNullOrEmpty()) {
+        viewModel?.getChainDAppLogoPath(dappItem.chainId)?.let { "file://$it" } ?: dappItem.icon
+    } else {
+        dappItem.icon
     }
     Box(
         modifier = Modifier
@@ -208,7 +216,7 @@ fun CellItems(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             HsImage(
-                url = dappItem.icon,
+                url = iconUrl,
                 placeholder = dappItem.iconPlaceholder,
                 modifier = Modifier
                     .size(24.dp)

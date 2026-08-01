@@ -91,16 +91,46 @@ class DAppService(
                     icon = info.gitUrl ?: "",
                     dlink = info.runUrl ?: "",
                     md5Code = null,
-                    keywords = info.keyword
+                    keywords = info.keyword,
+                    chainId = info.id.toString()
                 )
             }
             if (chainItems.isNotEmpty()) {
                 allDAppList.addAll(chainItems)
                 Log.d(TAG, "Merged ${chainItems.size} chain DApps into list")
+                cacheChainDAppLogos(chainItems)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch chain DApps", e)
         }
+    }
+
+    /**
+     * Background fetch and cache logos for Safe4 chain DApps from contract.
+     * After caching completes, republishes the list so UI picks up cached paths.
+     */
+    private fun cacheChainDAppLogos(chainItems: List<DAppItem>) {
+        val safe4Service = safe4DAppService ?: return
+        Thread {
+            chainItems.forEach { item ->
+                item.chainId?.let { id ->
+                    try {
+                        safe4Service.fetchAndCacheLogo(id)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to cache logo for DApp $id", e)
+                    }
+                }
+            }
+            // Republish list so UI picks up cached logo paths
+            setFilterType(filterDAppType)
+        }.start()
+    }
+
+    /**
+     * Get the cached logo file path for a Safe4 chain DApp.
+     */
+    fun getChainDAppLogoPath(chainId: String): String? {
+        return safe4DAppService?.getCachedLogoPath(chainId)
     }
 
     fun getDefaultRecommends(): List<DAppItem> {

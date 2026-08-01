@@ -105,6 +105,10 @@ class DAppViewModel(
         return
     }
 
+    fun getChainDAppLogoPath(chainId: String): String? {
+        return service.getChainDAppLogoPath(chainId)
+    }
+
     fun onErrorClick() {
         refresh()
     }
@@ -130,7 +134,8 @@ data class DAppItem(
     val dlink: String,
     val md5Code: String?,
     val keywords: String? = null,
-    var iconPlaceholder: Int? = null
+    var iconPlaceholder: Int? = null,
+    val chainId: String? = null
 ) {
 
 }
