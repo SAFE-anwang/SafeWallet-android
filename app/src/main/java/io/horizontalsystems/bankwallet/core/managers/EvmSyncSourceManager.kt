@@ -59,12 +59,12 @@ class EvmSyncSourceManager(
                     RpcSource.Http(listOf(URI(appConfigProvider.blocksDecodedEthereumRpc)), null),
                     defaultTransactionSource(blockchainType)
                 ),
-                evmSyncSource(
+                /*evmSyncSource(
                     blockchainType,
                     "LlamaNodes",
                     RpcSource.Http(listOf(URI("https://eth.llamarpc.com")), null),
                     defaultTransactionSource(blockchainType)
-                )
+                )*/
             )
 
             BlockchainType.BinanceSmartChain -> listOf(
