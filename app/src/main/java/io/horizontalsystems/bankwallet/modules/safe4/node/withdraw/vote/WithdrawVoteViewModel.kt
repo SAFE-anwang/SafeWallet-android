@@ -1,7 +1,8 @@
 package io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.vote
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,7 +46,11 @@ class WithdrawVoteViewModel(
     private var showConfirmationDialog = false
 
     private var isWithdrawing = AtomicBoolean(false)
-    var sendResult by mutableStateOf<SendResult?>(null)
+    private val _sendResult = MutableStateFlow<SendResult?>(null)
+    val sendResultFlow = _sendResult.asStateFlow()
+    var sendResult: SendResult?
+        get() = _sendResult.value
+        set(value) { _sendResult.value = value }
 
 
     var lockRecordTotal = 0

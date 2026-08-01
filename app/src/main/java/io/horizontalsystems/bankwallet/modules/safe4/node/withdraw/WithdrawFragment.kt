@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,9 +71,9 @@ fun WithDrawScreen(
 ) {
     var selectAllState by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState
-    val sendResult = viewModel.sendResult
+    val sendResult by viewModel.sendResultFlow.collectAsState()
     val view = LocalView.current
-    when (sendResult) {
+    when (val result = sendResult) {
         SendResult.Sending -> {
             HudHelper.showInProcessMessage(
                 view,
@@ -91,7 +92,7 @@ fun WithDrawScreen(
         }
 
         is SendResult.Failed -> {
-            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            HudHelper.showErrorMessage(view, result.caution.getString())
             viewModel.sendResult = null
         }
 

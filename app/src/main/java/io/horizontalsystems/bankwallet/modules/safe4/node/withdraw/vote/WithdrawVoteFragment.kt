@@ -17,6 +17,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,9 +80,9 @@ fun WithdrawVoteScreen(
     val proceedEnabled = uiState.enableWithdraw
     val nodeList = uiState.list
 
-    val sendResult = viewModel.sendResult
+    val sendResult by viewModel.sendResultFlow.collectAsState()
     val view = LocalView.current
-    when (sendResult) {
+    when (val result = sendResult) {
         SendResult.Sending -> {
             HudHelper.showInProcessMessage(
                 view,
@@ -102,7 +103,7 @@ fun WithdrawVoteScreen(
         }
 
         is SendResult.Failed -> {
-            HudHelper.showErrorMessage(view, sendResult.caution.getString())
+            HudHelper.showErrorMessage(view, result.caution.getString())
             viewModel.sendResult = null
         }
 
