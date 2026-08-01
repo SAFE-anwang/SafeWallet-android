@@ -16,11 +16,13 @@ import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.composablePage
+import io.horizontalsystems.bankwallet.core.slideFromBottom
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.core.stats.StatEvent
 import io.horizontalsystems.bankwallet.core.stats.StatPage
 import io.horizontalsystems.bankwallet.core.stats.stat
 import io.horizontalsystems.bankwallet.entities.Wallet
+import io.horizontalsystems.bankwallet.modules.manageaccount.dialogs.BackupRequiredDialog
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveChooseCoinRoutes.BCH_ADDRESS_FORMAT_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveChooseCoinRoutes.COIN_SELECT_SCREEN
 import io.horizontalsystems.bankwallet.modules.receive.ReceiveChooseCoinRoutes.DERIVATION_SELECT_SCREEN
@@ -177,14 +179,21 @@ private fun onSelectWallet(
     fragmentNavController: NavController,
     isTransparentAddress: Boolean = false,
 ) {
-    fragmentNavController.slideFromRight(
-        R.id.receiveFragment,
-        ReceiveFragment.Input(
-            wallet,
-            R.id.receiveChooseCoinFragment,
-            isTransparentAddress
+    if (!wallet.account.hasAnyBackup) {
+        fragmentNavController.slideFromBottom(
+            R.id.backupRequiredDialog,
+            BackupRequiredDialog.Input(wallet.account)
         )
-    )
+    } else {
+        fragmentNavController.slideFromRight(
+            R.id.receiveFragment,
+            ReceiveFragment.Input(
+                wallet,
+                R.id.receiveChooseCoinFragment,
+                isTransparentAddress
+            )
+        )
+    }
 
     stat(page = StatPage.ReceiveTokenList, event = StatEvent.OpenReceive(wallet.token))
 }

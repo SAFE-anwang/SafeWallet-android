@@ -85,7 +85,7 @@ private fun SingleWalletBackupNavHost(fragmentNavController: NavController, acco
             LocalBackupPasswordScreen(
                 backupType = BackupType.SingleWalletBackup(accountId),
                 onBackClick = {
-                    navController.popBackStack()
+                    fragmentNavController.popBackStack()
                 },
                 onFinish = {
                     fragmentNavController.popBackStack()

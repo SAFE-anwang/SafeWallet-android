@@ -57,6 +57,9 @@ class CreateAccountViewModel(
 
     var success by mutableStateOf<AccountType?>(null)
         private set
+
+    var createdAccount by mutableStateOf<Account?>(null)
+        private set
     var languageType by mutableStateOf(Language.English)
         private set
 
@@ -79,6 +82,7 @@ class CreateAccountViewModel(
         accountManager.save(account)
         activateDefaultWallets(account)
         success = accountType
+        createdAccount = account
     }
 
     fun onChangeAccountName(name: String) {

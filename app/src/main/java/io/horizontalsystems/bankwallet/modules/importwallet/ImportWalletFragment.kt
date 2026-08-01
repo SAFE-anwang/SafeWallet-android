@@ -26,11 +26,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.credentials.exceptions.NoCredentialException
+
 import androidx.navigation.NavController
 import io.horizontalsystems.bankwallet.R
-import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.Caution
 import io.horizontalsystems.bankwallet.core.getInput
@@ -44,7 +42,6 @@ import io.horizontalsystems.bankwallet.modules.backuplocal.fullbackup.BackupFile
 import io.horizontalsystems.bankwallet.modules.contacts.screen.ConfirmationBottomSheet
 import io.horizontalsystems.bankwallet.modules.createaccount.WalletType
 import io.horizontalsystems.bankwallet.modules.manageaccounts.ManageAccountsModule
-import io.horizontalsystems.bankwallet.modules.restoreaccount.RestoreFromPasskeyFragment
 import io.horizontalsystems.bankwallet.modules.restorelocal.RestoreLocalFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
@@ -176,41 +173,6 @@ private fun ImportWalletScreen(
                             page = StatPage.ImportWallet,
                             event = StatEvent.Open(StatPage.ImportWalletFromPrivateKey)
                         )
-                    }
-                }
-                var passkeyEnabled by remember { mutableStateOf(true) }
-                WalletType(
-                    icon = painterResource(R.drawable.touchid_24),
-                    title = stringResource(R.string.ImportWallet_Passkey).hs,
-                    subtitle = stringResource(R.string.ImportWallet_Passkey_Description).hs,
-                    borderTop = true
-                ) {
-                    if (!passkeyEnabled) return@WalletType
-                    passkeyEnabled = false
-                    scope.launch {
-                        try {
-                            val (entropy, accountName) = App.passkeyManager.authenticate(context)
-                            navController.slideFromRight(
-                                R.id.restoreFromPasskeyFragment,
-                                RestoreFromPasskeyFragment.Input(
-                                    popUpToInclusiveId,
-                                    inclusive,
-                                    entropy,
-                                    accountName,
-                                )
-                            )
-                            stat(
-                                page = StatPage.ImportWallet,
-                                event = StatEvent.Open(StatPage.ImportWalletFromPasskey)
-                            )
-                        } catch (e: GetCredentialCancellationException) {
-                        } catch (e: NoCredentialException) {
-                            navController.slideFromBottom(R.id.restorePasskeyNotSupported)
-                        } catch (e: Throwable) {
-                            error = e.message ?: e.javaClass.simpleName
-                        } finally {
-                            passkeyEnabled = true
-                        }
                     }
                 }
                 WalletType(

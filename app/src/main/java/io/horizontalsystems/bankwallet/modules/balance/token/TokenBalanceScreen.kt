@@ -205,7 +205,14 @@ fun TokenBalanceScreen(
     ) {
         val onClickReceive = {
             val wallet = viewModel.wallet
-            if (wallet.token.blockchainType == BlockchainType.Zcash) {
+            if (!wallet.account.hasAnyBackup) {
+                navController.slideFromBottom(
+                    R.id.backupRequiredDialog,
+                    BackupRequiredDialog.Input(wallet.account)
+                )
+
+                stat(page = StatPage.TokenPage, event = StatEvent.Open(StatPage.BackupRequired))
+            } else if (wallet.token.blockchainType == BlockchainType.Zcash) {
                 navController.slideFromRight(
                     R.id.receiveSelectZcashAddressTypeFragment,
                     ZcashAddressTypeSelectFragment.Input(wallet)
@@ -388,10 +395,17 @@ fun TokenBalanceScreen(
 
                     try {
                         val wallet = viewModel.getWalletForTronReceive()
-                        navController.slideFromRight(
-                            R.id.receiveFragment,
-                            ReceiveFragment.Input(wallet)
-                        )
+                        if (!wallet.account.hasAnyBackup) {
+                            navController.slideFromRight(
+                                R.id.backupLocalFragment,
+                                wallet.account
+                            )
+                        } else {
+                            navController.slideFromRight(
+                                R.id.receiveFragment,
+                                ReceiveFragment.Input(wallet)
+                            )
+                        }
                     } catch (e: IllegalStateException) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }

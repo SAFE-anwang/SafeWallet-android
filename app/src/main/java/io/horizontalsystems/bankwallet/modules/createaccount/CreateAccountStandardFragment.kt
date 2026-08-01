@@ -1,5 +1,6 @@
 package io.horizontalsystems.bankwallet.modules.createaccount
 
+import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -64,6 +65,8 @@ class CreateAccountStandardFragment : BaseComposeFragment() {
         val popUpToInclusiveId = input?.popOffOnSuccess ?: R.id.createAccountFragment
         val inclusive = input?.popOffInclusive ?: true
         CreateAccountIntroScreen(
+            navController = navController,
+            popUpToInclusiveId = popUpToInclusiveId,
             onBackClick = { navController.popBackStack() },
             onFinish = { navController.popBackStack(popUpToInclusiveId, inclusive) },
         )
@@ -73,6 +76,8 @@ class CreateAccountStandardFragment : BaseComposeFragment() {
 
 @Composable
 private fun CreateAccountIntroScreen(
+    navController: NavController,
+    popUpToInclusiveId: Int,
     onBackClick: () -> Unit,
     onFinish: () -> Unit
 ) {
@@ -92,14 +97,22 @@ private fun CreateAccountIntroScreen(
                 iconTint = R.color.white
             )
             delay(300)
-
-            onFinish.invoke()
             viewModel.onSuccessMessageShown()
 
             stat(
                 page = if (advancedOptionsEnabled) StatPage.NewWalletAdvanced else StatPage.NewWallet,
                 event = StatEvent.CreateWallet(accountType.statAccountType)
             )
+
+            // Navigate to backup key flow to force mnemonic backup
+            val account = viewModel.createdAccount
+            if (account != null) {
+                navController.popBackStack(popUpToInclusiveId, true)
+                val args = Bundle().apply { putParcelable("input", account) }
+                navController.navigate(R.id.backupKeyFragment, args)
+            } else {
+                onFinish.invoke()
+            }
         }
     }
 
