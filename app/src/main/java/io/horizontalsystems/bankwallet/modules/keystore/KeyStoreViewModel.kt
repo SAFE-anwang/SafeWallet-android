@@ -4,9 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.KeystoreAuthLogger
 import io.horizontalsystems.core.IKeyStoreManager
 import io.horizontalsystems.core.security.KeyStoreValidationError
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class KeyStoreViewModel(
     private val keyStoreManager: IKeyStoreManager,
@@ -64,18 +67,29 @@ class KeyStoreViewModel(
         KeystoreAuthLogger.info("KeyStoreVM", "onAuthenticationSuccess | BiometricPrompt reported SUCCESS")
         showBiometricPrompt = false
 
-        // Immediately validate KeyStore after authentication to break potential loop
-        try {
-            KeystoreAuthLogger.info("KeyStoreVM", "Calling keyStoreManager.validateKeyStore() after auth success...")
-            keyStoreManager.validateKeyStore()
-            KeystoreAuthLogger.info("KeyStoreVM", "validateKeyStore() PASSED after auth success → openMainModule")
-            openMainModule = true
-        } catch (e: KeyStoreValidationError.UserNotAuthenticated) {
-            // Still not authenticated despite BiometricPrompt success → show error
-            KeystoreAuthLogger.error("KeyStoreVM", "validateKeyStore() STILL UserNotAuthenticated after BiometricPrompt success! → showAuthRetryExceeded", e)
-            showAuthRetryExceeded = true
-        } catch (e: Exception) {
-            KeystoreAuthLogger.error("KeyStoreVM", "validateKeyStore() failed after BiometricPrompt success | ${e.javaClass.simpleName}", e)
+        // Retry cipher operation after authentication with delay.
+        // Keystore may not have processed the auth event immediately,
+        // so we retry with increasing delays before giving up.
+        viewModelScope.launch {
+            val delays = listOf(300L, 1000L)
+            var lastError: Exception? = null
+
+            for (delayMs in delays) {
+                delay(delayMs)
+                try {
+                    KeystoreAuthLogger.info("KeyStoreVM", "Calling keyStoreManager.validateKeyStore() after ${delayMs}ms delay...")
+                    keyStoreManager.validateKeyStore()
+                    KeystoreAuthLogger.info("KeyStoreVM", "validateKeyStore() PASSED after ${delayMs}ms delay → openMainModule")
+                    openMainModule = true
+                    return@launch
+                } catch (e: Exception) {
+                    KeystoreAuthLogger.info("KeyStoreVM", "validateKeyStore() failed after ${delayMs}ms delay | ${e.javaClass.simpleName}, retrying...")
+                    lastError = e
+                }
+            }
+
+            // All retries exhausted
+            KeystoreAuthLogger.error("KeyStoreVM", "validateKeyStore() failed after all retries | ${lastError?.javaClass?.simpleName}", lastError)
             showAuthRetryExceeded = true
         }
     }
