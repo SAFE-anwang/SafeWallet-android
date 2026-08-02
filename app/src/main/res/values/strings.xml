@@ -2440,7 +2440,7 @@
     <string name="Safe4_DApp_Logo_Pick">Pick Image</string>
     <string name="Safe4_DApp_Logo_Upload">Upload Logo</string>
     <string name="Safe4_DApp_Logo_Uploading">Uploading Logo</string>
-    <string name="Safe4_DApp_Logo_Success">Icon updated successfully, please check the updated effect after two minutes</string>
+    <string name="Safe4_DApp_Logo_Success">Icon updated successfully, please check the update effect later</string>
     <string name="Safe4_DApp_Logo_Oversize">Logo size exceeds 128KB limit</string>
     <string name="Safe4_DApp_Delete_Confirm_Title">Delete DApp</string>
     <string name="Safe4_DApp_Delete_Confirm_Message">Are you sure you want to delete \"%s\"? This action cannot be undone.</string>

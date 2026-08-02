@@ -1901,7 +1901,7 @@
     <string name="Safe4_DApp_Logo_Pick">选择图片</string>
     <string name="Safe4_DApp_Logo_Upload">上传 Logo</string>
     <string name="Safe4_DApp_Logo_Uploading">正在上传 Logo</string>
-    <string name="Safe4_DApp_Logo_Success">图标更新成功，请两分钟后查看更新后效果</string>
+    <string name="Safe4_DApp_Logo_Success">图标更新成功，请稍后查看更新效果</string>
     <string name="Safe4_DApp_Logo_Oversize">Logo 大小超过128KB限制</string>
     <string name="Safe4_DApp_Delete_Confirm_Title">删除 DApp</string>
     <string name="Safe4_DApp_Delete_Confirm_Message">确定要删除 \"%s\" 吗？此操作无法撤销。</string>

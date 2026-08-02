@@ -77,9 +77,11 @@ fun Safe4DAppRegisterScreen(
         null -> Unit
     }
 
-    LaunchedEffect(sendResult) {
-        if (sendResult is SendResult.Sent) {
-            navController.popBackStack()
+    LaunchedEffect(Unit) {
+        viewModel.sendResultFlow.collect { result ->
+            if (result is SendResult.Sent) {
+                navController.popBackStack()
+            }
         }
     }
 
