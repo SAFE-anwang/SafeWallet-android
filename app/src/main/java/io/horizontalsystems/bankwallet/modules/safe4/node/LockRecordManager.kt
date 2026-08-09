@@ -150,40 +150,96 @@ object LockRecordManager {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
-    fun updateVoteStatus() {
-        job = scope.launch (Dispatchers.IO){
-            delay(10000)
-            try {
-                getAdapter()?.let { adapter ->
-                    val safe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
-                    val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
-                    val voteLocked =
-                        repository.getRecordsVoteLockRecord(adapter.evmKit.receiveAddress.hex)
-                    val updateLocked = mutableListOf<LockRecordInfo>()
-                    voteLocked.forEach {
-                        if (job?.isActive == true) {
-                            val info = safe4.getRecordByID(it.id, 0)
-                            val recordUseInfo = safe4.getRecordUseInfo(it.id.toInt())
-                            updateLocked.add(
-                                it.copy(
-                                    unlockHeight = info.unlockHeight.toLong(),
-                                    releaseHeight = recordUseInfo.releaseHeight.toLong(),
-                                    address2 = recordUseInfo.votedAddr.value,
-                                    frozenAddr = recordUseInfo.frozenAddr.value
-                                )
-                            )
+    /**
+     * 更新本地记录状态。
+     * @param withRetry 是否为提现后调用。提现交易链上确认需要时间，单次更新
+     * 可能读到旧状态，因此采用多次重试：每次从链上读取最新状态保存到本地，
+     * 若检测到状态已发生变化（交易已确认）则提前结束，否则按递增间隔重试。
+     * 切换钱包/网络等场景传 false，仅单次更新。
+     */
+    fun updateVoteStatus(withRetry: Boolean = false) {
+        job?.cancel()
+        job = scope.launch(Dispatchers.IO) {
+            if (withRetry) {
+                val maxAttempts = 5
+                val retryDelays = listOf(5000L, 10000L, 15000L, 20000L, 30000L)
+                for (attempt in 0 until maxAttempts) {
+                    if (!isActive) break
+                    delay(retryDelays[attempt])
+                    try {
+                        val confirmed = updateVoteStatusFromChain()
+                        Log.d("updateVoteStatus", "attempt ${attempt + 1}/$maxAttempts, confirmed=$confirmed")
+                        // 每次更新后通知 UI 刷新，DB 一旦更新成功界面即可显示正确数据
+                        emit()
+                        if (confirmed) {
+                            Log.d("updateVoteStatus", "vote status confirmed on chain, stop retrying")
+                            break
                         }
+                    } catch (e: Exception) {
+                        Log.e("updateVoteStatus", "attempt ${attempt + 1} error=$e")
                     }
-                    repository.save(updateLocked)
                 }
-            } catch (e: Exception) {
-                android.util.Log.d("updateVoteStatus", "error=$e")
+            } else {
+                delay(5000)
+                try {
+                    updateVoteStatusFromChain()
+                } catch (e: Exception) {
+                    Log.e("updateVoteStatus", "error=$e")
+                }
             }
         }
     }
 
+    /**
+     * 从链上读取投票锁仓记录最新状态并保存到本地 DB。
+     * @return true 表示检测到至少一条记录的状态相比本地已发生变化（交易已确认），
+     *         false 表示链上状态与本地一致（交易可能尚未确认）。
+     */
+    private suspend fun updateVoteStatusFromChain(): Boolean {
+        val adapter = getAdapter() ?: return true
+        val safe4 = adapter.evmKitWrapper.evmKit.blockchain as RpcBlockchainSafe4
+        val repository = LockRecordInfoRepository(App.appDatabase.lockRecordDao())
+        val voteLocked =
+            repository.getRecordsVoteLockRecord(adapter.evmKit.receiveAddress.hex)
+        if (voteLocked.isEmpty()) return true
+
+        val updateLocked = mutableListOf<LockRecordInfo>()
+        var anyChanged = false
+        voteLocked.forEach { record ->
+            if (!scope.isActive) return@forEach
+            val info = safe4.getRecordByID(record.id, 0)
+            val recordUseInfo = safe4.getRecordUseInfo(record.id.toInt())
+            val newUnlockHeight = info.unlockHeight.toLong()
+            val newReleaseHeight = recordUseInfo.releaseHeight.toLong()
+            val newVotedAddr = recordUseInfo.votedAddr.value
+            val newFrozenAddr = recordUseInfo.frozenAddr.value
+
+            if (newUnlockHeight != record.unlockHeight ||
+                newReleaseHeight != record.releaseHeight ||
+                newVotedAddr != record.address2 ||
+                newFrozenAddr != record.frozenAddr
+            ) {
+                anyChanged = true
+            }
+
+            updateLocked.add(
+                record.copy(
+                    unlockHeight = newUnlockHeight,
+                    releaseHeight = newReleaseHeight,
+                    address2 = newVotedAddr,
+                    frozenAddr = newFrozenAddr
+                )
+            )
+        }
+        if (updateLocked.isNotEmpty()) {
+            repository.save(updateLocked)
+        }
+        return anyChanged
+    }
+
     fun emit() {
-        _recordState.update { true }
+        // toggle 确保重复调用也能触发 collector（StateFlow 相同值不重复发射）
+        _recordState.update { !it }
     }
 
 
