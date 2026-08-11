@@ -46,6 +46,8 @@ class WithdrawVoteViewModel(
     private var showConfirmationDialog = false
 
     private var isWithdrawing = AtomicBoolean(false)
+    // 已提交提现但链上尚未确认的记录 id，用于过滤 DB 中的陈旧数据
+    private val pendingRemovalIds = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
     private val _sendResult = MutableStateFlow<SendResult?>(null)
     val sendResultFlow = _sendResult.asStateFlow()
     var sendResult: SendResult?
@@ -108,7 +110,14 @@ class WithdrawVoteViewModel(
 
     private fun getTotal() {
         val old = lockRecordTotal
-        lockRecordTotal = repository.getEnableReleaseVoteTotal(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L)
+        // 清理已被 DB 确认移除的 pending id
+        if (pendingRemovalIds.isNotEmpty()) {
+            val dbIds = repository.getEnableReleaseVoteRecordIds(
+                evmKit.receiveAddress.hex, evmKit.lastBlockHeight ?: 0
+            )?.toSet() ?: emptySet()
+            pendingRemovalIds.removeAll { it !in dbIds }
+        }
+        lockRecordTotal = (repository.getEnableReleaseVoteTotal(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L) - pendingRemovalIds.size).coerceAtLeast(0)
         android.util.Log.d("LockedInfoViewModel", "total nun=$lockRecordTotal, old=$old}")
         if (lockRecordTotal != 0) {
             loading.set(false)
@@ -138,7 +147,7 @@ class WithdrawVoteViewModel(
         try {
             offset = page * limit
             val records = repository.getEnableReleaseVotedRecordsPaged(evmKit.receiveAddress.hex, evmKit.lastBlockHeight?: 0L, limit, offset)
-                .filter { it.id != 0L }
+                .filter { it.id != 0L && it.id !in pendingRemovalIds }
             android.util.Log.d("LockedInfoViewModel", "get cache data: page=$page, offset=$offset, result=${records.map { it.id }}")
             if (records.isNotEmpty()) {
                 val lockInfo = records.map {
@@ -147,7 +156,10 @@ class WithdrawVoteViewModel(
                         NodeCovertFactory.formatSafe(it.value),  it.address, (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
                 }
                 initIfNeed()
-                withdrawList?.addAll(lockInfo)
+                // 按 id 去重，防止重组触发的重复加载导致列表重复
+                val existingIds = withdrawList?.mapTo(HashSet()) { it.id } ?: hashSetOf()
+                val newItems = lockInfo.filter { existingIds.add(it.id) }
+                withdrawList?.addAll(newItems)
             }
             if (records.isNotEmpty() && records.size == limit && lockRecordTotal > (withdrawList?.size ?: 0)) {
                 page ++
@@ -234,9 +246,10 @@ class WithdrawVoteViewModel(
                 try {
                     val result = service.removeVoteOrApproval(checkedList)
                     sendResult = SendResult.Sent()
+                    pendingRemovalIds.addAll(checkedList)
                     withdrawList = list.filter { !it.checked } as MutableList
                     emitState()
-                    LockRecordManager.updateVoteStatus()
+                    LockRecordManager.updateVoteStatus(withRetry = true)
                 } catch (e: Exception) {
                     Log.d("withdraw", "release withdraw error=$e")
                     sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
@@ -258,7 +271,10 @@ class WithdrawVoteViewModel(
                 ids?.let {
                     service.removeVoteOrApproval(it)
 
-                    LockRecordManager.updateVoteStatus()
+                    pendingRemovalIds.addAll(it)
+                    withdrawList?.clear()
+                    emitState()
+                    LockRecordManager.updateVoteStatus(withRetry = true)
                     sendResult = SendResult.Sent()
                 }
             } catch (e: Exception) {

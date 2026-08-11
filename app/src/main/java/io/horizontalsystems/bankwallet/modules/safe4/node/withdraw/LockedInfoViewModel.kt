@@ -309,7 +309,7 @@ class LockedInfoViewModel(
                     service.removeVoteOrApproval(
                         listOf(clickWithdrawInfo!!.id)
                     )
-                    LockRecordManager.updateVoteStatus()
+                    LockRecordManager.updateVoteStatus(withRetry = true)
 
                 } else {
                     service.withdraw(

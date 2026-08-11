@@ -162,6 +162,20 @@ fun WithdrawVoteScreen(
             }
         } else {
             val listState = rememberLazyListState()
+            // 滚动到底部附近时加载更多，避免在 item 组合期间触发副作用导致重复加载
+            val shouldLoadMore by remember {
+                androidx.compose.runtime.derivedStateOf {
+                    val layoutInfo = listState.layoutInfo
+                    val totalItems = layoutInfo.totalItemsCount
+                    val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                    totalItems > 0 && lastVisible >= totalItems - 4
+                }
+            }
+            LaunchedEffect(shouldLoadMore) {
+                if (shouldLoadMore) {
+                    viewModel.onBottomReached()
+                }
+            }
             Scaffold(
                 backgroundColor = ComposeAppTheme.colors.tyler,
                 bottomBar = {
@@ -187,9 +201,6 @@ fun WithdrawVoteScreen(
                         lockIdsList = nodeList,
                         onCheckedChange = { id, checked ->
                             viewModel.check(id)
-                        },
-                        onBottomReached = {
-                            viewModel.onBottomReached()
                         }
                     )
 
@@ -235,9 +246,7 @@ fun WithdrawVoteScreen(
 fun LazyListScope.WithdrawList(
     lockIdsList: List<WithdrawModule.WithDrawInfo>,
     onCheckedChange: (Long, Boolean) -> Unit,
-    onBottomReached: () -> Unit,
 ) {
-    val bottomReachedRank = getBottomReachedRank(lockIdsList)
     items(lockIdsList) {
         WithdrawItem(
             it.id,
@@ -250,16 +259,5 @@ fun LazyListScope.WithdrawList(
         ) { lockId, checked ->
             onCheckedChange.invoke(lockId, checked)
         }
-        if (it.id == bottomReachedRank) {
-            onBottomReached.invoke()
-        }
     }
-}
-
-
-private fun getBottomReachedRank(nodeList: List<WithdrawModule.WithDrawInfo>): Long? {
-    //get index not exact bottom but near to the bottom, to make scroll smoother
-    val index = if (nodeList.size > 4) nodeList.size - 4 else 0
-
-    return nodeList.getOrNull(index)?.id
 }
