@@ -421,6 +421,18 @@
     <string name="Balance_Zcash_TransparentDescription">用于从不支持受保护地址的交易所或服务接收资金。</string>
     <!--Send NFT-->
     <string name="SendNft_Title">发送​​</string>
+    <!--NFT-->
+    <string name="Balance_TabAssets">资产</string>
+    <string name="Balance_TabNft">NFT</string>
+    <string name="Nft_EmptyList">暂无 NFT</string>
+    <string name="Nft_Collection_Title">NFT 合集</string>
+    <string name="Nft_Asset_Title">NFT 详情</string>
+    <string name="Nft_Send_Title">发送 NFT</string>
+    <string name="Nft_Collection">合集</string>
+    <string name="Nft_TokenId">Token ID</string>
+    <string name="Nft_Contract">合约地址</string>
+    <string name="Nft_Standard">协议标准</string>
+    <string name="Nft_Owned">持有数量</string>
     <!--Send-->
     <string name="Send_EnterAddress">输入地址</string>
     <string name="Send_Title">发送%s</string>

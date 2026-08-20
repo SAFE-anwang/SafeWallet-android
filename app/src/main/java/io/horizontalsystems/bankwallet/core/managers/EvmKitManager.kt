@@ -5,6 +5,7 @@ import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.BackgroundManager
 import io.horizontalsystems.bankwallet.core.BackgroundManagerState
 import io.horizontalsystems.bankwallet.core.UnsupportedAccountException
+import io.horizontalsystems.bankwallet.core.supportedNftTypes
 import io.horizontalsystems.bankwallet.entities.Account
 import io.horizontalsystems.bankwallet.entities.AccountType
 import io.horizontalsystems.erc20kit.core.Erc20Kit
@@ -163,25 +164,24 @@ class EvmKitManager(
         }
         OneInchKit.addDecorators(evmKit)
 
-        val nftKit: NftKit? = null
-//        var nftKit: NftKit? = null
-//        val supportedNftTypes = blockchainType.supportedNftTypes
-//        if (supportedNftTypes.isNotEmpty()) {
-//            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
-//            supportedNftTypes.forEach {
-//                when (it) {
-//                    NftType.Eip721 -> {
-//                        nftKitInstance.addEip721TransactionSyncer()
-//                        nftKitInstance.addEip721Decorators()
-//                    }
-//                    NftType.Eip1155 -> {
-//                        nftKitInstance.addEip1155TransactionSyncer()
-//                        nftKitInstance.addEip1155Decorators()
-//                    }
-//                }
-//            }
-//            nftKit = nftKitInstance
-//        }
+        var nftKit: NftKit? = null
+        val supportedNftTypes = blockchainType.supportedNftTypes
+        if (supportedNftTypes.isNotEmpty()) {
+            val nftKitInstance = NftKit.getInstance(App.instance, evmKit)
+            supportedNftTypes.forEach {
+                when (it) {
+                    NftType.Eip721 -> {
+                        nftKitInstance.addEip721TransactionSyncer()
+                        nftKitInstance.addEip721Decorators()
+                    }
+                    NftType.Eip1155 -> {
+                        nftKitInstance.addEip1155TransactionSyncer()
+                        nftKitInstance.addEip1155Decorators()
+                    }
+                }
+            }
+            nftKit = nftKitInstance
+        }
 
         /*val merkleTransactionAdapter = MerkleTransactionAdapter.getInstance(
             merkleIoPubKey = "pk_mbs_5f012edb2cf20a96b49429a3ed285a45",

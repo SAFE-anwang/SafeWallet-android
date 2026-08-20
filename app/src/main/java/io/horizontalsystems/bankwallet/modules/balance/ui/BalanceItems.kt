@@ -247,6 +247,132 @@ fun BalanceItems(
         }
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ComposeAppTheme.colors.lawrence)
+    ) {
+        TotalBalanceRow(
+            totalState = uiState.totalUiState,
+            onClickTitle = remember {
+                {
+                    viewModel.toggleBalanceVisibility()
+                    HudHelper.vibrate(context)
+
+                    stat(page = StatPage.Balance, event = StatEvent.ToggleBalanceHidden)
+                }
+            },
+            onClickSubtitle = remember {
+                {
+                    viewModel.toggleTotalType()
+                    HudHelper.vibrate(context)
+
+                    stat(page = StatPage.Balance, event = StatEvent.ToggleConversionCoin)
+                }
+            },
+            balanceHidden = uiState.balanceHidden
+        )
+
+        if (uiState.balanceTabButtonsEnabled && !accountViewItem.isWatchAccount) {
+            BalanceButtonsGroup {
+                BalanceActionButton(
+                    variant = ButtonVariant.Primary,
+                    icon = R.drawable.ic_scan_24,
+                    title = stringResource(R.string.Button_ScanQr),
+                    onClick = onScanClick
+                )
+                BalanceActionButton(
+                    variant = ButtonVariant.Secondary,
+                    icon = R.drawable.ic_arrow_down_24,
+                    title = stringResource(R.string.Balance_Receive),
+                    enabled = true,
+                    onClick = {
+                        navController.slideFromRight(R.id.receiveChooseCoinFragment)
+
+                        stat(
+                            page = StatPage.Balance,
+                            event = StatEvent.Open(StatPage.ReceiveTokenList)
+                        )
+                    }
+                )
+                BalanceActionButton(
+                    variant = ButtonVariant.Secondary,
+                    icon = R.drawable.ic_arrow_up_24,
+                    title = stringResource(R.string.Balance_Send),
+                    onClick = {
+                        navController.slideFromRight(R.id.sendTokenSelectFragment)
+
+                        stat(
+                            page = StatPage.Balance,
+                            event = StatEvent.Open(StatPage.SendTokenList)
+                        )
+                    }
+                )
+                if (viewModel.isSwapEnabled) {
+                    BalanceActionButton(
+                        variant = ButtonVariant.Secondary,
+                        icon = R.drawable.ic_swap_circle_24,
+                        title = stringResource(R.string.Swap),
+                        onClick = {
+                            navController.slideFromRight(R.id.multiswap)
+
+                            stat(
+                                page = StatPage.Balance,
+                                event = StatEvent.Open(StatPage.Swap)
+                            )
+                        }
+                    )
+                }
+            }
+        }
+
+        Box(modifier = Modifier.weight(1f)) {
+            BalanceAssetsList(
+                balanceViewItems = balanceViewItems,
+                viewModel = viewModel,
+                accountViewItem = accountViewItem,
+                navController = navController,
+                uiState = uiState,
+                revealedCardId = revealedCardId,
+                onReveal = { revealedCardId = it },
+                onConceal = { revealedCardId = null },
+                navigateToTokenBalance = navigateToTokenBalance,
+                onClickSyncError = onClickSyncError,
+                onDisable = onDisable,
+                view = view
+            )
+        }
+    }
+    uiState.openSend?.let { openSend ->
+        navController.slideFromRight(
+            R.id.sendTokenSelectFragment,
+            SendTokenSelectFragment.Input(
+                openSend.blockchainTypes,
+                openSend.tokenTypes,
+                openSend.address,
+                openSend.amount,
+                openSend.memo,
+            )
+        )
+        viewModel.onSendOpened()
+    }
+}
+
+@Composable
+private fun BalanceAssetsList(
+    balanceViewItems: List<BalanceViewItem2>,
+    viewModel: BalanceViewModel,
+    accountViewItem: AccountViewItem,
+    navController: NavController,
+    uiState: BalanceUiState,
+    revealedCardId: Int?,
+    onReveal: (Int) -> Unit,
+    onConceal: () -> Unit,
+    navigateToTokenBalance: (BalanceViewItem2) -> Unit,
+    onClickSyncError: (BalanceViewItem2) -> Unit,
+    onDisable: (BalanceViewItem2) -> Unit,
+    view: View,
+) {
     HSSwipeRefresh(
         refreshing = uiState.isRefreshing,
         onRefresh = viewModel::onRefresh
@@ -264,84 +390,6 @@ fun BalanceItems(
             },
             contentPadding = PaddingValues(bottom = 32.dp)
         ) {
-            item {
-                TotalBalanceRow(
-                    totalState = uiState.totalUiState,
-                    onClickTitle = remember {
-                        {
-                            viewModel.toggleBalanceVisibility()
-                            HudHelper.vibrate(context)
-
-                            stat(page = StatPage.Balance, event = StatEvent.ToggleBalanceHidden)
-                        }
-                    },
-                    onClickSubtitle = remember {
-                        {
-                            viewModel.toggleTotalType()
-                            HudHelper.vibrate(context)
-
-                            stat(page = StatPage.Balance, event = StatEvent.ToggleConversionCoin)
-                        }
-                    },
-                    balanceHidden = uiState.balanceHidden
-                )
-            }
-
-            if (uiState.balanceTabButtonsEnabled && !accountViewItem.isWatchAccount) {
-                item {
-                    BalanceButtonsGroup {
-                        BalanceActionButton(
-                            variant = ButtonVariant.Primary,
-                            icon = R.drawable.ic_scan_24,
-                            title = stringResource(R.string.Button_ScanQr),
-                            onClick = onScanClick
-                        )
-                        BalanceActionButton(
-                            variant = ButtonVariant.Secondary,
-                            icon = R.drawable.ic_arrow_down_24,
-                            title = stringResource(R.string.Balance_Receive),
-                            enabled = true,
-                            onClick = {
-                                navController.slideFromRight(R.id.receiveChooseCoinFragment)
-
-                                stat(
-                                    page = StatPage.Balance,
-                                    event = StatEvent.Open(StatPage.ReceiveTokenList)
-                                )
-                            }
-                        )
-                        BalanceActionButton(
-                            variant = ButtonVariant.Secondary,
-                            icon = R.drawable.ic_arrow_up_24,
-                            title = stringResource(R.string.Balance_Send),
-                            onClick = {
-                                navController.slideFromRight(R.id.sendTokenSelectFragment)
-
-                                stat(
-                                    page = StatPage.Balance,
-                                    event = StatEvent.Open(StatPage.SendTokenList)
-                                )
-                            }
-                        )
-                        if (viewModel.isSwapEnabled) {
-                            BalanceActionButton(
-                                variant = ButtonVariant.Secondary,
-                                icon = R.drawable.ic_swap_circle_24,
-                                title = stringResource(R.string.Swap),
-                                onClick = {
-                                    navController.slideFromRight(R.id.multiswap)
-
-                                    stat(
-                                        page = StatPage.Balance,
-                                        event = StatEvent.Open(StatPage.Swap)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
             item {
                 if (uiState.nonStandardAccount) {
                     AlertCard(
@@ -426,6 +474,13 @@ fun BalanceItems(
                             if (!uiState.networkAvailable) {
                                 subheadSB_lucian(stringResource(R.string.Hud_Text_NoInternet))
                             }
+                            ButtonSecondaryCircle(
+                                icon = R.drawable.ic_image_2_24,
+                                contentDescription = stringResource(R.string.Balance_TabNft),
+                                onClick = {
+                                    navController.slideFromRight(R.id.nftCollectionsFragment)
+                                }
+                            )
                             HsIconButton(
                                 onClick = {
                                     navController.slideFromRight(R.id.listLiquidity)
@@ -497,11 +552,11 @@ fun BalanceItems(
                             revealed = revealedCardId == item.wallet.hashCode(),
                             onReveal = { walletHashCode ->
                                 if (revealedCardId != walletHashCode) {
-                                    revealedCardId = walletHashCode
+                                    onReveal(walletHashCode)
                                 }
                             },
                             onConceal = {
-                                revealedCardId = null
+                                onConceal()
                             },
                             onClick = {
                                 navigateToTokenBalance.invoke(item)
@@ -556,19 +611,6 @@ fun BalanceItems(
                 VSpacer(70.dp)
             }
         }
-    }
-    uiState.openSend?.let { openSend ->
-        navController.slideFromRight(
-            R.id.sendTokenSelectFragment,
-            SendTokenSelectFragment.Input(
-                openSend.blockchainTypes,
-                openSend.tokenTypes,
-                openSend.address,
-                openSend.amount,
-                openSend.memo,
-            )
-        )
-        viewModel.onSendOpened()
     }
 }
 

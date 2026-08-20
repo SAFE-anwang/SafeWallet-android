@@ -52,6 +52,7 @@ import io.horizontalsystems.bankwallet.core.managers.ZcashLightWalletEndpointMan
 import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
+import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
 import io.horizontalsystems.bankwallet.core.managers.NumberFormatter
 import io.horizontalsystems.bankwallet.core.managers.PaidActionSettingsManager
 import io.horizontalsystems.bankwallet.core.managers.PasskeyManager
@@ -241,6 +242,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         lateinit var nftMetadataManager: NftMetadataManager
         lateinit var nftAdapterManager: NftAdapterManager
         lateinit var nftMetadataSyncer: NftMetadataSyncer
+        lateinit var nftMetadataResolver: NftMetadataResolver
         lateinit var evmLabelManager: EvmLabelManager
         lateinit var baseTokenManager: BaseTokenManager
         lateinit var balanceViewTypeManager: BalanceViewTypeManager
@@ -519,6 +521,7 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
         nftMetadataManager = NftMetadataManager(marketKit, appConfigProvider, nftStorage)
         nftAdapterManager = NftAdapterManager(walletManager, evmBlockchainManager)
         nftMetadataSyncer = NftMetadataSyncer(nftAdapterManager, nftMetadataManager, nftStorage)
+        nftMetadataResolver = NftMetadataResolver(evmBlockchainManager)
 
         DAppManager.initialize(
             params = DAppInitParams(

@@ -106,6 +106,18 @@
         android:id="@+id/backupLocalFragment"
         android:name="io.horizontalsystems.bankwallet.modules.backuplocal.BackupLocalFragment" />
     <fragment
+        android:id="@+id/nftCollectionsFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.NftCollectionsFragment" />
+    <fragment
+        android:id="@+id/nftCollectionFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.collection.NftCollectionFragment" />
+    <fragment
+        android:id="@+id/nftAssetFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.asset.NftAssetFragment" />
+    <fragment
+        android:id="@+id/sendNftFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.send.SendNftFragment" />
+    <fragment
         android:id="@+id/transactionLockTimeInfoFragment"
         android:name="io.horizontalsystems.bankwallet.modules.info.TransactionLockTimeInfoFragment" />
     <fragment

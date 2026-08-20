@@ -529,6 +529,19 @@
     <!--Send NFT-->
     <string name="SendNft_Title">Send</string>
 
+    <!--NFT-->
+    <string name="Balance_TabAssets">Assets</string>
+    <string name="Balance_TabNft">NFT</string>
+    <string name="Nft_EmptyList">No NFTs yet</string>
+    <string name="Nft_Collection_Title">NFT Collection</string>
+    <string name="Nft_Asset_Title">NFT Detail</string>
+    <string name="Nft_Send_Title">Send NFT</string>
+    <string name="Nft_Collection">Collection</string>
+    <string name="Nft_TokenId">Token ID</string>
+    <string name="Nft_Contract">Contract</string>
+    <string name="Nft_Standard">Standard</string>
+    <string name="Nft_Owned">Owned</string>
+
     <!--Send-->
 
     <string name="Send_EnterAddress">Enter Address</string>
