@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
+import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
+import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftKey
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.nftkit.models.NftType
@@ -39,6 +41,7 @@ class NftCollectionViewModel(
     collectionName: String,
     private val nftAdapterManager: NftAdapterManager,
     private val metadataResolver: NftMetadataResolver,
+    private val nftMetadataManager: NftMetadataManager,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(
@@ -47,11 +50,20 @@ class NftCollectionViewModel(
         private set
 
     private var collectJob: Job? = null
+    private var nftKey: NftKey? = null
 
     init {
         viewModelScope.launch {
             nftAdapterManager.adaptersUpdatedFlow.collect { adaptersMap ->
-                subscribe(adaptersMap.keys.firstOrNull { it.blockchainType == blockchainType })
+                nftKey = adaptersMap.keys.firstOrNull { it.blockchainType == blockchainType }
+                subscribe(nftKey)
+            }
+        }
+        viewModelScope.launch {
+            nftMetadataManager.addressMetadataFlow.collect { pair ->
+                if (pair != null && pair.first.blockchainType == blockchainType && uiState.assets.isEmpty()) {
+                    emitOpenSeaAssets(pair.second)
+                }
             }
         }
     }
@@ -67,8 +79,17 @@ class NftCollectionViewModel(
     }
 
     private fun emitAssets(records: List<EvmNftRecord>) {
-        val assets = records
-            .filter { it.contractAddress.equals(contractAddress, true) }
+        val filtered = records.filter { it.contractAddress.equals(contractAddress, true) }
+        if (filtered.isEmpty()) {
+            // 链上无记录时回退到 OpenSea 数据
+            viewModelScope.launch(Dispatchers.IO) {
+                val key = nftKey ?: return@launch
+                nftMetadataManager.addressMetadata(key)?.let { emitOpenSeaAssets(it) }
+            }
+            return
+        }
+
+        val assets = filtered
             .map { record ->
                 val cached = metadataResolver.cached(record.nftUid)
                 NftAssetViewItem(
@@ -97,6 +118,23 @@ class NftCollectionViewModel(
         }
     }
 
+    private fun emitOpenSeaAssets(metadata: NftAddressMetadata) {
+        val assets = metadata.assets
+            .filter { it.nftUid.contractAddress.equals(contractAddress, true) }
+            .map {
+                NftAssetViewItem(
+                    tokenId = it.nftUid.tokenId,
+                    name = it.displayName,
+                    imageUrl = it.previewImageUrl,
+                    balance = 1,
+                    nftType = NftType.Eip721
+                )
+            }
+            .sortedBy { it.tokenId.toBigIntegerOrNull() }
+
+        uiState = uiState.copy(viewState = ViewState.Success, assets = assets)
+    }
+
     private fun updateAssetMeta(tokenId: String, name: String?, imageUrl: String?) {
         val updated = uiState.assets.map {
             if (it.tokenId == tokenId) {
@@ -121,7 +159,8 @@ class NftCollectionViewModel(
                 contractAddress,
                 collectionName,
                 App.nftAdapterManager,
-                App.nftMetadataResolver
+                App.nftMetadataResolver,
+                App.nftMetadataManager
             ) as T
         }
     }
