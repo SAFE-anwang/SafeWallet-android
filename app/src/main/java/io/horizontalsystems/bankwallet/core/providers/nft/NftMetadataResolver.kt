@@ -29,22 +29,30 @@ class NftMetadataResolver(
 ) {
     data class NftMeta(
         val name: String?,
-        val imageUrl: String?
+        val imageUrl: String?,
+        val description: String? = null
     )
 
-    private val cache = ConcurrentHashMap<String, NftMeta?>()
+    private val cache = ConcurrentHashMap<String, NftMeta>()
+    private val failed = ConcurrentHashMap.newKeySet<String>()
     private val mutexes = ConcurrentHashMap<String, Mutex>()
 
     fun cached(nftUid: NftUid): NftMeta? = cache[nftUid.uid]
 
     suspend fun resolve(nftUid: NftUid, nftType: NftType): NftMeta? {
         cache[nftUid.uid]?.let { return it }
+        if (nftUid.uid in failed) return null
 
         val mutex = mutexes.getOrPut(nftUid.uid) { Mutex() }
         return mutex.withLock {
             cache[nftUid.uid]?.let { return@withLock it }
+            if (nftUid.uid in failed) return@withLock null
             val meta = fetchMetadata(nftUid, nftType)
-            cache[nftUid.uid] = meta
+            if (meta != null) {
+                cache[nftUid.uid] = meta
+            } else {
+                failed.add(nftUid.uid)
+            }
             meta
         }
     }
@@ -58,7 +66,8 @@ class NftMetadataResolver(
             }
             NftMeta(
                 name = json.optString("name").ifBlank { null },
-                imageUrl = image?.let { resolveUri(it) }
+                imageUrl = image?.let { resolveUri(it) },
+                description = json.optString("description").ifBlank { null }
             )
         } catch (e: Throwable) {
             Log.d("NftMetadataResolver", "fetchMetadata error for ${nftUid.uid}: $e")

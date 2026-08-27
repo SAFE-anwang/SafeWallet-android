@@ -5,37 +5,40 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
-import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.nftv2.send.SendNftFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.HeaderText
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
+import io.horizontalsystems.bankwallet.ui.compose.components.body_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
+import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
 import io.horizontalsystems.bankwallet.ui.compose.components.subhead2_grey
-import io.horizontalsystems.bankwallet.ui.helpers.TextHelper
 import io.horizontalsystems.bankwallet.uiv3.components.HSScaffold
-import io.horizontalsystems.core.helpers.HudHelper
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.parcelize.Parcelize
 
@@ -71,7 +74,6 @@ private fun NftAssetScreen(
         )
     )
     val uiState = viewModel.uiState
-    val view = LocalView.current
 
     HSScaffold(
         title = stringResource(R.string.Nft_Asset_Title),
@@ -109,8 +111,10 @@ private fun NftAssetScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 300.dp)
-                    .background(ComposeAppTheme.colors.lawrence),
+                    .padding(16.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ComposeAppTheme.colors.raina),
                 contentAlignment = Alignment.Center
             ) {
                 when {
@@ -118,75 +122,78 @@ private fun NftAssetScreen(
                         AsyncImage(
                             model = uiState.imageUrl,
                             contentDescription = uiState.name,
-                            modifier = Modifier.fillMaxWidth(),
-                            contentScale = ContentScale.FillWidth
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     }
                     uiState.loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(60.dp),
-                            color = ComposeAppTheme.colors.grey
-                        )
+                        CircularProgressIndicator(color = ComposeAppTheme.colors.grey)
                     }
                     else -> {
                         Text(
                             text = "?",
                             style = ComposeAppTheme.typography.title1,
-                            color = ComposeAppTheme.colors.steel20,
-                            modifier = Modifier.padding(60.dp)
+                            color = ComposeAppTheme.colors.steel20
                         )
                     }
                 }
             }
 
-            Column(modifier = Modifier.padding(16.dp)) {
+            // 名称与编号
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 body_leah(text = uiState.name)
-                VSpacer(16.dp)
+                VSpacer(4.dp)
+                subhead2_grey(text = "#${uiState.tokenId}")
+            }
+            VSpacer(16.dp)
 
-                NftInfoRow(stringResource(R.string.Nft_Collection), uiState.collectionName)
-                NftInfoRow(stringResource(R.string.Nft_TokenId), "#${uiState.tokenId}")
-                NftInfoRow(
-                    stringResource(R.string.Nft_Contract),
-                    uiState.contractAddress.shorten(),
-                    onClick = {
-                        TextHelper.copyText(uiState.contractAddress)
-                        HudHelper.showSuccessMessage(view, R.string.Hud_Text_Copied)
-                    }
+            // 介绍
+            if (uiState.description != null) {
+                HeaderText(text = stringResource(R.string.Nft_Description))
+                body_grey(
+                    text = uiState.description!!,
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                NftInfoRow(stringResource(R.string.Nft_Standard), uiState.nftType.name)
-                if (uiState.balance > 1) {
-                    NftInfoRow(stringResource(R.string.Nft_Owned), uiState.balance.toString())
+                VSpacer(16.dp)
+            }
+
+            // 交易记录
+            HeaderText(text = stringResource(R.string.Nft_Events))
+            if (uiState.events.isEmpty()) {
+                subhead2_grey(
+                    text = stringResource(R.string.Nft_NoEvents),
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                )
+            } else {
+                uiState.events.forEach { event ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        body_leah(
+                            text = event.type,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Column(horizontalAlignment = Alignment.End) {
+                            event.amount?.let { amount ->
+                                Text(
+                                    text = amount,
+                                    style = ComposeAppTheme.typography.subhead,
+                                    color = ComposeAppTheme.colors.leah
+                                )
+                            }
+                            event.date?.let { date ->
+                                caption_grey(text = date)
+                            }
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun NftInfoRow(
-    title: String,
-    value: String,
-    onClick: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        subhead2_grey(text = title, modifier = Modifier.weight(1f))
-        if (onClick != null) {
-            androidx.compose.foundation.text.ClickableText(
-                text = androidx.compose.ui.text.AnnotatedString(value),
-                style = ComposeAppTheme.typography.subhead.copy(color = ComposeAppTheme.colors.leah),
-                onClick = { onClick() }
-            )
-        } else {
-            Text(
-                text = value,
-                style = ComposeAppTheme.typography.subhead,
-                color = ComposeAppTheme.colors.leah
-            )
+            VSpacer(32.dp)
         }
     }
 }

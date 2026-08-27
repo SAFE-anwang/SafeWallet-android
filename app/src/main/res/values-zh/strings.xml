@@ -433,6 +433,13 @@
     <string name="Nft_Contract">合约地址</string>
     <string name="Nft_Standard">协议标准</string>
     <string name="Nft_Owned">持有数量</string>
+    <string name="Nft_Assets">资产</string>
+    <string name="Nft_Description">介绍</string>
+    <string name="Nft_Events">交易记录</string>
+    <string name="Nft_NoEvents">暂无交易记录</string>
+    <string name="Nft_FloorPrice24h">24h 最低价</string>
+    <string name="Nft_AveragePrice24h">24h 平均价格</string>
+    <string name="Nft_Volume24h">24h 成交量</string>
     <!--Send-->
     <string name="Send_EnterAddress">输入地址</string>
     <string name="Send_Title">发送%s</string>

@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.core.adapters.nft.INftAdapter
 import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
+import io.horizontalsystems.bankwallet.core.providers.nft.BuiltinNftCollections
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
@@ -141,6 +142,32 @@ class NftCollectionListViewModel(
                     imageUrl = existing?.imageUrl
                 )
             }
+
+        // 应用内置合集的规范名称与图标
+        items.keys.toList().forEach { key ->
+            BuiltinNftCollections.find(key.first, key.second)?.let { builtin ->
+                items[key] = items[key]!!.copy(
+                    name = builtin.name,
+                    imageUrl = builtin.imageUrl ?: items[key]!!.imageUrl
+                )
+            }
+        }
+
+        // 内置合集：未持有也展示（数量为 0）
+        BuiltinNftCollections.all().forEach { builtin ->
+            if (!builtin.showAlways) return@forEach
+            val key = builtin.blockchainType to builtin.contractAddress.lowercase()
+            if (!items.containsKey(key)) {
+                items[key] = NftCollectionViewItem(
+                    blockchainType = builtin.blockchainType,
+                    contractAddress = builtin.contractAddress,
+                    name = builtin.name,
+                    count = 0,
+                    sampleTokenId = "",
+                    imageUrl = builtin.imageUrl
+                )
+            }
+        }
 
         val collections = items.values.sortedByDescending { it.count }
 

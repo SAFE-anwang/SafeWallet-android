@@ -9,20 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -30,6 +22,7 @@ import coil.compose.AsyncImage
 import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.BaseComposeFragment
 import io.horizontalsystems.bankwallet.core.slideFromRight
+import io.horizontalsystems.bankwallet.modules.address.HSAddressInput
 import io.horizontalsystems.bankwallet.modules.send.evm.SendEvmData
 import io.horizontalsystems.bankwallet.modules.send.evm.confirmation.SendEvmConfirmationFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
@@ -153,43 +146,14 @@ private fun SendNftScreen(
             VSpacer(24.dp)
 
             // 接收地址输入
-            OutlinedTextField(
-                value = uiState.address,
-                onValueChange = viewModel::onAddressChange,
+            HSAddressInput(
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.Send_EnterAddress)) },
-                isError = uiState.addressError != null,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    textColor = ComposeAppTheme.colors.leah,
-                    focusedBorderColor = ComposeAppTheme.colors.jacob,
-                    unfocusedBorderColor = ComposeAppTheme.colors.steel20,
-                    focusedLabelColor = ComposeAppTheme.colors.grey,
-                    unfocusedLabelColor = ComposeAppTheme.colors.grey,
-                    cursorColor = ComposeAppTheme.colors.leah,
-                ),
-                trailingIcon = {
-                    if (uiState.address.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onAddressChange("") }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_close),
-                                contentDescription = null,
-                                tint = ComposeAppTheme.colors.grey
-                            )
-                        }
-                    }
-                }
+                tokenQuery = viewModel.tokenQuery,
+                coinCode = viewModel.coinCode,
+                hint = stringResource(R.string.Send_EnterAddress),
+                navController = navController,
+                onValueChange = viewModel::onAddressChange
             )
-
-            uiState.addressError?.let { error ->
-                VSpacer(4.dp)
-                Text(
-                    text = error,
-                    style = ComposeAppTheme.typography.caption,
-                    color = ComposeAppTheme.colors.lucian
-                )
-            }
         }
     }
 }

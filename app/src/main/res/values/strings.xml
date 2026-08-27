@@ -541,6 +541,13 @@
     <string name="Nft_Contract">Contract</string>
     <string name="Nft_Standard">Standard</string>
     <string name="Nft_Owned">Owned</string>
+    <string name="Nft_Assets">Assets</string>
+    <string name="Nft_Description">Description</string>
+    <string name="Nft_Events">Activity</string>
+    <string name="Nft_NoEvents">No activity yet</string>
+    <string name="Nft_FloorPrice24h">24h Floor</string>
+    <string name="Nft_AveragePrice24h">24h Avg Price</string>
+    <string name="Nft_Volume24h">24h Volume</string>
 
     <!--Send-->
 
