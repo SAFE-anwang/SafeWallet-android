@@ -4,6 +4,7 @@ import android.util.Log
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.APIClient
 import io.horizontalsystems.bankwallet.core.managers.EvmBlockchainManager
+import io.horizontalsystems.ethereumkit.core.EthereumKit
 import io.horizontalsystems.ethereumkit.contracts.ContractMethodHelper
 import io.horizontalsystems.ethereumkit.models.Address
 import io.horizontalsystems.marketkit.models.BlockchainType
@@ -38,7 +39,7 @@ class NftContractAssetsProvider(
     suspend fun availableAssets(
         blockchainType: BlockchainType,
         contractAddress: String,
-        limit: Int = 50
+        limit: Int = 200
     ): List<ContractAsset> {
         val cacheKey = "${blockchainType.uid}:${contractAddress.lowercase()}"
         cache[cacheKey]?.let { return it }
@@ -104,6 +105,10 @@ class NftContractAssetsProvider(
             val evmKit = evmKitManager.getEvmKitWrapper(account, blockchainType).evmKit
             val contract = Address(contractAddress)
 
+            // 必须先校验合约实现了 ERC721Enumerable 接口(0x780e9d63)
+            val supportsEnumerable = supportsInterface(evmKit, contract, "0x780e9d63")
+            if (!supportsEnumerable) return@withContext null
+
             // totalSupply()
             val totalSupplyData = evmKit.call(
                 contract,
@@ -123,7 +128,10 @@ class NftContractAssetsProvider(
                         ContractMethodHelper.encodedABI(tokenByIndexMethodId, listOf(BigInteger.valueOf(i.toLong())))
                     ).await()
                     parseUint256(data)?.let { tokenId ->
-                        assets.add(ContractAsset(tokenId.toString(), null, null))
+                        // 校验 tokenId 合法（不能超过 totalSupply+10 万的合理范围）
+                        if (tokenId >= BigInteger.ZERO && tokenId < BigInteger.valueOf(10_000_000L)) {
+                            assets.add(ContractAsset(tokenId.toString(), null, null))
+                        }
                     }
                 } catch (e: Throwable) {
                     break
@@ -133,6 +141,27 @@ class NftContractAssetsProvider(
         } catch (e: Throwable) {
             Log.d("NftContractAssets", "enumerable error for $contractAddress: $e")
             null
+        }
+    }
+
+    private suspend fun supportsInterface(
+        evmKit: EthereumKit,
+        contract: Address,
+        interfaceIdHex: String
+    ): Boolean {
+        return try {
+            val interfaceId = BigInteger(interfaceIdHex.removePrefix("0x"), 16)
+            val methodId = ContractMethodHelper.getMethodId("supportsInterface(bytes4)")
+            // bytes4 右对齐到 32 字节
+            val padded = ByteArray(32)
+            val src = interfaceId.toByteArray()
+            val offset = if (src[0] == 0.toByte()) 1 else 0
+            System.arraycopy(src, offset, padded, 32 - (src.size - offset), src.size - offset)
+            val data = methodId + padded
+            val result = evmKit.call(contract, data).await()
+            parseUint256(result)?.let { it != BigInteger.ZERO } ?: false
+        } catch (e: Throwable) {
+            false
         }
     }
 

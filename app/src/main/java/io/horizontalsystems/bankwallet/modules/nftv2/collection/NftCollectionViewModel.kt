@@ -25,6 +25,8 @@ import io.horizontalsystems.marketkit.models.TokenType
 import io.horizontalsystems.nftkit.models.NftType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 data class NftAssetViewItem(
@@ -181,16 +183,19 @@ class NftCollectionViewModel(
                 }
                 rebuildAssets()
 
-                // Reservoir 未返回图片时，用链上元数据逐个解析；解析失败的视为无效数据移除
-                assets.filter { it.imageUrl == null }.forEach { asset ->
-                    val nftUid = NftUid.Evm(blockchainType, contractAddress, asset.tokenId)
-                    val meta = metadataResolver.resolve(nftUid, NftType.Eip721)
-                    if (meta != null && (meta.name != null || meta.imageUrl != null)) {
-                        updateAssetMeta(asset.tokenId, meta.name, meta.imageUrl, meta.description)
-                    } else {
-                        removeAvailableAsset(asset.tokenId)
+                // 对缺少图片或名称的条目，解析链上 tokenURI 补充；
+                // 解析失败或解析结果全空的视为无效数据移除
+                assets.filter { it.imageUrl == null || it.name == null }.map { asset ->
+                    async(Dispatchers.IO) {
+                        val nftUid = NftUid.Evm(blockchainType, contractAddress, asset.tokenId)
+                        val meta = metadataResolver.resolve(nftUid, NftType.Eip721)
+                        if (meta != null && (meta.name != null || meta.imageUrl != null)) {
+                            updateAssetMeta(asset.tokenId, meta.name, meta.imageUrl, meta.description)
+                        } else {
+                            removeAvailableAsset(asset.tokenId)
+                        }
                     }
-                }
+                }.awaitAll()
             }
         }
     }

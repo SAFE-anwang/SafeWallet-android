@@ -59,10 +59,14 @@ class NftMetadataResolver(
 
     private suspend fun fetchMetadata(nftUid: NftUid, nftType: NftType): NftMeta? {
         return try {
-            val tokenUri = fetchTokenUri(nftUid, nftType) ?: return null
-            val json = fetchJson(resolveUri(tokenUri)) ?: return null
+            val tokenUri = fetchTokenUri(nftUid, nftType)
+            if (tokenUri.isNullOrEmpty()) return null
+            val json = fetchJson(resolveUri(tokenUri))
+            if (json == null) return null
             val image = json.optString("image").ifBlank {
-                json.optString("image_url").ifBlank { null }
+                json.optString("image_url").ifBlank {
+                    json.optString("image_data").ifBlank { null }
+                }
             }
             NftMeta(
                 name = json.optString("name").ifBlank { null },
@@ -142,8 +146,8 @@ class NftMetadataResolver(
 
     private fun resolveUri(uri: String): String {
         return when {
-            uri.startsWith("ipfs://ipfs/") -> "https://ipfs.io/ipfs/" + uri.removePrefix("ipfs://ipfs/")
-            uri.startsWith("ipfs://") -> "https://ipfs.io/ipfs/" + uri.removePrefix("ipfs://")
+            uri.startsWith("ipfs://ipfs/") -> "https://gateway.pinata.cloud/ipfs/" + uri.removePrefix("ipfs://ipfs/")
+            uri.startsWith("ipfs://") -> "https://gateway.pinata.cloud/ipfs/" + uri.removePrefix("ipfs://")
             uri.startsWith("ar://") -> "https://arweave.net/" + uri.removePrefix("ar://")
             else -> uri
         }
