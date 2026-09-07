@@ -474,13 +474,23 @@ private fun BalanceAssetsList(
                             if (!uiState.networkAvailable) {
                                 subheadSB_lucian(stringResource(R.string.Hud_Text_NoInternet))
                             }
-                            ButtonSecondaryCircle(
-                                icon = R.drawable.ic_image_2_24,
-                                contentDescription = stringResource(R.string.Balance_TabNft),
+                            HsIconButton(
                                 onClick = {
                                     navController.slideFromRight(R.id.nftCollectionsFragment)
-                                }
-                            )
+                                },
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(ComposeAppTheme.colors.blade),
+                                rippleColor = ComposeAppTheme.colors.leah
+                            ) {
+                                Text(
+                                    text = "NFT",
+                                    style = ComposeAppTheme.typography.microSB,
+                                    color = ComposeAppTheme.colors.leah,
+                                    maxLines = 1
+                                )
+                            }
                             HsIconButton(
                                 onClick = {
                                     navController.slideFromRight(R.id.listLiquidity)
