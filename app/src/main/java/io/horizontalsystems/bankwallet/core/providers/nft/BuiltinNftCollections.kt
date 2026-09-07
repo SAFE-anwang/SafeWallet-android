@@ -36,7 +36,7 @@ object BuiltinNftCollections {
             contractAddress = "0xb66f8289fAbd691F5b5A646db477A87BeA17A284",
             name = "Rewards at 2eth.eu",
         ),
-        BuiltinNftCollection(
+        /*BuiltinNftCollection(
             blockchainType = BlockchainType.BinanceSmartChain,
             contractAddress = "0x7dc1049211f76324e651fe6584156ab22bd7b47e",
             name = "Bored Collection",
@@ -45,7 +45,7 @@ object BuiltinNftCollections {
             blockchainType = BlockchainType.BinanceSmartChain,
             contractAddress = "0xca635054afce6c12df89b48389e43666447d1733",
             name = "BNB COUPON NFT",
-        ),
+        ),*/
     )
 
     private val map = collections.associateBy { it.blockchainType to it.contractAddress.lowercase() }

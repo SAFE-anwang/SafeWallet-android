@@ -792,6 +792,41 @@ private fun Safe4Sections(
     Spacer(Modifier.height(25.dp))
 
     Text(
+        text = stringResource(R.string.Nft_Issue_Section_Title),
+        style = ComposeAppTheme.typography.subheadB,
+        color = ComposeAppTheme.colors.leah,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+
+    Spacer(Modifier.height(10.dp))
+
+    CellSingleLineLawrenceSection(
+        listOf(
+            {
+                HsSettingCell(
+                    R.string.Nft_Issue_Action,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.nftDeploy(true, navController)
+                    }
+                )
+            },
+            {
+                HsSettingCell(
+                    R.string.Nft_Manage_Action,
+                    R.mipmap.ic_app_color,
+                    onClick = {
+                        Safe4Module.nftDeploy(false, navController)
+                    }
+                )
+            }
+        )
+    )
+
+    Spacer(Modifier.height(25.dp))
+
+    Text(
         text = stringResource(R.string.Safe4_Safe_Basic_Info),
         style = ComposeAppTheme.typography.subheadB,
         color = ComposeAppTheme.colors.leah,

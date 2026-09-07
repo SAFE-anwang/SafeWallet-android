@@ -743,6 +743,22 @@
         android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20ManagerFragment" />
 
     <fragment
+        android:id="@+id/src721DeployFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721DeployFragment" />
+
+    <fragment
+        android:id="@+id/src721ManagerFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721ManagerFragment" />
+
+    <fragment
+        android:id="@+id/src721MintFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721MintFragment" />
+
+    <fragment
+        android:id="@+id/src721EditFragment"
+        android:name="io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721EditFragment" />
+
+    <fragment
         android:id="@+id/src20EditFragment"
         android:name="io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20EditFragment" />
 

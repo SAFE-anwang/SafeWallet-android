@@ -28,6 +28,7 @@ import io.horizontalsystems.bankwallet.modules.safe4.node.withdraw.WithdrawModul
 import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppManageFragment
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendActivity
 import io.horizontalsystems.bankwallet.modules.safe4.safe2wsafe.SafeConvertSendFragment
+import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721Module
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SRC20Module
 import io.horizontalsystems.bankwallet.modules.safe4.swap.SAFE4SwapFragment
 import io.horizontalsystems.bankwallet.modules.safe4.swap.Safe4SwapViewModel
@@ -506,6 +507,32 @@ object Safe4Module {
         } else {
             Toast.makeText(context, getString(R.string.Balance_Syncing), Toast.LENGTH_SHORT).show()
         }*/
+    }
+
+    fun nftDeploy(isDeploy: Boolean, navController: NavController) {
+        val context = navController.context
+        val walletList: List<Wallet> = App.walletManager.activeWallets
+        var safeWallet: Wallet? = null
+        for (it in walletList) {
+            if (it.token.blockchain.type is BlockchainType.SafeFour && it.coin.uid == "safe4-coin" && it.token.type == TokenType.Native) {
+                safeWallet = it
+            }
+        }
+        if (safeWallet == null) {
+            Toast.makeText(context, getString(R.string.Safe4_Wallet_Tips, "SAFE4"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (isDeploy) {
+            navController.slideFromBottom(
+                R.id.src721DeployFragment,
+                SRC721Module.Input(safeWallet)
+            )
+        } else {
+            navController.slideFromBottom(
+                R.id.src721ManagerFragment,
+                SRC721Module.Input(safeWallet)
+            )
+        }
     }
 
 

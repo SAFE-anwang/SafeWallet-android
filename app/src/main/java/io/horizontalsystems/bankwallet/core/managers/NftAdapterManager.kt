@@ -2,9 +2,11 @@ package io.horizontalsystems.bankwallet.core.managers
 
 import io.horizontalsystems.bankwallet.core.adapters.nft.EvmNftAdapter
 import io.horizontalsystems.bankwallet.core.adapters.nft.INftAdapter
+import io.horizontalsystems.bankwallet.core.adapters.nft.Safe4NftAdapter
 import io.horizontalsystems.bankwallet.core.supportedNftTypes
 import io.horizontalsystems.bankwallet.entities.Wallet
 import io.horizontalsystems.bankwallet.entities.nft.NftKey
+import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +53,21 @@ class NftAdapterManager(
         val nftKeys = wallets.map { NftKey(it.account, it.token.blockchainType) }.distinct()
 
         for (nftKey in nftKeys) {
+            // SAFE4 的 SRC721 NFT 不走 nftKit，使用专属适配器
+            if (nftKey.blockchainType == BlockchainType.SafeFour) {
+                val existing = currentAdapters.remove(nftKey)
+                if (existing != null) {
+                    adaptersMap[nftKey] = existing
+                } else if (evmBlockchainManager.getBlockchain(nftKey.blockchainType) != null) {
+                    val evmKitWrapper = evmBlockchainManager.getEvmKitManager(nftKey.blockchainType)
+                        .getEvmKitWrapper(nftKey.account, nftKey.blockchainType)
+                    val adapter = Safe4NftAdapter(evmKitWrapper)
+                    adaptersMap[nftKey] = adapter
+                    adapter.sync()
+                }
+                continue
+            }
+
             if (nftKey.blockchainType.supportedNftTypes.isEmpty()) continue
 
             val adapter = currentAdapters.remove(nftKey)

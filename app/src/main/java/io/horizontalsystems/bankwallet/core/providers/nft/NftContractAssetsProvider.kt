@@ -76,19 +76,21 @@ class NftContractAssetsProvider(
     }
 
     private fun reservoirService(blockchainType: BlockchainType): ReservoirTokensApi? {
-        if (!services.containsKey(blockchainType)) {
-            val retrofit: Retrofit? = when (blockchainType) {
-                BlockchainType.Ethereum -> APIClient.retrofit("https://api.reservoir.tools/", 30)
-                BlockchainType.BinanceSmartChain -> APIClient.retrofit("https://api-bsc.reservoir.tools/", 30)
-                BlockchainType.Polygon -> APIClient.retrofit("https://api-polygon.reservoir.tools/", 30)
-                BlockchainType.ArbitrumOne -> APIClient.retrofit("https://api-arbitrum.reservoir.tools/", 30)
-                BlockchainType.Optimism -> APIClient.retrofit("https://api-optimism.reservoir.tools/", 30)
-                BlockchainType.Base -> APIClient.retrofit("https://api-base.reservoir.tools/", 30)
-                else -> null
-            }
-            services[blockchainType] = retrofit?.create(ReservoirTokensApi::class.java)
+        services[blockchainType]?.let { return it }
+        val retrofit: Retrofit? = when (blockchainType) {
+            BlockchainType.Ethereum -> APIClient.retrofit("https://api.reservoir.tools/", 30)
+            BlockchainType.BinanceSmartChain -> APIClient.retrofit("https://api-bsc.reservoir.tools/", 30)
+            BlockchainType.Polygon -> APIClient.retrofit("https://api-polygon.reservoir.tools/", 30)
+            BlockchainType.ArbitrumOne -> APIClient.retrofit("https://api-arbitrum.reservoir.tools/", 30)
+            BlockchainType.Optimism -> APIClient.retrofit("https://api-optimism.reservoir.tools/", 30)
+            BlockchainType.Base -> APIClient.retrofit("https://api-base.reservoir.tools/", 30)
+            else -> null
         }
-        return services[blockchainType]
+        val api = retrofit?.create(ReservoirTokensApi::class.java)
+        if (api != null) {
+            services[blockchainType] = api
+        }
+        return api
     }
 
     private suspend fun fetchFromEnumerable(
