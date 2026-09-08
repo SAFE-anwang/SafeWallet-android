@@ -437,6 +437,10 @@
     <string name="Nft_Description">介绍</string>
     <string name="Nft_Events">交易记录</string>
     <string name="Nft_Issue_Section_Title">NFT 发行</string>
+    <string name="Nft_Favorite">收藏</string>
+    <string name="Nft_Tab_All">全部</string>
+    <string name="Nft_Tab_Favorites">收藏</string>
+    <string name="Nft_Favorites_Empty">暂无收藏</string>
     <string name="Nft_Issue_Action">一键发行 NFT</string>
     <string name="Nft_Manage_Action">NFT 管理</string>
     <string name="Nft_Issue_Title">发行 NFT</string>

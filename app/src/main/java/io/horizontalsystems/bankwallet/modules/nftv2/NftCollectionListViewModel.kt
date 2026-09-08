@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import io.horizontalsystems.bankwallet.R
 import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.adapters.nft.INftAdapter
 import io.horizontalsystems.bankwallet.core.managers.NftAdapterManager
@@ -32,10 +33,16 @@ data class NftCollectionViewItem(
     val imageUrl: String?,
 )
 
+enum class NftListTab(val titleRes: Int) {
+    All(R.string.Nft_Tab_All),
+    Favorites(R.string.Nft_Tab_Favorites)
+}
+
 data class NftCollectionListUiState(
     val viewState: ViewState = ViewState.Loading,
     val collections: List<NftCollectionViewItem> = emptyList(),
     val syncing: Boolean = false,
+    val tab: NftListTab = NftListTab.All,
 )
 
 class NftCollectionListViewModel(
@@ -169,7 +176,15 @@ class NftCollectionListViewModel(
             }
         }
 
-        val collections = items.values.sortedByDescending { it.count }
+        var collections = items.values.sortedByDescending { it.count }
+
+        // 收藏 Tab 只显示已收藏的合集
+        if (uiState.tab == NftListTab.Favorites) {
+            val favorites = NftFavoritesStorage.all()
+            collections = collections.filter { item ->
+                NftFavoritesStorage.composeKey(item.blockchainType.uid, item.contractAddress) in favorites
+            }
+        }
 
         uiState = uiState.copy(
             viewState = ViewState.Success,
@@ -224,6 +239,11 @@ class NftCollectionListViewModel(
                 uiState = uiState.copy(syncing = false, viewState = ViewState.Success)
             }
         }
+    }
+
+    fun onTabChange(tab: NftListTab) {
+        uiState = uiState.copy(tab = tab)
+        rebuildItems()
     }
 
     class Factory : ViewModelProvider.Factory {

@@ -545,6 +545,10 @@
     <string name="Nft_Description">Description</string>
     <string name="Nft_Events">Activity</string>
     <string name="Nft_Issue_Section_Title">NFT Issuance</string>
+    <string name="Nft_Favorite">Favorite</string>
+    <string name="Nft_Tab_All">All</string>
+    <string name="Nft_Tab_Favorites">Favorites</string>
+    <string name="Nft_Favorites_Empty">No favorites yet</string>
     <string name="Nft_Issue_Action">Issue NFT</string>
     <string name="Nft_Manage_Action">Manage NFTs</string>
     <string name="Nft_Issue_Title">Deploy NFT</string>

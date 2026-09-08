@@ -41,7 +41,9 @@ import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.modules.nftv2.asset.NftAssetFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.bankwallet.ui.compose.components.CoinImage
+import io.horizontalsystems.bankwallet.ui.compose.components.MenuItem
 import io.horizontalsystems.bankwallet.ui.compose.components.VSpacer
 import io.horizontalsystems.bankwallet.ui.compose.components.body_leah
 import io.horizontalsystems.bankwallet.ui.compose.components.caption_grey
@@ -86,7 +88,15 @@ private fun NftCollectionScreen(
 
     HSScaffold(
         title = stringResource(R.string.Nft_Collection_Title),
-        onBack = { navController.popBackStack() }
+        onBack = { navController.popBackStack() },
+        menuItems = listOf(
+            MenuItem(
+                title = TranslatableString.ResString(R.string.Nft_Favorite),
+                icon = if (uiState.isFavorite) R.drawable.ic_star_filled_20 else R.drawable.ic_star_20,
+                tint = if (uiState.isFavorite) ComposeAppTheme.colors.jacob else ComposeAppTheme.colors.grey,
+                onClick = { viewModel.toggleFavorite() }
+            )
+        )
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),

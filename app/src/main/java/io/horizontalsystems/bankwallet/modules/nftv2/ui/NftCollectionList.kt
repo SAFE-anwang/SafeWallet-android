@@ -30,6 +30,7 @@ import io.horizontalsystems.bankwallet.core.slideFromRight
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.modules.nftv2.NftCollectionListViewModel
 import io.horizontalsystems.bankwallet.modules.nftv2.NftCollectionViewItem
+import io.horizontalsystems.bankwallet.modules.nftv2.NftListTab
 import io.horizontalsystems.bankwallet.modules.nftv2.collection.NftCollectionFragment
 import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.HSSwipeRefresh
@@ -40,7 +41,7 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 @Composable
 fun NftCollectionList(
     navController: NavController,
-    viewModel: NftCollectionListViewModel = viewModel(factory = NftCollectionListViewModel.Factory())
+    viewModel: NftCollectionListViewModel
 ) {
     val uiState = viewModel.uiState
 
@@ -56,7 +57,13 @@ fun NftCollectionList(
             when (uiState.viewState) {
                 ViewState.Success -> {
                     if (uiState.collections.isEmpty()) {
-                        item { NftEmptyBlock() }
+                        item {
+                            NftEmptyBlock(
+                                text = if (uiState.tab == NftListTab.Favorites)
+                                    stringResource(R.string.Nft_Favorites_Empty)
+                                else stringResource(R.string.Nft_EmptyList)
+                            )
+                        }
                     } else {
                         items(
                             items = uiState.collections,
@@ -150,7 +157,7 @@ private fun NftCollectionCell(
 }
 
 @Composable
-private fun NftEmptyBlock() {
+private fun NftEmptyBlock(text: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -159,7 +166,7 @@ private fun NftEmptyBlock() {
     ) {
         VSpacer(100.dp)
         subhead2_grey(
-            text = stringResource(R.string.Nft_EmptyList),
+            text = text,
             textAlign = TextAlign.Center
         )
         VSpacer(32.dp)

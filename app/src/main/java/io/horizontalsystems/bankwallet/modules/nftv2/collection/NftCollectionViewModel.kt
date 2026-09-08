@@ -18,6 +18,7 @@ import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftKey
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
+import io.horizontalsystems.bankwallet.modules.nftv2.NftFavoritesStorage
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.marketkit.models.Token
 import io.horizontalsystems.marketkit.models.TokenQuery
@@ -49,6 +50,7 @@ data class NftCollectionUiState(
     val averagePrice24h: String = "0",
     val volume24h: String = "0",
     val baseToken: Token? = null,
+    val isFavorite: Boolean = false,
 )
 
 class NftCollectionViewModel(
@@ -64,6 +66,8 @@ class NftCollectionViewModel(
 
     private val builtin = BuiltinNftCollections.find(blockchainType, contractAddress)
 
+    private var isFavorite = NftFavoritesStorage.isFavorite(blockchainType.uid, contractAddress)
+
     var uiState by mutableStateOf(
         NftCollectionUiState(
             collectionName = builtin?.name ?: collectionName,
@@ -74,7 +78,8 @@ class NftCollectionViewModel(
                 marketKit.token(TokenQuery(blockchainType, TokenType.Native))
             } catch (e: Throwable) {
                 null
-            }
+            },
+            isFavorite = isFavorite
         )
     )
         private set
@@ -248,6 +253,11 @@ class NftCollectionViewModel(
     private fun standardName(nftType: NftType): String = when (nftType) {
         NftType.Eip721 -> "ERC721"
         NftType.Eip1155 -> "ERC1155"
+    }
+
+    fun toggleFavorite() {
+        isFavorite = NftFavoritesStorage.toggle(blockchainType.uid, contractAddress)
+        uiState = uiState.copy(isFavorite = isFavorite)
     }
 
     class Factory(
