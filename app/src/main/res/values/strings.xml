@@ -2603,6 +2603,7 @@
     <string name="Safe_Four_Master_Node_All">Master Node List</string>
     <string name="Safe_Four_Super_Node_Mine">My Super Node</string>
     <string name="Safe_Four_Master_Node_Mine">My Master Node</string>
+    <string name="Safe_Four_Master_Node_Crowdfunding">Crowdfunding</string>
     <string name="Safe_Four_Proposal">Proposal</string>
     <string name="Safe_Four_Lock">Locked</string>
     <string name="Safe_Four_Vote">Vote</string>
@@ -2639,6 +2640,7 @@
     <string name="Safe_Four_Register_Node_Send">Send</string>
     <string name="Safe_Four_No_Super_Node">You don\'t have create Super Node</string>
     <string name="Safe_Four_No_Master_Node">You don\'t have create Master Node</string>
+    <string name="Safe_Four_No_Crowdfunding_Master_Node">No master node is crowdfunding</string>
     <string name="Safe_Four_No_Locked_Record">You don\'t have locked record</string>
     <string name="Safe_Four_No_Vote_Record">Don\'t have vote record</string>
     <string name="Safe_Four_Node_Online">Online</string>

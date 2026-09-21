@@ -115,6 +115,7 @@ class SafeFourModule {
             val title: String,
             val nodeList: List<NodeViewItem>?,
             val mineList: List<NodeViewItem>?,
+            val crowdfundingList: List<NodeViewItem>? = null,
             val isRegisterNode: Pair<Boolean, Boolean> = Pair(false, false)
     )
 

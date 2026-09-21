@@ -58,6 +58,7 @@ object SuperNodeCacheManager {
 
 				val allNodes = mutableListOf<NodeInfo>()
 				var offset = 0
+				var fetchFailed = false
 
 				while (offset < totalSuperCount) {
 					val pageCount = minOf(ITEMS_PER_PAGE, totalSuperCount - offset)
@@ -81,12 +82,18 @@ object SuperNodeCacheManager {
 
 					} catch (e: Exception) {
 						Log.e(TAG, "Failed to fetch super node page at offset=$offset", e)
+						fetchFailed = true
 						break
 					}
 				}
 
-				// 批量写入数据库
-				if (allNodes.isNotEmpty()) {
+				// 批量写入数据库（同主节点：仅在完整拉取后才覆盖旧缓存）
+				if (allNodes.isEmpty()) {
+					Log.w(TAG, "No super nodes fetched, keep existing cache")
+				} else if (fetchFailed) {
+					Log.w(TAG, "Super node fetch interrupted at offset=$offset, " +
+							"skip cache update to avoid overwriting complete cache (${allNodes.size} fetched)")
+				} else {
 					val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
 					App.appDatabase.nodeInfoDao().deleteNodeInfoList(0, chainType)
 					App.appDatabase.nodeInfoDao().insert(allNodes.map { it.copy(chainType = chainType) })
@@ -133,6 +140,7 @@ object SuperNodeCacheManager {
 
 				val allNodes = mutableListOf<NodeInfo>()
 				var offset = 0
+				var fetchFailed = false
 
 				while (offset < totalMasterCount) {
 					val pageCount = minOf(ITEMS_PER_PAGE, totalMasterCount - offset)
@@ -142,7 +150,7 @@ object SuperNodeCacheManager {
 
 						for (address in addresses) {
 							try {
-								val nodeInfo = fetchMasterNodeDetail(rpc.blockchain, address, walletAddress)
+								val nodeInfo = fetchMasterNodeDetail(rpc.blockchain, address, walletAddress, allNodes.size)
 								if (nodeInfo != null) {
 									allNodes.add(nodeInfo)
 								}
@@ -156,12 +164,20 @@ object SuperNodeCacheManager {
 
 					} catch (e: Exception) {
 						Log.e(TAG, "Failed to fetch master node page at offset=$offset", e)
+						fetchFailed = true
 						break
 					}
 				}
 
-				// 批量写入数据库
-				if (allNodes.isNotEmpty()) {
+				// 批量写入数据库。
+				// 必须在完整拉取到全部节点后才覆盖旧缓存：
+				// 若中途失败仍执行 delete+insert，会把上次的完整缓存替换成残缺数据（越同步越少）。
+				if (allNodes.isEmpty()) {
+					Log.w(TAG, "No master nodes fetched, keep existing cache")
+				} else if (fetchFailed) {
+					Log.w(TAG, "Master node fetch interrupted at offset=$offset, " +
+							"skip cache update to avoid overwriting complete cache (${allNodes.size} fetched)")
+				} else {
 					val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
 					App.appDatabase.nodeInfoDao().deleteNodeInfoList(1, chainType)
 					App.appDatabase.nodeInfoDao().insert(allNodes.map { it.copy(chainType = chainType) })
@@ -270,7 +286,8 @@ object SuperNodeCacheManager {
 	private fun fetchMasterNodeDetail(
 		rpc: RpcBlockchainSafe4,
 		address: String,
-		walletAddress: Address
+		walletAddress: Address,
+		index: Int
 	): NodeInfo? {
 		return try {
 			val info = rpc.masterNodeInfo(address)
@@ -292,7 +309,8 @@ object SuperNodeCacheManager {
 				updateHeight = info.updateHeight.toLong(),
 				isEdit = walletAddress.hex.equals(info.creator.value, true),
 				availableLimit = NodeCovertFactory.scaleConvert(NodeCovertFactory.Master_Node_Create_Amount) - info.founders.sumOf { it.amount },
-				type = 1
+				type = 1,
+				sortOrder = index
 			)
 
 			// 补充投票信息

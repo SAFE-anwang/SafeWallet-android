@@ -44,6 +44,7 @@ import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559FeeSettings
 import io.horizontalsystems.bankwallet.modules.evmfee.eip1559.Eip1559GasPriceService
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyFeeSettingsViewModel
 import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceService
+import io.horizontalsystems.bankwallet.modules.evmfee.legacy.LegacyGasPriceService.Companion.DEFAULT_GAS_PRICE
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataField
 import io.horizontalsystems.bankwallet.modules.multiswap.ui.DataFieldNonce
 import io.horizontalsystems.bankwallet.modules.send.SendModule
@@ -102,7 +103,7 @@ class SendTransactionServiceEvm(
             LegacyGasPriceService(
                 gasPriceProvider = gasPriceProvider,
                 minRecommendedGasPrice = (minGasPrice as? GasPrice.Legacy)?.legacyGasPrice,
-                initialGasPrice = (initialGasPrice as? GasPrice.Legacy)?.legacyGasPrice
+                initialGasPrice = (initialGasPrice as? GasPrice.Legacy)?.legacyGasPrice ?: DEFAULT_GAS_PRICE
             )
         }
     }

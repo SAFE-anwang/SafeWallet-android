@@ -21,8 +21,8 @@ interface NodeInfoDao {
     @Update
     fun update(token: NodeInfo)
 
-    @Query("DELETE FROM NodeInfo WHERE id = :id AND chainType = :chainType")
-    fun delete(id: Long, chainType: Int)
+    @Query("DELETE FROM NodeInfo WHERE id = :id AND type = :type AND chainType = :chainType")
+    fun delete(id: Long, type: Int, chainType: Int)
 
 
 

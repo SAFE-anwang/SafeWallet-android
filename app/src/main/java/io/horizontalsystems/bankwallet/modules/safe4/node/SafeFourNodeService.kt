@@ -17,6 +17,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import org.apache.commons.lang3.StringUtils
 import java.math.BigInteger
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
@@ -48,6 +49,9 @@ class SafeFourNodeService(
 
 	private val nodeInfoSubject = PublishSubject.create<NodeInfo>()
 	val nodeInfoObservable: Observable<NodeInfo> get() = nodeInfoSubject
+
+	private val searchResultSubject = PublishSubject.create<List<NodeInfo>>()
+	val searchResultObservable: Observable<List<NodeInfo>> get() = searchResultSubject
 
 	private val registerNodeSubject = PublishSubject.create<Pair<Boolean, Boolean>>()
 	val registerNodeObservable: Observable<Pair<Boolean, Boolean>> get() = registerNodeSubject
@@ -148,16 +152,17 @@ class SafeFourNodeService(
 							}
 
 							info?.allVoteNum = allVoteNum
-							if (isSuperNode) {
-								info?.sortOrder = nodeList.size
-							}
+							// 主节点与超级节点都需要排序字段，否则读缓存时 ORDER BY sortOrder 失效
+							info?.sortOrder = nodeList.size
 							info?.let {
 								nodeList.add(it)
 							}
 						}
 						if (nodeList.isNotEmpty()) {
 							val chainType = if (App.localStorage.isSafe4TestNet) 1 else 0
-							App.appDatabase.nodeInfoDao().deleteNodeInfoList(if (isSuperNode) 0 else 1, chainType)
+							// 注意：这里只做 upsert，不能先 deleteNodeInfoList。
+							// 分页加载每次只拿到当前页（itemsPerPage 条），若先清空再写入，
+							// 会把启动时缓存的全量数据删成只剩当前页，导致缓存越用越少。
 							App.appDatabase.nodeInfoDao().insert(nodeList.map { it.copy(chainType = chainType) })
 						}
 						nodeList
@@ -410,6 +415,54 @@ class SafeFourNodeService(
 			Log.e(TAG, "master node info error=$e")
 			return null
 		}
+	}
+
+	/**
+	 * 从接口查询节点：
+	 * - 纯数字视为节点 ID，走 xxxNodeInfoById；
+	 * - 否则视为地址，走 xxxNodeInfo(address)。
+	 *
+	 * 查询结果经 [searchResultObservable] 发出（未查到为空列表）。
+	 */
+	fun searchNodeByQuery(query: String) {
+		val trimmed = query.trim()
+		if (trimmed.isEmpty()) return
+
+		val single: Single<NodeInfo?> = (if (StringUtils.isNumeric(trimmed)) {
+            // 分别为两种节点类型显式声明泛型，避免 when 分支把 Single 的泛型
+            // 推断为共同的父类型（DynamicStruct）导致 convert 方法签名不匹配
+            val nodeId = trimmed.toInt()
+            val infoSingle: Single<NodeInfo> = when (nodeType) {
+                NodeType.SuperNode -> safe4RpcBlockChain.superNodeInfoById(nodeId)
+                    .map { info -> NodeCovertFactory.covertSuperNode(info, walletAddress) }
+
+                NodeType.MainNode -> safe4RpcBlockChain.masterNodeInfoById(nodeId)
+                    .map { info -> NodeCovertFactory.covertMasterNode(info, walletAddress) }
+            }
+            infoSingle
+        } else {
+            // 显式声明可空泛型，与 then 分支的 Single<NodeInfo> 统一为 Single<NodeInfo?>
+            val addressSingle: Single<NodeInfo?> = Single.fromCallable<NodeInfo?> {
+                when (nodeType) {
+                    NodeType.SuperNode -> getSuperNodeInfo(trimmed)
+                    NodeType.MainNode -> getMasterNodeInfo(trimmed)
+                }
+            }
+            addressSingle
+        }) as Single<NodeInfo?>
+
+		single
+				.subscribeOn(Schedulers.io())
+				.onErrorReturn { e ->
+					Log.e(TAG, "search node error=$e")
+					null
+				}
+				.map { node -> listOfNotNull(node) }
+				.subscribe { result ->
+					searchResultSubject.onNext(result)
+				}?.let {
+					disposables.add(it)
+				}
 	}
 
 

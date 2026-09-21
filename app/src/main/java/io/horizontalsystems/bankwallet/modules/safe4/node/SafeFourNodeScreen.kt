@@ -131,7 +131,9 @@ fun TabScreen(
 		}
 		Tabs(tabItems, onClick = { tab ->
 			coroutineScope.launch {
-				pagerState.scrollToPage(tab.first)
+				// 注意：tab.first 是语义 ID（0=全部/1=我的/2=众筹），并非页码。
+				// 众筹 Tab 居中展示后两者顺序不一致，必须用在 tabs 中的位置作为页码。
+				pagerState.scrollToPage(tabs.indexOf(tab))
 			}
 		})
 		Spacer(modifier = Modifier.height(2.dp))
@@ -154,7 +156,12 @@ fun TabScreen(
 				1 -> {
 					SafeFourNodeScreen(viewModel, navController, true)
 				}
+
+				2 -> {
+					SafeFourNodeScreen(viewModel, navController, isCrowdfunding = true)
+				}
 			}
+			
 		}
 	}
 }
@@ -163,10 +170,15 @@ fun TabScreen(
 fun SafeFourNodeScreen(
 		viewModel: SafeFourNodeViewModel,
 		navController: NavController,
-		isMine: Boolean = false
+		isMine: Boolean = false,
+		isCrowdfunding: Boolean = false
 ) {
 	val uiState = viewModel.uiState
-	val nodeList = if (isMine) uiState.mineList else uiState.nodeList
+	val nodeList = when {
+		isCrowdfunding -> uiState.crowdfundingList
+		isMine -> uiState.mineList
+		else -> uiState.nodeList
+	}
 	val isRegisterNode = uiState.isRegisterNode
 	Column(modifier = Modifier.background(color = ComposeAppTheme.colors.tyler)) {
 		Scaffold(
@@ -182,10 +194,11 @@ fun SafeFourNodeScreen(
 					} else {
 						ListEmptyView(
 								text = stringResource(
-										if (viewModel.isSuperNode())
-											R.string.Safe_Four_No_Super_Node
-										else
-											R.string.Safe_Four_No_Master_Node),
+										when {
+											isCrowdfunding -> R.string.Safe_Four_No_Crowdfunding_Master_Node
+											viewModel.isSuperNode() -> R.string.Safe_Four_No_Super_Node
+											else -> R.string.Safe_Four_No_Master_Node
+										}),
 								icon = R.drawable.ic_no_data
 						)
 					}

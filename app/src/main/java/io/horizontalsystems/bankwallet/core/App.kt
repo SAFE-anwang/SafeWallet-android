@@ -744,11 +744,11 @@ class App : CoreApp(), WorkConfiguration.Provider, ImageLoaderFactory {
             migrationManager.runMigrations()
         }
 
-        // 等待适配器初始化完成后，预加载超级节点信息到本地缓存数据库
+        // 等待适配器初始化完成后，预加载超级节点与主节点信息到本地缓存数据库
         coroutineScope.launch {
             (adapterManager as AdapterManager).adaptersReadyObservable.asFlow().collect { adapters ->
                 if (adapters.isNotEmpty()) {
-                    SuperNodeCacheManager.cacheAllSuperNodes()
+                    SuperNodeCacheManager.cacheAllNodes()
                 }
             }
         }

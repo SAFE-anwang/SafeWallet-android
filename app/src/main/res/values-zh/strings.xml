@@ -2243,6 +2243,7 @@
     <string name="Safe_Four_Master_Node_All">主节点列表</string>
     <string name="Safe_Four_Super_Node_Mine">我的超级节点</string>
     <string name="Safe_Four_Master_Node_Mine">我的主节点</string>
+    <string name="Safe_Four_Master_Node_Crowdfunding">众筹主节点</string>
     <string name="Safe_Four_Proposal">提案</string>
     <string name="Safe_Four_Lock">锁仓</string>
     <string name="Safe_Four_Vote">投票</string>
@@ -2278,6 +2279,7 @@
     <string name="Safe_Four_Register_Node_Send">发送</string>
     <string name="Safe_Four_No_Super_Node">您还没有创建超级节点</string>
     <string name="Safe_Four_No_Master_Node">您还没有创建主节点</string>
+    <string name="Safe_Four_No_Crowdfunding_Master_Node">暂无众筹中的主节点</string>
     <string name="Safe_Four_No_Locked_Record">您还没有锁仓记录</string>
     <string name="Safe_Four_No_Vote_Record">没有投票人记录</string>
     <string name="Safe_Four_Node_Online">在线</string>
