@@ -180,8 +180,8 @@ class LockedInfoViewModel(
                                 || ((it.releaseHeight ?: 0) > 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0))
                                 || ((it.unlockHeight ?: 0L) == 0L && (it.releaseHeight ?: 0) < (evmKit.lastBlockHeight ?: 0)),
                         if (it.address == service.zeroAddress || it.type > 0) null else (it.unlockHeight ?: 0) > 0L,
-                        contract = service.getContract(it.type),
-                        type = it.type
+                        service.getContract(it.type),
+                        it.type
                     )
                 }
                 initIfNeed()
