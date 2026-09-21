@@ -18,8 +18,15 @@ import kotlin.math.max
 
 class LegacyGasPriceService(
     private val gasPriceProvider: LegacyGasPriceProvider,
-    private val minRecommendedGasPrice: Long? = null,
-    private val initialGasPrice: Long? = null,
+    private val minRecommendedGasPrice: Long? = DEFAULT_GAS_PRICE,
+    /**
+     * 初始显示的 gasPrice。
+     *
+     * 默认 100_000_000 wei（0.1 Gwei）：部分链（如 SAFE4）节点返回的 gasPrice 偏低，
+     * 且获取推荐值需要一次网络请求，为避免界面初始为 Loading 且值偏低，
+     * 这里直接以 0.1 Gwei 作为初始默认值，用户点「推荐」后仍会取节点真实值覆盖。
+     */
+    private val initialGasPrice: Long? = DEFAULT_GAS_PRICE,
 ) : IEvmGasPriceService() {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private var setGasPriceJob: Job? = null
@@ -116,5 +123,10 @@ class LegacyGasPriceService(
                 emitState()
             }
         }
+    }
+
+    companion object {
+        /** 默认 gasPrice：100_000_000 wei（0.1 Gwei），用作初始化时的初始值 */
+        const val DEFAULT_GAS_PRICE = 100_000_000L
     }
 }
