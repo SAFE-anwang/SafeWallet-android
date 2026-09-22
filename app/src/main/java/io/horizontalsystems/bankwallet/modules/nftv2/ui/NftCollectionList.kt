@@ -45,18 +45,20 @@ import io.horizontalsystems.marketkit.models.BlockchainType
 @Composable
 fun NftCollectionList(
     navController: NavController,
-    viewModel: NftCollectionListViewModel
+    viewModel: NftCollectionListViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState = viewModel.uiState
 
     HSSwipeRefresh(
         refreshing = uiState.syncing,
+        modifier = modifier,
         onRefresh = viewModel::refresh
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ComposeAppTheme.colors.lawrence),
+                .background(ComposeAppTheme.colors.tyler),
         ) {
             when (uiState.viewState) {
                 ViewState.Success -> {
@@ -156,6 +158,7 @@ private fun BlockchainHeader(name: String, count: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(ComposeAppTheme.colors.raina)
             .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

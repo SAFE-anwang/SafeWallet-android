@@ -37,8 +37,13 @@ private fun NftCollectionsScreen(navController: NavController) {
         title = stringResource(R.string.Balance_TabNft),
         onBack = { navController.popBackStack() }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Tab 栏
+        // Tab 栏固定在顶部，列表区域铺满剩余空间，
+        // 保证列表背景色（lawrence）覆盖到屏幕底部，不留白块
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ComposeAppTheme.colors.lawrence)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,7 +63,11 @@ private fun NftCollectionsScreen(navController: NavController) {
                 )
             }
 
-            NftCollectionList(navController, viewModel)
+            NftCollectionList(
+                navController = navController,
+                viewModel = viewModel,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
