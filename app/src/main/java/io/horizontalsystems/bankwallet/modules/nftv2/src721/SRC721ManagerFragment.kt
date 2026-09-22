@@ -42,6 +42,7 @@ import io.horizontalsystems.bankwallet.ui.compose.ComposeAppTheme
 import io.horizontalsystems.bankwallet.ui.compose.components.AppBar
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryTransparent
 import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow
+import io.horizontalsystems.bankwallet.ui.compose.components.ButtonPrimaryYellow2
 import io.horizontalsystems.bankwallet.ui.compose.components.FormsInput
 import io.horizontalsystems.bankwallet.ui.compose.components.HsBackButton
 import io.horizontalsystems.bankwallet.ui.compose.components.body_bran
@@ -246,37 +247,35 @@ private fun SRC721ItemCard(
         }
 
         Spacer(Modifier.height(12.dp))
+        // 按钮样式与主节点列表保持一致：等宽均分、统一高度、间距 10.dp
         Row {
-            ActionText(text = stringResource(R.string.Nft_Mint_Action), onClick = onMint)
+            ButtonPrimaryYellow2(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(25.dp),
+                title = stringResource(R.string.Nft_Mint_Action),
+                onClick = onMint
+            )
             if (item.info.burnable) {
-                Spacer(Modifier.width(24.dp))
-                ActionText(text = stringResource(R.string.Nft_Burn_Action), onClick = onBurn)
+                Spacer(Modifier.width(10.dp))
+                ButtonPrimaryYellow2(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(25.dp),
+                    title = stringResource(R.string.Nft_Burn_Action),
+                    onClick = onBurn
+                )
             }
-            Spacer(Modifier.weight(1f))
-            ActionText(
-                text = stringResource(R.string.Button_Delete),
-                color = ComposeAppTheme.colors.lucian,
+            Spacer(Modifier.width(10.dp))
+            ButtonPrimaryYellow2(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(25.dp),
+                title = stringResource(R.string.Button_Delete),
                 onClick = onRemove
             )
         }
     }
-}
-
-@Composable
-private fun ActionText(
-    text: String,
-    color: androidx.compose.ui.graphics.Color = ComposeAppTheme.colors.jacob,
-    onClick: () -> Unit
-) {
-    Text(
-        text = text,
-        style = ComposeAppTheme.typography.subhead,
-        color = color,
-        modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 2.dp)
-    )
 }
 
 @Composable
@@ -302,7 +301,8 @@ private fun BurnTokenDialog(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true,
                 pasteEnabled = true,
-                hint = "",
+                // 提示该编号的含义与取值范围
+                hint = stringResource(R.string.Nft_Burn_TokenId_Field_Hint),
                 initial = tokenId,
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
