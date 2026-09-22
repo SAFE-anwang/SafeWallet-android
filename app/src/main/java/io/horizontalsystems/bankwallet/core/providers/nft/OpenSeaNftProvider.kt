@@ -26,13 +26,16 @@ import java.util.TimeZone
 
 class OpenSeaNftProvider(
     private val marketKit: MarketKitWrapper,
-    appConfigProvider: AppConfigProvider
+    appConfigProvider: AppConfigProvider,
+    /** OpenSea API 域名，不同链使用不同域名（见 [openSeaBaseUrl]） */
+    openSeaBaseUrl: String = OPEN_SEA_ETHEREUM_BASE_URL,
 ) : INftProvider {
 
     private val service: OpenSeaService = OpenSeaService(
         appConfigProvider.marketApiBaseUrl,
         appConfigProvider.marketApiKey,
-        appConfigProvider.openSeaApiKey
+        appConfigProvider.openSeaApiKey,
+        openSeaBaseUrl
     )
     private val zeroAddress = "0x0000000000000000000000000000000000000000"
 
@@ -388,5 +391,15 @@ class OpenSeaNftProvider(
         return "https://opensea.io/assets/${collectionUid}?search[stringTraits][0][name]=${type}" +
                 "&search[stringTraits][0][values][0]=${value}" +
                 "&search[sortAscending]=true&search[sortBy]=PRICE"
+    }
+
+    companion object {
+        /** OpenSea API 按链区分的域名 */
+        const val OPEN_SEA_ETHEREUM_BASE_URL = "https://api.opensea.io/api/v1/"
+        const val OPEN_SEA_POLYGON_BASE_URL = "https://polygon-api.opensea.io/api/v1/"
+        const val OPEN_SEA_BSC_BASE_URL = "https://bsc-api.opensea.io/api/v1/"
+        const val OPEN_SEA_ARBITRUM_BASE_URL = "https://arbitrum-api.opensea.io/api/v1/"
+        const val OPEN_SEA_OPTIMISM_BASE_URL = "https://optimism-api.opensea.io/api/v1/"
+        const val OPEN_SEA_BASE_BASE_URL = "https://base-api.opensea.io/api/v1/"
     }
 }

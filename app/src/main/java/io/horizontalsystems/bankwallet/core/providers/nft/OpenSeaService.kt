@@ -10,10 +10,12 @@ class OpenSeaService(
     hsBaseUrl: String,
     apiKey: String,
     openSeaApiKey: String,
+    /** OpenSea API 域名，需按链区分（ETH/Polygon/BSC/Arbitrum 各有独立域名） */
+    openSeaBaseUrl: String = "https://api.opensea.io/api/v1/",
 ) {
     private val service by lazy {
         APIClient.build(
-            baseUrl = "https://api.opensea.io/api/v1/",
+            baseUrl = openSeaBaseUrl,
             headers = mapOf(
                 "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
                 "X-API-KEY" to openSeaApiKey

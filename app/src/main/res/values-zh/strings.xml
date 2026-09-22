@@ -457,6 +457,10 @@
     <string name="Nft_Burn_TokenId_Hint">请输入 NFT ID</string>
     <string name="Nft_Burn_Confirm">确定销毁 NFT #%s 吗？</string>
     <string name="Nft_Remove_Confirm">确定从本地移除该 NFT 记录吗？</string>
+    <string name="Nft_Remove_Not_Allowed">该合约下仍有已铸造的 NFT，请先全部销毁后再删除合约。</string>
+    <string name="Nft_Collection_Count">%d 个合集</string>
+    <string name="Nft_No_Collection_In_Chain">暂未发现 NFT 合集</string>
+    <string name="Nft_Item_Count">%d 个项目</string>
     <string name="Nft_Manager_Empty">暂无 NFT 资产，请先发行</string>
     <string name="Nft_Minted_Count">已铸造：%s</string>
     <string name="Nft_Remain_Count">剩余：%s</string>

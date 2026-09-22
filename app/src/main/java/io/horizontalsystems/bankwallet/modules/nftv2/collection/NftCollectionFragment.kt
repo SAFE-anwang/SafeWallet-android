@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.nftv2.collection
 
 import android.os.Parcelable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -65,6 +66,7 @@ class NftCollectionFragment : BaseComposeFragment() {
 
     @Parcelize
     data class Input(
+        val accountId: String,
         val blockchainType: BlockchainType,
         val contractAddress: String,
         val collectionName: String,
@@ -78,6 +80,7 @@ private fun NftCollectionScreen(
 ) {
     val viewModel = viewModel<NftCollectionViewModel>(
         factory = NftCollectionViewModel.Factory(
+            input.accountId,
             input.blockchainType,
             input.contractAddress,
             input.collectionName
@@ -120,22 +123,18 @@ private fun NftCollectionScreen(
                         .background(ComposeAppTheme.colors.raina),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (uiState.iconUrl != null) {
-                        AsyncImage(
-                            model = uiState.iconUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Text(
-                            text = uiState.collectionName.take(1).uppercase(),
-                            style = ComposeAppTheme.typography.headline2,
-                            color = ComposeAppTheme.colors.grey
-                        )
-                    }
+                    // 无图/加载中/失败统一显示占位图
+                    AsyncImage(
+                        model = uiState.iconUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                        error = painterResource(R.drawable.icon_24_nft_placeholder),
+                        fallback = painterResource(R.drawable.icon_24_nft_placeholder)
+                    )
                 }
                 Column(modifier = Modifier.padding(start = 12.dp)) {
                     body_leah(
@@ -306,17 +305,22 @@ private fun NftAssetCard(
             contentAlignment = Alignment.Center
         ) {
             if (asset.imageUrl != null) {
+                // 有图时按原图比例完整显示（Fit 不裁剪、撑满格子）
                 AsyncImage(
                     model = asset.imageUrl,
                     contentDescription = asset.name,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit,
+                    placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                    error = painterResource(R.drawable.icon_24_nft_placeholder)
                 )
             } else {
-                Text(
-                    text = "?",
-                    style = ComposeAppTheme.typography.title1,
-                    color = ComposeAppTheme.colors.steel20
+                // 无图时居中显示小尺寸占位图
+                Image(
+                    painter = painterResource(R.drawable.icon_24_nft_placeholder),
+                    contentDescription = asset.name,
+                    modifier = Modifier.size(72.dp),
+                    contentScale = ContentScale.Fit
                 )
             }
         }

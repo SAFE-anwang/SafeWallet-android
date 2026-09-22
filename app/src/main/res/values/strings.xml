@@ -565,6 +565,10 @@
     <string name="Nft_Burn_TokenId_Hint">Enter NFT ID</string>
     <string name="Nft_Burn_Confirm">Are you sure to burn NFT #%s ?</string>
     <string name="Nft_Remove_Confirm">Remove this NFT record from local storage?</string>
+    <string name="Nft_Remove_Not_Allowed">The contract still has minted NFTs. Burn all NFTs before removing the contract.</string>
+    <string name="Nft_Collection_Count">%d collections</string>
+    <string name="Nft_No_Collection_In_Chain">No NFT collection found</string>
+    <string name="Nft_Item_Count">%d items</string>
     <string name="Nft_Manager_Empty">No NFTs yet, deploy one first</string>
     <string name="Nft_Minted_Count">Minted: %s</string>
     <string name="Nft_Remain_Count">Remaining: %s</string>

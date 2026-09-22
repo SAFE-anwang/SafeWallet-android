@@ -103,6 +103,11 @@ data class SRC721ManagerUiState(
     val refreshing: Boolean = false,
 )
 
+/** NFT 管理页的一次性提示（如「需先销毁全部 NFT 才能删除合约」） */
+sealed class SRC721ManagerAlert {
+    data object RemoveNotAllowed : SRC721ManagerAlert()
+}
+
 data class SRC721ManagerItem(
     val info: SRC721ContractInfo,
     val totalSupply: String? = null,

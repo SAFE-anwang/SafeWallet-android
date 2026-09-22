@@ -54,6 +54,7 @@ data class NftCollectionUiState(
 )
 
 class NftCollectionViewModel(
+    private val accountId: String,
     private val blockchainType: BlockchainType,
     private val contractAddress: String,
     collectionName: String,
@@ -66,7 +67,8 @@ class NftCollectionViewModel(
 
     private val builtin = BuiltinNftCollections.find(blockchainType, contractAddress)
 
-    private var isFavorite = NftFavoritesStorage.isFavorite(blockchainType.uid, contractAddress)
+    // 收藏按账户隔离，避免不同钱包之间互相影响
+    private var isFavorite = NftFavoritesStorage.isFavorite(accountId, blockchainType.uid, contractAddress)
 
     var uiState by mutableStateOf(
         NftCollectionUiState(
@@ -256,11 +258,12 @@ class NftCollectionViewModel(
     }
 
     fun toggleFavorite() {
-        isFavorite = NftFavoritesStorage.toggle(blockchainType.uid, contractAddress)
+        isFavorite = NftFavoritesStorage.toggle(accountId, blockchainType.uid, contractAddress)
         uiState = uiState.copy(isFavorite = isFavorite)
     }
 
     class Factory(
+        private val accountId: String,
         private val blockchainType: BlockchainType,
         private val contractAddress: String,
         private val collectionName: String,
@@ -268,6 +271,7 @@ class NftCollectionViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return NftCollectionViewModel(
+                accountId,
                 blockchainType,
                 contractAddress,
                 collectionName,

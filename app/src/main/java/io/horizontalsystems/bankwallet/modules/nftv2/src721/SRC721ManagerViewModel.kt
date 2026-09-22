@@ -32,6 +32,7 @@ class SRC721ManagerViewModel(
     var activeDialog by mutableStateOf<Dialog?>(null)
     var burnTokenId by mutableStateOf("")
     var sendResult by mutableStateOf<SendResult?>(null)
+    var alert by mutableStateOf<SRC721ManagerAlert?>(null)
 
     private val creator: String
         get() = evmKitWrapper.evmKit.receiveAddress.hex
@@ -105,9 +106,32 @@ class SRC721ManagerViewModel(
             })
     }
 
+    /**
+     * 删除本地合约记录。
+     *
+     * 只有链上已铸造的 NFT 全部销毁（totalSupply == 0）后才允许删除，
+     * 否则合约下还存有 NFT，删除后无法再管理与销毁。
+     */
     fun remove(info: SRC721ContractInfo) {
         dismissDialog()
+        val item = items.firstOrNull { it.info.address.equals(info.address, ignoreCase = true) }
+        val totalSupply = item?.totalSupply?.toBigIntegerOrNull()
+
+        // 拉取失败（未拿到总量）时不允许删除，避免误删仍有 NFT 的合约
+        if (totalSupply == null) {
+            alert = SRC721ManagerAlert.RemoveNotAllowed
+            return
+        }
+        if (totalSupply > BigInteger.ZERO) {
+            alert = SRC721ManagerAlert.RemoveNotAllowed
+            return
+        }
+
         SRC721Storage.remove(info.address, creator)
         refresh()
+    }
+
+    fun dismissAlert() {
+        alert = null
     }
 }

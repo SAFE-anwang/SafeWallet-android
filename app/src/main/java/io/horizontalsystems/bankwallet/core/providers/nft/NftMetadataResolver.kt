@@ -34,24 +34,39 @@ class NftMetadataResolver(
     )
 
     private val cache = ConcurrentHashMap<String, NftMeta>()
-    private val failed = ConcurrentHashMap.newKeySet<String>()
+
+    /**
+     * 失败记录：value 为失败时间戳。
+     *
+     * 不做永久缓存——合约可能因临时网络问题或节点不可用而失败，
+     * 永久标记会导致图标再也无法恢复显示；这里仅在 [FAILED_TTL_MS] 内跳过重试。
+     */
+    private val failed = ConcurrentHashMap<String, Long>()
     private val mutexes = ConcurrentHashMap<String, Mutex>()
 
     fun cached(nftUid: NftUid): NftMeta? = cache[nftUid.uid]
 
+    private fun isRecentlyFailed(uid: String): Boolean {
+        val at = failed[uid] ?: return false
+        if (System.currentTimeMillis() - at < FAILED_TTL_MS) return true
+        failed.remove(uid)
+        return false
+    }
+
     suspend fun resolve(nftUid: NftUid, nftType: NftType): NftMeta? {
         cache[nftUid.uid]?.let { return it }
-        if (nftUid.uid in failed) return null
+        if (isRecentlyFailed(nftUid.uid)) return null
 
         val mutex = mutexes.getOrPut(nftUid.uid) { Mutex() }
         return mutex.withLock {
             cache[nftUid.uid]?.let { return@withLock it }
-            if (nftUid.uid in failed) return@withLock null
+            if (isRecentlyFailed(nftUid.uid)) return@withLock null
             val meta = fetchMetadata(nftUid, nftType)
             if (meta != null) {
                 cache[nftUid.uid] = meta
+                failed.remove(nftUid.uid)
             } else {
-                failed.add(nftUid.uid)
+                failed[nftUid.uid] = System.currentTimeMillis()
             }
             meta
         }
@@ -63,11 +78,10 @@ class NftMetadataResolver(
             if (tokenUri.isNullOrEmpty()) return null
             val json = fetchJson(resolveUri(tokenUri))
             if (json == null) return null
-            val image = json.optString("image").ifBlank {
-                json.optString("image_url").ifBlank {
-                    json.optString("image_data").ifBlank { null }
-                }
-            }
+            val image = sequenceOf(
+                "image", "image_url", "image_data", "imageUrl",
+                "animation_url", "animationUrl"
+            ).map { json.optString(it) }.firstOrNull { it.isNotBlank() }
             NftMeta(
                 name = json.optString("name").ifBlank { null },
                 imageUrl = image?.let { resolveUri(it) },
@@ -148,8 +162,15 @@ class NftMetadataResolver(
         return when {
             uri.startsWith("ipfs://ipfs/") -> "https://gateway.pinata.cloud/ipfs/" + uri.removePrefix("ipfs://ipfs/")
             uri.startsWith("ipfs://") -> "https://gateway.pinata.cloud/ipfs/" + uri.removePrefix("ipfs://")
+            // 部分合约直接返回 ipfs 路径（无 scheme），如 "ipfs/Qm..." 或 "Qm..."（CIDv0/CIDv1）
+            uri.startsWith("ipfs/") -> "https://gateway.pinata.cloud/ipfs/" + uri.removePrefix("ipfs/")
             uri.startsWith("ar://") -> "https://arweave.net/" + uri.removePrefix("ar://")
             else -> uri
         }
+    }
+
+    companion object {
+        /** 失败后的重试间隔，避免永久屏蔽导致图标无法恢复 */
+        private const val FAILED_TTL_MS = 60_000L
     }
 }

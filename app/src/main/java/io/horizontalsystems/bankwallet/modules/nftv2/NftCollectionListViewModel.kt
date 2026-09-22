@@ -59,6 +59,9 @@ class NftCollectionListViewModel(
     private var onChainRecords: List<NftRecord> = emptyList()
     private var openSeaData: Map<NftKey, NftAddressMetadata> = emptyMap()
 
+    /** 当前 NFT 数据所属账户地址（收藏按该地址隔离存储） */
+    private var currentAccount: String? = null
+
     init {
         viewModelScope.launch {
             nftAdapterManager.adaptersUpdatedFlow.collect { adaptersMap ->
@@ -80,6 +83,8 @@ class NftCollectionListViewModel(
     private fun subscribeToAdapters(adaptersMap: Map<NftKey, INftAdapter>) {
         collectJob?.cancel()
         collectJob = viewModelScope.launch {
+            // 记录当前账户 id，供收藏过滤按账户读取（收藏数据按账户隔离存储）
+            currentAccount = adaptersMap.keys.firstOrNull()?.account?.id
             if (adaptersMap.isEmpty()) {
                 emitItems(emptyList())
                 return@launch
@@ -178,9 +183,9 @@ class NftCollectionListViewModel(
 
         var collections = items.values.sortedByDescending { it.count }
 
-        // 收藏 Tab 只显示已收藏的合集
+        // 收藏 Tab 只显示已收藏的合集（收藏按账户隔离，需按当前账户读取）
         if (uiState.tab == NftListTab.Favorites) {
-            val favorites = NftFavoritesStorage.all()
+            val favorites = currentAccount?.let { NftFavoritesStorage.all(it) } ?: emptySet()
             collections = collections.filter { item ->
                 NftFavoritesStorage.composeKey(item.blockchainType.uid, item.contractAddress) in favorites
             }

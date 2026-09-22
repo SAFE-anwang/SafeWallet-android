@@ -21,7 +21,24 @@ class NftMetadataManager(
 ) {
     private val providerMap by lazy {
         mapOf<BlockchainType, INftProvider>(
-            BlockchainType.Ethereum to OpenSeaNftProvider(marketKit, appConfigProvider)
+            BlockchainType.Ethereum to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_ETHEREUM_BASE_URL
+            ),
+            BlockchainType.Polygon to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_POLYGON_BASE_URL
+            ),
+            BlockchainType.BinanceSmartChain to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_BSC_BASE_URL
+            ),
+            BlockchainType.ArbitrumOne to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_ARBITRUM_BASE_URL
+            ),
+            BlockchainType.Optimism to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_OPTIMISM_BASE_URL
+            ),
+            BlockchainType.Base to OpenSeaNftProvider(
+                marketKit, appConfigProvider, OpenSeaNftProvider.OPEN_SEA_BASE_BASE_URL
+            ),
         )
     }
 
