@@ -13,6 +13,7 @@ import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.providers.nft.BuiltinNftCollections
 import io.horizontalsystems.bankwallet.core.providers.nft.NftContractAssetsProvider
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
+import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftAssetsService
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
@@ -134,8 +135,11 @@ class NftCollectionViewModel(
                 val cached = metadataResolver.cached(record.nftUid)
                 NftAssetViewItem(
                     tokenId = record.tokenId,
-                    name = cached?.name ?: record.tokenName?.let { "$it #${record.tokenId}" } ?: "#${record.tokenId}",
-                    imageUrl = cached?.imageUrl,
+                    // 优先链上元数据 name；其次「合集名 #tokenId」；最后仅显示 #tokenId
+                    name = cached?.name
+                        ?: record.tokenName?.let { collection -> "$collection #${record.tokenId}" }
+                        ?: "#${record.tokenId}",
+                    imageUrl = cached?.imageUrl ?: cachedSafe4Image(record),
                     balance = record.balance,
                     nftType = record.nftType
                 )
@@ -255,6 +259,18 @@ class NftCollectionViewModel(
     private fun standardName(nftType: NftType): String = when (nftType) {
         NftType.Eip721 -> "ERC721"
         NftType.Eip1155 -> "ERC1155"
+    }
+
+    /**
+     * SAFE4 的图片优先取 insight 接口下发的 tokenImage。
+     * 接口未提供时返回 null，交由 NftMetadataResolver 走链上 tokenURI 解析。
+     */
+    private fun cachedSafe4Image(record: EvmNftRecord): String? {
+        if (record.blockchainType != BlockchainType.SafeFour) return null
+        return Safe4NftAssetsService
+            .cachedAsset(record.contractAddress, record.tokenId)
+            ?.tokenImage
+            ?.takeIf { it.isNotBlank() }
     }
 
     fun toggleFavorite() {

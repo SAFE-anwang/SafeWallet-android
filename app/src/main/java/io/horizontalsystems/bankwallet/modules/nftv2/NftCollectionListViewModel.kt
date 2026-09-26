@@ -14,6 +14,7 @@ import io.horizontalsystems.bankwallet.core.managers.NftMetadataManager
 import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
 import io.horizontalsystems.bankwallet.core.providers.nft.BuiltinNftCollections
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
+import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftAssetsService
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
@@ -205,9 +206,54 @@ class NftCollectionListViewModel(
                 }
             }
         }
+
+        // 异步解析 SAFE4 合集名称（需读合约 name()，不能在主线程做）
+        viewModelScope.launch(Dispatchers.IO) {
+            collections
+                .filter { it.blockchainType == BlockchainType.SafeFour }
+                .forEach { resolveSafe4CollectionName(it) }
+        }
+    }
+
+    /**
+     * SAFE4 合集的规范名称来自 insight 的 `nft/tokens` 接口。
+     * 链上记录里的 tokenName 通常已带名称，这里只处理仍是地址缩写的条目。
+     */
+    private suspend fun resolveSafe4CollectionName(item: NftCollectionViewItem) {
+        if (!item.name.equals(item.contractAddress.take(10), true)) return
+
+        val name = Safe4NftAssetsService.fetchCollectionName(item.contractAddress)
+            ?: return
+
+        uiState = uiState.copy(
+            collections = uiState.collections.map {
+                if (it.blockchainType == BlockchainType.SafeFour &&
+                    it.contractAddress.equals(item.contractAddress, true)
+                ) {
+                    it.copy(name = name)
+                } else it
+            }
+        )
     }
 
     private suspend fun resolveCollectionImage(item: NftCollectionViewItem) {
+        // SAFE4 合集优先取 insight `nft/tokens` 下发的 logoURI，省去一次链上元数据解析
+        if (item.blockchainType == BlockchainType.SafeFour) {
+            val logo = Safe4NftAssetsService.collectionLogo(item.contractAddress)
+            if (!logo.isNullOrBlank()) {
+                uiState = uiState.copy(
+                    collections = uiState.collections.map {
+                        if (it.blockchainType == item.blockchainType &&
+                            it.contractAddress.equals(item.contractAddress, true)
+                        ) {
+                            it.copy(imageUrl = logo)
+                        } else it
+                    }
+                )
+                return
+            }
+        }
+
         try {
             val record = currentRecords().filterIsInstance<EvmNftRecord>().firstOrNull {
                 it.blockchainType == item.blockchainType &&

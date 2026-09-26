@@ -256,5 +256,6 @@ fun blockchainName(blockchainType: BlockchainType): String = when (blockchainTyp
     BlockchainType.Ethereum -> "Ethereum"
     BlockchainType.BinanceSmartChain -> "BNB Chain"
     BlockchainType.Polygon -> "Polygon"
+    BlockchainType.SafeFour -> "SAFE4"
     else -> blockchainType.uid
 }

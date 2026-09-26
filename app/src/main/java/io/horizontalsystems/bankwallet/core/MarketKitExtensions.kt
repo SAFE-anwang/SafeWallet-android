@@ -349,6 +349,8 @@ val BlockchainType.supportedNftTypes: List<NftType>
         BlockchainType.Ethereum -> listOf(NftType.Eip721, NftType.Eip1155)
         BlockchainType.BinanceSmartChain -> listOf(NftType.Eip721, NftType.Eip1155)
         BlockchainType.Polygon -> listOf(NftType.Eip721, NftType.Eip1155)
+        // SAFE4 的 NFT 为 SRC721（ERC721 兼容），由 Safe4NftAssetsService 提供数据
+        BlockchainType.SafeFour -> listOf(NftType.Eip721)
         else -> listOf()
     }
 
