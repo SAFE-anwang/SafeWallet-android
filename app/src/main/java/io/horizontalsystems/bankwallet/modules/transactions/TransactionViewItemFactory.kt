@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.adapters.TonTransactionRecord
 import io.horizontalsystems.bankwallet.core.managers.BalanceHiddenManager
 import io.horizontalsystems.bankwallet.core.managers.EvmLabelManager
 import io.horizontalsystems.bankwallet.core.providers.Translator
+import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftActionDetector
 import io.horizontalsystems.bankwallet.core.shorten
 import io.horizontalsystems.bankwallet.entities.CurrencyValue
 import io.horizontalsystems.bankwallet.entities.TransactionValue
@@ -271,7 +272,8 @@ class TransactionViewItemFactory(
                     locked = locked,
                     input = record.transaction.input,
                     value = record.transaction.value ?: BigInteger.ZERO,
-                    isRedeemEvent = isRedeemEvent
+                    isRedeemEvent = isRedeemEvent,
+                    nftAction = Safe4NftActionDetector.detect(record.transaction)
                 )
             }
 
@@ -1103,10 +1105,16 @@ class TransactionViewItemFactory(
         locked: Boolean? = null,
         input: ByteArray? = null,
         value: BigInteger = BigInteger.ZERO,
-        isRedeemEvent: Boolean = false
+        isRedeemEvent: Boolean = false,
+        nftAction: Safe4NftActionDetector.NftAction? = null
     ): TransactionViewItem {
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, nftMetadata)
-        val title = method ?: Translator.getString(R.string.Transactions_ContractCall)
+        // NFT 铸造 / 销毁优先显示专属标题，覆盖合约方法名
+        val title = when (nftAction) {
+            Safe4NftActionDetector.NftAction.Mint -> Translator.getString(R.string.Transactions_Mint)
+            Safe4NftActionDetector.NftAction.Burn -> Translator.getString(R.string.Transactions_Burn)
+            null -> method ?: Translator.getString(R.string.Transactions_ContractCall)
+        }
 
         return TransactionViewItem(
             uid = uid,
