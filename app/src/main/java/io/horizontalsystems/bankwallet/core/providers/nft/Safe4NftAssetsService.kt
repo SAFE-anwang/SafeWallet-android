@@ -26,16 +26,8 @@ object Safe4NftAssetsService {
 
     private const val TAG = "Safe4NftAssets"
 
-    private val service: Safe4InsightNftApi by lazy {
-        val baseUrl = if (Chain.isSafe4TestMode) {
-            "https://safe4testnet.anwang.com/"
-        } else {
-            "https://safe4.anwang.com/"
-        }
-        APIClient.retrofit(baseUrl, 30).create(Safe4InsightNftApi::class.java)
-    }
-
-    val blockchainType: BlockchainType get() = BlockchainType.SafeFour
+    private const val TESTNET_BASE_URL = "https://safe4testnet.anwang.com/"
+    private const val MAINNET_BASE_URL = "https://safe4.anwang.com/"
 
     /** 合约地址 -> NFT 合约信息（名称 / 符号 / logo），只缓存成功结果 */
     private val tokens = ConcurrentHashMap<String, Safe4NftToken>()
@@ -43,12 +35,38 @@ object Safe4NftAssetsService {
     /** 资产明细缓存，key = "contract:tokenId"，供详情页复用避免重复请求 */
     private val assetCache = ConcurrentHashMap<String, Safe4NftAsset>()
 
-    /** 资产明细缓存命中时，用于回查合集名称 */
+    /** `nft/tokens` 全量索引是否已加载 */
     private var tokensLoaded = false
+
+    /** 已绑定的链标识：0=主网，1=测试网 */
+    private var boundChainType: Int = -1
+    private var serviceInstance: Safe4InsightNftApi? = null
+
+    /**
+     * 取接口实例；链切换时重建并清空缓存。
+     *
+     * 主网与测试网的数据必须完全隔离，否则测试网的 NFT 会出现在主网列表，
+     * 也会让 [Safe4NftActionDetector] 把测试网的合约误判为主网的 NFT 合约。
+     */
+    @Synchronized
+    private fun service(): Safe4InsightNftApi {
+        val chainType = if (Chain.isSafe4TestMode) 1 else 0
+        if (chainType != boundChainType) {
+            tokens.clear()
+            assetCache.clear()
+            tokensLoaded = false
+            val baseUrl = if (chainType == 1) TESTNET_BASE_URL else MAINNET_BASE_URL
+            serviceInstance = APIClient.retrofit(baseUrl, 30).create(Safe4InsightNftApi::class.java)
+            boundChainType = chainType
+        }
+        return serviceInstance!!
+    }
+
+    val blockchainType: BlockchainType get() = BlockchainType.SafeFour
 
     /** 当前网络下的 NFT 合约列表（含持有数量），失败返回 null 以区分「无数据」 */
     suspend fun fetchAssets(address: String): List<Safe4NftAsset>? = request {
-        service.assets(address)
+        service().assets(address)
     }
 
     /** 某合约下的 NFT 资产明细（结果写入缓存，供元数据查询复用） */
@@ -56,7 +74,7 @@ object Safe4NftAssetsService {
         address: String,
         tokenAddress: String
     ): List<Safe4NftAsset>? = request {
-        service.assets(address, tokenAddress)
+        service().assets(address, tokenAddress)
     }?.also { assets ->
         assets.forEach { asset ->
             val tokenId = asset.tokenId ?: return@forEach
@@ -78,7 +96,7 @@ object Safe4NftAssetsService {
         if (tokensLoaded && !force) {
             return tokens.values.toList()
         }
-        val result = request { service.tokens() } ?: return null
+        val result = request { service().tokens() } ?: return null
         result.forEach { token ->
             if (token.address.isNotBlank()) {
                 tokens[token.address.lowercase()] = token

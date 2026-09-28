@@ -9,6 +9,7 @@ import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.entities.DataState
 import io.horizontalsystems.bankwallet.modules.dapp.DAppItem
 import io.horizontalsystems.bankwallet.modules.dapp.FilterDAppType
+import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppModule
 import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppService
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
@@ -37,7 +38,20 @@ class DAppService(
 
     private var filterDAppType = FilterDAppType.ALL
 
+    /**
+     * 链切换后重新同步。
+     *
+     * dApp 列表是按 navGraph 作用域缓存的（见 DAppFragment 的 navGraphViewModels），
+     * 若不主动刷新，测试网合并进来的 dApp 会在切到主网后继续显示。
+     */
+    private val chainChangeListener: () -> Unit = {
+        syncData()
+    }
+
     init {
+        if (safe4DAppService != null) {
+            Safe4DAppModule.addChainChangeListener(chainChangeListener)
+        }
         syncData()
     }
 
@@ -77,6 +91,7 @@ class DAppService(
         val safe4Service = safe4DAppService ?: return
         try {
             val chainDApps = safe4Service.fetchAllChainDApps()
+            Log.d(TAG, "mergeChainDApps: 链上返回 ${chainDApps.size} 个 dApp")
             // Use name+url as dedup key to avoid duplicates with API data
             val existingKeys = allDAppList.map { "${it.name}|${it.dlink}" }.toSet()
             val chainItems = chainDApps.mapNotNull { info ->
@@ -97,7 +112,10 @@ class DAppService(
             }
             if (chainItems.isNotEmpty()) {
                 allDAppList.addAll(chainItems)
-                Log.d(TAG, "Merged ${chainItems.size} chain DApps into list")
+                Log.d(TAG, "mergeChainDApps: 合并 ${chainItems.size} 个链上 dApp，列表总数=${allDAppList.size}")
+                chainItems.forEachIndexed { index, item ->
+                    Log.d(TAG, "mergeChainDApps[$index]: chainId=${item.chainId}, name=${item.name}, url=${item.dlink}")
+                }
                 cacheChainDAppLogos(chainItems)
             }
         } catch (e: Exception) {
@@ -168,6 +186,7 @@ class DAppService(
 
     override fun clear() {
         dAppDataDisposable?.dispose()
+        Safe4DAppModule.removeChainChangeListener(chainChangeListener)
     }
 
     fun search(name: String) {

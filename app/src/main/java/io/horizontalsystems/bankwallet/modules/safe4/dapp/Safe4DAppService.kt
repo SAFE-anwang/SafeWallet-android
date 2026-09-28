@@ -15,6 +15,7 @@ import io.horizontalsystems.bankwallet.modules.swap.liquidity.util.Connect
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.subjects.PublishSubject
 import org.web3j.abi.datatypes.Address
+import org.web3j.protocol.Web3j
 import java.io.File
 import java.math.BigInteger
 
@@ -30,13 +31,40 @@ class Safe4DAppService : Clearable {
         App.instance.getSharedPreferences("safe4_dapp_prefs", Context.MODE_PRIVATE)
     }
 
-    private val web3j by lazy {
-        Connect.connect(Safe4Module.getSafeChain())
+    /**
+     * 当前链标识：0=主网，1=测试网。
+     * 与 RedeemStorage / NodeInfo 等模块的 chainType 约定保持一致。
+     */
+    private fun currentChainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
+
+    private var boundChainType: Int = -1
+
+    /** 当前链的 web3j 与 DAppManager，链切换时整体替换 */
+    private var bound: Pair<Web3j, DAppManager>? = null
+
+    /**
+     * 取当前链的 web3j / DAppManager，必要时重建绑定。
+     *
+     * 原先用 `by lazy` 缓存，切换测试网开关后仍指向旧链，
+     * 会把测试网的 dApp 读到主网（反之亦然）。这里改为每次校验链标识。
+     * 返回值以整体 Pair 形式持有，避免取值与重置之间的空窗。
+     */
+    @Synchronized
+    private fun chain(): Pair<Web3j, DAppManager> {
+        val chainType = currentChainType()
+        val current = bound
+        if (chainType != boundChainType || current == null) {
+            val safeChain = Safe4Module.getSafeChain()
+            val web3j = Connect.connect(safeChain)
+            val created = Pair(web3j, DAppManager(web3j, safeChain.id.toLong()))
+            boundChainType = chainType
+            bound = created
+            return created
+        }
+        return current
     }
 
-    private val dAppManager by lazy {
-        DAppManager(web3j, Safe4Module.getSafeChain().id.toLong())
-    }
+    private val dAppManager: DAppManager get() = chain().second
 
     private val dAppsSubject = PublishSubject.create<List<ManagedDAppItem>>()
     private var cachedDApps = mutableListOf<ManagedDAppItem>()
@@ -46,6 +74,7 @@ class Safe4DAppService : Clearable {
         val wallet = getActiveSafe4Wallet()
         if (wallet != null) {
             cachedDApps.addAll(getStoredDApps(wallet))
+            logDApps("init(缓存)", cachedDApps)
         }
         dAppsSubject.onNext(cachedDApps.toList())
 
@@ -86,6 +115,7 @@ class Safe4DAppService : Clearable {
             cachedDApps.addAll(merged)
             cachedDApps.addAll(preservedLocal)
             saveDApps(currentWallet, cachedDApps)
+            logDApps("syncChainDApps", cachedDApps)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to sync chain DApps", e)
         }
@@ -128,7 +158,7 @@ class Safe4DAppService : Clearable {
     private fun fetchMineChainDAppsWithIds(): FetchResult {
         val address = getWalletAddress()
         val total = dAppManager.getMineNum(Address(address))
-        Log.d(TAG, "fetchMineChainDAppsWithIds: total=$total")
+        Log.d(TAG, "fetchMineChainDAppsWithIds: chain=${chainLabel()}, address=$address, total=$total")
         if (total == BigInteger.ZERO) return FetchResult(emptyList(), emptySet())
 
         val pageSize = BigInteger.valueOf(10)
@@ -150,7 +180,7 @@ class Safe4DAppService : Clearable {
                 null
             }
         }
-        Log.d(TAG, "fetchMineChainDAppsWithIds: $dApps")
+        logChainDApps("fetchMineChainDApps", dApps)
 
         return FetchResult(
             dApps = dApps,
@@ -164,6 +194,7 @@ class Safe4DAppService : Clearable {
      */
     fun fetchAllChainDApps(): List<com.anwang.types.dapp.DAppInfo> {
         val total = dAppManager.getNum()
+        Log.d(TAG, "fetchAllChainDApps: chain=${chainLabel()}, total=$total")
         if (total == BigInteger.ZERO) return emptyList()
 
         val pageSize = BigInteger.valueOf(50)
@@ -177,13 +208,34 @@ class Safe4DAppService : Clearable {
             start += BigInteger.valueOf(ids.size.toLong())
         }
 
-        return allIds.mapNotNull { id ->
+        val dApps = allIds.mapNotNull { id ->
             try {
                 dAppManager.getInfo(id)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to get DApp info for id=$id", e)
                 null
             }
+        }
+        logChainDApps("fetchAllChainDApps", dApps)
+        return dApps
+    }
+
+    /** 当前链标签，便于在日志中区分主网与测试网 */
+    private fun chainLabel(): String = if (App.localStorage.isSafe4TestNet) "TESTNET" else "MAINNET"
+
+    /** 调试日志：打印本地 dApp 的名称与 URL */
+    private fun logDApps(source: String, dApps: List<ManagedDAppItem>) {
+        Log.d(TAG, "$source: chain=${chainLabel()}, count=${dApps.size}")
+        dApps.forEachIndexed { index, dapp ->
+            Log.d(TAG, "$source[$index]: id=${dapp.id}, name=${dapp.name}, url=${dapp.url}")
+        }
+    }
+
+    /** 调试日志：打印链上 DAppInfo 的名称与 URL */
+    private fun logChainDApps(source: String, dApps: List<com.anwang.types.dapp.DAppInfo>) {
+        Log.d(TAG, "$source: chain=${chainLabel()}, count=${dApps.size}")
+        dApps.forEachIndexed { index, info ->
+            Log.d(TAG, "$source[$index]: id=${info.id}, name=${info.name}, url=${info.runUrl}")
         }
     }
 
@@ -247,8 +299,9 @@ class Safe4DAppService : Clearable {
         }
     }
 
+    /** 缓存 key 按链隔离，避免测试网的 dApp 在主网被读出来 */
     private fun getDAppsKey(wallet: Wallet): String {
-        return "safe4_dapps_${wallet.account.id}"
+        return "safe4_dapps_${currentChainType()}_${wallet.account.id}"
     }
 
     private fun getStoredDApps(wallet: Wallet): List<ManagedDAppItem> {
@@ -515,13 +568,17 @@ class Safe4DAppService : Clearable {
 
     // region Logo cache
 
-    private val logoCacheDir: File by lazy {
-        File(App.instance.cacheDir, "dapp_logos").also { dir ->
-            if (!dir.exists()) dir.mkdirs()
-        }
+    /**
+     * logo 缓存目录按链区分。
+     * 测试网与主网的 dApp id 都是各自链上的自增序号，不隔离会互相覆盖图片。
+     */
+    private fun logoCacheDir(): File {
+        val dir = File(App.instance.cacheDir, "dapp_logos/${currentChainType()}")
+        if (!dir.exists()) dir.mkdirs()
+        return dir
     }
 
-    private fun getLogoFile(id: String): File = File(logoCacheDir, "${id}.png")
+    private fun getLogoFile(id: String): File = File(logoCacheDir(), "${id}.png")
 
     /**
      * Get DApp logo bytes from chain.
@@ -606,6 +663,37 @@ class Safe4DAppService : Clearable {
 
     // endregion
 
+    /**
+     * 链切换后重置状态。
+     *
+     * 清空内存缓存、丢弃旧的链绑定，再按新链读取缓存并重新同步。
+     * 由 [io.horizontalsystems.bankwallet.modules.blockchainsettings.BlockchainSettingsViewModel]
+     * 在切换测试网开关时调用，否则旧链的 dApp 会残留在新链列表中。
+     */
+    fun onChainChanged() {
+        Log.d(TAG, "onChainChanged: 链已切换为 ${chainLabel()}，重置 dApp 缓存与链绑定")
+        cachedDApps.clear()
+        boundChainType = -1
+        bound = null
+
+        val wallet = getActiveSafe4Wallet()
+        if (wallet != null) {
+            cachedDApps.addAll(getStoredDApps(wallet))
+            logDApps("onChainChanged(缓存)", cachedDApps)
+        }
+        dAppsSubject.onNext(cachedDApps.toList())
+
+        if (wallet != null) {
+            Thread {
+                try {
+                    syncChainDApps()
+                } catch (e: Exception) {
+                    Log.e(TAG, "onChainChanged sync error", e)
+                }
+            }.start()
+        }
+    }
+
     fun getDApps(): List<ManagedDAppItem> = cachedDApps
 
     fun getDAppsObservable() = dAppsSubject
@@ -649,7 +737,10 @@ class Safe4DAppService : Clearable {
     // endregion
 
     override fun clear() {
-        // cleanup
+        // 释放链绑定，下次使用时按当前链重新建立。
+        // 保留内存缓存，避免返回页面时列表闪空；链切换由 onChainChanged 处理。
+        boundChainType = -1
+        bound = null
     }
 }
 

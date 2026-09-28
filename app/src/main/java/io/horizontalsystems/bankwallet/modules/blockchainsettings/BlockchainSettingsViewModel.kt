@@ -11,6 +11,7 @@ import io.horizontalsystems.bankwallet.core.imageUrl
 import io.horizontalsystems.bankwallet.core.order
 import io.horizontalsystems.bankwallet.core.providers.Translator
 import io.horizontalsystems.bankwallet.modules.safe4.SafeInfoManager
+import io.horizontalsystems.bankwallet.modules.safe4.dapp.Safe4DAppModule
 import io.horizontalsystems.bankwallet.modules.safe4.node.LockRecordManager
 import io.horizontalsystems.bankwallet.modules.safe4.src20.SRCLockManager
 import io.horizontalsystems.marketkit.SafeExtend
@@ -47,6 +48,9 @@ class BlockchainSettingsViewModel(
 
                 // 重新启动锁仓同步任务(使用新链)
                 LockRecordManager.switchNetwork()
+
+                // 重置 dApp 缓存与链绑定，避免测试网 dApp 残留到主网（反之亦然）
+                Safe4DAppModule.onChainChanged()
             }
         }
 
