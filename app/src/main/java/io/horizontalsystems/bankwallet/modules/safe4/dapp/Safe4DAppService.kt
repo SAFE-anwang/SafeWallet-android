@@ -180,7 +180,6 @@ class Safe4DAppService : Clearable {
                 null
             }
         }
-        logChainDApps("fetchMineChainDApps", dApps)
 
         return FetchResult(
             dApps = dApps,
@@ -216,7 +215,6 @@ class Safe4DAppService : Clearable {
                 null
             }
         }
-        logChainDApps("fetchAllChainDApps", dApps)
         return dApps
     }
 
@@ -231,13 +229,6 @@ class Safe4DAppService : Clearable {
         }
     }
 
-    /** 调试日志：打印链上 DAppInfo 的名称与 URL */
-    private fun logChainDApps(source: String, dApps: List<com.anwang.types.dapp.DAppInfo>) {
-        Log.d(TAG, "$source: chain=${chainLabel()}, count=${dApps.size}")
-        dApps.forEachIndexed { index, info ->
-            Log.d(TAG, "$source[$index]: id=${info.id}, name=${info.name}, url=${info.runUrl}")
-        }
-    }
 
     /**
      * Merge chain DAppInfo list with local ManagedDAppItem list.
