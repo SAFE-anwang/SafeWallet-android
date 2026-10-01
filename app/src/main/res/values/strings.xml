@@ -565,6 +565,8 @@
     <string name="Nft_Burn_TokenId_Hint">Enter the NFT ID to burn (check it in the corresponding NFT collection - the number after # is the ID)</string>
     <string name="Nft_Burn_TokenId_Field_Hint">NFT ID (from 0)</string>
     <string name="Nft_Burn_Confirm">Are you sure to burn NFT #%s ?</string>
+    <string name="Nft_Burn_Error_NotOwner">This NFT is not owned by the current wallet and cannot be burned</string>
+    <string name="Nft_Burn_Error_NotExist">This NFT ID does not exist or lookup failed, please verify and try again</string>
     <string name="Nft_Remove_Confirm">Remove this NFT record from local storage?</string>
     <string name="Nft_Remove_Not_Allowed">The contract still has minted NFTs. Burn all NFTs before removing the contract.</string>
     <string name="Nft_Collection_Count">%d collections</string>

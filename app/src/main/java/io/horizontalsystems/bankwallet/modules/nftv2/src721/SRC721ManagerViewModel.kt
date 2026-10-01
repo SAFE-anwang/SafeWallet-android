@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import io.horizontalsystems.bankwallet.R
+import io.horizontalsystems.bankwallet.core.HSCaution
 import io.horizontalsystems.bankwallet.core.ViewModelUiState
 import io.horizontalsystems.bankwallet.core.managers.EvmKitWrapper
 import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftAssetsService
@@ -12,6 +14,7 @@ import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftToken
 import io.horizontalsystems.bankwallet.core.subscribeIO
 import io.horizontalsystems.bankwallet.modules.safe4.node.NodeCovertFactory
 import io.horizontalsystems.bankwallet.modules.send.SendResult
+import io.horizontalsystems.bankwallet.ui.compose.TranslatableString
 import io.horizontalsystems.ethereumkit.core.toHexString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -157,14 +160,43 @@ class SRC721ManagerViewModel(
         val tokenId = burnTokenId.toBigIntegerOrNull() ?: return
         dismissDialog()
         sendResult = SendResult.Sending
-        SRC721Service(web3j, info.address)
-            .burn(privateKey, tokenId)
-            .subscribeIO({
-                sendResult = SendResult.Sent()
-                refresh()
-            }, { e ->
-                sendResult = SendResult.Failed(NodeCovertFactory.createCaution(e))
-            })
+        viewModelScope.launch(Dispatchers.IO) {
+            val service = SRC721Service(web3j, info.address)
+
+            // 前置校验：ERC721 只允许持有者（或被授权地址）销毁。
+            // 先链上读 ownerOf/getApproved，把「caller is not token owner or approved」
+            // 这类原始 revert 提前拦截，转换为可理解的提示
+            val checkErrorRes = try {
+                val owner = service.ownerOf(tokenId)
+                val approved = service.getApproved(tokenId)
+                if (owner.equals(creator, true) || approved.equals(creator, true)) {
+                    null
+                } else {
+                    R.string.Nft_Burn_Error_NotOwner
+                }
+            } catch (e: Throwable) {
+                // ownerOf 对不存在的 tokenId 会直接 revert
+                Log.d(TAG, "burn pre-check failed for #$tokenId: $e")
+                R.string.Nft_Burn_Error_NotExist
+            }
+            if (checkErrorRes != null) {
+                sendResult = SendResult.Failed(HSCaution(TranslatableString.ResString(checkErrorRes)))
+                return@launch
+            }
+
+            service.burn(privateKey, tokenId)
+                .subscribeIO({
+                    sendResult = SendResult.Sent()
+                    refresh()
+                }, { e ->
+                    // 校验通过到上链之间 token 可能被转移，仍可能 revert，做同样转换
+                    sendResult = if (e.message?.contains("not token owner or approved", true) == true) {
+                        SendResult.Failed(HSCaution(TranslatableString.ResString(R.string.Nft_Burn_Error_NotOwner)))
+                    } else {
+                        SendResult.Failed(NodeCovertFactory.createCaution(e))
+                    }
+                })
+        }
     }
 
     /**

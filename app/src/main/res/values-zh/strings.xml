@@ -457,6 +457,8 @@
     <string name="Nft_Burn_TokenId_Hint">请输入要销毁的NFT ID（在对应NFT合集下查看，#后数字即为ID号）</string>
     <string name="Nft_Burn_TokenId_Field_Hint">NFT ID（从 0 开始）</string>
     <string name="Nft_Burn_Confirm">确定销毁 NFT #%s 吗？</string>
+    <string name="Nft_Burn_Error_NotOwner">该 NFT 不由当前钱包地址持有，无法销毁</string>
+    <string name="Nft_Burn_Error_NotExist">该 NFT ID 不存在或查询失败，请确认后重试</string>
     <string name="Nft_Remove_Confirm">确定从本地移除该 NFT 记录吗？</string>
     <string name="Nft_Remove_Not_Allowed">该合约下仍有已铸造的 NFT，请先全部销毁后再删除合约。</string>
     <string name="Nft_Collection_Count">%d 个合集</string>
