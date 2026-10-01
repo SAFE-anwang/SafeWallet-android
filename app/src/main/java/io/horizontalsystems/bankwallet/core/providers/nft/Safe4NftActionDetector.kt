@@ -20,6 +20,9 @@ object Safe4NftActionDetector {
 
         /** 销毁：burn（SRC721Burnable） */
         Burn,
+
+        /** 推广：setLogo 付费上传 logo（对应 SRC721Service.setLogo） */
+        Promote,
     }
 
     /** 铸造相关方法签名（SRC721 / ERC721 常见形式） */
@@ -40,6 +43,11 @@ object Safe4NftActionDetector {
         "burn(address,uint256)",
     )
 
+    /** 推广相关方法签名（SRC721Service.setLogo：付费上传 logo） */
+    private val promoteSignatures = listOf(
+        "setLogo(bytes)",
+    )
+
     /** 方法选择器 -> 动作类型，首次使用时计算一次并缓存 */
     private val actionByMethodId: Map<String, NftAction> by lazy {
         val result = ConcurrentHashMap<String, NftAction>()
@@ -48,6 +56,9 @@ object Safe4NftActionDetector {
         }
         burnSignatures.forEach { signature ->
             selector(signature)?.let { result[it] = NftAction.Burn }
+        }
+        promoteSignatures.forEach { signature ->
+            selector(signature)?.let { result[it] = NftAction.Promote }
         }
         result
     }

@@ -2825,6 +2825,10 @@
     <string name="Method_Node_Contract_Deployment">Contract deployment</string>
     <string name="Method_Add_Lock_Day">Add Lock Day</string>
     <string name="Method_Add_Liquidity">Add Liquidity</string>
+    <string name="Method_Nft_Mint">NFT Mint</string>
+    <string name="Nft_Tx_Create">NFT Create</string>
+    <string name="Nft_Tx_Burn">NFT Burn</string>
+    <string name="Nft_Tx_Promotion">NFT Promotion</string>
     <string name="Method_SRC20_Lock">SRC20 Locked</string>
     <string name="Method_USDT_Cross">USDT Cross</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE Coin</string>

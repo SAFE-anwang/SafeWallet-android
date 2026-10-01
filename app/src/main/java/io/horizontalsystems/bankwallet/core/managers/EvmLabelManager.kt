@@ -126,6 +126,7 @@ class EvmLabelManager(
             "0x40c10f19",
             "0x61016060" -> Translator.getString(R.string.SRC20_Deploy_Title)
             "0x42966c68" -> Translator.getString(R.string.SRC20_Info_Destroy)
+            "0xe58306f9" -> Translator.getString(R.string.Method_Nft_Mint)
             "0x8d6dbe42" -> Translator.getString(R.string.Super_Node_Modify_IncentivePlan)
             "0x9fbe5cc5" -> Translator.getString(R.string.RemoveVote)
             "0x4b86c225" -> Translator.getString(R.string.Method_SRC20_Lock)

@@ -2461,6 +2461,10 @@
     <string name="Method_Node_Contract_Deployment">合约部署</string>
     <string name="Method_Add_Lock_Day">追加锁定</string>
     <string name="Method_Add_Liquidity">添加流动性</string>
+    <string name="Method_Nft_Mint">NFT铸造</string>
+    <string name="Nft_Tx_Create">NFT创建</string>
+    <string name="Nft_Tx_Burn">NFT销毁</string>
+    <string name="Nft_Tx_Promotion">NFT推广</string>
     <string name="Method_SRC20_Lock">SRC20 锁仓</string>
     <string name="Method_USDT_Cross">USDT 跨链</string>
     <string name="Get_Safe3_Test_Coin">SAFE领取</string>

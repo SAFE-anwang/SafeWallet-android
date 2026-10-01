@@ -1076,10 +1076,22 @@ class TransactionViewItemFactory(
         progress: Float?,
         icon: TransactionViewItem.Icon?
     ): TransactionViewItem {
+        // SAFE4 上用户部署的合约：NFT（SRC721）发行显示「NFT创建」；
+        // SRC20 资产发行的部署输入前缀固定为 0x61016060，保持「发行资产」
+        val inputPrefix = record.transaction.input?.take(4)?.toByteArray()?.toHexString()
+        val title = when {
+            record.blockchainType != BlockchainType.SafeFour ->
+                Translator.getString(R.string.Transactions_ContractCreation)
+            inputPrefix == "0x61016060" ->
+                Translator.getString(R.string.SRC20_Deploy_Title)
+            else ->
+                Translator.getString(R.string.Nft_Tx_Create)
+        }
+
         return TransactionViewItem(
             uid = record.uid,
             progress = progress,
-            title = Translator.getString(R.string.Transactions_ContractCreation),
+            title = title,
             subtitle = "---",
             primaryValue = null,
             secondaryValue = null,
@@ -1109,10 +1121,11 @@ class TransactionViewItemFactory(
         nftAction: Safe4NftActionDetector.NftAction? = null
     ): TransactionViewItem {
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(incomingValues, outgoingValues, currencyValue, nftMetadata)
-        // NFT 铸造 / 销毁优先显示专属标题，覆盖合约方法名
+        // NFT 铸造 / 销毁 / 推广优先显示专属标题，覆盖合约方法名
         val title = when (nftAction) {
-            Safe4NftActionDetector.NftAction.Mint -> Translator.getString(R.string.Transactions_Mint)
-            Safe4NftActionDetector.NftAction.Burn -> Translator.getString(R.string.Transactions_Burn)
+            Safe4NftActionDetector.NftAction.Mint -> Translator.getString(R.string.Method_Nft_Mint)
+            Safe4NftActionDetector.NftAction.Burn -> Translator.getString(R.string.Nft_Tx_Burn)
+            Safe4NftActionDetector.NftAction.Promote -> Translator.getString(R.string.Nft_Tx_Promotion)
             null -> method ?: Translator.getString(R.string.Transactions_ContractCall)
         }
 
