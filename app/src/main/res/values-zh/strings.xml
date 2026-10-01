@@ -454,7 +454,7 @@
     <string name="SRC721_Deploy_Type_Burnable_Desc">支持销毁 NFT 的 SRC721 合约</string>
     <string name="Nft_Mint_Action">铸造</string>
     <string name="Nft_Burn_Action">销毁</string>
-    <string name="Nft_Burn_TokenId_Hint">请输入要销毁的 NFT ID（从 0 开始编号，可在铸造记录中查看）</string>
+    <string name="Nft_Burn_TokenId_Hint">请输入要销毁的NFT ID（在对应NFT合集下查看，#后数字即为ID号）</string>
     <string name="Nft_Burn_TokenId_Field_Hint">NFT ID（从 0 开始）</string>
     <string name="Nft_Burn_Confirm">确定销毁 NFT #%s 吗？</string>
     <string name="Nft_Remove_Confirm">确定从本地移除该 NFT 记录吗？</string>

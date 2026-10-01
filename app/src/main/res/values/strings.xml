@@ -562,7 +562,7 @@
     <string name="SRC721_Deploy_Type_Burnable_Desc">SRC721 NFT contract with burn support</string>
     <string name="Nft_Mint_Action">Mint</string>
     <string name="Nft_Burn_Action">Burn</string>
-    <string name="Nft_Burn_TokenId_Hint">Enter the NFT ID to burn (numbered from 0, see mint history)</string>
+    <string name="Nft_Burn_TokenId_Hint">Enter the NFT ID to burn (check it in the corresponding NFT collection - the number after # is the ID)</string>
     <string name="Nft_Burn_TokenId_Field_Hint">NFT ID (from 0)</string>
     <string name="Nft_Burn_Confirm">Are you sure to burn NFT #%s ?</string>
     <string name="Nft_Remove_Confirm">Remove this NFT record from local storage?</string>
