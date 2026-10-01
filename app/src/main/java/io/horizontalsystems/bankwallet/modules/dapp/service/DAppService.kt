@@ -87,16 +87,39 @@ class DAppService(
             }*/
     }
 
+    /**
+     * 合并链上 dApp 到列表，可见性规则：
+     * - 链上上传过 logo（已推广）的 dApp → 所有钱包的 DApp 列表可见；
+     * - 未上传 logo 的 dApp → 仅发行者本人的钱包可见。
+     *
+     * DAppInfo 不含 owner 字段，归属用「当前钱包名下的 id 集合」判定
+     * （见 [Safe4DAppService.fetchMineDAppIds]）。
+     */
     private fun mergeChainDApps() {
         val safe4Service = safe4DAppService ?: return
         try {
             val chainDApps = safe4Service.fetchAllChainDApps()
             Log.d(TAG, "mergeChainDApps: 链上返回 ${chainDApps.size} 个 dApp")
+            val mineIds = safe4Service.fetchMineDAppIds()
+
             // Use name+url as dedup key to avoid duplicates with API data
             val existingKeys = allDAppList.map { "${it.name}|${it.dlink}" }.toSet()
             val chainItems = chainDApps.mapNotNull { info ->
                 val key = "${info.name}|${info.runUrl}"
                 if (key in existingKeys) return@mapNotNull null
+
+                val id = info.id.toString()
+                // 命中本地缓存时不产生网络请求，未命中才上链读取并落盘
+                val hasLogo = try {
+                    safe4Service.fetchAndCacheLogo(id) != null
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to check logo for DApp $id", e)
+                    false
+                }
+                if (!hasLogo && id !in mineIds) {
+                    Log.d(TAG, "mergeChainDApps: 跳过未推广且非本钱包发行的 dApp id=$id, name=${info.name}")
+                    return@mapNotNull null
+                }
                 DAppItem(
                     type = "SAFE",
                     subType = "SAFE DApp",
@@ -107,7 +130,7 @@ class DAppService(
                     dlink = info.runUrl ?: "",
                     md5Code = null,
                     keywords = info.keyword,
-                    chainId = info.id.toString()
+                    chainId = id
                 )
             }
             if (chainItems.isNotEmpty()) {
@@ -116,32 +139,10 @@ class DAppService(
                 chainItems.forEachIndexed { index, item ->
                     Log.d(TAG, "mergeChainDApps[$index]: chainId=${item.chainId}, name=${item.name}, url=${item.dlink}")
                 }
-                cacheChainDAppLogos(chainItems)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch chain DApps", e)
         }
-    }
-
-    /**
-     * Background fetch and cache logos for Safe4 chain DApps from contract.
-     * After caching completes, republishes the list so UI picks up cached paths.
-     */
-    private fun cacheChainDAppLogos(chainItems: List<DAppItem>) {
-        val safe4Service = safe4DAppService ?: return
-        Thread {
-            chainItems.forEach { item ->
-                item.chainId?.let { id ->
-                    try {
-                        safe4Service.fetchAndCacheLogo(id)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to cache logo for DApp $id", e)
-                    }
-                }
-            }
-            // Republish list so UI picks up cached logo paths
-            setFilterType(filterDAppType)
-        }.start()
     }
 
     /**

@@ -218,6 +218,41 @@ class Safe4DAppService : Clearable {
         return dApps
     }
 
+    /**
+     * 查询当前钱包在链上登记的 dApp id 集合（getMineNum / getMineIDs）。
+     *
+     * [com.anwang.types.dapp.DAppInfo] 不含 owner 字段，合约只提供按地址反查的
+     * mine 接口，因此用它判定「某个链上 dApp 是否为当前钱包发行」。
+     * 无 SAFE4 钱包或查询失败时返回空集合——按「非本人发行」处理，
+     * 未上传 logo 的 dApp 将不会出现在该钱包的列表里。
+     */
+    fun fetchMineDAppIds(): Set<String> {
+        val address = try {
+            getWalletAddress()
+        } catch (e: Exception) {
+            Log.d(TAG, "fetchMineDAppIds: 无 SAFE4 钱包: $e")
+            return emptySet()
+        }
+        return try {
+            val total = dAppManager.getMineNum(Address(address))
+            if (total == BigInteger.ZERO) return emptySet()
+
+            val ids = mutableListOf<BigInteger>()
+            var start = BigInteger.ZERO
+            val pageSize = BigInteger.valueOf(50)
+            while (start < total) {
+                val batch = dAppManager.getMineIDs(Address(address), start, pageSize)
+                if (batch.isEmpty()) break
+                ids.addAll(batch)
+                start += BigInteger.valueOf(batch.size.toLong())
+            }
+            ids.map { it.toString() }.toSet()
+        } catch (e: Exception) {
+            Log.e(TAG, "fetchMineDAppIds failed", e)
+            emptySet()
+        }
+    }
+
     /** 当前链标签，便于在日志中区分主网与测试网 */
     private fun chainLabel(): String = if (App.localStorage.isSafe4TestNet) "TESTNET" else "MAINNET"
 
