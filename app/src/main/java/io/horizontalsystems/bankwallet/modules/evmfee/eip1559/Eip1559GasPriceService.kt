@@ -129,6 +129,13 @@ class Eip1559GasPriceService(
                 tip < riskOfStuckBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
                     warnings.add(FeeSettingsWarning.RiskOfGettingStuck)
                 }
+                // 部分链（如 SAFE4）的网络推荐小费为 0，1.5×0=0 的乘法阈值失去意义，
+                // 任何非零小费都会被误判为「费用太高」。此时改用总费用标准：
+                // 用户 maxFeePerGas 超过推荐 maxFeePerGas 的 1.5 倍才提示。
+                recommendedGasPrice.maxPriorityFeePerGas <= 0L &&
+                    gasPriceEip1559.maxFeePerGas > overpricingBound.calculate(recommendedGasPrice.maxFeePerGas) -> {
+                    warnings.add(FeeSettingsWarning.Overpricing)
+                }
                 tip > overpricingBound.calculate(recommendedGasPrice.maxPriorityFeePerGas) -> {
                     warnings.add(FeeSettingsWarning.Overpricing)
                 }

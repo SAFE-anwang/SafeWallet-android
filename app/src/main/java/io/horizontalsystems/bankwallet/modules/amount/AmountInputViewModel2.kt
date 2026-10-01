@@ -76,7 +76,9 @@ class AmountInputViewModel2(
     }
 
     private fun calculateCoinAmount() {
-        coinAmount = rate?.let { rate ->
+        // 币价为 0（如未上架、无市场价的币种）时无法换算，保持 coinAmount 为空，
+        // 避免 BigDecimal.divide 抛出 Division by zero
+        coinAmount = rate?.takeIf { it.value.signum() > 0 }?.let { rate ->
             currencyAmount?.divide(rate.value, coinDecimal, RoundingMode.CEILING)
                 ?.stripTrailingZeros()
         }
