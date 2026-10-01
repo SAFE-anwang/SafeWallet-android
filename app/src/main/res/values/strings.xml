@@ -2988,6 +2988,6 @@
 
 
     <string name="TransactionSourceSettings_Title">EVM Browser Settings</string>
-    <string name="TransactionSource_Etherscan">EtherScan Direct Connection</string>
-    <string name="TransactionSource_Proxy">Proxy</string>
+    <string name="TransactionSource_Chainstack">Chainstack</string>
+    <string name="TransactionSource_Etherscan">EtherScan</string>
 </resources>

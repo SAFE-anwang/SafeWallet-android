@@ -2617,6 +2617,6 @@
     <string name="Privacy_BulletedText4">没有用户帐户或数据库存放其他地方的用户数据。</string>
 
     <string name="TransactionSourceSettings_Title">EVM 浏览器设置</string>
-    <string name="TransactionSource_Etherscan">EtherScan直连</string>
-    <string name="TransactionSource_Proxy">代理</string>
+    <string name="TransactionSource_Chainstack">Chainstack</string>
+    <string name="TransactionSource_Etherscan">EtherScan</string>
 </resources>
