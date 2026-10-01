@@ -1,5 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.nftv2.ui
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,9 +16,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -196,19 +200,36 @@ private fun NftCollectionCell(
                 .background(ComposeAppTheme.colors.raina),
             contentAlignment = Alignment.Center
         ) {
-            // 统一使用 NFT 占位图：无图、加载中、加载失败都显示占位图，
-            // 避免出现单字母文本或被裁剪的空白
-            AsyncImage(
-                model = collection.imageUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
-                error = painterResource(R.drawable.icon_24_nft_placeholder),
-                fallback = painterResource(R.drawable.icon_24_nft_placeholder)
-            )
+            // 合约 logo 为链上原始图片字节，直接解码展示（与 dApp logo 一致的做法）
+            val localBitmap = remember(collection.localLogoPath) {
+                collection.localLogoPath?.let { path ->
+                    BitmapFactory.decodeFile(path)?.asImageBitmap()
+                }
+            }
+            if (localBitmap != null) {
+                Image(
+                    bitmap = localBitmap,
+                    contentDescription = collection.name,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // 统一使用 NFT 占位图：无图、加载中、加载失败都显示占位图，
+                // 避免出现单字母文本或被裁剪的空白
+                AsyncImage(
+                    model = collection.imageUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                    error = painterResource(R.drawable.icon_24_nft_placeholder),
+                    fallback = painterResource(R.drawable.icon_24_nft_placeholder)
+                )
+            }
         }
 
         Column(

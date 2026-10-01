@@ -1,6 +1,8 @@
 package io.horizontalsystems.bankwallet.modules.nftv2.collection
 
+import android.graphics.BitmapFactory
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,9 +26,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -88,6 +93,24 @@ private fun NftCollectionScreen(
     )
     val uiState = viewModel.uiState
     val view = LocalView.current
+    // 诊断用：确认 UI 读到的是哪个 ViewModel 实例、资产数量是多少
+    Log.d(
+        "NftCollectionUI",
+        "recompose: vm=${System.identityHashCode(viewModel)} " +
+                "assets=${uiState.assets.size} viewState=${uiState.viewState}"
+    )
+
+    // SAFE4：合约 logo 就是合集图标。链上传回的是原始图片字节，直接解码展示。
+    // 提到页面级是为了让「合集信息头」与「资产卡片」共用同一个图标。
+    val collectionIcon = remember(uiState.localLogoPath, input.blockchainType) {
+        if (input.blockchainType != BlockchainType.SafeFour) {
+            null
+        } else {
+            uiState.localLogoPath?.let { path ->
+                BitmapFactory.decodeFile(path)?.asImageBitmap()
+            }
+        }
+    }
 
     HSScaffold(
         title = stringResource(R.string.Nft_Collection_Title),
@@ -123,18 +146,30 @@ private fun NftCollectionScreen(
                         .background(ComposeAppTheme.colors.raina),
                     contentAlignment = Alignment.Center
                 ) {
-                    // 无图/加载中/失败统一显示占位图
-                    AsyncImage(
-                        model = uiState.iconUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
-                        error = painterResource(R.drawable.icon_24_nft_placeholder),
-                        fallback = painterResource(R.drawable.icon_24_nft_placeholder)
-                    )
+                    // 合约 logo 为链上原始图片字节，直接解码展示
+                    if (collectionIcon != null) {
+                        Image(
+                            bitmap = collectionIcon,
+                            contentDescription = uiState.collectionName,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        // 无图/加载中/失败统一显示占位图
+                        AsyncImage(
+                            model = uiState.collectionLogoUrl ?: uiState.iconUrl,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                            error = painterResource(R.drawable.icon_24_nft_placeholder),
+                            fallback = painterResource(R.drawable.icon_24_nft_placeholder)
+                        )
+                    }
                 }
                 Column(modifier = Modifier.padding(start = 12.dp)) {
                     body_leah(
@@ -243,7 +278,16 @@ private fun NftCollectionScreen(
                 items = uiState.assets,
                 key = { it.tokenId }
             ) { asset ->
-                NftAssetCard(asset) {
+                NftAssetCard(
+                    asset = asset,
+                    // 资产自身没有图片时，回退展示合集图标（SAFE4 合约 logo）
+                    collectionIcon = collectionIcon,
+                    collectionIconUrl = if (input.blockchainType == BlockchainType.SafeFour) {
+                        uiState.collectionLogoUrl
+                    } else {
+                        null
+                    }
+                ) {
                     navController.slideFromRight(
                         R.id.nftAssetFragment,
                         NftAssetFragment.Input(
@@ -287,6 +331,10 @@ private fun NftStatCell(
 @Composable
 private fun NftAssetCard(
     asset: NftAssetViewItem,
+    /** 合集图标（合约 logo），资产自身无图时兜底展示 */
+    collectionIcon: ImageBitmap? = null,
+    /** 合集图标（insight 登记的 logoURI），本地 logo 缺失时兜底 */
+    collectionIconUrl: String? = null,
     onClick: () -> Unit
 ) {
     Column(
@@ -304,24 +352,52 @@ private fun NftAssetCard(
                 .background(ComposeAppTheme.colors.raina),
             contentAlignment = Alignment.Center
         ) {
-            if (asset.imageUrl != null) {
-                // 有图时按原图比例完整显示（Fit 不裁剪、撑满格子）
-                AsyncImage(
-                    model = asset.imageUrl,
-                    contentDescription = asset.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
-                    placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
-                    error = painterResource(R.drawable.icon_24_nft_placeholder)
-                )
-            } else {
-                // 无图时居中显示小尺寸占位图
-                Image(
-                    painter = painterResource(R.drawable.icon_24_nft_placeholder),
-                    contentDescription = asset.name,
-                    modifier = Modifier.size(72.dp),
-                    contentScale = ContentScale.Fit
-                )
+            when {
+                asset.imageUrl != null -> {
+                    // 有图时按原图比例完整显示（Fit 不裁剪、撑满格子）
+                    AsyncImage(
+                        model = asset.imageUrl,
+                        contentDescription = asset.name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit,
+                        placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                        error = painterResource(R.drawable.icon_24_nft_placeholder)
+                    )
+                }
+                collectionIcon != null -> {
+                    // 资产自身无图时展示合集图标（合约 owner 设置的 logo）：
+                    // 撑满整个格子并保留卡片圆角
+                    Image(
+                        bitmap = collectionIcon,
+                        contentDescription = asset.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                collectionIconUrl != null -> {
+                    // 链上 logo 读不到时，用 insight 登记的 logoURI
+                    AsyncImage(
+                        model = collectionIconUrl,
+                        contentDescription = asset.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(R.drawable.icon_24_nft_placeholder),
+                        error = painterResource(R.drawable.icon_24_nft_placeholder)
+                    )
+                }
+                else -> {
+                    // 合集也没有图标时，居中显示小尺寸占位图
+                    Image(
+                        painter = painterResource(R.drawable.icon_24_nft_placeholder),
+                        contentDescription = asset.name,
+                        modifier = Modifier.size(72.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
         }
         Column(modifier = Modifier.padding(12.dp)) {

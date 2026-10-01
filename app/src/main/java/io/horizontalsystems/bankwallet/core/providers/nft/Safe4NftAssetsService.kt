@@ -1,8 +1,11 @@
 package io.horizontalsystems.bankwallet.core.providers.nft
 
 import android.util.Log
+import io.horizontalsystems.bankwallet.core.App
 import io.horizontalsystems.bankwallet.core.managers.APIClient
 import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721Service
+import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721Storage
+import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
@@ -107,28 +110,65 @@ object Safe4NftAssetsService {
     }
 
     /**
-     * 取合集（合约）名称，数据来源为 insight 的 `nft/tokens` 接口。
+     * 取合集（合约）名称，按可靠性依次尝试三个来源：
      *
-     * 先查索引，未命中则加载一次全量列表；仍无结果时回退调用合约
-     * `name()` / `symbol()`（部分未收录合约只能链上读取）。
-     * 返回 null 表示无法获取，由调用方兜底展示地址缩写。
+     * 1. insight 的 `nft/tokens` 索引（最权威，一次请求覆盖全网合约）；
+     * 2. 本机 `SRC721Storage` 注册表（接口未收录时，自部署合约在本地仍有 name/symbol）；
+     * 3. 链上 `name()` / `symbol()`（最后兜底）。
+     *
+     * 三者都拿不到才返回 null，由调用方兜底展示地址缩写。
+     * 注意：`nft/tokens` 只覆盖部分合约，未收录的合约必须靠 2/3 才能拿到名称。
      */
     suspend fun fetchCollectionName(tokenAddress: String, web3j: Web3j? = null): String? {
-        tokens[tokenAddress.lowercase()]?.let { return it.displayName }
-
+        // 1. 接口索引
+        tokens[tokenAddress.lowercase()]?.displayName?.let { return it }
         if (!tokensLoaded) {
             fetchTokens()
         }
-        tokens[tokenAddress.lowercase()]?.let { return it.displayName }
+        tokens[tokenAddress.lowercase()]?.displayName?.let { return it }
 
-        // 接口未收录该合约，回退链上读取
-        val onChain = web3j?.let { readOnChainName(it, tokenAddress) } ?: return null
+        // 2. 本机注册表（自部署的合约一定有记录）
+        localName(tokenAddress)?.let { return cacheName(tokenAddress, it) }
+
+        // 3. 链上读取（调用方未传 web3j 时自行获取，避免回退逻辑形同虚设）
+        val chain = web3j ?: safe4Web3j() ?: return null
+        val onChain = readOnChainName(chain, tokenAddress)
+            ?: return null
+        return cacheName(tokenAddress, onChain)
+    }
+
+    /** 把解析到的名称写回索引，后续调用可直接命中 */
+    private fun cacheName(tokenAddress: String, name: String): String {
         tokens[tokenAddress.lowercase()] = Safe4NftToken(
             address = tokenAddress,
-            name = onChain,
-            symbol = onChain
+            name = name,
+            symbol = name
         )
-        return onChain
+        return name
+    }
+
+    /** 本机部署记录中的合约名称 */
+    private fun localName(tokenAddress: String): String? =
+        SRC721Storage.list()
+            .firstOrNull { it.address.equals(tokenAddress, ignoreCase = true) }
+            ?.name
+            ?.takeIf { it.isNotBlank() }
+
+    /**
+     * 取 SAFE4 的 web3j，用于接口与本机注册表都未覆盖的合约读取名称。
+     * 与 [SRC721LogoProvider] 中的同名方法一致。
+     */
+    private fun safe4Web3j(): Web3j? {
+        return try {
+            val account = App.accountManager.activeAccount ?: return null
+            val evmKitWrapper = App.evmBlockchainManager
+                .getEvmKitManager(BlockchainType.SafeFour)
+                .getEvmKitWrapper(account, BlockchainType.SafeFour)
+            (evmKitWrapper.evmKit.blockchain as? RpcBlockchainSafe4)?.web3j
+        } catch (e: Throwable) {
+            Log.d(TAG, "safe4Web3j unavailable: $e")
+            null
+        }
     }
 
     /** 合集 logo（接口 logoURI），可为空 */
@@ -226,6 +266,16 @@ data class Safe4NftAsset(
     /** 合约级接口返回的持有数量 */
     val count: Int? = null,
 ) {
-    val isErc721: Boolean get() = tokenType.equals("erc721", true)
+    /**
+     * 是否为 ERC721。
+     *
+     * 注意 tokenType 可能缺失：该资产来自 `nft/assets?tokenAddress=` 明细接口，
+     * 本身已经是某个 NFT 合约下的资产，若因为缺字段被过滤掉，
+     * 会出现「接口调用成功、但整个合集凭空消失」的情况。
+     * 因此只有明确是其他标准（如 erc1155）时才排除。
+     */
+    val isErc721: Boolean
+        get() = tokenType.isNullOrBlank() || tokenType.equals("erc721", true)
+
     val balance: Int get() = tokenValue?.toIntOrNull() ?: 1
 }

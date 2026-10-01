@@ -113,6 +113,8 @@ data class SRC721ManagerItem(
     val totalSupply: String? = null,
     val remainSupply: String? = null,
     val loadFailed: Boolean = false,
+    /** 合约 logo 的本地缓存路径，链上未设置时为 null */
+    val logoPath: String? = null,
 )
 
 enum class SRC721DeployType(val type: Int) {

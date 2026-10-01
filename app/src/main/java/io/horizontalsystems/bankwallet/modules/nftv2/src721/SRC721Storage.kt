@@ -29,8 +29,12 @@ object SRC721Storage {
     private const val LEGACY_KEY = "src721_contracts"
     private const val MIGRATED_KEY = "src721_contracts_migrated"
 
+    /** 已删除（本地隐藏）的合约地址 key 前缀 */
+    private const val REMOVED_PREFIX = "src721_removed_"
+
     private val gson = Gson()
     private val listType = object : TypeToken<List<SRC721ContractInfo>>() {}.type
+    private val addressSetType = object : TypeToken<Set<String>>() {}.type
 
     /** 当前链标识：0=主网，1=测试网（与 RedeemStorage / NodeInfo 的约定一致） */
     private fun chainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
@@ -75,6 +79,41 @@ object SRC721Storage {
         all.removeAll { it.address.equals(info.address, ignoreCase = true) }
         all.add(info)
         persist(all)
+        // 重新部署 / 重新登记时取消「已删除」标记
+        unmarkRemoved(info.address)
+    }
+
+    /**
+     * 已删除（本地隐藏）的合约地址。
+     *
+     * 管理列表除了本地注册表，还会并入 insight 接口中 creator 为本账户的合约，
+     * 若只从注册表移除，刷新后合约会从接口再次出现，因此需要单独记录删除动作。
+     */
+    @Synchronized
+    fun removedAddresses(): Set<String> {
+        val json = MMKV.defaultMMKV()?.getString("$REMOVED_PREFIX${chainType()}", null)
+            ?: return emptySet()
+        return try {
+            val parsed: Set<String>? = gson.fromJson(json, addressSetType)
+            parsed ?: emptySet()
+        } catch (e: Throwable) {
+            emptySet()
+        }
+    }
+
+    @Synchronized
+    fun markRemoved(address: String) {
+        val all = removedAddresses().toMutableSet()
+        all.add(address.lowercase())
+        MMKV.defaultMMKV()?.putString("$REMOVED_PREFIX${chainType()}", gson.toJson(all))
+    }
+
+    @Synchronized
+    fun unmarkRemoved(address: String) {
+        val all = removedAddresses().toMutableSet()
+        if (all.remove(address.lowercase())) {
+            MMKV.defaultMMKV()?.putString("$REMOVED_PREFIX${chainType()}", gson.toJson(all))
+        }
     }
 
     @Synchronized
@@ -102,6 +141,8 @@ object SRC721Storage {
                     it.creator.equals(creator, ignoreCase = true)
         }
         persist(all)
+        // 记录删除动作，避免接口重新拉取时该合约又出现
+        markRemoved(address)
     }
 
     private fun persist(all: List<SRC721ContractInfo>) {

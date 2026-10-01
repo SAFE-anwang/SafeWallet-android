@@ -230,6 +230,7 @@ object APIClient {
         val httpClient = okHttpClient.newBuilder()
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .readTimeout(timeout, TimeUnit.SECONDS)
+            .addInterceptor(logger)
 
         //TODO Replace this implementation with Manifest file settings when support for SDK 26 removed
         if (!isSafeCall) // if host name cannot be verified, has no or self signed certificate, do unsafe request

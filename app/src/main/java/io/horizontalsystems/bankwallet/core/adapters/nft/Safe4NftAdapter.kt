@@ -51,16 +51,21 @@ class Safe4NftAdapter(
 
     override fun sync() {
         scope.launch {
-            val records = mutableListOf<NftRecord>()
+            // 上一次的同步结果，接口失败时用于兜底，避免数据被清空
+            val previous = recordsFlow.value
 
             // 先加载全网络合约索引，一次请求拿到所有合集的 name / symbol
             withContext(Dispatchers.IO) {
                 Safe4NftAssetsService.fetchTokens()
             }
 
+            // 合约列表请求失败（返回 null）时直接保留上次结果。
+            // 若在这里或空列表，已展示的合集与资产会一起消失，用户侧就是「加载数据失败」
             val contracts = withContext(Dispatchers.IO) {
                 Safe4NftAssetsService.fetchAssets(userAddress)
-            }.orEmpty()
+            } ?: return@launch
+
+            val records = mutableListOf<NftRecord>()
 
             contracts.forEach { contract ->
                 val contractAddress = contract.token
@@ -70,8 +75,18 @@ class Safe4NftAdapter(
                     .fetchCollectionName(contractAddress)
 
                 val assets = withContext(Dispatchers.IO) {
+                    Log.d("Safe4NftAdapter", "fetchAssetsOfToken: $contractAddress")
                     Safe4NftAssetsService.fetchAssetsOfToken(userAddress, contractAddress)
-                }.orEmpty()
+                }
+
+                // 明细请求失败时沿用该合约上次的资产，避免单个合集变空
+                // 注意 previous 是 NftRecord，合约地址在 nftUid 上
+                if (assets == null) {
+                    records.addAll(
+                        previous.filter { it.nftUid.contractAddress.equals(contractAddress, true) }
+                    )
+                    return@forEach
+                }
 
                 assets
                     .filter { it.isErc721 }

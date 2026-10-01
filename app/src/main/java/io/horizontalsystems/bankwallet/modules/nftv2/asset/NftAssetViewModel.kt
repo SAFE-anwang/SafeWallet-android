@@ -12,6 +12,7 @@ import io.horizontalsystems.bankwallet.core.providers.nft.NftEventsProvider
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftUid
+import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721LogoProvider
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.horizontalsystems.nftkit.models.NftType
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,8 @@ data class NftAssetUiState(
     val recordExists: Boolean = false,
     val description: String? = null,
     val events: List<NftEventViewItem> = emptyList(),
+    /** SAFE4 合约 logo 的本地缓存路径，NFT 自身无图时作为兜底展示 */
+    val localLogoPath: String? = null,
 )
 
 class NftAssetViewModel(
@@ -87,6 +90,19 @@ class NftAssetViewModel(
             }
         }
         loadEvents()
+        loadContractLogo()
+    }
+
+    /**
+     * SAFE4 专属：读取合约 logo。
+     * NFT 自身没有图片（tokenURI 未返回 image）时用合集图标兜底，避免只显示占位符。
+     */
+    private fun loadContractLogo() {
+        if (blockchainType != BlockchainType.SafeFour) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val path = SRC721LogoProvider.fetchPath(contractAddress) ?: return@launch
+            uiState = uiState.copy(localLogoPath = path)
+        }
     }
 
     private fun resolveMetadata(record: EvmNftRecord) {

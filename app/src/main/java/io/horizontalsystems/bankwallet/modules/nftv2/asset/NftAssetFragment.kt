@@ -1,6 +1,8 @@
 package io.horizontalsystems.bankwallet.modules.nftv2.asset
 
+import android.graphics.BitmapFactory
 import android.os.Parcelable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +18,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -107,6 +111,13 @@ private fun NftAssetScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
+            // SAFE4：NFT 自身无图时回退到合约 logo（合集图标）
+            val localLogoBitmap = remember(uiState.localLogoPath) {
+                uiState.localLogoPath?.let { path ->
+                    BitmapFactory.decodeFile(path)?.asImageBitmap()
+                }
+            }
+
             // NFT 大图
             Box(
                 modifier = Modifier
@@ -128,6 +139,14 @@ private fun NftAssetScreen(
                     }
                     uiState.loading -> {
                         CircularProgressIndicator(color = ComposeAppTheme.colors.grey)
+                    }
+                    localLogoBitmap != null -> {
+                        Image(
+                            bitmap = localLogoBitmap,
+                            contentDescription = uiState.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
                     }
                     else -> {
                         Text(

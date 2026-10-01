@@ -15,11 +15,13 @@ import io.horizontalsystems.bankwallet.core.managers.NftMetadataSyncer
 import io.horizontalsystems.bankwallet.core.providers.nft.BuiltinNftCollections
 import io.horizontalsystems.bankwallet.core.providers.nft.NftMetadataResolver
 import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftAssetsService
+import io.horizontalsystems.bankwallet.core.providers.nft.Safe4NftToken
 import io.horizontalsystems.bankwallet.entities.ViewState
 import io.horizontalsystems.bankwallet.entities.nft.EvmNftRecord
 import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftKey
 import io.horizontalsystems.bankwallet.entities.nft.NftRecord
+import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721LogoProvider
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,6 +34,11 @@ data class NftCollectionViewItem(
     val count: Int,
     val sampleTokenId: String,
     val imageUrl: String?,
+    /**
+     * 本地缓存的合约 logo 文件路径（仅 SAFE4）。
+     * 由合约 owner 付费上传，优先级高于 [imageUrl]。
+     */
+    val localLogoPath: String? = null,
 )
 
 enum class NftListTab(val titleRes: Int) {
@@ -63,6 +70,18 @@ class NftCollectionListViewModel(
     /** 当前 NFT 数据所属账户地址（收藏按该地址隔离存储） */
     private var currentAccount: String? = null
 
+    /** 已解析到的 SAFE4 合约 logo：contract(lowercase) -> 本地文件路径 */
+    private val safe4LogoPaths = mutableMapOf<String, String>()
+
+    /**
+     * SAFE4 推广合集：insight `nft/tokens` 中登记了 logoURI 的合约。
+     *
+     * 展示规则：发行且推广上传过 logo 的合集，在所有钱包的 NFT 列表都展示；
+     * 未推广的合集只出现在持有它的钱包里（由 `nft/assets` 持仓数据决定）。
+     * 这里以 [Safe4NftToken.logoURI] 是否存在作为「已推广」的判断依据。
+     */
+    private var promotedSafe4: List<Safe4NftToken> = emptyList()
+
     init {
         viewModelScope.launch {
             nftAdapterManager.adaptersUpdatedFlow.collect { adaptersMap ->
@@ -79,6 +98,20 @@ class NftCollectionListViewModel(
             }
         }
         refresh()
+        loadPromotedSafe4()
+    }
+
+    /**
+     * 拉取全网 SAFE4 合集索引，取出其中「已推广」（登记了 logoURI）的合约。
+     * 这些合集不依赖本钱包是否持有，所有钱包的 NFT 列表都要展示。
+     */
+    private fun loadPromotedSafe4() {
+        viewModelScope.launch(Dispatchers.IO) {
+            promotedSafe4 = Safe4NftAssetsService.fetchTokens()
+                .orEmpty()
+                .filter { !it.logoURI.isNullOrBlank() }
+            rebuildItems()
+        }
     }
 
     private fun subscribeToAdapters(adaptersMap: Map<NftKey, INftAdapter>) {
@@ -182,6 +215,32 @@ class NftCollectionListViewModel(
             }
         }
 
+        // SAFE4 推广合集：发行且推广上传过 logo 的，在所有钱包的 NFT 列表都展示。
+        // 本钱包已持有（持仓数据里已有）的保持真实数量，不重复添加；
+        // 未推广的合集不会出现在这里，只能随 `nft/assets` 持仓在本钱包展示。
+        if (uiState.tab == NftListTab.All) {
+            promotedSafe4.forEach { token ->
+                val key = BlockchainType.SafeFour to token.address.lowercase()
+                if (items.containsKey(key)) return@forEach
+                items[key] = NftCollectionViewItem(
+                    blockchainType = BlockchainType.SafeFour,
+                    contractAddress = token.address,
+                    name = token.displayName ?: token.address.take(10),
+                    count = token.totalAssets ?: 0,
+                    sampleTokenId = "",
+                    imageUrl = token.logoURI
+                )
+            }
+        }
+
+        // 已解析的合约 logo（本地文件）作为 SAFE4 合集图标，优先级最高
+        items.keys.toList().forEach { key ->
+            if (key.first != BlockchainType.SafeFour) return@forEach
+            safe4LogoPaths[key.second]?.let { path ->
+                items[key] = items[key]!!.copy(localLogoPath = path)
+            }
+        }
+
         var collections = items.values.sortedByDescending { it.count }
 
         // 收藏 Tab 只显示已收藏的合集（收藏按账户隔离，需按当前账户读取）
@@ -201,7 +260,8 @@ class NftCollectionListViewModel(
         // 异步解析每个集合的代表图片
         viewModelScope.launch(Dispatchers.IO) {
             collections.forEach { item ->
-                if (item.imageUrl == null) {
+                // SAFE4 需始终尝试读取合约 logo（用户付费上传的图标应当覆盖其他来源）
+                if (item.imageUrl == null || item.blockchainType == BlockchainType.SafeFour) {
                     resolveCollectionImage(item)
                 }
             }
@@ -237,8 +297,24 @@ class NftCollectionListViewModel(
     }
 
     private suspend fun resolveCollectionImage(item: NftCollectionViewItem) {
-        // SAFE4 合集优先取 insight `nft/tokens` 下发的 logoURI，省去一次链上元数据解析
+        // SAFE4 优先展示合约自身的 logo：它由用户在合约上付费上传，是最权威的来源
         if (item.blockchainType == BlockchainType.SafeFour) {
+            val path = SRC721LogoProvider.fetchPath(item.contractAddress)
+            if (path != null) {
+                safe4LogoPaths[item.contractAddress.lowercase()] = path
+                uiState = uiState.copy(
+                    collections = uiState.collections.map {
+                        if (it.blockchainType == item.blockchainType &&
+                            it.contractAddress.equals(item.contractAddress, true)
+                        ) {
+                            it.copy(localLogoPath = path)
+                        } else it
+                    }
+                )
+                return
+            }
+
+            // 合约未设置 logo 时，回退到 insight `nft/tokens` 下发的 logoURI
             val logo = Safe4NftAssetsService.collectionLogo(item.contractAddress)
             if (!logo.isNullOrBlank()) {
                 uiState = uiState.copy(

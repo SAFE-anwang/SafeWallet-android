@@ -29,6 +29,8 @@ data class SRC721EditUiState(
     val mintPrice: String? = null,
     val maxSupply: String? = null,
     val logoFee: String? = null,
+    /** 当前合约 logo 的本地文件路径（链上无 logo 时为 null） */
+    val logoPath: String? = null,
     val loading: Boolean = true,
     val hasUpdate: Boolean = false,
 )
@@ -54,6 +56,7 @@ class SRC721EditViewModel(
     private var mintPrice: String? = null
     private var maxSupply: String? = null
     private var logoFee: String? = null
+    private var logoPath: String? = null
     private var loading = true
 
     private var orgNameUpdate = false
@@ -87,6 +90,8 @@ class SRC721EditViewModel(
                 }
                 maxSupply = runCatching { service.maxSupply() }.getOrNull()?.toString()
                 logoFee = runCatching { service.getLogoPayAmount() }.getOrNull()?.let { weiToSafe(it) }
+                // 读取链上已有的 logo，供页面预览
+                logoPath = SRC721LogoProvider.fetchPath(contract.address)
             } catch (e: Throwable) {
                 // ignore
             }
@@ -107,6 +112,7 @@ class SRC721EditViewModel(
             mintPrice = mintPrice,
             maxSupply = maxSupply,
             logoFee = logoFee,
+            logoPath = logoPath,
             loading = loading,
             hasUpdate = orgNameUpdate || officialUrlUpdate || whitePaperUrlUpdate ||
                     descriptionUpdate || baseURIUpdate || mintPriceUpdate || maxSupplyUpdate
@@ -189,7 +195,12 @@ class SRC721EditViewModel(
         isUpdating.set(true)
         sendResult = SendResult.Sending
         service.setLogo(privateKey, logo).subscribeIO({
+            // 链上设置成功后立即刷新本地缓存，
+            // 否则 NFT 列表/详情仍会展示旧图标（缓存未失效）
+            SRC721LogoProvider.cache(contract.address, logo)
+            logoPath = SRC721LogoProvider.cachedPath(contract.address)
             isUpdating.set(false)
+            emitState()
             sendResult = SendResult.Sent()
         }, { e ->
             isUpdating.set(false)

@@ -1,7 +1,9 @@
 package io.horizontalsystems.bankwallet.modules.nftv2.src721
 
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -12,15 +14,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -164,6 +170,23 @@ fun SRC721EditScreen(
                     modifier = Modifier.padding(start = 16.dp),
                     text = stringResource(R.string.Nft_Edit_Logo)
                 )
+                // 当前链上 logo 预览，便于确认之前的上传是否已生效
+                val logoBitmap = remember(uiState.logoPath) {
+                    uiState.logoPath?.let { path ->
+                        BitmapFactory.decodeFile(path)?.asImageBitmap()
+                    }
+                }
+                if (logoBitmap != null) {
+                    Image(
+                        bitmap = logoBitmap,
+                        contentDescription = stringResource(R.string.Nft_Edit_Logo),
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 8.dp)
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+                }
                 uiState.logoFee?.let { fee ->
                     body_grey(
                         modifier = Modifier.padding(start = 16.dp),
