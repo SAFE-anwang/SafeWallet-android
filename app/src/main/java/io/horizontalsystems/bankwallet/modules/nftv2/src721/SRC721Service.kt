@@ -9,6 +9,7 @@ import io.horizontalsystems.ethereumkit.api.core.RpcBlockchainSafe4
 import io.horizontalsystems.marketkit.models.BlockchainType
 import io.reactivex.Single
 import org.web3j.abi.datatypes.Address
+import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.Web3j
 import java.math.BigInteger
 
@@ -234,6 +235,23 @@ class SRC721Service(
     /** 获取设置 Logo 费用的接收地址 */
     fun getLogoPayAddress(): String = src721.getLogoPayAddress().value
 
+    /**
+     * 判断链上合约是否支持销毁（burn）。
+     *
+     * 通过合约运行时代码中是否包含 `burn(uint256)` 的选择器 0x42966c68 判定，
+     * 与 SRC20 用 `version()` 判定类型的思路一致：不依赖本地部署记录，
+     * 重装 App / 换设备 / 他处发行的合约同样能识别出来。
+     *
+     * 注意：每调用一次会发一次 eth_getCode，调用方应只在本地无记录时使用并缓存结果。
+     */
+    fun isBurnable(): Boolean = try {
+        val code = web3j.ethGetCode(contract, DefaultBlockParameterName.LATEST).send().code
+        code?.contains(BURN_SELECTOR, ignoreCase = true) == true
+    } catch (e: Throwable) {
+        Log.e("SRC721.isBurnable", "error=$e")
+        false
+    }
+
     // endregion
 
     private fun <T : Any> call(method: String, block: () -> T): Single<T> {
@@ -248,6 +266,9 @@ class SRC721Service(
     }
 
     companion object {
+        /** keccak256("burn(uint256)") 的前 4 字节：合约支持销毁时其代码中会出现该选择器 */
+        private const val BURN_SELECTOR = "42966c68"
+
         /**
          * 基于当前活跃账户的 SafeFour RPC 创建实例。
          * contractAddress 为空时用于发布合约，否则用于操作已有 NFT。

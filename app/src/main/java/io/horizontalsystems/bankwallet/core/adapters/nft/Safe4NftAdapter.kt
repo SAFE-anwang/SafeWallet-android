@@ -114,6 +114,27 @@ class Safe4NftAdapter(
         }
     }
 
+    /**
+     * 用最新的合约资产结果替换该合约下的记录，其余合约保持不变。
+     *
+     * 供合集详情页在单独拉取到最新明细后回写：适配器实例常驻内存，
+     * 不更新的话，已销毁（如 tokenId=0 已 burn）或已转出的资产会作为旧记录
+     * 在下次进入页面时先显示一次。
+     *
+     * [records] 为空表示该合约下已无资产，此时会清掉该合约的全部记录。
+     */
+    override fun updateContractRecords(contractAddress: String, records: List<NftRecord>) {
+        val others = recordsFlow.value.filterNot {
+            it.nftUid.contractAddress.equals(contractAddress, ignoreCase = true)
+        }
+        recordsFlow.value = (others + records).distinctBy { it.nftUid.uid }
+        Log.d(
+            "Safe4NftAdapter",
+            "updateContractRecords: $contractAddress → ${records.size} 条，" +
+                    "总记录 ${recordsFlow.value.size} 条"
+        )
+    }
+
     override fun transferEip721TransactionData(
         contractAddress: String,
         to: Address,

@@ -208,9 +208,19 @@ class NftCollectionViewModel(
                         " tokenId=${assets.take(3).map { it.tokenId }}）"
             )
 
-            if (records.isNotEmpty()) {
-                emitAssets(records)
+            // 回写适配器：适配器实例常驻内存，不更新的话，已销毁/已转出的资产
+            // 会作为旧记录在下次进入页面时先显示一次，等接口返回才消失
+            nftAdapterManager.adapter(key)?.updateContractRecords(contractAddress, records)
+
+            if (records.isEmpty()) {
+                // 接口成功返回空 = 该合约下确无资产（全部销毁/转出），需要清空页面，
+                // 否则已销毁的资产会一直留在列表里
+                ownAssets = emptyList()
+                rebuildAssets()
+                return@launch
             }
+
+            emitAssets(records)
         }
     }
 

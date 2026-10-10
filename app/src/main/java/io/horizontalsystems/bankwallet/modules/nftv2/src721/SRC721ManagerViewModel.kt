@@ -90,18 +90,23 @@ class SRC721ManagerViewModel(
                             address = it.address,
                             name = it.displayName.orEmpty(),
                             symbol = it.symbol.orEmpty(),
-                            // 接口不下发 burnable，只有本地部署记录才能确定，这里按不可销毁处理
+                            // 接口不下发 burnable，本地无部署记录时先按不可销毁处理，
+                            // 随后由 resolveBurnableFromChain 从链上确认
                             burnable = false,
                             creator = creator,
                         )
                     } ?: return@mapNotNull null
 
                     // 本地名称为空时用接口补全
-                    val resolved = if (info.name.isBlank()) {
+                    val named = if (info.name.isBlank()) {
                         apiToken?.displayName?.let { info.copy(name = it) } ?: info
                     } else {
                         info
                     }
+
+                    // 本地没有部署记录（重装 App / 换设备 / 他处发行）时，
+                    // 合约是否可销毁需要从链上确认，否则「销毁」按钮不会出现
+                    val resolved = if (local == null) resolveBurnableFromChain(named) else named
 
                     // 合约 logo 由用户在编辑页付费设置，列表直接展示
                     val logoPath = SRC721LogoProvider.fetchPath(resolved.address)
@@ -121,6 +126,34 @@ class SRC721ManagerViewModel(
                 emitState()
             }
         }
+    }
+
+    /**
+     * 本地无部署记录时，从链上确认合约是否可销毁。
+     *
+     * 背景：`burnable` 只记录在本机注册表里（发布时写入），
+     * 重装 App、换设备或合约由他处发行时该记录缺失，
+     * 管理页就会当成不可销毁而不显示「销毁」按钮（insight 接口不下发该字段）。
+     * 确认成功后写回注册表，后续刷新直接用本地记录，不再查链。
+     */
+    private fun resolveBurnableFromChain(info: SRC721ContractInfo): SRC721ContractInfo {
+        if (info.burnable) return info
+
+        val burnable = try {
+            SRC721Service(web3j, info.address).isBurnable()
+        } catch (e: Throwable) {
+            Log.d(TAG, "resolveBurnableFromChain ${info.address} failed: $e")
+            false
+        }
+        if (!burnable) {
+            Log.d(TAG, "resolveBurnableFromChain ${info.address}: not burnable")
+            return info
+        }
+
+        Log.d(TAG, "resolveBurnableFromChain ${info.address}: burnable, save to registry")
+        val detected = info.copy(burnable = true)
+        SRC721Storage.save(detected)
+        return detected
     }
 
     /**
