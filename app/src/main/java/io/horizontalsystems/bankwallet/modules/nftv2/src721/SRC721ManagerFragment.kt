@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -111,37 +112,53 @@ fun SRC721ManagerScreen(
             }
         )
 
-        if (uiState.list.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                body_grey(text = stringResource(R.string.Nft_Manager_Empty))
+        when {
+            // 首次加载（还没有任何数据）：先显示加载动画，
+            // 避免与「暂无数据」提示同时出现造成误解
+            uiState.refreshing && uiState.list.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = ComposeAppTheme.colors.grey)
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(uiState.list, key = { it.info.address }) { item ->
-                    SRC721ItemCard(
-                        item = item,
-                        onMint = {
-                            navController.slideFromRight(
-                                R.id.src721MintFragment,
-                                SRC721Module.MintInput(wallet, item.info)
-                            )
-                        },
-                        onBurn = { viewModel.showBurnDialog(item.info) },
-                        onRemove = { viewModel.showRemoveDialog(item.info) },
-                        onEdit = {
-                            navController.slideFromRight(
-                                R.id.src721EditFragment,
-                                SRC721Module.EditInput(wallet, item.info)
-                            )
-                        }
-                    )
+
+            // 加载结束且确实没有数据，才显示默认提示语
+            uiState.list.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    body_grey(text = stringResource(R.string.Nft_Manager_Empty))
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(uiState.list, key = { it.info.address }) { item ->
+                        SRC721ItemCard(
+                            item = item,
+                            onMint = {
+                                navController.slideFromRight(
+                                    R.id.src721MintFragment,
+                                    SRC721Module.MintInput(wallet, item.info)
+                                )
+                            },
+                            onBurn = { viewModel.showBurnDialog(item.info) },
+                            onRemove = { viewModel.showRemoveDialog(item.info) },
+                            onEdit = {
+                                navController.slideFromRight(
+                                    R.id.src721EditFragment,
+                                    SRC721Module.EditInput(wallet, item.info)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -122,6 +122,12 @@ class SRC721ManagerViewModel(
 
             withContext(Dispatchers.Main) {
                 items = loaded
+                emitState()
+            }
+        }.invokeOnCompletion {
+            // 无论成功失败都要结束加载态，否则页面会一直停在加载动画、
+            // 永远等不到「无数据」的默认提示
+            viewModelScope.launch(Dispatchers.Main) {
                 refreshing = false
                 emitState()
             }
