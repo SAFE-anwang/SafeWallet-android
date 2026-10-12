@@ -165,13 +165,18 @@ class SRC721ManagerViewModel(
     /**
      * 读取「已铸造 / 剩余可铸造」数量。
      *
+     * 已铸造数量取合约的 `mintedTotal()`（累计铸造量，含已销毁的），
+     * 旧合约没有该方法时回退 `totalSupply()`。
      * 优先链上 SDK（能同时给出剩余量），失败时回退到 insight 接口的
      * [Safe4NftToken.totalAssets]。接口不提供剩余可铸造量，故第二项为 null。
      */
     private fun readCounts(address: String, apiToken: Safe4NftToken?): Pair<String?, String?> {
         try {
             val service = SRC721Service(web3j, address)
-            return Pair(service.totalSupply().toString(), service.remainSupply().toString())
+            return Pair(
+                (service.mintedTotal() ?: service.totalSupply()).toString(),
+                service.remainSupply().toString()
+            )
         } catch (e: Throwable) {
             Log.d(TAG, "链上读取 $address 失败，回退接口数据: $e")
         }

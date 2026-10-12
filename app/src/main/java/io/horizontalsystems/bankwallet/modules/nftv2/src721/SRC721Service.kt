@@ -183,6 +183,19 @@ class SRC721Service(
     /** 获取 NFT 当前供应量 */
     fun totalSupply(): BigInteger = src721.totalSupply()
 
+    /**
+     * 获取合约累计铸造数量（含已销毁的）。
+     *
+     * SDK 1.3.0 起已封装 `mintedTotal()`；
+     * 旧版合约没有该方法时调用会抛异常，此处返回 null，由调用方回退 [totalSupply]。
+     */
+    fun mintedTotal(): BigInteger? = try {
+        src721Burnable.mintedTotal()
+    } catch (e: Throwable) {
+        Log.d("SRC721.mintedTotal", "$contract not available: $e")
+        null
+    }
+
     /** 获取 NFT 剩余可铸造量 */
     fun remainSupply(): BigInteger = src721.remainSupply()
 
