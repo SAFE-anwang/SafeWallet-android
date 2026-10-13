@@ -263,5 +263,16 @@ class NftMetadataResolver(
 
         /** 持久化缓存使用的独立 MMKV 实例 ID */
         private const val MMKV_ID = "nft_metadata_cache"
+
+        /** 清空持久化元数据缓存（历史缓存清理用，下次解析重新写入）；成功返回 true */
+        fun clearPersistedCache(): Boolean {
+            return try {
+                MMKV.mmkvWithID(MMKV_ID, MMKV.SINGLE_PROCESS_MODE)?.clearAll()
+                true
+            } catch (e: Throwable) {
+                Log.e(TAG, "clearPersistedCache failed: $e")
+                false
+            }
+        }
     }
 }

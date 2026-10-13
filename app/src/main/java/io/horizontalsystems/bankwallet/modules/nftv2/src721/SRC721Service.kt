@@ -249,6 +249,20 @@ class SRC721Service(
     fun getLogoPayAddress(): String = src721.getLogoPayAddress().value
 
     /**
+     * 当前链上是否已部署该合约（运行时代码非空）。
+     *
+     * 读取异常时返回 true，按「存在」处理——调用方据此清理本地残留记录，
+     * 不能因为一次网络错误就把记录删掉。
+     */
+    fun hasCode(): Boolean = try {
+        val code = web3j.ethGetCode(contract, DefaultBlockParameterName.LATEST).send().code
+        !code.isNullOrBlank() && code != "0x"
+    } catch (e: Throwable) {
+        Log.d("SRC721.hasCode", "$contract error=$e")
+        true
+    }
+
+    /**
      * 判断链上合约是否支持销毁（burn）。
      *
      * 通过合约运行时代码中是否包含 `burn(uint256)` 的选择器 0x42966c68 判定，

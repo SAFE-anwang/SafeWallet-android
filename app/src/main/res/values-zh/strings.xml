@@ -436,7 +436,7 @@
     <string name="Nft_Assets">资产</string>
     <string name="Nft_Description">介绍</string>
     <string name="Nft_Events">交易记录</string>
-    <string name="Nft_Issue_Section_Title">NFT 发行</string>
+    <string name="Nft_Issue_Section_Title">发行NFT</string>
     <string name="Nft_Favorite">收藏</string>
     <string name="Nft_Tab_All">全部</string>
     <string name="Nft_Tab_Favorites">收藏</string>
@@ -467,6 +467,7 @@
     <string name="Nft_Manager_Empty">暂无 NFT 资产，请先发行</string>
     <string name="Nft_Minted_Count">已铸造：%s</string>
     <string name="Nft_Remain_Count">剩余：%s</string>
+    <string name="Nft_Burned_Count">已销毁：%s</string>
     <string name="Nft_Edit_Title">编辑 NFT</string>
     <string name="Nft_Edit_OrgName">组织名</string>
     <string name="Nft_Edit_OfficialUrl">官网 URL</string>

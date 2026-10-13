@@ -112,6 +112,8 @@ data class SRC721ManagerItem(
     val info: SRC721ContractInfo,
     val totalSupply: String? = null,
     val remainSupply: String? = null,
+    /** 已销毁数量 = 累计铸造量 - 当前供应量，旧合约无从计算时为 null */
+    val burnedTotal: String? = null,
     val loadFailed: Boolean = false,
     /** 合约 logo 的本地缓存路径，链上未设置时为 null */
     val logoPath: String? = null,

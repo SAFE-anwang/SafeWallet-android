@@ -63,65 +63,41 @@ class SRC721ManagerViewModel(
         refreshing = true
         emitState()
         viewModelScope.launch(Dispatchers.IO) {
-            // 合约索引来自 insight：一次请求即可拿到名称与已铸造数量，
-            // 避免逐个合约发链上调用（不兼容 SDK 的合约链上读取会直接失败）
-            val apiTokens = Safe4NftAssetsService.fetchTokens()
-                ?.associateBy { it.address.lowercase() }
-                .orEmpty()
-
-            val localByAddress = SRC721Storage.list(creator).associateBy { it.address.lowercase() }
             val removed = SRC721Storage.removedAddresses()
 
-            // 本地注册表 ∪ 接口中 creator 为本账户的合约
-            // （重装 App / 换设备后本地注册表会缺失，需要靠接口补全）
-            val addresses = LinkedHashSet<String>()
-            localByAddress.keys.forEach { addresses.add(it) }
-            apiTokens.values
-                .filter { it.creator.equals(creator, ignoreCase = true) }
-                .forEach { addresses.add(it.address.lowercase()) }
+            // 管理列表数据来自 insight 接口：每次刷新都重新请求（force=true），
+            // 不复用上次的索引缓存；请求失败时回退到最近一次成功的索引，
+            // 避免一次网络抖动就把列表清空。
+            val apiTokens = Safe4NftAssetsService.fetchTokens(force = true)
+                ?: Safe4NftAssetsService.cachedTokens()
+            val apiAddresses = apiTokens.map { it.address.lowercase() }.toSet()
 
-            val loaded = addresses
-                .filterNot { it in removed }
-                .mapNotNull { address ->
-                    val apiToken = apiTokens[address]
-                    val local = localByAddress[address]
-                    val info = local ?: apiToken?.let {
+            // 接口数据：顺序沿用接口返回顺序的倒序，只取 creator 为本账户的合约
+            val fromApi = apiTokens.asReversed()
+                .filter { it.creator.equals(creator, ignoreCase = true) }
+                .mapNotNull { apiToken ->
+                    val address = apiToken.address
+                    if (address.isBlank() || address.lowercase() in removed) return@mapNotNull null
+
+                    buildItem(
                         SRC721ContractInfo(
-                            address = it.address,
-                            name = it.displayName.orEmpty(),
-                            symbol = it.symbol.orEmpty(),
-                            // 接口不下发 burnable，本地无部署记录时先按不可销毁处理，
-                            // 随后由 resolveBurnableFromChain 从链上确认
+                            address = address,
+                            name = apiToken.displayName.orEmpty(),
+                            symbol = apiToken.symbol.orEmpty(),
+                            // 接口不下发 burnable，从链上确认，否则「销毁」按钮不会出现
                             burnable = false,
                             creator = creator,
-                        )
-                    } ?: return@mapNotNull null
-
-                    // 本地名称为空时用接口补全
-                    val named = if (info.name.isBlank()) {
-                        apiToken?.displayName?.let { info.copy(name = it) } ?: info
-                    } else {
-                        info
-                    }
-
-                    // 本地没有部署记录（重装 App / 换设备 / 他处发行）时，
-                    // 合约是否可销毁需要从链上确认，否则「销毁」按钮不会出现
-                    val resolved = if (local == null) resolveBurnableFromChain(named) else named
-
-                    // 合约 logo 由用户在编辑页付费设置，列表直接展示
-                    val logoPath = SRC721LogoProvider.fetchPath(resolved.address)
-                    val counts = readCounts(resolved.address, apiToken)
-                    SRC721ManagerItem(
-                        info = resolved,
-                        totalSupply = counts.first,
-                        remainSupply = counts.second,
-                        loadFailed = counts.first == null && counts.second == null,
-                        logoPath = logoPath,
+                        ),
+                        apiToken,
                     )
                 }
 
+            // 本地注册表里「接口没有、链上也不存在」的残留记录顺手清掉
+            pruneMissingLocalRecords(apiAddresses)
+
             withContext(Dispatchers.Main) {
-                items = loaded
+                // 管理列表只展示接口数据：本地注册表不再参与渲染
+                items = fromApi
                 emitState()
             }
         }.invokeOnCompletion {
@@ -135,12 +111,30 @@ class SRC721ManagerViewModel(
     }
 
     /**
-     * 本地无部署记录时，从链上确认合约是否可销毁。
+     * 组装列表行：确认可销毁标记、读取 logo 与供应数量。
      *
-     * 背景：`burnable` 只记录在本机注册表里（发布时写入），
-     * 重装 App、换设备或合约由他处发行时该记录缺失，
-     * 管理页就会当成不可销毁而不显示「销毁」按钮（insight 接口不下发该字段）。
-     * 确认成功后写回注册表，后续刷新直接用本地记录，不再查链。
+     * [apiToken] 为接口命中的合约信息；本地兜底记录（接口尚未收录）传 null。
+     */
+    private suspend fun buildItem(info: SRC721ContractInfo, apiToken: Safe4NftToken?): SRC721ManagerItem {
+        val resolved = resolveBurnableFromChain(info)
+        // 合约 logo 由用户在编辑页付费设置，列表直接展示
+        val logoPath = SRC721LogoProvider.fetchPath(resolved.address)
+        val counts = readCounts(resolved.address, apiToken)
+        return SRC721ManagerItem(
+            info = resolved,
+            totalSupply = counts.minted,
+            remainSupply = counts.remain,
+            burnedTotal = counts.burned,
+            loadFailed = counts.minted == null && counts.remain == null,
+            logoPath = logoPath,
+        )
+    }
+
+    /**
+     * 确认合约是否可销毁（运行时代码是否含 `burn()`）。
+     *
+     * insight 接口不下发该字段，因此按链上判定；本地发布记录已标记可销毁时直接沿用。
+     * 结果只用于本次渲染，不写回本地注册表，避免残留标记与链上实际不一致。
      */
     private fun resolveBurnableFromChain(info: SRC721ContractInfo): SRC721ContractInfo {
         if (info.burnable) return info
@@ -151,36 +145,66 @@ class SRC721ManagerViewModel(
             Log.d(TAG, "resolveBurnableFromChain ${info.address} failed: $e")
             false
         }
-        if (!burnable) {
-            Log.d(TAG, "resolveBurnableFromChain ${info.address}: not burnable")
-            return info
-        }
-
-        Log.d(TAG, "resolveBurnableFromChain ${info.address}: burnable, save to registry")
-        val detected = info.copy(burnable = true)
-        SRC721Storage.save(detected)
-        return detected
+        Log.d(TAG, "resolveBurnableFromChain ${info.address}: burnable=$burnable")
+        return if (burnable) info.copy(burnable = true) else info
     }
 
     /**
-     * 读取「已铸造 / 剩余可铸造」数量。
+     * 丢弃本地注册表中「接口没有、链上也不存在」的残留记录。
      *
-     * 已铸造数量取合约的 `mintedTotal()`（累计铸造量，含已销毁的），
-     * 旧合约没有该方法时回退 `totalSupply()`。
-     * 优先链上 SDK（能同时给出剩余量），失败时回退到 insight 接口的
-     * [Safe4NftToken.totalAssets]。接口不提供剩余可铸造量，故第二项为 null。
+     * 测试网重置、曾在另一条链部署等情况会让本地记录指向已不存在的合约，
+     * 这类记录既不在 insight 索引里，也读不到链上数据（列表里表现为 `--`），
+     * 这里从注册表清掉，避免继续污染合集名称兜底。
+     *
+     * 只删记录、不写「已删除」标记：合约之后若真的出现，接口数据仍会正常展示。
      */
-    private fun readCounts(address: String, apiToken: Safe4NftToken?): Pair<String?, String?> {
+    private fun pruneMissingLocalRecords(apiAddresses: Set<String>) {
+        SRC721Storage.list(creator)
+            .filter { it.address.lowercase() !in apiAddresses }
+            .forEach { info ->
+                // hasCode 读取异常时按「存在」处理，避免误删本地记录
+                if (SRC721Service(web3j, info.address).hasCode()) return@forEach
+                Log.d(TAG, "pruneMissingLocalRecords: drop ${info.address} (${info.name})")
+                SRC721Storage.dropRecord(info.address)
+            }
+    }
+
+    /** 合约数量信息：已铸造 / 剩余可铸造 / 已销毁 */
+    private data class SupplyCounts(
+        val minted: String?,
+        val remain: String?,
+        val burned: String?,
+    )
+
+    /**
+     * 读取「已铸造 / 剩余可铸造 / 已销毁」数量。
+     *
+     * - 已铸造：合约 `mintedTotal()`（累计铸造量，含已销毁的），旧合约没有该方法时回退 `totalSupply()`；
+     * - 剩余：`remainSupply()`；
+     * - 已销毁：`mintedTotal() - totalSupply()`；旧合约无 `mintedTotal()` 时无从计算，返回 null
+     *   （界面显示 `--`，不显示成 0 以免误导）。
+     *
+     * 链上读取失败时回退 insight 接口的 [Safe4NftToken.totalAssets]（仅已铸造，其余为 null）。
+     */
+    private fun readCounts(address: String, apiToken: Safe4NftToken?): SupplyCounts {
         try {
             val service = SRC721Service(web3j, address)
-            return Pair(
-                (service.mintedTotal() ?: service.totalSupply()).toString(),
-                service.remainSupply().toString()
+            val mintedTotal = service.mintedTotal()
+            val totalSupply = service.totalSupply()
+            return SupplyCounts(
+                minted = totalSupply.toString(),
+                remain = service.remainSupply().toString(),
+                // 理论上 mintedTotal >= totalSupply，这里兜底避免出现负数
+                burned = mintedTotal?.let { (it - totalSupply).max(BigInteger.ZERO).toString() }
             )
         } catch (e: Throwable) {
             Log.d(TAG, "链上读取 $address 失败，回退接口数据: $e")
         }
-        return Pair(apiToken?.totalAssets?.toString(), null)
+        return SupplyCounts(
+            minted = apiToken?.totalAssets?.toString(),
+            remain = null,
+            burned = null
+        )
     }
 
     fun showBurnDialog(info: SRC721ContractInfo) {

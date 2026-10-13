@@ -41,6 +41,16 @@ object Safe4NftAssetsService {
     /** `nft/tokens` 全量索引是否已加载 */
     private var tokensLoaded = false
 
+    /**
+     * 最近一次成功返回的 `nft/tokens` 结果（保持接口顺序）。
+     *
+     * [tokens] 是 ConcurrentHashMap，遍历顺序不确定，而接口顺序是有意义的
+     * （管理列表按它的倒序展示），因此额外保留一份有序结果：
+     * 缓存路径据此返回，接口失败时也据此回退。
+     */
+    @Volatile
+    private var lastTokens: List<Safe4NftToken> = emptyList()
+
     /** 已绑定的链标识：0=主网，1=测试网 */
     private var boundChainType: Int = -1
     private var serviceInstance: Safe4InsightNftApi? = null
@@ -51,12 +61,29 @@ object Safe4NftAssetsService {
      * 主网与测试网的数据必须完全隔离，否则测试网的 NFT 会出现在主网列表，
      * 也会让 [Safe4NftActionDetector] 把测试网的合约误判为主网的 NFT 合约。
      */
+    /** 当前链标识：0=主网，1=测试网 */
+    private fun currentChainType(): Int = if (Chain.isSafe4TestMode) 1 else 0
+
+    /**
+     * 清空接口缓存（索引、有序索引、资产明细）并解绑当前链，
+     * 供历史缓存清理使用：下次调用会按当前链重新拉取。
+     */
+    @Synchronized
+    fun resetCaches() {
+        tokens.clear()
+        assetCache.clear()
+        lastTokens = emptyList()
+        tokensLoaded = false
+        boundChainType = -1
+    }
+
     @Synchronized
     private fun service(): Safe4InsightNftApi {
-        val chainType = if (Chain.isSafe4TestMode) 1 else 0
+        val chainType = currentChainType()
         if (chainType != boundChainType) {
             tokens.clear()
             assetCache.clear()
+            lastTokens = emptyList()
             tokensLoaded = false
             val baseUrl = if (chainType == 1) TESTNET_BASE_URL else MAINNET_BASE_URL
             serviceInstance = APIClient.retrofit(baseUrl, 30).create(Safe4InsightNftApi::class.java)
@@ -96,8 +123,10 @@ object Safe4NftAssetsService {
      * 避免逐个合约发链上 name() 调用。成功加载后不再重复请求。
      */
     suspend fun fetchTokens(force: Boolean = false): List<Safe4NftToken>? {
-        if (tokensLoaded && !force) {
-            return tokens.values.toList()
+        // 缓存只在同一条链内有效：链切换后必须重新拉取，
+        // 否则会把另一条链的索引当成当前链数据（测试网/主网 NFT 混在一起展示）
+        if (tokensLoaded && !force && boundChainType == currentChainType()) {
+            return cachedTokens()
         }
         val result = request { service().tokens() } ?: return null
         result.forEach { token ->
@@ -105,9 +134,18 @@ object Safe4NftAssetsService {
                 tokens[token.address.lowercase()] = token
             }
         }
+        lastTokens = result
         tokensLoaded = true
         return result
     }
+
+    /**
+     * 最近一次成功加载的合约索引（保持接口顺序），不发起网络请求。
+     *
+     * 供强制刷新失败时回退展示，避免一次网络抖动就把列表清空。
+     * 从未成功加载过时为空列表。
+     */
+    fun cachedTokens(): List<Safe4NftToken> = lastTokens.ifEmpty { tokens.values.toList() }
 
     /**
      * 取合集（合约）名称，按可靠性依次尝试三个来源：
@@ -120,12 +158,12 @@ object Safe4NftAssetsService {
      * 注意：`nft/tokens` 只覆盖部分合约，未收录的合约必须靠 2/3 才能拿到名称。
      */
     suspend fun fetchCollectionName(tokenAddress: String, web3j: Web3j? = null): String? {
-        // 1. 接口索引
-        tokens[tokenAddress.lowercase()]?.displayName?.let { return it }
+        // 1. 接口索引（仅当前链；链切换后由 fetchTokens 重新拉取）
+        currentTokens()[tokenAddress.lowercase()]?.displayName?.let { return it }
         if (!tokensLoaded) {
             fetchTokens()
         }
-        tokens[tokenAddress.lowercase()]?.displayName?.let { return it }
+        currentTokens()[tokenAddress.lowercase()]?.displayName?.let { return it }
 
         // 2. 本机注册表（自部署的合约一定有记录）
         localName(tokenAddress)?.let { return cacheName(tokenAddress, it) }
@@ -171,18 +209,27 @@ object Safe4NftAssetsService {
         }
     }
 
+    /**
+     * 当前链的合约索引。
+     *
+     * 索引缓存属于另一条链（刚切换过网络、还没重新拉取）时返回空表，
+     * 避免把上一条链的合约名称 / logo 当成本链数据展示。
+     */
+    private fun currentTokens(): Map<String, Safe4NftToken> =
+        if (boundChainType == currentChainType()) tokens else emptyMap()
+
     /** 合集 logo（接口 logoURI），可为空 */
     fun collectionLogo(tokenAddress: String): String? =
-        tokens[tokenAddress.lowercase()]?.logoURI?.takeIf { it.isNotBlank() }
+        currentTokens()[tokenAddress.lowercase()]?.logoURI?.takeIf { it.isNotBlank() }
 
     /**
      * 判断地址是否为已知的 NFT 合约。
      *
      * 依据 `nft/tokens` 索引，用于交易列表区分 NFT 操作与普通合约调用。
-     * 索引未加载时返回 false，避免误判。
+     * 索引未加载（或属于另一条链）时返回 false，避免误判。
      */
     fun isNftContract(address: String): Boolean =
-        tokens.containsKey(address.lowercase())
+        currentTokens().containsKey(address.lowercase())
 
     private suspend fun readOnChainName(web3j: Web3j, tokenAddress: String): String? =
         withContext(Dispatchers.IO) {
@@ -196,8 +243,9 @@ object Safe4NftAssetsService {
             }
         }
 
+    /** 资产明细缓存 key 带链标识：同一合约地址在两条链上是不同数据 */
     private fun cacheKey(tokenAddress: String, tokenId: String) =
-        "${tokenAddress.lowercase()}:${tokenId.lowercase()}"
+        "${currentChainType()}:${tokenAddress.lowercase()}:${tokenId.lowercase()}"
 
     private suspend fun <T> request(
         call: suspend () -> Safe4NftResponse<T>

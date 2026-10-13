@@ -121,7 +121,7 @@ class SRC721DeployViewModel(
                         name = name,
                         symbol = symbol,
                         burnable = type == SRC721DeployType.SRC721Burnable,
-                        creator = evmKitWrapper.evmKit.receiveAddress.hex
+                        creator = evmKitWrapper.evmKit.receiveAddress.hex,
                     )
                 )
             }

@@ -544,7 +544,7 @@
     <string name="Nft_Assets">Assets</string>
     <string name="Nft_Description">Description</string>
     <string name="Nft_Events">Activity</string>
-    <string name="Nft_Issue_Section_Title">NFT Issuance</string>
+    <string name="Nft_Issue_Section_Title">Issue NFT</string>
     <string name="Nft_Favorite">Favorite</string>
     <string name="Nft_Tab_All">All</string>
     <string name="Nft_Tab_Favorites">Favorites</string>
@@ -575,6 +575,7 @@
     <string name="Nft_Manager_Empty">No NFTs yet, deploy one first</string>
     <string name="Nft_Minted_Count">Minted: %s</string>
     <string name="Nft_Remain_Count">Remaining: %s</string>
+    <string name="Nft_Burned_Count">Burned: %s</string>
     <string name="Nft_Edit_Title">Edit NFT</string>
     <string name="Nft_Edit_OrgName">Org Name</string>
     <string name="Nft_Edit_OfficialUrl">Official URL</string>

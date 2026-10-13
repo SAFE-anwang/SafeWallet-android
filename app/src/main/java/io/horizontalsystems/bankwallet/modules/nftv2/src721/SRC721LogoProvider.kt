@@ -32,6 +32,22 @@ object SRC721LogoProvider {
     /** 链标识：0=主网，1=测试网 */
     private fun chainType(): Int = if (App.localStorage.isSafe4TestNet) 1 else 0
 
+    /** 负缓存 key 带链标识：同一地址在两条链上是不同合约 */
+    private fun emptyKey(contract: String): String = "${chainType()}:${contract.lowercase()}"
+
+    /** 清空全部 logo 缓存（两条链的文件与「无 logo」负缓存），下次读取重新上链获取；成功返回 true */
+    fun clearAll(): Boolean {
+        return try {
+            emptyChecked.clear()
+            val dir = File(App.instance.cacheDir, "src721_logos")
+            // 目录不存在时视为已清理
+            dir.deleteRecursively() || !dir.exists()
+        } catch (e: Throwable) {
+            Log.e(TAG, "clearAll failed", e)
+            false
+        }
+    }
+
     private fun dir(): File {
         val dir = File(App.instance.cacheDir, "src721_logos/${chainType()}")
         if (!dir.exists()) dir.mkdirs()
@@ -47,6 +63,7 @@ object SRC721LogoProvider {
                 ?.firstOrNull { it.name.startsWith(prefix(contract)) && it.length() > 0 }
                 ?.absolutePath
         } catch (e: Throwable) {
+            Log.d(TAG, "cachedPath failed: $contract, $e")
             null
         }
     }
@@ -71,7 +88,7 @@ object SRC721LogoProvider {
             dir().listFiles()
                 ?.filter { it.name.startsWith(prefix(contract)) }
                 ?.forEach { it.delete() }
-            emptyChecked.remove(contract.lowercase())
+            emptyChecked.remove(emptyKey(contract))
         } catch (e: Throwable) {
             Log.e(TAG, "invalidate logo failed: $contract", e)
         }
@@ -86,7 +103,7 @@ object SRC721LogoProvider {
     suspend fun fetchPath(contract: String): String? = withContext(Dispatchers.IO) {
         cachedPath(contract)?.let { return@withContext it }
 
-        val key = contract.lowercase()
+        val key = emptyKey(contract)
         val checkedAt = emptyChecked[key]
         if (checkedAt != null && System.currentTimeMillis() - checkedAt < EMPTY_TTL_MS) {
             return@withContext null

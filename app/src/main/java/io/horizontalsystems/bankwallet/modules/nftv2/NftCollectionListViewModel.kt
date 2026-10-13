@@ -22,6 +22,7 @@ import io.horizontalsystems.bankwallet.entities.nft.NftAddressMetadata
 import io.horizontalsystems.bankwallet.entities.nft.NftKey
 import io.horizontalsystems.bankwallet.entities.nft.NftRecord
 import io.horizontalsystems.bankwallet.modules.nftv2.src721.SRC721LogoProvider
+import io.horizontalsystems.ethereumkit.models.Chain
 import io.horizontalsystems.marketkit.models.BlockchainType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -82,6 +83,9 @@ class NftCollectionListViewModel(
      */
     private var promotedSafe4: List<Safe4NftToken> = emptyList()
 
+    /** 已加载的推广合集所属链（null=尚未加载）；链切换后必须重新拉取 */
+    private var promotedChainType: Int? = null
+
     init {
         viewModelScope.launch {
             nftAdapterManager.adaptersUpdatedFlow.collect { adaptersMap ->
@@ -98,6 +102,26 @@ class NftCollectionListViewModel(
             }
         }
         refresh()
+        reloadPromotedSafe4IfNeeded()
+    }
+
+    /**
+     * 链切换后重新拉取推广合集。
+     *
+     * 推广合集来自 `nft/tokens` 索引，索引与本地 logo 路径都是链隔离的：
+     * 不重拉会把上一条链的合集当成当前链的合集展示（测试网/主网数据混在一起）。
+     */
+    private fun reloadPromotedSafe4IfNeeded() {
+        val chainType = if (Chain.isSafe4TestMode) 1 else 0
+        if (promotedChainType == chainType) return
+
+        promotedChainType = chainType
+        // 先清空上一条链的推广合集与 logo 路径并重绘，
+        // 否则新数据回来前会短暂混显两条链的合集
+        promotedSafe4 = emptyList()
+        safe4LogoPaths.clear()
+        rebuildItems()
+
         loadPromotedSafe4()
     }
 
@@ -107,14 +131,18 @@ class NftCollectionListViewModel(
      */
     private fun loadPromotedSafe4() {
         viewModelScope.launch(Dispatchers.IO) {
-            promotedSafe4 = Safe4NftAssetsService.fetchTokens()
-                .orEmpty()
-                .filter { !it.logoURI.isNullOrBlank() }
+            // 接口失败时回退到最近一次成功的索引（缓存已按链隔离），
+            // 避免一次网络抖动把推广合集清空
+            val tokens = Safe4NftAssetsService.fetchTokens()
+                ?: Safe4NftAssetsService.cachedTokens()
+            promotedSafe4 = tokens.filter { !it.logoURI.isNullOrBlank() }
             rebuildItems()
         }
     }
 
     private fun subscribeToAdapters(adaptersMap: Map<NftKey, INftAdapter>) {
+        // 适配器重建通常意味着账户 / 网络切换，此时推广合集需要按新链重新拉取
+        reloadPromotedSafe4IfNeeded()
         collectJob?.cancel()
         collectJob = viewModelScope.launch {
             // 记录当前账户 id，供收藏过滤按账户读取（收藏数据按账户隔离存储）
@@ -357,6 +385,7 @@ class NftCollectionListViewModel(
 
     fun refresh() {
         uiState = uiState.copy(syncing = true)
+        reloadPromotedSafe4IfNeeded()
         nftAdapterManager.refresh()
         nftMetadataSyncer.refresh()
         // 若 3 秒内没有数据更新，结束刷新状态

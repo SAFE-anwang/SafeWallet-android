@@ -284,6 +284,16 @@ private fun SRC721ItemCard(
                     item.remainSupply ?: "--"
                 )
             )
+            // 仅可销毁合约才展示已销毁数量
+            if (item.info.burnable) {
+                Spacer(Modifier.width(16.dp))
+                body_grey(
+                    text = stringResource(
+                        R.string.Nft_Burned_Count,
+                        item.burnedTotal ?: "--"
+                    )
+                )
+            }
         }
 
         Spacer(Modifier.height(12.dp))

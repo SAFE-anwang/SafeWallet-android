@@ -18,8 +18,12 @@ data class SRC721ContractInfo(
 ) : Parcelable
 
 /**
- * 本机发行的 SRC721 合约注册表（MMKV 持久化），
- * 用于 NFT 管理列表和 NFT 资产展示（Safe4NftAdapter）。
+ * 本机发行的 SRC721 合约注册表（MMKV 持久化）。
+ *
+ * 管理列表以 insight 接口为主数据源，这里只作两类用途：
+ * - 刚发布、接口尚未索引的合约，用本地记录临时置顶展示；
+ * - 记录本机删除（隐藏）过的合约地址。
+ * 另外发布时登记的名称还用于接口未收录时的名称兜底查询。
  *
  * key 按链隔离：测试网发行的合约不应出现在主网的管理列表中。
  */
@@ -86,8 +90,8 @@ object SRC721Storage {
     /**
      * 已删除（本地隐藏）的合约地址。
      *
-     * 管理列表除了本地注册表，还会并入 insight 接口中 creator 为本账户的合约，
-     * 若只从注册表移除，刷新后合约会从接口再次出现，因此需要单独记录删除动作。
+     * 管理列表数据来自 insight 接口中 creator 为本账户的合约，
+     * 删除只写注册表无法阻止它下次刷新时再次出现，因此单独记录删除动作。
      */
     @Synchronized
     fun removedAddresses(): Set<String> {
@@ -143,6 +147,20 @@ object SRC721Storage {
         persist(all)
         // 记录删除动作，避免接口重新拉取时该合约又出现
         markRemoved(address)
+    }
+
+    /**
+     * 丢弃记录（不写「已删除」标记）。
+     *
+     * 用于清理链上已不存在的残留记录：与 [remove] 不同，这里不记录删除动作，
+     * 合约之后若真的存在，接口数据仍会正常展示。
+     */
+    @Synchronized
+    fun dropRecord(address: String) {
+        val all = list().toMutableList()
+        val before = all.size
+        all.removeAll { it.address.equals(address, ignoreCase = true) }
+        if (all.size != before) persist(all)
     }
 
     private fun persist(all: List<SRC721ContractInfo>) {
