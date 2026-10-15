@@ -481,13 +481,15 @@ private fun BalanceAssetsList(
                                 modifier = Modifier
                                     .size(28.dp)
                                     .clip(CircleShape)
-                                    .background(ComposeAppTheme.colors.blade),
-                                rippleColor = ComposeAppTheme.colors.leah
+                                    // NFT 入口高亮：用主题强调色（jacob）填充，
+                                    // 与流动性、交易等次级圆形按钮（灰底）区分开
+                                    .background(ComposeAppTheme.colors.jacob),
+                                rippleColor = ComposeAppTheme.colors.lawrence
                             ) {
                                 Text(
                                     text = "NFT",
                                     style = ComposeAppTheme.typography.microSB,
-                                    color = ComposeAppTheme.colors.leah,
+                                    color = ComposeAppTheme.colors.lawrence,
                                     maxLines = 1
                                 )
                             }
