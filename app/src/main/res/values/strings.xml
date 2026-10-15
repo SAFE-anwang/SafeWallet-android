@@ -2832,6 +2832,8 @@
     <string name="Nft_Tx_Create">NFT Create</string>
     <string name="Nft_Tx_Burn">NFT Burn</string>
     <string name="Nft_Tx_Promotion">NFT Promotion</string>
+    <string name="Nft_Tx_Send">NFT Sent</string>
+    <string name="Nft_Tx_Receive">NFT Received</string>
     <string name="Method_SRC20_Lock">SRC20 Locked</string>
     <string name="Method_USDT_Cross">USDT Cross</string>
     <string name="Get_Safe3_Test_Coin">Get SAFE Coin</string>

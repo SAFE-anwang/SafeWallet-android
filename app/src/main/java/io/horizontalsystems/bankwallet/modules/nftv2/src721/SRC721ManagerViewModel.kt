@@ -73,7 +73,7 @@ class SRC721ManagerViewModel(
             val apiAddresses = apiTokens.map { it.address.lowercase() }.toSet()
 
             // 接口数据：顺序沿用接口返回顺序的倒序，只取 creator 为本账户的合约
-            val fromApi = apiTokens.asReversed()
+            val fromApi = apiTokens
                 .filter { it.creator.equals(creator, ignoreCase = true) }
                 .mapNotNull { apiToken ->
                     val address = apiToken.address

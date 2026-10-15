@@ -6,7 +6,7 @@ import io.horizontalsystems.ethereumkit.models.Transaction
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 识别 SAFE4 链上 SRC721 的铸造 / 销毁交易。
+ * 识别 SAFE4 链上 SRC721 的铸造 / 销毁 / 转账交易。
  *
  * 判定依据是交易 input 的方法选择器，方法 id 在运行时由
  * [ContractMethodHelper.getMethodId] 计算，不硬编码魔数。
@@ -23,6 +23,14 @@ object Safe4NftActionDetector {
 
         /** 推广：setLogo 付费上传 logo（对应 SRC721Service.setLogo） */
         Promote,
+
+        /**
+         * 转账：safeTransferFrom / transferFrom。
+         *
+         * 方向（发送 / 接收）由调用方结合交易上下文判断：
+         * 本钱包发起的合约调用是「发送」，他人调用转入本钱包（外部合约调用）是「接收」。
+         */
+        Transfer,
     }
 
     /** 铸造相关方法签名（SRC721 / ERC721 常见形式） */
@@ -48,6 +56,13 @@ object Safe4NftActionDetector {
         "setLogo(bytes)",
     )
 
+    /** 转账相关方法签名（ERC721 标准形式，含带 data 的重载） */
+    private val transferSignatures = listOf(
+        "safeTransferFrom(address,address,uint256)",
+        "safeTransferFrom(address,address,uint256,bytes)",
+        "transferFrom(address,address,uint256)",
+    )
+
     /** 方法选择器 -> 动作类型，首次使用时计算一次并缓存 */
     private val actionByMethodId: Map<String, NftAction> by lazy {
         val result = ConcurrentHashMap<String, NftAction>()
@@ -59,6 +74,9 @@ object Safe4NftActionDetector {
         }
         promoteSignatures.forEach { signature ->
             selector(signature)?.let { result[it] = NftAction.Promote }
+        }
+        transferSignatures.forEach { signature ->
+            selector(signature)?.let { result[it] = NftAction.Transfer }
         }
         result
     }

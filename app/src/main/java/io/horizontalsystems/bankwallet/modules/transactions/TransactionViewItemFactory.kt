@@ -292,7 +292,8 @@ class TransactionViewItemFactory(
                     spam = record.spam,
                     icon = icon,
                     nftMetadata = transactionItem.nftMetadata,
-                    isRedeemEvent = isRedeemEvent
+                    isRedeemEvent = isRedeemEvent,
+                    nftAction = Safe4NftActionDetector.detect(record.transaction)
                 )
             }
 
@@ -1126,6 +1127,8 @@ class TransactionViewItemFactory(
             Safe4NftActionDetector.NftAction.Mint -> Translator.getString(R.string.Method_Nft_Mint)
             Safe4NftActionDetector.NftAction.Burn -> Translator.getString(R.string.Nft_Tx_Burn)
             Safe4NftActionDetector.NftAction.Promote -> Translator.getString(R.string.Nft_Tx_Promotion)
+            // 本钱包发起的 NFT 转账 → 发送
+            Safe4NftActionDetector.NftAction.Transfer -> Translator.getString(R.string.Nft_Tx_Send)
             null -> method ?: Translator.getString(R.string.Transactions_ContractCall)
         }
 
@@ -1158,7 +1161,8 @@ class TransactionViewItemFactory(
         spam: Boolean,
         icon: TransactionViewItem.Icon?,
         nftMetadata: Map<NftUid, NftAssetBriefMetadata>,
-        isRedeemEvent: Boolean = false
+        isRedeemEvent: Boolean = false,
+        nftAction: Safe4NftActionDetector.NftAction? = null
     ): TransactionViewItem {
 
         val (primaryValue: ColoredValue?, secondaryValue: ColoredValue?) = getValues(
@@ -1170,7 +1174,19 @@ class TransactionViewItemFactory(
 
         val title: String
         val subTitle: String
-        if (outgoingValues.isEmpty()) {
+        if (nftAction == Safe4NftActionDetector.NftAction.Transfer) {
+            // 他人调用 NFT 合约发起的转账：NFT 转入本钱包 → 接收
+            title = Translator.getString(R.string.Nft_Tx_Receive)
+            val addresses = incomingEvents.mapNotNull { it.address }.toSet().toList()
+
+            subTitle = if (addresses.size == 1) {
+                Translator.getString(
+                    R.string.Transactions_From, mapped(addresses.first(), blockchainType)
+                )
+            } else {
+                Translator.getString(R.string.Transactions_Multiple)
+            }
+        } else if (outgoingValues.isEmpty()) {
             title = if (isRedeemEvent) Translator.getString(R.string.Method_Redeem_Available) else Translator.getString(R.string.Transactions_Receive)
             val addresses = incomingEvents.mapNotNull { it.address }.toSet().toList()
 

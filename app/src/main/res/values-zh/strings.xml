@@ -2468,6 +2468,8 @@
     <string name="Nft_Tx_Create">NFT创建</string>
     <string name="Nft_Tx_Burn">NFT销毁</string>
     <string name="Nft_Tx_Promotion">NFT推广</string>
+    <string name="Nft_Tx_Send">NFT发送</string>
+    <string name="Nft_Tx_Receive">NFT接收</string>
     <string name="Method_SRC20_Lock">SRC20 锁仓</string>
     <string name="Method_USDT_Cross">USDT 跨链</string>
     <string name="Get_Safe3_Test_Coin">SAFE领取</string>

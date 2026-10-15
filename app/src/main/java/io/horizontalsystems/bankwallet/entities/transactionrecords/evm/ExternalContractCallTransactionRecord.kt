@@ -6,7 +6,8 @@ import io.horizontalsystems.ethereumkit.models.Transaction
 import io.horizontalsystems.marketkit.models.Token
 
 class ExternalContractCallTransactionRecord(
-    transaction: Transaction,
+    // 暴露为属性：交易列表需要从 input 判断 NFT 转账（转入 = 接收）
+    val transaction: Transaction,
     baseToken: Token,
     source: TransactionSource,
     val incomingEvents: List<TransferEvent>,
