@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.modules.walletconnect.request
 
 import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.JsonParser
@@ -19,6 +20,8 @@ import org.json.JSONArray
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
+private const val TAG = "WCRequestEvmViewModel"
 
 private const val PERSONAL_SIGN_METHOD = "personal_sign"
 private const val TYPED_DATA_METHOD = "eth_signTypedData"
@@ -47,7 +50,18 @@ class WCRequestEvmViewModel(
     private val chainAddress = chainData?.address
 
     private val evmKitWrapper: EvmKitWrapper? = getEthereumKitWrapper()
-    var sessionRequestUi: SessionRequestUI = generateSessionRequestUI()
+
+    /**
+     * 构造阶段解析请求数据，异常一律降级为 [SessionRequestUI.Initial]（页面显示错误态）。
+     *
+     * 这里在 ViewModel 初始化时执行，任何抛异常都会直接「打开请求页即崩溃」
+     * （历史上 `getParam` 的 `Invalid Data` 就是这样崩的），因此整体兜底。
+     */
+    var sessionRequestUi: SessionRequestUI = runCatching { generateSessionRequestUI() }
+        .getOrElse { e ->
+            Log.e(TAG, "generateSessionRequestUI failed", e)
+            SessionRequestUI.Initial
+        }
 
     private fun clearSessionRequest() {
         sessionRequestUi = SessionRequestUI.Initial
@@ -67,7 +81,7 @@ class WCRequestEvmViewModel(
                     peerUri = dapp.peerUrl,
                     peerDescription = "",
                 ),
-                topic = "dapp-bridge",
+                topic = WCDelegate.DAPP_BRIDGE_TOPIC,
                 requestId = dapp.id,
                 param = getParam(dapp.method, dapp.params),
                 method = dapp.method,
@@ -105,15 +119,9 @@ class WCRequestEvmViewModel(
     /** Extract param from DApp request params JSON array string */
     private fun getParam(method: String, paramsJson: String): String = when (method) {
         PERSONAL_SIGN_METHOD -> extractMessageParamFromPersonalSign(paramsJson)
-        ETH_SIGN_METHOD -> {
-            val arr = JsonParser.parseString(paramsJson).asJsonArray
-            if (arr.size() >= 2) arr.get(1).asString else throw Exception("Invalid Data")
-        }
-        TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD -> {
-            val arr = JsonParser.parseString(paramsJson).asJsonArray
-            arr.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
-                ?: throw Exception("Invalid Data")
-        }
+        ETH_SIGN_METHOD -> extractStringParam(paramsJson) ?: fallbackParam(method, paramsJson)
+        TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD ->
+            extractJsonObjectParam(paramsJson) ?: fallbackParam(method, paramsJson)
         else -> paramsJson
     }
 
@@ -123,37 +131,56 @@ class WCRequestEvmViewModel(
                 extractMessageParamFromPersonalSign(sessionRequest.params)
             }
 
-            ETH_SIGN_METHOD -> {
-                val params = JsonParser.parseString(sessionRequest.params).asJsonArray
-                if (params.size() >= 2) {
-                    params.get(1).asString
-                } else {
-                    throw Exception("Invalid Data")
-                }
-            }
+            ETH_SIGN_METHOD -> extractStringParam(sessionRequest.params)
+                ?: fallbackParam(sessionRequest.method, sessionRequest.params)
 
-            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD -> {
-                val params = JsonParser.parseString(sessionRequest.params).asJsonArray
-                params.firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
-                    ?: throw Exception("Invalid Data")
-            }
+            TYPED_DATA_METHOD, TYPED_DATA_METHOD_V4, SEND_TRANSACTION_METHOD, SIGN_TRANSACTION_METHOD ->
+                extractJsonObjectParam(sessionRequest.params)
+                    ?: fallbackParam(sessionRequest.method, sessionRequest.params)
 
             else -> {
                 sessionRequest.params
             }
         }
 
+    /** params[1] 的字符串值；参数不合规时返回 null（不抛异常） */
+    private fun extractStringParam(paramsJson: String): String? = runCatching {
+        JsonParser.parseString(paramsJson).asJsonArray.get(1).asString
+    }.getOrNull()
+
+    /** params 中第一个 JSON 对象；参数不合规时返回 null（不抛异常） */
+    private fun extractJsonObjectParam(paramsJson: String): String? = runCatching {
+        JsonParser.parseString(paramsJson).asJsonArray
+            .firstOrNull { it.isJsonObject }?.asJsonObject?.toString()
+    }.getOrNull()
+
+    /**
+     * 参数不合规时退化为「展示原始参数」。
+     *
+     * 这个方法在 ViewModel 构造（[generateSessionRequestUI]）里执行，
+     * 一旦抛异常就是「打开请求页即崩溃」，因此这里只记日志、返回原始内容，
+     * 让用户至少能看到请求内容并自行拒绝。签名参数确实不可用时，
+     * [allow] 会抛异常由页面提示错误，不会静默签错数据。
+     */
+    private fun fallbackParam(method: String, paramsJson: String): String {
+        Log.w(TAG, "invalid params for $method, fallback to raw: $paramsJson")
+        return paramsJson
+    }
+
     private fun extractMessageParamFromPersonalSign(input: String): String {
-        val jsonArray = JSONArray(input)
-        return if (jsonArray.length() > 0) {
-            val message = jsonArray.getString(0)
-            try {
-                String(message.hexStringToByteArray())
-            } catch (_: Throwable) {
-                message
-            }
+        val jsonArray = runCatching { JSONArray(input) }.getOrNull()
+            ?: return fallbackParam(PERSONAL_SIGN_METHOD, input)
+
+        val message = if (jsonArray.length() > 0) {
+            runCatching { jsonArray.getString(0) }.getOrNull()
         } else {
-            throw IllegalArgumentException()
+            null
+        } ?: return fallbackParam(PERSONAL_SIGN_METHOD, input)
+
+        return try {
+            String(message.hexStringToByteArray())
+        } catch (_: Throwable) {
+            message
         }
     }
 

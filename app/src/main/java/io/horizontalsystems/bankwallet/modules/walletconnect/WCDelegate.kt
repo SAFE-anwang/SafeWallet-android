@@ -19,6 +19,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 object WCDelegate : DAppServiceCallback {
+
+    /**
+     * 内置 DApp 浏览器（JS bridge）请求使用的伪 topic。
+     *
+     * 这类请求没有 WalletConnect 会话，响应只能直接回调 [DAppRequest]，
+     * 不能交给 DAppManager —— 否则 SDK 会抛
+     * `cannot find sequence for given topic: dapp-bridge`。
+     */
+    const val DAPP_BRIDGE_TOPIC = "dapp-bridge"
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _walletEvents = MutableSharedFlow<HSDAppEvent>()
@@ -142,6 +152,33 @@ object WCDelegate : DAppServiceCallback {
         )
     }
 
+    /**
+     * 处理内置 DApp 浏览器桥接请求的响应 / 拒绝。
+     *
+     * 桥接请求没有 WalletConnect 会话，走 [DAppManager] 会抛
+     * `cannot find sequence for given topic: dapp-bridge`，因此直接回调 JS。
+     * 返回 true 表示该请求属于桥接、已在此处理完毕。
+     */
+    private fun handleDAppBridgeRequest(
+        requestId: Long,
+        topic: String,
+        action: (DAppRequest) -> Unit,
+    ): Boolean {
+        if (topic != DAPP_BRIDGE_TOPIC && dappRequestEvent?.id != requestId) return false
+
+        dappRequestEvent?.takeIf { it.id == requestId }?.let { dapp ->
+            runCatching { action(dapp) }
+                .onFailure { error ->
+                    scope.launch { _walletEvents.emit(HSDAppEvent.Error(error)) }
+                }
+        }
+
+        dappRequestEvent = null
+        sessionRequestEvent = null
+        scope.launch { _pendingRequestEvents.emit(Unit) }
+        return true
+    }
+
     fun respondPendingRequest(
         requestId: Long,
         topic: String,
@@ -149,6 +186,12 @@ object WCDelegate : DAppServiceCallback {
         onSuccessResult: () -> Unit = {},
         onErrorResult: (Throwable) -> Unit = {},
     ) {
+        // 内置 DApp 桥接请求：直接回调 JS，不进入 WalletConnect SDK
+        if (handleDAppBridgeRequest(requestId, topic) { dapp -> dapp.onRespond(requestId, data) }) {
+            onSuccessResult()
+            return
+        }
+
         DAppManager.respondRequest(
             topic = topic,
             requestId = requestId,
@@ -184,6 +227,12 @@ object WCDelegate : DAppServiceCallback {
         onSuccessResult: () -> Unit = {},
         onErrorResult: (Throwable) -> Unit = {},
     ) {
+        // 内置 DApp 桥接请求：直接回调 JS，不进入 WalletConnect SDK
+        if (handleDAppBridgeRequest(requestId, topic) { dapp -> dapp.onReject(requestId) }) {
+            onSuccessResult()
+            return
+        }
+
         DAppManager.rejectRequest(
             topic = topic,
             requestId = requestId,
