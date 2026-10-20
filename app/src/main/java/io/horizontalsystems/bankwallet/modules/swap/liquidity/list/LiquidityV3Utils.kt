@@ -353,6 +353,21 @@ object LiquidityV3Utils {
     }
 
     /**
+     * Encode burn call：销毁空仓位（NFT）。
+     *
+     * 必须在 decreaseLiquidity + collect 之后调用，
+     * 此时仓位的 liquidity 与 tokensOwed 都已归零（否则会 revert）。
+     */
+    fun encodeBurn(tokenId: BigInteger): String {
+        val inputParameters: MutableList<org.web3j.abi.datatypes.Type<*>> = mutableListOf()
+        inputParameters.add(Uint256(tokenId))
+        return FunctionEncoder.encode(
+            MethodID.generate("burn(uint256)"),
+            inputParameters
+        )
+    }
+
+    /**
      * Encode collect call for V3 position fee/token collection
      */
     fun encodeCollect(

@@ -778,7 +778,11 @@ class LiquidityListViewModel(
                 val removePercentDecimal = BigDecimal(removePercent).divide(BigDecimal("100"), 4, RoundingMode.DOWN)
                 val liquidityToRemove = BigDecimal(positionData.liquidity).multiply(removePercentDecimal).toBigInteger()
 
-                if (liquidityToRemove == BigInteger.ZERO) return@launch
+                // 上次 collect 失败时流动性可能已经减完，仓位只剩 tokensOwed 待提取：
+                // 这种情况也要继续走 collect，不能直接返回
+                val hasTokensOwed =
+                    positionData.tokensOwed0.signum() > 0 || positionData.tokensOwed1.signum() > 0
+                if (liquidityToRemove == BigInteger.ZERO && !hasTokensOwed) return@launch
 
                 val deadline = Constants.getDeadLine()
 
@@ -797,37 +801,103 @@ class LiquidityListViewModel(
                     inputParameters
                 )
 
-                // Send decreaseLiquidity transaction first
-                val nonce = web3j.ethGetTransactionCount(recipient, DefaultBlockParameterName.LATEST)
-                    .send().transactionCount
+                val credentials = Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16))
                 val gasPrice = web3j.ethGasPrice().send().gasPrice
+                var nonce = web3j.ethGetTransactionCount(recipient, DefaultBlockParameterName.LATEST)
+                    .send().transactionCount
 
-                val hash = TransactionContractSend.send(
+                val successText = if (App.languageManager.currentLanguage == "zh") {
+                    "V3移除成功"
+                } else {
+                    "V3 Remove Success"
+                }
+                val failText = if (App.languageManager.currentLanguage == "zh") {
+                    "V3移除失败"
+                } else {
+                    "V3 Remove Fail"
+                }
+
+                // 第一步：decreaseLiquidity 只是把这个仓位里的数量减掉。
+                // 代币不会自动转账，而是记在仓位的 tokensOwed 上，必须再 collect 才会到账
+                if (liquidityToRemove > BigInteger.ZERO) {
+                    val decreaseHash = TransactionContractSend.send(
+                        web3j,
+                        credentials,
+                        positionManager,
+                        decreaseEncode,
+                        BigInteger.ZERO,
+                        nonce,
+                        gasPrice,
+                        BigInteger("500000")
+                    )
+                    Log.i("V3Remove", "decreaseLiquidity hash=$decreaseHash")
+
+                    if (decreaseHash == null) {
+                        withContext(Dispatchers.Main) { removeErrorMessage.value = failText }
+                        return@launch
+                    }
+
+                    // 第二步必须在第一步上链之后发，否则 collect 取不到减少后的本金
+                    if (!waitForReceipt(web3j, decreaseHash)) {
+                        Log.e("V3Remove", "decreaseLiquidity not confirmed: $decreaseHash")
+                        withContext(Dispatchers.Main) {
+                            removeErrorMessage.value = if (App.languageManager.currentLanguage == "zh") {
+                                "decreaseLiquidity 未确认，请稍后重试"
+                            } else {
+                                "decreaseLiquidity not confirmed, please retry"
+                            }
+                        }
+                        return@launch
+                    }
+
+                    nonce = nonce.add(BigInteger.ONE)
+                }
+
+                // 第二步：collect 把本金 + 手续费转回账户（uint128 最大值表示全部提取）
+                val collectEncode = LiquidityV3Utils.encodeCollect(
+                    item.tokenId,
+                    recipient,
+                    MAX_UINT128,
+                    MAX_UINT128
+                )
+                val collectHash = TransactionContractSend.send(
                     web3j,
-                    Credentials.create(evmKitWrapper.signer!!.privateKey.toString(16)),
+                    credentials,
                     positionManager,
-                    decreaseEncode,
+                    collectEncode,
                     BigInteger.ZERO,
                     nonce,
                     gasPrice,
-                    BigInteger("500000")
+                    BigInteger("300000")
                 )
+                Log.i("V3Remove", "collect hash=$collectHash")
 
-                Log.i("Execute V3 decreaseLiquidity Hash", "= $hash")
                 withContext(Dispatchers.Main) {
-                    if (hash != null) {
+                    if (collectHash != null) {
                         removeItem(index)
-                        removeSuccessMessage.value = if (App.languageManager.currentLanguage == "zh") {
-                            "V3移除成功"
-                        } else {
-                            "V3 Remove Success"
-                        }
+                        removeSuccessMessage.value = successText
                     } else {
-                        removeErrorMessage.value = if (App.languageManager.currentLanguage == "zh") {
-                            "V3移除失败"
-                        } else {
-                            "V3 Remove Fail"
-                        }
+                        removeErrorMessage.value = failText
+                    }
+                }
+
+                // 收尾：全部移除时销毁空仓位（NFT），否则下次刷新会残留一条 0 金额仓位。
+                // best-effort：失败只记日志，币已通过 collect 到账，不影响上面的结果提示
+                if (collectHash != null && liquidityToRemove >= positionData.liquidity) {
+                    if (waitForReceipt(web3j, collectHash)) {
+                        val burnHash = TransactionContractSend.send(
+                            web3j,
+                            credentials,
+                            positionManager,
+                            LiquidityV3Utils.encodeBurn(item.tokenId),
+                            BigInteger.ZERO,
+                            nonce.add(BigInteger.ONE),
+                            gasPrice,
+                            BigInteger("200000")
+                        )
+                        Log.i("V3Remove", "burn hash=$burnHash")
+                    } else {
+                        Log.w("V3Remove", "collect not confirmed, skip burn")
                     }
                 }
             } catch (e: Throwable) {
@@ -837,6 +907,37 @@ class LiquidityListViewModel(
                 }
             }
         }
+    }
+
+    /** uint128 最大值：collect 时作为 amount0Max / amount1Max，表示把仓位里欠的币全部提取 */
+    private val MAX_UINT128: BigInteger = BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE)
+
+    /**
+     * 等待交易打包，返回是否执行成功（receipt.status == 1）。
+     *
+     * V3 移除流动性是「decreaseLiquidity → collect」两笔交易，
+     * 第二笔必须在第一笔上链后发送，否则取不到减少的本金；超时视为未确认。
+     */
+    private suspend fun waitForReceipt(
+        web3j: Web3j,
+        hash: String,
+        timeoutMs: Long = 120_000,
+        pollIntervalMs: Long = 2_000,
+    ): Boolean {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            val receipt = try {
+                web3j.ethGetTransactionReceipt(hash).send().transactionReceipt.orElse(null)
+            } catch (e: Throwable) {
+                Log.e("V3Remove", "getTransactionReceipt failed: $e")
+                null
+            }
+            if (receipt != null) {
+                return receipt.isStatusOK
+            }
+            delay(pollIntervalMs)
+        }
+        return false
     }
 
     fun removeLiquidity(index: Int, walletA: Wallet, tokenAAddress: String, walletB: Wallet, tokenBAddress: String) {
